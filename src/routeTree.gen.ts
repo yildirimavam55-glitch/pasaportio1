@@ -14,6 +14,11 @@ import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as EsimRouteImport } from './routes/esim'
 import { Route as LoungeRouteImport } from './routes/lounge'
+import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin.index'
+import { Route as AuthenticatedAdminCustomersRouteImport } from './routes/_authenticated/admin.customers'
+import { Route as AuthenticatedAdminOrdersRouteImport } from './routes/_authenticated/admin.orders'
+import { Route as AuthenticatedAdminProductsRouteImport } from './routes/_authenticated/admin.products'
+import { Route as AuthenticatedAdminProvidersRouteImport } from './routes/_authenticated/admin.providers'
 import { Route as AuthenticatedHesabimIndexRouteImport } from './routes/_authenticated/hesabim.index'
 import { Route as AuthenticatedHesabimSeyahatlerRouteImport } from './routes/_authenticated/hesabim.seyahatler'
 
@@ -41,6 +46,35 @@ const LoungeRoute = LoungeRouteImport.update({
   path: '/lounge',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedAdminIndexRoute = AuthenticatedAdminIndexRouteImport.update({
+  id: '/admin/',
+  path: '/admin/',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedAdminCustomersRoute =
+  AuthenticatedAdminCustomersRouteImport.update({
+    id: '/admin/customers',
+    path: '/admin/customers',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedAdminOrdersRoute =
+  AuthenticatedAdminOrdersRouteImport.update({
+    id: '/admin/orders',
+    path: '/admin/orders',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedAdminProductsRoute =
+  AuthenticatedAdminProductsRouteImport.update({
+    id: '/admin/products',
+    path: '/admin/products',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedAdminProvidersRoute =
+  AuthenticatedAdminProvidersRouteImport.update({
+    id: '/admin/providers',
+    path: '/admin/providers',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedHesabimIndexRoute =
   AuthenticatedHesabimIndexRouteImport.update({
     id: '/hesabim/',
@@ -59,7 +93,12 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/esim': typeof EsimRoute
   '/lounge': typeof LoungeRoute
+  '/admin/customers': typeof AuthenticatedAdminCustomersRoute
+  '/admin/orders': typeof AuthenticatedAdminOrdersRoute
+  '/admin/products': typeof AuthenticatedAdminProductsRoute
+  '/admin/providers': typeof AuthenticatedAdminProvidersRoute
   '/hesabim/seyahatler': typeof AuthenticatedHesabimSeyahatlerRoute
+  '/admin/': typeof AuthenticatedAdminIndexRoute
   '/hesabim/': typeof AuthenticatedHesabimIndexRoute
 }
 export interface FileRoutesByTo {
@@ -67,7 +106,12 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/esim': typeof EsimRoute
   '/lounge': typeof LoungeRoute
+  '/admin/customers': typeof AuthenticatedAdminCustomersRoute
+  '/admin/orders': typeof AuthenticatedAdminOrdersRoute
+  '/admin/products': typeof AuthenticatedAdminProductsRoute
+  '/admin/providers': typeof AuthenticatedAdminProvidersRoute
   '/hesabim/seyahatler': typeof AuthenticatedHesabimSeyahatlerRoute
+  '/admin': typeof AuthenticatedAdminIndexRoute
   '/hesabim': typeof AuthenticatedHesabimIndexRoute
 }
 export interface FileRoutesById {
@@ -77,15 +121,41 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/esim': typeof EsimRoute
   '/lounge': typeof LoungeRoute
+  '/_authenticated/admin/customers': typeof AuthenticatedAdminCustomersRoute
+  '/_authenticated/admin/orders': typeof AuthenticatedAdminOrdersRoute
+  '/_authenticated/admin/products': typeof AuthenticatedAdminProductsRoute
+  '/_authenticated/admin/providers': typeof AuthenticatedAdminProvidersRoute
   '/_authenticated/hesabim/seyahatler': typeof AuthenticatedHesabimSeyahatlerRoute
+  '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
   '/_authenticated/hesabim/': typeof AuthenticatedHesabimIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
-    '/' | '/auth' | '/esim' | '/lounge' | '/hesabim/seyahatler' | '/hesabim/'
+    | '/'
+    | '/auth'
+    | '/esim'
+    | '/lounge'
+    | '/admin/customers'
+    | '/admin/orders'
+    | '/admin/products'
+    | '/admin/providers'
+    | '/hesabim/seyahatler'
+    | '/admin/'
+    | '/hesabim/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/auth' | '/esim' | '/lounge' | '/hesabim/seyahatler' | '/hesabim'
+  to:
+    | '/'
+    | '/auth'
+    | '/esim'
+    | '/lounge'
+    | '/admin/customers'
+    | '/admin/orders'
+    | '/admin/products'
+    | '/admin/providers'
+    | '/hesabim/seyahatler'
+    | '/admin'
+    | '/hesabim'
   id:
     | '__root__'
     | '/'
@@ -93,7 +163,12 @@ export interface FileRouteTypes {
     | '/auth'
     | '/esim'
     | '/lounge'
+    | '/_authenticated/admin/customers'
+    | '/_authenticated/admin/orders'
+    | '/_authenticated/admin/products'
+    | '/_authenticated/admin/providers'
     | '/_authenticated/hesabim/seyahatler'
+    | '/_authenticated/admin/'
     | '/_authenticated/hesabim/'
   fileRoutesById: FileRoutesById
 }
@@ -142,6 +217,41 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LoungeRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/admin/': {
+      id: '/_authenticated/admin/'
+      path: '/admin'
+      fullPath: '/admin/'
+      preLoaderRoute: typeof AuthenticatedAdminIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/admin/customers': {
+      id: '/_authenticated/admin/customers'
+      path: '/admin/customers'
+      fullPath: '/admin/customers'
+      preLoaderRoute: typeof AuthenticatedAdminCustomersRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/admin/orders': {
+      id: '/_authenticated/admin/orders'
+      path: '/admin/orders'
+      fullPath: '/admin/orders'
+      preLoaderRoute: typeof AuthenticatedAdminOrdersRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/admin/products': {
+      id: '/_authenticated/admin/products'
+      path: '/admin/products'
+      fullPath: '/admin/products'
+      preLoaderRoute: typeof AuthenticatedAdminProductsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/admin/providers': {
+      id: '/_authenticated/admin/providers'
+      path: '/admin/providers'
+      fullPath: '/admin/providers'
+      preLoaderRoute: typeof AuthenticatedAdminProvidersRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/hesabim/': {
       id: '/_authenticated/hesabim/'
       path: '/hesabim'
@@ -160,12 +270,22 @@ declare module '@tanstack/react-router' {
 }
 
 interface AuthenticatedRouteRouteChildren {
+  AuthenticatedAdminCustomersRoute: typeof AuthenticatedAdminCustomersRoute
+  AuthenticatedAdminOrdersRoute: typeof AuthenticatedAdminOrdersRoute
+  AuthenticatedAdminProductsRoute: typeof AuthenticatedAdminProductsRoute
+  AuthenticatedAdminProvidersRoute: typeof AuthenticatedAdminProvidersRoute
   AuthenticatedHesabimSeyahatlerRoute: typeof AuthenticatedHesabimSeyahatlerRoute
+  AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
   AuthenticatedHesabimIndexRoute: typeof AuthenticatedHesabimIndexRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedAdminCustomersRoute: AuthenticatedAdminCustomersRoute,
+  AuthenticatedAdminOrdersRoute: AuthenticatedAdminOrdersRoute,
+  AuthenticatedAdminProductsRoute: AuthenticatedAdminProductsRoute,
+  AuthenticatedAdminProvidersRoute: AuthenticatedAdminProvidersRoute,
   AuthenticatedHesabimSeyahatlerRoute: AuthenticatedHesabimSeyahatlerRoute,
+  AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
   AuthenticatedHesabimIndexRoute: AuthenticatedHesabimIndexRoute,
 }
 
