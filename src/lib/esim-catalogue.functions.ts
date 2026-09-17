@@ -23,6 +23,12 @@ export type EsimPackage = {
   isTest: boolean;
 };
 
+export type EsimStartingPrice = {
+  targetId: string;
+  amount: number;
+  currency: string;
+};
+
 function publicClient() {
   const key = process.env["SUPABASE_PUBLISHABLE_KEY"]!;
   return createClient<Database>(process.env["SUPABASE_URL"]!, key, {
@@ -103,4 +109,46 @@ export const listEsimPackages = createServerFn({ method: "GET" })
       .filter((pkg) => (wanted.length ? wanted.every((iso) => pkg.coverage.includes(iso)) : true))
       .filter((pkg) => pkg.salePrice != null && pkg.salePrice > 0)
       .filter((pkg) => showTest || !pkg.isTest);
+  });
+
+/** Lowest current customer price for each requested country/route coverage target. */
+export const listEsimStartingPrices = createServerFn({ method: "GET" })
+  .inputValidator((input: { targets: Array<{ id: string; coverageIsos: string[] }> }) => ({
+    targets: (input.targets ?? []).slice(0, 12).map((target) => ({
+      id: String(target.id).slice(0, 40),
+      coverageIsos: (target.coverageIsos ?? []).map((iso) => String(iso).toUpperCase().slice(0, 2)).filter(Boolean).slice(0, 25),
+    })),
+  }))
+  .handler(async ({ data }): Promise<EsimStartingPrice[]> => {
+    const { data: rows, error } = await publicClient()
+      .from("service_products")
+      .select("currency, sale_price, is_test, esim_product_details(coverage_country_isos, country_iso)")
+      .eq("service_type", "ESIM")
+      .eq("lifecycle", "PUBLISHED")
+      .eq("customer_visible", true)
+      .eq("provider_available", true)
+      .eq("margin_flagged", false)
+      .gt("sale_price", 0);
+    if (error) throw new Error(error.message);
+
+    const showTest = await isTestCatalogueVisible();
+    const products = (rows ?? []).flatMap((row) => {
+      if (row.is_test && !showTest) return [];
+      const details = (Array.isArray(row.esim_product_details) ? row.esim_product_details[0] : row.esim_product_details) as
+        | { coverage_country_isos: string[] | null; country_iso: string | null }
+        | null
+        | undefined;
+      const coverage = [...(details?.coverage_country_isos ?? []), ...(details?.country_iso ? [details.country_iso] : [])]
+        .map((iso) => String(iso).toUpperCase());
+      const amount = row.sale_price == null ? null : Number(row.sale_price);
+      return amount && amount > 0 ? [{ amount, currency: row.currency ?? "EUR", coverage }] : [];
+    });
+
+    return data.targets.flatMap((target) => {
+      const matching = products
+        .filter((product) => target.coverageIsos.every((iso) => product.coverage.includes(iso)))
+        .sort((a, b) => a.amount - b.amount);
+      const lowest = matching[0];
+      return lowest ? [{ targetId: target.id, amount: lowest.amount, currency: lowest.currency }] : [];
+    });
   });
