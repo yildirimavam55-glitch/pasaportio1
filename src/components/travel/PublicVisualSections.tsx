@@ -62,7 +62,7 @@ const COPY = {
     esimSteps: [["Destination", "Choose where you are going"], ["Package", "Find the option that fits"], ["Payment", "Complete it securely"], ["QR install", "Add it to your phone"]], loungeSteps: [["Airport", "Choose your flight point"], ["Lounge", "Compare the amenities"], ["Booking", "Reserve your entry"], ["QR / Voucher", "Show it at the door"]],
     deliveryEyebrow: "Digital delivery", deliveryTitle: { esim: "Your eSIM stays within reach", lounge: "Your booking stays in one place" }, deliveryLead: { esim: "Open your QR in your account, view the guide, and receive the details by email too.", lounge: "Your entry code, terminal and booking details stay in your account and arrive by email." }, accountNote: "Stored securely in your account", emailNote: "Details are also sent by email", sample: "Delivery preview", ready: { esim: "Your eSIM is ready", lounge: "Booking ready" }, primary: { esim: "Show QR code", lounge: "Show entry code" }, guide: "Installation guide", email: "Send by email", crossAction: { esim: "View Lounge options", lounge: "Find my eSIM" }, amenities: ["Wi-Fi", "Food", "Drinks", "Shower", "Quiet area"],
   },
-} satisfies Record<Locale, Record<string, unknown>>;
+} as const;
 
 const STEP_ICONS = {
   esim: [<MapPin />, <Signal />, <CreditCard />, <QrCode />],

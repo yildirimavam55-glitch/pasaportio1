@@ -145,7 +145,6 @@ const SECTION_COPY = {
 export function TravelExperience({ service, onServiceChange }: { service: ServiceSlug; onServiceChange: (service: ServiceSlug) => void }) {
   const { locale } = useI18n();
   const copy = localized(service === "esim" ? ESIM_CONTENT : LOUNGE_CONTENT, locale);
-  const global = localized(GLOBAL_CONTENT, locale);
   const [esimState, setEsimState] = useState<EsimFinderState>(ESIM_SERVICE_CONFIG.initialState);
   const [loungeState, setLoungeState] = useState<LoungeFinderState>(LOUNGE_SERVICE_CONFIG.initialState);
 
