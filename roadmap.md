@@ -82,3 +82,15 @@
 - [x] Fiyat kuralı, marj koruması ve MARGIN_BELOW_MINIMUM uyarısı
 - [x] Kaybolan provider ürünleri UNAVAILABLE (silinmez)
 - [x] Test paketlerini gizle: showTestCatalogue kapalı + INTERNAL_TEST PAUSED
+
+## Admin Phase B — Business dashboard + analytics + attribution
+- [x] /admin is the business dashboard (date presets + custom range, comparison period)
+- [x] KPI cards with revenue / provider cost / fees / discounts / refunds / gross contribution kept separate
+- [x] Revenue, orders and gross contribution over time charts
+- [x] Sales by service (eSIM / Lounge), traffic source performance, first/last touch
+- [x] Campaign performance table (UTM based, existing traffic_attribution reused)
+- [x] Finder funnel with conversion and drop-off + filters (date, service, country, destination, source, campaign, language)
+- [x] eSIM / Lounge / route / cross-sell analytics foundations
+- [x] Top products, top travel destinations vs customer countries
+- [x] "Dikkat gerektirenler" alert counts + last provider import summary (import engine untouched)
+- [x] Test catalogue orders excluded from production dashboard; zero-data empty states
