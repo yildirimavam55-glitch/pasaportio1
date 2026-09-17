@@ -11,7 +11,6 @@ export type LoungeOption = {
   currency: string;
   salePrice: number | null;
   badge: string | null;
-  heroImage: string | null;
   iata: string | null;
   terminal: string | null;
   maxStayMinutes: number | null;
@@ -50,7 +49,7 @@ export const listLoungeOptions = createServerFn({ method: "GET" })
     const { data: rows, error } = await publicClient()
       .from("service_products")
       .select(
-        "id, slug, name, currency, sale_price, badge, hero_image_url, sort_order, lounge_product_details(lounge_name, iata, terminal, max_stay_minutes, amenities, departure_eligible, transit_eligible, arrival_eligible)",
+        "id, slug, name, currency, sale_price, badge, sort_order, lounge_product_details(lounge_name, iata, terminal, max_stay_minutes, amenities, departure_eligible, transit_eligible, arrival_eligible)",
       )
       .eq("service_type", "LOUNGE")
       .eq("lifecycle", "PUBLISHED")
@@ -82,7 +81,6 @@ export const listLoungeOptions = createServerFn({ method: "GET" })
           currency: (raw["currency"] as string) ?? "EUR",
           salePrice: raw["sale_price"] == null ? null : Number(raw["sale_price"]),
           badge: (raw["badge"] as string | null) ?? null,
-          heroImage: (raw["hero_image_url"] as string | null) ?? null,
           iata: details?.iata ? details.iata.toUpperCase() : null,
           terminal: details?.terminal ?? null,
           maxStayMinutes: details?.max_stay_minutes ?? null,
