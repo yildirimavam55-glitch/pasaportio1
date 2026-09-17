@@ -69,7 +69,7 @@ function ProviderImportPage() {
   const [notice, setNotice] = useState("");
   const [error, setError] = useState("");
 
-  const providers = overview.data?.providers ?? [];
+  const providers: Array<{ id: string; code: string; name: string; productCount: number }> = overview.data?.providers ?? [];
   const activeProviderId = providerId || providers[0]?.id || "";
   const refresh = () => client.invalidateQueries({ queryKey: ["esim-import-overview"] });
   const payload = () => ({ providerId: activeProviderId, payloadText, pricing, publish, markMissingUnavailable: true });

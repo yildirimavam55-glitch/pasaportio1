@@ -26,6 +26,7 @@ import { Route as AuthenticatedAdminTestCatalogueRouteImport } from './routes/_a
 import { Route as AuthenticatedHesabimIndexRouteImport } from './routes/_authenticated/hesabim.index'
 import { Route as AuthenticatedHesabimSeyahatlerRouteImport } from './routes/_authenticated/hesabim.seyahatler'
 import { Route as AuthenticatedAdminEsimDevicesRouteImport } from './routes/_authenticated/admin.esim.devices'
+import { Route as AuthenticatedAdminEsimProviderImportRouteImport } from './routes/_authenticated/admin.esim.provider-import'
 import { Route as AuthenticatedAdminSmartFindersEsimRouteImport } from './routes/_authenticated/admin.smart-finders.esim'
 
 const IndexRoute = IndexRouteImport.update({
@@ -120,6 +121,12 @@ const AuthenticatedAdminEsimDevicesRoute =
     path: '/admin/esim/devices',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedAdminEsimProviderImportRoute =
+  AuthenticatedAdminEsimProviderImportRouteImport.update({
+    id: '/admin/esim/provider-import',
+    path: '/admin/esim/provider-import',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedAdminSmartFindersEsimRoute =
   AuthenticatedAdminSmartFindersEsimRouteImport.update({
     id: '/admin/smart-finders/esim',
@@ -144,6 +151,7 @@ export interface FileRoutesByFullPath {
   '/admin/': typeof AuthenticatedAdminIndexRoute
   '/hesabim/': typeof AuthenticatedHesabimIndexRoute
   '/admin/esim/devices': typeof AuthenticatedAdminEsimDevicesRoute
+  '/admin/esim/provider-import': typeof AuthenticatedAdminEsimProviderImportRoute
   '/admin/smart-finders/esim': typeof AuthenticatedAdminSmartFindersEsimRoute
 }
 export interface FileRoutesByTo {
@@ -163,6 +171,7 @@ export interface FileRoutesByTo {
   '/admin': typeof AuthenticatedAdminIndexRoute
   '/hesabim': typeof AuthenticatedHesabimIndexRoute
   '/admin/esim/devices': typeof AuthenticatedAdminEsimDevicesRoute
+  '/admin/esim/provider-import': typeof AuthenticatedAdminEsimProviderImportRoute
   '/admin/smart-finders/esim': typeof AuthenticatedAdminSmartFindersEsimRoute
 }
 export interface FileRoutesById {
@@ -184,6 +193,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
   '/_authenticated/hesabim/': typeof AuthenticatedHesabimIndexRoute
   '/_authenticated/admin/esim/devices': typeof AuthenticatedAdminEsimDevicesRoute
+  '/_authenticated/admin/esim/provider-import': typeof AuthenticatedAdminEsimProviderImportRoute
   '/_authenticated/admin/smart-finders/esim': typeof AuthenticatedAdminSmartFindersEsimRoute
 }
 export interface FileRouteTypes {
@@ -205,6 +215,7 @@ export interface FileRouteTypes {
     | '/admin/'
     | '/hesabim/'
     | '/admin/esim/devices'
+    | '/admin/esim/provider-import'
     | '/admin/smart-finders/esim'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -224,6 +235,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/hesabim'
     | '/admin/esim/devices'
+    | '/admin/esim/provider-import'
     | '/admin/smart-finders/esim'
   id:
     | '__root__'
@@ -244,6 +256,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/'
     | '/_authenticated/hesabim/'
     | '/_authenticated/admin/esim/devices'
+    | '/_authenticated/admin/esim/provider-import'
     | '/_authenticated/admin/smart-finders/esim'
   fileRoutesById: FileRoutesById
 }
@@ -379,6 +392,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminEsimDevicesRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/admin/esim/provider-import': {
+      id: '/_authenticated/admin/esim/provider-import'
+      path: '/admin/esim/provider-import'
+      fullPath: '/admin/esim/provider-import'
+      preLoaderRoute: typeof AuthenticatedAdminEsimProviderImportRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/admin/smart-finders/esim': {
       id: '/_authenticated/admin/smart-finders/esim'
       path: '/admin/smart-finders/esim'
@@ -399,6 +419,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
   AuthenticatedHesabimIndexRoute: typeof AuthenticatedHesabimIndexRoute
   AuthenticatedAdminEsimDevicesRoute: typeof AuthenticatedAdminEsimDevicesRoute
+  AuthenticatedAdminEsimProviderImportRoute: typeof AuthenticatedAdminEsimProviderImportRoute
   AuthenticatedAdminSmartFindersEsimRoute: typeof AuthenticatedAdminSmartFindersEsimRoute
 }
 
@@ -412,6 +433,8 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
   AuthenticatedHesabimIndexRoute: AuthenticatedHesabimIndexRoute,
   AuthenticatedAdminEsimDevicesRoute: AuthenticatedAdminEsimDevicesRoute,
+  AuthenticatedAdminEsimProviderImportRoute:
+    AuthenticatedAdminEsimProviderImportRoute,
   AuthenticatedAdminSmartFindersEsimRoute:
     AuthenticatedAdminSmartFindersEsimRoute,
 }
