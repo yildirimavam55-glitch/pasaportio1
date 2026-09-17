@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { z } from "zod";
-import { ArrowLeft, Check, Gauge, HelpCircle, Route as RouteIcon, ShieldCheck, ShoppingCart, Signal, Wifi, Zap } from "lucide-react";
+import { ArrowLeft, Check, Gauge, HelpCircle, Route as RouteIcon, ShoppingCart, Signal, Wifi, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { PublicShell } from "@/components/travel/PublicShell";
 import { CountryFlag } from "@/components/travel/CountryFlag";
