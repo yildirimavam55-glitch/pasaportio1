@@ -21,11 +21,14 @@ const searchSchema = z.object({
   travelers: z.coerce.number().int().min(1).max(9).catch(1).default(1),
   estimated: z.coerce.number().min(0).max(1000).catch(0).default(0),
   required: z.coerce.number().min(0).max(1000).catch(0).default(0),
+  recommended: z.coerce.number().min(0).max(1000).catch(0).default(0),
+  usage: z.string().max(200).catch("").default(""),
+  intensity: z.enum(["LOW", "NORMAL", "HIGH"]).catch("NORMAL").default("NORMAL"),
 });
 
 const COPY = {
   tr: {
-    title: "eSIM paketleri", back: "Finder’a dön", days: "gün", travelers: "kişi",
+    title: "eSIM paketleri", back: "Finder’a dön", days: "gün", travelers: (count: number) => `${count} kişi`,
     estimate: "Tahmini kullanım", need: "Tahmini ihtiyaç", route: "Rotan",
     empty: "Bu seyahat için şu anda uygun paket bulunamadı.",
     emptyOther: "Diğer paketleri gör", emptyChange: "Destinasyonu değiştir",
@@ -38,7 +41,7 @@ const COPY = {
     pendingCatalogue: "Paketler bağlandığında ihtiyacına en yakın uygun paket otomatik seçilecek.",
   },
   de: {
-    title: "eSIM-Pakete", back: "Zurück zum Finder", days: "Tage", travelers: "Pers.",
+    title: "eSIM-Pakete", back: "Zurück zum Finder", days: "Tage", travelers: (count: number) => count === 1 ? "1 Person" : `${count} Personen`,
     estimate: "Geschätzter Verbrauch", need: "Geschätzter Bedarf", route: "Deine Route",
     empty: "Für diese Reise ist derzeit kein passendes Paket verfügbar.",
     emptyOther: "Andere Pakete ansehen", emptyChange: "Reiseziel ändern",
@@ -51,7 +54,7 @@ const COPY = {
     pendingCatalogue: "Sobald Pakete verbunden sind, wird das passende Paket automatisch ausgewählt.",
   },
   en: {
-    title: "eSIM packages", back: "Back to finder", days: "days", travelers: "people",
+    title: "eSIM packages", back: "Back to finder", days: "days", travelers: (count: number) => count === 1 ? "1 person" : `${count} people`,
     estimate: "Estimated usage", need: "Estimated need", route: "Your route",
     empty: "No suitable package is available for this trip right now.",
     emptyOther: "See other packages", emptyChange: "Change destination",
@@ -128,7 +131,7 @@ function PackagesPage() {
             <span className="text-muted-foreground">·</span>
             <span>{search.days} {copy.days}</span>
             <span className="text-muted-foreground">·</span>
-            <span>{search.travelers} {copy.travelers}</span>
+            <span>{copy.travelers(search.travelers)}</span>
           </div>
           <div className="mt-3 rounded-xl bg-accent-soft p-3">
             <span className="text-xs font-semibold uppercase text-muted-foreground">{copy.need}</span>
@@ -161,7 +164,7 @@ function PackagesPage() {
           <div className="mt-5 rounded-card border border-dashed border-border bg-card p-6 text-center">
             <p className="text-sm font-semibold">{copy.empty}</p>
             <div className="mt-4 flex flex-wrap justify-center gap-2">
-              <Link to="/esim/paketler" search={{ destination: "", route: "", days: search.days, travelers: search.travelers, estimated: search.estimated, required: search.required }}>
+              <Link to="/esim/paketler" search={{ destination: "", route: "", days: search.days, travelers: search.travelers, estimated: search.estimated, required: search.required, recommended: search.recommended, usage: search.usage, intensity: search.intensity }}>
                 <Button variant="outline">{copy.emptyOther}</Button>
               </Link>
               <Link to="/esim"><Button variant="secondary">{copy.emptyChange}</Button></Link>

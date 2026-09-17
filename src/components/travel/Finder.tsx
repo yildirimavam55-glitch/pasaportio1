@@ -43,18 +43,23 @@ import { listEsimPackages } from "@/lib/esim-catalogue.functions";
 import { resolvePackageRecommendation } from "@/domain/esim/package-matching";
 import { useCart } from "@/domain/cart/store";
 import { CountryFlag } from "./CountryFlag";
+import { Reveal } from "./Reveal";
+import type { UsageIntensity } from "@/domain/esim/usage-recommendation";
 
 const COPY = {
   tr: {
     tripMode: "Seyahatin nasıl?", single: "Tek destinasyon", multi: "Çoklu rota",
     where: "Nereye gidiyorsun?", chooseCountry: "Ülke seç", days: "Kaç gün?", dayUnit: "gün",
-    travelers: "Kaç kişi?", personUnit: "kişi", usage: "İnterneti ne için kullanacaksın?",
+    travelers: "Kaç kişi?", personUnit: (count: number) => `${count} kişi`, usage: "İnterneti ne için kullanacaksın?",
+    intensity: "Kullanım yoğunluğu", intensityLow: "Az", intensityNormal: "Normal", intensityHigh: "Yoğun",
     addCountry: "Ülke ekle", minRoute: "Çoklu rota için en az iki ülke seç.", duplicate: "Bu ülke rotanda zaten var.",
     edit: "Düzenle", done: "Tamam", countriesCount: (n: number) => `${n} ülke`,
     need: "Tahmini internet ihtiyacın",
     needReason: "Seyahat süren, kullanım tercihlerin ve güvenlik payına göre hesaplandı.",
     seePackages: "Paketleri Gör",
-    recommendedPackage: "Sana önerilen paket", recommendedBadge: "Önerilen", addToCart: "Sepete Ekle", inCart: "Sepette",
+    recommendedPackage: "Sana önerimiz", recommendedBadge: "Önerilen", addToCart: "Sepete Ekle", inCart: "Sepette",
+    whyPackage: "Neden bu paket?", preparing: "Paket seçenekleri hazırlanıyor",
+    whyText: (days: number, need: number, size: string) => `${days} günlük seyahatin için yaklaşık ${need} GB kullanım hesapladık. Güvenlik payıyla birlikte sana en yakın üst paket olan ${size} öneriyoruz.`,
     validity: "gün geçerli", unlimited: "Sınırsız veri",
     unlimitedAlternative: "Sınırsız alternatif",
     noSufficient: "İhtiyacını tamamen karşılayan tek paket bulunamadı.",
@@ -71,13 +76,16 @@ const COPY = {
   de: {
     tripMode: "Wie reist du?", single: "Ein Reiseziel", multi: "Mehrere Länder",
     where: "Wohin geht es?", chooseCountry: "Land wählen", days: "Wie viele Tage?", dayUnit: "Tage",
-    travelers: "Wie viele Personen?", personUnit: "Pers.", usage: "Wofür nutzt du das Internet?",
+    travelers: "Wie viele Personen?", personUnit: (count: number) => count === 1 ? "1 Person" : `${count} Personen`, usage: "Wofür nutzt du das Internet?",
+    intensity: "Nutzungsintensität", intensityLow: "Wenig", intensityNormal: "Normal", intensityHigh: "Viel",
     addCountry: "Land hinzufügen", minRoute: "Wähle mindestens zwei Länder für eine Route.", duplicate: "Dieses Land ist bereits in deiner Route.",
     edit: "Bearbeiten", done: "Fertig", countriesCount: (n: number) => `${n} Länder`,
     need: "Dein geschätzter Datenbedarf",
     needReason: "Berechnet aus Reisedauer, deiner Nutzung und dem Sicherheitspuffer.",
     seePackages: "Pakete ansehen",
-    recommendedPackage: "Dein empfohlenes Paket", recommendedBadge: "Empfohlen", addToCart: "In den Warenkorb", inCart: "Im Warenkorb",
+    recommendedPackage: "Unsere Empfehlung", recommendedBadge: "Empfohlen", addToCart: "In den Warenkorb", inCart: "Im Warenkorb",
+    whyPackage: "Warum dieses Paket?", preparing: "Paketoptionen werden vorbereitet",
+    whyText: (days: number, need: number, size: string) => `Für deine ${days}-tägige Reise haben wir einen Bedarf von etwa ${need} GB berechnet. Mit Sicherheitspuffer empfehlen wir das nächstgrößere passende Paket mit ${size}.`,
     validity: "Tage gültig", unlimited: "Unbegrenzte Daten",
     unlimitedAlternative: "Unbegrenzte Alternative",
     noSufficient: "Kein einzelnes Paket deckt deinen Bedarf vollständig ab.",
@@ -94,13 +102,16 @@ const COPY = {
   en: {
     tripMode: "How are you travelling?", single: "Single destination", multi: "Multi-country route",
     where: "Where are you going?", chooseCountry: "Select a country", days: "How many days?", dayUnit: "days",
-    travelers: "How many people?", personUnit: "people", usage: "What will you use the internet for?",
+    travelers: "How many people?", personUnit: (count: number) => count === 1 ? "1 person" : `${count} people`, usage: "What will you use the internet for?",
+    intensity: "Usage intensity", intensityLow: "Low", intensityNormal: "Normal", intensityHigh: "High",
     addCountry: "Add country", minRoute: "Choose at least two countries for a route.", duplicate: "This country is already in your route.",
     edit: "Edit", done: "Done", countriesCount: (n: number) => `${n} countries`,
     need: "Your estimated data need",
     needReason: "Calculated from your trip length, your usage choices and a safety margin.",
     seePackages: "See packages",
-    recommendedPackage: "Your recommended package", recommendedBadge: "Recommended", addToCart: "Add to cart", inCart: "In cart",
+    recommendedPackage: "Our recommendation", recommendedBadge: "Recommended", addToCart: "Add to cart", inCart: "In cart",
+    whyPackage: "Why this package?", preparing: "Package options are being prepared",
+    whyText: (days: number, need: number, size: string) => `For your ${days}-day trip, we calculated approximately ${need} GB of usage. With the safety margin, we recommend the next suitable package at ${size}.`,
     validity: "days valid", unlimited: "Unlimited data",
     unlimitedAlternative: "Unlimited alternative",
     noSufficient: "No single package fully covers your estimated need.",
@@ -209,11 +220,11 @@ export function FinderResultShell({ children }: { children: React.ReactNode }) {
   return <div className="mt-5 rounded-xl bg-primary p-4 text-primary-foreground sm:flex sm:items-center sm:justify-between">{children}</div>;
 }
 
-function Stepper({ value, onChange, min = 1, max = 60, suffix, icon }: { value: number; onChange: (value: number) => void; min?: number; max?: number; suffix: string; icon: React.ReactNode }) {
+function Stepper({ value, onChange, min = 1, max = 60, suffix, icon }: { value: number; onChange: (value: number) => void; min?: number; max?: number; suffix: string | ((value: number) => string); icon: React.ReactNode }) {
   return (
     <div className="grid min-h-15 grid-cols-[2.75rem_1fr_2.75rem] items-center rounded-xl border border-border bg-secondary/60">
       <Button type="button" variant="ghost" size="icon" onClick={() => onChange(Math.max(min, value - 1))} aria-label="−"><Minus /></Button>
-      <strong className="flex min-w-0 items-center justify-center gap-1.5 truncate text-center text-sm">{icon}{value} {suffix}</strong>
+      <strong className="flex min-w-0 items-center justify-center gap-1.5 truncate text-center text-sm">{icon}{typeof suffix === "function" ? suffix(value) : `${value} ${suffix}`}</strong>
       <Button type="button" variant="ghost" size="icon" onClick={() => onChange(Math.min(max, value + 1))} aria-label="+"><Plus /></Button>
     </div>
   );
@@ -248,7 +259,7 @@ export function EsimFinder({ state, onChange }: { state: EsimFinderState; onChan
   const toggleUsage = (key: UsageKind) =>
     onChange({ ...state, usage: state.usage.includes(key) ? state.usage.filter((item) => item !== key) : [...state.usage, key] });
 
-  const recommendation = estimateUsageNeed({ days: state.days, usage: state.usage }, settings ?? DEFAULT_USAGE_SETTINGS);
+  const recommendation = estimateUsageNeed({ days: state.days, usage: state.usage, intensity: state.intensity }, settings ?? DEFAULT_USAGE_SETTINGS);
   const selectedCountry = getCountry(state.destinationId);
   const usedCountryIds = stops.map((stop) => stop.countryId);
   const routeIsos = stops.map((stop) => stop.countryIso).join(",");
@@ -281,6 +292,9 @@ export function EsimFinder({ state, onChange }: { state: EsimFinderState; onChan
         travelers: state.travelers,
         estimated: recommendation.estimatedGb,
         required: recommendation.requiredGb,
+        recommended: recommended?.dataGb ?? 0,
+        usage: state.usage.join(","),
+        intensity: state.intensity,
       },
     });
 
@@ -363,6 +377,18 @@ export function EsimFinder({ state, onChange }: { state: EsimFinderState; onChan
 
       <div className="mt-4">
         <FinderStep label={copy.usage}>
+          <div className="mb-2 max-w-sm">
+            <SegmentedChoice<UsageIntensity>
+              label={copy.intensity}
+              value={state.intensity}
+              onChange={(intensity) => onChange({ ...state, intensity })}
+              options={[
+                { key: "LOW", label: copy.intensityLow },
+                { key: "NORMAL", label: copy.intensityNormal },
+                { key: "HIGH", label: copy.intensityHigh },
+              ]}
+            />
+          </div>
           <div className="grid grid-cols-2 gap-2 lg:grid-cols-4">
             {USAGE_ITEMS.map((item) => (
               <FinderOptionCard compact key={item.key} selected={state.usage.includes(item.key)} icon={item.icon} iconClassName={item.tone} title={USAGE_LABELS[locale][item.key]} onClick={() => toggleUsage(item.key)} />
@@ -371,62 +397,63 @@ export function EsimFinder({ state, onChange }: { state: EsimFinderState; onChan
         </FinderStep>
       </div>
 
-      <div className="mt-5 rounded-xl bg-primary p-4 text-primary-foreground">
-        <span className="text-xs font-semibold uppercase opacity-75">{copy.need}</span>
-        <strong className="mt-1 flex items-center gap-2 text-3xl"><Gauge className="size-6" aria-hidden="true" />~{recommendation.requiredGb} GB</strong>
-        {summaryLabel && <span className="mt-1 block text-sm opacity-80">{summaryLabel}</span>}
-        <p className="mt-2 text-sm opacity-80">{copy.needReason}</p>
-
-        {recommended && (
-          <div className="mt-4 rounded-lg bg-white/10 p-3">
-            <div className="flex items-start justify-between gap-2">
-              <div className="min-w-0">
-                <span className="text-xs font-semibold uppercase opacity-75">
-                  {match.status === "UNLIMITED_ALTERNATIVE" ? copy.unlimitedAlternative : copy.recommendedPackage}
-                </span>
-                <strong className="mt-1 flex items-center gap-2 text-2xl">
-                  <ShieldCheck className="size-5" aria-hidden="true" />
-                  {recommended.unlimited ? copy.unlimited : `${recommended.dataGb} GB`}
-                </strong>
-                <span className="mt-0.5 block text-sm opacity-80">
-                  {[recommended.validityDays ? `${recommended.validityDays} ${copy.validity}` : "", summaryLabel].filter(Boolean).join(" · ")}
-                </span>
-              </div>
-              <span className="shrink-0 rounded-full bg-white/20 px-2 py-1 text-xs font-bold">{copy.recommendedBadge}</span>
-            </div>
-            <strong className="mt-2 block text-xl">
-              {new Intl.NumberFormat(undefined, { style: "currency", currency: recommended.currency }).format(recommended.salePrice ?? 0)}
-            </strong>
-            <Button
-              type="button"
-              variant="cta"
-              size="lg"
-              className="mt-3 w-full"
-              disabled={recommendedInCart}
-              onClick={() =>
-                addLine({
-                  productId: recommended.id,
-                  serviceType: "ESIM",
-                  name: recommended.name,
-                  meta: recommended.unlimited ? copy.unlimited : `${recommended.dataGb} GB`,
-                  price: recommended.salePrice ?? 0,
-                  currency: recommended.currency,
-                })
-              }
-            >
-              <ShoppingCart /> {recommendedInCart ? copy.inCart : copy.addToCart}
-            </Button>
+      <div className="mt-4 flex min-h-24 items-center justify-between gap-4 rounded-xl bg-primary px-4 py-3 text-primary-foreground">
+        <div className="flex min-w-0 items-center gap-3">
+          <span className="grid size-10 shrink-0 place-items-center rounded-full bg-primary-foreground/12"><Gauge className="size-5" aria-hidden="true" /></span>
+          <div className="min-w-0">
+            <span className="block text-xs font-semibold uppercase opacity-75">{copy.need}</span>
+            <span className="mt-0.5 block text-xs opacity-75">{copy.needReason}</span>
           </div>
-        )}
-
-        {canSeePackages && match.status === "NO_CATALOGUE" && <p className="mt-3 text-sm opacity-80">{copy.pendingCatalogue}</p>}
-        {match.status === "NO_SUFFICIENT" && <p className="mt-3 text-sm font-semibold">{copy.noSufficient}</p>}
-
-        <Button type="button" variant={recommended ? "secondary" : "cta"} size="lg" className="mt-3 w-full sm:w-auto" disabled={!canSeePackages} onClick={goToPackages}>
-          {match.status === "MATCHED" && recommended ? copy.seePackage(`${recommended.dataGb} GB`) : copy.seePackages}
-          <ArrowRight />
-        </Button>
+        </div>
+        <strong className="shrink-0 font-display text-2xl sm:text-3xl">~{recommendation.requiredGb} GB</strong>
       </div>
+
+      <Reveal className="mt-3">
+        <section className="rounded-xl border border-primary/20 bg-primary-soft p-4 text-foreground sm:p-5" aria-label={copy.recommendedPackage}>
+          {recommended ? (
+            <>
+              <div className="flex items-start justify-between gap-3">
+                <div className="min-w-0">
+                  <span className="text-xs font-bold uppercase text-primary">{match.status === "UNLIMITED_ALTERNATIVE" ? copy.unlimitedAlternative : copy.recommendedPackage}</span>
+                  <h3 className="mt-1 font-display text-2xl font-bold sm:text-3xl">
+                    {state.tripMode === "single" && selectedCountry ? `${selectedCountry.name[locale]} — ` : ""}{recommended.unlimited ? copy.unlimited : `${recommended.dataGb} GB`}
+                  </h3>
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    {[recommended.validityDays ? `${recommended.validityDays} ${copy.validity}` : "", `${state.days} ${copy.dayUnit}`, copy.personUnit(state.travelers)].filter(Boolean).join(" · ")}
+                  </p>
+                </div>
+                <span className="shrink-0 rounded-full bg-card px-2.5 py-1 text-xs font-bold text-primary">{copy.recommendedBadge}</span>
+              </div>
+              <strong className="mt-4 block font-display text-3xl">
+                {new Intl.NumberFormat(locale === "tr" ? "tr-TR" : locale === "de" ? "de-DE" : "en-GB", { style: "currency", currency: recommended.currency }).format(recommended.salePrice ?? 0)}
+              </strong>
+              <div className="mt-4 rounded-lg bg-card/75 p-3">
+                <span className="flex items-center gap-2 text-sm font-bold text-primary"><ShieldCheck className="size-4" aria-hidden="true" />{copy.whyPackage}</span>
+                <p className="mt-1 text-sm leading-6 text-muted-foreground">{copy.whyText(state.days, recommendation.requiredGb, recommended.unlimited ? copy.unlimited : `${recommended.dataGb} GB`)}</p>
+              </div>
+              <Button
+                type="button"
+                variant="cta"
+                size="lg"
+                className="mt-4 w-full"
+                disabled={recommendedInCart}
+                onClick={() => addLine({ productId: recommended.id, serviceType: "ESIM", name: recommended.name, meta: recommended.unlimited ? copy.unlimited : `${recommended.dataGb} GB`, price: recommended.salePrice ?? 0, currency: recommended.currency })}
+              >
+                <ShoppingCart /> {recommendedInCart ? copy.inCart : copy.addToCart}
+              </Button>
+            </>
+          ) : (
+            <div>
+              <span className="text-xs font-bold uppercase text-primary">{copy.recommendedPackage}</span>
+              <h3 className="mt-1 font-display text-xl font-bold">{copy.preparing}</h3>
+              <p className="mt-2 text-sm text-muted-foreground">{match.status === "NO_SUFFICIENT" ? copy.noSufficient : copy.pendingCatalogue}</p>
+            </div>
+          )}
+          <Button type="button" variant={recommended ? "outline" : "cta"} size="lg" className="mt-3 w-full" disabled={!canSeePackages} onClick={goToPackages}>
+            {copy.seePackages}<ArrowRight />
+          </Button>
+        </section>
+      </Reveal>
     </>
   );
 }

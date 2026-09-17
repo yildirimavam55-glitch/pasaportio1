@@ -36,3 +36,11 @@
 - [x] /lounge/secenekler results page + clean empty state
 - [x] Lounge flight status: mint selected state, takeoff/transfer/landing icons
 - [x] Rendered QA at 360/390/430 (no overflow, no console errors)
+
+## eSIM result area visual correction
+- [x] Compact usage intensity selector and two-column usage grid
+- [x] Compact estimated-need bar separated from recommendation
+- [x] Mint real-product recommendation card with catalogue price and explanation
+- [x] Clean catalogue-pending recommendation state without fake pricing
+- [x] Preserve Finder selections in package-page navigation
+- [ ] Rendered QA at 360/390/430 and public deployment verification
