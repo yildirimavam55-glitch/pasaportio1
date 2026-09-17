@@ -139,7 +139,7 @@ function AdminDashboard() {
 
   return (
     <AdminGate title="İş panosu">
-      <div className="grid gap-4">
+      <div className="grid min-w-0 gap-4">
         <section className={card}>
           <div className="flex flex-wrap gap-2">
             {RANGES.map((item) => (
@@ -216,7 +216,7 @@ function AdminDashboard() {
           <p className={`${card} text-sm font-semibold`}>Henüz satış yok.</p>
         )}
 
-        <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5">
+        <section className="grid min-w-0 gap-3 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5">
           {kpiCards.map((item) => (
             <div key={item.label} className={`${card} ${item.highlight ? "border-primary/50" : ""}`}>
               <span className="text-xs font-semibold text-muted-foreground">{item.label}</span>
@@ -257,7 +257,7 @@ function AdminDashboard() {
           </div>
         </section>
 
-        <div className="grid gap-4 xl:grid-cols-2">
+        <div className="grid min-w-0 gap-4 xl:grid-cols-2">
           <Panel title="Servise göre satış">
             <Table
               head={["Servis", "Sipariş", "Ciro", "Provider maliyeti", "Brüt katkı"]}
@@ -444,9 +444,9 @@ function AdminDashboard() {
 
 function Panel({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <section className={card}>
+    <section className={`${card} min-w-0`}>
       <h2 className="font-display text-lg font-bold">{title}</h2>
-      <div className="mt-3">{children}</div>
+      <div className="mt-3 min-w-0">{children}</div>
     </section>
   );
 }
