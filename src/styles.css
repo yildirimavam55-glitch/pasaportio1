@@ -196,6 +196,7 @@
 }
 .reveal-item { opacity: 0; transform: translateY(18px); transition: opacity .38s ease-out, transform .38s ease-out; will-change: opacity, transform; }
 .reveal-item.is-revealed { opacity: 1; transform: none; }
+.recommendation-reveal { transition-duration: .45s; }
 
 @media (prefers-reduced-motion: reduce) {
   .reveal-item { opacity: 1; transform: none; transition: none; }

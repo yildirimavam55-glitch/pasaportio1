@@ -35,7 +35,7 @@ import { ESIM_SERVICE_CONFIG } from "@/domain/experience/config";
 import { getAirport } from "@/domain/geo/airports";
 import { countryName, getCountry, getCountryByIso } from "@/domain/geo/countries";
 import { isValidMultiRoute, moveStop, normalizeRouteStops, removeStop, routeFromPreset, stableStop } from "@/domain/experience/state";
-import type { EsimFinderState, LoungeFinderState, UsageKind } from "@/domain/experience/types";
+import type { EsimFinderState, LoungeFinderState, UsageIntensity, UsageKind } from "@/domain/experience/types";
 import type { Locale } from "@/domain/enums";
 import { DEFAULT_USAGE_SETTINGS, estimateUsageNeed } from "@/domain/esim/usage-recommendation";
 import { getEsimUsageSettings } from "@/lib/esim-settings.functions";
@@ -44,7 +44,6 @@ import { resolvePackageRecommendation } from "@/domain/esim/package-matching";
 import { useCart } from "@/domain/cart/store";
 import { CountryFlag } from "./CountryFlag";
 import { Reveal } from "./Reveal";
-import type { UsageIntensity } from "@/domain/esim/usage-recommendation";
 
 const COPY = {
   tr: {
@@ -54,7 +53,7 @@ const COPY = {
     intensity: "Kullanım yoğunluğu", intensityLow: "Az", intensityNormal: "Normal", intensityHigh: "Yoğun",
     addCountry: "Ülke ekle", minRoute: "Çoklu rota için en az iki ülke seç.", duplicate: "Bu ülke rotanda zaten var.",
     edit: "Düzenle", done: "Tamam", countriesCount: (n: number) => `${n} ülke`,
-    need: "Tahmini internet ihtiyacın",
+    need: "Tahmini kullanım",
     needReason: "Seyahat süren, kullanım tercihlerin ve güvenlik payına göre hesaplandı.",
     seePackages: "Paketleri Gör",
     recommendedPackage: "Sana önerimiz", recommendedBadge: "Önerilen", addToCart: "Sepete Ekle", inCart: "Sepette",
@@ -80,7 +79,7 @@ const COPY = {
     intensity: "Nutzungsintensität", intensityLow: "Wenig", intensityNormal: "Normal", intensityHigh: "Viel",
     addCountry: "Land hinzufügen", minRoute: "Wähle mindestens zwei Länder für eine Route.", duplicate: "Dieses Land ist bereits in deiner Route.",
     edit: "Bearbeiten", done: "Fertig", countriesCount: (n: number) => `${n} Länder`,
-    need: "Dein geschätzter Datenbedarf",
+    need: "Geschätzter Verbrauch",
     needReason: "Berechnet aus Reisedauer, deiner Nutzung und dem Sicherheitspuffer.",
     seePackages: "Pakete ansehen",
     recommendedPackage: "Unsere Empfehlung", recommendedBadge: "Empfohlen", addToCart: "In den Warenkorb", inCart: "Im Warenkorb",
@@ -106,7 +105,7 @@ const COPY = {
     intensity: "Usage intensity", intensityLow: "Low", intensityNormal: "Normal", intensityHigh: "High",
     addCountry: "Add country", minRoute: "Choose at least two countries for a route.", duplicate: "This country is already in your route.",
     edit: "Edit", done: "Done", countriesCount: (n: number) => `${n} countries`,
-    need: "Your estimated data need",
+    need: "Estimated usage",
     needReason: "Calculated from your trip length, your usage choices and a safety margin.",
     seePackages: "See packages",
     recommendedPackage: "Our recommendation", recommendedBadge: "Recommended", addToCart: "Add to cart", inCart: "In cart",
@@ -408,7 +407,7 @@ export function EsimFinder({ state, onChange }: { state: EsimFinderState; onChan
         <strong className="shrink-0 font-display text-2xl sm:text-3xl">~{recommendation.requiredGb} GB</strong>
       </div>
 
-      <Reveal className="mt-3">
+      <Reveal className="recommendation-reveal mt-3">
         <section className="rounded-xl border border-primary/20 bg-primary-soft p-4 text-foreground sm:p-5" aria-label={copy.recommendedPackage}>
           {recommended ? (
             <>
