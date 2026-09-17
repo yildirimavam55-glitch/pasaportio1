@@ -76,3 +76,9 @@
 - [x] Align Lounge flight-status icons and mobile bottom navigation
 - [x] Add compatibility-only dimmed backdrop and adaptive sheet/modal surface
 - [x] Preserve scroll locking, close cleanup, and reduced-motion behavior
+## Real provider eSIM import
+- [x] /admin/esim/provider-import: provider kaydı, JSON katalog önizleme ve diff
+- [x] Idempotent import (provider_raw_items, service_products, esim_product_details, mappings, sync run, audit)
+- [x] Fiyat kuralı, marj koruması ve MARGIN_BELOW_MINIMUM uyarısı
+- [x] Kaybolan provider ürünleri UNAVAILABLE (silinmez)
+- [x] Test paketlerini gizle: showTestCatalogue kapalı + INTERNAL_TEST PAUSED
