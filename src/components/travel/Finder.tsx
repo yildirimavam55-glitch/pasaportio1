@@ -85,14 +85,14 @@ const USAGE_LABELS: Record<Locale, Record<UsageKind, string>> = {
   en: { MESSAGING: "Messaging", SOCIAL: "Social media", MAPS: "Maps", VIDEO: "Video", WORK: "Work", GAMING: "Gaming", HOTSPOT: "Hotspot" },
 };
 
-const USAGE_ITEMS: Array<{ key: UsageKind; icon: React.ReactNode }> = [
-  { key: "MESSAGING", icon: <MessageCircle /> },
-  { key: "SOCIAL", icon: <Share2 /> },
-  { key: "MAPS", icon: <MapPin /> },
-  { key: "VIDEO", icon: <Video /> },
-  { key: "WORK", icon: <BriefcaseBusiness /> },
-  { key: "GAMING", icon: <Gamepad2 /> },
-  { key: "HOTSPOT", icon: <Wifi /> },
+const USAGE_ITEMS: Array<{ key: UsageKind; icon: React.ReactNode; tone: string }> = [
+  { key: "MESSAGING", icon: <MessageCircle />, tone: "bg-primary-soft text-primary" },
+  { key: "SOCIAL", icon: <Share2 />, tone: "bg-accent-soft text-foreground" },
+  { key: "MAPS", icon: <MapPin />, tone: "bg-petrol-soft text-primary" },
+  { key: "VIDEO", icon: <Video />, tone: "bg-cta-soft text-cta" },
+  { key: "WORK", icon: <BriefcaseBusiness />, tone: "bg-sand-soft text-foreground" },
+  { key: "GAMING", icon: <Gamepad2 />, tone: "bg-petrol-soft text-primary" },
+  { key: "HOTSPOT", icon: <Wifi />, tone: "bg-primary-soft text-primary" },
 ];
 
 export function FinderShell({ title, description, children }: { title: string; description: string; children: React.ReactNode }) {
@@ -126,15 +126,15 @@ export function FinderProgress({ labels, active }: { labels: string[]; active: n
   );
 }
 
-export function FinderOptionCard({ selected, icon, title, detail, onClick, compact = false }: { selected: boolean; icon: React.ReactNode; title: string; detail?: string; onClick: () => void; compact?: boolean }) {
+export function FinderOptionCard({ selected, icon, title, detail, onClick, compact = false, iconClassName = "bg-secondary text-primary" }: { selected: boolean; icon: React.ReactNode; title: string; detail?: string; onClick: () => void; compact?: boolean; iconClassName?: string }) {
   return (
     <button
       type="button"
       aria-pressed={selected}
       onClick={onClick}
-      className={`relative flex ${compact ? "min-h-15" : "min-h-18"} items-center gap-2 rounded-xl border p-2 text-left transition ${selected ? "border-primary bg-primary-soft ring-1 ring-primary" : "border-border bg-card hover:border-primary/50"}`}
+      className={`relative flex ${compact ? "min-h-15" : "min-h-18"} min-w-0 items-center gap-2 rounded-xl border p-2 text-left transition ${selected ? "border-primary bg-primary-soft ring-1 ring-primary" : "border-border bg-card hover:border-primary/50"}`}
     >
-      <span className="grid size-8 shrink-0 place-items-center rounded-full bg-secondary text-primary [&_svg]:size-4">{icon}</span>
+      <span className={`grid size-8 shrink-0 place-items-center rounded-lg [&_svg]:size-4 [&_svg]:stroke-[1.8] ${iconClassName}`}>{icon}</span>
       <span className="min-w-0 flex-1">
         <strong className="block text-xs leading-tight sm:text-sm">{title}</strong>
         {detail && <span className="mt-0.5 block text-[0.7rem] leading-tight text-muted-foreground">{detail}</span>}
@@ -241,7 +241,7 @@ export function EsimFinder({ state, onChange }: { state: EsimFinderState; onChan
                 {stops.map((stop, index) => {
                   const country = getCountryByIso(stop.countryIso);
                   return (
-                    <li key={stop.id} className="flex min-h-15 items-center gap-2 rounded-xl border border-border bg-secondary/50 px-2.5">
+                    <li key={stop.id} className="grid min-h-15 grid-cols-[auto_minmax(0,1fr)_auto_auto_auto] items-center gap-1 rounded-xl border border-border bg-secondary/50 px-2">
                       <span className="text-lg" aria-hidden="true">{country?.flag}</span>
                       <span className="min-w-0 flex-1 truncate text-sm font-semibold">{countryName(stop.countryId, locale) || stop.countryIso}</span>
                       <Button type="button" size="icon" variant="ghost" className="size-9" onClick={() => onChange({ ...state, routeStops: moveStop(stops, stop.id, -1) })} disabled={index === 0} aria-label={copy.moveUp}><ArrowUp /></Button>
@@ -275,7 +275,7 @@ export function EsimFinder({ state, onChange }: { state: EsimFinderState; onChan
         <FinderStep label={copy.usage}>
           <div className="grid grid-cols-2 gap-2 lg:grid-cols-4">
             {USAGE_ITEMS.map((item) => (
-              <FinderOptionCard compact key={item.key} selected={state.usage.includes(item.key)} icon={item.icon} title={USAGE_LABELS[locale][item.key]} onClick={() => toggleUsage(item.key)} />
+              <FinderOptionCard compact key={item.key} selected={state.usage.includes(item.key)} icon={item.icon} iconClassName={item.tone} title={USAGE_LABELS[locale][item.key]} onClick={() => toggleUsage(item.key)} />
             ))}
           </div>
         </FinderStep>

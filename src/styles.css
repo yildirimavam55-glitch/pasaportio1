@@ -63,6 +63,9 @@
   --color-cta-foreground: var(--cta-foreground);
   --color-primary-soft: var(--primary-soft);
   --color-accent-soft: var(--accent-soft);
+  --color-petrol-soft: var(--petrol-soft);
+  --color-sand-soft: var(--sand-soft);
+  --color-cta-soft: var(--cta-soft);
   --color-hero-foreground: var(--hero-foreground);
   --font-sans: "Manrope", sans-serif;
   --font-display: "Outfit", sans-serif;
@@ -92,6 +95,9 @@
   --cta-foreground: oklch(0.99 0.004 90);
   --primary-soft: oklch(0.93 0.045 165);
   --accent-soft: oklch(0.93 0.055 70);
+  --petrol-soft: oklch(0.94 0.025 180);
+  --sand-soft: oklch(0.95 0.03 75);
+  --cta-soft: oklch(0.94 0.045 48);
   --hero-foreground: oklch(0.99 0.004 90);
   --destructive: oklch(0.577 0.245 27.325);
   --destructive-foreground: oklch(0.984 0.003 247.858);
@@ -128,6 +134,9 @@
   --muted-foreground: oklch(0.704 0.04 256.788);
   --accent: oklch(0.279 0.041 260.031);
   --accent-foreground: oklch(0.984 0.003 247.858);
+  --petrol-soft: oklch(0.27 0.035 180);
+  --sand-soft: oklch(0.28 0.03 75);
+  --cta-soft: oklch(0.3 0.055 48);
   --destructive: oklch(0.704 0.191 22.216);
   --destructive-foreground: oklch(0.984 0.003 247.858);
   --border: oklch(1 0 0 / 10%);
