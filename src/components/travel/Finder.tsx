@@ -241,6 +241,19 @@ export function EsimFinder({ state, onChange }: { state: EsimFinderState; onChan
     : [copy.countriesCount(stops.length), `${state.days} ${copy.dayUnit}`].join(" · ");
   const canSeePackages = state.tripMode === "single" ? Boolean(selectedCountry) : isValidMultiRoute(stops);
 
+  // Layer 2: the recommended package is always a real catalogue product, never a calculated size.
+  const coverageIsos = state.tripMode === "single" ? (selectedCountry ? [selectedCountry.iso] : []) : stops.map((stop) => stop.countryIso);
+  const { data: packages = [] } = useQuery({
+    queryKey: ["esim-packages", coverageIsos.join(",")],
+    queryFn: () => listEsimPackages({ data: { coverageIsos } }),
+    enabled: canSeePackages,
+  });
+  const recommended = canSeePackages
+    ? selectRecommendedPackage(packages, { requiredGb: recommendation.requiredGb, coverageIsos, days: state.days })
+    : null;
+  const { lines, addLine } = useCart();
+  const recommendedInCart = Boolean(recommended && lines.some((line) => line.productId === recommended.id));
+
   const goToPackages = () =>
     void navigate({
       to: "/esim/paketler",
