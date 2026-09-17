@@ -8,6 +8,13 @@
       "when": 1789630847464,
       "tag": "0000_phase0_core_auth_locations",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1789630892333,
+      "tag": "0001_phase0_providers_catalogue_pricing",
+      "breakpoints": true
     }
   ]
 }
