@@ -223,7 +223,7 @@ export function EsimFinder({ state, onChange }: { state: EsimFinderState; onChan
   const toggleUsage = (key: UsageKind) =>
     onChange({ ...state, usage: state.usage.includes(key) ? state.usage.filter((item) => item !== key) : [...state.usage, key] });
 
-  const recommendation = recommendUsage({ days: state.days, usage: state.usage }, settings ?? DEFAULT_USAGE_SETTINGS);
+  const recommendation = estimateUsageNeed({ days: state.days, usage: state.usage }, settings ?? DEFAULT_USAGE_SETTINGS);
   const selectedCountry = getCountry(state.destinationId);
   const usedCountryIds = stops.map((stop) => stop.countryId);
   const routeIsos = stops.map((stop) => stop.countryIso).join(",");
