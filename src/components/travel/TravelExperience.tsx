@@ -8,6 +8,7 @@ import { ESIM_SERVICE_CONFIG, LOUNGE_SERVICE_CONFIG, SERVICE_REGISTRY } from "@/
 import type { EsimFinderState, LoungeFinderState } from "@/domain/experience/types";
 import type { Locale } from "@/domain/enums";
 import { FinderShell, EsimFinder, LoungeFinder } from "./Finder";
+import { DeviceCompatibilitySection } from "./DeviceCompatibility";
 import { PublicShell } from "./PublicShell";
 import { Reveal } from "./Reveal";
 import { DeliveryConfidence, HowItWorks, TrustStrip, VisualComplementary, VisualPopular } from "./PublicVisualSections";
