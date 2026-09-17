@@ -12,9 +12,8 @@ import {
   estimateUsageNeed,
   sanitizeUsageSettings,
   type EsimUsageSettings,
-  type UsageIntensity,
 } from "@/domain/esim/usage-recommendation";
-import type { UsageKind } from "@/domain/experience/types";
+import type { UsageIntensity, UsageKind } from "@/domain/experience/types";
 
 export const Route = createFileRoute("/_authenticated/admin/smart-finders/esim")({ component: EsimRecommendationSettings });
 
