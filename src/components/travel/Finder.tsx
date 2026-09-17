@@ -416,7 +416,20 @@ export function EsimFinder({ state, onChange }: { state: EsimFinderState; onChan
 export function LoungeFinder({ state, onChange }: { state: LoungeFinderState; onChange: (state: LoungeFinderState) => void }) {
   const { locale } = useI18n();
   const copy = COPY[locale];
+  const navigate = useNavigate();
   const airport = getAirport(state.airportId);
+
+  const goToLoungeOptions = () =>
+    void navigate({
+      to: "/lounge/secenekler",
+      search: {
+        airport: state.airportId,
+        iata: airport?.iata ?? "",
+        date: state.date,
+        situation: state.flightSituation,
+        travelers: state.travelers,
+      },
+    });
 
   return (
     <>
@@ -454,13 +467,15 @@ export function LoungeFinder({ state, onChange }: { state: LoungeFinderState; on
         </FinderStep>
         <FinderStep label={copy.travelers}><Stepper value={state.travelers} onChange={(travelers) => onChange({ ...state, travelers })} max={9} suffix={copy.personUnit} icon={<Users className="size-4 shrink-0" />} /></FinderStep>
       </div>
-      <FinderResultShell>
-        <div>
-          <span className="text-xs font-semibold uppercase opacity-75">{copy.selectedAirport}</span>
-          <strong className="mt-1 flex items-center gap-2 text-xl">{airport ? <><CountryFlag iso={airport.countryIso} />{airport.iata} {airport.city[locale]}</> : "—"}</strong>
-        </div>
-        <span className="mt-3 block max-w-sm text-sm opacity-80 sm:mt-0">{copy.loungeHint}</span>
-      </FinderResultShell>
+      <div className="mt-5 rounded-xl bg-primary p-4 text-primary-foreground">
+        <span className="text-xs font-semibold uppercase opacity-75">{copy.selectedAirport}</span>
+        <strong className="mt-1 flex items-center gap-2 text-xl">{airport ? <><CountryFlag iso={airport.countryIso} />{airport.iata} {airport.city[locale]}</> : "—"}</strong>
+        <p className="mt-2 text-sm opacity-80">{copy.loungeHint}</p>
+        <Button type="button" variant="cta" size="lg" className="mt-3 w-full sm:w-auto" disabled={!airport} onClick={goToLoungeOptions}>
+          {copy.loungeCta}
+          <ArrowRight />
+        </Button>
+      </div>
     </>
   );
 }
