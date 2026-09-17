@@ -122,6 +122,10 @@ function PackagesPage() {
           </div>
         </div>
 
+        <div className="mt-3">
+          <DeviceCompatibilityInline />
+        </div>
+
         {isPending ? (
           <div className="mt-5 grid gap-3 sm:grid-cols-3">
             {[0, 1, 2].map((key) => <div key={key} className="h-44 animate-pulse rounded-card bg-secondary" />)}
