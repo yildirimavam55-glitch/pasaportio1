@@ -1,0 +1,34 @@
+{
+  "version": "7",
+  "dialect": "postgresql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1789630847464,
+      "tag": "0000_phase0_core_auth_locations",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1789630892333,
+      "tag": "0001_phase0_providers_catalogue_pricing",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1789630946082,
+      "tag": "0002_phase0_orders_trips_cms_analytics_ops",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1789631258738,
+      "tag": "0003_phase0_harden_functions",
+      "breakpoints": true
+    }
+  ]
+}
