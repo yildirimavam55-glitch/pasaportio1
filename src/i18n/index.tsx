@@ -1,4 +1,4 @@
-import { createContext, useCallback, useContext, useMemo, useState, type ReactNode } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 
 import { DEFAULT_LOCALE, LOCALES, type Locale } from "@/domain/enums";
 import { messages, type MessageKey } from "./messages";
@@ -16,6 +16,11 @@ const STORAGE_KEY = "tp.locale";
 
 export function I18nProvider({ children }: { children: ReactNode }) {
   const [locale, setLocaleState] = useState<Locale>(DEFAULT_LOCALE);
+
+  useEffect(() => {
+    const stored = window.localStorage.getItem(STORAGE_KEY);
+    if (stored && LOCALES.some((code) => code === stored)) setLocaleState(stored as Locale);
+  }, []);
 
   const setLocale = useCallback((next: Locale) => {
     setLocaleState(next);
