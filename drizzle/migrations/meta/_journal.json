@@ -15,6 +15,13 @@
       "when": 1789630892333,
       "tag": "0001_phase0_providers_catalogue_pricing",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1789630946082,
+      "tag": "0002_phase0_orders_trips_cms_analytics_ops",
+      "breakpoints": true
     }
   ]
 }

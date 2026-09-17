@@ -14,6 +14,39 @@ export type Database = {
   }
   public: {
     Tables: {
+      admin_audit_log: {
+        Row: {
+          action: string
+          admin_user_id: string | null
+          after_data: Json | null
+          before_data: Json | null
+          created_at: string
+          entity_id: string | null
+          entity_type: string | null
+          id: string
+        }
+        Insert: {
+          action: string
+          admin_user_id?: string | null
+          after_data?: Json | null
+          before_data?: Json | null
+          created_at?: string
+          entity_id?: string | null
+          entity_type?: string | null
+          id?: string
+        }
+        Update: {
+          action?: string
+          admin_user_id?: string | null
+          after_data?: Json | null
+          before_data?: Json | null
+          created_at?: string
+          entity_id?: string | null
+          entity_type?: string | null
+          id?: string
+        }
+        Relationships: []
+      }
       airports: {
         Row: {
           city: string | null
@@ -55,6 +88,142 @@ export type Database = {
           },
         ]
       }
+      analytics_events: {
+        Row: {
+          customer_id: string | null
+          event_name: string
+          id: string
+          locale: Database["public"]["Enums"]["locale_code"] | null
+          occurred_at: string
+          properties: Json
+          service_type: Database["public"]["Enums"]["service_type"] | null
+          session_id: string | null
+        }
+        Insert: {
+          customer_id?: string | null
+          event_name: string
+          id?: string
+          locale?: Database["public"]["Enums"]["locale_code"] | null
+          occurred_at?: string
+          properties?: Json
+          service_type?: Database["public"]["Enums"]["service_type"] | null
+          session_id?: string | null
+        }
+        Update: {
+          customer_id?: string | null
+          event_name?: string
+          id?: string
+          locale?: Database["public"]["Enums"]["locale_code"] | null
+          occurred_at?: string
+          properties?: Json
+          service_type?: Database["public"]["Enums"]["service_type"] | null
+          session_id?: string | null
+        }
+        Relationships: []
+      }
+      cms_documents: {
+        Row: {
+          created_at: string
+          data: Json
+          id: string
+          key: string
+          kind: string
+          published_at: string | null
+          scheduled_at: string | null
+          sort_order: number
+          status: Database["public"]["Enums"]["content_status"]
+          updated_at: string
+          visible: boolean
+        }
+        Insert: {
+          created_at?: string
+          data?: Json
+          id?: string
+          key: string
+          kind?: string
+          published_at?: string | null
+          scheduled_at?: string | null
+          sort_order?: number
+          status?: Database["public"]["Enums"]["content_status"]
+          updated_at?: string
+          visible?: boolean
+        }
+        Update: {
+          created_at?: string
+          data?: Json
+          id?: string
+          key?: string
+          kind?: string
+          published_at?: string | null
+          scheduled_at?: string | null
+          sort_order?: number
+          status?: Database["public"]["Enums"]["content_status"]
+          updated_at?: string
+          visible?: boolean
+        }
+        Relationships: []
+      }
+      cms_translations: {
+        Row: {
+          data: Json
+          document_id: string
+          id: string
+          locale: Database["public"]["Enums"]["locale_code"]
+        }
+        Insert: {
+          data?: Json
+          document_id: string
+          id?: string
+          locale: Database["public"]["Enums"]["locale_code"]
+        }
+        Update: {
+          data?: Json
+          document_id?: string
+          id?: string
+          locale?: Database["public"]["Enums"]["locale_code"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cms_translations_document_id_fkey"
+            columns: ["document_id"]
+            isOneToOne: false
+            referencedRelation: "cms_documents"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      cms_versions: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          document_id: string
+          id: string
+          snapshot: Json
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          document_id: string
+          id?: string
+          snapshot: Json
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          document_id?: string
+          id?: string
+          snapshot?: Json
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cms_versions_document_id_fkey"
+            columns: ["document_id"]
+            isOneToOne: false
+            referencedRelation: "cms_documents"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       countries: {
         Row: {
           created_at: string
@@ -86,6 +255,207 @@ export type Database = {
             columns: ["region_id"]
             isOneToOne: false
             referencedRelation: "regions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      customer_esims: {
+        Row: {
+          created_at: string
+          customer_id: string | null
+          destination_label: string | null
+          expires_at: string | null
+          iccid: string | null
+          id: string
+          install_info: Json
+          order_item_id: string | null
+          package_label: string | null
+          qr_payload: string | null
+          remaining_data_mb: number | null
+          status: string
+          topup_supported: boolean
+          total_data_mb: number | null
+          traveler_label: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          customer_id?: string | null
+          destination_label?: string | null
+          expires_at?: string | null
+          iccid?: string | null
+          id?: string
+          install_info?: Json
+          order_item_id?: string | null
+          package_label?: string | null
+          qr_payload?: string | null
+          remaining_data_mb?: number | null
+          status?: string
+          topup_supported?: boolean
+          total_data_mb?: number | null
+          traveler_label?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          customer_id?: string | null
+          destination_label?: string | null
+          expires_at?: string | null
+          iccid?: string | null
+          id?: string
+          install_info?: Json
+          order_item_id?: string | null
+          package_label?: string | null
+          qr_payload?: string | null
+          remaining_data_mb?: number | null
+          status?: string
+          topup_supported?: boolean
+          total_data_mb?: number | null
+          traveler_label?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "customer_esims_order_item_id_fkey"
+            columns: ["order_item_id"]
+            isOneToOne: false
+            referencedRelation: "order_items"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      customer_lounge_bookings: {
+        Row: {
+          airport_iata: string | null
+          booking_reference: string | null
+          created_at: string
+          customer_id: string | null
+          id: string
+          lounge_name: string | null
+          order_item_id: string | null
+          status: string
+          terminal: string | null
+          travelers_count: number
+          updated_at: string
+          visit_at: string | null
+          voucher_payload: string | null
+        }
+        Insert: {
+          airport_iata?: string | null
+          booking_reference?: string | null
+          created_at?: string
+          customer_id?: string | null
+          id?: string
+          lounge_name?: string | null
+          order_item_id?: string | null
+          status?: string
+          terminal?: string | null
+          travelers_count?: number
+          updated_at?: string
+          visit_at?: string | null
+          voucher_payload?: string | null
+        }
+        Update: {
+          airport_iata?: string | null
+          booking_reference?: string | null
+          created_at?: string
+          customer_id?: string | null
+          id?: string
+          lounge_name?: string | null
+          order_item_id?: string | null
+          status?: string
+          terminal?: string | null
+          travelers_count?: number
+          updated_at?: string
+          visit_at?: string | null
+          voucher_payload?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "customer_lounge_bookings_order_item_id_fkey"
+            columns: ["order_item_id"]
+            isOneToOne: false
+            referencedRelation: "order_items"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      customer_trip_services: {
+        Row: {
+          created_at: string
+          id: string
+          order_item_id: string | null
+          service_type: Database["public"]["Enums"]["service_type"]
+          trip_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          order_item_id?: string | null
+          service_type: Database["public"]["Enums"]["service_type"]
+          trip_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          order_item_id?: string | null
+          service_type?: Database["public"]["Enums"]["service_type"]
+          trip_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "customer_trip_services_order_item_id_fkey"
+            columns: ["order_item_id"]
+            isOneToOne: false
+            referencedRelation: "order_items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "customer_trip_services_trip_id_fkey"
+            columns: ["trip_id"]
+            isOneToOne: false
+            referencedRelation: "customer_trips"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      customer_trips: {
+        Row: {
+          created_at: string
+          customer_id: string
+          destination_id: string | null
+          end_date: string | null
+          id: string
+          start_date: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          customer_id: string
+          destination_id?: string | null
+          end_date?: string | null
+          id?: string
+          start_date?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          customer_id?: string
+          destination_id?: string | null
+          end_date?: string | null
+          id?: string
+          start_date?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "customer_trips_destination_id_fkey"
+            columns: ["destination_id"]
+            isOneToOne: false
+            referencedRelation: "destinations"
             referencedColumns: ["id"]
           },
         ]
@@ -223,6 +593,30 @@ export type Database = {
           },
         ]
       }
+      exchange_rates: {
+        Row: {
+          base_currency: string
+          captured_at: string
+          id: string
+          quote_currency: string
+          rate: number
+        }
+        Insert: {
+          base_currency: string
+          captured_at?: string
+          id?: string
+          quote_currency: string
+          rate: number
+        }
+        Update: {
+          base_currency?: string
+          captured_at?: string
+          id?: string
+          quote_currency?: string
+          rate?: number
+        }
+        Relationships: []
+      }
       feature_flags: {
         Row: {
           description: string | null
@@ -244,6 +638,33 @@ export type Database = {
           key?: string
           payload?: Json
           updated_at?: string
+        }
+        Relationships: []
+      }
+      idempotency_keys: {
+        Row: {
+          created_at: string
+          expires_at: string | null
+          key: string
+          response: Json | null
+          scope: string
+          status: string
+        }
+        Insert: {
+          created_at?: string
+          expires_at?: string | null
+          key: string
+          response?: Json | null
+          scope: string
+          status?: string
+        }
+        Update: {
+          created_at?: string
+          expires_at?: string | null
+          key?: string
+          response?: Json | null
+          scope?: string
+          status?: string
         }
         Relationships: []
       }
@@ -333,6 +754,279 @@ export type Database = {
             columns: ["product_id"]
             isOneToOne: true
             referencedRelation: "service_products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ops_alerts: {
+        Row: {
+          context: Json
+          created_at: string
+          entity_id: string | null
+          entity_type: string | null
+          id: string
+          message: string
+          resolved_at: string | null
+          resolved_by: string | null
+          severity: string
+          status: Database["public"]["Enums"]["alert_status"]
+          type: Database["public"]["Enums"]["alert_type"]
+        }
+        Insert: {
+          context?: Json
+          created_at?: string
+          entity_id?: string | null
+          entity_type?: string | null
+          id?: string
+          message: string
+          resolved_at?: string | null
+          resolved_by?: string | null
+          severity?: string
+          status?: Database["public"]["Enums"]["alert_status"]
+          type: Database["public"]["Enums"]["alert_type"]
+        }
+        Update: {
+          context?: Json
+          created_at?: string
+          entity_id?: string | null
+          entity_type?: string | null
+          id?: string
+          message?: string
+          resolved_at?: string | null
+          resolved_by?: string | null
+          severity?: string
+          status?: Database["public"]["Enums"]["alert_status"]
+          type?: Database["public"]["Enums"]["alert_type"]
+        }
+        Relationships: []
+      }
+      order_items: {
+        Row: {
+          airport_iata_snapshot: string | null
+          created_at: string
+          currency: string
+          destination_snapshot: string | null
+          details_snapshot: Json
+          discount: number
+          fulfillment_status: Database["public"]["Enums"]["fulfillment_status"]
+          id: string
+          order_id: string
+          product_id: string | null
+          product_name_snapshot: string
+          product_slug_snapshot: string | null
+          provider_cost: number
+          provider_id: string | null
+          provider_reference: string | null
+          quantity: number
+          sale_price: number
+          service_type: Database["public"]["Enums"]["service_type"]
+          traveler_id: string | null
+        }
+        Insert: {
+          airport_iata_snapshot?: string | null
+          created_at?: string
+          currency?: string
+          destination_snapshot?: string | null
+          details_snapshot?: Json
+          discount?: number
+          fulfillment_status?: Database["public"]["Enums"]["fulfillment_status"]
+          id?: string
+          order_id: string
+          product_id?: string | null
+          product_name_snapshot: string
+          product_slug_snapshot?: string | null
+          provider_cost?: number
+          provider_id?: string | null
+          provider_reference?: string | null
+          quantity?: number
+          sale_price?: number
+          service_type: Database["public"]["Enums"]["service_type"]
+          traveler_id?: string | null
+        }
+        Update: {
+          airport_iata_snapshot?: string | null
+          created_at?: string
+          currency?: string
+          destination_snapshot?: string | null
+          details_snapshot?: Json
+          discount?: number
+          fulfillment_status?: Database["public"]["Enums"]["fulfillment_status"]
+          id?: string
+          order_id?: string
+          product_id?: string | null
+          product_name_snapshot?: string
+          product_slug_snapshot?: string | null
+          provider_cost?: number
+          provider_id?: string | null
+          provider_reference?: string | null
+          quantity?: number
+          sale_price?: number
+          service_type?: Database["public"]["Enums"]["service_type"]
+          traveler_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "order_items_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "order_items_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "service_products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "order_items_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "providers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "order_items_traveler_id_fkey"
+            columns: ["traveler_id"]
+            isOneToOne: false
+            referencedRelation: "travelers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      orders: {
+        Row: {
+          created_at: string
+          currency: string
+          customer_country_iso: string | null
+          customer_id: string | null
+          discount_total: number
+          fulfillment_status: Database["public"]["Enums"]["fulfillment_status"]
+          fx_rate_to_eur: number | null
+          gross_revenue: number
+          guest_claim_token: string | null
+          guest_email: string | null
+          id: string
+          idempotency_key: string | null
+          locale: Database["public"]["Enums"]["locale_code"]
+          order_number: string
+          payment_fee: number
+          payment_status: Database["public"]["Enums"]["payment_status"]
+          provider_cost_total: number
+          refunded_total: number
+          status: Database["public"]["Enums"]["order_status"]
+          tax_total: number
+          trip_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          currency?: string
+          customer_country_iso?: string | null
+          customer_id?: string | null
+          discount_total?: number
+          fulfillment_status?: Database["public"]["Enums"]["fulfillment_status"]
+          fx_rate_to_eur?: number | null
+          gross_revenue?: number
+          guest_claim_token?: string | null
+          guest_email?: string | null
+          id?: string
+          idempotency_key?: string | null
+          locale?: Database["public"]["Enums"]["locale_code"]
+          order_number: string
+          payment_fee?: number
+          payment_status?: Database["public"]["Enums"]["payment_status"]
+          provider_cost_total?: number
+          refunded_total?: number
+          status?: Database["public"]["Enums"]["order_status"]
+          tax_total?: number
+          trip_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          currency?: string
+          customer_country_iso?: string | null
+          customer_id?: string | null
+          discount_total?: number
+          fulfillment_status?: Database["public"]["Enums"]["fulfillment_status"]
+          fx_rate_to_eur?: number | null
+          gross_revenue?: number
+          guest_claim_token?: string | null
+          guest_email?: string | null
+          id?: string
+          idempotency_key?: string | null
+          locale?: Database["public"]["Enums"]["locale_code"]
+          order_number?: string
+          payment_fee?: number
+          payment_status?: Database["public"]["Enums"]["payment_status"]
+          provider_cost_total?: number
+          refunded_total?: number
+          status?: Database["public"]["Enums"]["order_status"]
+          tax_total?: number
+          trip_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "orders_trip_id_fkey"
+            columns: ["trip_id"]
+            isOneToOne: false
+            referencedRelation: "customer_trips"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      payment_transactions: {
+        Row: {
+          amount: number
+          created_at: string
+          currency: string
+          fee: number
+          id: string
+          kind: string
+          order_id: string
+          payout_reference: string | null
+          psp: string | null
+          psp_transaction_id: string | null
+          raw: Json
+          status: Database["public"]["Enums"]["payment_status"]
+        }
+        Insert: {
+          amount?: number
+          created_at?: string
+          currency?: string
+          fee?: number
+          id?: string
+          kind?: string
+          order_id: string
+          payout_reference?: string | null
+          psp?: string | null
+          psp_transaction_id?: string | null
+          raw?: Json
+          status?: Database["public"]["Enums"]["payment_status"]
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          currency?: string
+          fee?: number
+          id?: string
+          kind?: string
+          order_id?: string
+          payout_reference?: string | null
+          psp?: string | null
+          psp_transaction_id?: string | null
+          raw?: Json
+          status?: Database["public"]["Enums"]["payment_status"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payment_transactions_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
             referencedColumns: ["id"]
           },
         ]
@@ -800,6 +1494,66 @@ export type Database = {
         }
         Relationships: []
       }
+      refund_requests: {
+        Row: {
+          amount: number | null
+          audit: Json
+          created_at: string
+          currency: string
+          decided_at: string | null
+          decided_by: string | null
+          id: string
+          order_id: string
+          order_item_id: string | null
+          reason: string | null
+          requested_by: string | null
+          status: Database["public"]["Enums"]["refund_status"]
+        }
+        Insert: {
+          amount?: number | null
+          audit?: Json
+          created_at?: string
+          currency?: string
+          decided_at?: string | null
+          decided_by?: string | null
+          id?: string
+          order_id: string
+          order_item_id?: string | null
+          reason?: string | null
+          requested_by?: string | null
+          status?: Database["public"]["Enums"]["refund_status"]
+        }
+        Update: {
+          amount?: number | null
+          audit?: Json
+          created_at?: string
+          currency?: string
+          decided_at?: string | null
+          decided_by?: string | null
+          id?: string
+          order_id?: string
+          order_item_id?: string | null
+          reason?: string | null
+          requested_by?: string | null
+          status?: Database["public"]["Enums"]["refund_status"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "refund_requests_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "refund_requests_order_item_id_fkey"
+            columns: ["order_item_id"]
+            isOneToOne: false
+            referencedRelation: "order_items"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       regions: {
         Row: {
           code: string
@@ -965,6 +1719,92 @@ export type Database = {
           slug?: string
           sort_order?: number
           updated_at?: string
+        }
+        Relationships: []
+      }
+      traffic_attribution: {
+        Row: {
+          captured_at: string
+          customer_id: string | null
+          first_touch_source: Database["public"]["Enums"]["attribution_source"]
+          id: string
+          landing_path: string | null
+          last_touch_source: Database["public"]["Enums"]["attribution_source"]
+          order_id: string | null
+          session_id: string | null
+          utm_campaign: string | null
+          utm_content: string | null
+          utm_medium: string | null
+          utm_source: string | null
+          utm_term: string | null
+        }
+        Insert: {
+          captured_at?: string
+          customer_id?: string | null
+          first_touch_source?: Database["public"]["Enums"]["attribution_source"]
+          id?: string
+          landing_path?: string | null
+          last_touch_source?: Database["public"]["Enums"]["attribution_source"]
+          order_id?: string | null
+          session_id?: string | null
+          utm_campaign?: string | null
+          utm_content?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
+          utm_term?: string | null
+        }
+        Update: {
+          captured_at?: string
+          customer_id?: string | null
+          first_touch_source?: Database["public"]["Enums"]["attribution_source"]
+          id?: string
+          landing_path?: string | null
+          last_touch_source?: Database["public"]["Enums"]["attribution_source"]
+          order_id?: string | null
+          session_id?: string | null
+          utm_campaign?: string | null
+          utm_content?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
+          utm_term?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "traffic_attribution_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      travelers: {
+        Row: {
+          birth_date: string | null
+          created_at: string
+          customer_id: string
+          full_name: string | null
+          id: string
+          label: string
+          relation: Database["public"]["Enums"]["traveler_relation"]
+        }
+        Insert: {
+          birth_date?: string | null
+          created_at?: string
+          customer_id: string
+          full_name?: string | null
+          id?: string
+          label: string
+          relation?: Database["public"]["Enums"]["traveler_relation"]
+        }
+        Update: {
+          birth_date?: string | null
+          created_at?: string
+          customer_id?: string
+          full_name?: string | null
+          id?: string
+          label?: string
+          relation?: Database["public"]["Enums"]["traveler_relation"]
         }
         Relationships: []
       }
