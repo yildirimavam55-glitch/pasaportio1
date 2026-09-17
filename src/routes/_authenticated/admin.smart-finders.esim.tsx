@@ -144,7 +144,7 @@ function EsimRecommendationSettings() {
               <Button onClick={() => mutation.mutate(effective)} disabled={mutation.isPending}>
                 {mutation.isPending ? <LoaderCircle className="animate-spin" /> : <Save />} Kaydet
               </Button>
-              <Button variant="outline" onClick={() => { setDraft(DEFAULT_USAGE_SETTINGS); setSizesText(DEFAULT_USAGE_SETTINGS.packageSizesGb.join(", ")); }}>
+              <Button variant="outline" onClick={() => setDraft(DEFAULT_USAGE_SETTINGS)}>
                 <RotateCcw /> Varsayılanlara dön
               </Button>
               {saved && <span className="inline-flex items-center gap-1 text-sm font-semibold text-primary"><CheckCircle2 className="size-4" /> Kaydedildi</span>}
