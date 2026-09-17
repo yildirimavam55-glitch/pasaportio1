@@ -115,7 +115,10 @@ function EsimRecommendationSettings() {
             </section>
 
             <section className="rounded-card border border-border bg-card p-5">
-              <h2 className="font-display text-lg font-bold">Güvenlik payı ve yuvarlama</h2>
+              <h2 className="font-display text-lg font-bold">Güvenlik payı ve minimum ihtiyaç</h2>
+              <p className="mt-1 text-sm text-muted-foreground">
+                Paket boyutları burada tanımlanmaz. GB seçenekleri, geçerlilik ve kapsama gerçek ürün kataloğundan gelir; sistem ihtiyacı karşılayan en küçük mevcut paketi seçer.
+              </p>
               <div className="mt-4 grid gap-3 sm:grid-cols-2">
                 <NumberField
                   label="Güvenlik payı"
