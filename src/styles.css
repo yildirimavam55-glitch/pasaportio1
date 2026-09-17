@@ -184,13 +184,18 @@
 @utility bg-hero-overlay { background: linear-gradient(90deg, color-mix(in oklab, var(--primary) 88%, transparent) 0%, color-mix(in oklab, var(--primary) 56%, transparent) 44%, transparent 78%); }
 @utility bg-image-scrim { background: linear-gradient(180deg, transparent 25%, color-mix(in oklab, var(--foreground) 76%, transparent) 100%); }
 @utility pb-safe { padding-bottom: max(0.4rem, env(safe-area-inset-bottom)); }
+@utility icon-slot-sm { display: flex; width: 2rem; height: 2rem; flex-shrink: 0; align-items: center; justify-content: center; }
+@utility icon-box-sm { display: flex; width: 2rem; height: 2rem; flex-shrink: 0; align-items: center; justify-content: center; }
+@utility icon-box-normal { display: flex; width: 2.25rem; height: 2.25rem; flex-shrink: 0; align-items: center; justify-content: center; }
+@utility icon-box-feature { display: flex; width: 2.5rem; height: 2.5rem; flex-shrink: 0; align-items: center; justify-content: center; }
 
 @layer components {
   .nav-link { border-radius: .75rem; padding: .65rem .75rem; font-size: .875rem; font-weight: 600; color: var(--color-muted-foreground); transition: color .2s, background-color .2s; }
   .nav-link:hover, .nav-link[data-status="active"] { color: var(--color-primary); background: var(--color-secondary); }
   .mobile-menu-link { display: flex; min-height: 3rem; align-items: center; border-bottom: 1px solid var(--color-border); font-weight: 700; }
-  .bottom-link { display: flex; min-width: 0; min-height: 4.25rem; flex-direction: column; align-items: center; justify-content: center; gap: .25rem; color: var(--color-muted-foreground); font-size: .68rem; font-weight: 700; }
-  .bottom-link svg { width: 1.25rem; height: 1.25rem; }
+  .bottom-link { display: grid; min-width: 0; min-height: 4.25rem; grid-template-rows: 1.5rem 1rem; place-content: center; place-items: center; row-gap: .25rem; color: var(--color-muted-foreground); font-size: .68rem; font-weight: 700; line-height: 1rem; }
+  .bottom-link svg { width: 1.25rem; height: 1.25rem; align-self: center; stroke-width: 1.8; }
+  .bottom-link span { display: block; min-width: 0; max-width: 100%; align-self: center; line-height: 1rem; }
   .bottom-link[data-status="active"], .bottom-link.is-active { color: var(--color-primary); }
 }
 
@@ -200,6 +205,15 @@
 .reveal-item { opacity: 0; transform: translateY(18px); transition: opacity .38s ease-out, transform .38s ease-out; will-change: opacity, transform; }
 .reveal-item.is-revealed { opacity: 1; transform: none; }
 .recommendation-reveal { transition-duration: .45s; }
+.icon-slot-sm > svg, .icon-box-sm > svg { width: 1rem; height: 1rem; stroke-width: 1.8; }
+.icon-box-normal > svg { width: 1.125rem; height: 1.125rem; stroke-width: 1.8; }
+.icon-box-feature > svg { width: 1.25rem; height: 1.25rem; stroke-width: 1.8; }
+.compatibility-backdrop {
+  background: color-mix(in oklab, var(--primary) 44%, transparent);
+  backdrop-filter: blur(3px);
+  animation-duration: .22s;
+}
+.compatibility-sheet { animation-duration: .3s; }
 
 @keyframes service-overlay-enter {
   from { opacity: 0; }
@@ -256,4 +270,6 @@
   .service-switch-overlay .service-switch-main-icon,
   .service-switch-connectivity,
   .service-switch-signal-icon { animation: none; }
+  .compatibility-backdrop,
+  .compatibility-sheet { animation-duration: .01ms; }
 }

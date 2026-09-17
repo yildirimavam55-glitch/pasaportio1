@@ -178,7 +178,7 @@ export function FinderOptionCard({ selected, icon, title, detail, onClick, compa
       onClick={onClick}
       className={`relative flex ${compact ? "min-h-15" : "min-h-18"} min-w-0 items-center gap-2 rounded-xl border p-2 text-left transition ${selected ? "border-primary bg-primary-soft ring-1 ring-primary" : "border-border bg-card hover:border-primary/50"}`}
     >
-      <span className={`grid size-8 shrink-0 place-items-center rounded-lg [&_svg]:size-4 [&_svg]:stroke-[1.8] ${iconClassName}`}>{icon}</span>
+      <span className={`icon-box-sm rounded-lg ${iconClassName}`}>{icon}</span>
       <span className="min-w-0 flex-1">
         <strong className="block text-xs leading-tight sm:text-sm">{title}</strong>
         {detail && <span className="mt-0.5 block text-[0.7rem] leading-tight text-muted-foreground">{detail}</span>}
@@ -203,8 +203,8 @@ export function SegmentedChoice<T extends string>({ label, value, options, onCha
             onClick={() => onChange(option.key)}
             className={`flex min-h-11 min-w-0 items-center justify-center gap-1.5 truncate rounded-lg border px-2 text-sm font-semibold transition ${selected ? "border-primary bg-primary-soft text-primary" : "border-transparent text-muted-foreground hover:bg-card"}`}
           >
-            {option.icon}
-            {option.label}
+            {option.icon && <span className="icon-slot-sm">{option.icon}</span>}
+            <span className="truncate leading-none">{option.label}</span>
           </button>
         );
       })}

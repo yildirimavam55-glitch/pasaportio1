@@ -70,3 +70,9 @@
 - [x] Add destination-specific airplane and connectivity motion
 - [x] Keep the service swap behind an opaque transition surface
 - [x] Respect reduced-motion preferences
+
+## Icon alignment and compatibility layer polish
+- [x] Normalize core customer icon boxes, SVG size, and stroke weight
+- [x] Align Lounge flight-status icons and mobile bottom navigation
+- [x] Add compatibility-only dimmed backdrop and adaptive sheet/modal surface
+- [x] Preserve scroll locking, close cleanup, and reduced-motion behavior
