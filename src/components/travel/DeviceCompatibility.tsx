@@ -316,8 +316,8 @@ export function DeviceCompatibilitySection() {
       <div className="rounded-card border border-border bg-card p-4 shadow-card sm:flex sm:items-center sm:justify-between sm:gap-4 sm:p-5">
         <div className="min-w-0">
           <h2 className="flex items-center gap-2 font-display text-lg font-bold">
-            <Smartphone className="size-5 text-primary" aria-hidden="true" />
-            {copy.sectionTitle}
+            <span className="icon-slot-sm text-primary"><Smartphone aria-hidden="true" /></span>
+            <span className="leading-tight">{copy.sectionTitle}</span>
           </h2>
           <p className="mt-1 text-sm text-muted-foreground">{copy.sectionLead}</p>
           {compatibilityChecked && compatibilityResult && (

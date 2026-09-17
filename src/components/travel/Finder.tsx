@@ -203,7 +203,7 @@ export function SegmentedChoice<T extends string>({ label, value, options, onCha
             onClick={() => onChange(option.key)}
             className={`flex min-h-11 min-w-0 items-center justify-center gap-1.5 truncate rounded-lg border px-2 text-sm font-semibold transition ${selected ? "border-primary bg-primary-soft text-primary" : "border-transparent text-muted-foreground hover:bg-card"}`}
           >
-            {option.icon && <span className="icon-slot-sm">{option.icon}</span>}
+            {option.icon && <span className="icon-slot-flight">{option.icon}</span>}
             <span className="truncate leading-none">{option.label}</span>
           </button>
         );
