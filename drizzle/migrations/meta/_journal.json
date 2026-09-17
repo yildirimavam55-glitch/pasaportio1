@@ -43,6 +43,13 @@
       "when": 1789639372647,
       "tag": "0005_create_esim_device_compatibility",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1789673580851,
+      "tag": "0006_test_catalogue_seed",
+      "breakpoints": true
     }
   ]
 }

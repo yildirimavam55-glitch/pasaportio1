@@ -51,3 +51,10 @@
 - [x] Preselect the exact recommendation and allow one alternative selection
 - [x] Add the exact selected catalogue snapshot to cart
 - [x] Verify rendered Finder and package page at 360/390/430
+
+## Test catalogue (INTERNAL_TEST)
+- [x] is_test + source columns on service_products
+- [x] showTestCatalogue feature flag (kill switch, OFF before launch)
+- [x] 10 eSIM + 3 Lounge demo products seeded
+- [x] Admin > Test kataloğu: filter, enable/disable, duplicate, delete, DELETE ALL TEST DATA
+- [x] Cart snapshot with is_test + DEMO QR placeholder at /sepet

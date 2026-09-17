@@ -1651,6 +1651,7 @@ export type Database = {
           destination_id: string | null
           featured: boolean
           id: string
+          is_test: boolean
           lifecycle: Database["public"]["Enums"]["product_lifecycle"]
           margin_flagged: boolean
           name: string
@@ -1666,6 +1667,7 @@ export type Database = {
           service_type: Database["public"]["Enums"]["service_type"]
           slug: string
           sort_order: number
+          source: string
           updated_at: string
         }
         Insert: {
@@ -1677,6 +1679,7 @@ export type Database = {
           destination_id?: string | null
           featured?: boolean
           id?: string
+          is_test?: boolean
           lifecycle?: Database["public"]["Enums"]["product_lifecycle"]
           margin_flagged?: boolean
           name: string
@@ -1692,6 +1695,7 @@ export type Database = {
           service_type: Database["public"]["Enums"]["service_type"]
           slug: string
           sort_order?: number
+          source?: string
           updated_at?: string
         }
         Update: {
@@ -1703,6 +1707,7 @@ export type Database = {
           destination_id?: string | null
           featured?: boolean
           id?: string
+          is_test?: boolean
           lifecycle?: Database["public"]["Enums"]["product_lifecycle"]
           margin_flagged?: boolean
           name?: string
@@ -1718,6 +1723,7 @@ export type Database = {
           service_type?: Database["public"]["Enums"]["service_type"]
           slug?: string
           sort_order?: number
+          source?: string
           updated_at?: string
         }
         Relationships: [
