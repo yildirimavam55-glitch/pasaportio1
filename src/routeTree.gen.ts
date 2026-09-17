@@ -10,12 +10,25 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
+import { Route as AuthRouteImport } from './routes/auth'
 import { Route as EsimRouteImport } from './routes/esim'
 import { Route as LoungeRouteImport } from './routes/lounge'
+import { Route as AuthenticatedHesabimIndexRouteImport } from './routes/_authenticated/hesabim.index'
+import { Route as AuthenticatedHesabimSeyahatlerRouteImport } from './routes/_authenticated/hesabim.seyahatler'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
+  id: '/_authenticated',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
   getParentRoute: () => rootRouteImport,
 } as any)
 const EsimRoute = EsimRouteImport.update({
@@ -28,33 +41,66 @@ const LoungeRoute = LoungeRouteImport.update({
   path: '/lounge',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedHesabimIndexRoute =
+  AuthenticatedHesabimIndexRouteImport.update({
+    id: '/hesabim/',
+    path: '/hesabim/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedHesabimSeyahatlerRoute =
+  AuthenticatedHesabimSeyahatlerRouteImport.update({
+    id: '/hesabim/seyahatler',
+    path: '/hesabim/seyahatler',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
   '/esim': typeof EsimRoute
   '/lounge': typeof LoungeRoute
+  '/hesabim/seyahatler': typeof AuthenticatedHesabimSeyahatlerRoute
+  '/hesabim/': typeof AuthenticatedHesabimIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
   '/esim': typeof EsimRoute
   '/lounge': typeof LoungeRoute
+  '/hesabim/seyahatler': typeof AuthenticatedHesabimSeyahatlerRoute
+  '/hesabim': typeof AuthenticatedHesabimIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
+  '/auth': typeof AuthRoute
   '/esim': typeof EsimRoute
   '/lounge': typeof LoungeRoute
+  '/_authenticated/hesabim/seyahatler': typeof AuthenticatedHesabimSeyahatlerRoute
+  '/_authenticated/hesabim/': typeof AuthenticatedHesabimIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/esim' | '/lounge'
+  fullPaths:
+    '/' | '/auth' | '/esim' | '/lounge' | '/hesabim/seyahatler' | '/hesabim/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/esim' | '/lounge'
-  id: '__root__' | '/' | '/esim' | '/lounge'
+  to: '/' | '/auth' | '/esim' | '/lounge' | '/hesabim/seyahatler' | '/hesabim'
+  id:
+    | '__root__'
+    | '/'
+    | '/_authenticated'
+    | '/auth'
+    | '/esim'
+    | '/lounge'
+    | '/_authenticated/hesabim/seyahatler'
+    | '/_authenticated/hesabim/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
+  AuthRoute: typeof AuthRoute
   EsimRoute: typeof EsimRoute
   LoungeRoute: typeof LoungeRoute
 }
@@ -66,6 +112,20 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated': {
+      id: '/_authenticated'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AuthenticatedRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/esim': {
@@ -82,11 +142,40 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LoungeRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/hesabim/': {
+      id: '/_authenticated/hesabim/'
+      path: '/hesabim'
+      fullPath: '/hesabim/'
+      preLoaderRoute: typeof AuthenticatedHesabimIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/hesabim/seyahatler': {
+      id: '/_authenticated/hesabim/seyahatler'
+      path: '/hesabim/seyahatler'
+      fullPath: '/hesabim/seyahatler'
+      preLoaderRoute: typeof AuthenticatedHesabimSeyahatlerRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
   }
 }
 
+interface AuthenticatedRouteRouteChildren {
+  AuthenticatedHesabimSeyahatlerRoute: typeof AuthenticatedHesabimSeyahatlerRoute
+  AuthenticatedHesabimIndexRoute: typeof AuthenticatedHesabimIndexRoute
+}
+
+const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedHesabimSeyahatlerRoute: AuthenticatedHesabimSeyahatlerRoute,
+  AuthenticatedHesabimIndexRoute: AuthenticatedHesabimIndexRoute,
+}
+
+const AuthenticatedRouteRouteWithChildren =
+  AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
+  AuthRoute: AuthRoute,
   EsimRoute: EsimRoute,
   LoungeRoute: LoungeRoute,
 }
