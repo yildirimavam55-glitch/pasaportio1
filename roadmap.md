@@ -43,4 +43,4 @@
 - [x] Mint real-product recommendation card with catalogue price and explanation
 - [x] Clean catalogue-pending recommendation state without fake pricing
 - [x] Preserve Finder selections in package-page navigation
-- [ ] Rendered QA at 360/390/430 and public deployment verification
+- [x] Rendered QA at 360/390/430 and public deployment verification
