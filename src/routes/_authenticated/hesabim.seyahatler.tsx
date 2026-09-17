@@ -1,22 +1,6 @@
-import { createFileRoute } from "@tanstack/react-router";
-
-import { AppShell, PlaceholderSection } from "@/components/AppShell";
-
-export const Route = createFileRoute("/_authenticated/hesabim/seyahatler")({
-  component: TripsPage,
-});
-
-function TripsPage() {
-  return (
-    <AppShell>
-      <h1 className="text-2xl font-semibold tracking-tight">Seyahatlerim</h1>
-      <div className="mt-6">
-        <PlaceholderSection
-          title="Seyahat modeli hazır"
-          description="Bir seyahat birden çok servis satın alımını gruplar."
-          items={["Seyahat başlığı ve tarihleri", "Destinasyon", "eSIM", "Lounge"]}
-        />
-      </div>
-    </AppShell>
-  );
-}
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { ArrowRight, CalendarDays, MapPin, PlaneTakeoff, Plus, Signal } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { PublicShell } from "@/components/travel/PublicShell";
+export const Route=createFileRoute("/_authenticated/hesabim/seyahatler")({component:TripsPage});
+function TripsPage(){return <PublicShell><section className="mx-auto max-w-site px-4 py-10 sm:px-6"><div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between"><div><span className="text-xs font-bold uppercase text-primary">Hesabım</span><h1 className="mt-2 font-display text-3xl font-bold">Seyahatlerim</h1><p className="mt-2 text-sm text-muted-foreground">eSIM ve Lounge hizmetlerini seyahatlerine göre birlikte yönet.</p></div><Button asChild variant="cta"><Link to="/" search={{service:"esim"}} hash="finder"><Plus/> Yeni seyahat planla</Link></Button></div><div className="mt-8 grid gap-4 lg:grid-cols-[1fr_20rem]"><div className="rounded-card border border-dashed border-border bg-card p-8 text-center sm:p-12"><span className="mx-auto grid size-14 place-items-center rounded-full bg-primary-soft text-primary"><PlaneTakeoff/></span><h2 className="mt-5 font-display text-xl font-bold">Henüz planlanmış bir seyahatin yok.</h2><p className="mx-auto mt-2 max-w-md text-sm leading-6 text-muted-foreground">Bir destinasyon seçtiğinde eSIM ve Lounge hizmetlerini aynı seyahat altında takip edebilirsin.</p><Button asChild className="mt-6"><Link to="/" search={{service:"esim"}} hash="finder">Planlamaya başla <ArrowRight/></Link></Button></div><aside className="rounded-card bg-secondary p-5"><h2 className="font-bold">Seyahat kartında neler var?</h2><ul className="mt-4 grid gap-3 text-sm text-muted-foreground"><li className="flex gap-2"><MapPin className="size-5 text-primary"/>Destinasyon ve rota</li><li className="flex gap-2"><CalendarDays className="size-5 text-primary"/>Seyahat tarihleri</li><li className="flex gap-2"><Signal className="size-5 text-primary"/>eSIM hizmetleri</li><li className="flex gap-2"><PlaneTakeoff className="size-5 text-primary"/>Lounge rezervasyonları</li></ul></aside></div></section></PublicShell>;}

@@ -1,70 +1,8 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
+import { createFileRoute } from "@tanstack/react-router";
+import { z } from "zod";
+import { TravelExperience } from "@/components/travel/TravelExperience";
+import { normalizeService } from "@/domain/experience/state";
 
-import { AppShell, PlaceholderSection } from "@/components/AppShell";
-import { useI18n } from "@/i18n";
-import { getServiceConfig } from "@/lib/platform.functions";
-import { visibleServices } from "@/domain/services";
-
-export const Route = createFileRoute("/")({
-  head: () => ({
-    meta: [
-      { title: "Seyahat Servisleri Platformu | eSIM & Lounge" },
-      {
-        name: "description",
-        content:
-          "eSIM ve havalimanı lounge hizmetlerini tek platformda birleştiren modüler seyahat servisleri altyapısı.",
-      },
-      { property: "og:title", content: "Seyahat Servisleri Platformu | eSIM & Lounge" },
-      {
-        property: "og:description",
-        content: "eSIM ve havalimanı lounge hizmetleri tek çatı altında.",
-      },
-      { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary_large_image" },
-    ],
-  }),
-  component: Index,
-});
-
-function Index() {
-  const { t } = useI18n();
-  const { data: services } = useQuery({
-    queryKey: ["services"],
-    queryFn: () => getServiceConfig(),
-  });
-
-  const active = visibleServices(services ?? []);
-
-  return (
-    <AppShell>
-      <h1 className="text-2xl font-semibold tracking-tight">{t("home.title")}</h1>
-      <p className="mt-2 text-sm text-muted-foreground">{t("home.subtitle")}</p>
-
-      <div className="mt-6 grid gap-4 sm:grid-cols-2">
-        {active.map((service) => (
-          <Link
-            key={service.service_type}
-            to={service.service_type === "ESIM" ? "/esim" : "/lounge"}
-            className="rounded-xl border border-border p-5 transition-colors hover:bg-accent"
-          >
-            <span className="text-base font-semibold">
-              {service.service_type === "ESIM" ? t("nav.esim") : t("nav.lounge")}
-            </span>
-            <span className="mt-1 block text-sm text-muted-foreground">
-              {t("common.comingSoon")}
-            </span>
-          </Link>
-        ))}
-      </div>
-
-      <div className="mt-6 grid gap-4">
-        <PlaceholderSection
-          title={t("common.phase")}
-          description="Çok servisli mimari, sağlayıcı adaptörleri, fiyatlandırma, sipariş ve seyahat modelleri hazır."
-          items={["ESIM · aktif", "LOUNGE · aktif", "CAR_RENTAL · kapalı", "TRANSFER · kapalı"]}
-        />
-      </div>
-    </AppShell>
-  );
-}
+const searchSchema=z.object({service:z.enum(["esim","lounge"]).catch("esim").default("esim")});
+export const Route=createFileRoute("/")({validateSearch:(search)=>searchSchema.parse(search),head:()=>({meta:[{title:"travely | eSIM & Airport Lounge"},{name:"description",content:"Seyahatiniz için eSIM ve havalimanı Lounge seçeneklerini tek yerde planlayın."},{property:"og:title",content:"travely | eSIM & Airport Lounge"},{property:"og:description",content:"Seyahatiniz için eSIM ve Lounge seçeneklerini keşfedin."},{property:"og:type",content:"website"},{name:"twitter:card",content:"summary_large_image"}]}),component:Index});
+function Index(){const search=Route.useSearch();const navigate=Route.useNavigate();const service=normalizeService(search.service);return <TravelExperience service={service} onServiceChange={(next)=>void navigate({to:".",search:{service:next},replace:true})}/>;}
