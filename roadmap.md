@@ -16,3 +16,14 @@
 - [x] /esim/paketler results page with cart foundation, no fake products
 - [x] Multi-route preserved via ?route=ISO,ISO
 - [x] Lounge flight status segmented selection (no arrow/check icons)
+
+## Phase 1.5 — eSIM device compatibility + lounge icons
+- [x] Lounge flight status icons (takeoff / transfer / landing, no check or arrow markers)
+- [x] "Telefonum eSIM uyumlu mu?" section under the eSIM finder
+- [x] Brand → model → result checker sheet with model/alias search
+- [x] Compatible / uncertain / not compatible result states with safe wording
+- [x] Manual EID check guide + carrier/region disclaimer
+- [x] Curated device catalogue table with admin management
+- [x] Session-only compatibility state reused on /esim/paketler
+- [x] Non-sensitive analytics events (no IMEI/EID/serial)
+- [x] TR/DE/EN + 360/390/430 QA

@@ -5,6 +5,7 @@ import { ArrowLeft, Check, Gauge, Route as RouteIcon, ShieldCheck, ShoppingCart,
 import { Button } from "@/components/ui/button";
 import { PublicShell } from "@/components/travel/PublicShell";
 import { CountryFlag } from "@/components/travel/CountryFlag";
+import { DeviceCompatibilityInline } from "@/components/travel/DeviceCompatibility";
 import { useI18n } from "@/i18n";
 import { getCountryByIso } from "@/domain/geo/countries";
 import { useCart } from "@/domain/cart/store";
@@ -120,6 +121,10 @@ function PackagesPage() {
               <strong className="mt-1 flex items-center gap-1.5 text-lg"><ShieldCheck className="size-4 text-primary" aria-hidden="true" />{search.recommended} GB</strong>
             </div>
           </div>
+        </div>
+
+        <div className="mt-3">
+          <DeviceCompatibilityInline />
         </div>
 
         {isPending ? (

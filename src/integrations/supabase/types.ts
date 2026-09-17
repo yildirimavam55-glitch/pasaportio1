@@ -505,6 +505,51 @@ export type Database = {
           },
         ]
       }
+      esim_device_compatibility: {
+        Row: {
+          active: boolean
+          aliases: string[]
+          brand: string
+          created_at: string
+          family: string | null
+          id: string
+          last_reviewed: string
+          model: string
+          notes: string | null
+          region_variant_warning: boolean
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          aliases?: string[]
+          brand: string
+          created_at?: string
+          family?: string | null
+          id?: string
+          last_reviewed?: string
+          model: string
+          notes?: string | null
+          region_variant_warning?: boolean
+          status: string
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          aliases?: string[]
+          brand?: string
+          created_at?: string
+          family?: string | null
+          id?: string
+          last_reviewed?: string
+          model?: string
+          notes?: string | null
+          region_variant_warning?: boolean
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       esim_product_details: {
         Row: {
           activation_policy: string | null
