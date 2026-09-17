@@ -24,7 +24,10 @@ export const COUNTRIES = [
   { id: "country-bg", iso: "BG", flag: "🇧🇬", name: { tr: "Bulgaristan", de: "Bulgarien", en: "Bulgaria" } },
   { id: "country-fr", iso: "FR", flag: "🇫🇷", name: { tr: "Fransa", de: "Frankreich", en: "France" } },
 ] as const;
-const SILA_STOPS = COUNTRIES.filter((country) => ["DE", "AT", "SI", "HR", "RS", "BG", "TR"].includes(country.iso)).map((country) => ({ countryId: country.id, countryIso: country.iso }));
+const SILA_STOPS = ["DE", "AT", "SI", "HR", "RS", "BG", "TR"].flatMap((iso) => {
+  const country = COUNTRIES.find((item) => item.iso === iso);
+  return country ? [{ countryId: country.id, countryIso: country.iso }] : [];
+});
 export const ESIM_SERVICE_CONFIG: EsimServiceConfig = { slug: "esim", enabled: true, sections, countries: [...COUNTRIES], media: { id: "esim-hero", category: "Hero", label: "eSIM hero", desktopSrc: esimDesktopHero, mobileSrc: esimMobileHero, fallbackSrc: esimDesktopHero, alt: { tr: "Akdeniz kıyısında telefonuyla seyahat eden gezgin", de: "Reisende mit Smartphone an der Mittelmeerküste", en: "Traveler using a smartphone on the Mediterranean coast" }, focalPosition: "center" }, routePresets: [{ id: "sila-yolu", icon: "🚗", active: true, featured: true, name: { tr: "Sıla Yolu", de: "Sıla Yolu", en: "Sıla Yolu" }, stops: SILA_STOPS }], initialState: { tripMode: "single", destinationId: "country-tr", days: 10, travelers: 1, usage: ["MESSAGING", "SOCIAL", "MAPS"], routeStops: [], presetId: null } };
 export const LOUNGE_SERVICE_CONFIG: LoungeServiceConfig = { slug: "lounge", enabled: true, sections, media: { id: "lounge-hero", category: "Hero", label: "Lounge hero", desktopSrc: loungeDesktopHero, mobileSrc: loungeMobileHero, fallbackSrc: loungeDesktopHero, alt: { tr: "Gün batımında havalimanı Lounge alanında dinlenen yolcu", de: "Reisende in einer Flughafen-Lounge bei Sonnenuntergang", en: "Traveler relaxing in an airport Lounge at sunset" }, focalPosition: "center" }, airports: [
   { id: "airport-ist", iata: "IST", flag: "🇹🇷", countryIso: "TR", city: { tr: "İstanbul", de: "Istanbul", en: "Istanbul" }, airport: { tr: "İstanbul Havalimanı", de: "Flughafen Istanbul", en: "Istanbul Airport" } },

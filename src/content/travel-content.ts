@@ -75,5 +75,16 @@ export const LOUNGE_CONTENT: Localized<ServiceCopy> = {
 };
 
 export function localized<T>(content: Localized<T>, locale: Locale): T {
-  return content[locale] ?? content.tr;
+  return mergeFallback(content.tr, content[locale]);
+}
+
+function mergeFallback<T>(fallback: T, selected: T | undefined): T {
+  if (selected === undefined || selected === null) return fallback;
+  if (Array.isArray(fallback)) return selected;
+  if (typeof fallback !== "object" || fallback === null || typeof selected !== "object") return selected;
+  const merged: Record<string, unknown> = { ...(fallback as Record<string, unknown>) };
+  for (const key of Object.keys(merged)) {
+    merged[key] = mergeFallback(merged[key], (selected as Record<string, unknown>)[key]);
+  }
+  return merged as T;
 }
