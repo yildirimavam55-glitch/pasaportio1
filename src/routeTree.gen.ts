@@ -15,6 +15,7 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as EsimIndexRouteImport } from './routes/esim.index'
 import { Route as EsimPaketlerRouteImport } from './routes/esim.paketler'
 import { Route as LoungeIndexRouteImport } from './routes/lounge.index'
+import { Route as LoungeSeceneklerRouteImport } from './routes/lounge.secenekler'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin.index'
 import { Route as AuthenticatedAdminCustomersRouteImport } from './routes/_authenticated/admin.customers'
 import { Route as AuthenticatedAdminOrdersRouteImport } from './routes/_authenticated/admin.orders'
@@ -52,6 +53,11 @@ const EsimPaketlerRoute = EsimPaketlerRouteImport.update({
 const LoungeIndexRoute = LoungeIndexRouteImport.update({
   id: '/lounge/',
   path: '/lounge/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LoungeSeceneklerRoute = LoungeSeceneklerRouteImport.update({
+  id: '/lounge/secenekler',
+  path: '/lounge/secenekler',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedAdminIndexRoute = AuthenticatedAdminIndexRouteImport.update({
@@ -112,6 +118,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/esim/paketler': typeof EsimPaketlerRoute
+  '/lounge/secenekler': typeof LoungeSeceneklerRoute
   '/esim/': typeof EsimIndexRoute
   '/lounge/': typeof LoungeIndexRoute
   '/admin/customers': typeof AuthenticatedAdminCustomersRoute
@@ -128,6 +135,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/esim/paketler': typeof EsimPaketlerRoute
+  '/lounge/secenekler': typeof LoungeSeceneklerRoute
   '/esim': typeof EsimIndexRoute
   '/lounge': typeof LoungeIndexRoute
   '/admin/customers': typeof AuthenticatedAdminCustomersRoute
@@ -146,6 +154,7 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
   '/esim/paketler': typeof EsimPaketlerRoute
+  '/lounge/secenekler': typeof LoungeSeceneklerRoute
   '/esim/': typeof EsimIndexRoute
   '/lounge/': typeof LoungeIndexRoute
   '/_authenticated/admin/customers': typeof AuthenticatedAdminCustomersRoute
@@ -164,6 +173,7 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/esim/paketler'
+    | '/lounge/secenekler'
     | '/esim/'
     | '/lounge/'
     | '/admin/customers'
@@ -180,6 +190,7 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/esim/paketler'
+    | '/lounge/secenekler'
     | '/esim'
     | '/lounge'
     | '/admin/customers'
@@ -197,6 +208,7 @@ export interface FileRouteTypes {
     | '/_authenticated'
     | '/auth'
     | '/esim/paketler'
+    | '/lounge/secenekler'
     | '/esim/'
     | '/lounge/'
     | '/_authenticated/admin/customers'
@@ -215,6 +227,7 @@ export interface RootRouteChildren {
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
   EsimPaketlerRoute: typeof EsimPaketlerRoute
+  LoungeSeceneklerRoute: typeof LoungeSeceneklerRoute
   EsimIndexRoute: typeof EsimIndexRoute
   LoungeIndexRoute: typeof LoungeIndexRoute
 }
@@ -261,6 +274,13 @@ declare module '@tanstack/react-router' {
       path: '/lounge'
       fullPath: '/lounge/'
       preLoaderRoute: typeof LoungeIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/lounge/secenekler': {
+      id: '/lounge/secenekler'
+      path: '/lounge/secenekler'
+      fullPath: '/lounge/secenekler'
+      preLoaderRoute: typeof LoungeSeceneklerRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated/admin/': {
@@ -362,6 +382,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
   EsimPaketlerRoute: EsimPaketlerRoute,
+  LoungeSeceneklerRoute: LoungeSeceneklerRoute,
   EsimIndexRoute: EsimIndexRoute,
   LoungeIndexRoute: LoungeIndexRoute,
 }
