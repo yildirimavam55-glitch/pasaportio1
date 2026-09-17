@@ -33,13 +33,13 @@ async function assertAdmin(context: Ctx) {
 export type DashboardFilters = {
   from: string;
   to: string;
-  serviceType?: ServiceType | "ALL";
-  source?: string;
-  campaign?: string;
-  locale?: string;
-  customerCountry?: string;
-  destination?: string;
-  compare?: boolean;
+  serviceType?: ServiceType | "ALL" | undefined;
+  source?: string | undefined;
+  campaign?: string | undefined;
+  locale?: string | undefined;
+  customerCountry?: string | undefined;
+  destination?: string | undefined;
+  compare?: boolean | undefined;
 };
 
 function parseFilters(input: any): DashboardFilters {
