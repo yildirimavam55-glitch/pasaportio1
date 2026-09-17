@@ -64,3 +64,9 @@
 - [x] Derive popular eSIM destination starting prices from published catalogue rows
 - [x] Add package CTAs to popular eSIM destination and route cards
 - [x] Keep Finder recommendation and pricing strictly catalogue-backed
+
+## Service switch transition
+- [x] Guard repeated eSIM/Lounge switch taps
+- [x] Add destination-specific airplane and connectivity motion
+- [x] Keep the service swap behind an opaque transition surface
+- [x] Respect reduced-motion preferences

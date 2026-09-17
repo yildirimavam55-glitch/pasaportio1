@@ -12,6 +12,7 @@ import { useEffect, type ReactNode } from "react";
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { I18nProvider } from "@/i18n";
+import { ServiceSwitchTransitionProvider } from "@/components/travel/ServiceSwitchTransition";
 
 function NotFoundComponent() {
   return (
@@ -130,8 +131,10 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       <I18nProvider>
-        {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-        <Outlet />
+        <ServiceSwitchTransitionProvider>
+          {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
+          <Outlet />
+        </ServiceSwitchTransitionProvider>
       </I18nProvider>
     </QueryClientProvider>
   );

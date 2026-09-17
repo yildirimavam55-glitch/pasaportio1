@@ -68,6 +68,7 @@
   --color-sand-soft: var(--sand-soft);
   --color-cta-soft: var(--cta-soft);
   --color-hero-foreground: var(--hero-foreground);
+  --color-transition-surface: var(--transition-surface);
   --font-sans: "Manrope", sans-serif;
   --font-display: "Outfit", sans-serif;
   --radius-card: 1.25rem;
@@ -100,6 +101,7 @@
   --sand-soft: oklch(0.95 0.03 75);
   --cta-soft: oklch(0.94 0.045 48);
   --hero-foreground: oklch(0.99 0.004 90);
+  --transition-surface: oklch(1 0 0);
   --destructive: oklch(0.577 0.245 27.325);
   --destructive-foreground: oklch(0.984 0.003 247.858);
   --border: oklch(0.87 0.02 83);
@@ -156,6 +158,7 @@
   --sidebar-accent-foreground: oklch(0.984 0.003 247.858);
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.551 0.027 264.364);
+  --transition-surface: oklch(1 0 0);
 }
 
 @layer base {
@@ -198,6 +201,59 @@
 .reveal-item.is-revealed { opacity: 1; transform: none; }
 .recommendation-reveal { transition-duration: .45s; }
 
+@keyframes service-overlay-enter {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes service-overlay-leave {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+@keyframes service-plane-flight {
+  0% { opacity: 0; transform: translate3d(-22px, 12px, 0) rotate(-5deg) scale(.94); }
+  45% { opacity: 1; }
+  100% { opacity: 1; transform: translate3d(16px, -9px, 0) rotate(2deg) scale(1); }
+}
+@keyframes service-connectivity-activate {
+  0% { opacity: 0; transform: scale(.88); }
+  55% { opacity: 1; transform: scale(1.035); }
+  100% { opacity: 1; transform: scale(1); }
+}
+@keyframes service-signal-pulse {
+  0% { opacity: 0; transform: translate3d(-4px, 4px, 0) scale(.72); }
+  60%, 100% { opacity: 1; transform: none; }
+}
+.service-switch-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: grid;
+  place-items: center;
+  background: var(--color-transition-surface);
+  pointer-events: auto;
+  will-change: opacity;
+}
+.service-switch-overlay[data-phase="entering"] { animation: service-overlay-enter .13s ease-out both; }
+.service-switch-overlay[data-phase="leaving"] { animation: service-overlay-leave .2s ease-in both; }
+.service-switch-icon {
+  display: grid;
+  width: 5.5rem;
+  height: 5.5rem;
+  place-items: center;
+  border-radius: 9999px;
+  background: var(--color-primary-soft);
+  color: var(--color-primary);
+  box-shadow: 0 14px 40px color-mix(in oklab, var(--primary) 18%, transparent);
+}
+.service-switch-main-icon { width: 2.6rem; height: 2.6rem; stroke-width: 1.8; }
+.service-switch-overlay[data-target="lounge"] .service-switch-main-icon { animation: service-plane-flight .4s cubic-bezier(.2,.75,.25,1) both; }
+.service-switch-connectivity { position: relative; display: grid; place-items: center; animation: service-connectivity-activate .36s ease-out both; }
+.service-switch-signal-icon { position: absolute; right: -1.05rem; top: -.8rem; width: 1.5rem; height: 1.5rem; stroke-width: 2; animation: service-signal-pulse .32s .08s ease-out both; }
+
 @media (prefers-reduced-motion: reduce) {
   .reveal-item { opacity: 1; transform: none; transition: none; }
+  .service-switch-overlay[data-phase] { animation-duration: .06s; }
+  .service-switch-overlay .service-switch-main-icon,
+  .service-switch-connectivity,
+  .service-switch-signal-icon { animation: none; }
 }
