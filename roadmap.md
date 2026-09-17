@@ -50,4 +50,4 @@
 - [x] Preserve stable recommended product ID through the package-page handoff
 - [x] Preselect the exact recommendation and allow one alternative selection
 - [x] Add the exact selected catalogue snapshot to cart
-- [ ] Verify rendered Finder and package page at 360/390/430
+- [x] Verify rendered Finder and package page at 360/390/430
