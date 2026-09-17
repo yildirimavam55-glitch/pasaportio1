@@ -40,7 +40,7 @@ import type { Locale } from "@/domain/enums";
 import { DEFAULT_USAGE_SETTINGS, estimateUsageNeed } from "@/domain/esim/usage-recommendation";
 import { getEsimUsageSettings } from "@/lib/esim-settings.functions";
 import { listEsimPackages } from "@/lib/esim-catalogue.functions";
-import { selectRecommendedPackage } from "@/domain/esim/package-matching";
+import { resolvePackageRecommendation } from "@/domain/esim/package-matching";
 import { useCart } from "@/domain/cart/store";
 import { CountryFlag } from "./CountryFlag";
 
