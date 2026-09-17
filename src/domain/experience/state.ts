@@ -20,7 +20,11 @@ export function moveStop(stops: RouteStop[], id: string, direction: -1 | 1): Rou
   const next = index + direction;
   if (index < 0 || next < 0 || next >= normalized.length) return normalized;
   const copy = [...normalized];
-  [copy[index], copy[next]] = [copy[next], copy[index]];
+  const current = copy[index];
+  const target = copy[next];
+  if (!current || !target) return normalized;
+  copy[index] = target;
+  copy[next] = current;
   return copy.map((stop, order) => ({ ...stop, order }));
 }
 export function removeStop(stops: RouteStop[], id: string): RouteStop[] { return normalizeRouteStops(stops.filter((stop) => stop.id !== id)); }

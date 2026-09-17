@@ -11,7 +11,7 @@ export function AppShell({ children }: { children: ReactNode }) {
     <div className="min-h-screen bg-background text-foreground">
       <header className="border-b border-border">
         <div className="mx-auto flex max-w-5xl flex-wrap items-center gap-3 px-4 py-3">
-          <Link to="/" className="text-sm font-semibold tracking-tight">
+          <Link to="/" search={{ service: "esim" }} className="text-sm font-semibold tracking-tight">
             {t("brand")}
           </Link>
           <nav className="flex flex-1 flex-wrap items-center gap-3 text-sm text-muted-foreground">

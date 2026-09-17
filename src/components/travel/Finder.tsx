@@ -19,7 +19,7 @@ const usageItems: Array<{key:UsageKind; title:string; detail:string; icon:React.
 export function EsimFinder({ state, onChange }: { state:EsimFinderState; onChange:(s:EsimFinderState)=>void }) {
  const { locale }=useI18n(); const [routeError,setRouteError]=useState(""); const preset=ESIM_SERVICE_CONFIG.routePresets[0];
  const countryName=(id:string)=>COUNTRIES.find(c=>c.id===id)?.name[locale] ?? COUNTRIES.find(c=>c.id===id)?.name.tr ?? "—";
- const selectPreset=()=>{ const routeStops=routeFromPreset(preset); onChange({...ESIM_SERVICE_CONFIG.initialState,tripMode:"multi",routeStops,presetId:preset.id}); setRouteError(""); };
+ const selectPreset=()=>{ if (!preset) return; const routeStops=routeFromPreset(preset); onChange({...ESIM_SERVICE_CONFIG.initialState,tripMode:"multi",routeStops,presetId:preset.id}); setRouteError(""); };
  const addStop=()=>{ const used=new Set(state.routeStops.map(s=>s.countryId)); const country=COUNTRIES.find(c=>!used.has(c.id)); if(!country){setRouteError("Eklenebilecek başka ülke yok.");return;} onChange({...state,routeStops:normalizeRouteStops([...state.routeStops,stableStop(country.id,country.iso,state.routeStops.length)])}); };
  const toggleUsage=(key:UsageKind)=>onChange({...state,usage:state.usage.includes(key)?state.usage.filter(v=>v!==key):[...state.usage,key]});
  const estimate=Math.max(1,Math.round((state.days*(state.usage.includes("VIDEO")?0.8:0.25)+state.usage.length*0.45)*10)/10);
