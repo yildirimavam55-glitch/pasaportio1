@@ -36,7 +36,7 @@ import { countryName, getCountry, getCountryByIso } from "@/domain/geo/countries
 import { isValidMultiRoute, moveStop, normalizeRouteStops, removeStop, routeFromPreset, stableStop } from "@/domain/experience/state";
 import type { EsimFinderState, LoungeFinderState, UsageKind } from "@/domain/experience/types";
 import type { Locale } from "@/domain/enums";
-import { DEFAULT_USAGE_SETTINGS, recommendUsage } from "@/domain/esim/usage-recommendation";
+import { DEFAULT_USAGE_SETTINGS, estimateUsageNeed } from "@/domain/esim/usage-recommendation";
 import { getEsimUsageSettings } from "@/lib/esim-settings.functions";
 import { CountryFlag } from "./CountryFlag";
 
