@@ -24,24 +24,30 @@ const COPY = {
     title: "Lounge seçenekleri", back: "Finder’a dön", lead: "Seçimine uyan yayınlanmış Lounge seçenekleri.",
     travelers: "kişi", stay: "dk kalış", terminal: "Terminal", perPerson: "kişi başı", total: "toplam",
     select: "Lounge’u Seç", empty: "Bu havalimanı için şu anda yayınlanmış Lounge seçeneği bulunmuyor.",
-    changeAirport: "Havalimanını değiştir",
+    changeAirport: "Havalimanını değiştir", goToCart: "Sepete git",
     departure: "Kalkış", transit: "Aktarma", arrival: "Varış",
   },
   de: {
     title: "Lounge-Optionen", back: "Zurück zum Finder", lead: "Veröffentlichte Lounges passend zu deiner Auswahl.",
     travelers: "Pers.", stay: "Min. Aufenthalt", terminal: "Terminal", perPerson: "pro Person", total: "gesamt",
     select: "Lounge wählen", empty: "Für diesen Flughafen ist derzeit keine Lounge veröffentlicht.",
-    changeAirport: "Flughafen ändern",
+    changeAirport: "Flughafen ändern", goToCart: "Zum Warenkorb",
     departure: "Abflug", transit: "Umstieg", arrival: "Ankunft",
   },
   en: {
     title: "Lounge options", back: "Back to finder", lead: "Published lounges matching your selection.",
     travelers: "people", stay: "min stay", terminal: "Terminal", perPerson: "per person", total: "total",
     select: "Select lounge", empty: "No lounge is currently published for this airport.",
-    changeAirport: "Change airport",
+    changeAirport: "Change airport", goToCart: "Go to cart",
     departure: "Departure", transit: "Transit", arrival: "Arrival",
   },
 } satisfies Record<Locale, Record<string, string>>;
+
+const AMENITY_LABELS: Record<Locale, Record<string, string>> = {
+  tr: { WIFI: "Wi-Fi", FOOD: "Yemek", SNACKS: "Atıştırmalık", DRINKS: "İçecek", CHARGING: "Şarj", QUIET: "Sessiz alan" },
+  de: { WIFI: "WLAN", FOOD: "Essen", SNACKS: "Snacks", DRINKS: "Getränke", CHARGING: "Laden", QUIET: "Ruhebereich" },
+  en: { WIFI: "Wi-Fi", FOOD: "Food", SNACKS: "Snacks", DRINKS: "Drinks", CHARGING: "Charging", QUIET: "Quiet area" },
+};
 
 export const Route = createFileRoute("/lounge/secenekler")({
   validateSearch: (search) => searchSchema.parse(search),
@@ -100,7 +106,9 @@ function LoungeOptionsPage() {
           </div>
         ) : options.length ? (
           <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            {options.map((option) => <LoungeCard key={option.id} option={option} travelers={search.travelers} copy={copy} />)}
+            {options.map((option) => (
+              <LoungeCard key={option.id} option={option} travelers={search.travelers} copy={copy} locale={locale} search={search} />
+            ))}
           </div>
         ) : (
           <div className="mt-5 rounded-card border border-dashed border-border bg-card p-6 text-center">
@@ -115,7 +123,7 @@ function LoungeOptionsPage() {
   );
 }
 
-function LoungeCard({ option, travelers, copy }: { option: LoungeOption; travelers: number; copy: (typeof COPY)["tr"] }) {
+function LoungeCard({ option, travelers, copy, locale, search }: { option: LoungeOption; travelers: number; copy: (typeof COPY)["tr"]; locale: Locale; search: { date: string; situation: string } }) {
   const { lines, addLine } = useCart();
   const inCart = lines.some((line) => line.productId === option.id);
   const price = option.salePrice ?? 0;
@@ -123,7 +131,10 @@ function LoungeCard({ option, travelers, copy }: { option: LoungeOption; travele
 
   return (
     <article className="flex flex-col rounded-card border border-border bg-card p-5 shadow-card">
-      <strong className="font-display text-lg">{option.loungeName ?? option.name}</strong>
+      <div className="flex items-start justify-between gap-2">
+        <strong className="font-display text-lg">{option.loungeName ?? option.name}</strong>
+        {option.isTest && <span className="shrink-0 rounded-full border border-primary px-2 py-0.5 text-xs font-bold text-primary">TEST</span>}
+      </div>
       <span className="mt-0.5 text-sm text-muted-foreground">
         {option.iata}{option.terminal ? ` · ${copy.terminal} ${option.terminal}` : ""}
       </span>
@@ -135,7 +146,7 @@ function LoungeCard({ option, travelers, copy }: { option: LoungeOption; travele
       {option.amenities.length > 0 && (
         <ul className="mt-3 flex flex-wrap gap-1.5">
           {option.amenities.slice(0, 6).map((amenity) => (
-            <li key={amenity} className="rounded-full bg-secondary px-2 py-1 text-xs font-semibold text-muted-foreground">{amenity}</li>
+            <li key={amenity} className="rounded-full bg-secondary px-2 py-1 text-xs font-semibold text-muted-foreground">{AMENITY_LABELS[locale][amenity] ?? amenity}</li>
           ))}
         </ul>
       )}
@@ -147,10 +158,11 @@ function LoungeCard({ option, travelers, copy }: { option: LoungeOption; travele
         variant="cta"
         className="mt-3 w-full"
         disabled={inCart}
-        onClick={() => addLine({ productId: option.id, serviceType: "LOUNGE", name: option.loungeName ?? option.name, meta: option.iata ?? "", price, currency: option.currency, quantity: travelers })}
+        onClick={() => addLine({ productId: option.id, serviceType: "LOUNGE", name: option.loungeName ?? option.name, meta: "", price, currency: option.currency, quantity: travelers, isTest: option.isTest, airport: option.iata, terminal: option.terminal, date: search.date || null, situation: search.situation })}
       >
         {copy.select}
       </Button>
+      {inCart && <Link to="/sepet" className="mt-2 block text-center text-sm font-semibold text-primary">{copy.goToCart}</Link>}
     </article>
   );
 }

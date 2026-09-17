@@ -38,7 +38,7 @@ const COPY = {
     recommendedBadge: "Önerilen", validity: "gün geçerli", unlimited: "Sınırsız veri",
     hotspot: "Hotspot", fiveG: "5G", coverage: "ülke kapsamı",
     lead: "Seçimlerine uyan güncel paketler.",
-    why: "Neden bu paket?",
+    why: "Neden bu paket?", goToCart: "Sepete git",
     whyText: (need: number, size: string) => `Yaklaşık ${need} GB ihtiyacın için mevcut paketler arasındaki en yakın uygun seçenek: ${size}.`,
   },
   de: {
@@ -50,7 +50,7 @@ const COPY = {
     recommendedBadge: "Empfohlen", validity: "Tage gültig", unlimited: "Unbegrenzte Daten",
     hotspot: "Hotspot", fiveG: "5G", coverage: "Länder abgedeckt",
     lead: "Aktuelle Pakete passend zu deiner Auswahl.",
-    why: "Warum dieses Paket?",
+    why: "Warum dieses Paket?", goToCart: "Zum Warenkorb",
     whyText: (need: number, size: string) => `Für deinen Bedarf von rund ${need} GB ist dies das nächstpassende verfügbare Paket: ${size}.`,
   },
   en: {
@@ -62,7 +62,7 @@ const COPY = {
     recommendedBadge: "Recommended", validity: "days valid", unlimited: "Unlimited data",
     hotspot: "Hotspot", fiveG: "5G", coverage: "countries covered",
     lead: "Live packages matching your selection.",
-    why: "Why this package?",
+    why: "Why this package?", goToCart: "Go to cart",
     whyText: (need: number, size: string) => `For your roughly ${need} GB need, this is the closest suitable available option: ${size}.`,
   },
 } satisfies Record<Locale, Record<string, unknown>>;
@@ -185,9 +185,12 @@ function PackagesPage() {
             ))}
             {selectedProduct && (
               <div className="sm:col-span-2 lg:col-span-3">
-                <Button variant="cta" size="lg" className="w-full scroll-mb-24" disabled={selectedInCart} onClick={() => addLine({ productId: selectedProduct.id, providerProductId: selectedProduct.providerProductId, serviceType: "ESIM", name: selectedProduct.name, meta: selectedProduct.unlimited ? copy.unlimited : `${selectedProduct.dataGb ?? "—"} GB`, price: selectedProduct.salePrice, currency: selectedProduct.currency, dataGb: selectedProduct.dataGb, validityDays: selectedProduct.validityDays, coverage: selectedProduct.coverage })}>
+                <Button variant="cta" size="lg" className="w-full scroll-mb-24" disabled={selectedInCart} onClick={() => addLine({ productId: selectedProduct.id, providerProductId: selectedProduct.providerProductId, serviceType: "ESIM", name: selectedProduct.name, meta: selectedProduct.unlimited ? copy.unlimited : `${selectedProduct.dataGb ?? "—"} GB`, price: selectedProduct.salePrice, currency: selectedProduct.currency, dataGb: selectedProduct.dataGb, validityDays: selectedProduct.validityDays, coverage: selectedProduct.coverage, isTest: selectedProduct.isTest })}>
                   <ShoppingCart /> {selectedInCart ? copy.inCart : copy.add}
                 </Button>
+                {lines.length > 0 && (
+                  <Link to="/sepet" className="mt-2 block text-center text-sm font-semibold text-primary">{copy.goToCart}</Link>
+                )}
               </div>
             )}
           </div>
@@ -213,11 +216,14 @@ function PackageCard({ pkg, isRecommended, isSelected, onSelect, whyText, copy }
 
   return (
     <article id={`esim-package-${pkg.id}`} className={`flex flex-col rounded-card border p-5 shadow-card ${isRecommended ? "border-primary bg-primary-soft ring-1 ring-primary" : isSelected ? "border-primary bg-card" : "border-border bg-card"}`}>
-      <div className="flex items-start justify-between gap-2">
-        <div className="min-w-0">
-          <strong className="block font-display text-2xl">{pkg.unlimited ? copy.unlimited : `${pkg.dataGb ?? "—"} GB`}</strong>
-          <span className="mt-0.5 block truncate text-sm text-muted-foreground">{pkg.name}</span>
+      <div className="flex flex-wrap items-start justify-between gap-2">
+        <div className="min-w-0 flex-1">
+          <strong className="block break-words font-display text-2xl">{pkg.unlimited ? copy.unlimited : `${pkg.dataGb ?? "—"} GB`}</strong>
+          <span className="mt-0.5 block break-words text-sm text-muted-foreground">{pkg.name}</span>
         </div>
+        {pkg.isTest && (
+          <span className="shrink-0 rounded-full border border-primary px-2 py-1 text-xs font-bold text-primary">TEST</span>
+        )}
         {(isRecommended || pkg.badge) && (
           <span className="shrink-0 rounded-full bg-accent-soft px-2 py-1 text-xs font-bold text-primary">
             {isRecommended ? copy.recommendedBadge : pkg.badge}

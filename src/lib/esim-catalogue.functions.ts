@@ -2,6 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { createClient } from "@supabase/supabase-js";
 
 import type { Database } from "@/integrations/supabase/types";
+import { isTestCatalogueVisible } from "@/lib/test-catalogue.functions";
 
 export type EsimPackage = {
   id: string;
@@ -19,6 +20,7 @@ export type EsimPackage = {
   supports5g: boolean;
   supportsHotspot: boolean;
   networks: string[];
+  isTest: boolean;
 };
 
 function publicClient() {
@@ -48,7 +50,7 @@ export const listEsimPackages = createServerFn({ method: "GET" })
     const { data: rows, error } = await publicClient()
       .from("service_products")
       .select(
-        "id, provider_external_id, slug, name, currency, sale_price, badge, featured, sort_order, lifecycle, customer_visible, provider_available, margin_flagged, service_type, esim_product_details(data_gb, unlimited_data, validity_days, coverage_country_isos, country_iso, supports_5g, supports_hotspot, network_operators)",
+        "id, provider_external_id, slug, name, currency, sale_price, badge, featured, sort_order, lifecycle, customer_visible, provider_available, margin_flagged, service_type, is_test, source, esim_product_details(data_gb, unlimited_data, validity_days, coverage_country_isos, country_iso, supports_5g, supports_hotspot, network_operators)",
       )
       .eq("service_type", "ESIM")
       .eq("lifecycle", "PUBLISHED")
@@ -58,6 +60,7 @@ export const listEsimPackages = createServerFn({ method: "GET" })
       .order("sort_order");
     if (error) throw new Error(error.message);
 
+    const showTest = await isTestCatalogueVisible();
     const wanted = data.coverageIsos;
     return (rows ?? [])
       .map((row) => {
@@ -94,8 +97,10 @@ export const listEsimPackages = createServerFn({ method: "GET" })
           supports5g: Boolean(details?.supports_5g),
           supportsHotspot: Boolean(details?.supports_hotspot),
           networks: details?.network_operators ?? [],
+          isTest: Boolean(row.is_test),
         } satisfies EsimPackage;
       })
       .filter((pkg) => (wanted.length ? wanted.every((iso) => pkg.coverage.includes(iso)) : true))
-      .filter((pkg) => pkg.salePrice != null && pkg.salePrice > 0);
+      .filter((pkg) => pkg.salePrice != null && pkg.salePrice > 0)
+      .filter((pkg) => showTest || !pkg.isTest);
   });

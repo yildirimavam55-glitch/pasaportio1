@@ -18,6 +18,12 @@ export type CartLine = {
   dataGb?: number | null;
   validityDays?: number | null;
   coverage?: string[];
+  isTest?: boolean;
+  /** Lounge purchase snapshot (no reservation is created). */
+  airport?: string | null;
+  terminal?: string | null;
+  date?: string | null;
+  situation?: string | null;
 };
 
 const STORAGE_KEY = "travely.cart.v1";

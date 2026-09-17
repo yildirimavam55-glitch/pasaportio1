@@ -2,6 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { createClient } from "@supabase/supabase-js";
 
 import type { Database } from "@/integrations/supabase/types";
+import { isTestCatalogueVisible } from "@/lib/test-catalogue.functions";
 
 export type LoungeOption = {
   id: string;
@@ -18,6 +19,7 @@ export type LoungeOption = {
   departureEligible: boolean;
   transitEligible: boolean;
   arrivalEligible: boolean;
+  isTest: boolean;
 };
 
 function publicClient() {
@@ -49,7 +51,7 @@ export const listLoungeOptions = createServerFn({ method: "GET" })
     const { data: rows, error } = await publicClient()
       .from("service_products")
       .select(
-        "id, slug, name, currency, sale_price, badge, sort_order, lounge_product_details(lounge_name, iata, terminal, max_stay_minutes, amenities, departure_eligible, transit_eligible, arrival_eligible)",
+        "id, slug, name, currency, sale_price, badge, sort_order, is_test, source, lounge_product_details(lounge_name, iata, terminal, max_stay_minutes, amenities, departure_eligible, transit_eligible, arrival_eligible)",
       )
       .eq("service_type", "LOUNGE")
       .eq("lifecycle", "PUBLISHED")
@@ -57,6 +59,7 @@ export const listLoungeOptions = createServerFn({ method: "GET" })
       .order("sort_order");
     if (error) throw new Error(error.message);
 
+    const showTest = await isTestCatalogueVisible();
     return (rows ?? [])
       .map((row) => {
         const raw = row as Record<string, unknown>;
@@ -88,11 +91,13 @@ export const listLoungeOptions = createServerFn({ method: "GET" })
           departureEligible: details?.departure_eligible !== false,
           transitEligible: details?.transit_eligible !== false,
           arrivalEligible: details?.arrival_eligible !== false,
+          isTest: Boolean(raw["is_test"]),
         } satisfies LoungeOption;
       })
       .filter((option) => option.iata === data.iata)
       .filter((option) =>
         data.situation === "TRANSIT" ? option.transitEligible : data.situation === "ARRIVAL" ? option.arrivalEligible : option.departureEligible,
       )
-      .filter((option) => option.salePrice != null && option.salePrice > 0);
+      .filter((option) => option.salePrice != null && option.salePrice > 0)
+      .filter((option) => showTest || !option.isTest);
   });
