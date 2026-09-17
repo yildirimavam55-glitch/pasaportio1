@@ -1,20 +1,21 @@
 import type { UsageKind } from "@/domain/experience/types";
 
 /**
- * Centralized, admin-configurable eSIM usage recommendation settings.
- * Frontend components must never hard-code usage weights or package sizes.
+ * Layer 1 of the eSIM recommendation engine: CUSTOMER NEED ESTIMATION.
+ *
+ * This module never decides which product to sell. It only estimates how much
+ * data the traveller is likely to need. Actual purchasable package sizes come
+ * from the provider/internal catalogue (see `package-matching.ts`).
  */
 
 export type UsageIntensity = "LOW" | "NORMAL" | "HIGH";
-export type PackageRoundingStrategy = "NEXT_PACKAGE_UP" | "NEAREST_PACKAGE";
 
 export type EsimUsageSettings = {
   perDayMb: Record<UsageKind, number>;
   intensityMultipliers: Record<UsageIntensity, number>;
   safetyBufferPercent: number;
+  /** Minimum need floor, so tiny trips still get a sensible requirement. */
   minimumRecommendedGb: number;
-  packageSizesGb: number[];
-  roundingStrategy: PackageRoundingStrategy;
 };
 
 export const USAGE_KEYS: UsageKind[] = ["MESSAGING", "SOCIAL", "MAPS", "VIDEO", "WORK", "GAMING", "HOTSPOT"];
@@ -25,8 +26,6 @@ export const DEFAULT_USAGE_SETTINGS: EsimUsageSettings = {
   intensityMultipliers: { LOW: 0.7, NORMAL: 1, HIGH: 1.4 },
   safetyBufferPercent: 20,
   minimumRecommendedGb: 1,
-  packageSizesGb: [1, 3, 5, 10, 20, 50],
-  roundingStrategy: "NEXT_PACKAGE_UP",
 };
 
 export const SETTINGS_LIMITS = {
@@ -34,7 +33,6 @@ export const SETTINGS_LIMITS = {
   multiplier: { min: 0.1, max: 5 },
   safetyBufferPercent: { min: 0, max: 100 },
   minimumRecommendedGb: { min: 0.5, max: 100 },
-  packageSizeGb: { min: 0.5, max: 500 },
 } as const;
 
 function clamp(value: unknown, min: number, max: number, fallback: number): number {
@@ -57,61 +55,43 @@ export function sanitizeUsageSettings(input: unknown): EsimUsageSettings {
     NORMAL: clamp(multiplierSource.NORMAL, SETTINGS_LIMITS.multiplier.min, SETTINGS_LIMITS.multiplier.max, DEFAULT_USAGE_SETTINGS.intensityMultipliers.NORMAL),
     HIGH: clamp(multiplierSource.HIGH, SETTINGS_LIMITS.multiplier.min, SETTINGS_LIMITS.multiplier.max, DEFAULT_USAGE_SETTINGS.intensityMultipliers.HIGH),
   };
-  const sizes = Array.isArray(raw.packageSizesGb)
-    ? Array.from(
-        new Set(
-          raw.packageSizesGb
-            .map((size) => Number(size))
-            .filter((size) => Number.isFinite(size) && size >= SETTINGS_LIMITS.packageSizeGb.min && size <= SETTINGS_LIMITS.packageSizeGb.max)
-            .map((size) => Math.round(size * 100) / 100),
-        ),
-      ).sort((a, b) => a - b)
-    : [];
 
   return {
     perDayMb,
     intensityMultipliers,
     safetyBufferPercent: clamp(raw.safetyBufferPercent, SETTINGS_LIMITS.safetyBufferPercent.min, SETTINGS_LIMITS.safetyBufferPercent.max, DEFAULT_USAGE_SETTINGS.safetyBufferPercent),
     minimumRecommendedGb: clamp(raw.minimumRecommendedGb, SETTINGS_LIMITS.minimumRecommendedGb.min, SETTINGS_LIMITS.minimumRecommendedGb.max, DEFAULT_USAGE_SETTINGS.minimumRecommendedGb),
-    packageSizesGb: sizes.length ? sizes : DEFAULT_USAGE_SETTINGS.packageSizesGb,
-    roundingStrategy: raw.roundingStrategy === "NEAREST_PACKAGE" ? "NEAREST_PACKAGE" : "NEXT_PACKAGE_UP",
   };
 }
 
-export type UsageRecommendationInput = {
+export type UsageEstimateInput = {
   days: number;
   usage: UsageKind[];
   intensity?: UsageIntensity;
   countries?: number;
 };
 
-export type UsageRecommendation = {
+export type UsageEstimate = {
+  /** Raw estimate from duration × usage × intensity. */
   estimatedGb: number;
+  /** Estimate plus configured safety buffer. */
   safetyAdjustedGb: number;
-  recommendedGb: number;
+  /** Data allowance a package must at least provide. */
+  requiredGb: number;
   safetyBufferPercent: number;
 };
 
 const round1 = (value: number) => Math.round(value * 10) / 10;
 
 /** Pure calculation. Transparent: duration × selected usage × intensity + safety buffer. */
-export function recommendUsage(input: UsageRecommendationInput, settings: EsimUsageSettings = DEFAULT_USAGE_SETTINGS): UsageRecommendation {
+export function estimateUsageNeed(input: UsageEstimateInput, settings: EsimUsageSettings = DEFAULT_USAGE_SETTINGS): UsageEstimate {
   const config = sanitizeUsageSettings(settings);
   const days = Math.max(1, Math.round(Number(input.days) || 1));
   const multiplier = config.intensityMultipliers[input.intensity ?? "NORMAL"];
   const dailyMb = input.usage.reduce((total, key) => total + (config.perDayMb[key] ?? 0), 0);
   const estimatedGb = round1(Math.max(0, (dailyMb * days * multiplier) / 1024));
   const safetyAdjustedGb = round1(estimatedGb * (1 + config.safetyBufferPercent / 100));
-  const target = Math.max(safetyAdjustedGb, config.minimumRecommendedGb);
+  const requiredGb = round1(Math.max(safetyAdjustedGb, config.minimumRecommendedGb));
 
-  const sizes = config.packageSizesGb;
-  const last = sizes[sizes.length - 1] ?? config.minimumRecommendedGb;
-  let recommendedGb = last;
-  if (config.roundingStrategy === "NEAREST_PACKAGE") {
-    recommendedGb = sizes.reduce((best, size) => (Math.abs(size - target) < Math.abs(best - target) ? size : best), sizes[0] ?? last);
-  } else {
-    recommendedGb = sizes.find((size) => size >= target) ?? last;
-  }
-
-  return { estimatedGb, safetyAdjustedGb, recommendedGb, safetyBufferPercent: config.safetyBufferPercent };
+  return { estimatedGb, safetyAdjustedGb, requiredGb, safetyBufferPercent: config.safetyBufferPercent };
 }
