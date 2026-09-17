@@ -1,37 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-
-import { AppShell, PlaceholderSection } from "@/components/AppShell";
+import { ArrowRight, Settings, SuitcaseBusiness } from "lucide-react";
+import { PublicShell } from "@/components/travel/PublicShell";
 import { getMyAccess } from "@/lib/platform.functions";
-
-export const Route = createFileRoute("/_authenticated/hesabim/")({
-  component: AccountPage,
-});
-
-function AccountPage() {
-  const { data: access } = useQuery({ queryKey: ["access"], queryFn: () => getMyAccess() });
-
-  return (
-    <AppShell>
-      <h1 className="text-2xl font-semibold tracking-tight">Hesabım</h1>
-      <div className="mt-6 grid gap-4">
-        <Link
-          to="/hesabim/seyahatler"
-          className="rounded-xl border border-border p-4 text-sm hover:bg-accent"
-        >
-          Seyahatlerim
-        </Link>
-        {access?.isAdmin && (
-          <Link to="/admin" className="rounded-xl border border-border p-4 text-sm hover:bg-accent">
-            Yönetim paneli
-          </Link>
-        )}
-        <PlaceholderSection
-          title="Servislerim"
-          description="eSIM ve lounge satın alımları sonraki fazlarda burada listelenecek."
-          items={["eSIM", "Lounge"]}
-        />
-      </div>
-    </AppShell>
-  );
-}
+export const Route=createFileRoute("/_authenticated/hesabim/")({component:AccountPage});
+function AccountPage(){const{data:access}=useQuery({queryKey:["access"],queryFn:()=>getMyAccess()});return <PublicShell><section className="mx-auto max-w-site px-4 py-10 sm:px-6"><span className="text-xs font-bold uppercase text-primary">Hesabım</span><h1 className="mt-2 font-display text-3xl font-bold">Seyahat merkezim</h1><div className="mt-7 grid gap-4 sm:grid-cols-2"><Link to="/hesabim/seyahatler" className="group rounded-card border border-border bg-card p-6 shadow-card"><span className="grid size-11 place-items-center rounded-full bg-primary-soft text-primary"><SuitcaseBusiness/></span><h2 className="mt-5 font-display text-xl font-bold">Seyahatlerim</h2><p className="mt-2 text-sm text-muted-foreground">eSIM ve Lounge hizmetlerini seyahat bazında gör.</p><span className="mt-5 inline-flex items-center gap-1 text-sm font-bold text-primary">Görüntüle <ArrowRight className="transition group-hover:translate-x-1"/></span></Link>{access?.isAdmin&&<Link to="/admin" className="group rounded-card border border-border bg-card p-6 shadow-card"><span className="grid size-11 place-items-center rounded-full bg-secondary text-primary"><Settings/></span><h2 className="mt-5 font-display text-xl font-bold">Yönetim paneli</h2><p className="mt-2 text-sm text-muted-foreground">Yetkili yönetim araçlarına eriş.</p><span className="mt-5 inline-flex items-center gap-1 text-sm font-bold text-primary">Panele git <ArrowRight/></span></Link>}</div></section></PublicShell>;}
