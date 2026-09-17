@@ -158,7 +158,11 @@ function EsimRecommendationSettings() {
             <dl className="mt-4 space-y-3 text-sm">
               <div className="rounded-xl bg-secondary/60 p-3"><dt className="text-xs font-semibold uppercase text-muted-foreground">Tahmini kullanım</dt><dd className="mt-1 text-lg font-bold">~{preview.estimatedGb} GB</dd></div>
               <div className="rounded-xl bg-secondary/60 p-3"><dt className="text-xs font-semibold uppercase text-muted-foreground">Güvenlik payı eklenmiş</dt><dd className="mt-1 text-lg font-bold">{preview.safetyAdjustedGb} GB</dd></div>
-              <div className="rounded-xl bg-accent-soft p-3"><dt className="text-xs font-semibold uppercase text-muted-foreground">Önerilen paket</dt><dd className="mt-1 text-lg font-bold">{preview.recommendedGb} GB</dd></div>
+              <div className="rounded-xl bg-accent-soft p-3">
+                <dt className="text-xs font-semibold uppercase text-muted-foreground">Gerekli veri (ihtiyaç)</dt>
+                <dd className="mt-1 text-lg font-bold">{preview.requiredGb} GB</dd>
+                <dd className="mt-1 text-xs text-muted-foreground">Katalogdaki bu değeri karşılayan en küçük paket önerilir.</dd>
+              </div>
             </dl>
           </aside>
         </div>
