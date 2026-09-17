@@ -8,8 +8,9 @@ import { BRAND } from "@/domain/experience/config";
 import { useI18n } from "@/i18n";
 import { GLOBAL_CONTENT, localized, type ServiceSlug } from "@/content/travel-content";
 import { supabase } from "@/integrations/supabase/client";
+import { CountryFlag } from "./CountryFlag";
 
-const localeMeta = { tr: { flag: "🇹🇷", short: "TR" }, de: { flag: "🇩🇪", short: "DE" }, en: { flag: "🇬🇧", short: "EN" } } as const;
+const localeMeta = { tr: { iso: "TR", short: "TR" }, de: { iso: "DE", short: "DE" }, en: { iso: "GB", short: "EN" } } as const;
 
 function Brand() {
   return <Link to="/" search={{ service: "esim" }} aria-label="Ana sayfa" className="flex shrink-0 items-center gap-2 text-primary"><span className="grid size-9 place-items-center rounded-full bg-primary text-primary-foreground shadow-brand"><Signal className="size-5" aria-hidden="true" /></span><span className="font-display text-xl font-bold">{BRAND.name}</span></Link>;
@@ -17,7 +18,7 @@ function Brand() {
 function LanguageMenu() {
   const { locale, setLocale } = useI18n();
   const copy = localized(GLOBAL_CONTENT, locale);
-  return <DropdownMenu><DropdownMenuTrigger asChild><Button variant="ghost" size="sm" aria-label={copy.language.label} className="min-h-10 gap-1.5"><span aria-hidden="true">{localeMeta[locale].flag}</span><span>{localeMeta[locale].short}</span></Button></DropdownMenuTrigger><DropdownMenuContent align="end" className="min-w-44">{(["tr","de","en"] as const).map((code) => <DropdownMenuItem key={code} onSelect={() => setLocale(code)} className="min-h-11 gap-3"><span aria-hidden="true">{localeMeta[code].flag}</span><span className="flex-1">{copy.language[code]}</span>{locale === code && <Check className="size-4 text-primary" aria-hidden="true" />}</DropdownMenuItem>)}</DropdownMenuContent></DropdownMenu>;
+  return <DropdownMenu><DropdownMenuTrigger asChild><Button variant="ghost" size="sm" aria-label={copy.language.label} className="min-h-10 gap-1.5"><CountryFlag iso={localeMeta[locale].iso}/><span>{localeMeta[locale].short}</span></Button></DropdownMenuTrigger><DropdownMenuContent align="end" className="min-w-44">{(["tr","de","en"] as const).map((code) => <DropdownMenuItem key={code} onSelect={() => setLocale(code)} className="min-h-11 gap-3"><CountryFlag iso={localeMeta[code].iso}/><span className="flex-1">{copy.language[code]}</span>{locale === code && <Check className="size-4 text-primary" aria-hidden="true" />}</DropdownMenuItem>)}</DropdownMenuContent></DropdownMenu>;
 }
 export function PublicShell({ children, activeService, onServiceChange }: { children: ReactNode; activeService?: ServiceSlug; onServiceChange?: (service: ServiceSlug) => void }) {
   const { locale } = useI18n(); const copy = localized(GLOBAL_CONTENT, locale);

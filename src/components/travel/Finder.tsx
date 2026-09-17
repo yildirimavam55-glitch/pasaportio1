@@ -33,6 +33,7 @@ import { countryName, getCountry, getCountryByIso } from "@/domain/geo/countries
 import { isValidMultiRoute, moveStop, normalizeRouteStops, removeStop, routeFromPreset, stableStop } from "@/domain/experience/state";
 import type { EsimFinderState, LoungeFinderState, UsageKind } from "@/domain/experience/types";
 import type { Locale } from "@/domain/enums";
+import { CountryFlag } from "./CountryFlag";
 
 const COPY = {
   tr: {
@@ -41,7 +42,7 @@ const COPY = {
     travelers: "Kaç kişi?", personUnit: "kişi", usage: "İnterneti ne için kullanacaksın?",
     addCountry: "Ülke ekle", minRoute: "Çoklu rota için en az iki ülke seç.", duplicate: "Bu ülke rotanda zaten var.",
     edit: "Düzenle", done: "Tamam", countriesCount: (n: number) => `${n} ülke`, estimate: "Tahmini kullanım",
-    estimateHint: "Bu tahmin seçimlerine göre hesaplanır; paketler yayınlandığında karşılaştırabilirsin.",
+    estimateHint: "Seyahat süren ve kullanım tercihlerine göre hesaplanan yaklaşık ihtiyaç.",
     steps: ["Rota", "Süre", "Yolcular", "Kullanım"],
     airport: "Hangi havalimanı?", chooseAirport: "Havalimanı seç", date: "Hangi tarih?",
     situation: "Uçuş durumun", departure: "Kalkış", transit: "Aktarma", arrival: "Varış",
@@ -158,10 +159,10 @@ function Stepper({ value, onChange, min = 1, max = 60, suffix, icon }: { value: 
   );
 }
 
-function PickerTrigger({ label, lead }: { label: string; lead?: string | undefined }) {
+function PickerTrigger({ label, iso }: { label: string; iso?: string | undefined }) {
   return (
     <button type="button" className="flex min-h-13 w-full items-center gap-2 rounded-xl border border-border bg-secondary/60 px-3 text-left text-sm font-semibold">
-      {lead && <span className="text-lg" aria-hidden="true">{lead}</span>}
+      {iso && <CountryFlag iso={iso} className="text-lg" />}
       <span className="min-w-0 flex-1 truncate">{label}</span>
       <Search className="size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
     </button>
@@ -204,7 +205,7 @@ export function EsimFinder({ state, onChange }: { state: EsimFinderState; onChan
             <CountryPicker
               valueId={state.destinationId}
               onSelect={(country) => onChange({ ...state, destinationId: country.id })}
-              trigger={<div><PickerTrigger lead={selectedCountry?.flag} label={selectedCountry ? selectedCountry.name[locale] : copy.chooseCountry} /></div>}
+               trigger={<div><PickerTrigger iso={selectedCountry?.iso} label={selectedCountry ? selectedCountry.name[locale] : copy.chooseCountry} /></div>}
             />
           </FinderStep>
           <FinderStep label={copy.days}><Stepper value={state.days} onChange={(days) => onChange({ ...state, days })} suffix={copy.dayUnit} icon={<CalendarDays className="size-4" />} /></FinderStep>
@@ -242,7 +243,7 @@ export function EsimFinder({ state, onChange }: { state: EsimFinderState; onChan
                   const country = getCountryByIso(stop.countryIso);
                   return (
                     <li key={stop.id} className="grid min-h-15 grid-cols-[auto_minmax(0,1fr)_auto_auto_auto] items-center gap-1 rounded-xl border border-border bg-secondary/50 px-2">
-                      <span className="text-lg" aria-hidden="true">{country?.flag}</span>
+                       {country && <CountryFlag iso={country.iso} className="text-lg" />}
                       <span className="min-w-0 flex-1 truncate text-sm font-semibold">{countryName(stop.countryId, locale) || stop.countryIso}</span>
                       <Button type="button" size="icon" variant="ghost" className="size-9" onClick={() => onChange({ ...state, routeStops: moveStop(stops, stop.id, -1) })} disabled={index === 0} aria-label={copy.moveUp}><ArrowUp /></Button>
                       <Button type="button" size="icon" variant="ghost" className="size-9" onClick={() => onChange({ ...state, routeStops: moveStop(stops, stop.id, 1) })} disabled={index === stops.length - 1} aria-label={copy.moveDown}><ArrowDown /></Button>
@@ -310,7 +311,7 @@ export function LoungeFinder({ state, onChange }: { state: LoungeFinderState; on
           <AirportPicker
             valueId={state.airportId}
             onSelect={(next) => onChange({ ...state, airportId: next.id })}
-            trigger={<div><PickerTrigger lead={airport?.flag} label={airport ? `${airport.iata} — ${airport.city[locale]}` : copy.chooseAirport} /></div>}
+             trigger={<div><PickerTrigger iso={airport?.countryIso} label={airport ? `${airport.iata} — ${airport.city[locale]}` : copy.chooseAirport} /></div>}
           />
         </FinderStep>
         <FinderStep label={copy.date}>
@@ -338,7 +339,7 @@ export function LoungeFinder({ state, onChange }: { state: LoungeFinderState; on
       <FinderResultShell>
         <div>
           <span className="text-xs font-semibold uppercase opacity-75">{copy.selectedAirport}</span>
-          <strong className="mt-1 block text-xl">{airport ? `${airport.flag} ${airport.iata} ${airport.city[locale]}` : "—"}</strong>
+           <strong className="mt-1 flex items-center gap-2 text-xl">{airport ? <><CountryFlag iso={airport.countryIso} />{airport.iata} {airport.city[locale]}</> : "—"}</strong>
         </div>
         <span className="mt-3 block max-w-sm text-sm opacity-80 sm:mt-0">{copy.loungeHint}</span>
       </FinderResultShell>

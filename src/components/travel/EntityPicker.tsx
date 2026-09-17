@@ -13,18 +13,19 @@ import {
   type GeoRegion,
 } from "@/domain/geo/countries";
 import { AIRPORTS, POPULAR_AIRPORT_IDS, getAirport, searchAirports, type Airport } from "@/domain/geo/airports";
+import { CountryFlag } from "./CountryFlag";
 
 const PICKER_COPY = {
   countryTitle: { tr: "Ülke seç", de: "Land wählen", en: "Select a country" },
-  countryPlaceholder: { tr: "Ülke ara: Türkiye, Germany, JP", de: "Land suchen: Türkei, Germany, JP", en: "Search a country: Türkiye, Germany, JP" },
+  countryPlaceholder: { tr: "Ülke adı veya kodu ara", de: "Land oder Code suchen", en: "Search by country or code" },
   airportTitle: { tr: "Havalimanı seç", de: "Flughafen wählen", en: "Select an airport" },
-  airportPlaceholder: { tr: "Havalimanı ara: IST, Frankfurt", de: "Flughafen suchen: IST, Frankfurt", en: "Search an airport: IST, Frankfurt" },
+  airportPlaceholder: { tr: "Şehir, havalimanı veya IATA ara", de: "Stadt, Flughafen oder IATA suchen", en: "Search city, airport or IATA" },
   popular: { tr: "Popüler", de: "Beliebt", en: "Popular" },
   empty: { tr: "Sonuç bulunamadı.", de: "Keine Treffer.", en: "No results." },
   choose: { tr: "Seç", de: "Wählen", en: "Choose" },
 } as const;
 
-function Row({ selected, onSelect, lead, title, meta }: { selected: boolean; onSelect: () => void; lead: string; title: string; meta?: string }) {
+function Row({ selected, onSelect, iso, title, meta }: { selected: boolean; onSelect: () => void; iso: string; title: string; meta?: string }) {
   return (
     <button
       type="button"
@@ -32,7 +33,7 @@ function Row({ selected, onSelect, lead, title, meta }: { selected: boolean; onS
       aria-pressed={selected}
       className={`flex min-h-14 w-full items-center gap-3 rounded-xl px-3 text-left transition ${selected ? "bg-primary-soft" : "hover:bg-secondary"}`}
     >
-      <span className="text-xl" aria-hidden="true">{lead}</span>
+      <CountryFlag iso={iso} className="text-xl" />
       <span className="min-w-0 flex-1">
         <span className="block truncate text-sm font-semibold">{title}</span>
         {meta && <span className="block truncate text-xs text-muted-foreground">{meta}</span>}
@@ -88,7 +89,7 @@ export function CountryPicker({
             <>
               <Group label={PICKER_COPY.popular[locale]}>
                 {POPULAR_COUNTRIES.filter((country) => !blocked.has(country.id)).map((country) => (
-                  <Row key={country.id} selected={country.id === valueId} onSelect={() => pick(country)} lead={country.flag} title={country.name[locale]} meta={country.iso} />
+                  <Row key={country.id} selected={country.id === valueId} onSelect={() => pick(country)} iso={country.iso} title={country.name[locale]} meta={country.iso} />
                 ))}
               </Group>
               {(Object.keys(REGION_LABELS) as GeoRegion[]).map((region) => (
@@ -96,14 +97,14 @@ export function CountryPicker({
                   {countriesByRegion(region)
                     .filter((country) => !blocked.has(country.id))
                     .map((country) => (
-                      <Row key={country.id} selected={country.id === valueId} onSelect={() => pick(country)} lead={country.flag} title={country.name[locale]} meta={country.iso} />
+                       <Row key={country.id} selected={country.id === valueId} onSelect={() => pick(country)} iso={country.iso} title={country.name[locale]} meta={country.iso} />
                     ))}
                 </Group>
               ))}
             </>
           ) : (
             results.map((country) => (
-              <Row key={country.id} selected={country.id === valueId} onSelect={() => pick(country)} lead={country.flag} title={country.name[locale]} meta={`${country.iso} · ${country.name.en}`} />
+              <Row key={country.id} selected={country.id === valueId} onSelect={() => pick(country)} iso={country.iso} title={country.name[locale]} meta={`${country.iso} · ${country.name.en}`} />
             ))
           )}
         </div>
@@ -162,12 +163,12 @@ export function AirportPicker({ valueId, onSelect, trigger }: { valueId?: string
           {showPopular && (
             <Group label={PICKER_COPY.popular[locale]}>
               {popular.map((airport) => (
-                <Row key={airport.id} selected={airport.id === valueId} onSelect={() => pick(airport)} lead={airport.flag} title={`${airport.iata} — ${airport.city[locale]}`} meta={airport.airport[locale]} />
+                <Row key={airport.id} selected={airport.id === valueId} onSelect={() => pick(airport)} iso={airport.countryIso} title={`${airport.iata} — ${airport.city[locale]}`} meta={airport.airport[locale]} />
               ))}
             </Group>
           )}
           {(showPopular ? AIRPORTS : results).map((airport) => (
-            <Row key={`all-${airport.id}`} selected={airport.id === valueId} onSelect={() => pick(airport)} lead={airport.flag} title={`${airport.iata} — ${airport.city[locale]}`} meta={airport.airport[locale]} />
+            <Row key={`all-${airport.id}`} selected={airport.id === valueId} onSelect={() => pick(airport)} iso={airport.countryIso} title={`${airport.iata} — ${airport.city[locale]}`} meta={airport.airport[locale]} />
           ))}
         </div>
       </DialogContent>
