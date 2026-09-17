@@ -50,3 +50,39 @@ export function selectRecommendedPackage<T extends MatchablePackage>(packages: T
     return (a.salePrice ?? Number.POSITIVE_INFINITY) - (b.salePrice ?? Number.POSITIVE_INFINITY);
   })[0]!;
 }
+
+export type PackageRecommendation<T> =
+  /** A real capped package covers the whole need (exact match or next larger size). */
+  | { status: "MATCHED"; package: T }
+  /** No capped size is big enough, but a valid unlimited product exists. */
+  | { status: "UNLIMITED_ALTERNATIVE"; package: T }
+  /** Products exist for this trip, but none fully satisfies the estimated need. */
+  | { status: "NO_SUFFICIENT"; package: null }
+  /** Nothing in the catalogue covers this destination/route yet. */
+  | { status: "NO_CATALOGUE"; package: null };
+
+/** Coverage and validity first; then the smallest sufficient size, cheapest on ties. */
+export function resolvePackageRecommendation<T extends MatchablePackage>(
+  packages: T[],
+  input: PackageMatchInput,
+): PackageRecommendation<T> {
+  const isos = (input.coverageIsos ?? []).map((iso) => iso.toUpperCase()).filter(Boolean);
+  const days = Number.isFinite(input.days) ? Number(input.days) : 0;
+  const candidates = packages.filter((pkg) => {
+    if (isos.length && !isos.every((iso) => pkg.coverage.includes(iso))) return false;
+    if (days > 0 && pkg.validityDays != null && pkg.validityDays < days) return false;
+    return true;
+  });
+  if (!candidates.length) return { status: "NO_CATALOGUE", package: null };
+
+  const byPrice = (a: T, b: T) => (a.salePrice ?? Number.POSITIVE_INFINITY) - (b.salePrice ?? Number.POSITIVE_INFINITY);
+  const capped = candidates
+    .filter((pkg) => !pkg.unlimited && (pkg.dataGb ?? 0) >= input.requiredGb)
+    .sort((a, b) => (a.dataGb ?? 0) - (b.dataGb ?? 0) || byPrice(a, b));
+  if (capped.length) return { status: "MATCHED", package: capped[0]! };
+
+  const unlimited = candidates.filter((pkg) => pkg.unlimited).sort(byPrice);
+  if (unlimited.length) return { status: "UNLIMITED_ALTERNATIVE", package: unlimited[0]! };
+
+  return { status: "NO_SUFFICIENT", package: null };
+}
