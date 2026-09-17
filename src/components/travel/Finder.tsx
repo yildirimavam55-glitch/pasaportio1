@@ -241,7 +241,7 @@ export function EsimFinder({ state, onChange }: { state: EsimFinderState; onChan
         days: state.days,
         travelers: state.travelers,
         estimated: recommendation.estimatedGb,
-        recommended: recommendation.recommendedGb,
+        required: recommendation.requiredGb,
       },
     });
 
