@@ -82,7 +82,9 @@ export const saveDeviceCompatibility = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: DeviceUpsertInput) => input)
   .handler(async ({ data, context }): Promise<DeviceRecord> => {
-    await assertAdmin(context);
+    const { data: isAdmin, error: roleError } = await context.supabase.rpc("has_role", { _user_id: context.userId, _role: "admin" });
+    if (roleError) throw new Error(roleError.message);
+    if (!isAdmin) throw new Error("Yönetici yetkisi gerekiyor.");
     const brand = data.brand.trim();
     const model = data.model.trim();
     if (!brand || !model) throw new Error("Marka ve model zorunludur.");
