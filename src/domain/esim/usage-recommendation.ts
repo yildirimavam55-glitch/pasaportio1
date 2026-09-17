@@ -1,4 +1,4 @@
-import type { UsageKind } from "@/domain/experience/types";
+import type { UsageIntensity, UsageKind } from "@/domain/experience/types";
 
 /**
  * Layer 1 of the eSIM recommendation engine: CUSTOMER NEED ESTIMATION.
@@ -7,8 +7,6 @@ import type { UsageKind } from "@/domain/experience/types";
  * data the traveller is likely to need. Actual purchasable package sizes come
  * from the provider/internal catalogue (see `package-matching.ts`).
  */
-
-export type UsageIntensity = "LOW" | "NORMAL" | "HIGH";
 
 export type EsimUsageSettings = {
   perDayMb: Record<UsageKind, number>;

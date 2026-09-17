@@ -49,7 +49,7 @@ export const ESIM_SERVICE_CONFIG: EsimServiceConfig = {
   routePresets: [
     { id: "sila-yolu", icon: "route", active: true, featured: true, name: { tr: "Sıla Yolu", de: "Sıla Yolu", en: "Sıla Yolu" }, stops: SILA_STOPS },
   ],
-  initialState: { tripMode: "single", destinationId: "country-tr", days: 10, travelers: 1, usage: ["MESSAGING", "SOCIAL", "MAPS"], routeStops: [], presetId: null },
+  initialState: { tripMode: "single", destinationId: "country-tr", days: 10, travelers: 1, usage: ["MESSAGING", "SOCIAL", "MAPS"], intensity: "NORMAL", routeStops: [], presetId: null },
 };
 
 export const LOUNGE_SERVICE_CONFIG: LoungeServiceConfig = {
