@@ -4,6 +4,21 @@ import type { FlightSituation, ServiceSlug, TripMode } from "@/content/travel-co
 export type MediaCategory = "Hero" | "eSIM" | "Lounge" | "Destination" | "Airport" | "Campaign" | "General";
 export type FocalPosition = "center" | "left" | "right" | "top" | "bottom";
 export type MediaAsset = { id: string; category: MediaCategory; label: string; desktopSrc: string; mobileSrc: string; fallbackSrc: string; alt: Record<Locale, string>; focalPosition: FocalPosition };
+export type MerchandisingMedia = {
+  id: string;
+  category: MediaCategory;
+  src: string;
+  fallbackSrc: string;
+  alt: Record<Locale, string>;
+  focalPosition: FocalPosition;
+};
+export type FeaturedVisualItem = {
+  id: string;
+  flag: string;
+  title: Record<Locale, string>;
+  label: Record<Locale, string>;
+  media: MerchandisingMedia;
+};
 export type SectionKind = "hero" | "selector" | "finder" | "recommendation" | "popular" | "pricing" | "benefits" | "complementary" | "education" | "campaign" | "requirements" | "support" | "faq" | "finalCta";
 export type SectionConfig = { id: string; kind: SectionKind; visible: boolean; order: number; variant: "default" | "soft" | "contrast"; spacing: "compact" | "normal" | "generous"; alignment: "left" | "center" };
 export type CountryRef = { id: string; iso: string; name: Record<Locale, string>; flag: string };
