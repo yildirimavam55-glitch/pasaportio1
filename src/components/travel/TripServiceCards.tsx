@@ -47,7 +47,7 @@ function DeliveryActions({ service }: { service: TripService }) {
     return (
       <div className="mt-4 flex flex-wrap items-center gap-3 rounded-xl bg-accent-soft p-3 text-sm">
         <span>{copy.emailFailedHint}</span>
-        <Button asChild size="sm" variant="outline"><a href="mailto:destek@travely.example"><LifeBuoy /> {copy.support}</a></Button>
+        <Button asChild size="sm" variant="outline"><a href="#support"><LifeBuoy /> {copy.support}</a></Button>
       </div>
     );
   }

@@ -1,11 +1,10 @@
-import { ArrowRight, CheckCircle2, Clock3, Globe2, HelpCircle, MapPin, Plane, ShieldCheck, Signal, Smartphone, Sparkles, Users, Wifi } from "lucide-react";
+import { ArrowRight, CheckCircle2, Clock3, Globe2, MapPin, Plane, Signal, Smartphone, Users, Wifi } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { useI18n } from "@/i18n";
-import { ESIM_CONTENT, LOUNGE_CONTENT, GLOBAL_CONTENT, localized, type ServiceSlug } from "@/content/travel-content";
-import { ESIM_SERVICE_CONFIG, LOUNGE_SERVICE_CONFIG, POPULAR_LOUNGE_AIRPORT_IDS, SERVICE_REGISTRY } from "@/domain/experience/config";
-import { getAirport } from "@/domain/geo/airports";
+import { ESIM_CONTENT, LOUNGE_CONTENT, localized, type ServiceSlug } from "@/content/travel-content";
+import { ESIM_SERVICE_CONFIG, LOUNGE_SERVICE_CONFIG, SERVICE_REGISTRY } from "@/domain/experience/config";
 import type { EsimFinderState, LoungeFinderState } from "@/domain/experience/types";
 import type { Locale } from "@/domain/enums";
 import { FinderShell, EsimFinder, LoungeFinder } from "./Finder";
@@ -239,21 +238,6 @@ function Hero({ service, onFind }: { service: ServiceSlug; onFind: () => void })
   );
 }
 
-function Trust({ items }: { items: string[] }) {
-  return (
-    <section className="mx-auto max-w-site px-4 py-8 sm:px-6">
-      <div className="grid gap-2 sm:grid-cols-3">
-        {items.map((item, index) => (
-          <div key={item} className="flex items-center gap-3 rounded-xl border border-border bg-card px-4 py-3 text-sm font-medium">
-            <span className="text-primary">{index === 0 ? <ShieldCheck /> : index === 1 ? <Sparkles /> : <HelpCircle />}</span>
-            {item}
-          </div>
-        ))}
-      </div>
-    </section>
-  );
-}
-
 function SectionHeading({ eyebrow, title, description }: { eyebrow: string; title: string; description: string }) {
   return (
     <div className="mb-6">
@@ -261,35 +245,6 @@ function SectionHeading({ eyebrow, title, description }: { eyebrow: string; titl
       <h2 className="mt-2 font-display text-2xl font-bold sm:text-3xl">{title}</h2>
       <p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">{description}</p>
     </div>
-  );
-}
-
-function Popular({ service }: { service: ServiceSlug }) {
-  const { locale } = useI18n();
-  const copy = localized(service === "esim" ? ESIM_CONTENT : LOUNGE_CONTENT, locale);
-  const section = SECTION_COPY[locale];
-  const items =
-    service === "esim"
-      ? section.esimPopular.map((item) => ({ key: item.title, lead: item.icon, title: item.title, meta: item.meta }))
-      : POPULAR_LOUNGE_AIRPORT_IDS.flatMap((id) => {
-          const airport = getAirport(id);
-          return airport ? [{ key: airport.id, lead: airport.flag, title: `${airport.iata} ${airport.city[locale]}`, meta: airport.airport[locale] }] : [];
-        });
-
-  return (
-    <section id="popular" className="mx-auto max-w-site scroll-mt-24 px-4 py-10 sm:px-6">
-      <SectionHeading eyebrow={service === "esim" ? section.popularEyebrow.esim : section.popularEyebrow.lounge} title={copy.popularTitle} description={copy.popularDescription} />
-      <div className="grid gap-3 md:grid-cols-3">
-        {items.map((item) => (
-          <article key={item.key} className="group rounded-card border border-border bg-card p-5 shadow-card transition hover:-translate-y-1">
-            <span className="text-3xl" aria-hidden="true">{item.lead}</span>
-            <h3 className="mt-5 font-display text-lg font-bold">{item.title}</h3>
-            <p className="mt-1 text-sm text-muted-foreground">{item.meta}</p>
-            <span className="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-primary">{section.discover} <ArrowRight className="size-4" /></span>
-          </article>
-        ))}
-      </div>
-    </section>
   );
 }
 
@@ -314,29 +269,6 @@ function Pricing({ service }: { service: ServiceSlug }) {
           ))}
         </div>
         <p className="mt-4 text-sm text-muted-foreground">{service === "esim" ? section.pricingEmpty.esim : section.pricingEmpty.lounge}</p>
-      </div>
-    </section>
-  );
-}
-
-function Complementary({ service, onSwitch }: { service: ServiceSlug; onSwitch: (service: ServiceSlug) => void }) {
-  const { locale } = useI18n();
-  const copy = localized(service === "esim" ? ESIM_CONTENT : LOUNGE_CONTENT, locale);
-  const section = SECTION_COPY[locale];
-  const next: ServiceSlug = service === "esim" ? "lounge" : "esim";
-
-  return (
-    <section className="mx-auto max-w-site px-4 py-12 sm:px-6">
-      <div className="grid items-center gap-6 rounded-card bg-primary p-6 text-primary-foreground sm:grid-cols-[1fr_auto] sm:p-8">
-        <div>
-          <span className="text-xs font-bold uppercase opacity-70">{section.crossEyebrow}</span>
-          <h2 className="mt-2 font-display text-2xl font-bold">{copy.crossSellTitle}</h2>
-          <p className="mt-2 max-w-xl text-sm leading-6 opacity-80">{copy.crossSellDescription}</p>
-        </div>
-        <Button variant="light" onClick={() => { onSwitch(next); window.scrollTo({ top: 0, behavior: "smooth" }); }}>
-          {next === "esim" ? section.lookEsim : section.lookLounge}
-          <ArrowRight />
-        </Button>
       </div>
     </section>
   );
