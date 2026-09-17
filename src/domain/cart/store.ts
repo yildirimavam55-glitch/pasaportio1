@@ -14,6 +14,10 @@ export type CartLine = {
   price: number | null;
   currency: string;
   quantity: number;
+  providerProductId?: string | null;
+  dataGb?: number | null;
+  validityDays?: number | null;
+  coverage?: string[];
 };
 
 const STORAGE_KEY = "travely.cart.v1";

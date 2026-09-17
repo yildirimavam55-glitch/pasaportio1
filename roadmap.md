@@ -44,3 +44,10 @@
 - [x] Clean catalogue-pending recommendation state without fake pricing
 - [x] Preserve Finder selections in package-page navigation
 - [x] Rendered QA at 360/390/430 and public deployment verification
+
+## Catalogue-backed eSIM selection
+- [x] Filter recommendation products by published, visible, available, and margin-safe catalogue state
+- [x] Preserve stable recommended product ID through the package-page handoff
+- [x] Preselect the exact recommendation and allow one alternative selection
+- [x] Add the exact selected catalogue snapshot to cart
+- [x] Verify rendered Finder and package page at 360/390/430

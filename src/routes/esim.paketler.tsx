@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { fallback, zodValidator } from "@tanstack/zod-adapter";
 import { z } from "zod";
 import { ArrowLeft, Check, Gauge, HelpCircle, Route as RouteIcon, ShoppingCart, Signal, Wifi, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -10,66 +11,64 @@ import { DeviceCompatibilityInline } from "@/components/travel/DeviceCompatibili
 import { useI18n } from "@/i18n";
 import { getCountryByIso } from "@/domain/geo/countries";
 import { useCart } from "@/domain/cart/store";
-import { selectRecommendedPackage } from "@/domain/esim/package-matching";
+import { filterEligiblePackages, selectRecommendedPackage } from "@/domain/esim/package-matching";
 import { listEsimPackages, type EsimPackage } from "@/lib/esim-catalogue.functions";
 import type { Locale } from "@/domain/enums";
 
 const searchSchema = z.object({
-  destination: z.string().max(2).catch("").default(""),
-  route: z.string().max(120).catch("").default(""),
-  days: z.coerce.number().int().min(1).max(365).catch(10).default(10),
-  travelers: z.coerce.number().int().min(1).max(9).catch(1).default(1),
-  estimated: z.coerce.number().min(0).max(1000).catch(0).default(0),
-  required: z.coerce.number().min(0).max(1000).catch(0).default(0),
-  recommended: z.coerce.number().min(0).max(1000).catch(0).default(0),
-  usage: z.string().max(200).catch("").default(""),
-  intensity: z.enum(["LOW", "NORMAL", "HIGH"]).catch("NORMAL").default("NORMAL"),
+  destination: fallback(z.string(), "").default(""),
+  route: fallback(z.string(), "").default(""),
+  days: fallback(z.coerce.number().int(), 10).default(10),
+  travelers: fallback(z.coerce.number().int(), 1).default(1),
+  estimated: fallback(z.coerce.number(), 0).default(0),
+  required: fallback(z.coerce.number(), 0).default(0),
+  recommended: fallback(z.coerce.number(), 0).default(0),
+  recommendedProductId: fallback(z.string(), "").default(""),
+  usage: fallback(z.string(), "").default(""),
+  intensity: fallback(z.string(), "NORMAL").default("NORMAL"),
 });
 
 const COPY = {
   tr: {
     title: "eSIM paketleri", back: "Finder’a dön", days: "gün", travelers: (count: number) => `${count} kişi`,
     estimate: "Tahmini kullanım", need: "Tahmini ihtiyaç", route: "Rotan",
-    empty: "Bu seyahat için şu anda uygun paket bulunamadı.",
+    empty: "Bu destinasyon için şu anda uygun paket bulunamadı.",
     emptyOther: "Diğer paketleri gör", emptyChange: "Destinasyonu değiştir",
-    add: "Sepete Ekle", inCart: "Sepette",
+    add: "Sepete Ekle", inCart: "Sepette", select: "Seç", selected: "Seçildi",
     recommendedBadge: "Önerilen", validity: "gün geçerli", unlimited: "Sınırsız veri",
     hotspot: "Hotspot", fiveG: "5G", coverage: "ülke kapsamı",
     lead: "Seçimlerine uyan güncel paketler.",
     why: "Neden bu paket?",
     whyText: (need: number, size: string) => `Yaklaşık ${need} GB ihtiyacın için mevcut paketler arasındaki en yakın uygun seçenek: ${size}.`,
-    pendingCatalogue: "Paketler bağlandığında ihtiyacına en yakın uygun paket otomatik seçilecek.",
   },
   de: {
     title: "eSIM-Pakete", back: "Zurück zum Finder", days: "Tage", travelers: (count: number) => count === 1 ? "1 Person" : `${count} Personen`,
     estimate: "Geschätzter Verbrauch", need: "Geschätzter Bedarf", route: "Deine Route",
     empty: "Für diese Reise ist derzeit kein passendes Paket verfügbar.",
     emptyOther: "Andere Pakete ansehen", emptyChange: "Reiseziel ändern",
-    add: "In den Warenkorb", inCart: "Im Warenkorb",
+    add: "In den Warenkorb", inCart: "Im Warenkorb", select: "Auswählen", selected: "Ausgewählt",
     recommendedBadge: "Empfohlen", validity: "Tage gültig", unlimited: "Unbegrenzte Daten",
     hotspot: "Hotspot", fiveG: "5G", coverage: "Länder abgedeckt",
     lead: "Aktuelle Pakete passend zu deiner Auswahl.",
     why: "Warum dieses Paket?",
     whyText: (need: number, size: string) => `Für deinen Bedarf von rund ${need} GB ist dies das nächstpassende verfügbare Paket: ${size}.`,
-    pendingCatalogue: "Sobald Pakete verbunden sind, wird das passende Paket automatisch ausgewählt.",
   },
   en: {
     title: "eSIM packages", back: "Back to finder", days: "days", travelers: (count: number) => count === 1 ? "1 person" : `${count} people`,
     estimate: "Estimated usage", need: "Estimated need", route: "Your route",
     empty: "No suitable package is available for this trip right now.",
     emptyOther: "See other packages", emptyChange: "Change destination",
-    add: "Add to cart", inCart: "In cart",
+    add: "Add to cart", inCart: "In cart", select: "Select", selected: "Selected",
     recommendedBadge: "Recommended", validity: "days valid", unlimited: "Unlimited data",
     hotspot: "Hotspot", fiveG: "5G", coverage: "countries covered",
     lead: "Live packages matching your selection.",
     why: "Why this package?",
     whyText: (need: number, size: string) => `For your roughly ${need} GB need, this is the closest suitable available option: ${size}.`,
-    pendingCatalogue: "Once packages are connected, the closest suitable one is selected automatically.",
   },
 } satisfies Record<Locale, Record<string, unknown>>;
 
 export const Route = createFileRoute("/esim/paketler")({
-  validateSearch: (search) => searchSchema.parse(search),
+  validateSearch: zodValidator(searchSchema),
   head: () => ({
     meta: [
       { title: "eSIM paketleri | travely" },
@@ -87,8 +86,12 @@ function PackagesPage() {
   const { locale } = useI18n();
   const copy = COPY[locale];
   const search = Route.useSearch();
-  const routeIsos = search.route ? search.route.split(",").map((iso) => iso.trim().toUpperCase()).filter(Boolean) : [];
-  const coverageIsos = routeIsos.length ? routeIsos : search.destination ? [search.destination.toUpperCase()] : [];
+  const destination = search.destination.slice(0, 2).toUpperCase();
+  const routeIsos = search.route.slice(0, 120).split(",").map((iso: string) => iso.trim().toUpperCase().slice(0, 2)).filter(Boolean);
+  const coverageIsos = routeIsos.length ? routeIsos : destination ? [destination] : [];
+  const days = Math.max(1, Math.min(365, search.days));
+  const travelers = Math.max(1, Math.min(9, search.travelers));
+  const required = Math.max(0, Math.min(1000, search.required));
   const { data: packages = [], isPending } = useQuery({
     queryKey: ["esim-packages", coverageIsos.join(",")],
     queryFn: () => listEsimPackages({ data: { coverageIsos } }),
@@ -96,11 +99,31 @@ function PackagesPage() {
 
   // Layer 2: the recommendation is an actual available product, never an invented size.
   const recommended = selectRecommendedPackage(packages, {
-    requiredGb: search.required,
+    requiredGb: required,
     coverageIsos,
-    days: search.days,
+    days,
   });
-  const recommendedLabel = recommended ? (recommended.unlimited ? copy.unlimited : `${recommended.dataGb} GB`) : "";
+  const eligiblePackages = filterEligiblePackages(packages, { requiredGb: required, coverageIsos, days });
+  const handedOffProduct = eligiblePackages.find((pkg) => pkg.id === search.recommendedProductId);
+  const recommendedProduct = handedOffProduct ?? recommended;
+  const recommendedLabel = recommendedProduct ? (recommendedProduct.unlimited ? copy.unlimited : `${recommendedProduct.dataGb} GB`) : "";
+  const [selectedProductId, setSelectedProductId] = useState("");
+  const [hasScrolled, setHasScrolled] = useState(false);
+  const { lines, addLine } = useCart();
+  const activeSelectedId = selectedProductId || recommendedProduct?.id || packages[0]?.id || "";
+  const selectedProduct = packages.find((pkg) => pkg.id === activeSelectedId) ?? null;
+  const selectedInCart = Boolean(selectedProduct && lines.some((line) => line.productId === selectedProduct.id));
+
+  useEffect(() => {
+    if (!packages.length) return;
+    setSelectedProductId((current) => packages.some((pkg) => pkg.id === current) ? current : (recommendedProduct?.id ?? packages[0]?.id ?? ""));
+  }, [packages, recommendedProduct?.id]);
+
+  useEffect(() => {
+    if (!recommendedProduct || hasScrolled) return;
+    setHasScrolled(true);
+    requestAnimationFrame(() => document.getElementById(`esim-package-${recommendedProduct.id}`)?.scrollIntoView({ behavior: "smooth", block: "center" }));
+  }, [hasScrolled, recommendedProduct]);
 
   return (
     <PublicShell activeService="esim">
@@ -124,20 +147,19 @@ function PackagesPage() {
               </span>
             ) : (
               <span className="flex items-center gap-2">
-                {search.destination && <CountryFlag iso={search.destination} />}
-                {getCountryByIso(search.destination)?.name[locale] ?? "—"}
+                {destination && <CountryFlag iso={destination} />}
+                {getCountryByIso(destination)?.name[locale] ?? "—"}
               </span>
             )}
             <span className="text-muted-foreground">·</span>
-            <span>{search.days} {copy.days}</span>
+            <span>{days} {copy.days}</span>
             <span className="text-muted-foreground">·</span>
-            <span>{copy.travelers(search.travelers)}</span>
+            <span>{copy.travelers(travelers)}</span>
           </div>
           <div className="mt-3 rounded-xl bg-accent-soft p-3">
             <span className="text-xs font-semibold uppercase text-muted-foreground">{copy.need}</span>
-            <strong className="mt-1 flex items-center gap-1.5 text-xl"><Gauge className="size-5 text-primary" aria-hidden="true" />~{search.required} GB</strong>
+            <strong className="mt-1 flex items-center gap-1.5 text-xl"><Gauge className="size-5 text-primary" aria-hidden="true" />~{required} GB</strong>
           </div>
-          {!isPending && !recommended && <p className="mt-3 text-sm text-muted-foreground">{copy.pendingCatalogue}</p>}
         </div>
 
         <div className="mt-3">
@@ -154,17 +176,26 @@ function PackagesPage() {
               <PackageCard
                 key={pkg.id}
                 pkg={pkg}
-                isRecommended={recommended?.id === pkg.id}
-                whyText={copy.whyText(search.required, recommendedLabel)}
+                isRecommended={recommendedProduct?.id === pkg.id}
+                isSelected={activeSelectedId === pkg.id}
+                onSelect={() => setSelectedProductId(pkg.id)}
+                whyText={copy.whyText(required, recommendedLabel)}
                 copy={copy}
               />
             ))}
+            {selectedProduct && (
+              <div className="sm:col-span-2 lg:col-span-3">
+                <Button variant="cta" size="lg" className="w-full scroll-mb-24" disabled={selectedInCart} onClick={() => addLine({ productId: selectedProduct.id, providerProductId: selectedProduct.providerProductId, serviceType: "ESIM", name: selectedProduct.name, meta: selectedProduct.unlimited ? copy.unlimited : `${selectedProduct.dataGb ?? "—"} GB`, price: selectedProduct.salePrice, currency: selectedProduct.currency, dataGb: selectedProduct.dataGb, validityDays: selectedProduct.validityDays, coverage: selectedProduct.coverage })}>
+                  <ShoppingCart /> {selectedInCart ? copy.inCart : copy.add}
+                </Button>
+              </div>
+            )}
           </div>
         ) : (
           <div className="mt-5 rounded-card border border-dashed border-border bg-card p-6 text-center">
             <p className="text-sm font-semibold">{copy.empty}</p>
             <div className="mt-4 flex flex-wrap justify-center gap-2">
-              <Link to="/esim/paketler" search={{ destination: "", route: "", days: search.days, travelers: search.travelers, estimated: search.estimated, required: search.required, recommended: search.recommended, usage: search.usage, intensity: search.intensity }}>
+              <Link to="/esim/paketler" search={{ destination: "", route: "", days: search.days, travelers: search.travelers, estimated: search.estimated, required: search.required, recommended: search.recommended, recommendedProductId: "", usage: search.usage, intensity: search.intensity }}>
                 <Button variant="outline">{copy.emptyOther}</Button>
               </Link>
               <Link to="/esim"><Button variant="secondary">{copy.emptyChange}</Button></Link>
@@ -176,14 +207,12 @@ function PackagesPage() {
   );
 }
 
-function PackageCard({ pkg, isRecommended, whyText, copy }: { pkg: EsimPackage; isRecommended: boolean; whyText: string; copy: (typeof COPY)["tr"] }) {
-  const { lines, addLine } = useCart();
+function PackageCard({ pkg, isRecommended, isSelected, onSelect, whyText, copy }: { pkg: EsimPackage; isRecommended: boolean; isSelected: boolean; onSelect: () => void; whyText: string; copy: (typeof COPY)["tr"] }) {
   const [showWhy, setShowWhy] = useState(false);
-  const inCart = lines.some((line) => line.productId === pkg.id);
   const price = pkg.salePrice ?? 0;
 
   return (
-    <article className={`flex flex-col rounded-card border bg-card p-5 shadow-card ${isRecommended ? "border-primary ring-1 ring-primary" : "border-border"}`}>
+    <article id={`esim-package-${pkg.id}`} className={`flex flex-col rounded-card border p-5 shadow-card ${isRecommended ? "border-primary bg-primary-soft ring-1 ring-primary" : isSelected ? "border-primary bg-card" : "border-border bg-card"}`}>
       <div className="flex items-start justify-between gap-2">
         <div className="min-w-0">
           <strong className="block font-display text-2xl">{pkg.unlimited ? copy.unlimited : `${pkg.dataGb ?? "—"} GB`}</strong>
@@ -211,12 +240,12 @@ function PackageCard({ pkg, isRecommended, whyText, copy }: { pkg: EsimPackage; 
         </div>
       )}
       <Button
-        variant="cta"
+        variant={isSelected ? "secondary" : "outline"}
         className="mt-3 w-full"
-        disabled={inCart}
-        onClick={() => addLine({ productId: pkg.id, serviceType: "ESIM", name: pkg.name, meta: pkg.unlimited ? copy.unlimited : `${pkg.dataGb ?? "—"} GB`, price, currency: pkg.currency })}
+        onClick={onSelect}
+        aria-pressed={isSelected}
       >
-        <ShoppingCart /> {inCart ? copy.inCart : copy.add}
+        {isSelected && <Check />} {isSelected ? copy.selected : copy.select}
       </Button>
     </article>
   );
