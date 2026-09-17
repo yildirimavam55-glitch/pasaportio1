@@ -49,17 +49,13 @@ export const listDeviceCompatibility = createServerFn({ method: "GET" }).handler
   return data.map(toRecord);
 });
 
-async function assertAdmin(context: { supabase: Database extends never ? never : any; userId: string }) {
-  const { data: isAdmin, error } = await context.supabase.rpc("has_role", { _user_id: context.userId, _role: "admin" });
-  if (error) throw new Error(error.message);
-  if (!isAdmin) throw new Error("Yönetici yetkisi gerekiyor.");
-}
-
 /** Admin read: includes disabled records. */
 export const listAllDeviceCompatibility = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }): Promise<DeviceRecord[]> => {
-    await assertAdmin(context);
+    const { data: isAdmin, error: roleError } = await context.supabase.rpc("has_role", { _user_id: context.userId, _role: "admin" });
+    if (roleError) throw new Error(roleError.message);
+    if (!isAdmin) throw new Error("Yönetici yetkisi gerekiyor.");
     const { data, error } = await context.supabase
       .from("esim_device_compatibility")
       .select("*")
