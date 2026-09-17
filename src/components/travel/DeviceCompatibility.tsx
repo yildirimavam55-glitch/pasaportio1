@@ -170,7 +170,13 @@ function DeviceCheckSheet({ surface, trigger }: { surface: string; trigger: Reac
       }}
     >
       <SheetTrigger asChild>{trigger}</SheetTrigger>
-      <SheetContent side="bottom" className="max-h-[88svh] overflow-y-auto rounded-t-2xl pb-28 sm:pb-8">
+      <SheetContent
+        side="bottom"
+        overlayClassName="compatibility-backdrop"
+        closeClassName="right-3 top-3 sm:right-4 sm:top-4"
+        className="compatibility-sheet max-h-[88svh] overflow-y-auto rounded-t-2xl pb-28 sm:bottom-auto sm:left-1/2 sm:top-1/2 sm:max-h-[86vh] sm:w-[min(42rem,calc(100vw-3rem))] sm:-translate-x-1/2 sm:-translate-y-1/2 sm:rounded-2xl sm:border"
+      >
+        <span className="mx-auto mb-1 block h-1 w-10 shrink-0 rounded-full bg-border sm:hidden" aria-hidden="true" />
         <SheetHeader className="px-4 sm:px-6">
           <SheetTitle className="font-display text-xl">{copy.sheetTitle}</SheetTitle>
           <SheetDescription>{copy.sheetLead}</SheetDescription>
@@ -187,7 +193,7 @@ function DeviceCheckSheet({ surface, trigger }: { surface: string; trigger: Reac
           ) : (
             <>
               <label className="flex min-h-13 items-center gap-2 rounded-xl border border-border bg-secondary/60 px-3">
-                <Search className="size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
+                <span className="icon-slot-sm text-muted-foreground"><Search aria-hidden="true" /></span>
                 <input
                   value={query}
                   onChange={(event) => {
@@ -236,7 +242,7 @@ function DeviceCheckSheet({ surface, trigger }: { surface: string; trigger: Reac
                           }}
                           className="flex min-h-13 w-full items-center gap-2 rounded-xl border border-border bg-card px-3 text-left text-sm font-semibold hover:border-primary/60"
                         >
-                          <Smartphone className="size-4 shrink-0 text-primary" aria-hidden="true" />
+                          <span className="icon-slot-sm text-primary"><Smartphone aria-hidden="true" /></span>
                           <span className="min-w-0 flex-1 truncate">{device.model}</span>
                           <ChevronRight className="size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
                         </button>
@@ -262,7 +268,7 @@ function DeviceCheckSheet({ surface, trigger }: { surface: string; trigger: Reac
           </Accordion>
 
           <div className="flex gap-2 rounded-xl bg-secondary/60 p-3 text-sm text-muted-foreground">
-            <Info className="mt-0.5 size-4 shrink-0 text-primary" aria-hidden="true" />
+            <span className="icon-slot-sm self-start text-primary"><Info aria-hidden="true" /></span>
             <span><strong className="block text-foreground">{copy.disclaimerTitle}</strong>{copy.disclaimer}</span>
           </div>
         </div>
@@ -310,8 +316,8 @@ export function DeviceCompatibilitySection() {
       <div className="rounded-card border border-border bg-card p-4 shadow-card sm:flex sm:items-center sm:justify-between sm:gap-4 sm:p-5">
         <div className="min-w-0">
           <h2 className="flex items-center gap-2 font-display text-lg font-bold">
-            <Smartphone className="size-5 text-primary" aria-hidden="true" />
-            {copy.sectionTitle}
+            <span className="icon-slot-sm text-primary"><Smartphone aria-hidden="true" /></span>
+            <span className="leading-tight">{copy.sectionTitle}</span>
           </h2>
           <p className="mt-1 text-sm text-muted-foreground">{copy.sectionLead}</p>
           {compatibilityChecked && compatibilityResult && (

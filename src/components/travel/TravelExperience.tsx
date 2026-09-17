@@ -155,7 +155,7 @@ function ServiceButton({ active, onClick, icon, children }: { active: boolean; o
       type="button"
       aria-pressed={active}
       onClick={onClick}
-      className={`flex min-h-12 items-center justify-center gap-2 rounded-xl text-sm font-bold transition ${active ? "bg-primary text-primary-foreground shadow-sm" : "text-muted-foreground hover:bg-secondary"}`}
+      className={`flex min-h-12 items-center justify-center gap-2 rounded-xl text-sm font-bold transition [&>svg]:size-5 [&>svg]:shrink-0 [&>svg]:stroke-[1.8] ${active ? "bg-primary text-primary-foreground shadow-sm" : "text-muted-foreground hover:bg-secondary"}`}
     >
       {icon}
       {children}

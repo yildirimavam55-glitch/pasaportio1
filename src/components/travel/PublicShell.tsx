@@ -18,7 +18,7 @@ function Brand() {
 function LanguageMenu() {
   const { locale, setLocale } = useI18n();
   const copy = localized(GLOBAL_CONTENT, locale);
-  return <DropdownMenu><DropdownMenuTrigger asChild><Button variant="ghost" size="sm" aria-label={copy.language.label} className="min-h-10 gap-1.5"><CountryFlag iso={localeMeta[locale].iso}/><span>{localeMeta[locale].short}</span></Button></DropdownMenuTrigger><DropdownMenuContent align="end" className="min-w-44">{(["tr","de","en"] as const).map((code) => <DropdownMenuItem key={code} onSelect={() => setLocale(code)} className="min-h-11 gap-3"><CountryFlag iso={localeMeta[code].iso}/><span className="flex-1">{copy.language[code]}</span>{locale === code && <Check className="size-4 text-primary" aria-hidden="true" />}</DropdownMenuItem>)}</DropdownMenuContent></DropdownMenu>;
+  return <DropdownMenu><DropdownMenuTrigger asChild><Button variant="ghost" size="sm" aria-label={copy.language.label} className="min-h-11 gap-1.5"><CountryFlag iso={localeMeta[locale].iso}/><span>{localeMeta[locale].short}</span></Button></DropdownMenuTrigger><DropdownMenuContent align="end" className="min-w-44">{(["tr","de","en"] as const).map((code) => <DropdownMenuItem key={code} onSelect={() => setLocale(code)} className="min-h-11 gap-3"><CountryFlag iso={localeMeta[code].iso}/><span className="flex-1">{copy.language[code]}</span>{locale === code && <Check className="size-4 text-primary" aria-hidden="true" />}</DropdownMenuItem>)}</DropdownMenuContent></DropdownMenu>;
 }
 export function PublicShell({ children, activeService, onServiceChange }: { children: ReactNode; activeService?: ServiceSlug; onServiceChange?: (service: ServiceSlug) => void }) {
   const { locale } = useI18n(); const copy = localized(GLOBAL_CONTENT, locale);
