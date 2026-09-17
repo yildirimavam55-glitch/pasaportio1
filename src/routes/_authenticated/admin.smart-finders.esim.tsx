@@ -51,31 +51,25 @@ function EsimRecommendationSettings() {
   const queryClient = useQueryClient();
   const { data, isPending } = useQuery({ queryKey: ["esim-usage-settings"], queryFn: () => getEsimUsageSettings() });
   const [draft, setDraft] = useState<EsimUsageSettings>(DEFAULT_USAGE_SETTINGS);
-  const [sizesText, setSizesText] = useState(DEFAULT_USAGE_SETTINGS.packageSizesGb.join(", "));
   const [saved, setSaved] = useState(false);
 
   useEffect(() => {
     if (!data) return;
     setDraft(data);
-    setSizesText(data.packageSizesGb.join(", "));
   }, [data]);
 
   const mutation = useMutation({
     mutationFn: (settings: EsimUsageSettings) => saveEsimUsageSettings({ data: { settings } }),
     onSuccess: (settings) => {
       setDraft(settings);
-      setSizesText(settings.packageSizesGb.join(", "));
       setSaved(true);
       window.setTimeout(() => setSaved(false), 2500);
       void queryClient.invalidateQueries({ queryKey: ["esim-usage-settings"] });
     },
   });
 
-  const effective = sanitizeUsageSettings({
-    ...draft,
-    packageSizesGb: sizesText.split(",").map((part) => Number(part.trim())).filter((size) => Number.isFinite(size)),
-  });
-  const preview = recommendUsage({ days: 10, usage: ["MESSAGING", "SOCIAL", "MAPS"] }, effective);
+  const effective = sanitizeUsageSettings(draft);
+  const preview = estimateUsageNeed({ days: 10, usage: ["MESSAGING", "SOCIAL", "MAPS"] }, effective);
 
   return (
     <AdminGate title="Smart Finders · eSIM önerisi">
