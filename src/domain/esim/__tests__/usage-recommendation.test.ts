@@ -1,30 +1,57 @@
 import { describe, expect, it } from "vitest";
-import { DEFAULT_USAGE_SETTINGS, recommendUsage, sanitizeUsageSettings } from "../usage-recommendation";
+import { DEFAULT_USAGE_SETTINGS, estimateUsageNeed, sanitizeUsageSettings } from "../usage-recommendation";
+import { selectRecommendedPackage, type MatchablePackage } from "../package-matching";
 
-describe("eSIM usage recommendation", () => {
-  it("separates estimate, safety-adjusted and recommended package", () => {
-    const result = recommendUsage({ days: 10, usage: ["MESSAGING", "SOCIAL", "MAPS"] }, DEFAULT_USAGE_SETTINGS);
+const pkg = (id: string, dataGb: number | null, extra: Partial<MatchablePackage> = {}): MatchablePackage => ({
+  id,
+  dataGb,
+  unlimited: false,
+  validityDays: null,
+  coverage: ["TR"],
+  salePrice: 10,
+  ...extra,
+});
+
+describe("eSIM usage need estimation", () => {
+  it("separates estimate, safety-adjusted and required need", () => {
+    const result = estimateUsageNeed({ days: 10, usage: ["MESSAGING", "SOCIAL", "MAPS"] }, DEFAULT_USAGE_SETTINGS);
     expect(result.estimatedGb).toBeGreaterThan(0);
     expect(result.safetyAdjustedGb).toBeGreaterThanOrEqual(result.estimatedGb);
-    expect(DEFAULT_USAGE_SETTINGS.packageSizesGb).toContain(result.recommendedGb);
-    expect(result.recommendedGb).toBeGreaterThanOrEqual(result.safetyAdjustedGb);
+    expect(result.requiredGb).toBeGreaterThanOrEqual(result.safetyAdjustedGb);
   });
 
-  it("never recommends below the configured minimum", () => {
-    const result = recommendUsage({ days: 1, usage: [] }, { ...DEFAULT_USAGE_SETTINGS, minimumRecommendedGb: 3 });
-    expect(result.recommendedGb).toBeGreaterThanOrEqual(3);
+  it("never falls below the configured minimum", () => {
+    const result = estimateUsageNeed({ days: 1, usage: [] }, { ...DEFAULT_USAGE_SETTINGS, minimumRecommendedGb: 3 });
+    expect(result.requiredGb).toBeGreaterThanOrEqual(3);
   });
 
   it("falls back to safe defaults for invalid configuration", () => {
-    const settings = sanitizeUsageSettings({ perDayMb: { VIDEO: -50 }, safetyBufferPercent: 900, packageSizesGb: ["x"], intensityMultipliers: { NORMAL: 0 } });
+    const settings = sanitizeUsageSettings({ perDayMb: { VIDEO: -50 }, safetyBufferPercent: 900, intensityMultipliers: { NORMAL: 0 } });
     expect(settings.perDayMb.VIDEO).toBe(DEFAULT_USAGE_SETTINGS.perDayMb.VIDEO);
     expect(settings.safetyBufferPercent).toBe(DEFAULT_USAGE_SETTINGS.safetyBufferPercent);
-    expect(settings.packageSizesGb).toEqual(DEFAULT_USAGE_SETTINGS.packageSizesGb);
     expect(settings.intensityMultipliers.NORMAL).toBe(1);
   });
+});
 
-  it("respects a configured safety buffer and package grid", () => {
-    const result = recommendUsage({ days: 10, usage: ["VIDEO"] }, { ...DEFAULT_USAGE_SETTINGS, safetyBufferPercent: 50, packageSizesGb: [5, 20] });
-    expect([5, 20]).toContain(result.recommendedGb);
+describe("catalogue package matching", () => {
+  it("picks the smallest sufficient available package", () => {
+    const result = selectRecommendedPackage([pkg("a", 5), pkg("b", 10), pkg("c", 20), pkg("d", 50)], { requiredGb: 17.5, coverageIsos: ["TR"] });
+    expect(result?.dataGb).toBe(20);
+  });
+
+  it("uses the next available size even when it is much larger", () => {
+    const result = selectRecommendedPackage([pkg("a", 10), pkg("b", 50)], { requiredGb: 17.5 });
+    expect(result?.dataGb).toBe(50);
+  });
+
+  it("returns nothing when no product covers the route or the need", () => {
+    expect(selectRecommendedPackage([pkg("a", 10)], { requiredGb: 17.5 })).toBeNull();
+    expect(selectRecommendedPackage([pkg("a", 50, { coverage: ["DE"] })], { requiredGb: 5, coverageIsos: ["TR"] })).toBeNull();
+  });
+
+  it("respects validity and prefers the cheaper of equal sizes", () => {
+    expect(selectRecommendedPackage([pkg("a", 20, { validityDays: 7 })], { requiredGb: 5, days: 30 })).toBeNull();
+    const result = selectRecommendedPackage([pkg("a", 20, { salePrice: 40 }), pkg("b", 20, { salePrice: 25 })], { requiredGb: 5 });
+    expect(result?.id).toBe("b");
   });
 });
