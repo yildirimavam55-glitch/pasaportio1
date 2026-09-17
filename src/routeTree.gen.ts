@@ -12,8 +12,9 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthRouteImport } from './routes/auth'
-import { Route as EsimRouteImport } from './routes/esim'
 import { Route as LoungeRouteImport } from './routes/lounge'
+import { Route as EsimIndexRouteImport } from './routes/esim.index'
+import { Route as EsimPaketlerRouteImport } from './routes/esim.paketler'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin.index'
 import { Route as AuthenticatedAdminCustomersRouteImport } from './routes/_authenticated/admin.customers'
 import { Route as AuthenticatedAdminOrdersRouteImport } from './routes/_authenticated/admin.orders'
@@ -21,6 +22,7 @@ import { Route as AuthenticatedAdminProductsRouteImport } from './routes/_authen
 import { Route as AuthenticatedAdminProvidersRouteImport } from './routes/_authenticated/admin.providers'
 import { Route as AuthenticatedHesabimIndexRouteImport } from './routes/_authenticated/hesabim.index'
 import { Route as AuthenticatedHesabimSeyahatlerRouteImport } from './routes/_authenticated/hesabim.seyahatler'
+import { Route as AuthenticatedAdminSmartFindersEsimRouteImport } from './routes/_authenticated/admin.smart-finders.esim'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -36,14 +38,19 @@ const AuthRoute = AuthRouteImport.update({
   path: '/auth',
   getParentRoute: () => rootRouteImport,
 } as any)
-const EsimRoute = EsimRouteImport.update({
-  id: '/esim',
-  path: '/esim',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const LoungeRoute = LoungeRouteImport.update({
   id: '/lounge',
   path: '/lounge',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EsimIndexRoute = EsimIndexRouteImport.update({
+  id: '/esim/',
+  path: '/esim/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EsimPaketlerRoute = EsimPaketlerRouteImport.update({
+  id: '/esim/paketler',
+  path: '/esim/paketler',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedAdminIndexRoute = AuthenticatedAdminIndexRouteImport.update({
@@ -87,12 +94,19 @@ const AuthenticatedHesabimSeyahatlerRoute =
     path: '/hesabim/seyahatler',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedAdminSmartFindersEsimRoute =
+  AuthenticatedAdminSmartFindersEsimRouteImport.update({
+    id: '/admin/smart-finders/esim',
+    path: '/admin/smart-finders/esim',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
-  '/esim': typeof EsimRoute
   '/lounge': typeof LoungeRoute
+  '/esim/paketler': typeof EsimPaketlerRoute
+  '/esim/': typeof EsimIndexRoute
   '/admin/customers': typeof AuthenticatedAdminCustomersRoute
   '/admin/orders': typeof AuthenticatedAdminOrdersRoute
   '/admin/products': typeof AuthenticatedAdminProductsRoute
@@ -100,12 +114,14 @@ export interface FileRoutesByFullPath {
   '/hesabim/seyahatler': typeof AuthenticatedHesabimSeyahatlerRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
   '/hesabim/': typeof AuthenticatedHesabimIndexRoute
+  '/admin/smart-finders/esim': typeof AuthenticatedAdminSmartFindersEsimRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
-  '/esim': typeof EsimRoute
   '/lounge': typeof LoungeRoute
+  '/esim/paketler': typeof EsimPaketlerRoute
+  '/esim': typeof EsimIndexRoute
   '/admin/customers': typeof AuthenticatedAdminCustomersRoute
   '/admin/orders': typeof AuthenticatedAdminOrdersRoute
   '/admin/products': typeof AuthenticatedAdminProductsRoute
@@ -113,14 +129,16 @@ export interface FileRoutesByTo {
   '/hesabim/seyahatler': typeof AuthenticatedHesabimSeyahatlerRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
   '/hesabim': typeof AuthenticatedHesabimIndexRoute
+  '/admin/smart-finders/esim': typeof AuthenticatedAdminSmartFindersEsimRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
-  '/esim': typeof EsimRoute
   '/lounge': typeof LoungeRoute
+  '/esim/paketler': typeof EsimPaketlerRoute
+  '/esim/': typeof EsimIndexRoute
   '/_authenticated/admin/customers': typeof AuthenticatedAdminCustomersRoute
   '/_authenticated/admin/orders': typeof AuthenticatedAdminOrdersRoute
   '/_authenticated/admin/products': typeof AuthenticatedAdminProductsRoute
@@ -128,14 +146,16 @@ export interface FileRoutesById {
   '/_authenticated/hesabim/seyahatler': typeof AuthenticatedHesabimSeyahatlerRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
   '/_authenticated/hesabim/': typeof AuthenticatedHesabimIndexRoute
+  '/_authenticated/admin/smart-finders/esim': typeof AuthenticatedAdminSmartFindersEsimRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
     | '/auth'
-    | '/esim'
     | '/lounge'
+    | '/esim/paketler'
+    | '/esim/'
     | '/admin/customers'
     | '/admin/orders'
     | '/admin/products'
@@ -143,12 +163,14 @@ export interface FileRouteTypes {
     | '/hesabim/seyahatler'
     | '/admin/'
     | '/hesabim/'
+    | '/admin/smart-finders/esim'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/auth'
-    | '/esim'
     | '/lounge'
+    | '/esim/paketler'
+    | '/esim'
     | '/admin/customers'
     | '/admin/orders'
     | '/admin/products'
@@ -156,13 +178,15 @@ export interface FileRouteTypes {
     | '/hesabim/seyahatler'
     | '/admin'
     | '/hesabim'
+    | '/admin/smart-finders/esim'
   id:
     | '__root__'
     | '/'
     | '/_authenticated'
     | '/auth'
-    | '/esim'
     | '/lounge'
+    | '/esim/paketler'
+    | '/esim/'
     | '/_authenticated/admin/customers'
     | '/_authenticated/admin/orders'
     | '/_authenticated/admin/products'
@@ -170,14 +194,16 @@ export interface FileRouteTypes {
     | '/_authenticated/hesabim/seyahatler'
     | '/_authenticated/admin/'
     | '/_authenticated/hesabim/'
+    | '/_authenticated/admin/smart-finders/esim'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
-  EsimRoute: typeof EsimRoute
   LoungeRoute: typeof LoungeRoute
+  EsimPaketlerRoute: typeof EsimPaketlerRoute
+  EsimIndexRoute: typeof EsimIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -203,18 +229,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/esim': {
-      id: '/esim'
-      path: '/esim'
-      fullPath: '/esim'
-      preLoaderRoute: typeof EsimRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/lounge': {
       id: '/lounge'
       path: '/lounge'
       fullPath: '/lounge'
       preLoaderRoute: typeof LoungeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/esim/': {
+      id: '/esim/'
+      path: '/esim'
+      fullPath: '/esim/'
+      preLoaderRoute: typeof EsimIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/esim/paketler': {
+      id: '/esim/paketler'
+      path: '/esim/paketler'
+      fullPath: '/esim/paketler'
+      preLoaderRoute: typeof EsimPaketlerRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated/admin/': {
@@ -266,6 +299,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedHesabimSeyahatlerRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/admin/smart-finders/esim': {
+      id: '/_authenticated/admin/smart-finders/esim'
+      path: '/admin/smart-finders/esim'
+      fullPath: '/admin/smart-finders/esim'
+      preLoaderRoute: typeof AuthenticatedAdminSmartFindersEsimRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
   }
 }
 
@@ -277,6 +317,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedHesabimSeyahatlerRoute: typeof AuthenticatedHesabimSeyahatlerRoute
   AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
   AuthenticatedHesabimIndexRoute: typeof AuthenticatedHesabimIndexRoute
+  AuthenticatedAdminSmartFindersEsimRoute: typeof AuthenticatedAdminSmartFindersEsimRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
@@ -287,6 +328,8 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedHesabimSeyahatlerRoute: AuthenticatedHesabimSeyahatlerRoute,
   AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
   AuthenticatedHesabimIndexRoute: AuthenticatedHesabimIndexRoute,
+  AuthenticatedAdminSmartFindersEsimRoute:
+    AuthenticatedAdminSmartFindersEsimRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
@@ -296,8 +339,9 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
-  EsimRoute: EsimRoute,
   LoungeRoute: LoungeRoute,
+  EsimPaketlerRoute: EsimPaketlerRoute,
+  EsimIndexRoute: EsimIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

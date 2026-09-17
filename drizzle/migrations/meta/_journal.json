@@ -29,6 +29,13 @@
       "when": 1789631258738,
       "tag": "0003_phase0_harden_functions",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1789638591749,
+      "tag": "0004_create_esim_usage_settings",
+      "breakpoints": true
     }
   ]
 }

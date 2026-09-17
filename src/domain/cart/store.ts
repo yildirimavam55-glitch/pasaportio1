@@ -1,0 +1,76 @@
+import { useCallback, useEffect, useState } from "react";
+import type { ServiceType } from "@/domain/enums";
+
+/**
+ * Local cart foundation (no payment, no provider transaction).
+ * Only real catalogue products can ever be added — callers pass a product id.
+ */
+export type CartLine = {
+  id: string;
+  productId: string;
+  serviceType: ServiceType;
+  name: string;
+  meta: string;
+  price: number | null;
+  currency: string;
+  quantity: number;
+};
+
+const STORAGE_KEY = "travely.cart.v1";
+const listeners = new Set<(lines: CartLine[]) => void>();
+let lines: CartLine[] = [];
+let hydrated = false;
+
+function read(): CartLine[] {
+  if (typeof window === "undefined") return [];
+  try {
+    const raw = window.localStorage.getItem(STORAGE_KEY);
+    const parsed = raw ? (JSON.parse(raw) as CartLine[]) : [];
+    return Array.isArray(parsed) ? parsed.filter((line) => line && typeof line.productId === "string") : [];
+  } catch {
+    return [];
+  }
+}
+
+function publish(next: CartLine[]) {
+  lines = next;
+  if (typeof window !== "undefined") {
+    try {
+      window.localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+    } catch {
+      /* storage unavailable — cart stays in memory */
+    }
+  }
+  listeners.forEach((listener) => listener(next));
+}
+
+export function useCart() {
+  const [state, setState] = useState<CartLine[]>(lines);
+
+  useEffect(() => {
+    if (!hydrated) {
+      hydrated = true;
+      lines = read();
+    }
+    setState(lines);
+    listeners.add(setState);
+    return () => {
+      listeners.delete(setState);
+    };
+  }, []);
+
+  const addLine = useCallback((line: Omit<CartLine, "id" | "quantity"> & { quantity?: number }) => {
+    const quantity = Math.max(1, Math.round(line.quantity ?? 1));
+    const existing = lines.find((item) => item.productId === line.productId);
+    if (existing) {
+      publish(lines.map((item) => (item.productId === line.productId ? { ...item, quantity: item.quantity + quantity } : item)));
+      return;
+    }
+    publish([...lines, { ...line, quantity, id: `${line.productId}-${Date.now()}` }]);
+  }, []);
+
+  const removeLine = useCallback((productId: string) => publish(lines.filter((item) => item.productId !== productId)), []);
+  const clear = useCallback(() => publish([]), []);
+
+  return { lines: state, addLine, removeLine, clear, count: state.reduce((total, line) => total + line.quantity, 0) };
+}
