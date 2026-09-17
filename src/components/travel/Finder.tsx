@@ -342,19 +342,52 @@ export function EsimFinder({ state, onChange }: { state: EsimFinderState; onChan
       </div>
 
       <div className="mt-5 rounded-xl bg-primary p-4 text-primary-foreground">
-        <div className="grid gap-3 sm:grid-cols-2">
-          <div>
-            <span className="text-xs font-semibold uppercase opacity-75">{copy.estimate}</span>
-            <strong className="mt-1 flex items-center gap-2 text-xl"><Gauge className="size-5" aria-hidden="true" />~{recommendation.estimatedGb} GB</strong>
+        <span className="text-xs font-semibold uppercase opacity-75">{copy.need}</span>
+        <strong className="mt-1 flex items-center gap-2 text-3xl"><Gauge className="size-6" aria-hidden="true" />~{recommendation.requiredGb} GB</strong>
+        {summaryLabel && <span className="mt-1 block text-sm opacity-80">{summaryLabel}</span>}
+        <p className="mt-2 text-sm opacity-80">{copy.needReason}</p>
+
+        {recommended && (
+          <div className="mt-4 rounded-lg bg-white/10 p-3">
+            <div className="flex items-start justify-between gap-2">
+              <div className="min-w-0">
+                <span className="text-xs font-semibold uppercase opacity-75">{copy.recommendedPackage}</span>
+                <strong className="mt-1 flex items-center gap-2 text-2xl">
+                  <ShieldCheck className="size-5" aria-hidden="true" />
+                  {recommended.unlimited ? copy.unlimited : `${recommended.dataGb} GB`}
+                </strong>
+                <span className="mt-0.5 block text-sm opacity-80">
+                  {[recommended.validityDays ? `${recommended.validityDays} ${copy.validity}` : "", summaryLabel].filter(Boolean).join(" · ")}
+                </span>
+              </div>
+              <span className="shrink-0 rounded-full bg-white/20 px-2 py-1 text-xs font-bold">{copy.recommendedBadge}</span>
+            </div>
+            <strong className="mt-2 block text-xl">
+              {new Intl.NumberFormat(undefined, { style: "currency", currency: recommended.currency }).format(recommended.salePrice ?? 0)}
+            </strong>
+            <Button
+              type="button"
+              variant="cta"
+              size="lg"
+              className="mt-3 w-full"
+              disabled={recommendedInCart}
+              onClick={() =>
+                addLine({
+                  productId: recommended.id,
+                  serviceType: "ESIM",
+                  name: recommended.name,
+                  meta: recommended.unlimited ? copy.unlimited : `${recommended.dataGb} GB`,
+                  price: recommended.salePrice ?? 0,
+                  currency: recommended.currency,
+                })
+              }
+            >
+              <ShoppingCart /> {recommendedInCart ? copy.inCart : copy.addToCart}
+            </Button>
           </div>
-          <div className="rounded-lg bg-white/10 p-3">
-            <span className="text-xs font-semibold uppercase opacity-75">{copy.recommended}</span>
-            <strong className="mt-1 flex items-center gap-2 text-2xl"><ShieldCheck className="size-5" aria-hidden="true" />{recommendation.requiredGb} GB</strong>
-            {summaryLabel && <span className="mt-0.5 block text-sm opacity-80">{summaryLabel}</span>}
-          </div>
-        </div>
-        <p className="mt-3 text-sm opacity-80">{copy.recommendReason}</p>
-        <Button type="button" variant="cta" size="lg" className="mt-3 w-full sm:w-auto" disabled={!canSeePackages} onClick={goToPackages}>
+        )}
+
+        <Button type="button" variant={recommended ? "secondary" : "cta"} size="lg" className="mt-3 w-full sm:w-auto" disabled={!canSeePackages} onClick={goToPackages}>
           {copy.seePackages}
           <ArrowRight />
         </Button>
