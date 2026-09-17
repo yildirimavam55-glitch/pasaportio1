@@ -11,6 +11,7 @@ import type { Locale } from "@/domain/enums";
 import { FinderShell, EsimFinder, LoungeFinder } from "./Finder";
 import { PublicShell } from "./PublicShell";
 import { Reveal } from "./Reveal";
+import { DeliveryConfidence, HowItWorks, TrustStrip, VisualComplementary, VisualPopular } from "./PublicVisualSections";
 
 const SECTION_COPY = {
   tr: {
@@ -167,10 +168,12 @@ export function TravelExperience({ service, onServiceChange }: { service: Servic
       <FinderShell title={copy.finderTitle} description={copy.finderDescription}>
         {service === "esim" ? <EsimFinder state={esimState} onChange={setEsimState} /> : <LoungeFinder state={loungeState} onChange={setLoungeState} />}
       </FinderShell>
-      <Reveal><Trust items={global.trust} /></Reveal>
-      <Reveal><Popular service={service} /></Reveal>
+      <Reveal><TrustStrip /></Reveal>
+      <Reveal><VisualPopular service={service} /></Reveal>
       <Reveal><Pricing service={service} /></Reveal>
-      {showCrossSell && <Reveal><Complementary service={service} onSwitch={onServiceChange} /></Reveal>}
+      {showCrossSell && <Reveal><VisualComplementary service={service} onSwitch={onServiceChange} /></Reveal>}
+      <Reveal><HowItWorks service={service} /></Reveal>
+      <Reveal><DeliveryConfidence service={service} /></Reveal>
       <Reveal><Education service={service} /></Reveal>
       <Reveal><FinalCta service={service} /></Reveal>
     </PublicShell>
@@ -211,6 +214,7 @@ function Hero({ service, onFind }: { service: ServiceSlug; onFind: () => void })
             width={1600}
             height={1008}
             fetchPriority="high"
+            decoding="async"
             className="absolute inset-0 size-full object-cover"
           />
         </picture>
