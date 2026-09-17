@@ -137,27 +137,6 @@ function EsimRecommendationSettings() {
                   suffix="GB"
                   onChange={(minimumRecommendedGb) => setDraft({ ...draft, minimumRecommendedGb })}
                 />
-                <label className="block min-w-0">
-                  <span className="mb-1 block text-sm font-semibold">Paket boyutları (GB)</span>
-                  <input
-                    className="min-h-12 w-full rounded-xl border border-border bg-card px-3 text-sm"
-                    value={sizesText}
-                    onChange={(event) => setSizesText(event.target.value)}
-                    placeholder="1, 3, 5, 10, 20, 50"
-                  />
-                  <span className="mt-1 block text-xs text-muted-foreground">Geçerli değerler: {effective.packageSizesGb.join(" · ")}</span>
-                </label>
-                <label className="block min-w-0">
-                  <span className="mb-1 block text-sm font-semibold">Yuvarlama stratejisi</span>
-                  <select
-                    className="min-h-12 w-full rounded-xl border border-border bg-card px-3 text-sm"
-                    value={draft.roundingStrategy}
-                    onChange={(event) => setDraft({ ...draft, roundingStrategy: event.target.value === "NEAREST_PACKAGE" ? "NEAREST_PACKAGE" : "NEXT_PACKAGE_UP" })}
-                  >
-                    <option value="NEXT_PACKAGE_UP">Bir üst pakete yuvarla</option>
-                    <option value="NEAREST_PACKAGE">En yakın pakete yuvarla</option>
-                  </select>
-                </label>
               </div>
             </section>
 
