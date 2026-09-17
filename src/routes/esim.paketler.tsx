@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { z } from "zod";
-import { ArrowLeft, Check, Gauge, HelpCircle, Route as RouteIcon, ShieldCheck, ShoppingCart, Signal, Wifi, Zap } from "lucide-react";
+import { ArrowLeft, Check, Gauge, HelpCircle, Route as RouteIcon, ShoppingCart, Signal, Wifi, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { PublicShell } from "@/components/travel/PublicShell";
 import { CountryFlag } from "@/components/travel/CountryFlag";
@@ -130,15 +130,9 @@ function PackagesPage() {
             <span className="text-muted-foreground">·</span>
             <span>{search.travelers} {copy.travelers}</span>
           </div>
-          <div className="mt-3 grid grid-cols-2 gap-2">
-            <div className="rounded-xl bg-secondary/60 p-3">
-              <span className="text-xs font-semibold uppercase text-muted-foreground">{copy.estimate}</span>
-              <strong className="mt-1 flex items-center gap-1.5 text-lg"><Gauge className="size-4 text-primary" aria-hidden="true" />~{search.estimated} GB</strong>
-            </div>
-            <div className="rounded-xl bg-accent-soft p-3">
-              <span className="text-xs font-semibold uppercase text-muted-foreground">{copy.need}</span>
-              <strong className="mt-1 flex items-center gap-1.5 text-lg"><ShieldCheck className="size-4 text-primary" aria-hidden="true" />~{search.required} GB</strong>
-            </div>
+          <div className="mt-3 rounded-xl bg-accent-soft p-3">
+            <span className="text-xs font-semibold uppercase text-muted-foreground">{copy.need}</span>
+            <strong className="mt-1 flex items-center gap-1.5 text-xl"><Gauge className="size-5 text-primary" aria-hidden="true" />~{search.required} GB</strong>
           </div>
           {!isPending && !recommended && <p className="mt-3 text-sm text-muted-foreground">{copy.pendingCatalogue}</p>}
         </div>

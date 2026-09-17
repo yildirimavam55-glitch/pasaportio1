@@ -72,6 +72,10 @@ export function getAirport(id: string | null | undefined): Airport | undefined {
   return id ? BY_ID.get(id) : undefined;
 }
 
+export function getAirportByIata(iata: string | null | undefined): Airport | undefined {
+  return iata ? BY_ID.get(`airport-${iata.toLowerCase()}`) : undefined;
+}
+
 export function searchAirports(query: string, limit = 40): Airport[] {
   const needle = foldText(query);
   if (!needle) return AIRPORTS.slice(0, limit);

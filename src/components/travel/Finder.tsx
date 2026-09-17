@@ -19,6 +19,7 @@ import {
   Search,
   ShieldCheck,
   Share2,
+  ShoppingCart,
   Trash2,
   Users,
   Video,
@@ -38,6 +39,9 @@ import type { EsimFinderState, LoungeFinderState, UsageKind } from "@/domain/exp
 import type { Locale } from "@/domain/enums";
 import { DEFAULT_USAGE_SETTINGS, estimateUsageNeed } from "@/domain/esim/usage-recommendation";
 import { getEsimUsageSettings } from "@/lib/esim-settings.functions";
+import { listEsimPackages } from "@/lib/esim-catalogue.functions";
+import { selectRecommendedPackage } from "@/domain/esim/package-matching";
+import { useCart } from "@/domain/cart/store";
 import { CountryFlag } from "./CountryFlag";
 
 const COPY = {
@@ -46,10 +50,13 @@ const COPY = {
     where: "Nereye gidiyorsun?", chooseCountry: "Ülke seç", days: "Kaç gün?", dayUnit: "gün",
     travelers: "Kaç kişi?", personUnit: "kişi", usage: "İnterneti ne için kullanacaksın?",
     addCountry: "Ülke ekle", minRoute: "Çoklu rota için en az iki ülke seç.", duplicate: "Bu ülke rotanda zaten var.",
-    edit: "Düzenle", done: "Tamam", countriesCount: (n: number) => `${n} ülke`, estimate: "Tahmini kullanım",
-    recommended: "Tahmini ihtiyacın",
-    recommendReason: "Seçimlerine ve güvenlik payına göre hesaplandı. İhtiyacına en yakın uygun paket, paket listesinde otomatik seçilir.",
+    edit: "Düzenle", done: "Tamam", countriesCount: (n: number) => `${n} ülke`,
+    need: "Tahmini internet ihtiyacın",
+    needReason: "Seyahat süren, kullanım tercihlerin ve güvenlik payına göre hesaplandı.",
     seePackages: "Paketleri Gör",
+    recommendedPackage: "Sana önerilen paket", recommendedBadge: "Önerilen", addToCart: "Sepete Ekle", inCart: "Sepette",
+    validity: "gün geçerli", unlimited: "Sınırsız veri",
+    loungeCta: "Lounge Seçeneklerini Gör",
     steps: ["Rota", "Süre", "Yolcular", "Kullanım"],
     airport: "Hangi havalimanı?", chooseAirport: "Havalimanı seç", date: "Hangi tarih?",
     situation: "Uçuş durumun", departure: "Kalkış", transit: "Aktarma", arrival: "Varış",
@@ -62,10 +69,13 @@ const COPY = {
     where: "Wohin geht es?", chooseCountry: "Land wählen", days: "Wie viele Tage?", dayUnit: "Tage",
     travelers: "Wie viele Personen?", personUnit: "Pers.", usage: "Wofür nutzt du das Internet?",
     addCountry: "Land hinzufügen", minRoute: "Wähle mindestens zwei Länder für eine Route.", duplicate: "Dieses Land ist bereits in deiner Route.",
-    edit: "Bearbeiten", done: "Fertig", countriesCount: (n: number) => `${n} Länder`, estimate: "Geschätzter Verbrauch",
-    recommended: "Dein geschätzter Bedarf",
-    recommendReason: "Berechnet aus deiner Auswahl und dem Sicherheitspuffer. Das passende verfügbare Paket wird in der Paketliste automatisch gewählt.",
+    edit: "Bearbeiten", done: "Fertig", countriesCount: (n: number) => `${n} Länder`,
+    need: "Dein geschätzter Datenbedarf",
+    needReason: "Berechnet aus Reisedauer, deiner Nutzung und dem Sicherheitspuffer.",
     seePackages: "Pakete ansehen",
+    recommendedPackage: "Dein empfohlenes Paket", recommendedBadge: "Empfohlen", addToCart: "In den Warenkorb", inCart: "Im Warenkorb",
+    validity: "Tage gültig", unlimited: "Unbegrenzte Daten",
+    loungeCta: "Lounge-Optionen ansehen",
     steps: ["Route", "Dauer", "Personen", "Nutzung"],
     airport: "Welcher Flughafen?", chooseAirport: "Flughafen wählen", date: "Welches Datum?",
     situation: "Deine Flugsituation", departure: "Abflug", transit: "Transit", arrival: "Ankunft",
@@ -78,10 +88,13 @@ const COPY = {
     where: "Where are you going?", chooseCountry: "Select a country", days: "How many days?", dayUnit: "days",
     travelers: "How many people?", personUnit: "people", usage: "What will you use the internet for?",
     addCountry: "Add country", minRoute: "Choose at least two countries for a route.", duplicate: "This country is already in your route.",
-    edit: "Edit", done: "Done", countriesCount: (n: number) => `${n} countries`, estimate: "Estimated usage",
-    recommended: "Your estimated need",
-    recommendReason: "Calculated from your choices and the safety margin. The closest suitable available package is selected on the package list.",
+    edit: "Edit", done: "Done", countriesCount: (n: number) => `${n} countries`,
+    need: "Your estimated data need",
+    needReason: "Calculated from your trip length, your usage choices and a safety margin.",
     seePackages: "See packages",
+    recommendedPackage: "Your recommended package", recommendedBadge: "Recommended", addToCart: "Add to cart", inCart: "In cart",
+    validity: "days valid", unlimited: "Unlimited data",
+    loungeCta: "See lounge options",
     steps: ["Route", "Duration", "Travelers", "Usage"],
     airport: "Which airport?", chooseAirport: "Select an airport", date: "Which date?",
     situation: "Your flight situation", departure: "Departure", transit: "Transit", arrival: "Arrival",
@@ -169,7 +182,7 @@ export function SegmentedChoice<T extends string>({ label, value, options, onCha
             role="radio"
             aria-checked={selected}
             onClick={() => onChange(option.key)}
-            className={`flex min-h-11 min-w-0 items-center justify-center gap-1.5 truncate rounded-lg border px-2 text-sm font-semibold transition ${selected ? "border-primary bg-accent-soft text-primary" : "border-transparent text-muted-foreground hover:bg-card"}`}
+            className={`flex min-h-11 min-w-0 items-center justify-center gap-1.5 truncate rounded-lg border px-2 text-sm font-semibold transition ${selected ? "border-primary bg-primary-soft text-primary" : "border-transparent text-muted-foreground hover:bg-card"}`}
           >
             {option.icon}
             {option.label}
@@ -231,6 +244,19 @@ export function EsimFinder({ state, onChange }: { state: EsimFinderState; onChan
     ? [selectedCountry?.name[locale], `${state.days} ${copy.dayUnit}`].filter(Boolean).join(" · ")
     : [copy.countriesCount(stops.length), `${state.days} ${copy.dayUnit}`].join(" · ");
   const canSeePackages = state.tripMode === "single" ? Boolean(selectedCountry) : isValidMultiRoute(stops);
+
+  // Layer 2: the recommended package is always a real catalogue product, never a calculated size.
+  const coverageIsos = state.tripMode === "single" ? (selectedCountry ? [selectedCountry.iso] : []) : stops.map((stop) => stop.countryIso);
+  const { data: packages = [] } = useQuery({
+    queryKey: ["esim-packages", coverageIsos.join(",")],
+    queryFn: () => listEsimPackages({ data: { coverageIsos } }),
+    enabled: canSeePackages,
+  });
+  const recommended = canSeePackages
+    ? selectRecommendedPackage(packages, { requiredGb: recommendation.requiredGb, coverageIsos, days: state.days })
+    : null;
+  const { lines, addLine } = useCart();
+  const recommendedInCart = Boolean(recommended && lines.some((line) => line.productId === recommended.id));
 
   const goToPackages = () =>
     void navigate({
@@ -333,19 +359,52 @@ export function EsimFinder({ state, onChange }: { state: EsimFinderState; onChan
       </div>
 
       <div className="mt-5 rounded-xl bg-primary p-4 text-primary-foreground">
-        <div className="grid gap-3 sm:grid-cols-2">
-          <div>
-            <span className="text-xs font-semibold uppercase opacity-75">{copy.estimate}</span>
-            <strong className="mt-1 flex items-center gap-2 text-xl"><Gauge className="size-5" aria-hidden="true" />~{recommendation.estimatedGb} GB</strong>
+        <span className="text-xs font-semibold uppercase opacity-75">{copy.need}</span>
+        <strong className="mt-1 flex items-center gap-2 text-3xl"><Gauge className="size-6" aria-hidden="true" />~{recommendation.requiredGb} GB</strong>
+        {summaryLabel && <span className="mt-1 block text-sm opacity-80">{summaryLabel}</span>}
+        <p className="mt-2 text-sm opacity-80">{copy.needReason}</p>
+
+        {recommended && (
+          <div className="mt-4 rounded-lg bg-white/10 p-3">
+            <div className="flex items-start justify-between gap-2">
+              <div className="min-w-0">
+                <span className="text-xs font-semibold uppercase opacity-75">{copy.recommendedPackage}</span>
+                <strong className="mt-1 flex items-center gap-2 text-2xl">
+                  <ShieldCheck className="size-5" aria-hidden="true" />
+                  {recommended.unlimited ? copy.unlimited : `${recommended.dataGb} GB`}
+                </strong>
+                <span className="mt-0.5 block text-sm opacity-80">
+                  {[recommended.validityDays ? `${recommended.validityDays} ${copy.validity}` : "", summaryLabel].filter(Boolean).join(" · ")}
+                </span>
+              </div>
+              <span className="shrink-0 rounded-full bg-white/20 px-2 py-1 text-xs font-bold">{copy.recommendedBadge}</span>
+            </div>
+            <strong className="mt-2 block text-xl">
+              {new Intl.NumberFormat(undefined, { style: "currency", currency: recommended.currency }).format(recommended.salePrice ?? 0)}
+            </strong>
+            <Button
+              type="button"
+              variant="cta"
+              size="lg"
+              className="mt-3 w-full"
+              disabled={recommendedInCart}
+              onClick={() =>
+                addLine({
+                  productId: recommended.id,
+                  serviceType: "ESIM",
+                  name: recommended.name,
+                  meta: recommended.unlimited ? copy.unlimited : `${recommended.dataGb} GB`,
+                  price: recommended.salePrice ?? 0,
+                  currency: recommended.currency,
+                })
+              }
+            >
+              <ShoppingCart /> {recommendedInCart ? copy.inCart : copy.addToCart}
+            </Button>
           </div>
-          <div className="rounded-lg bg-white/10 p-3">
-            <span className="text-xs font-semibold uppercase opacity-75">{copy.recommended}</span>
-            <strong className="mt-1 flex items-center gap-2 text-2xl"><ShieldCheck className="size-5" aria-hidden="true" />{recommendation.requiredGb} GB</strong>
-            {summaryLabel && <span className="mt-0.5 block text-sm opacity-80">{summaryLabel}</span>}
-          </div>
-        </div>
-        <p className="mt-3 text-sm opacity-80">{copy.recommendReason}</p>
-        <Button type="button" variant="cta" size="lg" className="mt-3 w-full sm:w-auto" disabled={!canSeePackages} onClick={goToPackages}>
+        )}
+
+        <Button type="button" variant={recommended ? "secondary" : "cta"} size="lg" className="mt-3 w-full sm:w-auto" disabled={!canSeePackages} onClick={goToPackages}>
           {copy.seePackages}
           <ArrowRight />
         </Button>
@@ -357,7 +416,20 @@ export function EsimFinder({ state, onChange }: { state: EsimFinderState; onChan
 export function LoungeFinder({ state, onChange }: { state: LoungeFinderState; onChange: (state: LoungeFinderState) => void }) {
   const { locale } = useI18n();
   const copy = COPY[locale];
+  const navigate = useNavigate();
   const airport = getAirport(state.airportId);
+
+  const goToLoungeOptions = () =>
+    void navigate({
+      to: "/lounge/secenekler",
+      search: {
+        airport: state.airportId,
+        iata: airport?.iata ?? "",
+        date: state.date,
+        situation: state.flightSituation,
+        travelers: state.travelers,
+      },
+    });
 
   return (
     <>
@@ -395,13 +467,15 @@ export function LoungeFinder({ state, onChange }: { state: LoungeFinderState; on
         </FinderStep>
         <FinderStep label={copy.travelers}><Stepper value={state.travelers} onChange={(travelers) => onChange({ ...state, travelers })} max={9} suffix={copy.personUnit} icon={<Users className="size-4 shrink-0" />} /></FinderStep>
       </div>
-      <FinderResultShell>
-        <div>
-          <span className="text-xs font-semibold uppercase opacity-75">{copy.selectedAirport}</span>
-          <strong className="mt-1 flex items-center gap-2 text-xl">{airport ? <><CountryFlag iso={airport.countryIso} />{airport.iata} {airport.city[locale]}</> : "—"}</strong>
-        </div>
-        <span className="mt-3 block max-w-sm text-sm opacity-80 sm:mt-0">{copy.loungeHint}</span>
-      </FinderResultShell>
+      <div className="mt-5 rounded-xl bg-primary p-4 text-primary-foreground">
+        <span className="text-xs font-semibold uppercase opacity-75">{copy.selectedAirport}</span>
+        <strong className="mt-1 flex items-center gap-2 text-xl">{airport ? <><CountryFlag iso={airport.countryIso} />{airport.iata} {airport.city[locale]}</> : "—"}</strong>
+        <p className="mt-2 text-sm opacity-80">{copy.loungeHint}</p>
+        <Button type="button" variant="cta" size="lg" className="mt-3 w-full sm:w-auto" disabled={!airport} onClick={goToLoungeOptions}>
+          {copy.loungeCta}
+          <ArrowRight />
+        </Button>
+      </div>
     </>
   );
 }
