@@ -56,6 +56,10 @@ const COPY = {
     seePackages: "Paketleri Gör",
     recommendedPackage: "Sana önerilen paket", recommendedBadge: "Önerilen", addToCart: "Sepete Ekle", inCart: "Sepette",
     validity: "gün geçerli", unlimited: "Sınırsız veri",
+    unlimitedAlternative: "Sınırsız alternatif",
+    noSufficient: "İhtiyacını tamamen karşılayan tek paket bulunamadı.",
+    pendingCatalogue: "Paketler yüklendiğinde ihtiyacına en yakın üst paket otomatik olarak önerilecek.",
+    seePackage: (size: string) => `${size} Paketi Gör`,
     loungeCta: "Lounge Seçeneklerini Gör",
     steps: ["Rota", "Süre", "Yolcular", "Kullanım"],
     airport: "Hangi havalimanı?", chooseAirport: "Havalimanı seç", date: "Hangi tarih?",
@@ -75,6 +79,10 @@ const COPY = {
     seePackages: "Pakete ansehen",
     recommendedPackage: "Dein empfohlenes Paket", recommendedBadge: "Empfohlen", addToCart: "In den Warenkorb", inCart: "Im Warenkorb",
     validity: "Tage gültig", unlimited: "Unbegrenzte Daten",
+    unlimitedAlternative: "Unbegrenzte Alternative",
+    noSufficient: "Kein einzelnes Paket deckt deinen Bedarf vollständig ab.",
+    pendingCatalogue: "Sobald Pakete geladen sind, wird automatisch das nächstgrößere passende Paket empfohlen.",
+    seePackage: (size: string) => `${size} Paket ansehen`,
     loungeCta: "Lounge-Optionen ansehen",
     steps: ["Route", "Dauer", "Personen", "Nutzung"],
     airport: "Welcher Flughafen?", chooseAirport: "Flughafen wählen", date: "Welches Datum?",
@@ -94,6 +102,10 @@ const COPY = {
     seePackages: "See packages",
     recommendedPackage: "Your recommended package", recommendedBadge: "Recommended", addToCart: "Add to cart", inCart: "In cart",
     validity: "days valid", unlimited: "Unlimited data",
+    unlimitedAlternative: "Unlimited alternative",
+    noSufficient: "No single package fully covers your estimated need.",
+    pendingCatalogue: "Once packages are loaded, the next suitable size is recommended automatically.",
+    seePackage: (size: string) => `See the ${size} package`,
     loungeCta: "See lounge options",
     steps: ["Route", "Duration", "Travelers", "Usage"],
     airport: "Which airport?", chooseAirport: "Select an airport", date: "Which date?",
@@ -252,9 +264,10 @@ export function EsimFinder({ state, onChange }: { state: EsimFinderState; onChan
     queryFn: () => listEsimPackages({ data: { coverageIsos } }),
     enabled: canSeePackages,
   });
-  const recommended = canSeePackages
-    ? selectRecommendedPackage(packages, { requiredGb: recommendation.requiredGb, coverageIsos, days: state.days })
-    : null;
+  const match = canSeePackages
+    ? resolvePackageRecommendation(packages, { requiredGb: recommendation.requiredGb, coverageIsos, days: state.days })
+    : ({ status: "NO_CATALOGUE", package: null } as const);
+  const recommended = match.package;
   const { lines, addLine } = useCart();
   const recommendedInCart = Boolean(recommended && lines.some((line) => line.productId === recommended.id));
 
