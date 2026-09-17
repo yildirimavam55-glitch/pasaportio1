@@ -13,6 +13,9 @@ export type AnalyticsEvent =
   | { name: "usage_selected"; usage: string }
   | { name: "recommendation_viewed"; productIds: string[] }
   | { name: "product_selected"; productId: string; serviceType: ServiceType }
+  | { name: "compatibility_checker_opened"; surface: string }
+  | { name: "device_searched"; queryLength: number }
+  | { name: "compatibility_result_viewed"; result: string; brand: string }
   | { name: "checkout_started"; orderId?: string; serviceType: ServiceType }
   | { name: "purchase_completed"; orderId: string; currency: string; grossRevenue: number };
 
