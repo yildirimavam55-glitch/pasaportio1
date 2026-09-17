@@ -1,7 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
+import { useState } from "react";
 import { z } from "zod";
-import { ArrowLeft, Check, Gauge, Route as RouteIcon, ShieldCheck, ShoppingCart, Signal, Wifi, Zap } from "lucide-react";
+import { ArrowLeft, Check, Gauge, HelpCircle, Route as RouteIcon, ShieldCheck, ShoppingCart, Signal, Wifi, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { PublicShell } from "@/components/travel/PublicShell";
 import { CountryFlag } from "@/components/travel/CountryFlag";
@@ -9,6 +10,7 @@ import { DeviceCompatibilityInline } from "@/components/travel/DeviceCompatibili
 import { useI18n } from "@/i18n";
 import { getCountryByIso } from "@/domain/geo/countries";
 import { useCart } from "@/domain/cart/store";
+import { selectRecommendedPackage } from "@/domain/esim/package-matching";
 import { listEsimPackages, type EsimPackage } from "@/lib/esim-catalogue.functions";
 import type { Locale } from "@/domain/enums";
 
@@ -18,41 +20,50 @@ const searchSchema = z.object({
   days: z.coerce.number().int().min(1).max(365).catch(10).default(10),
   travelers: z.coerce.number().int().min(1).max(9).catch(1).default(1),
   estimated: z.coerce.number().min(0).max(1000).catch(0).default(0),
-  recommended: z.coerce.number().min(0).max(1000).catch(0).default(0),
+  required: z.coerce.number().min(0).max(1000).catch(0).default(0),
 });
 
 const COPY = {
   tr: {
     title: "eSIM paketleri", back: "Finder’a dön", days: "gün", travelers: "kişi",
-    estimate: "Tahmini kullanım", recommended: "Önerilen", route: "Rotan",
-    empty: "Bu destinasyon için şu anda uygun paket bulunamadı.",
-    emptyOther: "Başka paketlere bak", emptyChange: "Destinasyonu değiştir",
-    add: "Sepete Ekle", added: "Sepete eklendi", inCart: "Sepette",
+    estimate: "Tahmini kullanım", need: "Tahmini ihtiyaç", route: "Rotan",
+    empty: "Bu seyahat için şu anda uygun paket bulunamadı.",
+    emptyOther: "Diğer paketleri gör", emptyChange: "Destinasyonu değiştir",
+    add: "Sepete Ekle", inCart: "Sepette",
     recommendedBadge: "Önerilen", validity: "gün geçerli", unlimited: "Sınırsız veri",
     hotspot: "Hotspot", fiveG: "5G", coverage: "ülke kapsamı",
     lead: "Seçimlerine uyan güncel paketler.",
+    why: "Neden bu paket?",
+    whyText: (need: number, size: string) => `Yaklaşık ${need} GB ihtiyacın için mevcut paketler arasındaki en yakın uygun seçenek: ${size}.`,
+    pendingCatalogue: "Paketler bağlandığında ihtiyacına en yakın uygun paket otomatik seçilecek.",
   },
   de: {
     title: "eSIM-Pakete", back: "Zurück zum Finder", days: "Tage", travelers: "Pers.",
-    estimate: "Geschätzter Verbrauch", recommended: "Empfohlen", route: "Deine Route",
-    empty: "Für dieses Reiseziel ist derzeit kein Paket verfügbar.",
+    estimate: "Geschätzter Verbrauch", need: "Geschätzter Bedarf", route: "Deine Route",
+    empty: "Für diese Reise ist derzeit kein passendes Paket verfügbar.",
     emptyOther: "Andere Pakete ansehen", emptyChange: "Reiseziel ändern",
-    add: "In den Warenkorb", added: "Hinzugefügt", inCart: "Im Warenkorb",
+    add: "In den Warenkorb", inCart: "Im Warenkorb",
     recommendedBadge: "Empfohlen", validity: "Tage gültig", unlimited: "Unbegrenzte Daten",
     hotspot: "Hotspot", fiveG: "5G", coverage: "Länder abgedeckt",
     lead: "Aktuelle Pakete passend zu deiner Auswahl.",
+    why: "Warum dieses Paket?",
+    whyText: (need: number, size: string) => `Für deinen Bedarf von rund ${need} GB ist dies das nächstpassende verfügbare Paket: ${size}.`,
+    pendingCatalogue: "Sobald Pakete verbunden sind, wird das passende Paket automatisch ausgewählt.",
   },
   en: {
     title: "eSIM packages", back: "Back to finder", days: "days", travelers: "people",
-    estimate: "Estimated usage", recommended: "Recommended", route: "Your route",
-    empty: "No package is available for this destination right now.",
+    estimate: "Estimated usage", need: "Estimated need", route: "Your route",
+    empty: "No suitable package is available for this trip right now.",
     emptyOther: "See other packages", emptyChange: "Change destination",
-    add: "Add to cart", added: "Added", inCart: "In cart",
+    add: "Add to cart", inCart: "In cart",
     recommendedBadge: "Recommended", validity: "days valid", unlimited: "Unlimited data",
     hotspot: "Hotspot", fiveG: "5G", coverage: "countries covered",
     lead: "Live packages matching your selection.",
+    why: "Why this package?",
+    whyText: (need: number, size: string) => `For your roughly ${need} GB need, this is the closest suitable available option: ${size}.`,
+    pendingCatalogue: "Once packages are connected, the closest suitable one is selected automatically.",
   },
-} satisfies Record<Locale, Record<string, string>>;
+} satisfies Record<Locale, Record<string, unknown>>;
 
 export const Route = createFileRoute("/esim/paketler")({
   validateSearch: (search) => searchSchema.parse(search),
@@ -61,7 +72,7 @@ export const Route = createFileRoute("/esim/paketler")({
       { title: "eSIM paketleri | travely" },
       { name: "description", content: "Seyahatine uygun eSIM paketlerini karşılaştır ve sepete ekle." },
       { property: "og:title", content: "eSIM paketleri | travely" },
-      { property: "og:description", content: "Tahmini kullanımına göre önerilen eSIM paketleri." },
+      { property: "og:description", content: "Tahmini ihtiyacına göre mevcut kataloğdan seçilen eSIM paketleri." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
@@ -79,6 +90,14 @@ function PackagesPage() {
     queryKey: ["esim-packages", coverageIsos.join(",")],
     queryFn: () => listEsimPackages({ data: { coverageIsos } }),
   });
+
+  // Layer 2: the recommendation is an actual available product, never an invented size.
+  const recommended = selectRecommendedPackage(packages, {
+    requiredGb: search.required,
+    coverageIsos,
+    days: search.days,
+  });
+  const recommendedLabel = recommended ? (recommended.unlimited ? copy.unlimited : `${recommended.dataGb} GB`) : "";
 
   return (
     <PublicShell activeService="esim">
@@ -117,10 +136,11 @@ function PackagesPage() {
               <strong className="mt-1 flex items-center gap-1.5 text-lg"><Gauge className="size-4 text-primary" aria-hidden="true" />~{search.estimated} GB</strong>
             </div>
             <div className="rounded-xl bg-accent-soft p-3">
-              <span className="text-xs font-semibold uppercase text-muted-foreground">{copy.recommended}</span>
-              <strong className="mt-1 flex items-center gap-1.5 text-lg"><ShieldCheck className="size-4 text-primary" aria-hidden="true" />{search.recommended} GB</strong>
+              <span className="text-xs font-semibold uppercase text-muted-foreground">{copy.need}</span>
+              <strong className="mt-1 flex items-center gap-1.5 text-lg"><ShieldCheck className="size-4 text-primary" aria-hidden="true" />~{search.required} GB</strong>
             </div>
           </div>
+          {!isPending && !recommended && <p className="mt-3 text-sm text-muted-foreground">{copy.pendingCatalogue}</p>}
         </div>
 
         <div className="mt-3">
@@ -134,14 +154,20 @@ function PackagesPage() {
         ) : packages.length ? (
           <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {packages.map((pkg) => (
-              <PackageCard key={pkg.id} pkg={pkg} recommendedGb={search.recommended} copy={copy} />
+              <PackageCard
+                key={pkg.id}
+                pkg={pkg}
+                isRecommended={recommended?.id === pkg.id}
+                whyText={copy.whyText(search.required, recommendedLabel)}
+                copy={copy}
+              />
             ))}
           </div>
         ) : (
           <div className="mt-5 rounded-card border border-dashed border-border bg-card p-6 text-center">
             <p className="text-sm font-semibold">{copy.empty}</p>
             <div className="mt-4 flex flex-wrap justify-center gap-2">
-              <Link to="/esim/paketler" search={{ destination: "", route: "", days: search.days, travelers: search.travelers, estimated: search.estimated, recommended: search.recommended }}>
+              <Link to="/esim/paketler" search={{ destination: "", route: "", days: search.days, travelers: search.travelers, estimated: search.estimated, required: search.required }}>
                 <Button variant="outline">{copy.emptyOther}</Button>
               </Link>
               <Link to="/esim"><Button variant="secondary">{copy.emptyChange}</Button></Link>
@@ -153,10 +179,10 @@ function PackagesPage() {
   );
 }
 
-function PackageCard({ pkg, recommendedGb, copy }: { pkg: EsimPackage; recommendedGb: number; copy: (typeof COPY)["tr"] }) {
+function PackageCard({ pkg, isRecommended, whyText, copy }: { pkg: EsimPackage; isRecommended: boolean; whyText: string; copy: (typeof COPY)["tr"] }) {
   const { lines, addLine } = useCart();
+  const [showWhy, setShowWhy] = useState(false);
   const inCart = lines.some((line) => line.productId === pkg.id);
-  const isRecommended = pkg.dataGb != null && recommendedGb > 0 && pkg.dataGb === recommendedGb;
   const price = pkg.salePrice ?? 0;
 
   return (
@@ -179,6 +205,14 @@ function PackageCard({ pkg, recommendedGb, copy }: { pkg: EsimPackage; recommend
         {pkg.supportsHotspot && <li className="flex items-center gap-1.5"><Wifi className="size-4 text-primary" />{copy.hotspot}</li>}
       </ul>
       <strong className="mt-4 block text-xl">{new Intl.NumberFormat(undefined, { style: "currency", currency: pkg.currency }).format(price)}</strong>
+      {isRecommended && (
+        <div className="mt-2">
+          <button type="button" className="inline-flex items-center gap-1 text-sm font-semibold text-primary" onClick={() => setShowWhy((open) => !open)} aria-expanded={showWhy}>
+            <HelpCircle className="size-4" aria-hidden="true" /> {copy.why}
+          </button>
+          {showWhy && <p className="mt-1 text-sm text-muted-foreground">{whyText}</p>}
+        </div>
+      )}
       <Button
         variant="cta"
         className="mt-3 w-full"

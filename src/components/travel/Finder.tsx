@@ -36,7 +36,7 @@ import { countryName, getCountry, getCountryByIso } from "@/domain/geo/countries
 import { isValidMultiRoute, moveStop, normalizeRouteStops, removeStop, routeFromPreset, stableStop } from "@/domain/experience/state";
 import type { EsimFinderState, LoungeFinderState, UsageKind } from "@/domain/experience/types";
 import type { Locale } from "@/domain/enums";
-import { DEFAULT_USAGE_SETTINGS, recommendUsage } from "@/domain/esim/usage-recommendation";
+import { DEFAULT_USAGE_SETTINGS, estimateUsageNeed } from "@/domain/esim/usage-recommendation";
 import { getEsimUsageSettings } from "@/lib/esim-settings.functions";
 import { CountryFlag } from "./CountryFlag";
 
@@ -47,8 +47,8 @@ const COPY = {
     travelers: "Kaç kişi?", personUnit: "kişi", usage: "İnterneti ne için kullanacaksın?",
     addCountry: "Ülke ekle", minRoute: "Çoklu rota için en az iki ülke seç.", duplicate: "Bu ülke rotanda zaten var.",
     edit: "Düzenle", done: "Tamam", countriesCount: (n: number) => `${n} ülke`, estimate: "Tahmini kullanım",
-    recommended: "Sana önerilen paket",
-    recommendReason: "Seçimlerine ve güvenlik payına göre önerildi.",
+    recommended: "Tahmini ihtiyacın",
+    recommendReason: "Seçimlerine ve güvenlik payına göre hesaplandı. İhtiyacına en yakın uygun paket, paket listesinde otomatik seçilir.",
     seePackages: "Paketleri Gör",
     steps: ["Rota", "Süre", "Yolcular", "Kullanım"],
     airport: "Hangi havalimanı?", chooseAirport: "Havalimanı seç", date: "Hangi tarih?",
@@ -63,8 +63,8 @@ const COPY = {
     travelers: "Wie viele Personen?", personUnit: "Pers.", usage: "Wofür nutzt du das Internet?",
     addCountry: "Land hinzufügen", minRoute: "Wähle mindestens zwei Länder für eine Route.", duplicate: "Dieses Land ist bereits in deiner Route.",
     edit: "Bearbeiten", done: "Fertig", countriesCount: (n: number) => `${n} Länder`, estimate: "Geschätzter Verbrauch",
-    recommended: "Dein empfohlenes Paket",
-    recommendReason: "Basierend auf deiner Auswahl und dem Sicherheitspuffer.",
+    recommended: "Dein geschätzter Bedarf",
+    recommendReason: "Berechnet aus deiner Auswahl und dem Sicherheitspuffer. Das passende verfügbare Paket wird in der Paketliste automatisch gewählt.",
     seePackages: "Pakete ansehen",
     steps: ["Route", "Dauer", "Personen", "Nutzung"],
     airport: "Welcher Flughafen?", chooseAirport: "Flughafen wählen", date: "Welches Datum?",
@@ -79,8 +79,8 @@ const COPY = {
     travelers: "How many people?", personUnit: "people", usage: "What will you use the internet for?",
     addCountry: "Add country", minRoute: "Choose at least two countries for a route.", duplicate: "This country is already in your route.",
     edit: "Edit", done: "Done", countriesCount: (n: number) => `${n} countries`, estimate: "Estimated usage",
-    recommended: "Your recommended package",
-    recommendReason: "Based on your choices and the safety margin.",
+    recommended: "Your estimated need",
+    recommendReason: "Calculated from your choices and the safety margin. The closest suitable available package is selected on the package list.",
     seePackages: "See packages",
     steps: ["Route", "Duration", "Travelers", "Usage"],
     airport: "Which airport?", chooseAirport: "Select an airport", date: "Which date?",
@@ -223,7 +223,7 @@ export function EsimFinder({ state, onChange }: { state: EsimFinderState; onChan
   const toggleUsage = (key: UsageKind) =>
     onChange({ ...state, usage: state.usage.includes(key) ? state.usage.filter((item) => item !== key) : [...state.usage, key] });
 
-  const recommendation = recommendUsage({ days: state.days, usage: state.usage }, settings ?? DEFAULT_USAGE_SETTINGS);
+  const recommendation = estimateUsageNeed({ days: state.days, usage: state.usage }, settings ?? DEFAULT_USAGE_SETTINGS);
   const selectedCountry = getCountry(state.destinationId);
   const usedCountryIds = stops.map((stop) => stop.countryId);
   const routeIsos = stops.map((stop) => stop.countryIso).join(",");
@@ -241,7 +241,7 @@ export function EsimFinder({ state, onChange }: { state: EsimFinderState; onChan
         days: state.days,
         travelers: state.travelers,
         estimated: recommendation.estimatedGb,
-        recommended: recommendation.recommendedGb,
+        required: recommendation.requiredGb,
       },
     });
 
@@ -340,7 +340,7 @@ export function EsimFinder({ state, onChange }: { state: EsimFinderState; onChan
           </div>
           <div className="rounded-lg bg-white/10 p-3">
             <span className="text-xs font-semibold uppercase opacity-75">{copy.recommended}</span>
-            <strong className="mt-1 flex items-center gap-2 text-2xl"><ShieldCheck className="size-5" aria-hidden="true" />{recommendation.recommendedGb} GB</strong>
+            <strong className="mt-1 flex items-center gap-2 text-2xl"><ShieldCheck className="size-5" aria-hidden="true" />{recommendation.requiredGb} GB</strong>
             {summaryLabel && <span className="mt-0.5 block text-sm opacity-80">{summaryLabel}</span>}
           </div>
         </div>

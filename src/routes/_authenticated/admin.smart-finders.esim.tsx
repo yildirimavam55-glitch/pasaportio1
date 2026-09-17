@@ -9,7 +9,7 @@ import {
   DEFAULT_USAGE_SETTINGS,
   SETTINGS_LIMITS,
   USAGE_KEYS,
-  recommendUsage,
+  estimateUsageNeed,
   sanitizeUsageSettings,
   type EsimUsageSettings,
   type UsageIntensity,
@@ -51,31 +51,25 @@ function EsimRecommendationSettings() {
   const queryClient = useQueryClient();
   const { data, isPending } = useQuery({ queryKey: ["esim-usage-settings"], queryFn: () => getEsimUsageSettings() });
   const [draft, setDraft] = useState<EsimUsageSettings>(DEFAULT_USAGE_SETTINGS);
-  const [sizesText, setSizesText] = useState(DEFAULT_USAGE_SETTINGS.packageSizesGb.join(", "));
   const [saved, setSaved] = useState(false);
 
   useEffect(() => {
     if (!data) return;
     setDraft(data);
-    setSizesText(data.packageSizesGb.join(", "));
   }, [data]);
 
   const mutation = useMutation({
     mutationFn: (settings: EsimUsageSettings) => saveEsimUsageSettings({ data: { settings } }),
     onSuccess: (settings) => {
       setDraft(settings);
-      setSizesText(settings.packageSizesGb.join(", "));
       setSaved(true);
       window.setTimeout(() => setSaved(false), 2500);
       void queryClient.invalidateQueries({ queryKey: ["esim-usage-settings"] });
     },
   });
 
-  const effective = sanitizeUsageSettings({
-    ...draft,
-    packageSizesGb: sizesText.split(",").map((part) => Number(part.trim())).filter((size) => Number.isFinite(size)),
-  });
-  const preview = recommendUsage({ days: 10, usage: ["MESSAGING", "SOCIAL", "MAPS"] }, effective);
+  const effective = sanitizeUsageSettings(draft);
+  const preview = estimateUsageNeed({ days: 10, usage: ["MESSAGING", "SOCIAL", "MAPS"] }, effective);
 
   return (
     <AdminGate title="Smart Finders · eSIM önerisi">
@@ -121,7 +115,10 @@ function EsimRecommendationSettings() {
             </section>
 
             <section className="rounded-card border border-border bg-card p-5">
-              <h2 className="font-display text-lg font-bold">Güvenlik payı ve yuvarlama</h2>
+              <h2 className="font-display text-lg font-bold">Güvenlik payı ve minimum ihtiyaç</h2>
+              <p className="mt-1 text-sm text-muted-foreground">
+                Paket boyutları burada tanımlanmaz. GB seçenekleri, geçerlilik ve kapsama gerçek ürün kataloğundan gelir; sistem ihtiyacı karşılayan en küçük mevcut paketi seçer.
+              </p>
               <div className="mt-4 grid gap-3 sm:grid-cols-2">
                 <NumberField
                   label="Güvenlik payı"
@@ -140,27 +137,6 @@ function EsimRecommendationSettings() {
                   suffix="GB"
                   onChange={(minimumRecommendedGb) => setDraft({ ...draft, minimumRecommendedGb })}
                 />
-                <label className="block min-w-0">
-                  <span className="mb-1 block text-sm font-semibold">Paket boyutları (GB)</span>
-                  <input
-                    className="min-h-12 w-full rounded-xl border border-border bg-card px-3 text-sm"
-                    value={sizesText}
-                    onChange={(event) => setSizesText(event.target.value)}
-                    placeholder="1, 3, 5, 10, 20, 50"
-                  />
-                  <span className="mt-1 block text-xs text-muted-foreground">Geçerli değerler: {effective.packageSizesGb.join(" · ")}</span>
-                </label>
-                <label className="block min-w-0">
-                  <span className="mb-1 block text-sm font-semibold">Yuvarlama stratejisi</span>
-                  <select
-                    className="min-h-12 w-full rounded-xl border border-border bg-card px-3 text-sm"
-                    value={draft.roundingStrategy}
-                    onChange={(event) => setDraft({ ...draft, roundingStrategy: event.target.value === "NEAREST_PACKAGE" ? "NEAREST_PACKAGE" : "NEXT_PACKAGE_UP" })}
-                  >
-                    <option value="NEXT_PACKAGE_UP">Bir üst pakete yuvarla</option>
-                    <option value="NEAREST_PACKAGE">En yakın pakete yuvarla</option>
-                  </select>
-                </label>
               </div>
             </section>
 
@@ -168,7 +144,7 @@ function EsimRecommendationSettings() {
               <Button onClick={() => mutation.mutate(effective)} disabled={mutation.isPending}>
                 {mutation.isPending ? <LoaderCircle className="animate-spin" /> : <Save />} Kaydet
               </Button>
-              <Button variant="outline" onClick={() => { setDraft(DEFAULT_USAGE_SETTINGS); setSizesText(DEFAULT_USAGE_SETTINGS.packageSizesGb.join(", ")); }}>
+              <Button variant="outline" onClick={() => setDraft(DEFAULT_USAGE_SETTINGS)}>
                 <RotateCcw /> Varsayılanlara dön
               </Button>
               {saved && <span className="inline-flex items-center gap-1 text-sm font-semibold text-primary"><CheckCircle2 className="size-4" /> Kaydedildi</span>}
@@ -182,7 +158,11 @@ function EsimRecommendationSettings() {
             <dl className="mt-4 space-y-3 text-sm">
               <div className="rounded-xl bg-secondary/60 p-3"><dt className="text-xs font-semibold uppercase text-muted-foreground">Tahmini kullanım</dt><dd className="mt-1 text-lg font-bold">~{preview.estimatedGb} GB</dd></div>
               <div className="rounded-xl bg-secondary/60 p-3"><dt className="text-xs font-semibold uppercase text-muted-foreground">Güvenlik payı eklenmiş</dt><dd className="mt-1 text-lg font-bold">{preview.safetyAdjustedGb} GB</dd></div>
-              <div className="rounded-xl bg-accent-soft p-3"><dt className="text-xs font-semibold uppercase text-muted-foreground">Önerilen paket</dt><dd className="mt-1 text-lg font-bold">{preview.recommendedGb} GB</dd></div>
+              <div className="rounded-xl bg-accent-soft p-3">
+                <dt className="text-xs font-semibold uppercase text-muted-foreground">Gerekli veri (ihtiyaç)</dt>
+                <dd className="mt-1 text-lg font-bold">{preview.requiredGb} GB</dd>
+                <dd className="mt-1 text-xs text-muted-foreground">Katalogdaki bu değeri karşılayan en küçük paket önerilir.</dd>
+              </div>
             </dl>
           </aside>
         </div>
