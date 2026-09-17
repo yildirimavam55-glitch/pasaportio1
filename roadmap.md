@@ -46,8 +46,8 @@
 - [x] Rendered QA at 360/390/430 and public deployment verification
 
 ## Catalogue-backed eSIM selection
-- [ ] Filter recommendation products by published, visible, available, and margin-safe catalogue state
-- [ ] Preserve stable recommended product ID through the package-page handoff
-- [ ] Preselect the exact recommendation and allow one alternative selection
-- [ ] Add the exact selected catalogue snapshot to cart
+- [x] Filter recommendation products by published, visible, available, and margin-safe catalogue state
+- [x] Preserve stable recommended product ID through the package-page handoff
+- [x] Preselect the exact recommendation and allow one alternative selection
+- [x] Add the exact selected catalogue snapshot to cart
 - [ ] Verify rendered Finder and package page at 360/390/430

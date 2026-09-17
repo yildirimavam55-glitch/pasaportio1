@@ -11,7 +11,7 @@ import { DeviceCompatibilityInline } from "@/components/travel/DeviceCompatibili
 import { useI18n } from "@/i18n";
 import { getCountryByIso } from "@/domain/geo/countries";
 import { useCart } from "@/domain/cart/store";
-import { selectRecommendedPackage } from "@/domain/esim/package-matching";
+import { filterEligiblePackages, selectRecommendedPackage } from "@/domain/esim/package-matching";
 import { listEsimPackages, type EsimPackage } from "@/lib/esim-catalogue.functions";
 import type { Locale } from "@/domain/enums";
 
@@ -40,7 +40,6 @@ const COPY = {
     lead: "Seçimlerine uyan güncel paketler.",
     why: "Neden bu paket?",
     whyText: (need: number, size: string) => `Yaklaşık ${need} GB ihtiyacın için mevcut paketler arasındaki en yakın uygun seçenek: ${size}.`,
-    pendingCatalogue: "Paketler bağlandığında ihtiyacına en yakın uygun paket otomatik seçilecek.",
   },
   de: {
     title: "eSIM-Pakete", back: "Zurück zum Finder", days: "Tage", travelers: (count: number) => count === 1 ? "1 Person" : `${count} Personen`,
@@ -53,7 +52,6 @@ const COPY = {
     lead: "Aktuelle Pakete passend zu deiner Auswahl.",
     why: "Warum dieses Paket?",
     whyText: (need: number, size: string) => `Für deinen Bedarf von rund ${need} GB ist dies das nächstpassende verfügbare Paket: ${size}.`,
-    pendingCatalogue: "Sobald Pakete verbunden sind, wird das passende Paket automatisch ausgewählt.",
   },
   en: {
     title: "eSIM packages", back: "Back to finder", days: "days", travelers: (count: number) => count === 1 ? "1 person" : `${count} people`,
@@ -66,7 +64,6 @@ const COPY = {
     lead: "Live packages matching your selection.",
     why: "Why this package?",
     whyText: (need: number, size: string) => `For your roughly ${need} GB need, this is the closest suitable available option: ${size}.`,
-    pendingCatalogue: "Once packages are connected, the closest suitable one is selected automatically.",
   },
 } satisfies Record<Locale, Record<string, unknown>>;
 
@@ -106,8 +103,10 @@ function PackagesPage() {
     coverageIsos,
     days,
   });
-  const recommendedProduct = packages.find((pkg) => pkg.id === search.recommendedProductId && pkg.id === recommended?.id) ?? recommended;
-  const recommendedLabel = recommended ? (recommended.unlimited ? copy.unlimited : `${recommended.dataGb} GB`) : "";
+  const eligiblePackages = filterEligiblePackages(packages, { requiredGb: required, coverageIsos, days });
+  const handedOffProduct = eligiblePackages.find((pkg) => pkg.id === search.recommendedProductId);
+  const recommendedProduct = handedOffProduct ?? recommended;
+  const recommendedLabel = recommendedProduct ? (recommendedProduct.unlimited ? copy.unlimited : `${recommendedProduct.dataGb} GB`) : "";
   const [selectedProductId, setSelectedProductId] = useState("");
   const [hasScrolled, setHasScrolled] = useState(false);
   const { lines, addLine } = useCart();
