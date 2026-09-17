@@ -27,3 +27,12 @@
 - [x] Session-only compatibility state reused on /esim/paketler
 - [x] Non-sensitive analytics events (no IMEI/EID/serial)
 - [x] TR/DE/EN + 360/390/430 QA
+
+## Phase 1.6 — Public customer flow correction
+- [x] eSIM result card shows one need value (~X GB) + explanation
+- [x] Real recommended package block (catalogue-driven) with Önerilen badge + Sepete Ekle
+- [x] Orange Paketleri Gör CTA → /esim/paketler with full finder state
+- [x] Lounge CTA → /lounge/secenekler (airport, IATA, date, situation, travelers)
+- [x] /lounge/secenekler results page + clean empty state
+- [x] Lounge flight status: mint selected state, takeoff/transfer/landing icons
+- [x] Rendered QA at 360/390/430 (no overflow, no console errors)
