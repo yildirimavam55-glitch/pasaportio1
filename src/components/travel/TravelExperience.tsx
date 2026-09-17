@@ -166,6 +166,7 @@ export function TravelExperience({ service, onServiceChange }: { service: Servic
       <FinderShell title={copy.finderTitle} description={copy.finderDescription}>
         {service === "esim" ? <EsimFinder state={esimState} onChange={setEsimState} /> : <LoungeFinder state={loungeState} onChange={setLoungeState} />}
       </FinderShell>
+      {service === "esim" && <DeviceCompatibilitySection />}
       <Reveal><TrustStrip /></Reveal>
       <Reveal><VisualPopular service={service} /></Reveal>
       <Reveal><Pricing service={service} /></Reveal>
