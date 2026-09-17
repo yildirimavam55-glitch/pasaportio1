@@ -1,0 +1,3 @@
+import { describe, expect, it } from "vitest";
+import { ESIM_CONTENT, LOUNGE_CONTENT, localized } from "./travel-content";
+describe("localized customer content",()=>{it.each(["tr","de","en"] as const)("renders eSIM and Lounge content in %s",locale=>{expect(localized(ESIM_CONTENT,locale).headline).toBeTruthy();expect(localized(LOUNGE_CONTENT,locale).headline).toBeTruthy();});it("falls back field-by-field to Turkish",()=>{const value=localized({tr:{title:"Türkçe",nested:{label:"Varsayılan"}},de:{title:"Deutsch"} as never,en:{title:"English",nested:{label:"Default"}}},"de");expect(value.title).toBe("Deutsch");expect(value.nested.label).toBe("Varsayılan");expect(String(value.nested.label)).not.toBe("undefined");});});
