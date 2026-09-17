@@ -48,14 +48,14 @@ export const GLOBAL_CONTENT: Localized<GlobalCopy> = {
   },
   de: {
     nav: { esim: "eSIM", lounge: "Lounge", destinations: "Reiseziele", how: "So funktioniert’s", support: "Hilfe", account: "Konto", plan: "Reise planen" },
-    mobile: { home: "Start", esim: "eSIM finden", lounge: "Lounge finden", account: "Konto" },
+    mobile: { home: "Startseite", esim: "eSIM finden", lounge: "Lounge finden", account: "Mein Konto" },
     language: { label: "Sprache wählen", tr: "Türkçe", de: "Deutsch", en: "English" },
     trust: ["Sichere Zahlungsbasis", "Schnelle digitale Zustellung", "Support auf Deutsch und Türkisch"],
     footer: "Der passende Reiseservice an einem Ort.", error: "Dieser Bereich konnte nicht geladen werden.", retry: "Erneut versuchen",
   },
   en: {
     nav: { esim: "eSIM", lounge: "Lounge", destinations: "Destinations", how: "How it works", support: "Support", account: "Account", plan: "Plan your trip" },
-    mobile: { home: "Home", esim: "Find eSIM", lounge: "Find Lounge", account: "Account" },
+    mobile: { home: "Home", esim: "Find eSIM", lounge: "Find Lounge", account: "My Account" },
     language: { label: "Choose language", tr: "Türkçe", de: "Deutsch", en: "English" },
     trust: ["Secure payment foundation", "Fast digital delivery", "Turkish and German support"],
     footer: "The right travel service, all in one place.", error: "This section could not be loaded.", retry: "Try again",
