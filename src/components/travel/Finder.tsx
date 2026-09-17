@@ -1,6 +1,7 @@
 import {
   ArrowDown,
   ArrowRight,
+  ArrowRightLeft,
   ArrowUp,
   BriefcaseBusiness,
   CalendarDays,
@@ -11,6 +12,8 @@ import {
   MessageCircle,
   Minus,
   Pencil,
+  PlaneLanding,
+  PlaneTakeoff,
   Plus,
   Route,
   Search,
@@ -154,7 +157,7 @@ export function FinderOptionCard({ selected, icon, title, detail, onClick, compa
 }
 
 /** Segmented single-choice control: the selected background and border are the only state signal. */
-export function SegmentedChoice<T extends string>({ label, value, options, onChange }: { label: string; value: T; options: Array<{ key: T; label: string }>; onChange: (value: T) => void }) {
+export function SegmentedChoice<T extends string>({ label, value, options, onChange }: { label: string; value: T; options: Array<{ key: T; label: string; icon?: React.ReactNode }>; onChange: (value: T) => void }) {
   return (
     <div role="radiogroup" aria-label={label} className="grid grid-cols-3 gap-1.5 rounded-xl border border-border bg-secondary/50 p-1">
       {options.map((option) => {
@@ -166,8 +169,9 @@ export function SegmentedChoice<T extends string>({ label, value, options, onCha
             role="radio"
             aria-checked={selected}
             onClick={() => onChange(option.key)}
-            className={`min-h-11 min-w-0 truncate rounded-lg border px-2 text-sm font-semibold transition ${selected ? "border-primary bg-accent-soft text-primary" : "border-transparent text-muted-foreground hover:bg-card"}`}
+            className={`flex min-h-11 min-w-0 items-center justify-center gap-1.5 truncate rounded-lg border px-2 text-sm font-semibold transition ${selected ? "border-primary bg-accent-soft text-primary" : "border-transparent text-muted-foreground hover:bg-card"}`}
           >
+            {option.icon}
             {option.label}
           </button>
         );
@@ -383,9 +387,9 @@ export function LoungeFinder({ state, onChange }: { state: LoungeFinderState; on
             value={state.flightSituation}
             onChange={(flightSituation) => onChange({ ...state, flightSituation })}
             options={[
-              { key: "DEPARTURE" as const, label: copy.departure },
-              { key: "TRANSIT" as const, label: copy.transit },
-              { key: "ARRIVAL" as const, label: copy.arrival },
+              { key: "DEPARTURE" as const, label: copy.departure, icon: <PlaneTakeoff className="size-[18px] shrink-0" aria-hidden="true" /> },
+              { key: "TRANSIT" as const, label: copy.transit, icon: <ArrowRightLeft className="size-[18px] shrink-0" aria-hidden="true" /> },
+              { key: "ARRIVAL" as const, label: copy.arrival, icon: <PlaneLanding className="size-[18px] shrink-0" aria-hidden="true" /> },
             ]}
           />
         </FinderStep>
