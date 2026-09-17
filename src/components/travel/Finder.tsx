@@ -182,7 +182,7 @@ export function SegmentedChoice<T extends string>({ label, value, options, onCha
             role="radio"
             aria-checked={selected}
             onClick={() => onChange(option.key)}
-            className={`flex min-h-11 min-w-0 items-center justify-center gap-1.5 truncate rounded-lg border px-2 text-sm font-semibold transition ${selected ? "border-primary bg-accent-soft text-primary" : "border-transparent text-muted-foreground hover:bg-card"}`}
+            className={`flex min-h-11 min-w-0 items-center justify-center gap-1.5 truncate rounded-lg border px-2 text-sm font-semibold transition ${selected ? "border-primary bg-primary-soft text-primary" : "border-transparent text-muted-foreground hover:bg-card"}`}
           >
             {option.icon}
             {option.label}
