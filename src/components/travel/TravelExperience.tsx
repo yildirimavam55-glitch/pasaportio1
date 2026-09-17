@@ -11,6 +11,7 @@ import { FinderShell, EsimFinder, LoungeFinder } from "./Finder";
 import { DeviceCompatibilitySection } from "./DeviceCompatibility";
 import { PublicShell } from "./PublicShell";
 import { Reveal } from "./Reveal";
+import { useServiceSwitchTransition } from "./ServiceSwitchTransition";
 import { DeliveryConfidence, HowItWorks, TrustStrip, VisualComplementary, VisualPopular } from "./PublicVisualSections";
 
 const SECTION_COPY = {
@@ -111,6 +112,7 @@ export function TravelExperience({ service, onServiceChange }: { service: Servic
   const copy = localized(service === "esim" ? ESIM_CONTENT : LOUNGE_CONTENT, locale);
   const [esimState, setEsimState] = useState<EsimFinderState>(ESIM_SERVICE_CONFIG.initialState);
   const [loungeState, setLoungeState] = useState<LoungeFinderState>(LOUNGE_SERVICE_CONFIG.initialState);
+  const { switchService, isSwitching } = useServiceSwitchTransition();
 
   useEffect(() => {
     if (service === "esim") setLoungeState(LOUNGE_SERVICE_CONFIG.initialState);
@@ -118,14 +120,18 @@ export function TravelExperience({ service, onServiceChange }: { service: Servic
   }, [service]);
 
   const showCrossSell = service === "lounge" || esimState.tripMode === "single";
+  const requestServiceChange = (next: ServiceSlug) => {
+    if (next === service || isSwitching) return;
+    switchService(next, () => onServiceChange(next));
+  };
 
   return (
-    <PublicShell activeService={service} onServiceChange={onServiceChange}>
+    <PublicShell activeService={service} onServiceChange={requestServiceChange}>
       <Hero service={service} onFind={() => document.getElementById("finder")?.scrollIntoView({ behavior: "smooth" })} />
       <div className="mx-auto mt-5 max-w-xl px-4 sm:mt-6">
         <div className="grid grid-cols-2 rounded-2xl border border-border bg-card p-1.5 shadow-card">
-          <ServiceButton active={service === "esim"} onClick={() => onServiceChange("esim")} icon={<Signal />}>eSIM</ServiceButton>
-          <ServiceButton active={service === "lounge"} onClick={() => onServiceChange("lounge")} icon={<Plane />}>Lounge</ServiceButton>
+          <ServiceButton active={service === "esim"} onClick={() => requestServiceChange("esim")} icon={<Signal />}>eSIM</ServiceButton>
+          <ServiceButton active={service === "lounge"} onClick={() => requestServiceChange("lounge")} icon={<Plane />}>Lounge</ServiceButton>
         </div>
       </div>
       <FinderShell title={copy.finderTitle} description={copy.finderDescription}>
@@ -134,7 +140,7 @@ export function TravelExperience({ service, onServiceChange }: { service: Servic
       {service === "esim" && <DeviceCompatibilitySection />}
       <Reveal><TrustStrip /></Reveal>
       <Reveal><VisualPopular service={service} /></Reveal>
-      {showCrossSell && <Reveal><VisualComplementary service={service} onSwitch={onServiceChange} /></Reveal>}
+      {showCrossSell && <Reveal><VisualComplementary service={service} onSwitch={requestServiceChange} /></Reveal>}
       <Reveal><HowItWorks service={service} /></Reveal>
       <Reveal><DeliveryConfidence service={service} /></Reveal>
       <Reveal><Education service={service} /></Reveal>
