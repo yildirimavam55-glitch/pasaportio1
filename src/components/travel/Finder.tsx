@@ -448,7 +448,7 @@ export function EsimFinder({ state, onChange }: { state: EsimFinderState; onChan
               <p className="mt-2 text-sm text-muted-foreground">{match.status === "NO_SUFFICIENT" ? copy.noSufficient : copy.pendingCatalogue}</p>
             </div>
           )}
-          <Button type="button" variant={recommended ? "outline" : "cta"} size="lg" className="mt-3 w-full" disabled={!canSeePackages} onClick={goToPackages}>
+          <Button type="button" variant={recommended ? "outline" : "cta"} size="lg" className="mt-3 w-full scroll-mb-24" disabled={!canSeePackages} onClick={goToPackages}>
             {copy.seePackages}<ArrowRight />
           </Button>
         </section>
