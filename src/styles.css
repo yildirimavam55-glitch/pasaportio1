@@ -183,7 +183,9 @@
 @media (max-width: 639px) {
   .bg-hero-overlay { background: linear-gradient(180deg, color-mix(in oklab, var(--primary) 82%, transparent) 0%, color-mix(in oklab, var(--primary) 38%, transparent) 52%, color-mix(in oklab, var(--primary) 20%, transparent) 100%); }
 }
-@media (prefers-reduced-motion: no-preference) {
-  .reveal { animation: section-reveal .55s ease-out both; animation-timeline: view(); animation-range: entry 5% cover 25%; }
-  @keyframes section-reveal { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
+.reveal-item { opacity: 0; transform: translateY(18px); transition: opacity .38s ease-out, transform .38s ease-out; will-change: opacity, transform; }
+.reveal-item.is-revealed { opacity: 1; transform: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal-item { opacity: 1; transform: none; transition: none; }
 }
