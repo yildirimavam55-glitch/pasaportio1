@@ -9,7 +9,7 @@ import {
   DEFAULT_USAGE_SETTINGS,
   SETTINGS_LIMITS,
   USAGE_KEYS,
-  recommendUsage,
+  estimateUsageNeed,
   sanitizeUsageSettings,
   type EsimUsageSettings,
   type UsageIntensity,
