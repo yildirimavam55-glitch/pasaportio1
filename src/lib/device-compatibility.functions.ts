@@ -66,7 +66,7 @@ export const listAllDeviceCompatibility = createServerFn({ method: "GET" })
   });
 
 export type DeviceUpsertInput = {
-  id?: string;
+  id?: string | undefined;
   brand: string;
   family?: string | null;
   model: string;

@@ -22,6 +22,7 @@ import { Route as AuthenticatedAdminProductsRouteImport } from './routes/_authen
 import { Route as AuthenticatedAdminProvidersRouteImport } from './routes/_authenticated/admin.providers'
 import { Route as AuthenticatedHesabimIndexRouteImport } from './routes/_authenticated/hesabim.index'
 import { Route as AuthenticatedHesabimSeyahatlerRouteImport } from './routes/_authenticated/hesabim.seyahatler'
+import { Route as AuthenticatedAdminEsimDevicesRouteImport } from './routes/_authenticated/admin.esim.devices'
 import { Route as AuthenticatedAdminSmartFindersEsimRouteImport } from './routes/_authenticated/admin.smart-finders.esim'
 
 const IndexRoute = IndexRouteImport.update({
@@ -94,6 +95,12 @@ const AuthenticatedHesabimSeyahatlerRoute =
     path: '/hesabim/seyahatler',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedAdminEsimDevicesRoute =
+  AuthenticatedAdminEsimDevicesRouteImport.update({
+    id: '/admin/esim/devices',
+    path: '/admin/esim/devices',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedAdminSmartFindersEsimRoute =
   AuthenticatedAdminSmartFindersEsimRouteImport.update({
     id: '/admin/smart-finders/esim',
@@ -114,6 +121,7 @@ export interface FileRoutesByFullPath {
   '/hesabim/seyahatler': typeof AuthenticatedHesabimSeyahatlerRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
   '/hesabim/': typeof AuthenticatedHesabimIndexRoute
+  '/admin/esim/devices': typeof AuthenticatedAdminEsimDevicesRoute
   '/admin/smart-finders/esim': typeof AuthenticatedAdminSmartFindersEsimRoute
 }
 export interface FileRoutesByTo {
@@ -129,6 +137,7 @@ export interface FileRoutesByTo {
   '/hesabim/seyahatler': typeof AuthenticatedHesabimSeyahatlerRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
   '/hesabim': typeof AuthenticatedHesabimIndexRoute
+  '/admin/esim/devices': typeof AuthenticatedAdminEsimDevicesRoute
   '/admin/smart-finders/esim': typeof AuthenticatedAdminSmartFindersEsimRoute
 }
 export interface FileRoutesById {
@@ -146,6 +155,7 @@ export interface FileRoutesById {
   '/_authenticated/hesabim/seyahatler': typeof AuthenticatedHesabimSeyahatlerRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
   '/_authenticated/hesabim/': typeof AuthenticatedHesabimIndexRoute
+  '/_authenticated/admin/esim/devices': typeof AuthenticatedAdminEsimDevicesRoute
   '/_authenticated/admin/smart-finders/esim': typeof AuthenticatedAdminSmartFindersEsimRoute
 }
 export interface FileRouteTypes {
@@ -163,6 +173,7 @@ export interface FileRouteTypes {
     | '/hesabim/seyahatler'
     | '/admin/'
     | '/hesabim/'
+    | '/admin/esim/devices'
     | '/admin/smart-finders/esim'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -178,6 +189,7 @@ export interface FileRouteTypes {
     | '/hesabim/seyahatler'
     | '/admin'
     | '/hesabim'
+    | '/admin/esim/devices'
     | '/admin/smart-finders/esim'
   id:
     | '__root__'
@@ -194,6 +206,7 @@ export interface FileRouteTypes {
     | '/_authenticated/hesabim/seyahatler'
     | '/_authenticated/admin/'
     | '/_authenticated/hesabim/'
+    | '/_authenticated/admin/esim/devices'
     | '/_authenticated/admin/smart-finders/esim'
   fileRoutesById: FileRoutesById
 }
@@ -299,6 +312,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedHesabimSeyahatlerRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/admin/esim/devices': {
+      id: '/_authenticated/admin/esim/devices'
+      path: '/admin/esim/devices'
+      fullPath: '/admin/esim/devices'
+      preLoaderRoute: typeof AuthenticatedAdminEsimDevicesRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/admin/smart-finders/esim': {
       id: '/_authenticated/admin/smart-finders/esim'
       path: '/admin/smart-finders/esim'
@@ -317,6 +337,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedHesabimSeyahatlerRoute: typeof AuthenticatedHesabimSeyahatlerRoute
   AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
   AuthenticatedHesabimIndexRoute: typeof AuthenticatedHesabimIndexRoute
+  AuthenticatedAdminEsimDevicesRoute: typeof AuthenticatedAdminEsimDevicesRoute
   AuthenticatedAdminSmartFindersEsimRoute: typeof AuthenticatedAdminSmartFindersEsimRoute
 }
 
@@ -328,6 +349,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedHesabimSeyahatlerRoute: AuthenticatedHesabimSeyahatlerRoute,
   AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
   AuthenticatedHesabimIndexRoute: AuthenticatedHesabimIndexRoute,
+  AuthenticatedAdminEsimDevicesRoute: AuthenticatedAdminEsimDevicesRoute,
   AuthenticatedAdminSmartFindersEsimRoute:
     AuthenticatedAdminSmartFindersEsimRoute,
 }
