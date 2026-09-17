@@ -5,6 +5,7 @@ import type { Database } from "@/integrations/supabase/types";
 
 export type EsimPackage = {
   id: string;
+  providerProductId: string | null;
   slug: string;
   name: string;
   currency: string;
@@ -47,11 +48,13 @@ export const listEsimPackages = createServerFn({ method: "GET" })
     const { data: rows, error } = await publicClient()
       .from("service_products")
       .select(
-        "id, slug, name, currency, sale_price, badge, featured, sort_order, lifecycle, customer_visible, service_type, esim_product_details(data_gb, unlimited_data, validity_days, coverage_country_isos, country_iso, supports_5g, supports_hotspot, network_operators)",
+        "id, provider_external_id, slug, name, currency, sale_price, badge, featured, sort_order, lifecycle, customer_visible, provider_available, margin_flagged, service_type, esim_product_details(data_gb, unlimited_data, validity_days, coverage_country_isos, country_iso, supports_5g, supports_hotspot, network_operators)",
       )
       .eq("service_type", "ESIM")
       .eq("lifecycle", "PUBLISHED")
       .eq("customer_visible", true)
+      .eq("provider_available", true)
+      .eq("margin_flagged", false)
       .order("sort_order");
     if (error) throw new Error(error.message);
 
@@ -77,6 +80,7 @@ export const listEsimPackages = createServerFn({ method: "GET" })
         ].map((iso) => String(iso).toUpperCase());
         return {
           id: row.id,
+          providerProductId: row.provider_external_id,
           slug: row.slug,
           name: row.name,
           currency: row.currency ?? "EUR",

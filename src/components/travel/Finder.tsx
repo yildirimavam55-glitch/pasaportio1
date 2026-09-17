@@ -56,13 +56,12 @@ const COPY = {
     need: "Tahmini kullanım",
     needReason: "Seyahat süren, kullanım tercihlerin ve güvenlik payına göre hesaplandı.",
     seePackages: "Paketleri Gör",
-    recommendedPackage: "Sana önerimiz", recommendedBadge: "Önerilen", addToCart: "Sepete Ekle", inCart: "Sepette",
-    whyPackage: "Neden bu paket?", preparing: "Paket seçenekleri hazırlanıyor",
-    whyText: (days: number, need: number, size: string) => `${days} günlük seyahatin için yaklaşık ${need} GB kullanım hesapladık. Güvenlik payıyla birlikte sana en yakın üst paket olan ${size} öneriyoruz.`,
+    recommendedPackage: "Sana önerimiz", recommendedBadge: "Önerilen", addToCart: "Sepete Ekle", inCart: "Sepette", selectPackage: "Paketi Seç",
+    whyPackage: "Neden bu paket?", noPackage: "Bu seçim için şu anda uygun paket bulunamadı.",
+    whyText: (days: number, usage: string, need: number, size: string) => `${days} günlük seyahatin için ${usage} kullanımına göre tahmini ihtiyacın ${need} GB. Mevcut paketler arasında ihtiyacını karşılayan en yakın seçenek ${size}.`,
     validity: "gün geçerli", unlimited: "Sınırsız veri",
     unlimitedAlternative: "Sınırsız alternatif",
     noSufficient: "İhtiyacını tamamen karşılayan tek paket bulunamadı.",
-    pendingCatalogue: "Paketler yüklendiğinde ihtiyacına en yakın üst paket otomatik olarak önerilecek.",
     seePackage: (size: string) => `${size} Paketi Gör`,
     loungeCta: "Lounge Seçeneklerini Gör",
     steps: ["Rota", "Süre", "Yolcular", "Kullanım"],
@@ -82,13 +81,12 @@ const COPY = {
     need: "Geschätzter Verbrauch",
     needReason: "Berechnet aus Reisedauer, deiner Nutzung und dem Sicherheitspuffer.",
     seePackages: "Pakete ansehen",
-    recommendedPackage: "Unsere Empfehlung", recommendedBadge: "Empfohlen", addToCart: "In den Warenkorb", inCart: "Im Warenkorb",
-    whyPackage: "Warum dieses Paket?", preparing: "Paketoptionen werden vorbereitet",
-    whyText: (days: number, need: number, size: string) => `Für deine ${days}-tägige Reise haben wir einen Bedarf von etwa ${need} GB berechnet. Mit Sicherheitspuffer empfehlen wir das nächstgrößere passende Paket mit ${size}.`,
+    recommendedPackage: "Unsere Empfehlung", recommendedBadge: "Empfohlen", addToCart: "In den Warenkorb", inCart: "Im Warenkorb", selectPackage: "Paket auswählen",
+    whyPackage: "Warum dieses Paket?", noPackage: "Für diese Auswahl ist derzeit kein passendes Paket verfügbar.",
+    whyText: (days: number, usage: string, need: number, size: string) => `Für deine ${days}-tägige Reise liegt dein geschätzter Bedarf bei ${usage} bei ${need} GB. Das nächstpassende verfügbare Paket, das deinen Bedarf deckt, ist ${size}.`,
     validity: "Tage gültig", unlimited: "Unbegrenzte Daten",
     unlimitedAlternative: "Unbegrenzte Alternative",
     noSufficient: "Kein einzelnes Paket deckt deinen Bedarf vollständig ab.",
-    pendingCatalogue: "Sobald Pakete geladen sind, wird automatisch das nächstgrößere passende Paket empfohlen.",
     seePackage: (size: string) => `${size} Paket ansehen`,
     loungeCta: "Lounge-Optionen ansehen",
     steps: ["Route", "Dauer", "Personen", "Nutzung"],
@@ -108,13 +106,12 @@ const COPY = {
     need: "Estimated usage",
     needReason: "Calculated from your trip length, your usage choices and a safety margin.",
     seePackages: "See packages",
-    recommendedPackage: "Our recommendation", recommendedBadge: "Recommended", addToCart: "Add to cart", inCart: "In cart",
-    whyPackage: "Why this package?", preparing: "Package options are being prepared",
-    whyText: (days: number, need: number, size: string) => `For your ${days}-day trip, we calculated approximately ${need} GB of usage. With the safety margin, we recommend the next suitable package at ${size}.`,
+    recommendedPackage: "Our recommendation", recommendedBadge: "Recommended", addToCart: "Add to cart", inCart: "In cart", selectPackage: "Select package",
+    whyPackage: "Why this package?", noPackage: "No suitable package is currently available for this selection.",
+    whyText: (days: number, usage: string, need: number, size: string) => `For your ${days}-day trip, your estimated need for ${usage} is ${need} GB. The closest available package that covers your need is ${size}.`,
     validity: "days valid", unlimited: "Unlimited data",
     unlimitedAlternative: "Unlimited alternative",
     noSufficient: "No single package fully covers your estimated need.",
-    pendingCatalogue: "Once packages are loaded, the next suitable size is recommended automatically.",
     seePackage: (size: string) => `See the ${size} package`,
     loungeCta: "See lounge options",
     steps: ["Route", "Duration", "Travelers", "Usage"],
@@ -269,7 +266,7 @@ export function EsimFinder({ state, onChange }: { state: EsimFinderState; onChan
 
   // Layer 2: the recommended package is always a real catalogue product, never a calculated size.
   const coverageIsos = state.tripMode === "single" ? (selectedCountry ? [selectedCountry.iso] : []) : stops.map((stop) => stop.countryIso);
-  const { data: packages = [] } = useQuery({
+  const { data: packages = [], isPending: packagesPending } = useQuery({
     queryKey: ["esim-packages", coverageIsos.join(",")],
     queryFn: () => listEsimPackages({ data: { coverageIsos } }),
     enabled: canSeePackages,
@@ -278,6 +275,7 @@ export function EsimFinder({ state, onChange }: { state: EsimFinderState; onChan
     ? resolvePackageRecommendation(packages, { requiredGb: recommendation.requiredGb, coverageIsos, days: state.days })
     : ({ status: "NO_CATALOGUE", package: null } as const);
   const recommended = match.package;
+  const usageSummary = state.usage.map((kind) => USAGE_LABELS[locale][kind].toLocaleLowerCase(locale)).join(", ");
   const { lines, addLine } = useCart();
   const recommendedInCart = Boolean(recommended && lines.some((line) => line.productId === recommended.id));
 
@@ -292,6 +290,7 @@ export function EsimFinder({ state, onChange }: { state: EsimFinderState; onChan
         estimated: recommendation.estimatedGb,
         required: recommendation.requiredGb,
         recommended: recommended?.dataGb ?? 0,
+        recommendedProductId: recommended?.id ?? "",
         usage: state.usage.join(","),
         intensity: state.intensity,
       },
@@ -409,7 +408,14 @@ export function EsimFinder({ state, onChange }: { state: EsimFinderState; onChan
 
       <Reveal className="recommendation-reveal mt-3">
         <section className="rounded-xl border border-primary/20 bg-primary-soft p-4 text-foreground sm:p-5" aria-label={copy.recommendedPackage}>
-          {recommended ? (
+          {packagesPending && canSeePackages ? (
+            <div className="space-y-3" aria-label={copy.recommendedPackage} aria-busy="true">
+              <div className="h-3 w-32 animate-pulse rounded bg-primary/15" />
+              <div className="h-8 w-52 animate-pulse rounded bg-primary/15" />
+              <div className="h-5 w-40 animate-pulse rounded bg-primary/15" />
+              <div className="h-12 w-full animate-pulse rounded-lg bg-primary/15" />
+            </div>
+          ) : recommended ? (
             <>
               <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0">
@@ -428,29 +434,30 @@ export function EsimFinder({ state, onChange }: { state: EsimFinderState; onChan
               </strong>
               <div className="mt-4 rounded-lg bg-card/75 p-3">
                 <span className="flex items-center gap-2 text-sm font-bold text-primary"><ShieldCheck className="size-4" aria-hidden="true" />{copy.whyPackage}</span>
-                <p className="mt-1 text-sm leading-6 text-muted-foreground">{copy.whyText(state.days, recommendation.requiredGb, recommended.unlimited ? copy.unlimited : `${recommended.dataGb} GB`)}</p>
+                <p className="mt-1 text-sm leading-6 text-muted-foreground">{copy.whyText(state.days, usageSummary || copy.usage.toLocaleLowerCase(locale), recommendation.requiredGb, recommended.unlimited ? copy.unlimited : `${recommended.dataGb} GB`)}</p>
               </div>
               <Button
                 type="button"
                 variant="cta"
                 size="lg"
                 className="mt-4 w-full"
-                disabled={recommendedInCart}
-                onClick={() => addLine({ productId: recommended.id, serviceType: "ESIM", name: recommended.name, meta: recommended.unlimited ? copy.unlimited : `${recommended.dataGb} GB`, price: recommended.salePrice ?? 0, currency: recommended.currency })}
+                onClick={goToPackages}
               >
+                {copy.selectPackage}<ArrowRight />
+              </Button>
+              <Button type="button" variant="outline" size="lg" className="mt-2 w-full" disabled={recommendedInCart} onClick={() => addLine({ productId: recommended.id, providerProductId: recommended.providerProductId, serviceType: "ESIM", name: recommended.name, meta: recommended.unlimited ? copy.unlimited : `${recommended.dataGb} GB`, price: recommended.salePrice, currency: recommended.currency, dataGb: recommended.dataGb, validityDays: recommended.validityDays, coverage: recommended.coverage })}>
                 <ShoppingCart /> {recommendedInCart ? copy.inCart : copy.addToCart}
               </Button>
             </>
           ) : (
             <div>
               <span className="text-xs font-bold uppercase text-primary">{copy.recommendedPackage}</span>
-              <h3 className="mt-1 font-display text-xl font-bold">{copy.preparing}</h3>
-              <p className="mt-2 text-sm text-muted-foreground">{match.status === "NO_SUFFICIENT" ? copy.noSufficient : copy.pendingCatalogue}</p>
+              <h3 className="mt-1 font-display text-xl font-bold">{match.status === "NO_SUFFICIENT" ? copy.noSufficient : copy.noPackage}</h3>
             </div>
           )}
-          <Button type="button" variant={recommended ? "outline" : "cta"} size="lg" className="mt-3 w-full scroll-mb-24" disabled={!canSeePackages} onClick={goToPackages}>
+          {!packagesPending && !recommended && <Button type="button" variant="outline" size="lg" className="mt-3 w-full scroll-mb-24" disabled={!canSeePackages} onClick={goToPackages}>
             {copy.seePackages}<ArrowRight />
-          </Button>
+          </Button>}
         </section>
       </Reveal>
     </>
