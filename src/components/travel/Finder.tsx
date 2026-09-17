@@ -381,7 +381,9 @@ export function EsimFinder({ state, onChange }: { state: EsimFinderState; onChan
           <div className="mt-4 rounded-lg bg-white/10 p-3">
             <div className="flex items-start justify-between gap-2">
               <div className="min-w-0">
-                <span className="text-xs font-semibold uppercase opacity-75">{copy.recommendedPackage}</span>
+                <span className="text-xs font-semibold uppercase opacity-75">
+                  {match.status === "UNLIMITED_ALTERNATIVE" ? copy.unlimitedAlternative : copy.recommendedPackage}
+                </span>
                 <strong className="mt-1 flex items-center gap-2 text-2xl">
                   <ShieldCheck className="size-5" aria-hidden="true" />
                   {recommended.unlimited ? copy.unlimited : `${recommended.dataGb} GB`}
@@ -417,8 +419,11 @@ export function EsimFinder({ state, onChange }: { state: EsimFinderState; onChan
           </div>
         )}
 
+        {canSeePackages && match.status === "NO_CATALOGUE" && <p className="mt-3 text-sm opacity-80">{copy.pendingCatalogue}</p>}
+        {match.status === "NO_SUFFICIENT" && <p className="mt-3 text-sm font-semibold">{copy.noSufficient}</p>}
+
         <Button type="button" variant={recommended ? "secondary" : "cta"} size="lg" className="mt-3 w-full sm:w-auto" disabled={!canSeePackages} onClick={goToPackages}>
-          {copy.seePackages}
+          {match.status === "MATCHED" && recommended ? copy.seePackage(`${recommended.dataGb} GB`) : copy.seePackages}
           <ArrowRight />
         </Button>
       </div>
