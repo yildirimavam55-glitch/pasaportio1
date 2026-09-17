@@ -340,7 +340,7 @@ export function EsimFinder({ state, onChange }: { state: EsimFinderState; onChan
           </div>
           <div className="rounded-lg bg-white/10 p-3">
             <span className="text-xs font-semibold uppercase opacity-75">{copy.recommended}</span>
-            <strong className="mt-1 flex items-center gap-2 text-2xl"><ShieldCheck className="size-5" aria-hidden="true" />{recommendation.recommendedGb} GB</strong>
+            <strong className="mt-1 flex items-center gap-2 text-2xl"><ShieldCheck className="size-5" aria-hidden="true" />{recommendation.requiredGb} GB</strong>
             {summaryLabel && <span className="mt-0.5 block text-sm opacity-80">{summaryLabel}</span>}
           </div>
         </div>
