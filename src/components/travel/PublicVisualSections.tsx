@@ -17,12 +17,15 @@ import {
   Utensils,
   Wifi,
 } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { useNavigate } from "@tanstack/react-router";
 import { useState, type ReactNode } from "react";
 import { Button } from "@/components/ui/button";
 import { ESIM_CONTENT, LOUNGE_CONTENT, localized, type ServiceSlug } from "@/content/travel-content";
 import { getAirport } from "@/domain/geo/airports";
 import type { Locale } from "@/domain/enums";
 import { useI18n } from "@/i18n";
+import { listEsimStartingPrices } from "@/lib/esim-catalogue.functions";
 import { CountryFlag } from "./CountryFlag";
 import airportFrankfurtAsset from "@/assets/airport-frankfurt.jpg.asset.json";
 import airportIstanbulAsset from "@/assets/airport-istanbul.jpg.asset.json";
@@ -35,7 +38,7 @@ import loungeAsset from "@/assets/lounge-card.jpg.asset.json";
 const COPY = {
   tr: {
     popularEyebrow: { esim: "İlham veren rotalar", lounge: "Konforlu duraklar" },
-    discover: "Keşfet", flexible: "Seyahatine göre",
+    discover: "Keşfet", viewPackages: "Paketleri gör", startingAt: "Başlangıç", flexible: "Seyahatine göre",
     routeMeta: "7 ülke · tek rota", airportMeta: "Lounge seçenekleri",
     trust: ["Güvenli ödeme", "Hızlı dijital teslimat", "Hesabında erişim", "Seyahat desteği"],
     stepsEyebrow: "Nasıl çalışır?",
@@ -52,13 +55,13 @@ const COPY = {
     amenities: ["Wi-Fi", "Yiyecek", "İçecek", "Duş", "Sessiz alan"],
   },
   de: {
-    popularEyebrow: { esim: "Inspirierende Routen", lounge: "Komfortable Stopps" }, discover: "Entdecken", flexible: "Passend zu deiner Reise", routeMeta: "7 Länder · eine Route", airportMeta: "Lounge-Optionen",
+    popularEyebrow: { esim: "Inspirierende Routen", lounge: "Komfortable Stopps" }, discover: "Entdecken", viewPackages: "Pakete ansehen", startingAt: "Ab", flexible: "Passend zu deiner Reise", routeMeta: "7 Länder · eine Route", airportMeta: "Lounge-Optionen",
     trust: ["Sichere Zahlung", "Schnelle digitale Zustellung", "Zugriff im Konto", "Reise-Support"], stepsEyebrow: "So funktioniert’s", stepsTitle: { esim: "In vier Schritten verbunden", lounge: "In vier Schritten zur entspannten Pause" },
     esimSteps: [["Reiseziel", "Wähle dein Ziel"], ["Paket", "Finde die passende Option"], ["Zahlung", "Sicher abschließen"], ["QR-Installation", "Einfach aufs Handy laden"]], loungeSteps: [["Flughafen", "Wähle deinen Abflugort"], ["Lounge", "Leistungen vergleichen"], ["Buchung", "Zutritt reservieren"], ["QR / Voucher", "Am Eingang vorzeigen"]],
     deliveryEyebrow: "Digitale Zustellung", deliveryTitle: { esim: "Deine eSIM bleibt griffbereit", lounge: "Deine Buchung bleibt an einem Ort" }, deliveryLead: { esim: "QR-Code im Konto öffnen, Anleitung ansehen und Details zusätzlich per E-Mail erhalten.", lounge: "Zutrittscode, Terminal und Buchungsdetails bleiben im Konto und kommen auch per E-Mail." }, accountNote: "Sicher in deinem Konto gespeichert", emailNote: "Details kommen auch per E-Mail", sample: "Zustellvorschau", ready: { esim: "Deine eSIM ist bereit", lounge: "Buchung bereit" }, primary: { esim: "QR-Code anzeigen", lounge: "Zutrittscode anzeigen" }, guide: "Installationsanleitung", email: "Per E-Mail senden", crossAction: { esim: "Lounges ansehen", lounge: "eSIM finden" }, amenities: ["WLAN", "Essen", "Getränke", "Dusche", "Ruhebereich"],
   },
   en: {
-    popularEyebrow: { esim: "Inspiring routes", lounge: "Comfortable stops" }, discover: "Explore", flexible: "Made for your trip", routeMeta: "7 countries · one route", airportMeta: "Lounge options",
+    popularEyebrow: { esim: "Inspiring routes", lounge: "Comfortable stops" }, discover: "Explore", viewPackages: "View packages", startingAt: "From", flexible: "Made for your trip", routeMeta: "7 countries · one route", airportMeta: "Lounge options",
     trust: ["Secure payment", "Fast digital delivery", "Account access", "Travel support"], stepsEyebrow: "How it works", stepsTitle: { esim: "Connected in four simple steps", lounge: "A calmer break in four steps" },
     esimSteps: [["Destination", "Choose where you are going"], ["Package", "Find the option that fits"], ["Payment", "Complete it securely"], ["QR install", "Add it to your phone"]], loungeSteps: [["Airport", "Choose your flight point"], ["Lounge", "Compare the amenities"], ["Booking", "Reserve your entry"], ["QR / Voucher", "Show it at the door"]],
     deliveryEyebrow: "Digital delivery", deliveryTitle: { esim: "Your eSIM stays within reach", lounge: "Your booking stays in one place" }, deliveryLead: { esim: "Open your QR in your account, view the guide, and receive the details by email too.", lounge: "Your entry code, terminal and booking details stay in your account and arrive by email." }, accountNote: "Stored securely in your account", emailNote: "Details are also sent by email", sample: "Delivery preview", ready: { esim: "Your eSIM is ready", lounge: "Booking ready" }, primary: { esim: "Show QR code", lounge: "Show entry code" }, guide: "Installation guide", email: "Send by email", crossAction: { esim: "View Lounge options", lounge: "Find my eSIM" }, amenities: ["Wi-Fi", "Food", "Drinks", "Shower", "Quiet area"],
@@ -84,20 +87,33 @@ export function TrustStrip() {
 
 export function VisualPopular({ service }: { service: ServiceSlug }) {
   const { locale } = useI18n();
+  const navigate = useNavigate();
   const copy = localized(service === "esim" ? ESIM_CONTENT : LOUNGE_CONTENT, locale);
   const section = COPY[locale];
   const fra = getAirport("airport-fra");
   const ist = getAirport("airport-ist");
   const items = service === "esim" ? [
-    { id: "tr", iso: "TR", title: locale === "de" ? "Türkei" : locale === "en" ? "Türkiye" : "Türkiye", meta: locale === "tr" ? "Tek destinasyon" : locale === "de" ? "Ein Reiseziel" : "Single destination", image: destinationTurkiyeAsset.url },
-    { id: "eu", iso: "EU", title: locale === "tr" ? "Avrupa" : locale === "de" ? "Europa" : "Europe", meta: locale === "tr" ? "Bölgesel kapsama" : locale === "de" ? "Regionale Abdeckung" : "Regional coverage", image: destinationEuropeAsset.url },
-    { id: "route", iso: "", title: "Sıla Yolu", meta: section.routeMeta, image: destinationRouteAsset.url, route: true },
+    { id: "tr", iso: "TR", coverageIsos: ["TR"], title: locale === "de" ? "Türkei" : locale === "en" ? "Türkiye" : "Türkiye", meta: locale === "tr" ? "Tek destinasyon" : locale === "de" ? "Ein Reiseziel" : "Single destination", image: destinationTurkiyeAsset.url },
+    { id: "eu", iso: "EU", coverageIsos: ["DE", "AT", "IT", "FR"], title: locale === "tr" ? "Avrupa" : locale === "de" ? "Europa" : "Europe", meta: locale === "tr" ? "Bölgesel kapsama" : locale === "de" ? "Regionale Abdeckung" : "Regional coverage", image: destinationEuropeAsset.url },
+    { id: "route", iso: "", coverageIsos: ["DE", "AT", "SI", "HR", "RS", "BG", "TR"], title: "Sıla Yolu", meta: section.routeMeta, image: destinationRouteAsset.url, route: true },
   ] : [
-    { id: "ist", iso: ist?.countryIso ?? "TR", title: `IST · ${ist?.city[locale] ?? "İstanbul"}`, meta: section.airportMeta, image: airportIstanbulAsset.url },
-    { id: "fra", iso: fra?.countryIso ?? "DE", title: `FRA · ${fra?.city[locale] ?? "Frankfurt"}`, meta: section.airportMeta, image: airportFrankfurtAsset.url },
-    { id: "comfort", iso: "", title: locale === "tr" ? "Lounge konforu" : locale === "de" ? "Lounge-Komfort" : "Lounge comfort", meta: section.amenities.slice(0, 3).join(" · "), image: loungeAsset.url },
+    { id: "ist", iso: ist?.countryIso ?? "TR", coverageIsos: [], title: `IST · ${ist?.city[locale] ?? "İstanbul"}`, meta: section.airportMeta, image: airportIstanbulAsset.url },
+    { id: "fra", iso: fra?.countryIso ?? "DE", coverageIsos: [], title: `FRA · ${fra?.city[locale] ?? "Frankfurt"}`, meta: section.airportMeta, image: airportFrankfurtAsset.url },
+    { id: "comfort", iso: "", coverageIsos: [], title: locale === "tr" ? "Lounge konforu" : locale === "de" ? "Lounge-Komfort" : "Lounge comfort", meta: section.amenities.slice(0, 3).join(" · "), image: loungeAsset.url },
   ];
-  return <section id="popular" className="bg-card py-12"><div className="mx-auto max-w-site px-4 sm:px-6"><span className="text-xs font-bold uppercase text-primary">{service === "esim" ? section.popularEyebrow.esim : section.popularEyebrow.lounge}</span><div className="mt-2 flex items-end justify-between gap-4"><div><h2 className="font-display text-2xl font-bold sm:text-3xl">{copy.popularTitle}</h2><p className="mt-2 max-w-xl text-sm text-muted-foreground">{copy.popularDescription}</p></div><span className="hidden text-sm font-semibold text-primary sm:block">{section.flexible}</span></div><div className="mt-6 grid gap-3 md:grid-cols-3">{items.map((item) => <article key={item.id} className="group relative aspect-[4/3] overflow-hidden rounded-card bg-primary shadow-card"><SafeImage src={item.image} fallback={service === "esim" ? destinationEuropeAsset.url : loungeAsset.url} alt={item.title} className="absolute inset-0 size-full object-cover transition duration-500 group-hover:scale-105"/><div className="absolute inset-0 bg-image-scrim"/><div className="absolute inset-x-0 bottom-0 p-4 text-hero-foreground"><div className="flex items-center gap-2">{item.iso && <CountryFlag iso={item.iso} className="text-xl"/>}{item.route && <Route className="size-5" aria-hidden="true"/>}<h3 className="font-display text-xl font-bold">{item.title}</h3></div>{item.route && <div className="mt-2 flex items-center gap-1.5" aria-label={section.routeMeta}>{["DE","AT","SI","HR","RS","BG","TR"].map((iso, index) => <span key={iso} className="contents"><CountryFlag iso={iso}/>{index < 6 && <ArrowRight className="size-3"/>}</span>)}</div>}<div className="mt-2 flex items-center justify-between gap-3 text-sm"><span className="opacity-85">{item.meta}</span><span className="inline-flex items-center gap-1 font-semibold">{section.discover}<ArrowRight className="size-4"/></span></div></div></article>)}</div>{service === "lounge" && <div className="mt-4 flex flex-wrap gap-2">{section.amenities.map((amenity, index) => <span key={amenity} className="inline-flex items-center gap-1.5 rounded-full bg-petrol-soft px-3 py-1.5 text-xs font-semibold text-primary">{index === 0 ? <Wifi/> : index === 1 ? <Utensils/> : index === 2 ? <Coffee/> : index === 3 ? <ShowerHead/> : <CheckCircle2/>}{amenity}</span>)}</div>}</div></section>;
+  const { data: startingPrices = [] } = useQuery({
+    queryKey: ["esim-starting-prices"],
+    queryFn: () => listEsimStartingPrices({ data: { targets: items.map((item) => ({ id: item.id, coverageIsos: item.coverageIsos })) } }),
+    enabled: service === "esim",
+    staleTime: 5 * 60 * 1000,
+  });
+  const priceById = new Map(startingPrices.map((price) => [price.targetId, price]));
+  const openItem = (item: (typeof items)[number]) => {
+    if (service !== "esim") return;
+    const route = item.route ? item.coverageIsos.join(",") : "";
+    void navigate({ to: "/esim/paketler", search: { destination: item.route ? "" : item.iso, route, days: 10, travelers: 1, estimated: 0, required: 0, recommended: 0, recommendedProductId: "", usage: "", intensity: "NORMAL" } });
+  };
+  return <section id="popular" className="bg-card py-12"><div className="mx-auto max-w-site px-4 sm:px-6"><span className="text-xs font-bold uppercase text-primary">{service === "esim" ? section.popularEyebrow.esim : section.popularEyebrow.lounge}</span><div className="mt-2 flex items-end justify-between gap-4"><div><h2 className="font-display text-2xl font-bold sm:text-3xl">{copy.popularTitle}</h2><p className="mt-2 max-w-xl text-sm text-muted-foreground">{copy.popularDescription}</p></div><span className="hidden text-sm font-semibold text-primary sm:block">{section.flexible}</span></div><div className="mt-6 grid gap-3 md:grid-cols-3">{items.map((item) => { const price = priceById.get(item.id); return <article key={item.id} className="group relative aspect-[4/3] overflow-hidden rounded-card bg-primary shadow-card"><SafeImage src={item.image} fallback={service === "esim" ? destinationEuropeAsset.url : loungeAsset.url} alt={item.title} className="absolute inset-0 size-full object-cover transition duration-500 group-hover:scale-105"/><div className="absolute inset-0 bg-image-scrim"/><div className="absolute inset-x-0 bottom-0 p-4 text-hero-foreground"><div className="flex items-center gap-2">{item.iso && <CountryFlag iso={item.iso} className="text-xl"/>}{item.route && <Route className="size-5" aria-hidden="true"/>}<h3 className="font-display text-xl font-bold">{item.title}</h3></div>{item.route && <div className="mt-2 flex items-center gap-1.5" aria-label={section.routeMeta}>{item.coverageIsos.map((iso, index) => <span key={iso} className="contents"><CountryFlag iso={iso}/>{index < item.coverageIsos.length - 1 && <ArrowRight className="size-3"/>}</span>)}</div>}<div className="mt-2 flex items-end justify-between gap-3 text-sm"><div><span className="block opacity-85">{item.meta}</span>{service === "esim" && price && <strong className="mt-1 block text-base">{section.startingAt} {new Intl.NumberFormat(locale === "tr" ? "tr-TR" : locale === "de" ? "de-DE" : "en-GB", { style: "currency", currency: price.currency }).format(price.amount)}</strong>}</div>{service === "esim" ? <Button type="button" variant="light" size="sm" onClick={() => openItem(item)}>{section.viewPackages}<ArrowRight/></Button> : <span className="inline-flex items-center gap-1 font-semibold">{section.discover}<ArrowRight className="size-4"/></span>}</div></div></article>;})}</div>{service === "lounge" && <div className="mt-4 flex flex-wrap gap-2">{section.amenities.map((amenity, index) => <span key={amenity} className="inline-flex items-center gap-1.5 rounded-full bg-petrol-soft px-3 py-1.5 text-xs font-semibold text-primary">{index === 0 ? <Wifi/> : index === 1 ? <Utensils/> : index === 2 ? <Coffee/> : index === 3 ? <ShowerHead/> : <CheckCircle2/>}{amenity}</span>)}</div>}</div></section>;
 }
 
 export function HowItWorks({ service }: { service: ServiceSlug }) {

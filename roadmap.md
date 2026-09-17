@@ -58,3 +58,9 @@
 - [x] 10 eSIM + 3 Lounge demo products seeded
 - [x] Admin > Test kataloğu: filter, enable/disable, duplicate, delete, DELETE ALL TEST DATA
 - [x] Cart snapshot with is_test + DEMO QR placeholder at /sepet
+
+## Catalogue-backed customer merchandising
+- [x] Remove the generic non-action package-options section
+- [x] Derive popular eSIM destination starting prices from published catalogue rows
+- [x] Add package CTAs to popular eSIM destination and route cards
+- [x] Keep Finder recommendation and pricing strictly catalogue-backed

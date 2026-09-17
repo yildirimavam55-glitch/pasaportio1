@@ -1,4 +1,4 @@
-import { ArrowRight, CheckCircle2, Clock3, Globe2, MapPin, Plane, Signal, Smartphone, Users, Wifi } from "lucide-react";
+import { ArrowRight, CheckCircle2, Plane, Signal, Smartphone } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
@@ -16,8 +16,6 @@ import { DeliveryConfidence, HowItWorks, TrustStrip, VisualComplementary, Visual
 const SECTION_COPY = {
   tr: {
     popularEyebrow: { esim: "Bağlantını seç", lounge: "Molanı seç" },
-    pricingEyebrow: "Esnek seçenekler",
-    pricingEmpty: { esim: "Uygun paketler destinasyon seçimine göre listelenir.", lounge: "Uygun Lounge seçenekleri havalimanına göre listelenir." },
     crossEyebrow: "Seyahat önerisi",
     educationEyebrow: "Bilmen gerekenler",
     educationLead: "Seçim yapmadan önce temel bilgileri hızlıca gözden geçir.",
@@ -28,16 +26,6 @@ const SECTION_COPY = {
       { icon: "🇹🇷", title: "Türkiye", meta: "Tek destinasyon" },
       { icon: "🇪🇺", title: "Avrupa", meta: "Bölgesel kapsama" },
       { icon: "🚗", title: "Sıla Yolu", meta: "Çoklu ülke rotası" },
-    ],
-    esimPricing: [
-      { title: "Destinasyon paketi", meta: "Tek ülke · süre ve GB bazlı" },
-      { title: "Bölgesel çözüm", meta: "Birden fazla ülke kapsamı" },
-      { title: "Kullanıma göre seçim", meta: "Mesajlaşmadan yoğun kullanıma" },
-    ],
-    loungePricing: [
-      { title: "Havalimanına göre", meta: "IATA ve terminal kimliği" },
-      { title: "Süreye göre", meta: "Giriş ve maksimum kalış" },
-      { title: "Kişi bazlı", meta: "Yetişkin ve çocuk kuralları" },
     ],
     esimFaq: ["eSIM nasıl çalışır?", "Telefonum uyumlu mu?", "Kaç GB gerekir?", "Kurulum nasıl yapılır?", "Kapsama nasıl çalışır?"],
     loungeFaq: ["Lounge’a nasıl girilir?", "Neler dahil?", "Kaç saat kalabilirim?", "Kimler kullanabilir?", "Terminal ve giriş şartları"],
@@ -58,8 +46,6 @@ const SECTION_COPY = {
   },
   de: {
     popularEyebrow: { esim: "Verbindung wählen", lounge: "Pause wählen" },
-    pricingEyebrow: "Flexible Optionen",
-    pricingEmpty: { esim: "Passende Pakete erscheinen je nach Reiseziel.", lounge: "Passende Lounges erscheinen je nach Flughafen." },
     crossEyebrow: "Reise-Empfehlung",
     educationEyebrow: "Gut zu wissen",
     educationLead: "Die wichtigsten Infos vor deiner Auswahl.",
@@ -70,16 +56,6 @@ const SECTION_COPY = {
       { icon: "🇹🇷", title: "Türkei", meta: "Ein Reiseziel" },
       { icon: "🇪🇺", title: "Europa", meta: "Regionale Abdeckung" },
       { icon: "🚗", title: "Sıla Yolu", meta: "Route über mehrere Länder" },
-    ],
-    esimPricing: [
-      { title: "Zielpaket", meta: "Ein Land · nach Dauer und GB" },
-      { title: "Regionale Lösung", meta: "Mehrere Länder abgedeckt" },
-      { title: "Nach Nutzung", meta: "Von Messaging bis Vielnutzung" },
-    ],
-    loungePricing: [
-      { title: "Nach Flughafen", meta: "IATA und Terminal" },
-      { title: "Nach Dauer", meta: "Zutritt und maximale Aufenthaltszeit" },
-      { title: "Pro Person", meta: "Regeln für Erwachsene und Kinder" },
     ],
     esimFaq: ["Wie funktioniert eine eSIM?", "Ist mein Handy kompatibel?", "Wie viele GB brauche ich?", "Wie läuft die Installation?", "Wie funktioniert die Abdeckung?"],
     loungeFaq: ["Wie komme ich in die Lounge?", "Was ist inklusive?", "Wie lange darf ich bleiben?", "Wer darf sie nutzen?", "Terminal- und Zutrittsbedingungen"],
@@ -100,8 +76,6 @@ const SECTION_COPY = {
   },
   en: {
     popularEyebrow: { esim: "Choose your connection", lounge: "Choose your break" },
-    pricingEyebrow: "Flexible options",
-    pricingEmpty: { esim: "Matching packages are listed per destination.", lounge: "Matching lounges are listed per airport." },
     crossEyebrow: "Travel recommendation",
     educationEyebrow: "Good to know",
     educationLead: "A quick look at the essentials before you choose.",
@@ -112,16 +86,6 @@ const SECTION_COPY = {
       { icon: "🇹🇷", title: "Türkiye", meta: "Single destination" },
       { icon: "🇪🇺", title: "Europe", meta: "Regional coverage" },
       { icon: "🚗", title: "Sıla Yolu", meta: "Multi-country route" },
-    ],
-    esimPricing: [
-      { title: "Destination package", meta: "One country · by duration and GB" },
-      { title: "Regional plan", meta: "Coverage across several countries" },
-      { title: "Usage based", meta: "From messaging to heavy use" },
-    ],
-    loungePricing: [
-      { title: "By airport", meta: "IATA and terminal identity" },
-      { title: "By duration", meta: "Entry and maximum stay" },
-      { title: "Per person", meta: "Adult and child rules" },
     ],
     esimFaq: ["How does an eSIM work?", "Is my phone compatible?", "How many GB do I need?", "How do I install it?", "How does coverage work?"],
     loungeFaq: ["How do I enter the lounge?", "What is included?", "How long can I stay?", "Who can use it?", "Terminal and entry conditions"],
@@ -170,7 +134,6 @@ export function TravelExperience({ service, onServiceChange }: { service: Servic
       {service === "esim" && <DeviceCompatibilitySection />}
       <Reveal><TrustStrip /></Reveal>
       <Reveal><VisualPopular service={service} /></Reveal>
-      <Reveal><Pricing service={service} /></Reveal>
       {showCrossSell && <Reveal><VisualComplementary service={service} onSwitch={onServiceChange} /></Reveal>}
       <Reveal><HowItWorks service={service} /></Reveal>
       <Reveal><DeliveryConfidence service={service} /></Reveal>
@@ -247,32 +210,6 @@ function SectionHeading({ eyebrow, title, description }: { eyebrow: string; titl
       <h2 className="mt-2 font-display text-2xl font-bold sm:text-3xl">{title}</h2>
       <p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">{description}</p>
     </div>
-  );
-}
-
-function Pricing({ service }: { service: ServiceSlug }) {
-  const { locale } = useI18n();
-  const copy = localized(service === "esim" ? ESIM_CONTENT : LOUNGE_CONTENT, locale);
-  const section = SECTION_COPY[locale];
-  const icons = service === "esim" ? [<Signal key="s" />, <Globe2 key="g" />, <Wifi key="w" />] : [<MapPin key="m" />, <Clock3 key="c" />, <Users key="u" />];
-  const items = service === "esim" ? section.esimPricing : section.loungePricing;
-
-  return (
-    <section className="bg-secondary/55 py-12">
-      <div className="mx-auto max-w-site px-4 sm:px-6">
-        <SectionHeading eyebrow={section.pricingEyebrow} title={copy.pricingTitle} description={copy.pricingDescription} />
-        <div className="grid gap-3 lg:grid-cols-3">
-          {items.map((item, index) => (
-            <article key={item.title} className="rounded-card border border-border bg-card p-5">
-              <span className="grid size-11 place-items-center rounded-full bg-primary-soft text-primary">{icons[index]}</span>
-              <h3 className="mt-5 font-bold">{item.title}</h3>
-              <p className="mt-1 text-sm text-muted-foreground">{item.meta}</p>
-            </article>
-          ))}
-        </div>
-        <p className="mt-4 text-sm text-muted-foreground">{service === "esim" ? section.pricingEmpty.esim : section.pricingEmpty.lounge}</p>
-      </div>
-    </section>
   );
 }
 
