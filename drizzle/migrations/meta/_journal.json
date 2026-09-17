@@ -22,6 +22,13 @@
       "when": 1789630946082,
       "tag": "0002_phase0_orders_trips_cms_analytics_ops",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1789631258738,
+      "tag": "0003_phase0_harden_functions",
+      "breakpoints": true
     }
   ]
 }
