@@ -17,7 +17,6 @@ import {
   Plus,
   Route,
   Search,
-  ShieldCheck,
   Share2,
   ShoppingCart,
   Trash2,
@@ -57,12 +56,13 @@ const COPY = {
     needReason: "Seyahat süren, kullanım tercihlerin ve güvenlik payına göre hesaplandı.",
     seePackages: "Paketleri Gör",
     recommendedPackage: "Sana önerimiz", recommendedBadge: "Önerilen", addToCart: "Sepete Ekle", inCart: "Sepette", selectPackage: "Paketi Seç",
-    whyPackage: "Neden bu paket?", noPackage: "Bu seçim için şu anda uygun paket bulunamadı.",
+    whyPackage: "Neden bu paket?", noPackage: "Bu kullanım için şu anda uygun paket bulunamadı.",
     whyText: (days: number, usage: string, need: number, size: string) => `${days} günlük seyahatin için ${usage} kullanımına göre tahmini ihtiyacın ${need} GB. Mevcut paketler arasında ihtiyacını karşılayan en yakın seçenek ${size}.`,
+    shortWhy: (need: number, size: string) => `Seyahatin boyunca yaklaşık ${need} GB kullanacağını hesapladık. İhtiyacını karşılayan en uygun mevcut paket ${size}.`,
     validity: "gün geçerli", unlimited: "Sınırsız veri",
     unlimitedAlternative: "Sınırsız alternatif",
-    noSufficient: "İhtiyacını tamamen karşılayan tek paket bulunamadı.",
-    seePackage: (size: string) => `${size} Paketi Gör`,
+    noSufficient: "Bu kullanım için şu anda uygun paket bulunamadı.",
+    seePackage: (size: string) => `${size} Paketini Gör`,
     loungeCta: "Lounge Seçeneklerini Gör",
     steps: ["Rota", "Süre", "Yolcular", "Kullanım"],
     airport: "Hangi havalimanı?", chooseAirport: "Havalimanı seç", date: "Hangi tarih?",
@@ -82,11 +82,12 @@ const COPY = {
     needReason: "Berechnet aus Reisedauer, deiner Nutzung und dem Sicherheitspuffer.",
     seePackages: "Pakete ansehen",
     recommendedPackage: "Unsere Empfehlung", recommendedBadge: "Empfohlen", addToCart: "In den Warenkorb", inCart: "Im Warenkorb", selectPackage: "Paket auswählen",
-    whyPackage: "Warum dieses Paket?", noPackage: "Für diese Auswahl ist derzeit kein passendes Paket verfügbar.",
+    whyPackage: "Warum dieses Paket?", noPackage: "Für diese Nutzung ist derzeit kein passendes Paket verfügbar.",
     whyText: (days: number, usage: string, need: number, size: string) => `Für deine ${days}-tägige Reise liegt dein geschätzter Bedarf bei ${usage} bei ${need} GB. Das nächstpassende verfügbare Paket, das deinen Bedarf deckt, ist ${size}.`,
+    shortWhy: (need: number, size: string) => `Wir haben rund ${need} GB für deine Reise berechnet. Das passende verfügbare Paket ist ${size}.`,
     validity: "Tage gültig", unlimited: "Unbegrenzte Daten",
     unlimitedAlternative: "Unbegrenzte Alternative",
-    noSufficient: "Kein einzelnes Paket deckt deinen Bedarf vollständig ab.",
+    noSufficient: "Für diese Nutzung ist derzeit kein passendes Paket verfügbar.",
     seePackage: (size: string) => `${size} Paket ansehen`,
     loungeCta: "Lounge-Optionen ansehen",
     steps: ["Route", "Dauer", "Personen", "Nutzung"],
@@ -107,11 +108,12 @@ const COPY = {
     needReason: "Calculated from your trip length, your usage choices and a safety margin.",
     seePackages: "See packages",
     recommendedPackage: "Our recommendation", recommendedBadge: "Recommended", addToCart: "Add to cart", inCart: "In cart", selectPackage: "Select package",
-    whyPackage: "Why this package?", noPackage: "No suitable package is currently available for this selection.",
+    whyPackage: "Why this package?", noPackage: "No suitable package is available for this usage right now.",
     whyText: (days: number, usage: string, need: number, size: string) => `For your ${days}-day trip, your estimated need for ${usage} is ${need} GB. The closest available package that covers your need is ${size}.`,
+    shortWhy: (need: number, size: string) => `We estimated about ${need} GB for your trip. The best available package that covers it is ${size}.`,
     validity: "days valid", unlimited: "Unlimited data",
     unlimitedAlternative: "Unlimited alternative",
-    noSufficient: "No single package fully covers your estimated need.",
+    noSufficient: "No suitable package is available for this usage right now.",
     seePackage: (size: string) => `See the ${size} package`,
     loungeCta: "See lounge options",
     steps: ["Route", "Duration", "Travelers", "Usage"],
@@ -275,7 +277,6 @@ export function EsimFinder({ state, onChange }: { state: EsimFinderState; onChan
     ? resolvePackageRecommendation(packages, { requiredGb: recommendation.requiredGb, coverageIsos, days: state.days })
     : ({ status: "NO_CATALOGUE", package: null } as const);
   const recommended = match.package;
-  const usageSummary = state.usage.map((kind) => USAGE_LABELS[locale][kind].toLocaleLowerCase(locale)).join(", ");
   const { lines, addLine } = useCart();
   const recommendedInCart = Boolean(recommended && lines.some((line) => line.productId === recommended.id));
 
@@ -421,33 +422,30 @@ export function EsimFinder({ state, onChange }: { state: EsimFinderState; onChan
                 <div className="min-w-0">
                   <span className="text-xs font-bold uppercase text-primary">{match.status === "UNLIMITED_ALTERNATIVE" ? copy.unlimitedAlternative : copy.recommendedPackage}</span>
                   <h3 className="mt-1 font-display text-2xl font-bold sm:text-3xl">
-                    {state.tripMode === "single" && selectedCountry ? `${selectedCountry.name[locale]} — ` : ""}{recommended.unlimited ? copy.unlimited : `${recommended.dataGb} GB`}
+                    {recommended.unlimited ? copy.unlimited : `${recommended.dataGb} GB`}
                   </h3>
-                  <p className="mt-1 text-sm text-muted-foreground">
-                    {[recommended.validityDays ? `${recommended.validityDays} ${copy.validity}` : "", `${state.days} ${copy.dayUnit}`, copy.personUnit(state.travelers)].filter(Boolean).join(" · ")}
-                  </p>
+                  {recommended.validityDays ? (
+                    <p className="mt-1 text-sm text-muted-foreground">{recommended.validityDays} {copy.validity}</p>
+                  ) : null}
                 </div>
                 <span className="shrink-0 rounded-full bg-card px-2.5 py-1 text-xs font-bold text-primary">{copy.recommendedBadge}</span>
               </div>
-              <strong className="mt-4 block font-display text-3xl">
-                {new Intl.NumberFormat(locale === "tr" ? "tr-TR" : locale === "de" ? "de-DE" : "en-GB", { style: "currency", currency: recommended.currency }).format(recommended.salePrice ?? 0)}
-              </strong>
-              <div className="mt-4 rounded-lg bg-card/75 p-3">
-                <span className="flex items-center gap-2 text-sm font-bold text-primary"><ShieldCheck className="size-4" aria-hidden="true" />{copy.whyPackage}</span>
-                <p className="mt-1 text-sm leading-6 text-muted-foreground">{copy.whyText(state.days, usageSummary || copy.usage.toLocaleLowerCase(locale), recommendation.requiredGb, recommended.unlimited ? copy.unlimited : `${recommended.dataGb} GB`)}</p>
-              </div>
-              <Button
-                type="button"
-                variant="cta"
-                size="lg"
-                className="mt-4 w-full"
-                onClick={goToPackages}
-              >
-                {copy.selectPackage}<ArrowRight />
+              {recommended.salePrice != null && (
+                <strong className="mt-3 block font-display text-3xl">
+                  {new Intl.NumberFormat(locale === "tr" ? "tr-TR" : locale === "de" ? "de-DE" : "en-GB", { style: "currency", currency: recommended.currency }).format(recommended.salePrice)}
+                </strong>
+              )}
+              <p className="mt-3 text-sm leading-6 text-muted-foreground">
+                {copy.shortWhy(recommendation.requiredGb, recommended.unlimited ? copy.unlimited : `${recommended.dataGb} GB`)}
+              </p>
+              <Button type="button" variant="cta" size="lg" className="mt-4 w-full" onClick={goToPackages}>
+                {copy.seePackage(recommended.unlimited ? copy.unlimited : `${recommended.dataGb} GB`)}<ArrowRight />
               </Button>
-              <Button type="button" variant="outline" size="lg" className="mt-2 w-full" disabled={recommendedInCart} onClick={() => addLine({ productId: recommended.id, providerProductId: recommended.providerProductId, serviceType: "ESIM", name: recommended.name, meta: recommended.unlimited ? copy.unlimited : `${recommended.dataGb} GB`, price: recommended.salePrice, currency: recommended.currency, dataGb: recommended.dataGb, validityDays: recommended.validityDays, coverage: recommended.coverage })}>
-                <ShoppingCart /> {recommendedInCart ? copy.inCart : copy.addToCart}
-              </Button>
+              {recommended.salePrice != null && (
+                <Button type="button" variant="outline" size="lg" className="mt-2 w-full" disabled={recommendedInCart} onClick={() => addLine({ productId: recommended.id, providerProductId: recommended.providerProductId, serviceType: "ESIM", name: recommended.name, meta: recommended.unlimited ? copy.unlimited : `${recommended.dataGb} GB`, price: recommended.salePrice, currency: recommended.currency, dataGb: recommended.dataGb, validityDays: recommended.validityDays, coverage: recommended.coverage })}>
+                  <ShoppingCart /> {recommendedInCart ? copy.inCart : copy.addToCart}
+                </Button>
+              )}
             </>
           ) : (
             <div>
