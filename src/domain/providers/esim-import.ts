@@ -188,9 +188,15 @@ export function parseEsimCatalogue(input: unknown, defaultCurrency = "EUR"): Par
     items.push({
       externalId,
       name,
+      dataType: unlimited ? "UNLIMITED" : "FIXED",
       dataGb: unlimited ? null : dataGb,
       unlimited,
+      rawValidityValue,
+      rawValidityUnit,
       validityDays: Math.round(validityDays),
+      activationPolicy,
+      fairUseNote,
+
       coverage: finalCoverage,
       countryIso: packageKind === "COUNTRY" ? (countryIso ?? finalCoverage[0] ?? null) : countryIso,
       packageKind,
