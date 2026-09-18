@@ -13,6 +13,7 @@ import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { I18nProvider } from "@/i18n";
 import { ServiceSwitchTransitionProvider } from "@/components/travel/ServiceSwitchTransition";
+import { PublishedTheme } from "@/components/PublishedTheme";
 
 function NotFoundComponent() {
   return (
