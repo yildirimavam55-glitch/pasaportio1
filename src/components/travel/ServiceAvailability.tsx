@@ -1,11 +1,12 @@
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
-import { Plane, Signal, Wrench } from "lucide-react";
+import { Wrench } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useI18n } from "@/i18n";
 import { getServiceAvailability } from "@/lib/platform-settings.functions";
 import { DEFAULT_SETTINGS, settingsText } from "@/domain/platform/settings";
 import type { ServiceSlug } from "@/content/travel-content";
+import { EsimServiceIcon, LoungeServiceIcon } from "./ServiceIcons";
 
 /**
  * Public service availability, derived from the existing feature flags.
@@ -37,13 +38,13 @@ export function ServicePausedState({ service }: { service: ServiceSlug }) {
   const { settings } = useServiceAvailability();
   const copy = settings.maintenance[service];
   const other: ServiceSlug = service === "esim" ? "lounge" : "esim";
-  const Icon = service === "esim" ? Signal : Plane;
+  const Icon = service === "esim" ? EsimServiceIcon : LoungeServiceIcon;
 
   return (
     <section className="mx-auto w-full max-w-2xl px-4 py-14 sm:py-20">
       <div className="rounded-3xl border border-border bg-card p-6 text-center shadow-card sm:p-10">
         <span className="mx-auto grid size-14 place-items-center rounded-2xl bg-primary-soft text-primary">
-          <Icon className="size-6" aria-hidden="true" />
+          <Icon className="size-6 stroke-[1.8]" />
         </span>
         <h1 className="mt-5 font-display text-2xl font-bold sm:text-3xl">
           {settingsText(copy.storefrontTitle, locale, "Kısa bir aradayız")}

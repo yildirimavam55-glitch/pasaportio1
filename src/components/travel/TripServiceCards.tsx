@@ -1,5 +1,5 @@
-import { CalendarDays, Clock3, Download, LifeBuoy, Mail, PlaneTakeoff, QrCode, RefreshCw, ShieldCheck, Ticket, Users } from "lucide-react";
-import { EsimServiceIcon } from "./ServiceIcons";
+import { CalendarDays, Clock3, Download, LifeBuoy, Mail, QrCode, RefreshCw, ShieldCheck, Ticket, Users } from "lucide-react";
+import { EsimServiceIcon, LoungeServiceIcon } from "./ServiceIcons";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -123,7 +123,7 @@ function LoungeCard({ service }: { service: LoungeFulfillment }) {
   return (
     <article className="rounded-card border border-border bg-card p-4 shadow-card">
       <header className="flex items-start gap-3">
-        <span className="grid size-10 shrink-0 place-items-center rounded-full bg-primary-soft text-primary"><PlaneTakeoff className="size-5" aria-hidden="true" /></span>
+        <span className="grid size-10 shrink-0 place-items-center rounded-full bg-primary-soft text-primary"><LoungeServiceIcon className="size-5 stroke-[1.8]" /></span>
         <div className="min-w-0 flex-1">
           <h3 className="truncate font-display text-base font-bold">
             <span aria-hidden="true">{service.flag} </span>
