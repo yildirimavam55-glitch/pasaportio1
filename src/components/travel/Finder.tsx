@@ -424,33 +424,30 @@ export function EsimFinder({ state, onChange }: { state: EsimFinderState; onChan
                 <div className="min-w-0">
                   <span className="text-xs font-bold uppercase text-primary">{match.status === "UNLIMITED_ALTERNATIVE" ? copy.unlimitedAlternative : copy.recommendedPackage}</span>
                   <h3 className="mt-1 font-display text-2xl font-bold sm:text-3xl">
-                    {state.tripMode === "single" && selectedCountry ? `${selectedCountry.name[locale]} — ` : ""}{recommended.unlimited ? copy.unlimited : `${recommended.dataGb} GB`}
+                    {recommended.unlimited ? copy.unlimited : `${recommended.dataGb} GB`}
                   </h3>
-                  <p className="mt-1 text-sm text-muted-foreground">
-                    {[recommended.validityDays ? `${recommended.validityDays} ${copy.validity}` : "", `${state.days} ${copy.dayUnit}`, copy.personUnit(state.travelers)].filter(Boolean).join(" · ")}
-                  </p>
+                  {recommended.validityDays ? (
+                    <p className="mt-1 text-sm text-muted-foreground">{recommended.validityDays} {copy.validity}</p>
+                  ) : null}
                 </div>
                 <span className="shrink-0 rounded-full bg-card px-2.5 py-1 text-xs font-bold text-primary">{copy.recommendedBadge}</span>
               </div>
-              <strong className="mt-4 block font-display text-3xl">
-                {new Intl.NumberFormat(locale === "tr" ? "tr-TR" : locale === "de" ? "de-DE" : "en-GB", { style: "currency", currency: recommended.currency }).format(recommended.salePrice ?? 0)}
-              </strong>
-              <div className="mt-4 rounded-lg bg-card/75 p-3">
-                <span className="flex items-center gap-2 text-sm font-bold text-primary"><ShieldCheck className="size-4" aria-hidden="true" />{copy.whyPackage}</span>
-                <p className="mt-1 text-sm leading-6 text-muted-foreground">{copy.whyText(state.days, usageSummary || copy.usage.toLocaleLowerCase(locale), recommendation.requiredGb, recommended.unlimited ? copy.unlimited : `${recommended.dataGb} GB`)}</p>
-              </div>
-              <Button
-                type="button"
-                variant="cta"
-                size="lg"
-                className="mt-4 w-full"
-                onClick={goToPackages}
-              >
-                {copy.selectPackage}<ArrowRight />
+              {recommended.salePrice != null && (
+                <strong className="mt-3 block font-display text-3xl">
+                  {new Intl.NumberFormat(locale === "tr" ? "tr-TR" : locale === "de" ? "de-DE" : "en-GB", { style: "currency", currency: recommended.currency }).format(recommended.salePrice)}
+                </strong>
+              )}
+              <p className="mt-3 text-sm leading-6 text-muted-foreground">
+                {copy.shortWhy(recommendation.requiredGb, recommended.unlimited ? copy.unlimited : `${recommended.dataGb} GB`)}
+              </p>
+              <Button type="button" variant="cta" size="lg" className="mt-4 w-full" onClick={goToPackages}>
+                {copy.seePackage(recommended.unlimited ? copy.unlimited : `${recommended.dataGb} GB`)}<ArrowRight />
               </Button>
-              <Button type="button" variant="outline" size="lg" className="mt-2 w-full" disabled={recommendedInCart} onClick={() => addLine({ productId: recommended.id, providerProductId: recommended.providerProductId, serviceType: "ESIM", name: recommended.name, meta: recommended.unlimited ? copy.unlimited : `${recommended.dataGb} GB`, price: recommended.salePrice, currency: recommended.currency, dataGb: recommended.dataGb, validityDays: recommended.validityDays, coverage: recommended.coverage })}>
-                <ShoppingCart /> {recommendedInCart ? copy.inCart : copy.addToCart}
-              </Button>
+              {recommended.salePrice != null && (
+                <Button type="button" variant="outline" size="lg" className="mt-2 w-full" disabled={recommendedInCart} onClick={() => addLine({ productId: recommended.id, providerProductId: recommended.providerProductId, serviceType: "ESIM", name: recommended.name, meta: recommended.unlimited ? copy.unlimited : `${recommended.dataGb} GB`, price: recommended.salePrice, currency: recommended.currency, dataGb: recommended.dataGb, validityDays: recommended.validityDays, coverage: recommended.coverage })}>
+                  <ShoppingCart /> {recommendedInCart ? copy.inCart : copy.addToCart}
+                </Button>
+              )}
             </>
           ) : (
             <div>
