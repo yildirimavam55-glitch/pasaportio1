@@ -297,3 +297,68 @@ export function VisualComplementary({ service, section, onSwitch }: { service: S
     </section>
   );
 }
+
+/** Simple announcement strip — presentation only, no product logic. */
+export function CampaignBanner({ section }: SectionProp) {
+  const { locale } = useI18n();
+  const navigate = useNavigate();
+  if (!section) return null;
+  const headline = tx(section, "headline", locale, "");
+  if (!headline) return null;
+  const cta = tx(section, "ctaLabel", locale, "");
+  return (
+    <section className={surfaceClasses(section, "bg-primary-soft py-8")}>
+      <div className={`mx-auto ${widthClass(section)} flex flex-col gap-3 px-4 sm:flex-row sm:items-center sm:justify-between sm:px-6`}>
+        <div>
+          <span className="text-xs font-bold uppercase text-primary">{tx(section, "eyebrow", locale, "")}</span>
+          <h2 className="font-display text-xl font-bold sm:text-2xl">{headline}</h2>
+          <p className="mt-1 text-sm text-muted-foreground">{tx(section, "description", locale, "")}</p>
+        </div>
+        {cta && section.primaryHref && (
+          <Button variant="cta" onClick={() => navigate({ to: section.primaryHref })}>{cta} <ArrowRight /></Button>
+        )}
+      </div>
+    </section>
+  );
+}
+
+/** Image next to text — an editor-composed storytelling block. */
+export function ImageTextSection({ section }: SectionProp) {
+  const { locale } = useI18n();
+  const media = useMediaUrl(section?.mediaId);
+  if (!section) return null;
+  const headline = tx(section, "headline", locale, "");
+  if (!headline) return null;
+  const reversed = section.variant === "ters";
+  const items = section.items.filter((item) => item.visible);
+  return (
+    <section className={surfaceClasses(section, "py-12")}>
+      <div className={`mx-auto ${widthClass(section)} grid items-center gap-6 px-4 sm:px-6 md:grid-cols-2`}>
+        {media?.url && (
+          <SafeImage
+            src={media.url}
+            fallback={destinationEuropeAsset.url}
+            alt={media.alt || headline}
+            position={media.position}
+            className={`h-60 w-full rounded-card object-cover shadow-card md:h-80 ${reversed ? "md:order-2" : ""}`}
+          />
+        )}
+        <div>
+          <span className="text-xs font-bold uppercase text-primary">{tx(section, "eyebrow", locale, "")}</span>
+          <h2 className="mt-2 font-display text-2xl font-bold sm:text-3xl">{headline}</h2>
+          <p className="mt-2 text-sm leading-6 text-muted-foreground">{tx(section, "description", locale, "")}</p>
+          {items.length > 0 && (
+            <ul className="mt-4 space-y-2">
+              {items.map((item) => (
+                <li key={item.id} className="flex items-start gap-2 text-sm">
+                  <span className="icon-box-sm rounded-lg bg-primary-soft text-primary"><StorefrontIcon name={item.icon} /></span>
+                  <span><strong className="font-semibold">{itemText(item.title, locale)}</strong> {itemText(item.description, locale)}</span>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      </div>
+    </section>
+  );
+}

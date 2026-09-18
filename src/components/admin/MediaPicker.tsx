@@ -5,6 +5,23 @@ import { Button } from "@/components/ui/button";
 import { AdminDrawer, EmptyState, Field } from "@/components/admin/AdminUi";
 import { listMedia, uploadMedia, MEDIA_CATEGORIES, type MediaAsset } from "@/lib/admin-media.functions";
 
+/** Reads pixel dimensions in the browser so the library can show real file sizes. */
+async function readImageSize(file: File): Promise<{ width: number | null; height: number | null }> {
+  try {
+    const url = URL.createObjectURL(file);
+    const size = await new Promise<{ width: number | null; height: number | null }>((resolve) => {
+      const image = new Image();
+      image.onload = () => resolve({ width: image.naturalWidth, height: image.naturalHeight });
+      image.onerror = () => resolve({ width: null, height: null });
+      image.src = url;
+    });
+    URL.revokeObjectURL(url);
+    return size;
+  } catch {
+    return { width: null, height: null };
+  }
+}
+
 /** Image field that always opens the Media Library — raw storage paths are never shown. */
 export function MediaField({ label, hint, value, onChange, category = "HERO" }: {
   label: string;
@@ -55,11 +72,17 @@ export function MediaLibraryDialog({ open, onClose, onSelect, defaultCategory = 
     (!search || `${asset.label} ${asset.altText}`.toLowerCase().includes(search.toLowerCase())),
   );
 
-  const upload = async (file: File) => {
+  const upload = async (files: FileList | File[]) => {
     setBusy(true);
     try {
-      const base64 = btoa(String.fromCharCode(...new Uint8Array(await file.arrayBuffer())));
-      await uploadMedia({ data: { label: file.name, category: (category === "ALL" ? "GLOBAL" : category) as any, usage: "BOTH", altText: "", fileName: file.name, contentType: file.type, base64 } });
+      for (const file of Array.from(files).slice(0, 20)) {
+        if (!file.type.startsWith("image/")) continue;
+        const buffer = new Uint8Array(await file.arrayBuffer());
+        let base64 = "";
+        for (let index = 0; index < buffer.length; index += 8192) base64 += String.fromCharCode(...buffer.subarray(index, index + 8192));
+        const size = await readImageSize(file);
+        await uploadMedia({ data: { label: file.name, category: (category === "ALL" ? "GLOBAL" : category) as any, usage: "BOTH", altText: "", fileName: file.name, contentType: file.type, base64: btoa(base64), width: size.width, height: size.height } });
+      }
       await queryClient.invalidateQueries({ queryKey: ["media-all"] });
     } finally {
       setBusy(false);
@@ -78,9 +101,14 @@ export function MediaLibraryDialog({ open, onClose, onSelect, defaultCategory = 
             </select>
           </Field>
         </div>
-        <div>
-          <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={(event) => { const file = event.target.files?.[0]; if (file) void upload(file); }} />
-          <Button type="button" size="sm" variant="outline" disabled={busy} onClick={() => fileRef.current?.click()}><Upload />{busy ? "Yükleniyor…" : "Yeni görsel yükle"}</Button>
+        <div
+          onDragOver={(event) => event.preventDefault()}
+          onDrop={(event) => { event.preventDefault(); if (event.dataTransfer.files.length) void upload(event.dataTransfer.files); }}
+          className="rounded-md border border-dashed border-border bg-secondary/25 p-3 text-center"
+        >
+          <input ref={fileRef} type="file" accept="image/*" multiple className="hidden" onChange={(event) => { if (event.target.files?.length) void upload(event.target.files); }} />
+          <Button type="button" size="sm" variant="outline" disabled={busy} onClick={() => fileRef.current?.click()}><Upload />{busy ? "Yükleniyor…" : "Görsel yükle"}</Button>
+          <p className="mt-1 text-[10px] text-muted-foreground">Birden fazla görseli buraya sürükleyip bırakabilirsin.</p>
         </div>
         {!rows.length ? (
           <EmptyState title="Görsel bulunamadı." detail="Yeni bir görsel yükleyerek başlayabilirsin." />

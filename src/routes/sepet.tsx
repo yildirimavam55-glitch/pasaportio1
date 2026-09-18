@@ -5,6 +5,8 @@ import { QrCode, ShoppingCart, Trash2, TriangleAlert } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { PublicShell } from "@/components/travel/PublicShell";
 import { useCart } from "@/domain/cart/store";
+import { assertCheckoutAllowed } from "@/lib/platform-settings.functions";
+import { settingsText } from "@/domain/platform/settings";
 import { useI18n } from "@/i18n";
 import type { Locale } from "@/domain/enums";
 
@@ -54,6 +56,30 @@ function CartPage() {
   const copy = COPY[locale];
   const { lines, removeLine } = useCart();
   const [demo, setDemo] = useState(false);
+  const [checking, setChecking] = useState(false);
+  const [blocked, setBlocked] = useState<string | null>(null);
+
+  /** Purchase permission is verified on the server, never only in the browser. */
+  const startCheckout = async () => {
+    setChecking(true);
+    setBlocked(null);
+    try {
+      const services = [...new Set(lines.map((line) => (line.serviceType === "LOUNGE" ? "lounge" : "esim") as "esim" | "lounge"))];
+      for (const service of services) {
+        const result = await assertCheckoutAllowed({ data: { service } });
+        if (!result.allowed) {
+          setBlocked(settingsText(result.message, locale, "Yeni siparişler kısa süreliğine durduruldu."));
+          return;
+        }
+      }
+      setDemo(true);
+    } catch {
+      setBlocked("Şu anda devam edilemiyor. Lütfen kısa süre sonra tekrar deneyin.");
+    } finally {
+      setChecking(false);
+    }
+  };
+
   const currency = lines[0]?.currency ?? "EUR";
   const money = (value: number) => new Intl.NumberFormat(undefined, { style: "currency", currency }).format(value);
   const total = lines.reduce((sum, line) => sum + (line.price ?? 0) * line.quantity, 0);
@@ -104,9 +130,10 @@ function CartPage() {
               <strong className="text-xl">{money(total)}</strong>
             </div>
 
-            <Button variant="cta" size="lg" className="mt-4 w-full scroll-mb-24" onClick={() => setDemo(true)}>
+            <Button variant="cta" size="lg" className="mt-4 w-full scroll-mb-24" disabled={checking} onClick={() => void startCheckout()}>
               <ShoppingCart /> {copy.checkout}
             </Button>
+            {blocked && <p className="mt-3 rounded-xl border border-warning/40 bg-sand-soft/60 px-3 py-2 text-sm font-semibold">{blocked}</p>}
 
             {demo && (
               <div className="mt-4 rounded-card border border-dashed border-primary bg-primary-soft p-5 text-center">

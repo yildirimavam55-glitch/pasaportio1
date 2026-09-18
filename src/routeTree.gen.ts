@@ -18,18 +18,22 @@ import { Route as EsimPaketlerRouteImport } from './routes/esim.paketler'
 import { Route as LoungeIndexRouteImport } from './routes/lounge.index'
 import { Route as LoungeSeceneklerRouteImport } from './routes/lounge.secenekler'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin.index'
+import { Route as AuthenticatedAdminAirportsRouteImport } from './routes/_authenticated/admin.airports'
 import { Route as AuthenticatedAdminAlertsRouteImport } from './routes/_authenticated/admin.alerts'
 import { Route as AuthenticatedAdminAnalyticsRouteImport } from './routes/_authenticated/admin.analytics'
 import { Route as AuthenticatedAdminAuditRouteImport } from './routes/_authenticated/admin.audit'
 import { Route as AuthenticatedAdminCmsRouteImport } from './routes/_authenticated/admin.cms'
 import { Route as AuthenticatedAdminCustomersRouteImport } from './routes/_authenticated/admin.customers'
+import { Route as AuthenticatedAdminDestinationsRouteImport } from './routes/_authenticated/admin.destinations'
 import { Route as AuthenticatedAdminFinanceRouteImport } from './routes/_authenticated/admin.finance'
 import { Route as AuthenticatedAdminFlagsRouteImport } from './routes/_authenticated/admin.flags'
 import { Route as AuthenticatedAdminMediaRouteImport } from './routes/_authenticated/admin.media'
 import { Route as AuthenticatedAdminOrdersRouteImport } from './routes/_authenticated/admin.orders'
+import { Route as AuthenticatedAdminPricingRulesRouteImport } from './routes/_authenticated/admin.pricing-rules'
 import { Route as AuthenticatedAdminProductsRouteImport } from './routes/_authenticated/admin.products'
 import { Route as AuthenticatedAdminProvidersRouteImport } from './routes/_authenticated/admin.providers'
 import { Route as AuthenticatedAdminRefundsRouteImport } from './routes/_authenticated/admin.refunds'
+import { Route as AuthenticatedAdminServiceControlsRouteImport } from './routes/_authenticated/admin.service-controls'
 import { Route as AuthenticatedAdminSettingsRouteImport } from './routes/_authenticated/admin.settings'
 import { Route as AuthenticatedAdminTestCatalogueRouteImport } from './routes/_authenticated/admin.test-catalogue'
 import { Route as AuthenticatedAdminThemeRouteImport } from './routes/_authenticated/admin.theme'
@@ -38,7 +42,9 @@ import { Route as AuthenticatedHesabimSeyahatlerRouteImport } from './routes/_au
 import { Route as AuthenticatedAdminEsimDevicesRouteImport } from './routes/_authenticated/admin.esim.devices'
 import { Route as AuthenticatedAdminEsimFulfillmentRouteImport } from './routes/_authenticated/admin.esim.fulfillment'
 import { Route as AuthenticatedAdminEsimProviderImportRouteImport } from './routes/_authenticated/admin.esim.provider-import'
+import { Route as AuthenticatedAdminEsimRoutePresetsRouteImport } from './routes/_authenticated/admin.esim.route-presets'
 import { Route as AuthenticatedAdminLoungeBookingsRouteImport } from './routes/_authenticated/admin.lounge.bookings'
+import { Route as AuthenticatedAdminMarketingCampaignsRouteImport } from './routes/_authenticated/admin.marketing.campaigns'
 import { Route as AuthenticatedAdminSmartFindersEsimRouteImport } from './routes/_authenticated/admin.smart-finders.esim'
 import { Route as AuthenticatedAdminStorefrontHomeRouteImport } from './routes/_authenticated/admin.storefront.home'
 import { Route as AuthenticatedAdminStorefrontNavigationRouteImport } from './routes/_authenticated/admin.storefront.navigation'
@@ -87,6 +93,12 @@ const AuthenticatedAdminIndexRoute = AuthenticatedAdminIndexRouteImport.update({
   path: '/admin/',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedAdminAirportsRoute =
+  AuthenticatedAdminAirportsRouteImport.update({
+    id: '/admin/airports',
+    path: '/admin/airports',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedAdminAlertsRoute =
   AuthenticatedAdminAlertsRouteImport.update({
     id: '/admin/alerts',
@@ -115,6 +127,12 @@ const AuthenticatedAdminCustomersRoute =
     path: '/admin/customers',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedAdminDestinationsRoute =
+  AuthenticatedAdminDestinationsRouteImport.update({
+    id: '/admin/destinations',
+    path: '/admin/destinations',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedAdminFinanceRoute =
   AuthenticatedAdminFinanceRouteImport.update({
     id: '/admin/finance',
@@ -137,6 +155,12 @@ const AuthenticatedAdminOrdersRoute =
     path: '/admin/orders',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedAdminPricingRulesRoute =
+  AuthenticatedAdminPricingRulesRouteImport.update({
+    id: '/admin/pricing-rules',
+    path: '/admin/pricing-rules',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedAdminProductsRoute =
   AuthenticatedAdminProductsRouteImport.update({
     id: '/admin/products',
@@ -153,6 +177,12 @@ const AuthenticatedAdminRefundsRoute =
   AuthenticatedAdminRefundsRouteImport.update({
     id: '/admin/refunds',
     path: '/admin/refunds',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedAdminServiceControlsRoute =
+  AuthenticatedAdminServiceControlsRouteImport.update({
+    id: '/admin/service-controls',
+    path: '/admin/service-controls',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedAdminSettingsRoute =
@@ -202,10 +232,22 @@ const AuthenticatedAdminEsimProviderImportRoute =
     path: '/admin/esim/provider-import',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedAdminEsimRoutePresetsRoute =
+  AuthenticatedAdminEsimRoutePresetsRouteImport.update({
+    id: '/admin/esim/route-presets',
+    path: '/admin/esim/route-presets',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedAdminLoungeBookingsRoute =
   AuthenticatedAdminLoungeBookingsRouteImport.update({
     id: '/admin/lounge/bookings',
     path: '/admin/lounge/bookings',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedAdminMarketingCampaignsRoute =
+  AuthenticatedAdminMarketingCampaignsRouteImport.update({
+    id: '/admin/marketing/campaigns',
+    path: '/admin/marketing/campaigns',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedAdminSmartFindersEsimRoute =
@@ -235,18 +277,22 @@ export interface FileRoutesByFullPath {
   '/lounge/secenekler': typeof LoungeSeceneklerRoute
   '/esim/': typeof EsimIndexRoute
   '/lounge/': typeof LoungeIndexRoute
+  '/admin/airports': typeof AuthenticatedAdminAirportsRoute
   '/admin/alerts': typeof AuthenticatedAdminAlertsRoute
   '/admin/analytics': typeof AuthenticatedAdminAnalyticsRoute
   '/admin/audit': typeof AuthenticatedAdminAuditRoute
   '/admin/cms': typeof AuthenticatedAdminCmsRoute
   '/admin/customers': typeof AuthenticatedAdminCustomersRoute
+  '/admin/destinations': typeof AuthenticatedAdminDestinationsRoute
   '/admin/finance': typeof AuthenticatedAdminFinanceRoute
   '/admin/flags': typeof AuthenticatedAdminFlagsRoute
   '/admin/media': typeof AuthenticatedAdminMediaRoute
   '/admin/orders': typeof AuthenticatedAdminOrdersRoute
+  '/admin/pricing-rules': typeof AuthenticatedAdminPricingRulesRoute
   '/admin/products': typeof AuthenticatedAdminProductsRoute
   '/admin/providers': typeof AuthenticatedAdminProvidersRoute
   '/admin/refunds': typeof AuthenticatedAdminRefundsRoute
+  '/admin/service-controls': typeof AuthenticatedAdminServiceControlsRoute
   '/admin/settings': typeof AuthenticatedAdminSettingsRoute
   '/admin/test-catalogue': typeof AuthenticatedAdminTestCatalogueRoute
   '/admin/theme': typeof AuthenticatedAdminThemeRoute
@@ -256,7 +302,9 @@ export interface FileRoutesByFullPath {
   '/admin/esim/devices': typeof AuthenticatedAdminEsimDevicesRoute
   '/admin/esim/fulfillment': typeof AuthenticatedAdminEsimFulfillmentRoute
   '/admin/esim/provider-import': typeof AuthenticatedAdminEsimProviderImportRoute
+  '/admin/esim/route-presets': typeof AuthenticatedAdminEsimRoutePresetsRoute
   '/admin/lounge/bookings': typeof AuthenticatedAdminLoungeBookingsRoute
+  '/admin/marketing/campaigns': typeof AuthenticatedAdminMarketingCampaignsRoute
   '/admin/smart-finders/esim': typeof AuthenticatedAdminSmartFindersEsimRoute
   '/admin/storefront/home': typeof AuthenticatedAdminStorefrontHomeRoute
   '/admin/storefront/navigation': typeof AuthenticatedAdminStorefrontNavigationRoute
@@ -269,18 +317,22 @@ export interface FileRoutesByTo {
   '/lounge/secenekler': typeof LoungeSeceneklerRoute
   '/esim': typeof EsimIndexRoute
   '/lounge': typeof LoungeIndexRoute
+  '/admin/airports': typeof AuthenticatedAdminAirportsRoute
   '/admin/alerts': typeof AuthenticatedAdminAlertsRoute
   '/admin/analytics': typeof AuthenticatedAdminAnalyticsRoute
   '/admin/audit': typeof AuthenticatedAdminAuditRoute
   '/admin/cms': typeof AuthenticatedAdminCmsRoute
   '/admin/customers': typeof AuthenticatedAdminCustomersRoute
+  '/admin/destinations': typeof AuthenticatedAdminDestinationsRoute
   '/admin/finance': typeof AuthenticatedAdminFinanceRoute
   '/admin/flags': typeof AuthenticatedAdminFlagsRoute
   '/admin/media': typeof AuthenticatedAdminMediaRoute
   '/admin/orders': typeof AuthenticatedAdminOrdersRoute
+  '/admin/pricing-rules': typeof AuthenticatedAdminPricingRulesRoute
   '/admin/products': typeof AuthenticatedAdminProductsRoute
   '/admin/providers': typeof AuthenticatedAdminProvidersRoute
   '/admin/refunds': typeof AuthenticatedAdminRefundsRoute
+  '/admin/service-controls': typeof AuthenticatedAdminServiceControlsRoute
   '/admin/settings': typeof AuthenticatedAdminSettingsRoute
   '/admin/test-catalogue': typeof AuthenticatedAdminTestCatalogueRoute
   '/admin/theme': typeof AuthenticatedAdminThemeRoute
@@ -290,7 +342,9 @@ export interface FileRoutesByTo {
   '/admin/esim/devices': typeof AuthenticatedAdminEsimDevicesRoute
   '/admin/esim/fulfillment': typeof AuthenticatedAdminEsimFulfillmentRoute
   '/admin/esim/provider-import': typeof AuthenticatedAdminEsimProviderImportRoute
+  '/admin/esim/route-presets': typeof AuthenticatedAdminEsimRoutePresetsRoute
   '/admin/lounge/bookings': typeof AuthenticatedAdminLoungeBookingsRoute
+  '/admin/marketing/campaigns': typeof AuthenticatedAdminMarketingCampaignsRoute
   '/admin/smart-finders/esim': typeof AuthenticatedAdminSmartFindersEsimRoute
   '/admin/storefront/home': typeof AuthenticatedAdminStorefrontHomeRoute
   '/admin/storefront/navigation': typeof AuthenticatedAdminStorefrontNavigationRoute
@@ -305,18 +359,22 @@ export interface FileRoutesById {
   '/lounge/secenekler': typeof LoungeSeceneklerRoute
   '/esim/': typeof EsimIndexRoute
   '/lounge/': typeof LoungeIndexRoute
+  '/_authenticated/admin/airports': typeof AuthenticatedAdminAirportsRoute
   '/_authenticated/admin/alerts': typeof AuthenticatedAdminAlertsRoute
   '/_authenticated/admin/analytics': typeof AuthenticatedAdminAnalyticsRoute
   '/_authenticated/admin/audit': typeof AuthenticatedAdminAuditRoute
   '/_authenticated/admin/cms': typeof AuthenticatedAdminCmsRoute
   '/_authenticated/admin/customers': typeof AuthenticatedAdminCustomersRoute
+  '/_authenticated/admin/destinations': typeof AuthenticatedAdminDestinationsRoute
   '/_authenticated/admin/finance': typeof AuthenticatedAdminFinanceRoute
   '/_authenticated/admin/flags': typeof AuthenticatedAdminFlagsRoute
   '/_authenticated/admin/media': typeof AuthenticatedAdminMediaRoute
   '/_authenticated/admin/orders': typeof AuthenticatedAdminOrdersRoute
+  '/_authenticated/admin/pricing-rules': typeof AuthenticatedAdminPricingRulesRoute
   '/_authenticated/admin/products': typeof AuthenticatedAdminProductsRoute
   '/_authenticated/admin/providers': typeof AuthenticatedAdminProvidersRoute
   '/_authenticated/admin/refunds': typeof AuthenticatedAdminRefundsRoute
+  '/_authenticated/admin/service-controls': typeof AuthenticatedAdminServiceControlsRoute
   '/_authenticated/admin/settings': typeof AuthenticatedAdminSettingsRoute
   '/_authenticated/admin/test-catalogue': typeof AuthenticatedAdminTestCatalogueRoute
   '/_authenticated/admin/theme': typeof AuthenticatedAdminThemeRoute
@@ -326,7 +384,9 @@ export interface FileRoutesById {
   '/_authenticated/admin/esim/devices': typeof AuthenticatedAdminEsimDevicesRoute
   '/_authenticated/admin/esim/fulfillment': typeof AuthenticatedAdminEsimFulfillmentRoute
   '/_authenticated/admin/esim/provider-import': typeof AuthenticatedAdminEsimProviderImportRoute
+  '/_authenticated/admin/esim/route-presets': typeof AuthenticatedAdminEsimRoutePresetsRoute
   '/_authenticated/admin/lounge/bookings': typeof AuthenticatedAdminLoungeBookingsRoute
+  '/_authenticated/admin/marketing/campaigns': typeof AuthenticatedAdminMarketingCampaignsRoute
   '/_authenticated/admin/smart-finders/esim': typeof AuthenticatedAdminSmartFindersEsimRoute
   '/_authenticated/admin/storefront/home': typeof AuthenticatedAdminStorefrontHomeRoute
   '/_authenticated/admin/storefront/navigation': typeof AuthenticatedAdminStorefrontNavigationRoute
@@ -341,18 +401,22 @@ export interface FileRouteTypes {
     | '/lounge/secenekler'
     | '/esim/'
     | '/lounge/'
+    | '/admin/airports'
     | '/admin/alerts'
     | '/admin/analytics'
     | '/admin/audit'
     | '/admin/cms'
     | '/admin/customers'
+    | '/admin/destinations'
     | '/admin/finance'
     | '/admin/flags'
     | '/admin/media'
     | '/admin/orders'
+    | '/admin/pricing-rules'
     | '/admin/products'
     | '/admin/providers'
     | '/admin/refunds'
+    | '/admin/service-controls'
     | '/admin/settings'
     | '/admin/test-catalogue'
     | '/admin/theme'
@@ -362,7 +426,9 @@ export interface FileRouteTypes {
     | '/admin/esim/devices'
     | '/admin/esim/fulfillment'
     | '/admin/esim/provider-import'
+    | '/admin/esim/route-presets'
     | '/admin/lounge/bookings'
+    | '/admin/marketing/campaigns'
     | '/admin/smart-finders/esim'
     | '/admin/storefront/home'
     | '/admin/storefront/navigation'
@@ -375,18 +441,22 @@ export interface FileRouteTypes {
     | '/lounge/secenekler'
     | '/esim'
     | '/lounge'
+    | '/admin/airports'
     | '/admin/alerts'
     | '/admin/analytics'
     | '/admin/audit'
     | '/admin/cms'
     | '/admin/customers'
+    | '/admin/destinations'
     | '/admin/finance'
     | '/admin/flags'
     | '/admin/media'
     | '/admin/orders'
+    | '/admin/pricing-rules'
     | '/admin/products'
     | '/admin/providers'
     | '/admin/refunds'
+    | '/admin/service-controls'
     | '/admin/settings'
     | '/admin/test-catalogue'
     | '/admin/theme'
@@ -396,7 +466,9 @@ export interface FileRouteTypes {
     | '/admin/esim/devices'
     | '/admin/esim/fulfillment'
     | '/admin/esim/provider-import'
+    | '/admin/esim/route-presets'
     | '/admin/lounge/bookings'
+    | '/admin/marketing/campaigns'
     | '/admin/smart-finders/esim'
     | '/admin/storefront/home'
     | '/admin/storefront/navigation'
@@ -410,18 +482,22 @@ export interface FileRouteTypes {
     | '/lounge/secenekler'
     | '/esim/'
     | '/lounge/'
+    | '/_authenticated/admin/airports'
     | '/_authenticated/admin/alerts'
     | '/_authenticated/admin/analytics'
     | '/_authenticated/admin/audit'
     | '/_authenticated/admin/cms'
     | '/_authenticated/admin/customers'
+    | '/_authenticated/admin/destinations'
     | '/_authenticated/admin/finance'
     | '/_authenticated/admin/flags'
     | '/_authenticated/admin/media'
     | '/_authenticated/admin/orders'
+    | '/_authenticated/admin/pricing-rules'
     | '/_authenticated/admin/products'
     | '/_authenticated/admin/providers'
     | '/_authenticated/admin/refunds'
+    | '/_authenticated/admin/service-controls'
     | '/_authenticated/admin/settings'
     | '/_authenticated/admin/test-catalogue'
     | '/_authenticated/admin/theme'
@@ -431,7 +507,9 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/esim/devices'
     | '/_authenticated/admin/esim/fulfillment'
     | '/_authenticated/admin/esim/provider-import'
+    | '/_authenticated/admin/esim/route-presets'
     | '/_authenticated/admin/lounge/bookings'
+    | '/_authenticated/admin/marketing/campaigns'
     | '/_authenticated/admin/smart-finders/esim'
     | '/_authenticated/admin/storefront/home'
     | '/_authenticated/admin/storefront/navigation'
@@ -513,6 +591,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/admin/airports': {
+      id: '/_authenticated/admin/airports'
+      path: '/admin/airports'
+      fullPath: '/admin/airports'
+      preLoaderRoute: typeof AuthenticatedAdminAirportsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/admin/alerts': {
       id: '/_authenticated/admin/alerts'
       path: '/admin/alerts'
@@ -548,6 +633,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminCustomersRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/admin/destinations': {
+      id: '/_authenticated/admin/destinations'
+      path: '/admin/destinations'
+      fullPath: '/admin/destinations'
+      preLoaderRoute: typeof AuthenticatedAdminDestinationsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/admin/finance': {
       id: '/_authenticated/admin/finance'
       path: '/admin/finance'
@@ -576,6 +668,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminOrdersRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/admin/pricing-rules': {
+      id: '/_authenticated/admin/pricing-rules'
+      path: '/admin/pricing-rules'
+      fullPath: '/admin/pricing-rules'
+      preLoaderRoute: typeof AuthenticatedAdminPricingRulesRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/admin/products': {
       id: '/_authenticated/admin/products'
       path: '/admin/products'
@@ -595,6 +694,13 @@ declare module '@tanstack/react-router' {
       path: '/admin/refunds'
       fullPath: '/admin/refunds'
       preLoaderRoute: typeof AuthenticatedAdminRefundsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/admin/service-controls': {
+      id: '/_authenticated/admin/service-controls'
+      path: '/admin/service-controls'
+      fullPath: '/admin/service-controls'
+      preLoaderRoute: typeof AuthenticatedAdminServiceControlsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/admin/settings': {
@@ -653,11 +759,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminEsimProviderImportRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/admin/esim/route-presets': {
+      id: '/_authenticated/admin/esim/route-presets'
+      path: '/admin/esim/route-presets'
+      fullPath: '/admin/esim/route-presets'
+      preLoaderRoute: typeof AuthenticatedAdminEsimRoutePresetsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/admin/lounge/bookings': {
       id: '/_authenticated/admin/lounge/bookings'
       path: '/admin/lounge/bookings'
       fullPath: '/admin/lounge/bookings'
       preLoaderRoute: typeof AuthenticatedAdminLoungeBookingsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/admin/marketing/campaigns': {
+      id: '/_authenticated/admin/marketing/campaigns'
+      path: '/admin/marketing/campaigns'
+      fullPath: '/admin/marketing/campaigns'
+      preLoaderRoute: typeof AuthenticatedAdminMarketingCampaignsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/admin/smart-finders/esim': {
@@ -685,18 +805,22 @@ declare module '@tanstack/react-router' {
 }
 
 interface AuthenticatedRouteRouteChildren {
+  AuthenticatedAdminAirportsRoute: typeof AuthenticatedAdminAirportsRoute
   AuthenticatedAdminAlertsRoute: typeof AuthenticatedAdminAlertsRoute
   AuthenticatedAdminAnalyticsRoute: typeof AuthenticatedAdminAnalyticsRoute
   AuthenticatedAdminAuditRoute: typeof AuthenticatedAdminAuditRoute
   AuthenticatedAdminCmsRoute: typeof AuthenticatedAdminCmsRoute
   AuthenticatedAdminCustomersRoute: typeof AuthenticatedAdminCustomersRoute
+  AuthenticatedAdminDestinationsRoute: typeof AuthenticatedAdminDestinationsRoute
   AuthenticatedAdminFinanceRoute: typeof AuthenticatedAdminFinanceRoute
   AuthenticatedAdminFlagsRoute: typeof AuthenticatedAdminFlagsRoute
   AuthenticatedAdminMediaRoute: typeof AuthenticatedAdminMediaRoute
   AuthenticatedAdminOrdersRoute: typeof AuthenticatedAdminOrdersRoute
+  AuthenticatedAdminPricingRulesRoute: typeof AuthenticatedAdminPricingRulesRoute
   AuthenticatedAdminProductsRoute: typeof AuthenticatedAdminProductsRoute
   AuthenticatedAdminProvidersRoute: typeof AuthenticatedAdminProvidersRoute
   AuthenticatedAdminRefundsRoute: typeof AuthenticatedAdminRefundsRoute
+  AuthenticatedAdminServiceControlsRoute: typeof AuthenticatedAdminServiceControlsRoute
   AuthenticatedAdminSettingsRoute: typeof AuthenticatedAdminSettingsRoute
   AuthenticatedAdminTestCatalogueRoute: typeof AuthenticatedAdminTestCatalogueRoute
   AuthenticatedAdminThemeRoute: typeof AuthenticatedAdminThemeRoute
@@ -706,25 +830,32 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminEsimDevicesRoute: typeof AuthenticatedAdminEsimDevicesRoute
   AuthenticatedAdminEsimFulfillmentRoute: typeof AuthenticatedAdminEsimFulfillmentRoute
   AuthenticatedAdminEsimProviderImportRoute: typeof AuthenticatedAdminEsimProviderImportRoute
+  AuthenticatedAdminEsimRoutePresetsRoute: typeof AuthenticatedAdminEsimRoutePresetsRoute
   AuthenticatedAdminLoungeBookingsRoute: typeof AuthenticatedAdminLoungeBookingsRoute
+  AuthenticatedAdminMarketingCampaignsRoute: typeof AuthenticatedAdminMarketingCampaignsRoute
   AuthenticatedAdminSmartFindersEsimRoute: typeof AuthenticatedAdminSmartFindersEsimRoute
   AuthenticatedAdminStorefrontHomeRoute: typeof AuthenticatedAdminStorefrontHomeRoute
   AuthenticatedAdminStorefrontNavigationRoute: typeof AuthenticatedAdminStorefrontNavigationRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedAdminAirportsRoute: AuthenticatedAdminAirportsRoute,
   AuthenticatedAdminAlertsRoute: AuthenticatedAdminAlertsRoute,
   AuthenticatedAdminAnalyticsRoute: AuthenticatedAdminAnalyticsRoute,
   AuthenticatedAdminAuditRoute: AuthenticatedAdminAuditRoute,
   AuthenticatedAdminCmsRoute: AuthenticatedAdminCmsRoute,
   AuthenticatedAdminCustomersRoute: AuthenticatedAdminCustomersRoute,
+  AuthenticatedAdminDestinationsRoute: AuthenticatedAdminDestinationsRoute,
   AuthenticatedAdminFinanceRoute: AuthenticatedAdminFinanceRoute,
   AuthenticatedAdminFlagsRoute: AuthenticatedAdminFlagsRoute,
   AuthenticatedAdminMediaRoute: AuthenticatedAdminMediaRoute,
   AuthenticatedAdminOrdersRoute: AuthenticatedAdminOrdersRoute,
+  AuthenticatedAdminPricingRulesRoute: AuthenticatedAdminPricingRulesRoute,
   AuthenticatedAdminProductsRoute: AuthenticatedAdminProductsRoute,
   AuthenticatedAdminProvidersRoute: AuthenticatedAdminProvidersRoute,
   AuthenticatedAdminRefundsRoute: AuthenticatedAdminRefundsRoute,
+  AuthenticatedAdminServiceControlsRoute:
+    AuthenticatedAdminServiceControlsRoute,
   AuthenticatedAdminSettingsRoute: AuthenticatedAdminSettingsRoute,
   AuthenticatedAdminTestCatalogueRoute: AuthenticatedAdminTestCatalogueRoute,
   AuthenticatedAdminThemeRoute: AuthenticatedAdminThemeRoute,
@@ -736,7 +867,11 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
     AuthenticatedAdminEsimFulfillmentRoute,
   AuthenticatedAdminEsimProviderImportRoute:
     AuthenticatedAdminEsimProviderImportRoute,
+  AuthenticatedAdminEsimRoutePresetsRoute:
+    AuthenticatedAdminEsimRoutePresetsRoute,
   AuthenticatedAdminLoungeBookingsRoute: AuthenticatedAdminLoungeBookingsRoute,
+  AuthenticatedAdminMarketingCampaignsRoute:
+    AuthenticatedAdminMarketingCampaignsRoute,
   AuthenticatedAdminSmartFindersEsimRoute:
     AuthenticatedAdminSmartFindersEsimRoute,
   AuthenticatedAdminStorefrontHomeRoute: AuthenticatedAdminStorefrontHomeRoute,
