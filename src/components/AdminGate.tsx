@@ -62,8 +62,10 @@ const groups: AdminGroup[] = [
     { to: "/admin/flags", label: "Özellik bayrakları", icon: Flag },
     { to: "/admin/audit", label: "Denetim kaydı", icon: ShieldCheck },
     { to: "/admin/settings", label: "Ayarlar", icon: Settings },
+    { to: "/admin/settings/users", label: "Admin Kullanıcıları", icon: Users },
   ]},
 ];
+
 
 export function AdminGate({ title, children }: { title: string; children: ReactNode }) {
   const { data, isPending } = useQuery({ queryKey: ["access"], queryFn: () => getMyAccess() });
