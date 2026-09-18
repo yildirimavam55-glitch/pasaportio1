@@ -247,6 +247,11 @@ function PackageCard({ pkg, isRecommended, isSelected, onSelect, whyText, copy }
         {pkg.supportsHotspot && <li className="flex items-center gap-1.5"><Wifi className="size-4 text-primary" />{copy.hotspot}</li>}
       </ul>
       <strong className="mt-4 block text-xl">{new Intl.NumberFormat(undefined, { style: "currency", currency: pkg.currency }).format(price)}</strong>
+      {activationNote(pkg.activationPolicy, locale) && (
+        <p className="mt-1 text-xs text-muted-foreground">{activationNote(pkg.activationPolicy, locale)}</p>
+      )}
+      {pkg.unlimited && pkg.fairUseNote && <p className="mt-1 text-xs text-muted-foreground">{pkg.fairUseNote}</p>}
+
       {isRecommended && (
         <div className="mt-2">
           <button type="button" className="inline-flex items-center gap-1 text-sm font-semibold text-primary" onClick={() => setShowWhy((open) => !open)} aria-expanded={showWhy}>
