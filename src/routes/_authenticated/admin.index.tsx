@@ -1,498 +1,73 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
-import {
-  Area,
-  AreaChart,
-  Bar,
-  BarChart,
-  CartesianGrid,
-  Legend,
-  Line,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-  YAxis,
-} from "recharts";
-import { AlertTriangle, ArrowRight, Boxes, ClipboardList, CloudUpload, LoaderCircle, PlugZap, SlidersHorizontal, Smartphone, Users, FlaskConical } from "lucide-react";
-
+import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
+import { AlertTriangle, ArrowRight, Boxes, CalendarDays, CircleDollarSign, ClipboardList, Plane, RadioTower, Users } from "lucide-react";
 import { AdminGate } from "@/components/AdminGate";
+import { AdminError, AdminLoading, AdminPanel, AdminTable, EmptyState, Metric, StatusBadge } from "@/components/admin/AdminUi";
+import { adminHead } from "@/components/admin/AdminSectionPage";
 import { Button } from "@/components/ui/button";
 import { getBusinessDashboard } from "@/lib/admin-analytics.functions";
 import { resolveRange, type DateRangeKey } from "@/domain/analytics/dashboard";
 
-export const Route = createFileRoute("/_authenticated/admin/")({ component: AdminDashboard });
+type ServiceContext = "all" | "esim" | "lounge";
+export const Route = createFileRoute("/_authenticated/admin/")({
+  validateSearch: (search: Record<string, unknown>): { service: ServiceContext } => ({ service: search.service === "esim" || search.service === "lounge" ? search.service : "all" }),
+  head: () => adminHead("İş kontrol merkezi", "Genel, eSIM ve Lounge işletme performansı."),
+  component: Dashboard,
+});
 
-const RANGES: Array<{ key: DateRangeKey; label: string }> = [
-  { key: "today", label: "Bugün" },
-  { key: "yesterday", label: "Dün" },
-  { key: "last7", label: "Son 7 gün" },
-  { key: "last30", label: "Son 30 gün" },
-  { key: "thisMonth", label: "Bu ay" },
-  { key: "lastMonth", label: "Geçen ay" },
-  { key: "custom", label: "Özel tarih" },
+const ranges: Array<{ key: DateRangeKey; label: string }> = [
+  { key: "today", label: "Bugün" }, { key: "yesterday", label: "Dün" }, { key: "last7", label: "Son 7 gün" },
+  { key: "last30", label: "Son 30 gün" }, { key: "thisMonth", label: "Bu ay" }, { key: "custom", label: "Özel" },
 ];
+const labels: Record<string,string> = { PAID_NOT_FULFILLED:"Ödendi, teslim edilmedi", PROVIDER_ERROR:"Provider hatası", PROVISIONING_DELAYED:"Provisioning gecikti", WEBHOOK_FAILED:"Webhook başarısız", QR_DELIVERY_FAILED:"QR teslimi başarısız", VOUCHER_DELIVERY_FAILED:"Voucher teslimi başarısız", CATALOGUE_SYNC_FAILED:"Katalog senkronu başarısız", CATALOGUE_STALE:"Katalog güncel değil", LOW_PROVIDER_BALANCE:"Provider bakiyesi düşük", MARGIN_BELOW_MINIMUM:"Marj minimum altında", REFUND_REQUEST:"İade talebi" };
+const serviceAlerts = { all: Object.keys(labels), esim: ["PAID_NOT_FULFILLED","PROVIDER_ERROR","PROVISIONING_DELAYED","WEBHOOK_FAILED","QR_DELIVERY_FAILED","CATALOGUE_SYNC_FAILED","CATALOGUE_STALE","LOW_PROVIDER_BALANCE","MARGIN_BELOW_MINIMUM","REFUND_REQUEST"], lounge: ["PAID_NOT_FULFILLED","PROVIDER_ERROR","WEBHOOK_FAILED","VOUCHER_DELIVERY_FAILED","CATALOGUE_SYNC_FAILED","CATALOGUE_STALE","LOW_PROVIDER_BALANCE","MARGIN_BELOW_MINIMUM","REFUND_REQUEST"] };
+const field = "admin-field";
+const money = (value:number,currency="EUR") => `${value.toFixed(2)} ${currency}`;
+const pct = (value:number|null|undefined) => value==null?"—":`${(value*100).toFixed(1)}%`;
 
-const ALERT_LABELS: Record<string, string> = {
-  PAID_NOT_FULFILLED: "Ödendi, teslim edilmedi",
-  PROVIDER_ERROR: "Provider hatası",
-  CATALOGUE_SYNC_FAILED: "Katalog senkron hatası",
-  CATALOGUE_STALE: "Katalog güncel değil",
-  LOW_PROVIDER_BALANCE: "Düşük provider bakiyesi",
-  MARGIN_BELOW_MINIMUM: "Marj minimum altında",
-  QR_DELIVERY_FAILED: "QR teslimi başarısız",
-  VOUCHER_DELIVERY_FAILED: "Voucher teslimi başarısız",
-  REFUND_REQUEST: "İade talebi",
-};
-
-const SOURCES = [
-  "GOOGLE_ADS",
-  "META",
-  "TIKTOK",
-  "GOOGLE_ORGANIC",
-  "DIRECT",
-  "CRM",
-  "EMAIL",
-  "WHATSAPP",
-  "AFFILIATE",
-  "PARTNER",
-  "UNKNOWN",
-] as const;
-
-const quickLinks = [
-  { to: "/admin/orders", label: "Siparişler", icon: ClipboardList },
-  { to: "/admin/customers", label: "Müşteriler", icon: Users },
-  { to: "/admin/products", label: "Ürünler", icon: Boxes },
-  { to: "/admin/providers", label: "Provider Hub", icon: PlugZap },
-  { to: "/admin/esim/provider-import", label: "Gerçek provider verisi", icon: CloudUpload },
-  { to: "/admin/smart-finders/esim", label: "Smart Finders", icon: SlidersHorizontal },
-  { to: "/admin/esim/devices", label: "Cihaz uyumluluğu", icon: Smartphone },
-  { to: "/admin/test-catalogue", label: "Test kataloğu", icon: FlaskConical },
-] as const;
-
-const field = "min-h-10 rounded-xl border border-border bg-background px-3 text-sm";
-const card = "rounded-card border border-border bg-card p-4 shadow-card";
-
-function money(value: number, currency = "EUR") {
-  return `${value.toFixed(2)} ${currency}`;
-}
-function percent(value: number | null) {
-  return value == null ? "—" : `${(value * 100).toFixed(1)}%`;
-}
-
-function AdminDashboard() {
-  const [rangeKey, setRangeKey] = useState<DateRangeKey>("last30");
-  const preset = useMemo(() => resolveRange(rangeKey, new Date()), [rangeKey]);
-  const [custom, setCustom] = useState(preset);
-  const range = rangeKey === "custom" ? custom : preset;
-
-  const [serviceType, setServiceType] = useState<"ALL" | "ESIM" | "LOUNGE">("ALL");
-  const [source, setSource] = useState("");
-  const [campaign, setCampaign] = useState("");
-  const [locale, setLocale] = useState("");
-  const [customerCountry, setCustomerCountry] = useState("");
-  const [destination, setDestination] = useState("");
-  const [compare, setCompare] = useState(true);
-
-  const filters = {
-    from: range.from,
-    to: range.to,
-    serviceType,
-    source: source || undefined,
-    campaign: campaign || undefined,
-    locale: locale || undefined,
-    customerCountry: customerCountry || undefined,
-    destination: destination || undefined,
-    compare,
-  };
-
-  const dashboard = useQuery({
-    queryKey: ["business-dashboard", filters],
-    queryFn: () => getBusinessDashboard({ data: filters }),
-  });
-
-  const data = dashboard.data;
-  const kpis = data?.kpis;
-  const currency = kpis?.currency ?? "EUR";
-  const noSales = !kpis || kpis.orders === 0;
-
-  const chartData = (data?.series ?? []).map((point, index) => ({
-    ...point,
-    previousRevenue: data?.previousSeries?.[index]?.revenue ?? 0,
-  }));
-
-  const kpiCards = [
-    { label: "Ciro", value: kpis ? money(kpis.grossRevenue, currency) : "—" },
-    { label: "Sipariş sayısı", value: kpis?.orders ?? "—" },
-    { label: "Satılan hizmet", value: kpis?.servicesSold ?? "—" },
-    { label: "eSIM satışları", value: kpis?.esimSales ?? "—" },
-    { label: "Lounge rezervasyonları", value: kpis?.loungeBookings ?? "—" },
-    { label: "Provider maliyeti", value: kpis ? money(kpis.providerCost, currency) : "—" },
-    { label: "Ödeme komisyonları", value: kpis ? money(kpis.paymentFees, currency) : "—" },
-    { label: "İndirimler", value: kpis ? money(kpis.discounts, currency) : "—" },
-    { label: "İadeler", value: kpis ? money(kpis.refunds, currency) : "—" },
-    { label: "Brüt katkı", value: kpis ? money(kpis.grossContribution, currency) : "—", highlight: true },
-    { label: "Ortalama sepet", value: kpis ? money(kpis.averageOrderValue, currency) : "—" },
-    { label: "Dönüşüm oranı", value: percent(kpis?.conversionRate ?? null) },
-    { label: "Tekrar satın alma", value: percent(kpis?.repeatPurchaseRate ?? null) },
+function Dashboard(){
+  const navigate=Route.useNavigate(); const {service}=Route.useSearch();
+  const [rangeKey,setRangeKey]=useState<DateRangeKey>("last30"); const preset=useMemo(()=>resolveRange(rangeKey,new Date()),[rangeKey]); const [custom,setCustom]=useState(preset); const range=rangeKey==="custom"?custom:preset;
+  const [compare,setCompare]=useState(true); const [metric,setMetric]=useState<"revenue"|"grossContribution"|"orders">("revenue");
+  const serviceType=service==="esim"?"ESIM":service==="lounge"?"LOUNGE":"ALL";
+  const filters={from:range.from,to:range.to,serviceType:serviceType as "ALL"|"ESIM"|"LOUNGE",compare};
+  const q=useQuery({queryKey:["business-dashboard",filters],queryFn:()=>getBusinessDashboard({data:filters})}); const data=q.data; const k=data?.kpis; const currency=k?.currency??"EUR";
+  const prev=data?.previousKpis; const delta=(now:number,old:number|undefined)=>!compare||!old?"Karşılaştırma verisi yok":`${now>=old?"+":""}${(((now-old)/old)*100).toFixed(1)}% önceki dönem`;
+  const margin=k&&k.grossRevenue>0?k.grossContribution/k.grossRevenue:null;
+  const serviceRow=data?.byService.find((row:any)=>row.serviceType===serviceType);
+  const title=service==="esim"?"eSIM performansı":service==="lounge"?"Lounge performansı":"Genel işletme görünümü";
+  const chart=(data?.series??[]).map((point:any,index:number)=>({...point,previous:data?.previousSeries?.[index]?.[metric]??0}));
+  const cards=service==="all"?[
+    ["Ciro",k?money(k.grossRevenue,currency):"—",k&&prev?delta(k.grossRevenue,prev.grossRevenue):undefined],["Sipariş",k?.orders??"—",k&&prev?delta(k.orders,prev.orders):undefined],["Provider maliyeti",k?money(k.providerCost,currency):"—"],["Brüt kâr",k?money(k.grossContribution,currency):"—"],["Brüt marj",pct(margin)],["Ortalama sepet",k?money(k.averageOrderValue,currency):"—"],["Dönüşüm",pct(k?.conversionRate)],["Tekrar satın alma",pct(k?.repeatPurchaseRate)]
+  ]:service==="esim"?[
+    ["eSIM ciro",money(serviceRow?.revenue??0,currency)],["eSIM sipariş",serviceRow?.orders??0],["Satılan eSIM",k?.servicesSold??0],["Provider maliyeti",money(serviceRow?.providerCost??0,currency)],["Brüt kâr",money(serviceRow?.grossContribution??0,currency)],["Brüt marj",pct(serviceRow&&serviceRow.revenue>0?serviceRow.grossContribution/serviceRow.revenue:null)],["Provisioning başarısı","—","Güvenilir durum verisi bekleniyor"],["QR teslim başarısı","—","Teslimat olayı bekleniyor"]
+  ]:[
+    ["Lounge ciro",money(serviceRow?.revenue??0,currency)],["Rezervasyon",serviceRow?.orders??0],["Misafir",data?.lounge.averageTravelers==null?"—":data.lounge.averageTravelers.toFixed(1)],["Provider maliyeti",money(serviceRow?.providerCost??0,currency)],["Brüt kâr",money(serviceRow?.grossContribution??0,currency)],["Brüt marj",pct(serviceRow&&serviceRow.revenue>0?serviceRow.grossContribution/serviceRow.revenue:null)],["Rezervasyon başarısı","—","Güvenilir durum verisi bekleniyor"],["Voucher başarısı","—","Teslimat olayı bekleniyor"]
   ];
-
-  return (
-    <AdminGate title="İş panosu">
-      <div className="grid min-w-0 gap-4">
-        <section className={card}>
-          <div className="flex flex-wrap gap-2">
-            {RANGES.map((item) => (
-              <button
-                key={item.key}
-                type="button"
-                onClick={() => setRangeKey(item.key)}
-                aria-pressed={rangeKey === item.key}
-                className={`min-h-10 rounded-xl border px-3 text-sm font-semibold transition ${
-                  rangeKey === item.key ? "border-primary bg-primary text-primary-foreground" : "border-border"
-                }`}
-              >
-                {item.label}
-              </button>
-            ))}
-          </div>
-          {rangeKey === "custom" && (
-            <div className="mt-3 flex flex-wrap items-center gap-2">
-              <input
-                type="date"
-                aria-label="Başlangıç"
-                className={field}
-                value={custom.from}
-                onChange={(event) => setCustom((s) => ({ ...s, from: event.target.value }))}
-              />
-              <span className="text-sm text-muted-foreground">—</span>
-              <input
-                type="date"
-                aria-label="Bitiş"
-                className={field}
-                value={custom.to}
-                onChange={(event) => setCustom((s) => ({ ...s, to: event.target.value }))}
-              />
-            </div>
-          )}
-          <div className="mt-3 grid gap-2 sm:grid-cols-3 lg:grid-cols-6">
-            <select aria-label="Servis" className={field} value={serviceType} onChange={(e) => setServiceType(e.target.value as typeof serviceType)}>
-              <option value="ALL">Tüm servisler</option>
-              <option value="ESIM">eSIM</option>
-              <option value="LOUNGE">Lounge</option>
-            </select>
-            <select aria-label="Trafik kaynağı" className={field} value={source} onChange={(e) => setSource(e.target.value)}>
-              <option value="">Tüm kaynaklar</option>
-              {SOURCES.map((item) => <option key={item} value={item}>{item}</option>)}
-            </select>
-            <input aria-label="Kampanya" className={field} placeholder="Kampanya (utm_campaign)" value={campaign} onChange={(e) => setCampaign(e.target.value)} />
-            <select aria-label="Dil" className={field} value={locale} onChange={(e) => setLocale(e.target.value)}>
-              <option value="">Tüm diller</option>
-              <option value="tr">TR</option>
-              <option value="de">DE</option>
-              <option value="en">EN</option>
-            </select>
-            <input aria-label="Müşteri ülkesi" className={field} placeholder="Müşteri ülkesi (ISO)" value={customerCountry} onChange={(e) => setCustomerCountry(e.target.value)} />
-            <input aria-label="Seyahat destinasyonu" className={field} placeholder="Seyahat destinasyonu" value={destination} onChange={(e) => setDestination(e.target.value)} />
-          </div>
-          <label className="mt-3 flex items-center gap-2 text-sm">
-            <input type="checkbox" checked={compare} onChange={(event) => setCompare(event.target.checked)} />
-            Önceki dönemle karşılaştır
-          </label>
-          <p className="mt-2 text-xs text-muted-foreground">
-            Dönem: {range.from} → {range.to}
-            {data?.previousRange ? ` · Karşılaştırma: ${data.previousRange.from} → ${data.previousRange.to}` : ""}
-          </p>
-        </section>
-
-        {dashboard.isPending && (
-          <p className="flex items-center gap-2 text-sm text-muted-foreground"><LoaderCircle className="size-4 animate-spin" /> Veriler yükleniyor…</p>
-        )}
-        {dashboard.isError && (
-          <p className="flex items-center gap-2 text-sm font-semibold text-destructive"><AlertTriangle className="size-4" /> {(dashboard.error as Error).message}</p>
-        )}
-
-        {noSales && !dashboard.isPending && (
-          <p className={`${card} text-sm font-semibold`}>Henüz satış yok.</p>
-        )}
-
-        <section className="grid min-w-0 gap-3 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5">
-          {kpiCards.map((item) => (
-            <div key={item.label} className={`${card} ${item.highlight ? "border-primary/50" : ""}`}>
-              <span className="text-xs font-semibold text-muted-foreground">{item.label}</span>
-              <strong className="mt-1 block font-display text-xl">{item.value}</strong>
-            </div>
-          ))}
-        </section>
-        <p className="text-xs text-muted-foreground">
-          Ciro kâr değildir. Provider maliyeti, ödeme komisyonu, indirim ve iadeler ciroyla aynı satırda gösterilmez; brüt katkı ayrı hesaplanır.
-        </p>
-
-        <section className={card}>
-          <h2 className="font-display text-lg font-bold">Ciro ve brüt katkı — zaman içinde</h2>
-          <div className="mt-3 h-64 w-full">
-            <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={chartData}>
-                <CartesianGrid strokeDasharray="3 3" opacity={0.25} />
-                <XAxis dataKey="date" tick={{ fontSize: 11 }} minTickGap={24} />
-                <YAxis tick={{ fontSize: 11 }} width={44} />
-                <Tooltip />
-                <Legend />
-                <Area name="Ciro" type="monotone" dataKey="revenue" stroke="hsl(var(--primary))" fill="hsl(var(--primary))" fillOpacity={0.15} />
-                <Area name="Brüt katkı" type="monotone" dataKey="grossContribution" stroke="hsl(var(--accent))" fill="hsl(var(--accent))" fillOpacity={0.12} />
-                {compare && <Line name="Önceki dönem cirosu" type="monotone" dataKey="previousRevenue" stroke="hsl(var(--muted-foreground))" dot={false} />}
-              </AreaChart>
-            </ResponsiveContainer>
-          </div>
-          <div className="mt-3 h-40 w-full">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={chartData}>
-                <CartesianGrid strokeDasharray="3 3" opacity={0.25} />
-                <XAxis dataKey="date" tick={{ fontSize: 11 }} minTickGap={24} />
-                <YAxis tick={{ fontSize: 11 }} width={44} allowDecimals={false} />
-                <Tooltip />
-                <Bar name="Sipariş" dataKey="orders" fill="hsl(var(--primary))" radius={4} />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-        </section>
-
-        <div className="grid min-w-0 gap-4 xl:grid-cols-2">
-          <Panel title="Servise göre satış">
-            <Table
-              head={["Servis", "Sipariş", "Ciro", "Provider maliyeti", "Brüt katkı"]}
-              rows={(data?.byService ?? []).map((row) => [
-                row.serviceType === "ESIM" ? "eSIM" : "Lounge",
-                row.orders,
-                money(row.revenue, currency),
-                money(row.providerCost, currency),
-                money(row.grossContribution, currency),
-              ])}
-              empty="Henüz satış yok."
-            />
-          </Panel>
-
-          <Panel title="Trafik kaynağı performansı">
-            <Table
-              head={["Kaynak", "Ziyaret", "Finder", "Satın alma", "Ciro", "Brüt katkı"]}
-              rows={(data?.bySource ?? []).map((row) => [
-                row.source,
-                row.visits,
-                row.finderStarts,
-                row.purchases,
-                money(row.revenue, currency),
-                money(row.grossContribution, currency),
-              ])}
-              empty="Henüz trafik verisi yok."
-            />
-            <div className="mt-3 grid gap-3 sm:grid-cols-2">
-              <MiniList title="İlk temas (first touch)" rows={data?.firstTouch ?? []} empty="Veri yok." />
-              <MiniList title="Son temas (last touch)" rows={data?.lastTouch ?? []} empty="Veri yok." />
-            </div>
-          </Panel>
-
-          <Panel title="Finder hunisi">
-            <Table
-              head={["Adım", "Sayı", "Dönüşüm", "Kayıp"]}
-              rows={(data?.funnel ?? []).map((step) => [step.label, step.count, percent(step.conversionRate), percent(step.dropOffRate)])}
-              empty="Henüz etkinlik verisi yok."
-            />
-          </Panel>
-
-          <Panel title="Kampanya performansı">
-            <Table
-              head={["Kampanya", "Kaynak", "Ziyaretçi", "Finder", "Sipariş", "Dönüşüm", "Ciro", "Provider maliyeti", "Brüt katkı", "Servis", "Destinasyon"]}
-              rows={(data?.campaigns ?? []).map((row) => [
-                row.campaign,
-                row.source,
-                row.visitors,
-                row.finderStarts,
-                row.orders,
-                percent(row.conversionRate),
-                money(row.revenue, currency),
-                money(row.providerCost, currency),
-                money(row.grossContribution, currency),
-                row.topService ?? "—",
-                row.topDestination ?? "—",
-              ])}
-              empty="Henüz kampanya verisi yok."
-            />
-          </Panel>
-
-          <Panel title="En çok satan ürünler">
-            <Table
-              head={["Ürün", "Servis", "Destinasyon/Havalimanı", "Sipariş", "Ciro", "Provider maliyeti", "Brüt katkı"]}
-              rows={(data?.topProducts ?? []).map((row) => [
-                row.product,
-                row.serviceType === "ESIM" ? "eSIM" : "Lounge",
-                row.place ?? "—",
-                row.orders,
-                money(row.revenue, currency),
-                money(row.providerCost, currency),
-                money(row.grossContribution, currency),
-              ])}
-              empty="Henüz satış yok."
-            />
-          </Panel>
-
-          <Panel title="Destinasyon ve müşteri ülkesi">
-            <div className="grid gap-3 sm:grid-cols-2">
-              <MiniList
-                title="Seyahat destinasyonları"
-                rows={(data?.topTravelDestinations ?? []).map((row) => ({ label: row.label, count: row.count }))}
-                empty="Henüz satış yok."
-              />
-              <MiniList
-                title="Müşteri ülkeleri"
-                rows={(data?.topCustomerCountries ?? []).map((row) => ({ label: row.label, count: row.count }))}
-                empty="Henüz satış yok."
-              />
-            </div>
-          </Panel>
-
-          <Panel title="eSIM analitiği">
-            <div className="grid gap-3 sm:grid-cols-2">
-              <MiniList title="Destinasyonlar" rows={data?.esim.topDestinations ?? []} empty="Veri yok." />
-              <MiniList title="Bölgeler" rows={data?.esim.topRegions ?? []} empty="Veri yok." />
-              <MiniList title="Önerilen GB" rows={data?.esim.topRecommendedGb ?? []} empty="Veri yok." />
-              <MiniList title="Satın alınan GB" rows={data?.esim.topPurchasedGb ?? []} empty="Veri yok." />
-            </div>
-            <p className="mt-2 text-xs text-muted-foreground">Uyumluluk kontrolü açılışı: {data?.esim.compatibilityChecks ?? 0}</p>
-          </Panel>
-
-          <Panel title="Lounge analitiği">
-            <div className="grid gap-3 sm:grid-cols-2">
-              <MiniList title="Havalimanları" rows={data?.lounge.topAirports ?? []} empty="Veri yok." />
-              <MiniList title="Lounge’lar" rows={data?.lounge.topLounges ?? []} empty="Veri yok." />
-              <MiniList title="Kalkış / Aktarma / Varış" rows={data?.lounge.situations ?? []} empty="Veri yok." />
-            </div>
-            <p className="mt-2 text-xs text-muted-foreground">
-              Ortalama yolcu: {data?.lounge.averageTravelers == null ? "—" : data.lounge.averageTravelers.toFixed(1)}
-            </p>
-          </Panel>
-
-          <Panel title="Rota analitiği">
-            <div className="grid gap-3 sm:grid-cols-3">
-              <MiniList title="Rota modu" rows={data?.routes.modes ?? []} empty="Veri yok." />
-              <MiniList title="Rota presetleri" rows={data?.routes.presets ?? []} empty="Veri yok." />
-              <MiniList title="Seçilen ülkeler" rows={data?.routes.countries ?? []} empty="Veri yok." />
-            </div>
-            <p className="mt-2 text-xs text-muted-foreground">Raporlar yalnızca toplulaştırılmıştır; kişisel seyahat planı gösterilmez.</p>
-          </Panel>
-
-          <Panel title="Çapraz satış">
-            <Table
-              head={["Yön", "Görüntülenme", "Tıklama", "Satın alma", "Ciro"]}
-              rows={(data?.crossSell ?? []).map((row) => [
-                row.direction === "ESIM_TO_LOUNGE" ? "eSIM → Lounge" : "Lounge → eSIM",
-                row.viewed,
-                row.clicked,
-                row.purchased,
-                money(row.revenue, currency),
-              ])}
-              empty="Veri yok."
-            />
-            <p className="mt-2 text-xs text-muted-foreground">Tıklamalar dönüşüm olarak sayılmaz.</p>
-          </Panel>
-
-          <Panel title="Dikkat gerektirenler">
-            <ul className="grid gap-2 sm:grid-cols-2">
-              {Object.entries(ALERT_LABELS).map(([key, label]) => (
-                <li key={key} className="flex items-center justify-between rounded-xl border border-border px-3 py-2 text-sm">
-                  <span>{label}</span>
-                  <strong className={data?.alertCounts?.[key] ? "text-destructive" : "text-muted-foreground"}>
-                    {data?.alertCounts?.[key] ?? 0}
-                  </strong>
-                </li>
-              ))}
-            </ul>
-          </Panel>
-
-          <Panel title="Son katalog içe aktarımı">
-            {data?.lastImport ? (
-              <ul className="grid gap-1 text-sm">
-                <li>Provider: <strong>{data.lastImport.provider}</strong></li>
-                <li>Durum: {data.lastImport.status}</li>
-                <li>Tarih: {new Date(data.lastImport.startedAt).toISOString().slice(0, 16).replace("T", " ")}</li>
-                <li>Alınan {data.lastImport.received} · yeni {data.lastImport.created} · güncellenen {data.lastImport.updated} · kullanılamaz {data.lastImport.unavailable} · hatalı {data.lastImport.failed}</li>
-                {data.lastImport.error && <li className="text-destructive">{data.lastImport.error}</li>}
-              </ul>
-            ) : (
-              <p className="text-sm text-muted-foreground">Henüz ürün içe aktarılmadı.</p>
-            )}
-            <Button asChild variant="outline" className="mt-3">
-              <Link to="/admin/esim/provider-import">İçe aktarma ekranını aç</Link>
-            </Button>
-          </Panel>
-        </div>
-
-        <section className={card}>
-          <h2 className="font-display text-lg font-bold">Hızlı erişim</h2>
-          <div className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
-            {quickLinks.map(({ to, label, icon: Icon }) => (
-              <Link key={to} to={to} className="group flex min-h-12 items-center gap-2 rounded-xl border border-border px-3 text-sm font-semibold">
-                <Icon className="size-4 text-primary" /> {label}
-                <ArrowRight className="ml-auto size-4 transition group-hover:translate-x-1" />
-              </Link>
-            ))}
-          </div>
-        </section>
-      </div>
-    </AdminGate>
-  );
-}
-
-function Panel({ title, children }: { title: string; children: React.ReactNode }) {
-  return (
-    <section className={`${card} min-w-0`}>
-      <h2 className="font-display text-lg font-bold">{title}</h2>
-      <div className="mt-3 min-w-0">{children}</div>
+  return <AdminGate title={title}><div className="grid min-w-0 gap-4">
+    <section className="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
+      <div className="inline-flex w-fit rounded-lg border border-border bg-card p-1 shadow-card" aria-label="Servis bağlamı">{(["all","esim","lounge"] as const).map(value=><Button key={value} size="sm" variant={service===value?"default":"ghost"} onClick={()=>navigate({search:{service:value}})} className="min-w-24">{value==="all"?"GENEL":value==="esim"?<><RadioTower/>eSIM</>:<><Plane/>LOUNGE</>}</Button>)}</div>
+      <div className="flex flex-wrap gap-1.5">{ranges.map(item=><Button key={item.key} size="sm" variant={rangeKey===item.key?"secondary":"outline"} onClick={()=>setRangeKey(item.key)}>{item.label}</Button>)}<select className={field} aria-label="Raporlama para birimi"><option>EUR</option></select></div>
     </section>
-  );
+    {rangeKey==="custom"&&<section className="admin-card flex flex-wrap items-center gap-2 p-3"><CalendarDays className="size-4 text-primary"/><input type="date" className={field} value={custom.from} onChange={e=>setCustom({...custom,from:e.target.value})}/><span>—</span><input type="date" className={field} value={custom.to} onChange={e=>setCustom({...custom,to:e.target.value})}/></section>}
+    <label className="flex items-center gap-2 text-xs font-semibold"><input type="checkbox" checked={compare} onChange={e=>setCompare(e.target.checked)}/>Önceki dönemle karşılaştır</label>
+    {q.isPending?<AdminLoading/>:q.error?<AdminError error={q.error}/>:<>
+      {(!k||k.orders===0)&&<EmptyState title="Henüz satış verisi yok." detail="Gerçek siparişler oluştuğunda bu görünüm otomatik güncellenir."/>}
+      <section className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">{cards.map(([label,value,detail],i)=><Metric key={String(label)} label={String(label)} value={value as string|number} detail={detail as string|undefined} tone={i===3||i===4?"profit":service==="esim"?"esim":service==="lounge"?"lounge":"default"}/>)}</section>
+      <AdminPanel title="Performans" action={<div className="flex gap-1">{(["revenue","grossContribution","orders"] as const).map(v=><Button key={v} size="sm" variant={metric===v?"secondary":"ghost"} onClick={()=>setMetric(v)}>{v==="revenue"?"Ciro":v==="grossContribution"?"Brüt kâr":"Sipariş"}</Button>)}</div>}>
+        <div className="h-64"><ResponsiveContainer width="100%" height="100%"><AreaChart data={chart}><CartesianGrid strokeDasharray="3 3" opacity={.2}/><XAxis dataKey="date" tick={{fontSize:10}} minTickGap={22}/><YAxis tick={{fontSize:10}} width={44}/><Tooltip/><Area type="monotone" dataKey={metric} name={metric==="revenue"?"Ciro":metric==="grossContribution"?"Brüt kâr":"Sipariş"} stroke="var(--color-primary)" fill="var(--color-primary-soft)"/>{compare&&<Area type="monotone" dataKey="previous" name="Önceki dönem" stroke="var(--color-muted-foreground)" fill="transparent"/>}</AreaChart></ResponsiveContainer></div>
+      </AdminPanel>
+      {service==="all"&&<div className="grid gap-4 xl:grid-cols-2"><AdminPanel title="Servis performansı"><div className="grid gap-3 sm:grid-cols-2">{data?.byService.map((row:any)=><div key={row.serviceType} className={`rounded-md border p-3 ${row.serviceType==="ESIM"?"border-success/30 bg-primary-soft/35":"border-warning/35 bg-sand-soft/55"}`}><div className="flex items-center gap-2 font-semibold">{row.serviceType==="ESIM"?<RadioTower className="size-4 text-success"/>:<Plane className="size-4 text-warning"/>}{row.serviceType==="ESIM"?"eSIM":"Lounge"}</div><dl className="mt-3 grid grid-cols-3 gap-2 text-xs"><div><dt className="text-muted-foreground">Ciro</dt><dd className="font-bold">{money(row.revenue,currency)}</dd></div><div><dt className="text-muted-foreground">Sipariş</dt><dd className="font-bold">{row.orders}</dd></div><div><dt className="text-muted-foreground">Brüt kâr</dt><dd className="font-bold">{money(row.grossContribution,currency)}</dd></div></dl></div>)}</div></AdminPanel><SourcePanel data={data} currency={currency}/></div>}
+      {service==="esim"&&<div className="grid gap-4 xl:grid-cols-2"><Insight title="eSIM satış içgörüleri" blocks={[["Destinasyonlar",data?.esim.topDestinations],["Bölgeler",data?.esim.topRegions],["Önerilen GB",data?.esim.topRecommendedGb],["Rota presetleri",data?.routes.presets]]}/><Funnel data={data}/><Insight title="Cihaz uyumluluğu" blocks={[["Kontrol açılışı",[{label:"Toplam",count:data?.esim.compatibilityChecks??0}]]]}/><TopProducts data={data} currency={currency}/></div>}
+      {service==="lounge"&&<div className="grid gap-4 xl:grid-cols-2"><Insight title="Lounge içgörüleri" blocks={[["Havalimanları",data?.lounge.topAirports],["Lounge’lar",data?.lounge.topLounges],["Kalkış / Aktarma / Varış",data?.lounge.situations]]}/><Funnel data={data}/><TopProducts data={data} currency={currency}/><AdminPanel title="Rezervasyon özeti"><p className="text-sm text-muted-foreground">Ortalama misafir: <strong className="text-foreground">{data?.lounge.averageTravelers==null?"—":data.lounge.averageTravelers.toFixed(1)}</strong></p></AdminPanel></div>}
+      <div className="grid gap-4 xl:grid-cols-[1.25fr_.75fr]"><AdminPanel title="Dikkat Gerektirenler" action={<Link to="/admin/alerts" className="text-xs font-semibold text-primary">Tümünü gör</Link>}><div className="grid gap-2 sm:grid-cols-2">{serviceAlerts[service].map(key=>{const count=data?.alertCounts?.[key]??0;return <div key={key} className="flex items-center gap-2 rounded-md border border-border p-2.5"><AlertTriangle className={`size-4 ${count?"text-destructive":"text-muted-foreground"}`}/><span className="min-w-0 flex-1 text-xs">{labels[key]}</span><StatusBadge value={count?`${count} AÇIK`:"TEMİZ"}/></div>})}</div></AdminPanel><QuickActions service={service}/></div>
+    </>}
+  </div></AdminGate>;
 }
-
-function Table({ head, rows, empty }: { head: string[]; rows: Array<Array<string | number>>; empty: string }) {
-  if (rows.length === 0) return <p className="text-sm text-muted-foreground">{empty}</p>;
-  return (
-    <div className="overflow-x-auto">
-      <table className="w-full min-w-[520px] text-left text-sm">
-        <thead className="text-xs uppercase text-muted-foreground">
-          <tr>
-            {head.map((label) => (
-              <th key={label} scope="col" className="py-2 pr-3 font-semibold">{label}</th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>
-          {rows.map((row, index) => (
-            <tr key={index} className="border-t border-border">
-              {row.map((cell, cellIndex) => (
-                <td key={cellIndex} className="py-2 pr-3">{cell}</td>
-              ))}
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  );
-}
-
-function MiniList({ title, rows, empty }: { title: string; rows: Array<{ label: string; count: number }>; empty: string }) {
-  return (
-    <div className="rounded-xl border border-border p-3">
-      <strong className="text-xs font-semibold uppercase text-muted-foreground">{title}</strong>
-      {rows.length === 0 ? (
-        <p className="mt-2 text-sm text-muted-foreground">{empty}</p>
-      ) : (
-        <ul className="mt-2 grid gap-1 text-sm">
-          {rows.map((row) => (
-            <li key={row.label} className="flex justify-between gap-2">
-              <span className="truncate">{row.label}</span>
-              <strong>{row.count}</strong>
-            </li>
-          ))}
-        </ul>
-      )}
-    </div>
-  );
-}
+function Insight({title,blocks}:{title:string;blocks:Array<[string,Array<{label:string;count:number}>|undefined]>}){return <AdminPanel title={title}><div className="grid gap-3 sm:grid-cols-2">{blocks.map(([name,rows])=><div key={name} className="rounded-md border border-border p-3"><strong className="text-xs">{name}</strong>{!rows?.length?<p className="mt-2 text-xs text-muted-foreground">Veri yok.</p>:<ul className="mt-2 grid gap-1 text-xs">{rows.slice(0,5).map(row=><li key={row.label} className="flex justify-between"><span className="truncate">{row.label}</span><b>{row.count}</b></li>)}</ul>}</div>)}</div></AdminPanel>}
+function Funnel({data}:{data:any}){return <AdminPanel title="Finder dönüşüm hunisi">{!data?.funnel?.some((s:any)=>s.count)?<EmptyState title="Henüz Finder etkinliği yok."/>:<AdminTable head={["Adım","Sayı","Dönüşüm","Kayıp"]}>{data.funnel.map((s:any)=><tr key={s.key}><td>{s.label}</td><td>{s.count}</td><td>{pct(s.conversionRate)}</td><td>{pct(s.dropOffRate)}</td></tr>)}</AdminTable>}</AdminPanel>}
+function TopProducts({data,currency}:{data:any;currency:string}){return <AdminPanel title="En çok satanlar">{!data?.topProducts?.length?<EmptyState title="Henüz satış yok."/>:<AdminTable head={["Ürün","Sipariş","Ciro","Brüt kâr"]}>{data.topProducts.map((p:any)=><tr key={p.product}><td>{p.product}</td><td>{p.orders}</td><td>{money(p.revenue,currency)}</td><td>{money(p.grossContribution,currency)}</td></tr>)}</AdminTable>}</AdminPanel>}
+function SourcePanel({data,currency}:{data:any;currency:string}){return <AdminPanel title="Trafik kaynağı">{!data?.bySource?.length?<EmptyState title="Henüz trafik verisi yok."/>:<AdminTable head={["Kaynak","Ziyaret","Satın alma","Ciro"]}>{data.bySource.map((r:any)=><tr key={r.source}><td>{r.source}</td><td>{r.visits}</td><td>{r.purchases}</td><td>{money(r.revenue,currency)}</td></tr>)}</AdminTable>}</AdminPanel>}
+function QuickActions({service}:{service:ServiceContext}){const links=service==="esim"?[["Paketleri yönet","/admin/products",Boxes],["eSIM teslimat","/admin/esim/fulfillment",RadioTower]]:service==="lounge"?[["Lounge’ları yönet","/admin/products",Boxes],["Rezervasyonlar","/admin/lounge/bookings",Plane]]:[["Siparişler","/admin/orders",ClipboardList],["Müşteriler","/admin/customers",Users],["Finans","/admin/finance",CircleDollarSign]];return <AdminPanel title="Hızlı işlemler"><div className="grid gap-2">{links.map(([label,to,Icon]:any)=><Link key={label} to={to} className="flex min-h-10 items-center gap-2 rounded-md border border-border px-3 text-xs font-semibold"><Icon className="size-4 text-primary"/>{label}<ArrowRight className="ml-auto size-4"/></Link>)}</div></AdminPanel>}
