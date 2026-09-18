@@ -4,6 +4,8 @@ import { createClient } from "@supabase/supabase-js";
 import type { Database } from "@/integrations/supabase/types";
 import { isTestCatalogueVisible } from "@/lib/test-catalogue.functions";
 
+export type ActivationPolicy = "ON_INSTALL" | "ON_FIRST_NETWORK_CONNECTION" | "ON_PURCHASE" | "UNKNOWN";
+
 export type EsimPackage = {
   id: string;
   providerProductId: string | null;
@@ -13,15 +15,23 @@ export type EsimPackage = {
   salePrice: number | null;
   badge: string | null;
   featured: boolean;
+  dataType: "FIXED" | "UNLIMITED";
   dataGb: number | null;
   unlimited: boolean;
+  /** Provider's own validity wording, kept untouched for reference. */
+  rawValidityValue: number | null;
+  rawValidityUnit: string | null;
+  /** Normalized days — comparison only. */
   validityDays: number | null;
+  activationPolicy: ActivationPolicy;
+  fairUseNote: string | null;
   coverage: string[];
   supports5g: boolean;
   supportsHotspot: boolean;
   networks: string[];
   isTest: boolean;
 };
+
 
 export type EsimStartingPrice = {
   targetId: string;
