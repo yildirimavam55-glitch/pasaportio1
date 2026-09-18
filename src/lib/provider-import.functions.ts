@@ -279,6 +279,8 @@ export const applyEsimImport = createServerFn({ method: "POST" })
             .eq("id", productId)
             .maybeSingle();
           const patch: Record<string, unknown> = { ...base };
+          // Admin-owned marketing name is never silently overwritten by provider sync.
+          delete patch["name"];
           // Admin-owned sale price is never silently overwritten.
           if (!current?.price_overridden) patch["sale_price"] = item.salePrice;
           if (data.publish && ["IMPORTED", "DRAFT", "UNAVAILABLE"].includes(current?.lifecycle ?? "")) {
