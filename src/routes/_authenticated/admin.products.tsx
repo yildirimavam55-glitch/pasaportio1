@@ -7,7 +7,7 @@ import { AdminDrawer, AdminError, AdminLoading, AdminPanel, DataRow, EmptyState,
 import { adminHead } from "@/components/admin/AdminSectionPage";
 import { Button } from "@/components/ui/button";
 import { getAdminCatalogue } from "@/lib/admin-control.functions";
-import { listPricingRules, updateProduct } from "@/lib/admin-catalog.functions";
+import { bulkUpdateProducts, listPricingRules, updateProduct } from "@/lib/admin-catalog.functions";
 import { itemMargin } from "@/domain/finance/formulas";
 
 export const Route = createFileRoute("/_authenticated/admin/products")({
@@ -16,34 +16,118 @@ export const Route = createFileRoute("/_authenticated/admin/products")({
 });
 
 function Products() {
+  const queryClient = useQueryClient();
   const [service, setService] = useState<"ESIM" | "LOUNGE">("ESIM");
   const [openId, setOpenId] = useState<string | null>(null);
+  const [search, setSearch] = useState("");
+  const [provider, setProvider] = useState("ALL");
+  const [place, setPlace] = useState("ALL");
+  const [availability, setAvailability] = useState("ALL");
+  const [lifecycle, setLifecycle] = useState("ALL");
+  const [marginOnly, setMarginOnly] = useState(false);
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [bulkRule, setBulkRule] = useState("");
   const catalogue = useQuery({ queryKey: ["admin-catalogue-v3"], queryFn: () => getAdminCatalogue() });
+  const rules = useQuery({ queryKey: ["pricing-rules"], queryFn: () => listPricingRules() });
+
+  const placeOf = (product: any) =>
+    product.service_type === "ESIM"
+      ? (product.esim_product_details?.regions?.name ?? product.destinations?.name ?? product.esim_product_details?.country_iso ?? product.esim_product_details?.package_kind ?? "Diğer kapsama")
+      : `${product.lounge_product_details?.iata ?? product.airports?.iata ?? "Havalimanı yok"} · ${product.lounge_product_details?.terminal ?? "Terminal belirtilmedi"}`;
+
+  const filtered = useMemo(() => (catalogue.data ?? []).filter((product: any) => {
+    if (product.service_type !== service) return false;
+    if (search && !`${product.name} ${product.slug ?? ""}`.toLowerCase().includes(search.toLowerCase())) return false;
+    if (provider !== "ALL" && (product.providers?.name ?? "—") !== provider) return false;
+    if (place !== "ALL" && placeOf(product) !== place) return false;
+    if (availability === "AVAILABLE" && !product.provider_available) return false;
+    if (availability === "UNAVAILABLE" && product.provider_available) return false;
+    if (lifecycle !== "ALL" && product.lifecycle !== lifecycle) return false;
+    if (marginOnly && !product.margin_flagged) return false;
+    return true;
+  }), [catalogue.data, service, search, provider, place, availability, lifecycle, marginOnly]);
 
   const groups = useMemo(() => {
     const map = new Map<string, any[]>();
-    for (const product of catalogue.data ?? []) {
-      if (product.service_type !== service) continue;
-      const key = service === "ESIM"
-        ? (product.esim_product_details?.regions?.name ?? product.destinations?.name ?? product.esim_product_details?.country_iso ?? product.esim_product_details?.package_kind ?? "Diğer kapsama")
-        : `${product.lounge_product_details?.iata ?? product.airports?.iata ?? "Havalimanı yok"} · ${product.lounge_product_details?.terminal ?? "Terminal belirtilmedi"}`;
-      map.set(key, [...(map.get(key) ?? []), product]);
-    }
+    for (const product of filtered) map.set(placeOf(product), [...(map.get(placeOf(product)) ?? []), product]);
     return [...map.entries()];
-  }, [catalogue.data, service]);
+  }, [filtered]);
 
+  const providerOptions = [...new Set((catalogue.data ?? []).filter((row: any) => row.service_type === service).map((row: any) => row.providers?.name ?? "—"))];
+  const placeOptions = [...new Set((catalogue.data ?? []).filter((row: any) => row.service_type === service).map(placeOf))];
   const selected = (catalogue.data ?? []).find((product: any) => product.id === openId) ?? null;
+
+  const bulk = useMutation({
+    mutationFn: (action: Parameters<typeof bulkUpdateProducts>[0]["data"]["action"]) =>
+      bulkUpdateProducts({ data: { ids: selectedIds, action, pricingRuleId: bulkRule || null } }),
+    onSuccess: async () => { setSelectedIds([]); await queryClient.invalidateQueries({ queryKey: ["admin-catalogue-v3"] }); },
+  });
+
+  const toggle = (id: string) => setSelectedIds((current) => (current.includes(id) ? current.filter((row) => row !== id) : [...current, id]));
 
   return (
     <AdminGate title="Ürün kataloğu">
       <div className="grid gap-4">
         <div className="flex gap-2">
-          <Button size="sm" variant={service === "ESIM" ? "secondary" : "outline"} onClick={() => setService("ESIM")}><RadioTower />eSIM paketleri</Button>
-          <Button size="sm" variant={service === "LOUNGE" ? "secondary" : "outline"} onClick={() => setService("LOUNGE")}><Plane />Lounge’lar</Button>
+          <Button size="sm" variant={service === "ESIM" ? "secondary" : "outline"} onClick={() => { setService("ESIM"); setSelectedIds([]); setPlace("ALL"); setProvider("ALL"); }}><RadioTower />eSIM paketleri</Button>
+          <Button size="sm" variant={service === "LOUNGE" ? "secondary" : "outline"} onClick={() => { setService("LOUNGE"); setSelectedIds([]); setPlace("ALL"); setProvider("ALL"); }}><Plane />Lounge’lar</Button>
         </div>
+
+        <AdminPanel title="Filtreler">
+          <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+            <Field label="Ara"><input className="admin-field mt-1 w-full" value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Ürün adı" /></Field>
+            <Field label="Provider">
+              <select className="admin-field mt-1 w-full" value={provider} onChange={(event) => setProvider(event.target.value)}>
+                <option value="ALL">Tümü</option>
+                {providerOptions.map((name) => <option key={String(name)} value={String(name)}>{String(name)}</option>)}
+              </select>
+            </Field>
+            <Field label={service === "ESIM" ? "Ülke / bölge" : "Havalimanı"}>
+              <select className="admin-field mt-1 w-full" value={place} onChange={(event) => setPlace(event.target.value)}>
+                <option value="ALL">Tümü</option>
+                {placeOptions.map((name) => <option key={String(name)} value={String(name)}>{String(name)}</option>)}
+              </select>
+            </Field>
+            <Field label="Uygunluk">
+              <select className="admin-field mt-1 w-full" value={availability} onChange={(event) => setAvailability(event.target.value)}>
+                <option value="ALL">Tümü</option>
+                <option value="AVAILABLE">Satışa uygun</option>
+                <option value="UNAVAILABLE">Provider’da yok</option>
+              </select>
+            </Field>
+            <Field label="Yaşam döngüsü">
+              <select className="admin-field mt-1 w-full" value={lifecycle} onChange={(event) => setLifecycle(event.target.value)}>
+                <option value="ALL">Tümü</option>
+                {["IMPORTED", "DRAFT", "READY", "PUBLISHED", "PAUSED", "UNAVAILABLE", "ARCHIVED"].map((value) => <option key={value} value={value}>{value}</option>)}
+              </select>
+            </Field>
+            <label className="flex items-end gap-2 text-xs font-semibold"><input type="checkbox" checked={marginOnly} onChange={(event) => setMarginOnly(event.target.checked)} />Yalnızca marj uyarısı olanlar</label>
+          </div>
+        </AdminPanel>
+
+        {selectedIds.length > 0 && (
+          <AdminPanel title={`${selectedIds.length} ürün seçildi`}>
+            <div className="flex flex-wrap items-center gap-2">
+              <Button size="sm" variant="outline" disabled={bulk.isPending} onClick={() => bulk.mutate("PUBLISH")}>Yayınla</Button>
+              <Button size="sm" variant="outline" disabled={bulk.isPending} onClick={() => bulk.mutate("PAUSE")}>Duraklat</Button>
+              <Button size="sm" variant="outline" disabled={bulk.isPending} onClick={() => bulk.mutate("SHOW")}>Müşteriye göster</Button>
+              <Button size="sm" variant="outline" disabled={bulk.isPending} onClick={() => bulk.mutate("HIDE")}>Müşteriden gizle</Button>
+              <Button size="sm" variant="outline" disabled={bulk.isPending} onClick={() => bulk.mutate("FEATURE")}>Öne çıkar</Button>
+              <Button size="sm" variant="outline" disabled={bulk.isPending} onClick={() => bulk.mutate("UNFEATURE")}>Öne çıkarmayı kaldır</Button>
+              <select className="admin-field h-9" value={bulkRule} onChange={(event) => setBulkRule(event.target.value)}>
+                <option value="">Fiyat kuralı seç</option>
+                {((rules.data ?? []) as any[]).map((row) => <option key={row.id} value={row.id}>{row.name}</option>)}
+              </select>
+              <Button size="sm" variant="secondary" disabled={bulk.isPending || !bulkRule} onClick={() => bulk.mutate("ASSIGN_RULE")}>Kuralı ata</Button>
+              <Button size="sm" variant="ghost" onClick={() => setSelectedIds([])}>Seçimi temizle</Button>
+            </div>
+            <p className="mt-2 text-[11px] text-muted-foreground">Toplu işlemler yalnızca ticari alanları değiştirir; provider kapsama ve maliyet verisi hiçbir zaman değiştirilmez.</p>
+          </AdminPanel>
+        )}
+
         {catalogue.isPending ? <AdminLoading /> : catalogue.error ? <AdminError error={catalogue.error} /> : (
           <AdminPanel title={service === "ESIM" ? "Ülke / bölge / rota grupları" : "Havalimanı → terminal → Lounge"}>
-            {!groups.length ? <EmptyState title={service === "ESIM" ? "Henüz eSIM ürünü yok." : "Henüz Lounge ürünü yok."} detail="Katalog, provider senkronu ile dolar." /> : (
+            {!groups.length ? <EmptyState title={service === "ESIM" ? "Eşleşen eSIM ürünü yok." : "Eşleşen Lounge ürünü yok."} detail="Katalog, provider senkronu ile dolar." /> : (
               <div className="grid gap-2">
                 {groups.map(([name, products]) => (
                   <details key={name} className="group rounded-md border border-border bg-background">
@@ -57,13 +141,16 @@ function Products() {
                       {products.map((product: any) => {
                         const margin = itemMargin(Number(product.sale_price ?? 0), Number(product.provider_cost ?? 0));
                         return (
-                          <button key={product.id} type="button" onClick={() => setOpenId(product.id)} className="grid w-full gap-2 border-b border-border px-2 py-2.5 text-left text-xs last:border-0 hover:bg-secondary/40 sm:grid-cols-[minmax(0,1fr)_auto_auto_auto_auto]">
-                            <span><strong>{product.name}</strong><span className="ml-2 text-muted-foreground">{service === "ESIM" ? (product.esim_product_details?.unlimited_data ? "Sınırsız" : `${product.esim_product_details?.data_gb ?? "—"} GB · ${product.esim_product_details?.validity_days ?? "—"} gün`) : (product.lounge_product_details?.lounge_name ?? "Lounge")}</span></span>
-                            <span>{product.sale_price == null ? "Fiyat yok" : money(product.sale_price, product.currency)}</span>
-                            <span className={product.margin_flagged ? "font-semibold text-destructive" : ""}>{margin.percent == null ? "—" : `%${margin.percent.toFixed(1)} marj`}</span>
-                            <span className="text-muted-foreground">{product.providers?.name ?? "Provider yok"}</span>
-                            <StatusBadge value={product.lifecycle} />
-                          </button>
+                          <div key={product.id} className="flex items-start gap-2 border-b border-border px-2 py-2.5 text-xs last:border-0">
+                            <input type="checkbox" className="mt-1" aria-label="Ürünü seç" checked={selectedIds.includes(product.id)} onChange={() => toggle(product.id)} />
+                            <button type="button" onClick={() => setOpenId(product.id)} className="grid w-full gap-2 text-left hover:opacity-80 sm:grid-cols-[minmax(0,1fr)_auto_auto_auto_auto]">
+                              <span><strong>{product.name}</strong><span className="ml-2 text-muted-foreground">{service === "ESIM" ? (product.esim_product_details?.unlimited_data ? "Sınırsız" : `${product.esim_product_details?.data_gb ?? "—"} GB · ${product.esim_product_details?.validity_days ?? "—"} gün`) : (product.lounge_product_details?.lounge_name ?? "Lounge")}</span></span>
+                              <span>{product.sale_price == null ? "Fiyat yok" : money(product.sale_price, product.currency)}</span>
+                              <span className={product.margin_flagged ? "font-semibold text-destructive" : ""}>{margin.percent == null ? "—" : `%${margin.percent.toFixed(1)} marj`}</span>
+                              <span className="text-muted-foreground">{product.providers?.name ?? "Provider yok"}</span>
+                              <StatusBadge value={product.lifecycle} />
+                            </button>
+                          </div>
                         );
                       })}
                     </div>
