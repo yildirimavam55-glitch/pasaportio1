@@ -293,6 +293,12 @@ export function hashItem(item: NormalizedEsimItem): string {
     item.dataGb,
     item.unlimited,
     item.validityDays,
+    item.rawValidityValue,
+    item.rawValidityUnit,
+    item.dataType,
+    item.activationPolicy,
+    item.fairUseNote,
+
     [...item.coverage].sort(),
     item.providerCost,
     item.providerCurrency,
