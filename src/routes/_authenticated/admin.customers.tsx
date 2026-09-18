@@ -1,16 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
-
+import { useQuery } from "@tanstack/react-query";
 import { AdminGate } from "@/components/AdminGate";
-import { PlaceholderSection } from "@/components/AppShell";
-
-export const Route = createFileRoute("/_authenticated/admin/customers")({
-  component: () => (
-    <AdminGate title="Müşteriler">
-      <PlaceholderSection
-        title="Müşteri ve yolcu modeli"
-        description="Müşteri ile yolcu ayrı kavramlardır; bir müşteri birden çok yolcu için satın alabilir."
-        items={["Profil", "Roller", "Yolcular", "Seyahatler"]}
-      />
-    </AdminGate>
-  ),
-});
+import { AdminError, AdminLoading, AdminPanel, AdminTable, EmptyState } from "@/components/admin/AdminUi";
+import { adminHead } from "@/components/admin/AdminSectionPage";
+import { getAdminCustomers } from "@/lib/admin-control.functions";
+export const Route=createFileRoute("/_authenticated/admin/customers")({head:()=>adminHead("Müşteriler","Müşteri, satın alma ve seyahat özeti."),component:Customers});
+function Customers(){const q=useQuery({queryKey:["admin-customers"],queryFn:()=>getAdminCustomers()});return <AdminGate title="Müşteriler">{q.isPending?<AdminLoading/>:q.error?<AdminError error={q.error}/>:<AdminPanel title={`${q.data?.length??0} müşteri`}>{!q.data?.length?<EmptyState title="Henüz müşteri yok."/>:<AdminTable head={["Müşteri","E-posta","Ülke","Dil","Sipariş","Servisler","Seyahat","Yaşam boyu ciro","Son alışveriş"]}>{q.data.map((c:any)=><tr key={c.id}><td className="font-semibold">{c.full_name??"İsimsiz müşteri"}</td><td>{c.email??"—"}</td><td>{c.country_iso??"—"}</td><td>{c.preferred_locale.toUpperCase()}</td><td>{c.orders}</td><td>{c.services.length?c.services.map((s:string)=>s==="ESIM"?"eSIM":s).join(", "):"—"}</td><td>{c.trips}</td><td>{Number(c.lifetimeRevenue).toFixed(2)} EUR</td><td>{c.lastPurchase?new Date(c.lastPurchase).toLocaleDateString("tr-TR"):"—"}</td></tr>)}</AdminTable>}</AdminPanel>}</AdminGate>}

@@ -98,7 +98,8 @@ function NavGroup({ group, pathname, defaultOpen, onNavigate }: { group: AdminGr
     <button type="button" onClick={() => setOpen((value) => !value)} className="flex min-h-8 w-full items-center justify-between px-3 text-[10px] font-bold uppercase opacity-55"><span>{group.label}</span><ChevronDown className={`size-3.5 transition ${open ? "rotate-180" : ""}`} /></button>
     {open && <div className="grid gap-0.5">{group.links.map(({ to, label, icon: Icon }) => {
       const serviceSearch = label === "eSIM genel bakış" ? { service: "esim" as const } : label === "Lounge genel bakış" ? { service: "lounge" as const } : to === "/admin" ? { service: "all" as const } : undefined;
-      return <Link key={`${group.label}-${label}`} to={to} search={serviceSearch} onClick={onNavigate} className="flex min-h-9 items-center gap-2.5 rounded-md px-3 text-xs font-semibold opacity-70 hover:bg-primary-foreground/10 hover:opacity-100" activeOptions={{ exact: to === "/admin" }} activeProps={{ className: "bg-primary-foreground/15 opacity-100" }}><Icon className="size-4" /><span className="truncate">{label}</span></Link>;
+      const linkProps = serviceSearch ? { search: serviceSearch } : {};
+      return <Link key={`${group.label}-${label}`} to={to} {...linkProps} onClick={onNavigate} className="flex min-h-9 items-center gap-2.5 rounded-md px-3 text-xs font-semibold opacity-70 hover:bg-primary-foreground/10 hover:opacity-100" activeOptions={{ exact: to === "/admin" }} activeProps={{ className: "bg-primary-foreground/15 opacity-100" }}><Icon className="size-4" /><span className="truncate">{label}</span></Link>;
     })}</div>}
   </section>;
 }
