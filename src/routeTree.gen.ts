@@ -40,6 +40,8 @@ import { Route as AuthenticatedAdminEsimFulfillmentRouteImport } from './routes/
 import { Route as AuthenticatedAdminEsimProviderImportRouteImport } from './routes/_authenticated/admin.esim.provider-import'
 import { Route as AuthenticatedAdminLoungeBookingsRouteImport } from './routes/_authenticated/admin.lounge.bookings'
 import { Route as AuthenticatedAdminSmartFindersEsimRouteImport } from './routes/_authenticated/admin.smart-finders.esim'
+import { Route as AuthenticatedAdminStorefrontHomeRouteImport } from './routes/_authenticated/admin.storefront.home'
+import { Route as AuthenticatedAdminStorefrontNavigationRouteImport } from './routes/_authenticated/admin.storefront.navigation'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -212,6 +214,18 @@ const AuthenticatedAdminSmartFindersEsimRoute =
     path: '/admin/smart-finders/esim',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedAdminStorefrontHomeRoute =
+  AuthenticatedAdminStorefrontHomeRouteImport.update({
+    id: '/admin/storefront/home',
+    path: '/admin/storefront/home',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedAdminStorefrontNavigationRoute =
+  AuthenticatedAdminStorefrontNavigationRouteImport.update({
+    id: '/admin/storefront/navigation',
+    path: '/admin/storefront/navigation',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -244,6 +258,8 @@ export interface FileRoutesByFullPath {
   '/admin/esim/provider-import': typeof AuthenticatedAdminEsimProviderImportRoute
   '/admin/lounge/bookings': typeof AuthenticatedAdminLoungeBookingsRoute
   '/admin/smart-finders/esim': typeof AuthenticatedAdminSmartFindersEsimRoute
+  '/admin/storefront/home': typeof AuthenticatedAdminStorefrontHomeRoute
+  '/admin/storefront/navigation': typeof AuthenticatedAdminStorefrontNavigationRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -276,6 +292,8 @@ export interface FileRoutesByTo {
   '/admin/esim/provider-import': typeof AuthenticatedAdminEsimProviderImportRoute
   '/admin/lounge/bookings': typeof AuthenticatedAdminLoungeBookingsRoute
   '/admin/smart-finders/esim': typeof AuthenticatedAdminSmartFindersEsimRoute
+  '/admin/storefront/home': typeof AuthenticatedAdminStorefrontHomeRoute
+  '/admin/storefront/navigation': typeof AuthenticatedAdminStorefrontNavigationRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -310,6 +328,8 @@ export interface FileRoutesById {
   '/_authenticated/admin/esim/provider-import': typeof AuthenticatedAdminEsimProviderImportRoute
   '/_authenticated/admin/lounge/bookings': typeof AuthenticatedAdminLoungeBookingsRoute
   '/_authenticated/admin/smart-finders/esim': typeof AuthenticatedAdminSmartFindersEsimRoute
+  '/_authenticated/admin/storefront/home': typeof AuthenticatedAdminStorefrontHomeRoute
+  '/_authenticated/admin/storefront/navigation': typeof AuthenticatedAdminStorefrontNavigationRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -344,6 +364,8 @@ export interface FileRouteTypes {
     | '/admin/esim/provider-import'
     | '/admin/lounge/bookings'
     | '/admin/smart-finders/esim'
+    | '/admin/storefront/home'
+    | '/admin/storefront/navigation'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -376,6 +398,8 @@ export interface FileRouteTypes {
     | '/admin/esim/provider-import'
     | '/admin/lounge/bookings'
     | '/admin/smart-finders/esim'
+    | '/admin/storefront/home'
+    | '/admin/storefront/navigation'
   id:
     | '__root__'
     | '/'
@@ -409,6 +433,8 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/esim/provider-import'
     | '/_authenticated/admin/lounge/bookings'
     | '/_authenticated/admin/smart-finders/esim'
+    | '/_authenticated/admin/storefront/home'
+    | '/_authenticated/admin/storefront/navigation'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -641,6 +667,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminSmartFindersEsimRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/admin/storefront/home': {
+      id: '/_authenticated/admin/storefront/home'
+      path: '/admin/storefront/home'
+      fullPath: '/admin/storefront/home'
+      preLoaderRoute: typeof AuthenticatedAdminStorefrontHomeRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/admin/storefront/navigation': {
+      id: '/_authenticated/admin/storefront/navigation'
+      path: '/admin/storefront/navigation'
+      fullPath: '/admin/storefront/navigation'
+      preLoaderRoute: typeof AuthenticatedAdminStorefrontNavigationRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
   }
 }
 
@@ -668,6 +708,8 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminEsimProviderImportRoute: typeof AuthenticatedAdminEsimProviderImportRoute
   AuthenticatedAdminLoungeBookingsRoute: typeof AuthenticatedAdminLoungeBookingsRoute
   AuthenticatedAdminSmartFindersEsimRoute: typeof AuthenticatedAdminSmartFindersEsimRoute
+  AuthenticatedAdminStorefrontHomeRoute: typeof AuthenticatedAdminStorefrontHomeRoute
+  AuthenticatedAdminStorefrontNavigationRoute: typeof AuthenticatedAdminStorefrontNavigationRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
@@ -697,6 +739,9 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminLoungeBookingsRoute: AuthenticatedAdminLoungeBookingsRoute,
   AuthenticatedAdminSmartFindersEsimRoute:
     AuthenticatedAdminSmartFindersEsimRoute,
+  AuthenticatedAdminStorefrontHomeRoute: AuthenticatedAdminStorefrontHomeRoute,
+  AuthenticatedAdminStorefrontNavigationRoute:
+    AuthenticatedAdminStorefrontNavigationRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
