@@ -4,6 +4,8 @@
  * Never invents products, prices or coverage — every field comes from the payload.
  */
 import { computePrice, type PricingRule, type RoundingMode } from "@/domain/pricing";
+import { normalizeValidityToDays } from "@/domain/esim/package-matching";
+
 
 export type RawImportItem = Record<string, unknown>;
 
