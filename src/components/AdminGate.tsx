@@ -7,9 +7,10 @@ import {
   PlugZap, RadioTower, ReceiptText, RotateCw, Search, Settings, ShieldCheck,
   Smartphone, Sparkles, Users, WalletCards, X,
 } from "lucide-react";
-import { useState, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { BRAND } from "@/domain/experience/config";
 import { getMyAccess } from "@/lib/platform.functions";
+import { adminSearch, getAdminIdentity } from "@/lib/admin-control.functions";
 import { Button } from "@/components/ui/button";
 
 type AdminLink = { to: string; label: string; icon: typeof LayoutDashboard };
@@ -59,6 +60,7 @@ const groups: AdminGroup[] = [
 export function AdminGate({ title, children }: { title: string; children: ReactNode }) {
   const { data, isPending } = useQuery({ queryKey: ["access"], queryFn: () => getMyAccess() });
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
   const pathname = useRouterState({ select: (state) => state.location.pathname });
 
   if (isPending) return <main className="grid min-h-screen place-items-center bg-secondary"><p className="flex items-center gap-2 text-sm text-muted-foreground"><LoaderCircle className="size-4 animate-spin" /> Yetki kontrol ediliyor…</p></main>;
@@ -82,10 +84,11 @@ export function AdminGate({ title, children }: { title: string; children: ReactN
       <header className="sticky top-0 z-30 flex min-h-16 items-center gap-3 border-b border-border bg-card/95 px-4 backdrop-blur sm:px-6">
         <Button variant="ghost" size="icon" className="lg:hidden" onClick={() => setMobileOpen(true)} aria-label="Yönetim menüsünü aç"><Menu /></Button>
         <div className="min-w-0 flex-1"><span className="block text-[10px] font-bold uppercase text-muted-foreground">İş kontrol merkezi</span><h1 className="truncate font-display text-lg font-bold">{title}</h1></div>
-        <Button variant="ghost" size="icon" aria-label="Yönetimde ara"><Search /></Button>
+        <Button variant="ghost" size="icon" aria-label="Yönetimde ara" onClick={() => setSearchOpen(true)}><Search /></Button>
         <Link to="/admin/alerts" className="relative grid size-9 place-items-center rounded-md border border-border" aria-label="Operasyon uyarıları"><AlertTriangle className="size-4" /></Link>
-        <div className="hidden items-center gap-2 border-l border-border pl-3 sm:flex"><span className="grid size-8 place-items-center rounded-full bg-primary text-xs font-bold text-primary-foreground">A</span><span className="text-xs font-semibold">Admin</span></div>
+        <AdminAccount />
       </header>
+      <AdminSearch open={searchOpen} onClose={() => setSearchOpen(false)} />
       <div className="p-3 sm:p-5 xl:p-6">{children}</div>
     </main>
   </div>;
@@ -103,4 +106,49 @@ function NavGroup({ group, pathname, defaultOpen, onNavigate }: { group: AdminGr
       return <Link key={`${group.label}-${label}`} to={to} onClick={onNavigate} className="flex min-h-9 items-center gap-2.5 rounded-md px-3 text-xs font-semibold opacity-70 hover:bg-primary-foreground/10 hover:opacity-100" activeOptions={{ exact: to === "/admin" }} activeProps={{ className: "bg-primary-foreground/15 opacity-100" }}><Icon className="size-4" /><span className="truncate">{label}</span></Link>;
     })}</div>}
   </section>;
+}
+function AdminAccount() {
+  const { data } = useQuery({ queryKey: ["admin-identity"], queryFn: () => getAdminIdentity() });
+  const name = data?.name || data?.email || "Yönetici";
+  const initial = String(name).trim().charAt(0).toUpperCase() || "A";
+  return <div className="hidden items-center gap-2 border-l border-border pl-3 sm:flex">
+    <span className="grid size-8 place-items-center rounded-full bg-primary text-xs font-bold text-primary-foreground">{initial}</span>
+    <span className="min-w-0"><span className="block max-w-40 truncate text-xs font-semibold">{name}</span>{data?.email && data?.name && <span className="block max-w-40 truncate text-[10px] text-muted-foreground">{data.email}</span>}</span>
+  </div>;
+}
+
+function AdminSearch({ open, onClose }: { open: boolean; onClose: () => void }) {
+  const [term, setTerm] = useState("");
+  const query = useQuery({ queryKey: ["admin-search", term], queryFn: () => adminSearch({ data: { q: term } }), enabled: open && term.trim().length > 1 });
+  useEffect(() => { if (!open) setTerm(""); }, [open]);
+  if (!open) return null;
+  const results = query.data;
+  const groupsFound: Array<[string, Array<{ id: string; label: string; detail: string; to: string }>]> = results ? [
+    ["Siparişler", results.orders.map((row: any) => ({ id: row.id, label: row.order_number, detail: row.payment_status, to: "/admin/orders" }))],
+    ["Müşteriler", results.customers.map((row: any) => ({ id: row.id, label: row.full_name ?? row.email ?? "Müşteri", detail: row.email ?? "", to: "/admin/customers" }))],
+    ["Ürünler", results.products.map((row: any) => ({ id: row.id, label: row.name, detail: `${row.service_type}${row.sale_price != null ? ` · ${Number(row.sale_price).toFixed(2)} ${row.currency}` : ""}`, to: "/admin/products" }))],
+    ["Provider’lar", results.providers.map((row: any) => ({ id: row.id, label: row.name, detail: row.service_type, to: "/admin/providers" }))],
+    ["Havalimanları", results.airports.map((row: any) => ({ id: row.id, label: `${row.iata} · ${row.name}`, detail: row.city ?? "", to: "/admin/products" }))],
+    ["Destinasyonlar", results.destinations.map((row: any) => ({ id: row.id, label: row.name, detail: row.slug, to: "/admin/products" }))],
+  ].filter(([, rows]) => rows.length) as any : [];
+
+  return <div className="fixed inset-0 z-[70] flex items-start justify-center p-4 pt-20">
+    <button type="button" aria-label="Aramayı kapat" className="absolute inset-0 bg-primary/45 backdrop-blur-sm" onClick={onClose} />
+    <div role="dialog" aria-modal="true" aria-label="Yönetimde ara" className="relative flex max-h-[70vh] w-full max-w-xl flex-col overflow-hidden rounded-lg border border-border bg-card shadow-panel">
+      <div className="flex items-center gap-2 border-b border-border p-3">
+        <Search className="size-4 shrink-0 text-muted-foreground" />
+        <input autoFocus value={term} onChange={(event) => setTerm(event.target.value)} placeholder="Sipariş no, müşteri, ürün, provider, havalimanı, destinasyon" className="min-h-10 w-full bg-transparent text-sm outline-none" />
+        <Button variant="ghost" size="icon" className="size-10 shrink-0" onClick={onClose} aria-label="Kapat"><X /></Button>
+      </div>
+      <div className="min-h-0 flex-1 overflow-y-auto p-3">
+        {term.trim().length < 2 ? <p className="p-4 text-center text-xs text-muted-foreground">Aramak için en az 2 karakter yazın.</p>
+          : query.isPending ? <p className="p-4 text-center text-xs text-muted-foreground">Aranıyor…</p>
+          : !groupsFound.length ? <p className="p-4 text-center text-xs text-muted-foreground">Sonuç bulunamadı.</p>
+          : groupsFound.map(([label, rows]) => <section key={label} className="mb-3">
+              <h3 className="mb-1 text-[10px] font-bold uppercase text-muted-foreground">{label}</h3>
+              <div className="grid gap-1">{rows.map((row) => <Link key={row.id} to={row.to as never} onClick={onClose} className="flex items-center justify-between gap-3 rounded-md border border-border px-3 py-2 text-xs hover:bg-secondary/50"><span className="truncate font-semibold">{row.label}</span><span className="shrink-0 text-muted-foreground">{row.detail}</span></Link>)}</div>
+            </section>)}
+      </div>
+    </div>
+  </div>;
 }
