@@ -3,7 +3,7 @@ import { Link, useRouterState } from "@tanstack/react-router";
 import {
   AlertTriangle, BarChart3, Boxes, BriefcaseBusiness, Building2, ChevronDown,
   CircleDollarSign, ClipboardList, CloudUpload, DatabaseZap, ExternalLink, Flag,
-  Image, LayoutDashboard, LoaderCircle, Menu, MonitorCog, PanelLeftClose, Plane,
+  Image, LayoutDashboard, LayoutTemplate, LoaderCircle, Menu, MonitorCog, PanelLeftClose, Plane,
   PlugZap, RadioTower, ReceiptText, RotateCw, Search, Settings, ShieldCheck,
   Smartphone, Sparkles, Users, WalletCards, X,
 } from "lucide-react";
@@ -41,6 +41,8 @@ const groups: AdminGroup[] = [
     { to: "/admin/test-catalogue", label: "Test kataloğu", icon: Boxes },
   ]},
   { label: "Mağaza yönetimi", links: [
+    { to: "/admin/storefront/home", label: "Ana sayfa düzenleyici", icon: LayoutTemplate },
+    { to: "/admin/storefront/navigation", label: "Menü & alt bilgi", icon: Menu },
     { to: "/admin/cms", label: "Sayfalar / CMS", icon: MonitorCog },
     { to: "/admin/media", label: "Medya", icon: Image },
     { to: "/admin/theme", label: "Tema", icon: Sparkles },
