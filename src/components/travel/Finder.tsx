@@ -17,7 +17,6 @@ import {
   Plus,
   Route,
   Search,
-  ShieldCheck,
   Share2,
   ShoppingCart,
   Trash2,
@@ -278,7 +277,6 @@ export function EsimFinder({ state, onChange }: { state: EsimFinderState; onChan
     ? resolvePackageRecommendation(packages, { requiredGb: recommendation.requiredGb, coverageIsos, days: state.days })
     : ({ status: "NO_CATALOGUE", package: null } as const);
   const recommended = match.package;
-  const usageSummary = state.usage.map((kind) => USAGE_LABELS[locale][kind].toLocaleLowerCase(locale)).join(", ");
   const { lines, addLine } = useCart();
   const recommendedInCart = Boolean(recommended && lines.some((line) => line.productId === recommended.id));
 
