@@ -1,10 +1,10 @@
-import { Plane, SimCard } from "lucide-react";
+import { CardSim, Plane } from "lucide-react";
 
 type ServiceIconProps = { className?: string };
 
 /** Shared customer-facing service symbols. The brand mark remains separate. */
 export function EsimServiceIcon({ className }: ServiceIconProps) {
-  return <SimCard className={className} aria-hidden="true" />;
+  return <CardSim className={className} aria-hidden="true" />;
 }
 
 export function LoungeServiceIcon({ className }: ServiceIconProps) {
