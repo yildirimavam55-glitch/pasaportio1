@@ -12,7 +12,7 @@ import { resolveRange, type DateRangeKey } from "@/domain/analytics/dashboard";
 
 type ServiceContext = "all" | "esim" | "lounge";
 export const Route = createFileRoute("/_authenticated/admin/")({
-  validateSearch: (search: Record<string, unknown>): { service: ServiceContext } => ({ service: search.service === "esim" || search.service === "lounge" ? search.service : "all" }),
+  validateSearch: (search: Record<string, unknown>): { service?: ServiceContext } => ({ service: search["service"] === "esim" || search["service"] === "lounge" ? search["service"] : undefined }),
   head: () => adminHead("İş kontrol merkezi", "Genel, eSIM ve Lounge işletme performansı."),
   component: Dashboard,
 });
@@ -28,7 +28,7 @@ const money = (value:number,currency="EUR") => `${value.toFixed(2)} ${currency}`
 const pct = (value:number|null|undefined) => value==null?"—":`${(value*100).toFixed(1)}%`;
 
 function Dashboard(){
-  const navigate=Route.useNavigate(); const {service}=Route.useSearch();
+  const navigate=Route.useNavigate(); const {service: searchService}=Route.useSearch(); const service=searchService??"all";
   const [rangeKey,setRangeKey]=useState<DateRangeKey>("last30"); const preset=useMemo(()=>resolveRange(rangeKey,new Date()),[rangeKey]); const [custom,setCustom]=useState(preset); const range=rangeKey==="custom"?custom:preset;
   const [compare,setCompare]=useState(true); const [metric,setMetric]=useState<"revenue"|"grossContribution"|"orders">("revenue");
   const serviceType=service==="esim"?"ESIM":service==="lounge"?"LOUNGE":"ALL";

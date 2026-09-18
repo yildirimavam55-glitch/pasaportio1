@@ -35,7 +35,7 @@ export function AdminTable({ head, children }: { head: string[]; children: React
   return <div className="admin-table-wrap"><table className="admin-table"><thead><tr>{head.map((item) => <th key={item} scope="col">{item}</th>)}</tr></thead><tbody>{children}</tbody></table></div>;
 }
 
-export function Metric({ label, value, detail, tone = "default" }: { label: string; value: string | number; detail?: string; tone?: "default" | "esim" | "lounge" | "profit" }) {
+export function Metric({ label, value, detail, tone = "default" }: { label: string; value: string | number; detail?: string | undefined; tone?: "default" | "esim" | "lounge" | "profit" }) {
   const border = tone === "esim" ? "border-l-4 border-l-success" : tone === "lounge" ? "border-l-4 border-l-warning" : tone === "profit" ? "border-l-4 border-l-primary" : "";
   return <div className={`admin-card ${border} p-3.5`}><span className="text-[11px] font-semibold text-muted-foreground">{label}</span><strong className="mt-1 block font-display text-xl">{value}</strong>{detail && <span className="mt-1 block text-[10px] text-muted-foreground">{detail}</span>}</div>;
 }
