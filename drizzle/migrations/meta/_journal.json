@@ -71,6 +71,13 @@
       "when": 1789717250575,
       "tag": "0009_revoke_anon_execute_log_admin_action",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1789722269163,
+      "tag": "0010_esim_raw_validity_and_activation",
+      "breakpoints": true
     }
   ]
 }

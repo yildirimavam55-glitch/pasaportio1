@@ -773,11 +773,15 @@ export type Database = {
           coverage_country_isos: string[]
           data_gb: number | null
           data_only: boolean | null
+          data_type: string
+          fair_use_note: string | null
           network_operators: string[]
           package_kind: string
           product_id: string
           provider_bundle_id: string | null
           provider_metadata: Json
+          raw_validity_unit: string | null
+          raw_validity_value: number | null
           region_id: string | null
           supports_5g: boolean | null
           supports_hotspot: boolean | null
@@ -794,11 +798,15 @@ export type Database = {
           coverage_country_isos?: string[]
           data_gb?: number | null
           data_only?: boolean | null
+          data_type?: string
+          fair_use_note?: string | null
           network_operators?: string[]
           package_kind?: string
           product_id: string
           provider_bundle_id?: string | null
           provider_metadata?: Json
+          raw_validity_unit?: string | null
+          raw_validity_value?: number | null
           region_id?: string | null
           supports_5g?: boolean | null
           supports_hotspot?: boolean | null
@@ -815,11 +823,15 @@ export type Database = {
           coverage_country_isos?: string[]
           data_gb?: number | null
           data_only?: boolean | null
+          data_type?: string
+          fair_use_note?: string | null
           network_operators?: string[]
           package_kind?: string
           product_id?: string
           provider_bundle_id?: string | null
           provider_metadata?: Json
+          raw_validity_unit?: string | null
+          raw_validity_value?: number | null
           region_id?: string | null
           supports_5g?: boolean | null
           supports_hotspot?: boolean | null

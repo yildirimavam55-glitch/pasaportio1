@@ -9,12 +9,21 @@ import { normalizeValidityToDays } from "@/domain/esim/package-matching";
 
 export type RawImportItem = Record<string, unknown>;
 
+export type ActivationPolicy = "ON_INSTALL" | "ON_FIRST_NETWORK_CONNECTION" | "ON_PURCHASE" | "UNKNOWN";
+
 export type NormalizedEsimItem = {
   externalId: string;
   name: string;
+  dataType: "FIXED" | "UNLIMITED";
   dataGb: number | null;
   unlimited: boolean;
+  /** Untouched provider validity — never overwritten by normalization. */
+  rawValidityValue: number | null;
+  rawValidityUnit: string | null;
+  /** Comparison-only value, always expressed in days. */
   validityDays: number | null;
+  activationPolicy: ActivationPolicy;
+  fairUseNote: string | null;
   coverage: string[];
   countryIso: string | null;
   packageKind: "COUNTRY" | "REGION" | "GLOBAL";
@@ -26,6 +35,7 @@ export type NormalizedEsimItem = {
   topupSupported: boolean | null;
   payload: RawImportItem;
 };
+
 
 export type ImportIssue = { index: number; externalId: string | null; message: string };
 
@@ -121,7 +131,8 @@ export function parseEsimCatalogue(input: unknown, defaultCurrency = "EUR"): Par
       return;
     }
 
-    const unlimited = toBool(pick(row, ["unlimited", "unlimitedData", "unlimited_data"])) ?? false;
+    const declaredDataType = String(pick(row, ["dataType", "data_type"]) ?? "").trim().toUpperCase();
+    const unlimited = declaredDataType === "UNLIMITED" || (toBool(pick(row, ["unlimited", "unlimitedData", "unlimited_data"])) ?? false);
     let dataGb = toNumber(pick(row, ["dataGb", "data_gb", "gb", "dataAmountGb"]));
     if (dataGb == null) {
       const mb = toNumber(pick(row, ["dataMb", "data_mb", "mb"]));
@@ -132,14 +143,29 @@ export function parseEsimCatalogue(input: unknown, defaultCurrency = "EUR"): Par
       return;
     }
 
-    const validityDays = normalizeValidityToDays(
-      pick(row, ["validityDays", "validity_days", "days", "duration", "validity", "validityPeriod", "validity_period"]),
-      pick(row, ["validityUnit", "validity_unit", "durationUnit", "duration_unit", "periodUnit", "unit"]),
-    );
+    const rawValidityValueInput = pick(row, ["validityDays", "validity_days", "days", "duration", "validity", "validityPeriod", "validity_period"]);
+    const rawValidityUnitInput = pick(row, ["validityUnit", "validity_unit", "durationUnit", "duration_unit", "periodUnit", "unit"]);
+    const rawValidityValue = toNumber(rawValidityValueInput);
+    const rawValidityUnit = rawValidityUnitInput == null ? (rawValidityValue == null ? null : "DAYS") : String(rawValidityUnitInput).trim().toUpperCase().slice(0, 20);
+    const validityDays = normalizeValidityToDays(rawValidityValueInput, rawValidityUnitInput);
     if (validityDays == null || validityDays <= 0) {
       issues.push({ index, externalId, message: "Geçerlilik süresi eksik veya okunamadı." });
       return;
     }
+
+    const declaredActivation = String(pick(row, ["activationPolicy", "activation_policy", "validityStartRule", "validity_start_rule", "activation"]) ?? "")
+      .trim()
+      .toUpperCase()
+      .replace(/[\s-]+/g, "_");
+    const activationPolicy: ActivationPolicy = (["ON_INSTALL", "ON_FIRST_NETWORK_CONNECTION", "ON_PURCHASE"] as const).includes(
+      declaredActivation as "ON_INSTALL",
+    )
+      ? (declaredActivation as ActivationPolicy)
+      : "UNKNOWN";
+
+    const fairUseNoteRaw = pick(row, ["fairUseNote", "fair_use_note", "fairUsePolicy", "fair_use_policy"]);
+    const fairUseNote = fairUseNoteRaw == null ? null : String(fairUseNoteRaw).trim().slice(0, 400) || null;
+
 
 
     const countryIso = toIsoList(pick(row, ["countryIso", "country_iso", "country"]))[0] ?? null;
@@ -162,9 +188,15 @@ export function parseEsimCatalogue(input: unknown, defaultCurrency = "EUR"): Par
     items.push({
       externalId,
       name,
+      dataType: unlimited ? "UNLIMITED" : "FIXED",
       dataGb: unlimited ? null : dataGb,
       unlimited,
+      rawValidityValue,
+      rawValidityUnit,
       validityDays: Math.round(validityDays),
+      activationPolicy,
+      fairUseNote,
+
       coverage: finalCoverage,
       countryIso: packageKind === "COUNTRY" ? (countryIso ?? finalCoverage[0] ?? null) : countryIso,
       packageKind,
@@ -261,6 +293,12 @@ export function hashItem(item: NormalizedEsimItem): string {
     item.dataGb,
     item.unlimited,
     item.validityDays,
+    item.rawValidityValue,
+    item.rawValidityUnit,
+    item.dataType,
+    item.activationPolicy,
+    item.fairUseNote,
+
     [...item.coverage].sort(),
     item.providerCost,
     item.providerCurrency,

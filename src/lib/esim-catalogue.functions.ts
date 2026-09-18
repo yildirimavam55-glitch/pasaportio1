@@ -4,6 +4,8 @@ import { createClient } from "@supabase/supabase-js";
 import type { Database } from "@/integrations/supabase/types";
 import { isTestCatalogueVisible } from "@/lib/test-catalogue.functions";
 
+export type ActivationPolicy = "ON_INSTALL" | "ON_FIRST_NETWORK_CONNECTION" | "ON_PURCHASE" | "UNKNOWN";
+
 export type EsimPackage = {
   id: string;
   providerProductId: string | null;
@@ -13,15 +15,23 @@ export type EsimPackage = {
   salePrice: number | null;
   badge: string | null;
   featured: boolean;
+  dataType: "FIXED" | "UNLIMITED";
   dataGb: number | null;
   unlimited: boolean;
+  /** Provider's own validity wording, kept untouched for reference. */
+  rawValidityValue: number | null;
+  rawValidityUnit: string | null;
+  /** Normalized days — comparison only. */
   validityDays: number | null;
+  activationPolicy: ActivationPolicy;
+  fairUseNote: string | null;
   coverage: string[];
   supports5g: boolean;
   supportsHotspot: boolean;
   networks: string[];
   isTest: boolean;
 };
+
 
 export type EsimStartingPrice = {
   targetId: string;
@@ -56,7 +66,7 @@ export const listEsimPackages = createServerFn({ method: "GET" })
     const { data: rows, error } = await publicClient()
       .from("service_products")
       .select(
-        "id, provider_external_id, slug, name, currency, sale_price, badge, featured, sort_order, lifecycle, customer_visible, provider_available, margin_flagged, service_type, is_test, source, esim_product_details(data_gb, unlimited_data, validity_days, coverage_country_isos, country_iso, supports_5g, supports_hotspot, network_operators)",
+        "id, provider_external_id, slug, name, currency, sale_price, badge, featured, sort_order, lifecycle, customer_visible, provider_available, margin_flagged, service_type, is_test, source, esim_product_details(data_gb, data_type, unlimited_data, validity_days, raw_validity_value, raw_validity_unit, activation_policy, fair_use_note, coverage_country_isos, country_iso, supports_5g, supports_hotspot, network_operators)",
       )
       .eq("service_type", "ESIM")
       .eq("lifecycle", "PUBLISHED")
@@ -73,8 +83,13 @@ export const listEsimPackages = createServerFn({ method: "GET" })
         const details = (Array.isArray(row.esim_product_details) ? row.esim_product_details[0] : row.esim_product_details) as
           | {
               data_gb: number | null;
+              data_type: string | null;
               unlimited_data: boolean | null;
               validity_days: number | null;
+              raw_validity_value: number | null;
+              raw_validity_unit: string | null;
+              activation_policy: string | null;
+              fair_use_note: string | null;
               coverage_country_isos: string[] | null;
               country_iso: string | null;
               supports_5g: boolean | null;
@@ -87,6 +102,8 @@ export const listEsimPackages = createServerFn({ method: "GET" })
           ...(details?.coverage_country_isos ?? []),
           ...(details?.country_iso ? [details.country_iso] : []),
         ].map((iso) => String(iso).toUpperCase());
+        const unlimited = details?.data_type === "UNLIMITED" || Boolean(details?.unlimited_data);
+        const activation = String(details?.activation_policy ?? "").toUpperCase();
         return {
           id: row.id,
           providerProductId: row.provider_external_id,
@@ -96,15 +113,23 @@ export const listEsimPackages = createServerFn({ method: "GET" })
           salePrice: row.sale_price == null ? null : Number(row.sale_price),
           badge: row.badge,
           featured: Boolean(row.featured),
-          dataGb: details?.data_gb == null ? null : Number(details.data_gb),
-          unlimited: Boolean(details?.unlimited_data),
+          dataType: unlimited ? "UNLIMITED" : "FIXED",
+          dataGb: unlimited || details?.data_gb == null ? null : Number(details.data_gb),
+          unlimited,
+          rawValidityValue: details?.raw_validity_value == null ? null : Number(details.raw_validity_value),
+          rawValidityUnit: details?.raw_validity_unit ?? null,
           validityDays: details?.validity_days ?? null,
+          activationPolicy: (["ON_INSTALL", "ON_FIRST_NETWORK_CONNECTION", "ON_PURCHASE"].includes(activation)
+            ? activation
+            : "UNKNOWN") as ActivationPolicy,
+          fairUseNote: details?.fair_use_note ?? null,
           coverage,
           supports5g: Boolean(details?.supports_5g),
           supportsHotspot: Boolean(details?.supports_hotspot),
           networks: details?.network_operators ?? [],
           isTest: Boolean(row.is_test),
         } satisfies EsimPackage;
+
       })
       .filter((pkg) => (wanted.length ? wanted.every((iso) => pkg.coverage.includes(iso)) : true))
       .filter((pkg) => pkg.salePrice != null && pkg.salePrice > 0)

@@ -40,6 +40,8 @@ import { DEFAULT_USAGE_SETTINGS, estimateUsageNeed } from "@/domain/esim/usage-r
 import { getEsimUsageSettings } from "@/lib/esim-settings.functions";
 import { listEsimPackages } from "@/lib/esim-catalogue.functions";
 import { resolvePackageRecommendation } from "@/domain/esim/package-matching";
+import { activationNote } from "@/domain/esim/activation";
+
 import { useCart } from "@/domain/cart/store";
 import { CountryFlag } from "./CountryFlag";
 import { Reveal } from "./Reveal";
@@ -444,6 +446,13 @@ export function EsimFinder({ state, onChange }: { state: EsimFinderState; onChan
               <p className="mt-3 text-sm leading-6 text-muted-foreground">
                 {copy.shortWhy}
               </p>
+              {activationNote(recommended.activationPolicy, locale) && (
+                <p className="mt-1 text-xs text-muted-foreground">{activationNote(recommended.activationPolicy, locale)}</p>
+              )}
+              {recommended.unlimited && recommended.fairUseNote && (
+                <p className="mt-1 text-xs text-muted-foreground">{recommended.fairUseNote}</p>
+              )}
+
               <Button type="button" variant="cta" size="lg" className="mt-4 w-full" onClick={goToPackages}>
                 {copy.seePackage(recommended.unlimited ? copy.unlimited : `${recommended.dataGb} GB`)}<ArrowRight />
               </Button>

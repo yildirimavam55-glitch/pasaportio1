@@ -13,6 +13,8 @@ import { useI18n } from "@/i18n";
 import { getCountryByIso } from "@/domain/geo/countries";
 import { useCart } from "@/domain/cart/store";
 import { filterEligiblePackages, selectRecommendedPackage } from "@/domain/esim/package-matching";
+import { activationNote } from "@/domain/esim/activation";
+
 import { listEsimPackages, type EsimPackage } from "@/lib/esim-catalogue.functions";
 import type { Locale } from "@/domain/enums";
 
@@ -221,8 +223,10 @@ function PackagesPage() {
 }
 
 function PackageCard({ pkg, isRecommended, isSelected, onSelect, whyText, copy }: { pkg: EsimPackage; isRecommended: boolean; isSelected: boolean; onSelect: () => void; whyText: string; copy: (typeof COPY)["tr"] }) {
+  const { locale } = useI18n();
   const [showWhy, setShowWhy] = useState(false);
   const price = pkg.salePrice ?? 0;
+
 
   return (
     <article id={`esim-package-${pkg.id}`} className={`flex flex-col rounded-card border p-5 shadow-card ${isRecommended ? "border-primary bg-primary-soft ring-1 ring-primary" : isSelected ? "border-primary bg-card" : "border-border bg-card"}`}>
@@ -247,6 +251,11 @@ function PackageCard({ pkg, isRecommended, isSelected, onSelect, whyText, copy }
         {pkg.supportsHotspot && <li className="flex items-center gap-1.5"><Wifi className="size-4 text-primary" />{copy.hotspot}</li>}
       </ul>
       <strong className="mt-4 block text-xl">{new Intl.NumberFormat(undefined, { style: "currency", currency: pkg.currency }).format(price)}</strong>
+      {activationNote(pkg.activationPolicy, locale) && (
+        <p className="mt-1 text-xs text-muted-foreground">{activationNote(pkg.activationPolicy, locale)}</p>
+      )}
+      {pkg.unlimited && pkg.fairUseNote && <p className="mt-1 text-xs text-muted-foreground">{pkg.fairUseNote}</p>}
+
       {isRecommended && (
         <div className="mt-2">
           <button type="button" className="inline-flex items-center gap-1 text-sm font-semibold text-primary" onClick={() => setShowWhy((open) => !open)} aria-expanded={showWhy}>
