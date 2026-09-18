@@ -6,6 +6,7 @@ import { z } from "zod";
 import { ArrowLeft, Check, Gauge, HelpCircle, Route as RouteIcon, ShoppingCart, Signal, Wifi, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { PublicShell } from "@/components/travel/PublicShell";
+import { CheckoutPausedNote, ServicePausedState, useServiceAvailability } from "@/components/travel/ServiceAvailability";
 import { CountryFlag } from "@/components/travel/CountryFlag";
 import { DeviceCompatibilityInline } from "@/components/travel/DeviceCompatibility";
 import { useI18n } from "@/i18n";
@@ -110,6 +111,7 @@ function PackagesPage() {
   const [selectedProductId, setSelectedProductId] = useState("");
   const [hasScrolled, setHasScrolled] = useState(false);
   const { lines, addLine } = useCart();
+  const availability = useServiceAvailability();
   const activeSelectedId = selectedProductId || recommendedProduct?.id || packages[0]?.id || "";
   const selectedProduct = packages.find((pkg) => pkg.id === activeSelectedId) ?? null;
   const selectedInCart = Boolean(selectedProduct && lines.some((line) => line.productId === selectedProduct.id));
@@ -124,6 +126,10 @@ function PackagesPage() {
     setHasScrolled(true);
     requestAnimationFrame(() => document.getElementById(`esim-package-${recommendedProduct.id}`)?.scrollIntoView({ behavior: "smooth", block: "center" }));
   }, [hasScrolled, recommendedProduct]);
+
+  if (!availability.isPending && !availability.esim.storefront) {
+    return <PublicShell activeService="esim"><ServicePausedState service="esim" /></PublicShell>;
+  }
 
   return (
     <PublicShell activeService="esim">
@@ -185,9 +191,13 @@ function PackagesPage() {
             ))}
             {selectedProduct && (
               <div className="sm:col-span-2 lg:col-span-3">
-                <Button variant="cta" size="lg" className="w-full scroll-mb-24" disabled={selectedInCart} onClick={() => addLine({ productId: selectedProduct.id, providerProductId: selectedProduct.providerProductId, serviceType: "ESIM", name: selectedProduct.name, meta: selectedProduct.unlimited ? copy.unlimited : `${selectedProduct.dataGb ?? "—"} GB`, price: selectedProduct.salePrice, currency: selectedProduct.currency, dataGb: selectedProduct.dataGb, validityDays: selectedProduct.validityDays, coverage: selectedProduct.coverage, isTest: selectedProduct.isTest })}>
-                  <ShoppingCart /> {selectedInCart ? copy.inCart : copy.add}
-                </Button>
+                {availability.esim.checkout ? (
+                  <Button variant="cta" size="lg" className="w-full scroll-mb-24" disabled={selectedInCart} onClick={() => addLine({ productId: selectedProduct.id, providerProductId: selectedProduct.providerProductId, serviceType: "ESIM", name: selectedProduct.name, meta: selectedProduct.unlimited ? copy.unlimited : `${selectedProduct.dataGb ?? "—"} GB`, price: selectedProduct.salePrice, currency: selectedProduct.currency, dataGb: selectedProduct.dataGb, validityDays: selectedProduct.validityDays, coverage: selectedProduct.coverage, isTest: selectedProduct.isTest })}>
+                    <ShoppingCart /> {selectedInCart ? copy.inCart : copy.add}
+                  </Button>
+                ) : (
+                  <CheckoutPausedNote service="esim" />
+                )}
                 {lines.length > 0 && (
                   <Link to="/sepet" className="mt-2 block text-center text-sm font-semibold text-primary">{copy.goToCart}</Link>
                 )}

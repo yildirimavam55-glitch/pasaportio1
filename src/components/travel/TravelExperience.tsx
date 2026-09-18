@@ -14,9 +14,10 @@ import { StorefrontProvider, useMediaUrl } from "@/components/storefront/Storefr
 import { FinderShell, EsimFinder, LoungeFinder } from "./Finder";
 import { DeviceCompatibilitySection } from "./DeviceCompatibility";
 import { PublicShell } from "./PublicShell";
+import { ServicePausedState, useServiceAvailability } from "./ServiceAvailability";
 import { Reveal } from "./Reveal";
 import { useServiceSwitchTransition } from "./ServiceSwitchTransition";
-import { DeliveryConfidence, HowItWorks, ProductSolutions, TrustStrip, VisualComplementary, VisualPopular } from "./PublicVisualSections";
+import { CampaignBanner, DeliveryConfidence, HowItWorks, ImageTextSection, ProductSolutions, TrustStrip, VisualComplementary, VisualPopular } from "./PublicVisualSections";
 
 /**
  * The public homepage is rendered from the PUBLISHED storefront configuration.
@@ -29,13 +30,25 @@ export function TravelExperience({ service, onServiceChange }: { service: Servic
     queryFn: () => getPublishedStorefront({ data: { service } }),
     staleTime: 60 * 1000,
   });
+  const availability = useServiceAvailability();
   const config = published.data?.config ?? defaultStorefront(service);
+
+  /** A paused service keeps its navigation but stops new discovery. */
+  if (!availability.isPending && !availability[service].storefront) {
+    return (
+      <PublicShell activeService={service} onServiceChange={onServiceChange}>
+        <ServicePausedState service={service} />
+      </PublicShell>
+    );
+  }
+
   return (
     <StorefrontProvider config={config} media={published.data?.media ?? {}}>
       <Experience service={service} onServiceChange={onServiceChange} config={config} />
     </StorefrontProvider>
   );
 }
+
 
 function Experience({ service, onServiceChange, config }: { service: ServiceSlug; onServiceChange: (service: ServiceSlug) => void; config: StorefrontConfig }) {
   const { locale } = useI18n();
@@ -84,6 +97,10 @@ function Experience({ service, onServiceChange, config }: { service: ServiceSlug
         return <Reveal key={section.id}><VisualPopular service={service} section={section} /></Reveal>;
       case "PRODUCT_SOLUTIONS":
         return <Reveal key={section.id}><ProductSolutions section={section} /></Reveal>;
+      case "CAMPAIGN_BANNER":
+        return <Reveal key={section.id}><CampaignBanner section={section} /></Reveal>;
+      case "IMAGE_TEXT":
+        return <Reveal key={section.id}><ImageTextSection section={section} /></Reveal>;
       case "CROSS_SELL":
         return showCrossSell ? <Reveal key={section.id}><VisualComplementary service={service} section={section} onSwitch={requestServiceChange} /></Reveal> : null;
       case "HOW_IT_WORKS":

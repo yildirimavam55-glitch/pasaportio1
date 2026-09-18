@@ -41,6 +41,9 @@ export type MediaAsset = {
   focalY: number;
   sizeBytes: number | null;
   mimeType: string | null;
+  width: number | null;
+  height: number | null;
+  tags: string[];
   createdAt: string;
   url: string | null;
 };
@@ -57,6 +60,9 @@ async function decorate(rows: any[]): Promise<MediaAsset[]> {
     focalY: Number(row.focal_y ?? 50),
     sizeBytes: row.size_bytes,
     mimeType: row.mime_type,
+    width: row.width ?? null,
+    height: row.height ?? null,
+    tags: Array.isArray(row.tags) ? row.tags : [],
     createdAt: row.created_at,
     url: urls.get(row.storage_path) ?? null,
   }));
@@ -85,6 +91,9 @@ export const uploadMedia = createServerFn({ method: "POST" })
       fileName: string;
       contentType: string;
       base64: string;
+      width?: number | null;
+      height?: number | null;
+      tags?: string[];
     }) => input,
   )
   .middleware([requireSupabaseAuth])
@@ -116,6 +125,9 @@ export const uploadMedia = createServerFn({ method: "POST" })
         alt_text: String(data.altText ?? "").slice(0, 300),
         mime_type: data.contentType,
         size_bytes: bytes.byteLength,
+        width: data.width && Number.isFinite(Number(data.width)) ? Math.round(Number(data.width)) : null,
+        height: data.height && Number.isFinite(Number(data.height)) ? Math.round(Number(data.height)) : null,
+        tags: (data.tags ?? []).map((tag) => String(tag).slice(0, 40)).filter(Boolean).slice(0, 12),
         created_by: (context as AdminCtx).userId,
       })
       .select("*")
@@ -158,16 +170,48 @@ export const updateMedia = createServerFn({ method: "POST" })
   });
 
 export const deleteMedia = createServerFn({ method: "POST" })
-  .inputValidator((input: { id: string }) => input)
+  .inputValidator((input: { id: string; force?: boolean }) => input)
   .middleware([requireSupabaseAuth])
   .handler(async ({ context, data }) => {
     const db = await adminDb(context as AdminCtx);
     const { data: before } = await db.from("media_assets").select("*").eq("id", data.id).maybeSingle();
     if (!before) throw new Error("Medya bulunamadı.");
+    const usage = await collectUsage(db, data.id);
+    if (usage.length && !data.force) {
+      throw new Error(`Bu görsel şu anda kullanılıyor: ${usage.join(", ")}. Önce değiştirip tekrar deneyin.`);
+    }
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     await supabaseAdmin.storage.from("media").remove([before.storage_path]);
     const { error } = await db.from("media_assets").delete().eq("id", data.id);
     if (error) throw new Error(error.message);
     await audit(db, "media.delete", "media_asset", data.id, { label: before.label }, null);
     return { ok: true };
+  });
+
+/** Where an asset is currently used — shown before any destructive delete. */
+async function collectUsage(db: any, id: string): Promise<string[]> {
+  const places: string[] = [];
+  const [destinations, airports, presets, campaigns, documents] = await Promise.all([
+    db.from("destination_content").select("country_id, countries(name)").or(`media_id.eq.${id},mobile_media_id.eq.${id}`),
+    db.from("airport_content").select("airport_id, airports(iata)").or(`media_id.eq.${id},mobile_media_id.eq.${id}`),
+    db.from("route_presets").select("slug").or(`media_id.eq.${id},mobile_media_id.eq.${id}`),
+    db.from("campaigns").select("name").or(`media_id.eq.${id},mobile_media_id.eq.${id}`),
+    db.from("cms_documents").select("key, data").like("key", "storefront_%"),
+  ]);
+  for (const row of destinations.data ?? []) places.push(`Destinasyon · ${row.countries?.name ?? row.country_id}`);
+  for (const row of airports.data ?? []) places.push(`Havalimanı · ${row.airports?.iata ?? row.airport_id}`);
+  for (const row of presets.data ?? []) places.push(`Rota · ${row.slug}`);
+  for (const row of campaigns.data ?? []) places.push(`Kampanya · ${row.name}`);
+  for (const row of documents.data ?? []) {
+    if (JSON.stringify(row.data ?? {}).includes(id)) places.push(`Sayfa · ${String(row.key).replace("storefront_", "")}`);
+  }
+  return [...new Set(places)].slice(0, 20);
+}
+
+export const getMediaUsage = createServerFn({ method: "GET" })
+  .inputValidator((input: { id: string }) => input)
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context, data }) => {
+    const db = await adminDb(context as AdminCtx);
+    return { places: await collectUsage(db, data.id) };
   });

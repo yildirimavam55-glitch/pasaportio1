@@ -18,6 +18,8 @@ export const SECTION_TYPES = [
   "TRUST",
   "POPULAR_DESTINATIONS",
   "PRODUCT_SOLUTIONS",
+  "CAMPAIGN_BANNER",
+  "IMAGE_TEXT",
   "CROSS_SELL",
   "HOW_IT_WORKS",
   "DELIVERY",
@@ -25,6 +27,29 @@ export const SECTION_TYPES = [
   "FINAL_CTA",
 ] as const;
 export type SectionType = (typeof SECTION_TYPES)[number];
+
+/**
+ * Core commercial sections. They may be hidden where that is safe, but they can
+ * never be deleted or duplicated from the editor.
+ */
+export const PROTECTED_SECTION_TYPES: readonly SectionType[] = ["SERVICE_SELECTOR", "FINDER"];
+export const isProtectedSection = (type: SectionType) => PROTECTED_SECTION_TYPES.includes(type);
+
+/** Section types an admin may add to a page. */
+export const ADDABLE_SECTION_TYPES: readonly SectionType[] = [
+  "HERO",
+  "POPULAR_DESTINATIONS",
+  "CAMPAIGN_BANNER",
+  "IMAGE_TEXT",
+  "TRUST",
+  "PRODUCT_SOLUTIONS",
+  "CROSS_SELL",
+  "HOW_IT_WORKS",
+  "DELIVERY",
+  "COMPATIBILITY",
+  "FAQ",
+  "FINAL_CTA",
+];
 
 export const LOCALES = ["tr", "de", "en"] as const;
 export type LocaleText = Record<Locale, string>;
@@ -93,6 +118,8 @@ export const SECTION_META: Record<SectionType, { label: string; hint: string; fi
   TRUST: { label: "Güven avantajları", hint: "Kısa güven maddeleri.", fields: ["headline"], items: "Güven maddesi", variants: ["standart"] },
   POPULAR_DESTINATIONS: { label: "Popüler destinasyonlar", hint: "Öne çıkan destinasyon / havalimanı kartları.", fields: ["eyebrow", "headline", "description"], items: "Kart", variants: ["standart"] },
   PRODUCT_SOLUTIONS: { label: "Çözüm / paket anlatımı", hint: "Tamamen gizlenebilir anlatım bölümü.", fields: ["eyebrow", "headline", "description"], items: "Kart", variants: ["standart"] },
+  CAMPAIGN_BANNER: { label: "Kampanya şeridi", hint: "Tek mesajlı duyuru / kampanya alanı.", fields: ["eyebrow", "headline", "description", "ctaLabel"], variants: ["standart", "sade"] },
+  IMAGE_TEXT: { label: "Görsel + metin", hint: "Yan yana görsel ve anlatım alanı.", fields: ["eyebrow", "headline", "description", "ctaLabel"], items: "Madde", variants: ["standart", "ters"] },
   CROSS_SELL: { label: "Çapraz öneri", hint: "eSIM ↔ Lounge önerisi.", fields: ["eyebrow", "headline", "description", "ctaLabel"], variants: ["standart", "sade"] },
   HOW_IT_WORKS: { label: "Nasıl çalışır", hint: "Adım adım anlatım.", fields: ["eyebrow", "headline"], items: "Adım", variants: ["standart"] },
   DELIVERY: { label: "QR / e-posta teslimatı", hint: "Yalnızca pazarlama anlatımı; gerçek QR ve teslimat verisi düzenlenemez.", fields: ["eyebrow", "headline", "description", "note1", "note2"], items: "Madde", variants: ["standart"] },
@@ -492,4 +519,23 @@ export function missingLocales(config: StorefrontConfig, locale: "de" | "en"): n
     }
   }
   return missing;
+}
+
+/** Builds a new, validated section for the "add section" flow. */
+export function createSection(type: SectionType): StorefrontSection {
+  const id = `${type.toLowerCase()}-${Math.random().toString(36).slice(2, 8)}`;
+  return sanitizeSection(
+    {
+      id,
+      type,
+      visible: true,
+      background: type === "CAMPAIGN_BANNER" ? "mint" : "white",
+      spacing: "normal",
+      width: "standard",
+      variant: "standart",
+      text: {},
+      items: [],
+    },
+    0,
+  )!;
 }

@@ -109,3 +109,97 @@ export const updateProduct = createServerFn({ method: "POST" })
     await audit(db, "product.update", "service_product", data.id, before, patch);
     return { product: after, margin, minimumMargin };
   });
+
+/** Safe bulk actions over selected products. Provider data is never touched. */
+export const bulkUpdateProducts = createServerFn({ method: "POST" })
+  .inputValidator(
+    (input: {
+      ids: string[];
+      action:
+        | "PUBLISH"
+        | "PAUSE"
+        | "SHOW"
+        | "HIDE"
+        | "FEATURE"
+        | "UNFEATURE"
+        | "ASSIGN_RULE"
+        | "SORT";
+      pricingRuleId?: string | null;
+      sortOrder?: number;
+    }) => input,
+  )
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context, data }) => {
+    const db = await adminDb(context as AdminCtx);
+    const ids = (data.ids ?? []).filter(Boolean).slice(0, 500);
+    if (!ids.length) throw new Error("Ürün seçilmedi.");
+
+    const patch: Record<string, unknown> =
+      data.action === "PUBLISH" ? { lifecycle: "PUBLISHED" }
+      : data.action === "PAUSE" ? { lifecycle: "PAUSED" }
+      : data.action === "SHOW" ? { customer_visible: true }
+      : data.action === "HIDE" ? { customer_visible: false }
+      : data.action === "FEATURE" ? { featured: true }
+      : data.action === "UNFEATURE" ? { featured: false }
+      : data.action === "ASSIGN_RULE" ? { pricing_rule_id: data.pricingRuleId || null }
+      : { sort_order: Number(data.sortOrder) || 0 };
+
+    const { error } = await db.from("service_products").update(patch).in("id", ids);
+    if (error) throw new Error(error.message);
+    await audit(db, "product.bulk_update", "service_product", null, { count: ids.length }, { action: data.action, ...patch });
+    return { ok: true, count: ids.length };
+  });
+
+/** Pricing rule manager. A manual product price override is never silently replaced. */
+export const savePricingRule = createServerFn({ method: "POST" })
+  .inputValidator(
+    (input: {
+      id?: string | null;
+      name: string;
+      serviceType?: "ESIM" | "LOUNGE" | null;
+      strategy: "MANUAL" | "MARKUP_PERCENT" | "FIXED_MARKUP";
+      markupPercent?: number | null;
+      fixedMarkup?: number | null;
+      minimumMarginPercent?: number | null;
+      roundingMode?: string | null;
+      active?: boolean;
+      priority?: number;
+    }) => input,
+  )
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context, data }) => {
+    const db = await adminDb(context as AdminCtx);
+    const patch: Record<string, unknown> = {
+      name: String(data.name ?? "").slice(0, 120) || "Kural",
+      service_type: data.serviceType === "ESIM" || data.serviceType === "LOUNGE" ? data.serviceType : null,
+      strategy: ["MANUAL", "MARKUP_PERCENT", "FIXED_MARKUP"].includes(data.strategy) ? data.strategy : "MANUAL",
+      markup_percent: data.markupPercent == null || data.markupPercent === ("" as any) ? null : Number(data.markupPercent),
+      fixed_markup: data.fixedMarkup == null || data.fixedMarkup === ("" as any) ? null : Number(data.fixedMarkup),
+      minimum_margin_percent: data.minimumMarginPercent == null || data.minimumMarginPercent === ("" as any) ? null : Number(data.minimumMarginPercent),
+      rounding_mode: data.roundingMode || "NONE",
+      active: data.active !== false,
+      priority: Number(data.priority) || 0,
+    };
+    if (data.id) {
+      const { error } = await db.from("pricing_rules").update(patch).eq("id", data.id);
+      if (error) throw new Error(error.message);
+      await audit(db, "pricing_rule.update", "pricing_rule", data.id, null, patch);
+      return { ok: true, id: data.id };
+    }
+    const { data: inserted, error } = await db.from("pricing_rules").insert(patch).select("id").single();
+    if (error) throw new Error(error.message);
+    await audit(db, "pricing_rule.create", "pricing_rule", inserted.id, null, patch);
+    return { ok: true, id: inserted.id as string };
+  });
+
+/** Rules are archived (deactivated), never deleted, so historic pricing stays explainable. */
+export const archivePricingRule = createServerFn({ method: "POST" })
+  .inputValidator((input: { id: string }) => input)
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context, data }) => {
+    const db = await adminDb(context as AdminCtx);
+    const { error } = await db.from("pricing_rules").update({ active: false }).eq("id", data.id);
+    if (error) throw new Error(error.message);
+    await audit(db, "pricing_rule.archive", "pricing_rule", data.id, null, { active: false });
+    return { ok: true };
+  });

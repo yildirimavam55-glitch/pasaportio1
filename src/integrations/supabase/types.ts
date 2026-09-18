@@ -47,6 +47,70 @@ export type Database = {
         }
         Relationships: []
       }
+      airport_content: {
+        Row: {
+          airport_id: string
+          content: Json
+          created_at: string
+          customer_visible: boolean
+          featured: boolean
+          id: string
+          media_id: string | null
+          mobile_media_id: string | null
+          sort_order: number
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          airport_id: string
+          content?: Json
+          created_at?: string
+          customer_visible?: boolean
+          featured?: boolean
+          id?: string
+          media_id?: string | null
+          mobile_media_id?: string | null
+          sort_order?: number
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          airport_id?: string
+          content?: Json
+          created_at?: string
+          customer_visible?: boolean
+          featured?: boolean
+          id?: string
+          media_id?: string | null
+          mobile_media_id?: string | null
+          sort_order?: number
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "airport_content_airport_id_fkey"
+            columns: ["airport_id"]
+            isOneToOne: true
+            referencedRelation: "airports"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "airport_content_media_id_fkey"
+            columns: ["media_id"]
+            isOneToOne: false
+            referencedRelation: "media_assets"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "airport_content_mobile_media_id_fkey"
+            columns: ["mobile_media_id"]
+            isOneToOne: false
+            referencedRelation: "media_assets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       airports: {
         Row: {
           city: string | null
@@ -120,6 +184,92 @@ export type Database = {
           session_id?: string | null
         }
         Relationships: []
+      }
+      campaigns: {
+        Row: {
+          active: boolean
+          airport_id: string | null
+          content: Json
+          created_at: string
+          cta_href: string
+          destination_id: string | null
+          ends_at: string | null
+          id: string
+          media_id: string | null
+          mobile_media_id: string | null
+          name: string
+          priority: number
+          service_type: Database["public"]["Enums"]["service_type"] | null
+          starts_at: string | null
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          active?: boolean
+          airport_id?: string | null
+          content?: Json
+          created_at?: string
+          cta_href?: string
+          destination_id?: string | null
+          ends_at?: string | null
+          id?: string
+          media_id?: string | null
+          mobile_media_id?: string | null
+          name: string
+          priority?: number
+          service_type?: Database["public"]["Enums"]["service_type"] | null
+          starts_at?: string | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          active?: boolean
+          airport_id?: string | null
+          content?: Json
+          created_at?: string
+          cta_href?: string
+          destination_id?: string | null
+          ends_at?: string | null
+          id?: string
+          media_id?: string | null
+          mobile_media_id?: string | null
+          name?: string
+          priority?: number
+          service_type?: Database["public"]["Enums"]["service_type"] | null
+          starts_at?: string | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "campaigns_airport_id_fkey"
+            columns: ["airport_id"]
+            isOneToOne: false
+            referencedRelation: "airports"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "campaigns_destination_id_fkey"
+            columns: ["destination_id"]
+            isOneToOne: false
+            referencedRelation: "destinations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "campaigns_media_id_fkey"
+            columns: ["media_id"]
+            isOneToOne: false
+            referencedRelation: "media_assets"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "campaigns_mobile_media_id_fkey"
+            columns: ["mobile_media_id"]
+            isOneToOne: false
+            referencedRelation: "media_assets"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       cms_documents: {
         Row: {
@@ -456,6 +606,70 @@ export type Database = {
             columns: ["destination_id"]
             isOneToOne: false
             referencedRelation: "destinations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      destination_content: {
+        Row: {
+          content: Json
+          country_id: string
+          created_at: string
+          customer_visible: boolean
+          featured: boolean
+          id: string
+          media_id: string | null
+          mobile_media_id: string | null
+          sort_order: number
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          content?: Json
+          country_id: string
+          created_at?: string
+          customer_visible?: boolean
+          featured?: boolean
+          id?: string
+          media_id?: string | null
+          mobile_media_id?: string | null
+          sort_order?: number
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          content?: Json
+          country_id?: string
+          created_at?: string
+          customer_visible?: boolean
+          featured?: boolean
+          id?: string
+          media_id?: string | null
+          mobile_media_id?: string | null
+          sort_order?: number
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "destination_content_country_id_fkey"
+            columns: ["country_id"]
+            isOneToOne: true
+            referencedRelation: "countries"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "destination_content_media_id_fkey"
+            columns: ["media_id"]
+            isOneToOne: false
+            referencedRelation: "media_assets"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "destination_content_mobile_media_id_fkey"
+            columns: ["mobile_media_id"]
+            isOneToOne: false
+            referencedRelation: "media_assets"
             referencedColumns: ["id"]
           },
         ]
@@ -832,6 +1046,7 @@ export type Database = {
           created_by: string | null
           focal_x: number
           focal_y: number
+          height: number | null
           id: string
           label: string
           mime_type: string | null
@@ -841,6 +1056,7 @@ export type Database = {
           tags: string[]
           updated_at: string
           usage: string
+          width: number | null
         }
         Insert: {
           alt_text?: string
@@ -849,6 +1065,7 @@ export type Database = {
           created_by?: string | null
           focal_x?: number
           focal_y?: number
+          height?: number | null
           id?: string
           label: string
           mime_type?: string | null
@@ -858,6 +1075,7 @@ export type Database = {
           tags?: string[]
           updated_at?: string
           usage?: string
+          width?: number | null
         }
         Update: {
           alt_text?: string
@@ -866,6 +1084,7 @@ export type Database = {
           created_by?: string | null
           focal_x?: number
           focal_y?: number
+          height?: number | null
           id?: string
           label?: string
           mime_type?: string | null
@@ -875,6 +1094,7 @@ export type Database = {
           tags?: string[]
           updated_at?: string
           usage?: string
+          width?: number | null
         }
         Relationships: []
       }
@@ -1150,6 +1370,27 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      platform_settings: {
+        Row: {
+          data: Json
+          id: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          data?: Json
+          id: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          data?: Json
+          id?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
       }
       pricing_rules: {
         Row: {
@@ -1694,6 +1935,69 @@ export type Database = {
           name?: string
         }
         Relationships: []
+      }
+      route_presets: {
+        Row: {
+          active: boolean
+          content: Json
+          countries: string[]
+          created_at: string
+          featured: boolean
+          icon: string
+          id: string
+          media_id: string | null
+          mobile_media_id: string | null
+          slug: string
+          sort_order: number
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          active?: boolean
+          content?: Json
+          countries?: string[]
+          created_at?: string
+          featured?: boolean
+          icon?: string
+          id?: string
+          media_id?: string | null
+          mobile_media_id?: string | null
+          slug: string
+          sort_order?: number
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          active?: boolean
+          content?: Json
+          countries?: string[]
+          created_at?: string
+          featured?: boolean
+          icon?: string
+          id?: string
+          media_id?: string | null
+          mobile_media_id?: string | null
+          slug?: string
+          sort_order?: number
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "route_presets_media_id_fkey"
+            columns: ["media_id"]
+            isOneToOne: false
+            referencedRelation: "media_assets"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "route_presets_mobile_media_id_fkey"
+            columns: ["mobile_media_id"]
+            isOneToOne: false
+            referencedRelation: "media_assets"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       service_products: {
         Row: {

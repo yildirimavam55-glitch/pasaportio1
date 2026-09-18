@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
-import { ArrowDown, ArrowUp, Copy, Eye, EyeOff, GripVertical, History, Monitor, Plus, RotateCcw, Save, Smartphone, Tablet, Trash2, Upload } from "lucide-react";
+import { ArrowDown, ArrowUp, Copy, Eye, EyeOff, GripVertical, History, Lock, Monitor, Plus, RotateCcw, Save, Smartphone, Tablet, Trash2, Upload } from "lucide-react";
 import { AdminGate } from "@/components/AdminGate";
 import { AdminDrawer, AdminError, AdminLoading, AdminPanel, EmptyState, Field } from "@/components/admin/AdminUi";
 import { adminHead } from "@/components/admin/AdminSectionPage";
@@ -13,8 +13,8 @@ import { Button } from "@/components/ui/button";
 import { listMedia } from "@/lib/admin-media.functions";
 import { discardStorefrontDraft, getStorefrontEditor, restoreStorefrontVersion, saveStorefrontDraft } from "@/lib/storefront.functions";
 import {
-  BACKGROUNDS, FIELD_LABELS, HERO_HEIGHTS, SECTION_META, SPACINGS, WIDTHS,
-  missingLocales, type LocaleText, type SectionItem, type StorefrontConfig, type StorefrontSection, type StorefrontService,
+  ADDABLE_SECTION_TYPES, BACKGROUNDS, FIELD_LABELS, HERO_HEIGHTS, SECTION_META, SPACINGS, WIDTHS,
+  createSection, isProtectedSection, missingLocales, type LocaleText, type SectionItem, type StorefrontConfig, type StorefrontSection, type StorefrontService,
 } from "@/domain/storefront/registry";
 import { BACKGROUND_LABEL } from "@/domain/storefront/styles";
 import type { Locale } from "@/domain/enums";
@@ -126,6 +126,21 @@ function StorefrontEditor() {
     return config;
   });
 
+  /** Core commercial sections stay on the page; everything else may be removed. */
+  const removeSection = (id: string) => update((config) => {
+    const section = config.sections.find((row) => row.id === id);
+    if (!section || isProtectedSection(section.type)) return config;
+    config.sections = config.sections.filter((row) => row.id !== id);
+    if (selectedId === id) setSelectedId(null);
+    return config;
+  });
+
+  const addSection = (type: StorefrontSection["type"]) => {
+    const created = createSection(type);
+    update((config) => { config.sections.push(created); return config; });
+    setSelectedId(created.id);
+  };
+
   return (
     <AdminGate title="Mağaza · Ana Sayfa">
       {editor.isPending || !draft ? <AdminLoading /> : editor.error ? <AdminError error={editor.error} /> : (
@@ -192,13 +207,31 @@ function StorefrontEditor() {
                     <button type="button" className="size-7 shrink-0 rounded hover:bg-secondary" aria-label={section.visible ? "Gizle" : "Göster"} onClick={() => patchSection(section.id, { visible: !section.visible })}>
                       {section.visible ? <Eye className="mx-auto size-3.5" /> : <EyeOff className="mx-auto size-3.5 text-muted-foreground" />}
                     </button>
-                    {DUPLICABLE.has(section.type) && (
+                    {DUPLICABLE.has(section.type) && !isProtectedSection(section.type) && (
                       <button type="button" className="size-7 shrink-0 rounded hover:bg-secondary" aria-label="Kopyala" onClick={() => duplicate(section.id)}><Copy className="mx-auto size-3.5" /></button>
+                    )}
+                    {isProtectedSection(section.type) ? (
+                      <span className="size-7 shrink-0 rounded" title="Bu bölüm korumalıdır ve silinemez."><Lock className="mx-auto size-3.5 text-muted-foreground" /></span>
+                    ) : (
+                      <button type="button" className="size-7 shrink-0 rounded text-destructive hover:bg-destructive/10" aria-label="Bölümü sil" onClick={() => { if (confirm("Bu bölüm sayfadan kaldırılsın mı?")) removeSection(section.id); }}><Trash2 className="mx-auto size-3.5" /></button>
                     )}
                   </div>
                 ))}
               </div>
-              <p className="mt-3 text-[10px] text-muted-foreground">Bölümleri sürükleyerek ya da oklarla sıralayabilirsin. Sıralama müşteri sayfasına birebir yansır.</p>
+              <div className="mt-3 grid gap-1.5">
+                <select
+                  className="h-9 rounded-md border border-border bg-background px-2 text-xs"
+                  value=""
+                  aria-label="Eklenecek bölüm türü"
+                  onChange={(event) => { if (event.target.value) addSection(event.target.value as StorefrontSection["type"]); }}
+                >
+                  <option value="">+ Bölüm ekle…</option>
+                  {ADDABLE_SECTION_TYPES.map((type) => (
+                    <option key={type} value={type}>{SECTION_META[type].label}</option>
+                  ))}
+                </select>
+              </div>
+              <p className="mt-3 text-[10px] text-muted-foreground">Bölümleri sürükleyerek ya da oklarla sıralayabilirsin. Sıralama müşteri sayfasına birebir yansır. Kilit işaretli bölümler satışın çalışması için korunur.</p>
             </AdminPanel>
 
             <AdminPanel title={`Canlı önizleme · ${device === "desktop" ? "Masaüstü" : device === "tablet" ? "Tablet" : "Mobil 390px"}`}>

@@ -4,6 +4,7 @@ import { z } from "zod";
 import { ArrowLeft, CalendarDays, Clock3, MapPin, PlaneLanding, PlaneTakeoff, ArrowRightLeft, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { PublicShell } from "@/components/travel/PublicShell";
+import { CheckoutPausedNote, ServicePausedState, useServiceAvailability } from "@/components/travel/ServiceAvailability";
 import { CountryFlag } from "@/components/travel/CountryFlag";
 import { useI18n } from "@/i18n";
 import { getAirportByIata } from "@/domain/geo/airports";
@@ -69,6 +70,7 @@ function LoungeOptionsPage() {
   const copy = COPY[locale];
   const search = Route.useSearch();
   const airport = getAirportByIata(search.iata);
+  const availability = useServiceAvailability();
   const { data: options = [], isPending } = useQuery({
     queryKey: ["lounge-options", search.iata, search.situation],
     queryFn: () => listLoungeOptions({ data: { iata: search.iata, situation: search.situation } }),
@@ -77,6 +79,10 @@ function LoungeOptionsPage() {
   const situationIcon =
     search.situation === "TRANSIT" ? <ArrowRightLeft className="size-4 text-primary" /> : search.situation === "ARRIVAL" ? <PlaneLanding className="size-4 text-primary" /> : <PlaneTakeoff className="size-4 text-primary" />;
   const situationLabel = search.situation === "TRANSIT" ? copy.transit : search.situation === "ARRIVAL" ? copy.arrival : copy.departure;
+
+  if (!availability.isPending && !availability.lounge.storefront) {
+    return <PublicShell activeService="lounge"><ServicePausedState service="lounge" /></PublicShell>;
+  }
 
   return (
     <PublicShell activeService="lounge">
@@ -125,6 +131,7 @@ function LoungeOptionsPage() {
 
 function LoungeCard({ option, travelers, copy, locale, search }: { option: LoungeOption; travelers: number; copy: (typeof COPY)["tr"]; locale: Locale; search: { date: string; situation: string } }) {
   const { lines, addLine } = useCart();
+  const availability = useServiceAvailability();
   const inCart = lines.some((line) => line.productId === option.id);
   const price = option.salePrice ?? 0;
   const money = (value: number) => new Intl.NumberFormat(undefined, { style: "currency", currency: option.currency }).format(value);
@@ -154,14 +161,18 @@ function LoungeCard({ option, travelers, copy, locale, search }: { option: Loung
         <strong className="block text-xl">{money(price)} <span className="text-sm font-medium text-muted-foreground">/ {copy.perPerson}</span></strong>
         {travelers > 1 && <span className="text-sm text-muted-foreground">{money(price * travelers)} {copy.total}</span>}
       </div>
-      <Button
-        variant="cta"
-        className="mt-3 w-full"
-        disabled={inCart}
-        onClick={() => addLine({ productId: option.id, serviceType: "LOUNGE", name: option.loungeName ?? option.name, meta: "", price, currency: option.currency, quantity: travelers, isTest: option.isTest, airport: option.iata, terminal: option.terminal, date: search.date || null, situation: search.situation })}
-      >
-        {copy.select}
-      </Button>
+      {availability.lounge.checkout ? (
+        <Button
+          variant="cta"
+          className="mt-3 w-full"
+          disabled={inCart}
+          onClick={() => addLine({ productId: option.id, serviceType: "LOUNGE", name: option.loungeName ?? option.name, meta: "", price, currency: option.currency, quantity: travelers, isTest: option.isTest, airport: option.iata, terminal: option.terminal, date: search.date || null, situation: search.situation })}
+        >
+          {copy.select}
+        </Button>
+      ) : (
+        <CheckoutPausedNote service="lounge" className="mt-3" />
+      )}
       {inCart && <Link to="/sepet" className="mt-2 block text-center text-sm font-semibold text-primary">{copy.goToCart}</Link>}
     </article>
   );
