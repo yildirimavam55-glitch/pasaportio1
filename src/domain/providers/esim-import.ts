@@ -206,6 +206,9 @@ export function parseEsimCatalogue(input: unknown, defaultCurrency = "EUR"): Par
       validityDays: Math.round(validityDays),
       activationPolicy,
       fairUseNote,
+      fairUsePolicy,
+      highSpeedAllowance,
+      speedAfterFairUse,
 
       coverage: finalCoverage,
       countryIso: packageKind === "COUNTRY" ? (countryIso ?? finalCoverage[0] ?? null) : countryIso,
@@ -308,6 +311,9 @@ export function hashItem(item: NormalizedEsimItem): string {
     item.dataType,
     item.activationPolicy,
     item.fairUseNote,
+    item.fairUsePolicy,
+    item.highSpeedAllowance,
+    item.speedAfterFairUse,
 
     [...item.coverage].sort(),
     item.providerCost,

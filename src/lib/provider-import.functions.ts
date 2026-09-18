@@ -307,6 +307,9 @@ export const applyEsimImport = createServerFn({ method: "POST" })
             raw_validity_unit: item.rawValidityUnit,
             activation_policy: item.activationPolicy,
             fair_use_note: item.fairUseNote,
+            fair_use_policy: item.fairUsePolicy,
+            high_speed_allowance: item.highSpeedAllowance,
+            speed_after_fair_use: item.speedAfterFairUse,
             provider_bundle_id: item.externalId,
 
             network_operators: item.networks,
