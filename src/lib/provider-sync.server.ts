@@ -240,19 +240,33 @@ export async function runProviderSync(
   const mappingByExternal = new Map((mappingRows ?? []).map((row: any) => [row.external_id, row]));
 
   const previousSnapshot = new Map<string, CatalogueSnapshotItem>();
+  // Previous technical attributes come from the internal catalogue so the diff
+  // engine reports real coverage/validity/data changes only.
+  const previousProductIds = [...mappingByExternal.values()].map((row: any) => row.product_id).filter(Boolean);
+  const detailByProduct = new Map<string, any>();
+  for (let i = 0; i < previousProductIds.length; i += 300) {
+    const { data: details } = await db
+      .from("esim_product_details")
+      .select("product_id, coverage_country_isos, validity_days, data_gb, unlimited_data")
+      .in("product_id", previousProductIds.slice(i, i + 300));
+    for (const row of details ?? []) detailByProduct.set(row.product_id, row);
+  }
+
   for (const [externalId, mapping] of mappingByExternal) {
     const payload = (rawByExternal.get(externalId) as any) ?? null;
+    const detail = detailByProduct.get((mapping as any).product_id) ?? null;
     previousSnapshot.set(externalId as string, {
       externalId: externalId as string,
       providerCost: (mapping as any).provider_cost == null ? null : Number((mapping as any).provider_cost),
       currency: provider.currency ?? "EUR",
-      coverage: [],
-      validityDays: null,
-      dataGb: null,
-      unlimited: false,
+      coverage: detail?.coverage_country_isos ?? [],
+      validityDays: detail?.validity_days ?? null,
+      dataGb: detail?.data_gb == null ? null : Number(detail.data_gb),
+      unlimited: Boolean(detail?.unlimited_data),
       available: Boolean((mapping as any).available && (payload?.available ?? true)),
     });
   }
+
 
   let created = 0;
   let updated = 0;
