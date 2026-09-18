@@ -130,6 +130,7 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
+      <PublishedTheme />
       <I18nProvider>
         <ServiceSwitchTransitionProvider>
           {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
