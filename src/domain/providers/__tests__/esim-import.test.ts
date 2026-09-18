@@ -66,4 +66,36 @@ describe("provider eSIM import", () => {
     expect(diff.find((row) => row.externalId === "EU-20GB-30")!.status).toBe("NEW");
     expect(missingExternalIds(priced, existing)).toEqual(["OLD-5GB"]);
   });
+
+  it("keeps the raw provider validity next to the normalized days", () => {
+    const { items } = parseEsimCatalogue([
+      { externalId: "H-48", name: "48 saatlik paket", dataGb: 1, validity: 48, validityUnit: "HOURS", coverage: ["TR"], cost: 2 },
+    ]);
+    expect(items[0]!.rawValidityValue).toBe(48);
+    expect(items[0]!.rawValidityUnit).toBe("HOURS");
+    expect(items[0]!.validityDays).toBe(2);
+  });
+
+  it("keeps unlimited packages free of an artificial GB value and records activation", () => {
+    const { items } = parseEsimCatalogue([
+      {
+        externalId: "U-7",
+        name: "Sınırsız 7 gün",
+        dataType: "UNLIMITED",
+        validityDays: 7,
+        coverage: ["TR"],
+        cost: 8,
+        activationPolicy: "ON_FIRST_NETWORK_CONNECTION",
+        fairUseNote: "Günlük 2 GB sonrası hız düşer.",
+      },
+      { externalId: "F-1", name: "1 GB", dataGb: 1, validityDays: 7, coverage: ["TR"], cost: 2 },
+    ]);
+    expect(items[0]!.dataType).toBe("UNLIMITED");
+    expect(items[0]!.dataGb).toBeNull();
+    expect(items[0]!.activationPolicy).toBe("ON_FIRST_NETWORK_CONNECTION");
+    expect(items[0]!.fairUseNote).toContain("2 GB");
+    expect(items[1]!.dataType).toBe("FIXED");
+    expect(items[1]!.activationPolicy).toBe("UNKNOWN");
+  });
 });
+
