@@ -442,7 +442,7 @@ export function EsimFinder({ state, onChange }: { state: EsimFinderState; onChan
                 </strong>
               )}
               <p className="mt-3 text-sm leading-6 text-muted-foreground">
-                {copy.shortWhy(recommendation.requiredGb, recommended.unlimited ? copy.unlimited : `${recommended.dataGb} GB`)}
+                {copy.shortWhy}
               </p>
               <Button type="button" variant="cta" size="lg" className="mt-4 w-full" onClick={goToPackages}>
                 {copy.seePackage(recommended.unlimited ? copy.unlimited : `${recommended.dataGb} GB`)}<ArrowRight />
@@ -460,7 +460,7 @@ export function EsimFinder({ state, onChange }: { state: EsimFinderState; onChan
             </div>
           )}
           {!packagesPending && !recommended && <Button type="button" variant="outline" size="lg" className="mt-3 w-full scroll-mb-24" disabled={!canSeePackages} onClick={goToPackages}>
-            {copy.seePackages}<ArrowRight />
+            {copy.allPackages}<ArrowRight />
           </Button>}
         </section>
       </Reveal>
