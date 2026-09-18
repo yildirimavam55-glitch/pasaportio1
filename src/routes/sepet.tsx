@@ -17,7 +17,7 @@ const COPY = {
     remove: "Kaldır", total: "Toplam", quantity: "adet", checkout: "Test ödemesine geç",
     testBadge: "TEST", testNote: "Bu ürün test kataloğundandır. Gerçek sağlayıcı ürünü değildir.",
     demoTitle: "Rezervasyon hazır — DEMO", demoText: "Bu yalnızca arayüz testidir. Aşağıdaki kod geçerli bir sağlayıcı kuponu veya eSIM QR kodu değildir.",
-    demoQr: "DEMO QR PLACEHOLDER",
+    demoQr: "Örnek QR görünümü",
   },
   de: {
     title: "Dein Warenkorb", lead: "Deine Auswahl. In dieser Phase erfolgt keine Zahlung.",
@@ -25,7 +25,7 @@ const COPY = {
     remove: "Entfernen", total: "Gesamt", quantity: "Stk.", checkout: "Zum Test-Checkout",
     testBadge: "TEST", testNote: "Testkatalog-Produkt. Kein echtes Anbieterprodukt.",
     demoTitle: "Buchung bereit — DEMO", demoText: "Nur ein Oberflächentest. Der Code unten ist kein gültiger Anbieter-Voucher und kein eSIM-QR-Code.",
-    demoQr: "DEMO QR PLATZHALTER",
+    demoQr: "QR-Beispielansicht",
   },
   en: {
     title: "Your cart", lead: "Your selection. No payment is taken at this stage.",
@@ -33,7 +33,7 @@ const COPY = {
     remove: "Remove", total: "Total", quantity: "pcs", checkout: "Go to test checkout",
     testBadge: "TEST", testNote: "Test catalogue product. Not real provider inventory.",
     demoTitle: "Booking ready — DEMO", demoText: "Interface test only. The code below is not a valid provider voucher or eSIM QR code.",
-    demoQr: "DEMO QR PLACEHOLDER",
+    demoQr: "Sample QR preview",
   },
 } satisfies Record<Locale, Record<string, string>>;
 
