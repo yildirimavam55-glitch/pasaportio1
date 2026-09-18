@@ -29,6 +29,7 @@ const groups: AdminGroup[] = [
     { to: "/admin/smart-finders/esim", label: "Smart Finder", icon: Sparkles },
     { to: "/admin/esim/devices", label: "Cihaz uyumluluğu", icon: Smartphone },
     { to: "/admin/esim/fulfillment", label: "eSIM teslimat", icon: DatabaseZap },
+    { to: "/admin/esim/route-presets", label: "Rota şablonları", icon: Route },
   ]},
   { label: "Lounge", links: [
     { to: "/admin", label: "Lounge genel bakış", icon: Plane },
@@ -39,6 +40,7 @@ const groups: AdminGroup[] = [
     { to: "/admin/providers", label: "Provider Hub", icon: PlugZap },
     { to: "/admin/esim/provider-import", label: "Katalog senkronu", icon: CloudUpload },
     { to: "/admin/test-catalogue", label: "Test kataloğu", icon: Boxes },
+    { to: "/admin/pricing-rules", label: "Fiyatlandırma kuralları", icon: CircleDollarSign },
   ]},
   { label: "Mağaza yönetimi", links: [
     { to: "/admin/storefront/home", label: "Ana sayfa düzenleyici", icon: LayoutTemplate },
@@ -46,6 +48,9 @@ const groups: AdminGroup[] = [
     { to: "/admin/cms", label: "Sayfalar / CMS", icon: MonitorCog },
     { to: "/admin/media", label: "Medya", icon: Image },
     { to: "/admin/theme", label: "Tema", icon: Sparkles },
+    { to: "/admin/destinations", label: "Destinasyonlar", icon: MapPin },
+    { to: "/admin/airports", label: "Havalimanları", icon: Plane },
+    { to: "/admin/marketing/campaigns", label: "Kampanyalar", icon: Megaphone },
   ]},
   { label: "Finans & Operasyon", links: [
     { to: "/admin/finance", label: "Finans", icon: CircleDollarSign },
@@ -53,6 +58,7 @@ const groups: AdminGroup[] = [
     { to: "/admin/alerts", label: "Operasyon uyarıları", icon: AlertTriangle },
   ]},
   { label: "Sistem", links: [
+    { to: "/admin/service-controls", label: "Servis kontrolleri", icon: ToggleLeft },
     { to: "/admin/flags", label: "Özellik bayrakları", icon: Flag },
     { to: "/admin/audit", label: "Denetim kaydı", icon: ShieldCheck },
     { to: "/admin/settings", label: "Ayarlar", icon: Settings },
@@ -130,8 +136,8 @@ function AdminSearch({ open, onClose }: { open: boolean; onClose: () => void }) 
     ["Müşteriler", results.customers.map((row: any) => ({ id: row.id, label: row.full_name ?? row.email ?? "Müşteri", detail: row.email ?? "", to: "/admin/customers" }))],
     ["Ürünler", results.products.map((row: any) => ({ id: row.id, label: row.name, detail: `${row.service_type}${row.sale_price != null ? ` · ${Number(row.sale_price).toFixed(2)} ${row.currency}` : ""}`, to: "/admin/products" }))],
     ["Provider’lar", results.providers.map((row: any) => ({ id: row.id, label: row.name, detail: row.service_type, to: "/admin/providers" }))],
-    ["Havalimanları", results.airports.map((row: any) => ({ id: row.id, label: `${row.iata} · ${row.name}`, detail: row.city ?? "", to: "/admin/products" }))],
-    ["Destinasyonlar", results.destinations.map((row: any) => ({ id: row.id, label: row.name, detail: row.slug, to: "/admin/products" }))],
+    ["Havalimanları", results.airports.map((row: any) => ({ id: row.id, label: `${row.iata} · ${row.name}`, detail: row.city ?? "", to: "/admin/airports" }))],
+    ["Destinasyonlar", results.destinations.map((row: any) => ({ id: row.id, label: row.name, detail: row.slug, to: "/admin/destinations" }))],
   ].filter(([, rows]) => rows.length) as any : [];
 
   return <div className="fixed inset-0 z-[70] flex items-start justify-center p-4 pt-20">
