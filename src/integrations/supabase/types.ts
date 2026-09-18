@@ -47,6 +47,51 @@ export type Database = {
         }
         Relationships: []
       }
+      admin_invitations: {
+        Row: {
+          accepted_at: string | null
+          accepted_user_id: string | null
+          created_at: string
+          delivery_state: string
+          email: string
+          expires_at: string
+          id: string
+          invited_by: string | null
+          note: string | null
+          status: string
+          token_hash: string
+          updated_at: string
+        }
+        Insert: {
+          accepted_at?: string | null
+          accepted_user_id?: string | null
+          created_at?: string
+          delivery_state?: string
+          email: string
+          expires_at?: string
+          id?: string
+          invited_by?: string | null
+          note?: string | null
+          status?: string
+          token_hash: string
+          updated_at?: string
+        }
+        Update: {
+          accepted_at?: string | null
+          accepted_user_id?: string | null
+          created_at?: string
+          delivery_state?: string
+          email?: string
+          expires_at?: string
+          id?: string
+          invited_by?: string | null
+          note?: string | null
+          status?: string
+          token_hash?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       airport_content: {
         Row: {
           airport_id: string
@@ -2312,6 +2357,8 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      accept_admin_invitation: { Args: never; Returns: Json }
+      cancel_admin_invitation: { Args: { _id: string }; Returns: undefined }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -2319,7 +2366,22 @@ export type Database = {
         }
         Returns: boolean
       }
+      invite_admin: {
+        Args: { _email: string; _note: string; _token_hash: string }
+        Returns: Json
+      }
       is_admin: { Args: never; Returns: boolean }
+      list_admin_users: {
+        Args: never
+        Returns: {
+          created_at: string
+          email: string
+          email_confirmed: boolean
+          full_name: string
+          last_sign_in_at: string
+          user_id: string
+        }[]
+      }
       log_admin_action: {
         Args: {
           _action: string
@@ -2330,6 +2392,11 @@ export type Database = {
         }
         Returns: string
       }
+      refresh_admin_invitation: {
+        Args: { _id: string; _token_hash: string }
+        Returns: undefined
+      }
+      revoke_admin: { Args: { _user_id: string }; Returns: undefined }
     }
     Enums: {
       alert_status: "OPEN" | "ACKNOWLEDGED" | "RESOLVED"
