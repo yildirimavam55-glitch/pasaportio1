@@ -100,6 +100,8 @@ describe("automatic round-up to the next available package", () => {
         coverageIsos: ["DE", "TR"],
       }).package?.dataGb,
     ).toBe(20);
+  });
+
 
   it("requires validity to cover the whole trip, not only the data amount", () => {
     const catalogue = [
