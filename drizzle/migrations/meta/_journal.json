@@ -64,6 +64,13 @@
       "when": 1789715928764,
       "tag": "0008_store_management",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1789717250575,
+      "tag": "0009_revoke_anon_execute_log_admin_action",
+      "breakpoints": true
     }
   ]
 }
