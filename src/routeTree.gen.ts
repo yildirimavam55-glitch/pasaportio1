@@ -34,7 +34,6 @@ import { Route as AuthenticatedAdminProductsRouteImport } from './routes/_authen
 import { Route as AuthenticatedAdminProvidersRouteImport } from './routes/_authenticated/admin.providers'
 import { Route as AuthenticatedAdminRefundsRouteImport } from './routes/_authenticated/admin.refunds'
 import { Route as AuthenticatedAdminServiceControlsRouteImport } from './routes/_authenticated/admin.service-controls'
-import { Route as AuthenticatedAdminSettingsRouteImport } from './routes/_authenticated/admin.settings'
 import { Route as AuthenticatedAdminTestCatalogueRouteImport } from './routes/_authenticated/admin.test-catalogue'
 import { Route as AuthenticatedAdminThemeRouteImport } from './routes/_authenticated/admin.theme'
 import { Route as AuthenticatedHesabimIndexRouteImport } from './routes/_authenticated/hesabim.index'
@@ -45,6 +44,7 @@ import { Route as AuthenticatedAdminEsimProviderImportRouteImport } from './rout
 import { Route as AuthenticatedAdminEsimRoutePresetsRouteImport } from './routes/_authenticated/admin.esim.route-presets'
 import { Route as AuthenticatedAdminLoungeBookingsRouteImport } from './routes/_authenticated/admin.lounge.bookings'
 import { Route as AuthenticatedAdminMarketingCampaignsRouteImport } from './routes/_authenticated/admin.marketing.campaigns'
+import { Route as AuthenticatedAdminSettingsIndexRouteImport } from './routes/_authenticated/admin.settings.index'
 import { Route as AuthenticatedAdminSettingsUsersRouteImport } from './routes/_authenticated/admin.settings.users'
 import { Route as AuthenticatedAdminSmartFindersEsimRouteImport } from './routes/_authenticated/admin.smart-finders.esim'
 import { Route as AuthenticatedAdminStorefrontHomeRouteImport } from './routes/_authenticated/admin.storefront.home'
@@ -186,12 +186,6 @@ const AuthenticatedAdminServiceControlsRoute =
     path: '/admin/service-controls',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
-const AuthenticatedAdminSettingsRoute =
-  AuthenticatedAdminSettingsRouteImport.update({
-    id: '/admin/settings',
-    path: '/admin/settings',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any)
 const AuthenticatedAdminTestCatalogueRoute =
   AuthenticatedAdminTestCatalogueRouteImport.update({
     id: '/admin/test-catalogue',
@@ -251,11 +245,17 @@ const AuthenticatedAdminMarketingCampaignsRoute =
     path: '/admin/marketing/campaigns',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedAdminSettingsIndexRoute =
+  AuthenticatedAdminSettingsIndexRouteImport.update({
+    id: '/admin/settings/',
+    path: '/admin/settings/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedAdminSettingsUsersRoute =
   AuthenticatedAdminSettingsUsersRouteImport.update({
-    id: '/users',
-    path: '/users',
-    getParentRoute: () => AuthenticatedAdminSettingsRoute,
+    id: '/admin/settings/users',
+    path: '/admin/settings/users',
+    getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedAdminSmartFindersEsimRoute =
   AuthenticatedAdminSmartFindersEsimRouteImport.update({
@@ -300,7 +300,6 @@ export interface FileRoutesByFullPath {
   '/admin/providers': typeof AuthenticatedAdminProvidersRoute
   '/admin/refunds': typeof AuthenticatedAdminRefundsRoute
   '/admin/service-controls': typeof AuthenticatedAdminServiceControlsRoute
-  '/admin/settings': typeof AuthenticatedAdminSettingsRouteWithChildren
   '/admin/test-catalogue': typeof AuthenticatedAdminTestCatalogueRoute
   '/admin/theme': typeof AuthenticatedAdminThemeRoute
   '/hesabim/seyahatler': typeof AuthenticatedHesabimSeyahatlerRoute
@@ -316,6 +315,7 @@ export interface FileRoutesByFullPath {
   '/admin/smart-finders/esim': typeof AuthenticatedAdminSmartFindersEsimRoute
   '/admin/storefront/home': typeof AuthenticatedAdminStorefrontHomeRoute
   '/admin/storefront/navigation': typeof AuthenticatedAdminStorefrontNavigationRoute
+  '/admin/settings/': typeof AuthenticatedAdminSettingsIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -341,7 +341,6 @@ export interface FileRoutesByTo {
   '/admin/providers': typeof AuthenticatedAdminProvidersRoute
   '/admin/refunds': typeof AuthenticatedAdminRefundsRoute
   '/admin/service-controls': typeof AuthenticatedAdminServiceControlsRoute
-  '/admin/settings': typeof AuthenticatedAdminSettingsRouteWithChildren
   '/admin/test-catalogue': typeof AuthenticatedAdminTestCatalogueRoute
   '/admin/theme': typeof AuthenticatedAdminThemeRoute
   '/hesabim/seyahatler': typeof AuthenticatedHesabimSeyahatlerRoute
@@ -357,6 +356,7 @@ export interface FileRoutesByTo {
   '/admin/smart-finders/esim': typeof AuthenticatedAdminSmartFindersEsimRoute
   '/admin/storefront/home': typeof AuthenticatedAdminStorefrontHomeRoute
   '/admin/storefront/navigation': typeof AuthenticatedAdminStorefrontNavigationRoute
+  '/admin/settings': typeof AuthenticatedAdminSettingsIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -384,7 +384,6 @@ export interface FileRoutesById {
   '/_authenticated/admin/providers': typeof AuthenticatedAdminProvidersRoute
   '/_authenticated/admin/refunds': typeof AuthenticatedAdminRefundsRoute
   '/_authenticated/admin/service-controls': typeof AuthenticatedAdminServiceControlsRoute
-  '/_authenticated/admin/settings': typeof AuthenticatedAdminSettingsRouteWithChildren
   '/_authenticated/admin/test-catalogue': typeof AuthenticatedAdminTestCatalogueRoute
   '/_authenticated/admin/theme': typeof AuthenticatedAdminThemeRoute
   '/_authenticated/hesabim/seyahatler': typeof AuthenticatedHesabimSeyahatlerRoute
@@ -400,6 +399,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/smart-finders/esim': typeof AuthenticatedAdminSmartFindersEsimRoute
   '/_authenticated/admin/storefront/home': typeof AuthenticatedAdminStorefrontHomeRoute
   '/_authenticated/admin/storefront/navigation': typeof AuthenticatedAdminStorefrontNavigationRoute
+  '/_authenticated/admin/settings/': typeof AuthenticatedAdminSettingsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -427,7 +427,6 @@ export interface FileRouteTypes {
     | '/admin/providers'
     | '/admin/refunds'
     | '/admin/service-controls'
-    | '/admin/settings'
     | '/admin/test-catalogue'
     | '/admin/theme'
     | '/hesabim/seyahatler'
@@ -443,6 +442,7 @@ export interface FileRouteTypes {
     | '/admin/smart-finders/esim'
     | '/admin/storefront/home'
     | '/admin/storefront/navigation'
+    | '/admin/settings/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -468,7 +468,6 @@ export interface FileRouteTypes {
     | '/admin/providers'
     | '/admin/refunds'
     | '/admin/service-controls'
-    | '/admin/settings'
     | '/admin/test-catalogue'
     | '/admin/theme'
     | '/hesabim/seyahatler'
@@ -484,6 +483,7 @@ export interface FileRouteTypes {
     | '/admin/smart-finders/esim'
     | '/admin/storefront/home'
     | '/admin/storefront/navigation'
+    | '/admin/settings'
   id:
     | '__root__'
     | '/'
@@ -510,7 +510,6 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/providers'
     | '/_authenticated/admin/refunds'
     | '/_authenticated/admin/service-controls'
-    | '/_authenticated/admin/settings'
     | '/_authenticated/admin/test-catalogue'
     | '/_authenticated/admin/theme'
     | '/_authenticated/hesabim/seyahatler'
@@ -526,6 +525,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/smart-finders/esim'
     | '/_authenticated/admin/storefront/home'
     | '/_authenticated/admin/storefront/navigation'
+    | '/_authenticated/admin/settings/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -716,13 +716,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminServiceControlsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/_authenticated/admin/settings': {
-      id: '/_authenticated/admin/settings'
-      path: '/admin/settings'
-      fullPath: '/admin/settings'
-      preLoaderRoute: typeof AuthenticatedAdminSettingsRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
     '/_authenticated/admin/test-catalogue': {
       id: '/_authenticated/admin/test-catalogue'
       path: '/admin/test-catalogue'
@@ -793,12 +786,19 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminMarketingCampaignsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/admin/settings/': {
+      id: '/_authenticated/admin/settings/'
+      path: '/admin/settings'
+      fullPath: '/admin/settings/'
+      preLoaderRoute: typeof AuthenticatedAdminSettingsIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/admin/settings/users': {
       id: '/_authenticated/admin/settings/users'
-      path: '/users'
+      path: '/admin/settings/users'
       fullPath: '/admin/settings/users'
       preLoaderRoute: typeof AuthenticatedAdminSettingsUsersRouteImport
-      parentRoute: typeof AuthenticatedAdminSettingsRoute
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/admin/smart-finders/esim': {
       id: '/_authenticated/admin/smart-finders/esim'
@@ -824,20 +824,6 @@ declare module '@tanstack/react-router' {
   }
 }
 
-interface AuthenticatedAdminSettingsRouteChildren {
-  AuthenticatedAdminSettingsUsersRoute: typeof AuthenticatedAdminSettingsUsersRoute
-}
-
-const AuthenticatedAdminSettingsRouteChildren: AuthenticatedAdminSettingsRouteChildren =
-  {
-    AuthenticatedAdminSettingsUsersRoute: AuthenticatedAdminSettingsUsersRoute,
-  }
-
-const AuthenticatedAdminSettingsRouteWithChildren =
-  AuthenticatedAdminSettingsRoute._addFileChildren(
-    AuthenticatedAdminSettingsRouteChildren,
-  )
-
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminAirportsRoute: typeof AuthenticatedAdminAirportsRoute
   AuthenticatedAdminAlertsRoute: typeof AuthenticatedAdminAlertsRoute
@@ -855,7 +841,6 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminProvidersRoute: typeof AuthenticatedAdminProvidersRoute
   AuthenticatedAdminRefundsRoute: typeof AuthenticatedAdminRefundsRoute
   AuthenticatedAdminServiceControlsRoute: typeof AuthenticatedAdminServiceControlsRoute
-  AuthenticatedAdminSettingsRoute: typeof AuthenticatedAdminSettingsRouteWithChildren
   AuthenticatedAdminTestCatalogueRoute: typeof AuthenticatedAdminTestCatalogueRoute
   AuthenticatedAdminThemeRoute: typeof AuthenticatedAdminThemeRoute
   AuthenticatedHesabimSeyahatlerRoute: typeof AuthenticatedHesabimSeyahatlerRoute
@@ -867,9 +852,11 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminEsimRoutePresetsRoute: typeof AuthenticatedAdminEsimRoutePresetsRoute
   AuthenticatedAdminLoungeBookingsRoute: typeof AuthenticatedAdminLoungeBookingsRoute
   AuthenticatedAdminMarketingCampaignsRoute: typeof AuthenticatedAdminMarketingCampaignsRoute
+  AuthenticatedAdminSettingsUsersRoute: typeof AuthenticatedAdminSettingsUsersRoute
   AuthenticatedAdminSmartFindersEsimRoute: typeof AuthenticatedAdminSmartFindersEsimRoute
   AuthenticatedAdminStorefrontHomeRoute: typeof AuthenticatedAdminStorefrontHomeRoute
   AuthenticatedAdminStorefrontNavigationRoute: typeof AuthenticatedAdminStorefrontNavigationRoute
+  AuthenticatedAdminSettingsIndexRoute: typeof AuthenticatedAdminSettingsIndexRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
@@ -890,7 +877,6 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminRefundsRoute: AuthenticatedAdminRefundsRoute,
   AuthenticatedAdminServiceControlsRoute:
     AuthenticatedAdminServiceControlsRoute,
-  AuthenticatedAdminSettingsRoute: AuthenticatedAdminSettingsRouteWithChildren,
   AuthenticatedAdminTestCatalogueRoute: AuthenticatedAdminTestCatalogueRoute,
   AuthenticatedAdminThemeRoute: AuthenticatedAdminThemeRoute,
   AuthenticatedHesabimSeyahatlerRoute: AuthenticatedHesabimSeyahatlerRoute,
@@ -906,11 +892,13 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminLoungeBookingsRoute: AuthenticatedAdminLoungeBookingsRoute,
   AuthenticatedAdminMarketingCampaignsRoute:
     AuthenticatedAdminMarketingCampaignsRoute,
+  AuthenticatedAdminSettingsUsersRoute: AuthenticatedAdminSettingsUsersRoute,
   AuthenticatedAdminSmartFindersEsimRoute:
     AuthenticatedAdminSmartFindersEsimRoute,
   AuthenticatedAdminStorefrontHomeRoute: AuthenticatedAdminStorefrontHomeRoute,
   AuthenticatedAdminStorefrontNavigationRoute:
     AuthenticatedAdminStorefrontNavigationRoute,
+  AuthenticatedAdminSettingsIndexRoute: AuthenticatedAdminSettingsIndexRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
