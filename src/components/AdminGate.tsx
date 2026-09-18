@@ -3,9 +3,9 @@ import { Link, useRouterState } from "@tanstack/react-router";
 import {
   AlertTriangle, BarChart3, Boxes, BriefcaseBusiness, Building2, ChevronDown,
   CircleDollarSign, ClipboardList, CloudUpload, DatabaseZap, ExternalLink, Flag,
-  Image, LayoutDashboard, LayoutTemplate, LoaderCircle, Menu, MonitorCog, PanelLeftClose, Plane,
-  PlugZap, RadioTower, ReceiptText, RotateCw, Search, Settings, ShieldCheck,
-  Smartphone, Sparkles, Users, WalletCards, X,
+  Image, LayoutDashboard, LayoutTemplate, LoaderCircle, MapPin, Megaphone, Menu, MonitorCog, PanelLeftClose, Plane,
+  PlugZap, RadioTower, ReceiptText, RotateCw, Route, Search, Settings, ShieldCheck,
+  Smartphone, Sparkles, ToggleLeft, Users, WalletCards, X,
 } from "lucide-react";
 import { useEffect, useState, type ReactNode } from "react";
 import { BRAND } from "@/domain/experience/config";
