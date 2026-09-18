@@ -1,0 +1,8 @@
+import { createFileRoute } from "@tanstack/react-router";
+import { useQuery } from "@tanstack/react-query";
+import { AdminGate } from "@/components/AdminGate";
+import { AdminError, AdminLoading, AdminPanel, AdminTable, EmptyState, StatusBadge } from "@/components/admin/AdminUi";
+import { adminHead } from "@/components/admin/AdminSectionPage";
+import { getAdminOperations } from "@/lib/admin-control.functions";
+export const Route=createFileRoute("/_authenticated/admin/lounge/bookings")({head:()=>adminHead("Lounge rezervasyonları","Lounge rezervasyon ve voucher operasyonu."),component:Page});
+function Page(){const q=useQuery({queryKey:["admin-ops","LOUNGE"],queryFn:()=>getAdminOperations({data:{service:"LOUNGE"}})});return <AdminGate title="Lounge rezervasyonları">{q.isPending?<AdminLoading/>:q.error?<AdminError error={q.error}/>:<AdminPanel title="Rezervasyonlar">{!q.data?.length?<EmptyState title="Henüz Lounge rezervasyonu yok."/>:<AdminTable head={["Rezervasyon","Müşteri","Havalimanı","Terminal","Lounge","Tarih","Misafir","Ödeme","Durum","Voucher"]}>{q.data.map((r:any)=><tr key={r.id}><td>{r.booking_reference??r.order_items?.orders?.order_number??"—"}</td><td>{r.order_items?.orders?.guest_email??"Kayıtlı müşteri"}</td><td>{r.airport_iata??"—"}</td><td>{r.terminal??"—"}</td><td>{r.lounge_name??"—"}</td><td>{r.visit_at?new Date(r.visit_at).toLocaleDateString("tr-TR"):"—"}</td><td>{r.travelers_count}</td><td><StatusBadge value={r.order_items?.orders?.payment_status??"UNKNOWN"}/></td><td><StatusBadge value={r.status}/></td><td>İçerik gizli</td></tr>)}</AdminTable>}</AdminPanel>}</AdminGate>}

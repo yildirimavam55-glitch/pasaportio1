@@ -1,0 +1,8 @@
+import { createFileRoute } from "@tanstack/react-router";
+import { useQuery } from "@tanstack/react-query";
+import { AdminGate } from "@/components/AdminGate";
+import { AdminError, AdminLoading, AdminPanel, EmptyState, Metric } from "@/components/admin/AdminUi";
+import { adminHead } from "@/components/admin/AdminSectionPage";
+import { getAdminFinance } from "@/lib/admin-control.functions";
+export const Route=createFileRoute("/_authenticated/admin/finance")({head:()=>adminHead("Finans","Gelir, maliyet ve katkı raporu."),component:Finance});
+function Finance(){const q=useQuery({queryKey:["admin-finance"],queryFn:()=>getAdminFinance()});if(q.isPending)return <AdminGate title="Finans"><AdminLoading/></AdminGate>;if(q.error)return <AdminGate title="Finans"><AdminError error={q.error}/></AdminGate>;const t=q.data?.totals;const m=(v:number)=>`${v.toFixed(2)} ${t?.currency??"EUR"}`;return <AdminGate title="Finans"><div className="grid gap-4"><div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4"><Metric label="Brüt ciro" value={m(t?.revenue??0)}/><Metric label="Provider maliyeti" value={m(t?.providerCost??0)}/><Metric label="Ödeme komisyonu" value={m(t?.fees??0)}/><Metric label="İndirim" value={m(t?.discounts??0)}/><Metric label="İade" value={m(t?.refunded??0)}/><Metric label="Vergi" value={m(t?.tax??0)}/><Metric label="Brüt kâr" value={m(t?.grossProfit??0)} tone="profit"/><Metric label="Net katkı" value="—" detail="Mutabakat verisi bekleniyor"/></div><AdminPanel title="Finansal açıklama"><p className="text-sm text-muted-foreground">Ciro, provider maliyeti, indirim, komisyon, iade ve vergi ayrı tutulur. Ciro kâr veya tahsil edilmiş nakit olarak adlandırılmaz.</p></AdminPanel></div></AdminGate>}
