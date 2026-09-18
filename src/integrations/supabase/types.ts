@@ -775,6 +775,8 @@ export type Database = {
           data_only: boolean | null
           data_type: string
           fair_use_note: string | null
+          fair_use_policy: string | null
+          high_speed_allowance: string | null
           network_operators: string[]
           package_kind: string
           product_id: string
@@ -783,6 +785,7 @@ export type Database = {
           raw_validity_unit: string | null
           raw_validity_value: number | null
           region_id: string | null
+          speed_after_fair_use: string | null
           supports_5g: boolean | null
           supports_hotspot: boolean | null
           topup_supported: boolean | null
@@ -800,6 +803,8 @@ export type Database = {
           data_only?: boolean | null
           data_type?: string
           fair_use_note?: string | null
+          fair_use_policy?: string | null
+          high_speed_allowance?: string | null
           network_operators?: string[]
           package_kind?: string
           product_id: string
@@ -808,6 +813,7 @@ export type Database = {
           raw_validity_unit?: string | null
           raw_validity_value?: number | null
           region_id?: string | null
+          speed_after_fair_use?: string | null
           supports_5g?: boolean | null
           supports_hotspot?: boolean | null
           topup_supported?: boolean | null
@@ -825,6 +831,8 @@ export type Database = {
           data_only?: boolean | null
           data_type?: string
           fair_use_note?: string | null
+          fair_use_policy?: string | null
+          high_speed_allowance?: string | null
           network_operators?: string[]
           package_kind?: string
           product_id?: string
@@ -833,6 +841,7 @@ export type Database = {
           raw_validity_unit?: string | null
           raw_validity_value?: number | null
           region_id?: string | null
+          speed_after_fair_use?: string | null
           supports_5g?: boolean | null
           supports_hotspot?: boolean | null
           topup_supported?: boolean | null
