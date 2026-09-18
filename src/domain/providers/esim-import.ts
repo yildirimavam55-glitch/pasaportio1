@@ -23,7 +23,12 @@ export type NormalizedEsimItem = {
   /** Comparison-only value, always expressed in days. */
   validityDays: number | null;
   activationPolicy: ActivationPolicy;
+  /** Customer-facing short note (derived), never raw provider jargon. */
   fairUseNote: string | null;
+  /** Provider fair-use values, stored verbatim or null. */
+  fairUsePolicy: string | null;
+  highSpeedAllowance: string | null;
+  speedAfterFairUse: string | null;
   coverage: string[];
   countryIso: string | null;
   packageKind: "COUNTRY" | "REGION" | "GLOBAL";
@@ -163,8 +168,13 @@ export function parseEsimCatalogue(input: unknown, defaultCurrency = "EUR"): Par
       ? (declaredActivation as ActivationPolicy)
       : "UNKNOWN";
 
-    const fairUseNoteRaw = pick(row, ["fairUseNote", "fair_use_note", "fairUsePolicy", "fair_use_policy"]);
-    const fairUseNote = fairUseNoteRaw == null ? null : String(fairUseNoteRaw).trim().slice(0, 400) || null;
+    const clean = (value: unknown, max = 400) => (value == null ? null : String(value).trim().slice(0, max) || null);
+    const fairUsePolicy = clean(pick(row, ["fairUsePolicy", "fair_use_policy"]));
+    const highSpeedAllowance = clean(pick(row, ["highSpeedAllowance", "high_speed_allowance", "highSpeedData", "high_speed_data"]), 120);
+    const speedAfterFairUse = clean(pick(row, ["speedAfterFairUse", "speed_after_fair_use", "throttledSpeed", "throttled_speed"]), 120);
+    const fairUseNote =
+      clean(pick(row, ["fairUseNote", "fair_use_note"])) ??
+      (highSpeedAllowance && speedAfterFairUse ? `${highSpeedAllowance} — ${speedAfterFairUse}` : highSpeedAllowance);
 
 
 
@@ -196,6 +206,9 @@ export function parseEsimCatalogue(input: unknown, defaultCurrency = "EUR"): Par
       validityDays: Math.round(validityDays),
       activationPolicy,
       fairUseNote,
+      fairUsePolicy,
+      highSpeedAllowance,
+      speedAfterFairUse,
 
       coverage: finalCoverage,
       countryIso: packageKind === "COUNTRY" ? (countryIso ?? finalCoverage[0] ?? null) : countryIso,
@@ -298,6 +311,9 @@ export function hashItem(item: NormalizedEsimItem): string {
     item.dataType,
     item.activationPolicy,
     item.fairUseNote,
+    item.fairUsePolicy,
+    item.highSpeedAllowance,
+    item.speedAfterFairUse,
 
     [...item.coverage].sort(),
     item.providerCost,

@@ -78,6 +78,13 @@
       "when": 1789722269163,
       "tag": "0010_esim_raw_validity_and_activation",
       "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1789722571022,
+      "tag": "0011_esim_fair_use_fields",
+      "breakpoints": true
     }
   ]
 }
