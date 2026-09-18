@@ -1,0 +1,4 @@
+import { createFileRoute } from "@tanstack/react-router";
+import { MonitorCog } from "lucide-react";
+import { AdminSectionPage, adminHead } from "@/components/admin/AdminSectionPage";
+export const Route = createFileRoute("/_authenticated/admin/cms")({ head: () => adminHead("Sayfalar ve CMS", "Global, eSIM ve Lounge içerik yönetimi."), component: () => <AdminSectionPage title="Sayfalar / CMS" icon={MonitorCog} description="Global, eSIM ve Lounge içerikleri iş raporlarından ayrı yönetilir. Taslak, çeviri ve yayın kayıtları mevcut içerik sahipliğini korur." state="Henüz yönetilebilir içerik kaydı yok." /> });

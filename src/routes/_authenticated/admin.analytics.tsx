@@ -1,0 +1,4 @@
+import { createFileRoute } from "@tanstack/react-router";
+import { BarChart3 } from "lucide-react";
+import { AdminSectionPage, adminHead } from "@/components/admin/AdminSectionPage";
+export const Route = createFileRoute("/_authenticated/admin/analytics")({ head: () => adminHead("Analitik", "Servis, kaynak ve müşteri yolculuğu analitiği."), component: () => <AdminSectionPage title="Analitik" icon={BarChart3} description="Tarih, servis, müşteri ülkesi, seyahat destinasyonu, provider, trafik kaynağı ve dil kırılımları ana iş panosundaki gerçek etkinlik ve atıf verisini kullanır." state="Henüz ayrı rapor verisi yok." /> });
