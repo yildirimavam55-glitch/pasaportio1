@@ -56,13 +56,15 @@ const COPY = {
     needReason: "Seyahat süren, kullanım tercihlerin ve güvenlik payına göre hesaplandı.",
     seePackages: "Paketleri Gör",
     recommendedPackage: "Sana önerimiz", recommendedBadge: "Önerilen", addToCart: "Sepete Ekle", inCart: "Sepette", selectPackage: "Paketi Seç",
-    whyPackage: "Neden bu paket?", noPackage: "Bu kullanım için şu anda uygun paket bulunamadı.",
+    whyPackage: "Neden bu paket?", noPackage: "Bu seyahat için şu anda tam uygun bir paket bulunamadı.",
     whyText: (days: number, usage: string, need: number, size: string) => `${days} günlük seyahatin için ${usage} kullanımına göre tahmini ihtiyacın ${need} GB. Mevcut paketler arasında ihtiyacını karşılayan en yakın seçenek ${size}.`,
-    shortWhy: (need: number, size: string) => `Seyahatin boyunca yaklaşık ${need} GB kullanacağını hesapladık. İhtiyacını karşılayan en uygun mevcut paket ${size}.`,
+    shortWhy: "Tahmini kullanımına ve seyahat sürene uygun mevcut paket.",
     validity: "gün geçerli", unlimited: "Sınırsız veri",
     unlimitedAlternative: "Sınırsız alternatif",
-    noSufficient: "Bu kullanım için şu anda uygun paket bulunamadı.",
-    seePackage: (size: string) => `${size} Paketini Gör`,
+    noSufficient: "Bu seyahat için şu anda tam uygun bir paket bulunamadı.",
+    allPackages: "Tüm paketleri gör",
+    seePackage: (size: string) => `${size} Paketi Gör`,
+
     loungeCta: "Lounge Seçeneklerini Gör",
     steps: ["Rota", "Süre", "Yolcular", "Kullanım"],
     airport: "Hangi havalimanı?", chooseAirport: "Havalimanı seç", date: "Hangi tarih?",
@@ -82,13 +84,15 @@ const COPY = {
     needReason: "Berechnet aus Reisedauer, deiner Nutzung und dem Sicherheitspuffer.",
     seePackages: "Pakete ansehen",
     recommendedPackage: "Unsere Empfehlung", recommendedBadge: "Empfohlen", addToCart: "In den Warenkorb", inCart: "Im Warenkorb", selectPackage: "Paket auswählen",
-    whyPackage: "Warum dieses Paket?", noPackage: "Für diese Nutzung ist derzeit kein passendes Paket verfügbar.",
+    whyPackage: "Warum dieses Paket?", noPackage: "Für diese Reise ist derzeit kein vollständig passendes Paket verfügbar.",
     whyText: (days: number, usage: string, need: number, size: string) => `Für deine ${days}-tägige Reise liegt dein geschätzter Bedarf bei ${usage} bei ${need} GB. Das nächstpassende verfügbare Paket, das deinen Bedarf deckt, ist ${size}.`,
-    shortWhy: (need: number, size: string) => `Wir haben rund ${need} GB für deine Reise berechnet. Das passende verfügbare Paket ist ${size}.`,
+    shortWhy: "Passend zu deinem geschätzten Verbrauch und deiner Reisedauer.",
     validity: "Tage gültig", unlimited: "Unbegrenzte Daten",
     unlimitedAlternative: "Unbegrenzte Alternative",
-    noSufficient: "Für diese Nutzung ist derzeit kein passendes Paket verfügbar.",
+    noSufficient: "Für diese Reise ist derzeit kein vollständig passendes Paket verfügbar.",
+    allPackages: "Alle Pakete ansehen",
     seePackage: (size: string) => `${size} Paket ansehen`,
+
     loungeCta: "Lounge-Optionen ansehen",
     steps: ["Route", "Dauer", "Personen", "Nutzung"],
     airport: "Welcher Flughafen?", chooseAirport: "Flughafen wählen", date: "Welches Datum?",
@@ -108,13 +112,15 @@ const COPY = {
     needReason: "Calculated from your trip length, your usage choices and a safety margin.",
     seePackages: "See packages",
     recommendedPackage: "Our recommendation", recommendedBadge: "Recommended", addToCart: "Add to cart", inCart: "In cart", selectPackage: "Select package",
-    whyPackage: "Why this package?", noPackage: "No suitable package is available for this usage right now.",
+    whyPackage: "Why this package?", noPackage: "No fully suitable package is available for this trip right now.",
     whyText: (days: number, usage: string, need: number, size: string) => `For your ${days}-day trip, your estimated need for ${usage} is ${need} GB. The closest available package that covers your need is ${size}.`,
-    shortWhy: (need: number, size: string) => `We estimated about ${need} GB for your trip. The best available package that covers it is ${size}.`,
+    shortWhy: "Matches your estimated usage and your travel duration.",
     validity: "days valid", unlimited: "Unlimited data",
     unlimitedAlternative: "Unlimited alternative",
-    noSufficient: "No suitable package is available for this usage right now.",
+    noSufficient: "No fully suitable package is available for this trip right now.",
+    allPackages: "See all packages",
     seePackage: (size: string) => `See the ${size} package`,
+
     loungeCta: "See lounge options",
     steps: ["Route", "Duration", "Travelers", "Usage"],
     airport: "Which airport?", chooseAirport: "Select an airport", date: "Which date?",
@@ -436,7 +442,7 @@ export function EsimFinder({ state, onChange }: { state: EsimFinderState; onChan
                 </strong>
               )}
               <p className="mt-3 text-sm leading-6 text-muted-foreground">
-                {copy.shortWhy(recommendation.requiredGb, recommended.unlimited ? copy.unlimited : `${recommended.dataGb} GB`)}
+                {copy.shortWhy}
               </p>
               <Button type="button" variant="cta" size="lg" className="mt-4 w-full" onClick={goToPackages}>
                 {copy.seePackage(recommended.unlimited ? copy.unlimited : `${recommended.dataGb} GB`)}<ArrowRight />
@@ -454,7 +460,7 @@ export function EsimFinder({ state, onChange }: { state: EsimFinderState; onChan
             </div>
           )}
           {!packagesPending && !recommended && <Button type="button" variant="outline" size="lg" className="mt-3 w-full scroll-mb-24" disabled={!canSeePackages} onClick={goToPackages}>
-            {copy.seePackages}<ArrowRight />
+            {copy.allPackages}<ArrowRight />
           </Button>}
         </section>
       </Reveal>

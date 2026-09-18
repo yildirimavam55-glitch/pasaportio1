@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { DEFAULT_USAGE_SETTINGS, estimateUsageNeed, sanitizeUsageSettings } from "../usage-recommendation";
-import { resolvePackageRecommendation, selectRecommendedPackage, type MatchablePackage } from "../package-matching";
+import { normalizeValidityToDays, resolvePackageRecommendation, selectRecommendedPackage, type MatchablePackage } from "../package-matching";
 
 const pkg = (id: string, dataGb: number | null, extra: Partial<MatchablePackage> = {}): MatchablePackage => ({
   id,
@@ -101,4 +101,29 @@ describe("automatic round-up to the next available package", () => {
       }).package?.dataGb,
     ).toBe(20);
   });
+
+
+  it("requires validity to cover the whole trip, not only the data amount", () => {
+    const catalogue = [
+      pkg("a", 1, { validityDays: 7 }),
+      pkg("b", 2, { validityDays: 15 }),
+      pkg("c", 5, { validityDays: 30 }),
+    ];
+    expect(resolvePackageRecommendation(catalogue, { requiredGb: 1.4, days: 10 }).package?.id).toBe("b");
+    expect(resolvePackageRecommendation(catalogue, { requiredGb: 1.4, days: 20 }).package?.id).toBe("c");
+    expect(resolvePackageRecommendation(catalogue, { requiredGb: 1.4, days: 40 }).status).toBe("NO_CATALOGUE");
+  });
+
+  it("never assumes unknown validity is enough", () => {
+    expect(resolvePackageRecommendation([pkg("a", 20)], { requiredGb: 5, days: 10 }).status).toBe("NO_CATALOGUE");
+  });
+
+  it("normalizes provider validity units into days", () => {
+    expect(normalizeValidityToDays(2, "weeks")).toBe(14);
+    expect(normalizeValidityToDays(1, "month")).toBe(30);
+    expect(normalizeValidityToDays(48, "hours")).toBe(2);
+    expect(normalizeValidityToDays("30", undefined)).toBe(30);
+    expect(normalizeValidityToDays(0, "days")).toBeNull();
+  });
 });
+
