@@ -130,11 +130,15 @@ export function parseEsimCatalogue(input: unknown, defaultCurrency = "EUR"): Par
       return;
     }
 
-    const validityDays = toNumber(pick(row, ["validityDays", "validity_days", "days", "duration", "validity"]));
+    const validityDays = normalizeValidityToDays(
+      pick(row, ["validityDays", "validity_days", "days", "duration", "validity", "validityPeriod", "validity_period"]),
+      pick(row, ["validityUnit", "validity_unit", "durationUnit", "duration_unit", "periodUnit", "unit"]),
+    );
     if (validityDays == null || validityDays <= 0) {
-      issues.push({ index, externalId, message: "Geçerlilik süresi (gün) eksik." });
+      issues.push({ index, externalId, message: "Geçerlilik süresi eksik veya okunamadı." });
       return;
     }
+
 
     const countryIso = toIsoList(pick(row, ["countryIso", "country_iso", "country"]))[0] ?? null;
     const coverage = toIsoList(pick(row, ["coverage", "coverageCountryIsos", "coverage_country_isos", "countries", "countryList"]));
