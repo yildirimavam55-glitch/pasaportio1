@@ -9,12 +9,21 @@ import { normalizeValidityToDays } from "@/domain/esim/package-matching";
 
 export type RawImportItem = Record<string, unknown>;
 
+export type ActivationPolicy = "ON_INSTALL" | "ON_FIRST_NETWORK_CONNECTION" | "ON_PURCHASE" | "UNKNOWN";
+
 export type NormalizedEsimItem = {
   externalId: string;
   name: string;
+  dataType: "FIXED" | "UNLIMITED";
   dataGb: number | null;
   unlimited: boolean;
+  /** Untouched provider validity — never overwritten by normalization. */
+  rawValidityValue: number | null;
+  rawValidityUnit: string | null;
+  /** Comparison-only value, always expressed in days. */
   validityDays: number | null;
+  activationPolicy: ActivationPolicy;
+  fairUseNote: string | null;
   coverage: string[];
   countryIso: string | null;
   packageKind: "COUNTRY" | "REGION" | "GLOBAL";
@@ -26,6 +35,7 @@ export type NormalizedEsimItem = {
   topupSupported: boolean | null;
   payload: RawImportItem;
 };
+
 
 export type ImportIssue = { index: number; externalId: string | null; message: string };
 
