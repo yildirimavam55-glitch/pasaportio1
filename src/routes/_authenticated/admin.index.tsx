@@ -12,7 +12,7 @@ import { resolveRange, type DateRangeKey } from "@/domain/analytics/dashboard";
 
 type ServiceContext = "all" | "esim" | "lounge";
 export const Route = createFileRoute("/_authenticated/admin/")({
-  validateSearch: (search: Record<string, unknown>): { service?: ServiceContext } => ({ service: search["service"] === "esim" || search["service"] === "lounge" ? search["service"] : undefined }),
+  validateSearch: (search: Record<string, unknown>): { service?: ServiceContext } => search["service"] === "esim" || search["service"] === "lounge" ? { service: search["service"] } : {},
   head: () => adminHead("İş kontrol merkezi", "Genel, eSIM ve Lounge işletme performansı."),
   component: Dashboard,
 });
