@@ -3,7 +3,7 @@
  * Provider terminology (ON_INSTALL etc.) is never shown to customers, and an
  * unknown policy is never replaced by an invented assumption.
  */
-import type { Locale } from "@/i18n/config";
+import type { Locale } from "@/domain/enums";
 
 export type ActivationPolicy = "ON_INSTALL" | "ON_FIRST_NETWORK_CONNECTION" | "ON_PURCHASE" | "UNKNOWN";
 
