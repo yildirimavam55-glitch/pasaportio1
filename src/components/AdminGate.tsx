@@ -1,17 +1,20 @@
-import { useQuery } from "@tanstack/react-query";
-import { Link, useRouterState } from "@tanstack/react-router";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
+import { toast } from "sonner";
 import {
   AlertTriangle, BarChart3, Boxes, BriefcaseBusiness, Building2, ChevronDown,
   CircleDollarSign, ClipboardList, CloudUpload, DatabaseZap, ExternalLink, Flag,
-  Image, LayoutDashboard, LayoutTemplate, LoaderCircle, MapPin, Megaphone, Menu, MonitorCog, PanelLeftClose, Plane,
+  Image, LayoutDashboard, LayoutTemplate, LoaderCircle, LogOut, MapPin, Megaphone, Menu, MonitorCog, PanelLeftClose, Plane,
   PlugZap, RadioTower, ReceiptText, RotateCw, Route, Search, Settings, ShieldCheck,
   Smartphone, Sparkles, ToggleLeft, Users, WalletCards, X,
 } from "lucide-react";
 import { useEffect, useState, type ReactNode } from "react";
 import { BRAND } from "@/domain/experience/config";
+import { supabase } from "@/integrations/supabase/client";
 import { getMyAccess } from "@/lib/platform.functions";
 import { adminSearch, getAdminIdentity } from "@/lib/admin-control.functions";
 import { Button } from "@/components/ui/button";
+
 
 type AdminLink = { to: string; label: string; icon: typeof LayoutDashboard };
 type AdminGroup = { label: string; links: AdminLink[] };
