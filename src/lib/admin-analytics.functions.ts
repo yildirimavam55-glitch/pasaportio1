@@ -39,6 +39,8 @@ export type DashboardFilters = {
   locale?: string | undefined;
   customerCountry?: string | undefined;
   destination?: string | undefined;
+  airport?: string | undefined;
+  providerId?: string | undefined;
   compare?: boolean | undefined;
 };
 
@@ -57,6 +59,8 @@ function parseFilters(input: any): DashboardFilters {
     locale: input?.locale ? String(input.locale) : undefined,
     customerCountry: input?.customerCountry ? String(input.customerCountry).toUpperCase() : undefined,
     destination: input?.destination ? String(input.destination) : undefined,
+    airport: input?.airport ? String(input.airport).toUpperCase() : undefined,
+    providerId: input?.providerId ? String(input.providerId) : undefined,
     compare: Boolean(input?.compare),
   };
 }
@@ -97,7 +101,7 @@ async function loadWindow(db: any, range: DateRange, filters: DashboardFilters) 
     const { data } = await db
       .from("order_items")
       .select(
-        "order_id, service_type, product_id, product_name_snapshot, sale_price, provider_cost, discount, quantity, destination_snapshot, airport_iata_snapshot",
+        "order_id, service_type, product_id, provider_id, product_name_snapshot, sale_price, provider_cost, discount, quantity, destination_snapshot, airport_iata_snapshot",
       )
       .in("order_id", orderIds);
     itemRows = data ?? [];
@@ -143,12 +147,23 @@ async function loadWindow(db: any, range: DateRange, filters: DashboardFilters) 
       quantity: Number(row.quantity ?? 1),
       destination: row.destination_snapshot,
       airportIata: row.airport_iata_snapshot,
+      providerId: row.provider_id ?? null,
     }));
 
   if (filters.serviceType && filters.serviceType !== "ALL") {
     items = items.filter((item) => item.serviceType === filters.serviceType);
     const withService = new Set(items.map((item) => item.orderId));
     orders = orders.filter((order) => withService.has(order.id));
+  }
+  if (filters.airport) {
+    items = items.filter((item) => item.airportIata === filters.airport);
+    const withAirport = new Set(items.map((item) => item.orderId));
+    orders = orders.filter((order) => withAirport.has(order.id));
+  }
+  if (filters.providerId) {
+    items = items.filter((item) => item.providerId === filters.providerId);
+    const withProvider = new Set(items.map((item) => item.orderId));
+    orders = orders.filter((order) => withProvider.has(order.id));
   }
   if (filters.destination) {
     items = items.filter(

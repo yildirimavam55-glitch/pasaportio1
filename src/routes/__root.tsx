@@ -13,6 +13,7 @@ import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { I18nProvider } from "@/i18n";
 import { ServiceSwitchTransitionProvider } from "@/components/travel/ServiceSwitchTransition";
+import { PublishedTheme } from "@/components/PublishedTheme";
 
 function NotFoundComponent() {
   return (
@@ -130,6 +131,7 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
+      <PublishedTheme />
       <I18nProvider>
         <ServiceSwitchTransitionProvider>
           {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}

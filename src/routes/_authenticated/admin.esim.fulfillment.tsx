@@ -1,8 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
 import { AdminGate } from "@/components/AdminGate";
-import { AdminError, AdminLoading, AdminPanel, AdminTable, EmptyState, StatusBadge } from "@/components/admin/AdminUi";
 import { adminHead } from "@/components/admin/AdminSectionPage";
-import { getAdminOperations } from "@/lib/admin-control.functions";
-export const Route=createFileRoute("/_authenticated/admin/esim/fulfillment")({head:()=>adminHead("eSIM teslimat","eSIM provisioning ve teslimat operasyonu."),component:Page});
-function Page(){const q=useQuery({queryKey:["admin-ops","ESIM"],queryFn:()=>getAdminOperations({data:{service:"ESIM"}})});return <AdminGate title="eSIM teslimat">{q.isPending?<AdminLoading/>:q.error?<AdminError error={q.error}/>:<AdminPanel title="Teslimat kuyruğu">{!q.data?.length?<EmptyState title="Henüz eSIM teslimat kaydı yok."/>:<AdminTable head={["Sipariş","Müşteri","Destinasyon","Paket","Ödeme","Provisioning","QR / E-posta","Oluşturuldu"]}>{q.data.map((r:any)=><tr key={r.id}><td>{r.order_items?.orders?.order_number??"—"}</td><td>{r.order_items?.orders?.guest_email??"Kayıtlı müşteri"}</td><td>{r.destination_label??"—"}</td><td>{r.package_label??r.order_items?.product_name_snapshot??"—"}</td><td><StatusBadge value={r.order_items?.orders?.payment_status??"UNKNOWN"}/></td><td><StatusBadge value={r.status}/></td><td>İçerik gizli</td><td>{new Date(r.created_at).toLocaleDateString("tr-TR")}</td></tr>)}</AdminTable>}</AdminPanel>}</AdminGate>}
+import { OperationsView } from "@/components/admin/OperationsView";
+
+export const Route = createFileRoute("/_authenticated/admin/esim/fulfillment")({
+  head: () => adminHead("eSIM teslimat", "eSIM sağlama ve teslimat operasyonu."),
+  component: () => <AdminGate title="eSIM teslimat"><OperationsView service="ESIM" /></AdminGate>,
+});

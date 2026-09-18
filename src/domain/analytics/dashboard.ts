@@ -5,6 +5,7 @@
  * No value is ever invented: empty input produces zeros, not samples.
  */
 import type { AttributionSource, Locale, ServiceType } from "@/domain/enums";
+import { grossContribution as financeContribution } from "@/domain/finance/formulas";
 
 export type DateRangeKey =
   | "today"
@@ -79,6 +80,7 @@ export type OrderItemRow = {
   quantity: number;
   destination: string | null;
   airportIata: string | null;
+  providerId?: string | null;
 };
 
 export type AttributionRow = {
@@ -152,7 +154,8 @@ export function computeKpis(
     paymentFees,
     discounts,
     refunds,
-    grossContribution: grossRevenue - providerCost - paymentFees - discounts - refunds,
+    /** Central definition — see src/domain/finance/formulas.ts */
+    grossContribution: financeContribution({ grossRevenue, discountTotal: discounts, refundedTotal: refunds, providerCostTotal: providerCost, paymentFee: paymentFees }),
     averageOrderValue: paid.length ? grossRevenue / paid.length : 0,
     conversionRate: visitSessions > 0 ? paid.length / visitSessions : null,
     repeatPurchaseRate: perCustomer.size ? repeat / perCustomer.size : null,
@@ -220,8 +223,8 @@ export type SourceRow = {
   grossContribution: number;
 };
 
-const contribution = (o: OrderRow) =>
-  o.grossRevenue - o.providerCostTotal - o.paymentFee - o.discountTotal - o.refundedTotal;
+/** Central definition — see src/domain/finance/formulas.ts */
+const contribution = (o: OrderRow) => financeContribution(o);
 
 /**
  * Source performance. Visits/finder starts use LAST touch of the session,

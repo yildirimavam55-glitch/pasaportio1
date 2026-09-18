@@ -824,6 +824,60 @@ export type Database = {
           },
         ]
       }
+      media_assets: {
+        Row: {
+          alt_text: string
+          category: string
+          created_at: string
+          created_by: string | null
+          focal_x: number
+          focal_y: number
+          id: string
+          label: string
+          mime_type: string | null
+          public_url: string
+          size_bytes: number | null
+          storage_path: string
+          tags: string[]
+          updated_at: string
+          usage: string
+        }
+        Insert: {
+          alt_text?: string
+          category?: string
+          created_at?: string
+          created_by?: string | null
+          focal_x?: number
+          focal_y?: number
+          id?: string
+          label: string
+          mime_type?: string | null
+          public_url: string
+          size_bytes?: number | null
+          storage_path: string
+          tags?: string[]
+          updated_at?: string
+          usage?: string
+        }
+        Update: {
+          alt_text?: string
+          category?: string
+          created_at?: string
+          created_by?: string | null
+          focal_x?: number
+          focal_y?: number
+          id?: string
+          label?: string
+          mime_type?: string | null
+          public_url?: string
+          size_bytes?: number | null
+          storage_path?: string
+          tags?: string[]
+          updated_at?: string
+          usage?: string
+        }
+        Relationships: []
+      }
       ops_alerts: {
         Row: {
           context: Json
@@ -1794,6 +1848,33 @@ export type Database = {
         }
         Relationships: []
       }
+      theme_settings: {
+        Row: {
+          draft: Json
+          id: string
+          published: Json
+          published_at: string | null
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          draft?: Json
+          id: string
+          published?: Json
+          published_at?: string | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          draft?: Json
+          id?: string
+          published?: Json
+          published_at?: string | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
       traffic_attribution: {
         Row: {
           captured_at: string
@@ -1914,6 +1995,16 @@ export type Database = {
         Returns: boolean
       }
       is_admin: { Args: never; Returns: boolean }
+      log_admin_action: {
+        Args: {
+          _action: string
+          _after: Json
+          _before: Json
+          _entity_id: string
+          _entity_type: string
+        }
+        Returns: string
+      }
     }
     Enums: {
       alert_status: "OPEN" | "ACKNOWLEDGED" | "RESOLVED"
