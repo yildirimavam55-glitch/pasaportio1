@@ -67,8 +67,9 @@
 
 ## Service switch transition
 - [x] Guard repeated eSIM/Lounge switch taps
-- [x] Add destination-specific airplane and connectivity motion
-- [x] Keep the service swap behind an opaque transition surface
+- [x] Keep the application shell visible with no full-screen loading surface
+- [x] Animate the service-selector pill and transition Hero/Finder locally
+- [x] Use shared SIM-card and airplane service icons at equal visual weight
 - [x] Respect reduced-motion preferences
 
 ## Icon alignment and compatibility layer polish
