@@ -1,12 +1,13 @@
 import { createContext, useCallback, useContext, useEffect, useRef, useState, type ReactNode } from "react";
-import { PlaneTakeoff, Smartphone, Wifi } from "lucide-react";
 import type { ServiceSlug } from "@/content/travel-content";
 
-type TransitionPhase = "entering" | "leaving";
+export type TransitionPhase = "outgoing" | "incoming";
 type TransitionState = { target: ServiceSlug; phase: TransitionPhase } | null;
 type SwitchContextValue = {
   switchService: (target: ServiceSlug, commit: () => void) => void;
   isSwitching: boolean;
+  target: ServiceSlug | null;
+  phase: TransitionPhase | null;
 };
 
 const ServiceSwitchContext = createContext<SwitchContextValue | null>(null);
@@ -27,14 +28,15 @@ export function ServiceSwitchTransitionProvider({ children }: { children: ReactN
     if (runningRef.current) return;
     runningRef.current = true;
     const reduced = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches ?? false;
-    const commitAt = reduced ? 35 : 260;
-    const leaveAt = reduced ? 45 : 440;
-    const finishAt = reduced ? 110 : 650;
+    const commitAt = reduced ? 10 : 120;
+    const finishAt = reduced ? 70 : 390;
 
-    setTransition({ target, phase: "entering" });
+    setTransition({ target, phase: "outgoing" });
     timersRef.current = [
-      window.setTimeout(commit, commitAt),
-      window.setTimeout(() => setTransition({ target, phase: "leaving" }), leaveAt),
+      window.setTimeout(() => {
+        setTransition({ target, phase: "incoming" });
+        commit();
+      }, commitAt),
       window.setTimeout(() => {
         setTransition(null);
         runningRef.current = false;
@@ -44,9 +46,8 @@ export function ServiceSwitchTransitionProvider({ children }: { children: ReactN
   }, []);
 
   return (
-    <ServiceSwitchContext.Provider value={{ switchService, isSwitching: transition !== null }}>
+    <ServiceSwitchContext.Provider value={{ switchService, isSwitching: transition !== null, target: transition?.target ?? null, phase: transition?.phase ?? null }}>
       {children}
-      {transition && <ServiceTransitionOverlay target={transition.target} phase={transition.phase} />}
     </ServiceSwitchContext.Provider>
   );
 }
@@ -55,29 +56,4 @@ export function useServiceSwitchTransition() {
   const context = useContext(ServiceSwitchContext);
   if (!context) throw new Error("useServiceSwitchTransition must be used within ServiceSwitchTransitionProvider");
   return context;
-}
-
-function ServiceTransitionOverlay({ target, phase }: { target: ServiceSlug; phase: TransitionPhase }) {
-  const lounge = target === "lounge";
-  return (
-    <div
-      className="service-switch-overlay"
-      data-phase={phase}
-      data-target={target}
-      role="status"
-      aria-live="polite"
-      aria-label={lounge ? "Lounge" : "eSIM"}
-    >
-      <div className="service-switch-icon" aria-hidden="true">
-        {lounge ? (
-          <PlaneTakeoff className="service-switch-main-icon" />
-        ) : (
-          <span className="service-switch-connectivity">
-            <Smartphone className="service-switch-main-icon" />
-            <Wifi className="service-switch-signal-icon" />
-          </span>
-        )}
-      </div>
-    </div>
-  );
 }

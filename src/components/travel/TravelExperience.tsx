@@ -1,4 +1,4 @@
-import { ArrowRight, CheckCircle2, Plane, Signal, Smartphone } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { useEffect, useState, type ReactNode } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
@@ -17,6 +17,7 @@ import { PublicShell } from "./PublicShell";
 import { ServicePausedState, useServiceAvailability } from "./ServiceAvailability";
 import { Reveal } from "./Reveal";
 import { useServiceSwitchTransition } from "./ServiceSwitchTransition";
+import { EsimServiceIcon, LoungeServiceIcon } from "./ServiceIcons";
 import { CampaignBanner, DeliveryConfidence, HowItWorks, ImageTextSection, ProductSolutions, TrustStrip, VisualComplementary, VisualPopular } from "./PublicVisualSections";
 
 /**
@@ -55,7 +56,8 @@ function Experience({ service, onServiceChange, config }: { service: ServiceSlug
   const copy = localized(service === "esim" ? ESIM_CONTENT : LOUNGE_CONTENT, locale);
   const [esimState, setEsimState] = useState<EsimFinderState>(ESIM_SERVICE_CONFIG.initialState);
   const [loungeState, setLoungeState] = useState<LoungeFinderState>(LOUNGE_SERVICE_CONFIG.initialState);
-  const { switchService, isSwitching } = useServiceSwitchTransition();
+  const { switchService, isSwitching, target, phase } = useServiceSwitchTransition();
+  const selectedService = target ?? service;
 
   useEffect(() => {
     if (service === "esim") setLoungeState(LOUNGE_SERVICE_CONFIG.initialState);
@@ -73,21 +75,24 @@ function Experience({ service, onServiceChange, config }: { service: ServiceSlug
     if (!section.visible) return null;
     switch (section.type) {
       case "HERO":
-        return <Hero key={section.id} service={service} section={section} onFind={scrollToFinder} />;
+        return <Hero key={section.id} service={service} section={section} onFind={scrollToFinder} transitionPhase={phase} />;
       case "SERVICE_SELECTOR":
         return (
           <div key={section.id} className="mx-auto mt-5 max-w-xl px-4 sm:mt-6">
-            <div className="grid grid-cols-2 rounded-2xl border border-border bg-card p-1.5 shadow-card">
-              <ServiceButton active={service === "esim"} onClick={() => requestServiceChange("esim")} icon={<Signal />}>{tx(section, "esimLabel", locale, "eSIM")}</ServiceButton>
-              <ServiceButton active={service === "lounge"} onClick={() => requestServiceChange("lounge")} icon={<Plane />}>{tx(section, "loungeLabel", locale, "Lounge")}</ServiceButton>
+            <div className="service-selector relative grid grid-cols-2 rounded-2xl border border-border bg-card p-1.5 shadow-card" data-service={selectedService}>
+              <span className="service-selector-pill" aria-hidden="true" />
+              <ServiceButton active={selectedService === "esim"} onClick={() => requestServiceChange("esim")} icon={<EsimServiceIcon />}>{tx(section, "esimLabel", locale, "eSIM")}</ServiceButton>
+              <ServiceButton active={selectedService === "lounge"} onClick={() => requestServiceChange("lounge")} icon={<LoungeServiceIcon />}>{tx(section, "loungeLabel", locale, "Lounge")}</ServiceButton>
             </div>
           </div>
         );
       case "FINDER":
         return (
-          <FinderShell key={section.id} title={tx(section, "headline", locale, copy.finderTitle)} description={tx(section, "description", locale, copy.finderDescription)}>
-            {service === "esim" ? <EsimFinder state={esimState} onChange={setEsimState} /> : <LoungeFinder state={loungeState} onChange={setLoungeState} />}
-          </FinderShell>
+          <div key={section.id} className="service-finder-transition" data-phase={phase ?? undefined}>
+            <FinderShell title={tx(section, "headline", locale, copy.finderTitle)} description={tx(section, "description", locale, copy.finderDescription)}>
+              {service === "esim" ? <EsimFinder state={esimState} onChange={setEsimState} /> : <LoungeFinder state={loungeState} onChange={setLoungeState} />}
+            </FinderShell>
+          </div>
         );
       case "COMPATIBILITY":
         return service === "esim" ? <DeviceCompatibilitySection key={section.id} /> : null;
@@ -125,16 +130,15 @@ function ServiceButton({ active, onClick, icon, children }: { active: boolean; o
       type="button"
       aria-pressed={active}
       onClick={onClick}
-      className={`flex min-h-12 items-center justify-center gap-2 rounded-xl text-sm font-bold transition [&>svg]:size-5 [&>svg]:shrink-0 [&>svg]:stroke-[1.8] ${active ? "bg-primary text-primary-foreground shadow-sm" : "text-muted-foreground hover:bg-secondary"}`}
+      className={`relative z-10 flex min-h-12 items-center justify-center gap-2 rounded-xl text-sm font-bold transition-colors duration-200 ${active ? "text-primary-foreground" : "text-muted-foreground hover:text-primary"}`}
     >
-      {icon}
+      <span className={`service-selector-icon ${active ? "is-active" : ""}`}>{icon}</span>
       {children}
-      {active && <CheckCircle2 className="size-4" />}
     </button>
   );
 }
 
-function Hero({ service, section, onFind }: { service: ServiceSlug; section: StorefrontSection; onFind: () => void }) {
+function Hero({ service, section, onFind, transitionPhase }: { service: ServiceSlug; section: StorefrontSection; onFind: () => void; transitionPhase: "outgoing" | "incoming" | null }) {
   const { locale } = useI18n();
   const copy = localized(service === "esim" ? ESIM_CONTENT : LOUNGE_CONTENT, locale);
   const media = SERVICE_REGISTRY[service].media;
@@ -147,7 +151,7 @@ function Hero({ service, section, onFind }: { service: ServiceSlug; section: Sto
   const centered = section.align === "center";
 
   return (
-    <section className={`mx-auto ${widthClass(section)} px-3 pt-3 sm:px-6 sm:pt-5`}>
+    <section className={`service-hero-transition mx-auto ${widthClass(section)} px-3 pt-3 sm:px-6 sm:pt-5`} data-phase={transitionPhase ?? undefined}>
       <div className={`relative ${heightClass} overflow-hidden rounded-hero bg-primary`}>
         <picture>
           <source media="(max-width: 639px)" srcSet={mobileSrc} />
@@ -167,7 +171,7 @@ function Hero({ service, section, onFind }: { service: ServiceSlug; section: Sto
         <div className={`relative flex ${heightClass} max-w-2xl flex-col justify-between gap-8 p-6 text-hero-foreground sm:p-10 lg:p-14 ${centered ? "mx-auto items-center text-center" : ""}`}>
           <div>
             <span className="inline-flex items-center gap-2 text-sm font-semibold">
-              <span className="grid size-8 place-items-center rounded-full bg-hero-foreground/15">{service === "esim" ? <Smartphone className="size-4" /> : <Plane className="size-4" />}</span>
+              <span className="grid size-9 place-items-center rounded-full bg-hero-foreground/15">{service === "esim" ? <EsimServiceIcon className="size-5 stroke-[1.8]" /> : <LoungeServiceIcon className="size-5 stroke-[1.8]" />}</span>
               {tx(section, "eyebrow", locale, copy.eyebrow)}
             </span>
             <h1 className="mt-4 max-w-xl font-display text-4xl font-bold leading-[1.06] sm:text-6xl">{tx(section, "headline", locale, copy.headline)}</h1>
