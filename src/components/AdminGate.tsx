@@ -68,7 +68,7 @@ export function AdminGate({ title, children }: { title: string; children: ReactN
     {mobileOpen && <button type="button" aria-label="Menüyü kapat" className="fixed inset-0 z-40 bg-primary/45 backdrop-blur-sm lg:hidden" onClick={() => setMobileOpen(false)} />}
     <aside className={`${mobileOpen ? "translate-x-0" : "-translate-x-full"} fixed inset-y-0 left-0 z-50 flex w-64 flex-col border-r border-primary-foreground/10 bg-primary text-primary-foreground transition-transform lg:sticky lg:top-0 lg:h-screen lg:translate-x-0`}>
       <div className="flex min-h-16 items-center justify-between border-b border-primary-foreground/10 px-4">
-        <Link to="/admin" search={{ service: "all" }} className="font-display text-lg font-bold">{BRAND.name}<span className="ml-2 text-[10px] font-bold opacity-60">ADMIN</span></Link>
+        <Link to="/admin" className="font-display text-lg font-bold">{BRAND.name}<span className="ml-2 text-[10px] font-bold opacity-60">ADMIN</span></Link>
         <Button variant="ghost" size="icon" className="text-primary-foreground hover:bg-primary-foreground/10 lg:hidden" onClick={() => setMobileOpen(false)} aria-label="Menüyü kapat"><X /></Button>
       </div>
       <nav className="min-h-0 flex-1 overflow-y-auto px-3 py-3" aria-label="Yönetim navigasyonu">
@@ -97,9 +97,10 @@ function NavGroup({ group, pathname, defaultOpen, onNavigate }: { group: AdminGr
   return <section className="mb-2">
     <button type="button" onClick={() => setOpen((value) => !value)} className="flex min-h-8 w-full items-center justify-between px-3 text-[10px] font-bold uppercase opacity-55"><span>{group.label}</span><ChevronDown className={`size-3.5 transition ${open ? "rotate-180" : ""}`} /></button>
     {open && <div className="grid gap-0.5">{group.links.map(({ to, label, icon: Icon }) => {
-      const serviceSearch = label === "eSIM genel bakış" ? { service: "esim" as const } : label === "Lounge genel bakış" ? { service: "lounge" as const } : to === "/admin" ? { service: "all" as const } : undefined;
-      const linkProps = serviceSearch ? { search: serviceSearch } : {};
-      return <Link key={`${group.label}-${label}`} to={to} {...linkProps} onClick={onNavigate} className="flex min-h-9 items-center gap-2.5 rounded-md px-3 text-xs font-semibold opacity-70 hover:bg-primary-foreground/10 hover:opacity-100" activeOptions={{ exact: to === "/admin" }} activeProps={{ className: "bg-primary-foreground/15 opacity-100" }}><Icon className="size-4" /><span className="truncate">{label}</span></Link>;
+      if (label === "eSIM genel bakış" || label === "Lounge genel bakış") {
+        return <Link key={`${group.label}-${label}`} to="/admin" search={{ service: label === "eSIM genel bakış" ? "esim" : "lounge" }} onClick={onNavigate} className="flex min-h-9 items-center gap-2.5 rounded-md px-3 text-xs font-semibold opacity-70 hover:bg-primary-foreground/10 hover:opacity-100"><Icon className="size-4" /><span className="truncate">{label}</span></Link>;
+      }
+      return <Link key={`${group.label}-${label}`} to={to} onClick={onNavigate} className="flex min-h-9 items-center gap-2.5 rounded-md px-3 text-xs font-semibold opacity-70 hover:bg-primary-foreground/10 hover:opacity-100" activeOptions={{ exact: to === "/admin" }} activeProps={{ className: "bg-primary-foreground/15 opacity-100" }}><Icon className="size-4" /><span className="truncate">{label}</span></Link>;
     })}</div>}
   </section>;
 }
