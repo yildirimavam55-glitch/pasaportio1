@@ -94,3 +94,9 @@
 - [x] Top products, top travel destinations vs customer countries
 - [x] "Dikkat gerektirenler" alert counts + last provider import summary (import engine untouched)
 - [x] Test catalogue orders excluded from production dashboard; zero-data empty states
+## Admin V2 — Business Control Center
+- [ ] Audit current admin routes and data surfaces
+- [ ] Redesign global admin shell and grouped navigation
+- [ ] Add General / eSIM / Lounge dashboard contexts
+- [ ] Complete requested operational and management views using existing data
+- [ ] Verify access control, responsive layouts, tests, and no fake data
