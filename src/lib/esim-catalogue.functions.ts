@@ -25,6 +25,10 @@ export type EsimPackage = {
   validityDays: number | null;
   activationPolicy: ActivationPolicy;
   fairUseNote: string | null;
+  /** Provider fair-use values, verbatim or null. */
+  fairUsePolicy: string | null;
+  highSpeedAllowance: string | null;
+  speedAfterFairUse: string | null;
   coverage: string[];
   supports5g: boolean;
   supportsHotspot: boolean;
@@ -66,7 +70,7 @@ export const listEsimPackages = createServerFn({ method: "GET" })
     const { data: rows, error } = await publicClient()
       .from("service_products")
       .select(
-        "id, provider_external_id, slug, name, currency, sale_price, badge, featured, sort_order, lifecycle, customer_visible, provider_available, margin_flagged, service_type, is_test, source, esim_product_details(data_gb, data_type, unlimited_data, validity_days, raw_validity_value, raw_validity_unit, activation_policy, fair_use_note, coverage_country_isos, country_iso, supports_5g, supports_hotspot, network_operators)",
+        "id, provider_external_id, slug, name, currency, sale_price, badge, featured, sort_order, lifecycle, customer_visible, provider_available, margin_flagged, service_type, is_test, source, esim_product_details(data_gb, data_type, unlimited_data, validity_days, raw_validity_value, raw_validity_unit, activation_policy, fair_use_note, fair_use_policy, high_speed_allowance, speed_after_fair_use, coverage_country_isos, country_iso, supports_5g, supports_hotspot, network_operators)",
       )
       .eq("service_type", "ESIM")
       .eq("lifecycle", "PUBLISHED")
@@ -90,6 +94,9 @@ export const listEsimPackages = createServerFn({ method: "GET" })
               raw_validity_unit: string | null;
               activation_policy: string | null;
               fair_use_note: string | null;
+              fair_use_policy: string | null;
+              high_speed_allowance: string | null;
+              speed_after_fair_use: string | null;
               coverage_country_isos: string[] | null;
               country_iso: string | null;
               supports_5g: boolean | null;
@@ -123,6 +130,9 @@ export const listEsimPackages = createServerFn({ method: "GET" })
             ? activation
             : "UNKNOWN") as ActivationPolicy,
           fairUseNote: details?.fair_use_note ?? null,
+          fairUsePolicy: details?.fair_use_policy ?? null,
+          highSpeedAllowance: details?.high_speed_allowance ?? null,
+          speedAfterFairUse: details?.speed_after_fair_use ?? null,
           coverage,
           supports5g: Boolean(details?.supports_5g),
           supportsHotspot: Boolean(details?.supports_hotspot),
