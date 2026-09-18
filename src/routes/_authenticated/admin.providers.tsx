@@ -1,21 +1,10 @@
-import { createFileRoute } from "@tanstack/react-router";
-
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { useQuery } from "@tanstack/react-query";
+import { Plane, RadioTower } from "lucide-react";
 import { AdminGate } from "@/components/AdminGate";
-import { PlaceholderSection } from "@/components/AppShell";
-
-export const Route = createFileRoute("/_authenticated/admin/providers")({
-  component: () => (
-    <AdminGate title="Sağlayıcılar">
-      <PlaceholderSection
-        title="Sağlayıcı merkezi temeli"
-        description="Henüz canlı sağlayıcı bağlanmadı. API anahtarları yalnızca sunucu tarafında saklanır."
-        items={[
-          "Bağlantı durumu ve yetenekler",
-          "Senkronizasyon çalışmaları ve farklar",
-          "Ham sağlayıcı kayıtları ve eşleşmeler",
-          "Hatalar ve eskimiş kayıtlar",
-        ]}
-      />
-    </AdminGate>
-  ),
-});
+import { AdminError, AdminLoading, AdminPanel, EmptyState, StatusBadge } from "@/components/admin/AdminUi";
+import { adminHead } from "@/components/admin/AdminSectionPage";
+import { Button } from "@/components/ui/button";
+import { getAdminProviders } from "@/lib/admin-control.functions";
+export const Route=createFileRoute("/_authenticated/admin/providers")({head:()=>adminHead("Provider Hub","eSIM ve Lounge provider yönetimi."),component:Providers});
+function Providers(){const q=useQuery({queryKey:["admin-providers"],queryFn:()=>getAdminProviders()});return <AdminGate title="Provider Hub">{q.isPending?<AdminLoading/>:q.error?<AdminError error={q.error}/>:<div className="grid gap-4 xl:grid-cols-2">{(["ESIM","LOUNGE"] as const).map(service=><AdminPanel key={service} title={service==="ESIM"?"eSIM Provider’ları":"Lounge Provider’ları"}>{!(q.data??[]).some((p:any)=>p.service_type===service)?<EmptyState title={`Henüz ${service==="ESIM"?"eSIM":"Lounge"} provider bağlanmadı.`}/>:<div className="grid gap-3">{(q.data??[]).filter((p:any)=>p.service_type===service).map((p:any)=><article key={p.id} className={`rounded-md border p-3 ${service==="ESIM"?"border-success/30 bg-primary-soft/30":"border-warning/35 bg-sand-soft/45"}`}><div className="flex items-start gap-3"><span className="grid size-9 place-items-center rounded-md bg-card">{service==="ESIM"?<RadioTower className="size-4 text-success"/>:<Plane className="size-4 text-warning"/>}</span><div className="min-w-0 flex-1"><div className="flex flex-wrap items-center gap-2"><strong>{p.name}</strong><StatusBadge value={p.connection?.status??(p.active?"NOT_CONFIGURED":"PAUSED")}/></div><p className="mt-1 text-xs text-muted-foreground">{p.catalogueItems} katalog ürünü · Son senkron: {p.connection?.last_sync_at?new Date(p.connection.last_sync_at).toLocaleString("tr-TR"):"Yok"}</p><div className="mt-2 flex flex-wrap gap-1">{p.capabilities.map((c:string)=><span key={c} className="rounded bg-card px-1.5 py-0.5 text-[10px] font-semibold">{c}</span>)}</div></div></div>{service==="ESIM"&&<Button asChild size="sm" variant="outline" className="mt-3"><Link to="/admin/esim/provider-import">Kataloğu yönet</Link></Button>}</article>)}</div>}</AdminPanel>)}</div>}</AdminGate>}

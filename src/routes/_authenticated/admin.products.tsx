@@ -1,21 +1,11 @@
 import { createFileRoute } from "@tanstack/react-router";
-
+import { useQuery } from "@tanstack/react-query";
+import { useMemo, useState } from "react";
+import { ChevronDown, Plane, RadioTower } from "lucide-react";
 import { AdminGate } from "@/components/AdminGate";
-import { PlaceholderSection } from "@/components/AppShell";
-
-export const Route = createFileRoute("/_authenticated/admin/products")({
-  component: () => (
-    <AdminGate title="Ürünler">
-      <PlaceholderSection
-        title="Ortak ürün katmanı"
-        description="Sağlayıcıya ait veriler ile yöneticiye ait pazarlama verileri ayrıdır; senkronizasyon pazarlama verisini ezmez."
-        items={[
-          "Yaşam döngüsü: IMPORTED → DRAFT → PUBLISHED",
-          "eSIM detay modeli",
-          "Lounge detay modeli",
-          "Fiyat kuralları ve marj koruması",
-        ]}
-      />
-    </AdminGate>
-  ),
-});
+import { AdminError, AdminLoading, AdminPanel, EmptyState, StatusBadge } from "@/components/admin/AdminUi";
+import { adminHead } from "@/components/admin/AdminSectionPage";
+import { Button } from "@/components/ui/button";
+import { getAdminCatalogue } from "@/lib/admin-control.functions";
+export const Route=createFileRoute("/_authenticated/admin/products")({head:()=>adminHead("Katalog","eSIM paketleri ve Lounge ürün grupları."),component:Products});
+function Products(){const [service,setService]=useState<"ESIM"|"LOUNGE">("ESIM");const q=useQuery({queryKey:["admin-catalogue-v2"],queryFn:()=>getAdminCatalogue()});const groups=useMemo(()=>{const map=new Map<string,any[]>();for(const p of q.data??[]){if(p.service_type!==service)continue;const key=service==="ESIM"?(p.esim_product_details?.regions?.name??p.destinations?.name??p.esim_product_details?.country_iso??p.esim_product_details?.package_kind??"Diğer kapsama"):(`${p.lounge_product_details?.iata??p.airports?.iata??"Havalimanı yok"} · ${p.lounge_product_details?.terminal??"Terminal belirtilmedi"}`);map.set(key,[...(map.get(key)??[]),p])}return [...map.entries()]},[q.data,service]);return <AdminGate title="Ürün kataloğu"><div className="grid gap-4"><div className="flex gap-2"><Button size="sm" variant={service==="ESIM"?"secondary":"outline"} onClick={()=>setService("ESIM")}><RadioTower/>eSIM paketleri</Button><Button size="sm" variant={service==="LOUNGE"?"secondary":"outline"} onClick={()=>setService("LOUNGE")}><Plane/>Lounge’lar</Button></div>{q.isPending?<AdminLoading/>:q.error?<AdminError error={q.error}/>:<AdminPanel title={service==="ESIM"?"Destinasyon / bölge grupları":"Havalimanı → terminal → Lounge"}>{!groups.length?<EmptyState title={service==="ESIM"?"Henüz eSIM ürünü yok.":"Henüz Lounge ürünü yok."}/>:<div className="grid gap-2">{groups.map(([name,products])=><details key={name} className="group rounded-md border border-border bg-background"><summary className="flex cursor-pointer list-none items-center gap-3 p-3"><span className={`grid size-8 place-items-center rounded-md ${service==="ESIM"?"bg-primary-soft text-success":"bg-sand-soft text-warning"}`}>{service==="ESIM"?<RadioTower className="size-4"/>:<Plane className="size-4"/>}</span><strong className="min-w-0 flex-1 text-sm">{name}</strong><span className="text-xs text-muted-foreground">{products.length} ürün</span><ChevronDown className="size-4 transition group-open:rotate-180"/></summary><div className="border-t border-border p-2">{products.map((p:any)=><div key={p.id} className="grid gap-2 border-b border-border px-2 py-2.5 text-xs last:border-0 sm:grid-cols-[minmax(0,1fr)_auto_auto_auto]"><div><strong>{p.name}</strong><span className="ml-2 text-muted-foreground">{service==="ESIM"?(p.esim_product_details?.unlimited_data?"Sınırsız":`${p.esim_product_details?.data_gb??"—"} GB · ${p.esim_product_details?.validity_days??"—"} gün`):(p.lounge_product_details?.lounge_name??"Lounge")}</span></div><span>{p.sale_price==null?"Fiyat yok":`${Number(p.sale_price).toFixed(2)} ${p.currency}`}</span><span>{p.providers?.name??"Provider yok"}</span><StatusBadge value={p.lifecycle}/></div>)}</div></details>)}</div>}</AdminPanel>}</div></AdminGate>}

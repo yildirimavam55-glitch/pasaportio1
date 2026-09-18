@@ -1,21 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
-
+import { useQuery } from "@tanstack/react-query";
+import { useState } from "react";
 import { AdminGate } from "@/components/AdminGate";
-import { PlaceholderSection } from "@/components/AppShell";
-
-export const Route = createFileRoute("/_authenticated/admin/orders")({
-  component: () => (
-    <AdminGate title="Siparişler">
-      <PlaceholderSection
-        title="Sipariş mimarisi hazır"
-        description="Sipariş, ödeme ve karşılama durumları ayrı alanlarda tutulur."
-        items={[
-          "Sipariş durumu: DRAFT → COMPLETED",
-          "Ödeme durumu: PENDING → PAID",
-          "Karşılama durumu: PENDING → FULFILLED",
-          "Satın alma anı fiyat/maliyet kaydı",
-        ]}
-      />
-    </AdminGate>
-  ),
-});
+import { AdminError, AdminLoading, AdminPanel, AdminTable, EmptyState, StatusBadge } from "@/components/admin/AdminUi";
+import { adminHead } from "@/components/admin/AdminSectionPage";
+import { Button } from "@/components/ui/button";
+import { getAdminOrders } from "@/lib/admin-control.functions";
+export const Route=createFileRoute("/_authenticated/admin/orders")({head:()=>adminHead("Siparişler","eSIM ve Lounge sipariş yönetimi."),component:Orders});
+function Orders(){const [service,setService]=useState("ALL");const q=useQuery({queryKey:["admin-orders",service],queryFn:()=>getAdminOrders({data:{service}})});return <AdminGate title="Siparişler"><div className="grid gap-4"><div className="flex gap-2">{["ALL","ESIM","LOUNGE"].map(v=><Button key={v} size="sm" variant={service===v?"secondary":"outline"} onClick={()=>setService(v)}>{v==="ALL"?"Tümü":v==="ESIM"?"eSIM":"Lounge"}</Button>)}</div>{q.isPending?<AdminLoading/>:q.error?<AdminError error={q.error}/>:<AdminPanel title={`${q.data?.length??0} sipariş`}>{!q.data?.length?<EmptyState title="Henüz sipariş yok."/>:<AdminTable head={["Sipariş","Müşteri","Servis / Ürün","Satış","Provider maliyeti","Brüt kâr","Ödeme","Teslimat","Tarih"]}>{q.data.map((o:any)=><tr key={o.id}><td className="font-semibold">{o.order_number}</td><td>{o.guest_email??"Kayıtlı müşteri"}</td><td>{(o.order_items??[]).map((i:any)=><div key={i.id}><span className="font-semibold">{i.service_type==="ESIM"?"eSIM":"Lounge"}</span> · {i.product_name_snapshot}</div>)}</td><td>{Number(o.gross_revenue).toFixed(2)} {o.currency}</td><td>{Number(o.provider_cost_total).toFixed(2)} {o.currency}</td><td className="font-semibold">{Number(o.gross_profit).toFixed(2)} {o.currency}</td><td><StatusBadge value={o.payment_status}/></td><td><StatusBadge value={o.fulfillment_status}/></td><td>{new Date(o.created_at).toLocaleDateString("tr-TR")}</td></tr>)}</AdminTable>}</AdminPanel>}</div></AdminGate>}

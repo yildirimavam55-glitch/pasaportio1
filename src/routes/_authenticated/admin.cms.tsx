@@ -1,0 +1,7 @@
+import { createFileRoute } from "@tanstack/react-router";
+import { Globe2, Languages, MonitorCog, Plane, RadioTower } from "lucide-react";
+import { AdminGate } from "@/components/AdminGate";
+import { AdminPanel, EmptyState } from "@/components/admin/AdminUi";
+import { adminHead } from "@/components/admin/AdminSectionPage";
+export const Route=createFileRoute("/_authenticated/admin/cms")({head:()=>adminHead("Sayfalar ve CMS","Global, eSIM ve Lounge içerik yönetimi."),component:Cms});
+function Cms(){return <AdminGate title="Sayfalar / CMS"><div className="grid gap-4 md:grid-cols-3">{[["Global içerik","Header, footer, destek ve ortak sayfalar",Globe2,"bg-petrol-soft"],["eSIM içerik","Finder çevresi, eğitim ve destinasyon içeriği",RadioTower,"bg-primary-soft"],["Lounge içerik","Havalimanı, Lounge ve rezervasyon içeriği",Plane,"bg-sand-soft"]].map(([title,detail,Icon,bg]:any)=><AdminPanel key={title} title={title}><span className={`mb-3 grid size-9 place-items-center rounded-md ${bg}`}><Icon className="size-4"/></span><p className="text-xs text-muted-foreground">{detail}</p><div className="mt-4"><EmptyState title="Henüz içerik kaydı yok."/></div></AdminPanel>)}<AdminPanel title="Çeviri durumu" className="md:col-span-3"><div className="flex items-center gap-3"><Languages className="size-5 text-primary"/><p className="text-sm text-muted-foreground">TR ana dil; DE ve EN eksikleri yayın öncesinde burada görünür. Eksik içerik boş çıkmaz, TR geri dönüşü korunur.</p></div></AdminPanel></div></AdminGate>}
