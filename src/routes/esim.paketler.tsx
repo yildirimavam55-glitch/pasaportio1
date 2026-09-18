@@ -179,7 +179,7 @@ function PackagesPage() {
             {[0, 1, 2].map((key) => <div key={key} className="h-44 animate-pulse rounded-card bg-secondary" />)}
           </div>
         ) : packages.length ? (
-          <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-3" role="radiogroup" aria-label={copy.title}>
             {packages.map((pkg) => (
               <PackageCard
                 key={pkg.id}
@@ -229,7 +229,7 @@ function PackageCard({ pkg, isRecommended, isSelected, onSelect, whyText, copy }
 
 
   return (
-    <article id={`esim-package-${pkg.id}`} className={`flex flex-col rounded-card border p-5 shadow-card ${isRecommended ? "border-primary bg-primary-soft ring-1 ring-primary" : isSelected ? "border-primary bg-card" : "border-border bg-card"}`}>
+    <article id={`esim-package-${pkg.id}`} className={`flex flex-col rounded-card border p-5 shadow-card ${isSelected ? "border-primary bg-primary-soft ring-1 ring-primary" : isRecommended ? "border-primary/60 bg-card" : "border-border bg-card"}`}>
       <div className="flex flex-wrap items-start justify-between gap-2">
         <div className="min-w-0 flex-1">
           <strong className="block break-words font-display text-2xl">{pkg.unlimited ? copy.unlimited : `${pkg.dataGb ?? "—"} GB`}</strong>
@@ -268,7 +268,8 @@ function PackageCard({ pkg, isRecommended, isSelected, onSelect, whyText, copy }
         variant={isSelected ? "secondary" : "outline"}
         className="mt-3 w-full"
         onClick={onSelect}
-        aria-pressed={isSelected}
+        role="radio"
+        aria-checked={isSelected}
       >
         {isSelected && <Check />} {isSelected ? copy.selected : copy.select}
       </Button>
