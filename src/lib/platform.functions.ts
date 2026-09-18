@@ -46,10 +46,12 @@ export const listPublishedProducts = createServerFn({ method: "GET" })
     return rows ?? [];
   });
 
-/** Server-side role check. Admin privileges are explicitly assigned, never inferred. */
+/** Server-side role check. Admin privileges are explicitly assigned, never inferred.
+ *  A valid, verified, pending admin invitation for this account is accepted here. */
 export const getMyAccess = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
+    await context.supabase.rpc("accept_admin_invitation");
     const { data, error } = await context.supabase.rpc("has_role", {
       _user_id: context.userId,
       _role: "admin",
@@ -57,3 +59,4 @@ export const getMyAccess = createServerFn({ method: "GET" })
     if (error) throw new Error(error.message);
     return { userId: context.userId, isAdmin: Boolean(data) };
   });
+

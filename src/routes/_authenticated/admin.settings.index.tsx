@@ -11,7 +11,7 @@ import { getPlatformSettings, savePlatformSettings } from "@/lib/platform-settin
 import { DEFAULT_SETTINGS, type PlatformSettings, type MaintenanceService } from "@/domain/platform/settings";
 import type { Locale } from "@/domain/enums";
 
-export const Route = createFileRoute("/_authenticated/admin/settings")({
+export const Route = createFileRoute("/_authenticated/admin/settings/")({
   head: () => adminHead("Ayarlar", "Marka, destek, bölge ve bakım mesajı ayarları."),
   component: SettingsPage,
 });

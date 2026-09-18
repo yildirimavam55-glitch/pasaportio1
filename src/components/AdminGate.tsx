@@ -1,17 +1,20 @@
-import { useQuery } from "@tanstack/react-query";
-import { Link, useRouterState } from "@tanstack/react-router";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
+import { toast } from "sonner";
 import {
   AlertTriangle, BarChart3, Boxes, BriefcaseBusiness, Building2, ChevronDown,
   CircleDollarSign, ClipboardList, CloudUpload, DatabaseZap, ExternalLink, Flag,
-  Image, LayoutDashboard, LayoutTemplate, LoaderCircle, MapPin, Megaphone, Menu, MonitorCog, PanelLeftClose, Plane,
+  Image, LayoutDashboard, LayoutTemplate, LoaderCircle, LogOut, MapPin, Megaphone, Menu, MonitorCog, PanelLeftClose, Plane,
   PlugZap, RadioTower, ReceiptText, RotateCw, Route, Search, Settings, ShieldCheck,
   Smartphone, Sparkles, ToggleLeft, Users, WalletCards, X,
 } from "lucide-react";
 import { useEffect, useState, type ReactNode } from "react";
 import { BRAND } from "@/domain/experience/config";
+import { supabase } from "@/integrations/supabase/client";
 import { getMyAccess } from "@/lib/platform.functions";
 import { adminSearch, getAdminIdentity } from "@/lib/admin-control.functions";
 import { Button } from "@/components/ui/button";
+
 
 type AdminLink = { to: string; label: string; icon: typeof LayoutDashboard };
 type AdminGroup = { label: string; links: AdminLink[] };
@@ -62,8 +65,10 @@ const groups: AdminGroup[] = [
     { to: "/admin/flags", label: "Özellik bayrakları", icon: Flag },
     { to: "/admin/audit", label: "Denetim kaydı", icon: ShieldCheck },
     { to: "/admin/settings", label: "Ayarlar", icon: Settings },
+    { to: "/admin/settings/users", label: "Admin Kullanıcıları", icon: Users },
   ]},
 ];
+
 
 export function AdminGate({ title, children }: { title: string; children: ReactNode }) {
   const { data, isPending } = useQuery({ queryKey: ["access"], queryFn: () => getMyAccess() });
@@ -116,14 +121,48 @@ function NavGroup({ group, pathname, defaultOpen, onNavigate }: { group: AdminGr
   </section>;
 }
 function AdminAccount() {
+  const queryClient = useQueryClient();
+  const navigate = useNavigate();
   const { data } = useQuery({ queryKey: ["admin-identity"], queryFn: () => getAdminIdentity() });
+  const [open, setOpen] = useState(false);
+  const [busy, setBusy] = useState(false);
   const name = data?.name || data?.email || "Yönetici";
   const initial = String(name).trim().charAt(0).toUpperCase() || "A";
-  return <div className="hidden items-center gap-2 border-l border-border pl-3 sm:flex">
-    <span className="grid size-8 place-items-center rounded-full bg-primary text-xs font-bold text-primary-foreground">{initial}</span>
-    <span className="min-w-0"><span className="block max-w-40 truncate text-xs font-semibold">{name}</span>{data?.email && data?.name && <span className="block max-w-40 truncate text-[10px] text-muted-foreground">{data.email}</span>}</span>
+
+  const signOut = async () => {
+    setBusy(true);
+    try {
+      await queryClient.cancelQueries();
+      const { error } = await supabase.auth.signOut();
+      if (error) throw error;
+      queryClient.clear();
+      setOpen(false);
+      await navigate({ to: "/auth", replace: true });
+    } catch {
+      toast.error("Çıkış yapılamadı. Lütfen tekrar deneyin.");
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return <div className="relative shrink-0 border-l border-border pl-2 sm:pl-3">
+    <button type="button" onClick={() => setOpen((value) => !value)} aria-haspopup="menu" aria-expanded={open} className="flex min-h-10 items-center gap-2 rounded-md px-1 hover:bg-secondary/60">
+      <span className="grid size-8 shrink-0 place-items-center rounded-full bg-primary text-xs font-bold text-primary-foreground">{initial}</span>
+      <span className="hidden min-w-0 text-left sm:block"><span className="block max-w-40 truncate text-xs font-semibold">{name}</span><span className="block text-[10px] text-muted-foreground">Admin</span></span>
+      <ChevronDown className={`size-3.5 transition ${open ? "rotate-180" : ""}`} />
+    </button>
+    {open && <>
+      <button type="button" aria-label="Menüyü kapat" className="fixed inset-0 z-40" onClick={() => setOpen(false)} />
+      <div role="menu" className="absolute right-0 z-50 mt-1 w-56 overflow-hidden rounded-md border border-border bg-card p-1 shadow-panel">
+        <div className="px-3 py-2"><p className="truncate text-xs font-semibold">{name}</p>{data?.email && <p className="truncate text-[10px] text-muted-foreground">{data.email}</p>}<p className="text-[10px] font-bold uppercase text-muted-foreground">Admin</p></div>
+        <Link to="/hesabim" onClick={() => setOpen(false)} className="flex min-h-10 items-center gap-2 rounded-md px-3 text-xs font-semibold hover:bg-secondary/60">Hesabım</Link>
+        <Link to="/admin/settings" onClick={() => setOpen(false)} className="flex min-h-10 items-center gap-2 rounded-md px-3 text-xs font-semibold hover:bg-secondary/60">Admin Ayarları</Link>
+        <button type="button" role="menuitem" disabled={busy} onClick={signOut} className="flex min-h-10 w-full items-center gap-2 rounded-md px-3 text-left text-xs font-bold text-destructive hover:bg-destructive/10 disabled:opacity-60"><LogOut className="size-4" />{busy ? "Çıkış yapılıyor…" : "Çıkış Yap"}</button>
+      </div>
+    </>}
   </div>;
 }
+
 
 function AdminSearch({ open, onClose }: { open: boolean; onClose: () => void }) {
   const [term, setTerm] = useState("");

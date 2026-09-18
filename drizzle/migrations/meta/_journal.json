@@ -85,6 +85,13 @@
       "when": 1789722571022,
       "tag": "0011_esim_fair_use_fields",
       "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1789724041646,
+      "tag": "0012_admin_access_management",
+      "breakpoints": true
     }
   ]
 }
