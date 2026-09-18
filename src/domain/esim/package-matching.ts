@@ -96,7 +96,7 @@ export function resolvePackageRecommendation<T extends MatchablePackage>(
   const days = Number.isFinite(input.days) ? Number(input.days) : 0;
   const candidates = packages.filter((pkg) => {
     if (isos.length && !isos.every((iso) => pkg.coverage.includes(iso))) return false;
-    if (days > 0 && pkg.validityDays != null && pkg.validityDays < days) return false;
+    if (!validityCoversTrip(pkg, days)) return false;
     return true;
   });
   if (!candidates.length) return { status: "NO_CATALOGUE", package: null };
