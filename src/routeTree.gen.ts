@@ -38,6 +38,7 @@ import { Route as AuthenticatedAdminTestCatalogueRouteImport } from './routes/_a
 import { Route as AuthenticatedAdminThemeRouteImport } from './routes/_authenticated/admin.theme'
 import { Route as AuthenticatedHesabimIndexRouteImport } from './routes/_authenticated/hesabim.index'
 import { Route as AuthenticatedHesabimSeyahatlerRouteImport } from './routes/_authenticated/hesabim.seyahatler'
+import { Route as ApiPublicProviderSyncRouteImport } from './routes/api/public/provider-sync'
 import { Route as AuthenticatedAdminEsimDevicesRouteImport } from './routes/_authenticated/admin.esim.devices'
 import { Route as AuthenticatedAdminEsimFulfillmentRouteImport } from './routes/_authenticated/admin.esim.fulfillment'
 import { Route as AuthenticatedAdminEsimProviderImportRouteImport } from './routes/_authenticated/admin.esim.provider-import'
@@ -209,6 +210,11 @@ const AuthenticatedHesabimSeyahatlerRoute =
     path: '/hesabim/seyahatler',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const ApiPublicProviderSyncRoute = ApiPublicProviderSyncRouteImport.update({
+  id: '/api/public/provider-sync',
+  path: '/api/public/provider-sync',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthenticatedAdminEsimDevicesRoute =
   AuthenticatedAdminEsimDevicesRouteImport.update({
     id: '/admin/esim/devices',
@@ -303,6 +309,7 @@ export interface FileRoutesByFullPath {
   '/admin/test-catalogue': typeof AuthenticatedAdminTestCatalogueRoute
   '/admin/theme': typeof AuthenticatedAdminThemeRoute
   '/hesabim/seyahatler': typeof AuthenticatedHesabimSeyahatlerRoute
+  '/api/public/provider-sync': typeof ApiPublicProviderSyncRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
   '/hesabim/': typeof AuthenticatedHesabimIndexRoute
   '/admin/esim/devices': typeof AuthenticatedAdminEsimDevicesRoute
@@ -344,6 +351,7 @@ export interface FileRoutesByTo {
   '/admin/test-catalogue': typeof AuthenticatedAdminTestCatalogueRoute
   '/admin/theme': typeof AuthenticatedAdminThemeRoute
   '/hesabim/seyahatler': typeof AuthenticatedHesabimSeyahatlerRoute
+  '/api/public/provider-sync': typeof ApiPublicProviderSyncRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
   '/hesabim': typeof AuthenticatedHesabimIndexRoute
   '/admin/esim/devices': typeof AuthenticatedAdminEsimDevicesRoute
@@ -387,6 +395,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/test-catalogue': typeof AuthenticatedAdminTestCatalogueRoute
   '/_authenticated/admin/theme': typeof AuthenticatedAdminThemeRoute
   '/_authenticated/hesabim/seyahatler': typeof AuthenticatedHesabimSeyahatlerRoute
+  '/api/public/provider-sync': typeof ApiPublicProviderSyncRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
   '/_authenticated/hesabim/': typeof AuthenticatedHesabimIndexRoute
   '/_authenticated/admin/esim/devices': typeof AuthenticatedAdminEsimDevicesRoute
@@ -430,6 +439,7 @@ export interface FileRouteTypes {
     | '/admin/test-catalogue'
     | '/admin/theme'
     | '/hesabim/seyahatler'
+    | '/api/public/provider-sync'
     | '/admin/'
     | '/hesabim/'
     | '/admin/esim/devices'
@@ -471,6 +481,7 @@ export interface FileRouteTypes {
     | '/admin/test-catalogue'
     | '/admin/theme'
     | '/hesabim/seyahatler'
+    | '/api/public/provider-sync'
     | '/admin'
     | '/hesabim'
     | '/admin/esim/devices'
@@ -513,6 +524,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/test-catalogue'
     | '/_authenticated/admin/theme'
     | '/_authenticated/hesabim/seyahatler'
+    | '/api/public/provider-sync'
     | '/_authenticated/admin/'
     | '/_authenticated/hesabim/'
     | '/_authenticated/admin/esim/devices'
@@ -537,6 +549,7 @@ export interface RootRouteChildren {
   LoungeSeceneklerRoute: typeof LoungeSeceneklerRoute
   EsimIndexRoute: typeof EsimIndexRoute
   LoungeIndexRoute: typeof LoungeIndexRoute
+  ApiPublicProviderSyncRoute: typeof ApiPublicProviderSyncRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -744,6 +757,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedHesabimSeyahatlerRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/api/public/provider-sync': {
+      id: '/api/public/provider-sync'
+      path: '/api/public/provider-sync'
+      fullPath: '/api/public/provider-sync'
+      preLoaderRoute: typeof ApiPublicProviderSyncRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_authenticated/admin/esim/devices': {
       id: '/_authenticated/admin/esim/devices'
       path: '/admin/esim/devices'
@@ -913,6 +933,7 @@ const rootRouteChildren: RootRouteChildren = {
   LoungeSeceneklerRoute: LoungeSeceneklerRoute,
   EsimIndexRoute: EsimIndexRoute,
   LoungeIndexRoute: LoungeIndexRoute,
+  ApiPublicProviderSyncRoute: ApiPublicProviderSyncRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

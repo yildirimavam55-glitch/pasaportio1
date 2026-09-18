@@ -1591,6 +1591,67 @@ export type Database = {
         }
         Relationships: []
       }
+      provider_catalogue_changes: {
+        Row: {
+          change_type: string
+          created_at: string
+          details: Json
+          external_id: string
+          id: string
+          needs_review: boolean
+          product_id: string | null
+          provider_id: string
+          reviewed_at: string | null
+          sync_run_id: string | null
+        }
+        Insert: {
+          change_type: string
+          created_at?: string
+          details?: Json
+          external_id: string
+          id?: string
+          needs_review?: boolean
+          product_id?: string | null
+          provider_id: string
+          reviewed_at?: string | null
+          sync_run_id?: string | null
+        }
+        Update: {
+          change_type?: string
+          created_at?: string
+          details?: Json
+          external_id?: string
+          id?: string
+          needs_review?: boolean
+          product_id?: string | null
+          provider_id?: string
+          reviewed_at?: string | null
+          sync_run_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "provider_catalogue_changes_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "service_products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "provider_catalogue_changes_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "providers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "provider_catalogue_changes_sync_run_id_fkey"
+            columns: ["sync_run_id"]
+            isOneToOne: false
+            referencedRelation: "provider_sync_runs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       provider_connections: {
         Row: {
           base_url: string | null
@@ -1599,12 +1660,16 @@ export type Database = {
           credential_secret_names: string[]
           environment: string
           id: string
+          last_attempt_at: string | null
           last_checked_at: string | null
+          last_success_at: string | null
           last_sync_at: string | null
+          next_sync_at: string | null
           provider_id: string
           rate_limit_per_minute: number | null
           status: string
           sync_cron: string | null
+          sync_state: string
           updated_at: string
           webhook_secret_name: string | null
         }
@@ -1615,12 +1680,16 @@ export type Database = {
           credential_secret_names?: string[]
           environment?: string
           id?: string
+          last_attempt_at?: string | null
           last_checked_at?: string | null
+          last_success_at?: string | null
           last_sync_at?: string | null
+          next_sync_at?: string | null
           provider_id: string
           rate_limit_per_minute?: number | null
           status?: string
           sync_cron?: string | null
+          sync_state?: string
           updated_at?: string
           webhook_secret_name?: string | null
         }
@@ -1631,12 +1700,16 @@ export type Database = {
           credential_secret_names?: string[]
           environment?: string
           id?: string
+          last_attempt_at?: string | null
           last_checked_at?: string | null
+          last_success_at?: string | null
           last_sync_at?: string | null
+          next_sync_at?: string | null
           provider_id?: string
           rate_limit_per_minute?: number | null
           status?: string
           sync_cron?: string | null
+          sync_state?: string
           updated_at?: string
           webhook_secret_name?: string | null
         }
@@ -1646,6 +1719,70 @@ export type Database = {
             columns: ["provider_id"]
             isOneToOne: false
             referencedRelation: "providers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      provider_price_history: {
+        Row: {
+          change_amount: number | null
+          change_percent: number | null
+          created_at: string
+          currency: string
+          external_id: string
+          id: string
+          new_cost: number
+          old_cost: number | null
+          product_id: string | null
+          provider_id: string
+          sync_run_id: string | null
+        }
+        Insert: {
+          change_amount?: number | null
+          change_percent?: number | null
+          created_at?: string
+          currency?: string
+          external_id: string
+          id?: string
+          new_cost: number
+          old_cost?: number | null
+          product_id?: string | null
+          provider_id: string
+          sync_run_id?: string | null
+        }
+        Update: {
+          change_amount?: number | null
+          change_percent?: number | null
+          created_at?: string
+          currency?: string
+          external_id?: string
+          id?: string
+          new_cost?: number
+          old_cost?: number | null
+          product_id?: string | null
+          provider_id?: string
+          sync_run_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "provider_price_history_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "service_products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "provider_price_history_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "providers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "provider_price_history_sync_run_id_fkey"
+            columns: ["sync_run_id"]
+            isOneToOne: false
+            referencedRelation: "provider_sync_runs"
             referencedColumns: ["id"]
           },
         ]
@@ -1815,51 +1952,63 @@ export type Database = {
       }
       provider_sync_runs: {
         Row: {
+          complete: boolean
           completed_at: string | null
           connection_id: string | null
+          coverage_changes: number
           error_summary: string | null
           id: string
           idempotency_key: string | null
           items_created: number
           items_failed: number
           items_received: number
+          items_returned: number
           items_unavailable: number
           items_unchanged: number
           items_updated: number
+          price_changes: number
           provider_id: string
           started_at: string
           status: Database["public"]["Enums"]["sync_status"]
           trigger: Database["public"]["Enums"]["sync_trigger"]
         }
         Insert: {
+          complete?: boolean
           completed_at?: string | null
           connection_id?: string | null
+          coverage_changes?: number
           error_summary?: string | null
           id?: string
           idempotency_key?: string | null
           items_created?: number
           items_failed?: number
           items_received?: number
+          items_returned?: number
           items_unavailable?: number
           items_unchanged?: number
           items_updated?: number
+          price_changes?: number
           provider_id: string
           started_at?: string
           status?: Database["public"]["Enums"]["sync_status"]
           trigger?: Database["public"]["Enums"]["sync_trigger"]
         }
         Update: {
+          complete?: boolean
           completed_at?: string | null
           connection_id?: string | null
+          coverage_changes?: number
           error_summary?: string | null
           id?: string
           idempotency_key?: string | null
           items_created?: number
           items_failed?: number
           items_received?: number
+          items_returned?: number
           items_unavailable?: number
           items_unchanged?: number
           items_updated?: number
+          price_changes?: number
           provider_id?: string
           started_at?: string
           status?: Database["public"]["Enums"]["sync_status"]
@@ -1885,38 +2034,65 @@ export type Database = {
       providers: {
         Row: {
           active: boolean
+          adapter_type: string
+          auto_sync: boolean
+          balance_amount: number | null
+          balance_checked_at: string | null
+          balance_currency: string | null
           capabilities: Database["public"]["Enums"]["provider_capability"][]
           code: string
           created_at: string
+          currency: string
           id: string
+          low_balance_threshold: number | null
+          minimum_margin_percent: number | null
           name: string
           notes: string | null
           priority: number
           service_type: Database["public"]["Enums"]["service_type"]
+          sync_interval_hours: number
           updated_at: string
         }
         Insert: {
           active?: boolean
+          adapter_type?: string
+          auto_sync?: boolean
+          balance_amount?: number | null
+          balance_checked_at?: string | null
+          balance_currency?: string | null
           capabilities?: Database["public"]["Enums"]["provider_capability"][]
           code: string
           created_at?: string
+          currency?: string
           id?: string
+          low_balance_threshold?: number | null
+          minimum_margin_percent?: number | null
           name: string
           notes?: string | null
           priority?: number
           service_type: Database["public"]["Enums"]["service_type"]
+          sync_interval_hours?: number
           updated_at?: string
         }
         Update: {
           active?: boolean
+          adapter_type?: string
+          auto_sync?: boolean
+          balance_amount?: number | null
+          balance_checked_at?: string | null
+          balance_currency?: string | null
           capabilities?: Database["public"]["Enums"]["provider_capability"][]
           code?: string
           created_at?: string
+          currency?: string
           id?: string
+          low_balance_threshold?: number | null
+          minimum_margin_percent?: number | null
           name?: string
           notes?: string | null
           priority?: number
           service_type?: Database["public"]["Enums"]["service_type"]
+          sync_interval_hours?: number
           updated_at?: string
         }
         Relationships: []
