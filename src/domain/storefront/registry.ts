@@ -162,6 +162,31 @@ const TRUST_ITEMS = [
   item({ id: "trust-4", icon: "Headphones", title: text("Seyahat desteği", "Reise-Support", "Travel support") }),
 ];
 
+function sharedHeroDefault(): StorefrontSection {
+  return section({
+    id: "hero",
+    type: "HERO",
+    background: "image",
+    height: "normal",
+    showOffer: false,
+    primaryHref: "#service-selector",
+    text: {
+      eyebrow: text("Seyahatini kolaylaştır", "Einfacher reisen", "Make travel easier"),
+      headline: text(
+        "Seyahatin için ihtiyacın olan her şey",
+        "Alles, was du für deine Reise brauchst",
+        "Everything you need for your journey",
+      ),
+      description: text(
+        "İnternetini hazırla, havalimanında rahatla. eSIM ve Lounge seçeneklerini tek yerden kolayca bul.",
+        "Bereite deine Verbindung vor und entspanne am Flughafen. Finde eSIM- und Lounge-Angebote bequem an einem Ort.",
+        "Get connected and relax at the airport. Find eSIM and Lounge options easily in one place.",
+      ),
+      ctaLabel: text("Seyahatini planla", "Reise planen", "Plan your trip"),
+    },
+  });
+}
+
 function esimDefaults(): StorefrontSection[] {
   return [
     section({
@@ -380,7 +405,12 @@ export function defaultStorefront(service: StorefrontService): StorefrontConfig 
   return {
     version: 2,
     service,
-    sections: service === "lounge" ? loungeDefaults() : service === "esim" ? esimDefaults() : [],
+    sections:
+      service === "lounge"
+        ? loungeDefaults()
+        : service === "esim"
+          ? esimDefaults()
+          : [sharedHeroDefault()],
     navigation: DEFAULT_NAVIGATION.map((link) => ({ ...link })),
     footerLinks: DEFAULT_FOOTER_LINKS.map((link) => ({ ...link })),
     footerText: text("Seyahatin için doğru hizmet, tek bir yerde.", "Der passende Reiseservice an einem Ort.", "The right travel service, all in one place."),

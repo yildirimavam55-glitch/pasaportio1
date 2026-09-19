@@ -30,7 +30,7 @@ const emptyText = (): LocaleText => ({ tr: "", de: "", en: "" });
 
 function StorefrontEditor() {
   const queryClient = useQueryClient();
-  const [service, setService] = useState<StorefrontService>("esim");
+  const [service, setService] = useState<StorefrontService>("global");
   const [locale, setLocale] = useState<Locale>("tr");
   const [device, setDevice] = useState<keyof typeof DEVICES>("desktop");
   const [draft, setDraft] = useState<StorefrontConfig | null>(null);
@@ -148,9 +148,13 @@ function StorefrontEditor() {
           <AdminPanel title="Düzenleyici">
             <div className="flex flex-wrap items-center gap-2">
               <div className="flex gap-1">
-                {(["esim", "lounge"] as const).map((value) => (
+                {(["global", "esim", "lounge"] as const).map((value) => (
                   <Button key={value} size="sm" variant={service === value ? "secondary" : "outline"} onClick={() => { if (dirty && !confirm("Kaydedilmemiş değişiklikler var. Devam edilsin mi?")) return; setService(value); setSelectedId(null); }}>
-                    {value === "esim" ? "eSIM ana sayfası" : "Lounge ana sayfası"}
+                    {value === "global"
+                      ? "Ortak Hero"
+                      : value === "esim"
+                        ? "eSIM içeriği"
+                        : "Lounge içeriği"}
                   </Button>
                 ))}
               </div>

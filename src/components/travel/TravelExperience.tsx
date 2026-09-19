@@ -60,13 +60,13 @@ export function TravelExperience({
     staleTime: 60 * 1000,
   });
   const sharedPublished = useQuery({
-    queryKey: ["storefront", "esim"],
-    queryFn: () => getPublishedStorefront({ data: { service: "esim" } }),
+    queryKey: ["storefront", "global"],
+    queryFn: () => getPublishedStorefront({ data: { service: "global" } }),
     staleTime: 60 * 1000,
   });
   const availability = useServiceAvailability();
   const config = published.data?.config ?? defaultStorefront(service);
-  const sharedConfig = sharedPublished.data?.config ?? defaultStorefront("esim");
+  const sharedConfig = sharedPublished.data?.config ?? defaultStorefront("global");
   const sharedHero = sharedConfig.sections.find((section) => section.type === "HERO");
 
   /** A paused service keeps its navigation but stops new discovery. */
@@ -407,13 +407,13 @@ function Hero({
         >
           <div className="max-w-xl">
             <p className="mb-2 text-xs font-bold uppercase text-hero-foreground/85 sm:mb-3 sm:text-sm">
-              {copy.eyebrow}
+              {tx(section, "eyebrow", locale, copy.eyebrow)}
             </p>
             <h1 className="font-display text-[1.75rem] font-bold leading-[1.08] text-balance sm:text-5xl">
-              {copy.headline}
+              {tx(section, "headline", locale, copy.headline)}
             </h1>
             <p className="mt-2 max-w-md text-sm leading-6 text-hero-foreground/85 sm:mt-4 sm:text-lg">
-              {copy.description}
+              {tx(section, "description", locale, copy.description)}
             </p>
             <div
               className={`mt-4 flex flex-wrap gap-2 sm:mt-6 ${centered ? "justify-center" : ""}`}
@@ -424,7 +424,7 @@ function Hero({
                 size="lg"
                 className="h-12 px-5 text-sm sm:h-14 sm:px-7 sm:text-base"
               >
-                {copy.cta}
+                {tx(section, "ctaLabel", locale, copy.cta)}
                 <ArrowRight className="size-4 sm:size-5" />
               </Button>
             </div>
