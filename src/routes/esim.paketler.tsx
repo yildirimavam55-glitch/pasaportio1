@@ -125,7 +125,10 @@ function PackagesPage() {
   const [hasScrolled, setHasScrolled] = useState(false);
   const { lines, addLine } = useCart();
   const availability = useServiceAvailability();
-  const visiblePackages = match.candidates;
+  const sufficientPackages = match.candidates.filter((pkg) => pkg.unlimited || (pkg.dataGb ?? 0) >= required);
+  const visiblePackages = recommendedProduct
+    ? [recommendedProduct, ...sufficientPackages.filter((pkg) => pkg.id !== recommendedProduct.id)]
+    : [];
   const activeSelectedId = selectedProductId || recommendedProduct?.id || visiblePackages[0]?.id || "";
   const selectedProduct = visiblePackages.find((pkg) => pkg.id === activeSelectedId) ?? null;
   const selectedInCart = Boolean(selectedProduct && lines.some((line) => line.productId === selectedProduct.id));
@@ -153,9 +156,9 @@ function PackagesPage() {
   return (
     <PublicShell activeService="esim">
       <section className="mx-auto max-w-site px-4 py-6 sm:px-6">
-        <Link to="/esim" className="inline-flex items-center gap-1 text-sm font-semibold text-primary">
+        <Button type="button" variant="ghost" size="sm" className="-ml-3 text-primary" onClick={() => window.history.length > 1 ? window.history.back() : window.location.assign("/esim")}>
           <ArrowLeft className="size-4" /> {copy.back}
-        </Link>
+        </Button>
         <h1 className="mt-3 font-display text-2xl font-bold sm:text-3xl">{copy.title}</h1>
         <p className="mt-1 text-sm text-muted-foreground">{copy.lead}</p>
 
