@@ -76,6 +76,7 @@
 - [x] Normalize core customer icon boxes, SVG size, and stroke weight
 - [x] Align Lounge flight-status icons and mobile bottom navigation
 - [x] Add compatibility-only dimmed backdrop and adaptive sheet/modal surface
+- [x] Polish mobile Finder selection typography, selected hierarchy, and icon consistency
 - [x] Preserve scroll locking, close cleanup, and reduced-motion behavior
 ## Real provider eSIM import
 - [x] /admin/esim/provider-import: provider kaydı, JSON katalog önizleme ve diff
