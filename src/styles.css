@@ -318,6 +318,7 @@
     max-width: 100%;
     align-self: center;
     line-height: 1rem;
+    white-space: nowrap;
   }
   .bottom-link[data-status="active"],
   .bottom-link.is-active {

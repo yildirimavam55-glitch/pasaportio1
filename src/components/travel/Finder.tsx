@@ -1101,7 +1101,7 @@ export function LoungeFinder({
   return (
     <>
       <FinderProgress labels={copy.loungeSteps} active={state.travelers ? 3 : 0} />
-      <FinderStep label={copy.airport}>
+      <FinderStep label={copy.airport} labelClassName="text-sm">
         <AirportPicker
           valueId={state.airportId}
           onSelect={(next) => {
@@ -1120,16 +1120,23 @@ export function LoungeFinder({
       </FinderStep>
 
       <div className="mt-3 grid grid-cols-2 gap-2 sm:gap-4">
-        <FinderStep label={copy.date}>
-          <input
-            type="date"
-            value={state.date}
-            onChange={(event) => onChange({ ...state, date: event.target.value })}
-            className="h-[3.25rem] min-h-[3.25rem] w-full rounded-xl border border-input bg-secondary/60 px-3 text-sm sm:h-14"
-            aria-label={copy.date}
-          />
+        <FinderStep label={copy.date} labelClassName="text-sm">
+          <div className="relative">
+            <input
+              type="date"
+              value={state.date}
+              onChange={(event) => onChange({ ...state, date: event.target.value })}
+              className={`h-[3.25rem] min-h-[3.25rem] w-full rounded-xl border border-input bg-secondary/60 px-3 text-sm font-semibold sm:h-14 ${state.date ? "text-foreground" : "text-transparent"}`}
+              aria-label={copy.date}
+            />
+            {!state.date && (
+              <span className="pointer-events-none absolute inset-y-0 left-3 flex items-center text-sm font-semibold text-muted-foreground">
+                {copy.date}
+              </span>
+            )}
+          </div>
         </FinderStep>
-        <FinderStep label={copy.travelers}>
+        <FinderStep label={copy.travelers} labelClassName="text-sm">
           <Stepper
             value={state.travelers}
             onChange={(travelers) => onChange({ ...state, travelers })}
@@ -1141,11 +1148,12 @@ export function LoungeFinder({
       </div>
 
       <div className="mt-3">
-        <FinderStep label={copy.situation}>
+        <FinderStep label={copy.situation} labelClassName="text-sm">
           <SegmentedChoice
             label={copy.situation}
             value={state.flightSituation}
             onChange={(flightSituation) => onChange({ ...state, flightSituation })}
+            optionClassName="h-[3.25rem] gap-2 px-1.5 text-sm"
             options={[
               {
                 key: "DEPARTURE" as const,
@@ -1168,7 +1176,7 @@ export function LoungeFinder({
       </div>
 
       <div className="mt-3">
-        <FinderStep label={copy.loungeWhat}>
+        <FinderStep label={copy.loungeWhat} labelClassName="text-sm">
           <div className="grid grid-cols-3 gap-2">
             {LOUNGE_PREFERENCE_OPTIONS.map((option) => (
               <CompactChip
