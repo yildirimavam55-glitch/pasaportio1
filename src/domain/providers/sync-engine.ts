@@ -163,13 +163,47 @@ export function mapCoverageToCanonical(isos: string[]): { canonical: string[]; u
   return { canonical, unknown };
 }
 
-export type SyncOutcome = "SUCCESS" | "PARTIAL" | "FAILED";
+export type SyncOutcome = "SUCCESS" | "SUCCESS_WITH_WARNINGS" | "PARTIAL" | "FAILED";
 
-export function resolveSyncStatus(input: { complete: boolean; received: number; failed: number; processed: number }): SyncOutcome {
+export type SyncAccounting = {
+  received: number;
+  processed: number;
+  invalid: number;
+  duplicate: number;
+  excluded: number;
+  failed: number;
+};
+
+/**
+ * Explicit reconciliation: every received supplier row must be explained.
+ * received = processed + invalid + duplicate + excluded + failed.
+ */
+export function reconcileSync(input: SyncAccounting): { reconciled: boolean; unexplained: number; warnings: number } {
+  const warnings = input.invalid + input.duplicate + input.excluded + input.failed;
+  const unexplained = input.received - (input.processed + warnings);
+  return { reconciled: unexplained === 0, unexplained, warnings };
+}
+
+/**
+ * A sync never reports a clean SUCCESS while rows were lost: parse errors,
+ * duplicates and exclusions downgrade it to SUCCESS_WITH_WARNINGS, and an
+ * unexplained difference downgrades it to PARTIAL.
+ */
+export function resolveSyncStatus(input: {
+  complete: boolean;
+  received: number;
+  failed: number;
+  processed: number;
+  warnings?: number;
+  reconciled?: boolean;
+}): SyncOutcome {
   if (!input.complete || input.received === 0) return input.processed > 0 ? "PARTIAL" : "FAILED";
-  if (input.failed > 0) return input.processed > 0 ? "PARTIAL" : "FAILED";
+  if (input.failed > 0 && input.processed === 0) return "FAILED";
+  if (input.reconciled === false) return "PARTIAL";
+  if ((input.warnings ?? input.failed) > 0) return "SUCCESS_WITH_WARNINGS";
   return "SUCCESS";
 }
+
 
 export const SYNC_INTERVALS = [6, 12, 24, 48] as const;
 export const DEFAULT_SYNC_INTERVAL_HOURS = 24;
