@@ -383,11 +383,15 @@ export function FinderOptionCard({
       type="button"
       aria-pressed={selected}
       onClick={onClick}
-      className={`relative flex ${compact ? "min-h-12" : "min-h-[3.25rem]"} min-w-0 items-center gap-2 rounded-xl border p-2 text-left transition ${selected ? "border-primary bg-primary-soft ring-1 ring-primary" : "border-border bg-card hover:border-primary/50"}`}
+      className={`relative flex ${compact ? "min-h-12" : "min-h-[3.25rem]"} min-w-0 items-center gap-2 rounded-xl border p-2 text-left transition-colors ${selected ? "border-primary bg-primary-soft text-primary" : "border-border bg-card text-foreground hover:border-primary/50"}`}
     >
-      <span className={`icon-box-sm rounded-lg ${iconClassName}`}>{icon}</span>
+      <span
+        className={`icon-box-sm rounded-lg ${selected ? "bg-card/70 text-primary" : iconClassName}`}
+      >
+        {icon}
+      </span>
       <span className="min-w-0 flex-1">
-        <strong className="block text-xs leading-tight sm:text-sm">{title}</strong>
+        <strong className="block text-sm font-semibold leading-tight">{title}</strong>
         {detail && (
           <span className="mt-0.5 block text-[0.65rem] leading-tight text-muted-foreground">
             {detail}
@@ -399,7 +403,7 @@ export function FinderOptionCard({
   );
 }
 
-/** Segmented single-choice control: the selected background and border are the only state signal. */
+/** Segmented single-choice control with a calm mint-and-petrol selected state. */
 export function SegmentedChoice<T extends string>({
   label,
   value,
@@ -409,7 +413,12 @@ export function SegmentedChoice<T extends string>({
 }: {
   label: string;
   value: T;
-  options: Array<{ key: T; label: string; icon?: React.ReactNode }>;
+  options: Array<{
+    key: T;
+    label: string;
+    icon?: React.ReactNode;
+    iconWhenSelectedOnly?: boolean;
+  }>;
   onChange: (value: T) => void;
   className?: string;
 }) {
@@ -428,10 +437,14 @@ export function SegmentedChoice<T extends string>({
             role="radio"
             aria-checked={selected}
             onClick={() => onChange(option.key)}
-            className={`flex min-h-11 min-w-0 items-center justify-center gap-1 truncate rounded-xl border px-1.5 text-xs font-semibold transition sm:px-2 sm:text-sm ${selected ? "border-primary bg-primary-soft text-primary" : "border-transparent text-muted-foreground hover:bg-card"}`}
+            className={`flex min-h-11 min-w-0 items-center justify-center gap-1.5 rounded-xl border px-2 text-sm font-semibold transition-colors ${selected ? "border-primary bg-primary-soft text-primary" : "border-transparent bg-card/45 text-foreground hover:border-border hover:bg-card"}`}
           >
-            {option.icon && <span className="icon-slot-flight">{option.icon}</span>}
-            <span className="truncate leading-none">{option.label}</span>
+            {option.icon && (!option.iconWhenSelectedOnly || selected) && (
+              <span className={`icon-slot-flight ${selected ? "text-primary" : "text-foreground"}`}>
+                {option.icon}
+              </span>
+            )}
+            <span className="min-w-0 truncate whitespace-nowrap leading-none">{option.label}</span>
           </button>
         );
       })}
@@ -513,11 +526,15 @@ function CompactChip({
       type="button"
       aria-pressed={selected}
       onClick={onClick}
-      className={`flex h-11 min-w-0 items-center justify-center gap-1.5 rounded-2xl border px-2 text-xs font-semibold transition sm:h-12 sm:px-3 sm:text-sm ${selected ? "border-primary bg-primary-soft text-primary" : "border-border bg-secondary/40 text-foreground hover:border-primary/50"}`}
+      className={`relative flex min-h-11 min-w-0 items-center gap-2 rounded-2xl border px-2.5 text-sm font-semibold transition-colors sm:min-h-12 sm:px-3 ${selected ? "border-primary bg-primary-soft text-primary" : "border-border bg-secondary/40 text-foreground hover:border-primary/50"}`}
     >
-      <span className="icon-slot-flight">{icon}</span>
-      <span className="truncate">{label}</span>
-      {selected && <Check className="size-3.5 shrink-0" aria-hidden="true" />}
+      <span
+        className={`icon-slot-flight rounded-lg ${selected ? "bg-card/70 text-primary" : "text-foreground"}`}
+      >
+        {icon}
+      </span>
+      <span className="min-w-0 flex-1 truncate whitespace-nowrap text-left">{label}</span>
+      {selected && <Check className="size-4 shrink-0 text-primary" aria-hidden="true" />}
     </button>
   );
 }
@@ -633,7 +650,12 @@ export function EsimFinder({
           value={state.tripMode}
           onChange={(tripMode) => onChange({ ...ESIM_SERVICE_CONFIG.initialState, tripMode })}
           options={[
-            { key: "single" as const, label: copy.single, icon: <Check className="size-[14px]" /> },
+            {
+              key: "single" as const,
+              label: copy.single,
+              icon: <Check className="size-4" />,
+              iconWhenSelectedOnly: true,
+            },
             { key: "multi" as const, label: copy.multi },
           ]}
           className="grid-cols-2"
@@ -815,7 +837,7 @@ export function EsimFinder({
               { key: "HIGH" as const, label: copy.intensityHigh },
             ]}
           />
-          <div className="mt-2 grid grid-cols-3 gap-2 sm:grid-cols-4">
+          <div className="mt-2 grid grid-cols-2 gap-2 sm:grid-cols-4">
             {USAGE_ITEMS.map((item) => (
               <CompactChip
                 key={item.key}
