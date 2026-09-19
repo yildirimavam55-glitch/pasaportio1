@@ -112,10 +112,6 @@ function Experience({
   const { switchService, isSwitching, target, phase } = useServiceSwitchTransition();
   const selectedService = target ?? service;
 
-  useEffect(() => {
-    if (service === "esim") setLoungeState(LOUNGE_SERVICE_CONFIG.initialState);
-    else setEsimState(ESIM_SERVICE_CONFIG.initialState);
-  }, [service]);
 
   const requestServiceChange = (next: ServiceSlug) => {
     if (next === service || isSwitching) return;
