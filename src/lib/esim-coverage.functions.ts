@@ -58,7 +58,7 @@ export const getEsimCoverageAudit = createServerFn({ method: "GET" })
     for (let from = 0; ; from += pageSize) {
       const { data: rows, error } = await db
         .from("service_products")
-        .select("id, lifecycle, customer_visible, provider_available, sale_price, currency, is_test, esim_product_details(coverage_country_isos)")
+        .select("id, lifecycle, customer_visible, provider_available, sale_price, currency, is_test, esim_product_details(coverage_country_isos, coverage_subdivision_codes, package_kind)")
         .eq("service_type", "ESIM")
         .eq("is_test", false)
         .range(from, from + pageSize - 1);
