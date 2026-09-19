@@ -101,3 +101,9 @@
 - [x] Add General / eSIM / Lounge dashboard contexts
 - [x] Complete requested operational and management views using existing data
 - [x] Verify access control, responsive layouts, tests, and no fake data
+
+## Final customer-facing package QA
+- [ ] Verify current source and published eSIM/Lounge journeys
+- [ ] Fix only confirmed package presentation and purchase-flow failures
+- [ ] Re-test TR/DE/EN and 360/390/430 mobile layouts
+- [ ] Publish and verify the production URL
