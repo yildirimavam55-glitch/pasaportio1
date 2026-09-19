@@ -107,3 +107,14 @@
 - [x] Fix only confirmed package presentation and purchase-flow failures
 - [ ] Re-test TR/DE/EN and 360/390/430 mobile layouts
 - [ ] Publish and verify the production URL
+
+## Mobile-first eSIM/Lounge homepage redesign
+- [ ] Warm cream/petrol/mint/orange tokens verified; compact spacing utilities
+- [ ] Compact mobile header + service-aware 4-item bottom navigation
+- [ ] Compact hero with service-specific headline, trust chips, and orange CTA
+- [ ] eSIM/Lounge segmented selector directly under hero
+- [ ] eSIM finder: dynamic country title, compact trip/days/travelers/usage layout
+- [ ] eSIM: dark petrol estimated-usage bar + mint recommended package card
+- [ ] Lounge finder: compact airport/date/situation/travelers + dark petrol summary CTA
+- [ ] Lounge result card mock data interface and UI render (data-driven, no hard-code)
+- [ ] Playwright QA at 360/390/430: no overflow, correct service switching, backend logic intact
