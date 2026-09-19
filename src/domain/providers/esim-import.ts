@@ -87,6 +87,22 @@ function toIsoList(value: unknown): string[] {
   return [...seen];
 }
 
+/**
+ * Subdivision tokens (US-HI, ES-CN …) are kept separate on purpose. Collapsing
+ * them into the parent country would make a Hawaii-only bundle look like a
+ * nationwide USA package.
+ */
+function toSubdivisionList(value: unknown): string[] {
+  const raw = Array.isArray(value) ? value : typeof value === "string" ? value.split(/[,;\s]+/) : [];
+  const seen = new Set<string>();
+  for (const entry of raw) {
+    const code = String(entry ?? "").trim().toUpperCase();
+    if (/^[A-Z]{2}-[A-Z0-9]{1,3}$/.test(code)) seen.add(code);
+  }
+  return [...seen];
+}
+
+
 /** Accepts an array, or an object wrapping the array under a common key. */
 export function extractItemArray(input: unknown): RawImportItem[] | null {
   if (Array.isArray(input)) return input as RawImportItem[];
