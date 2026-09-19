@@ -27,7 +27,7 @@ import {
   Video,
   Wifi,
 } from "lucide-react";
-import { useState } from "react";
+import { cloneElement, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
