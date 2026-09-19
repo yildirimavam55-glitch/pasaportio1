@@ -13,11 +13,19 @@ export const ESIM_GO_DEFAULT_BASE_URL = "https://api.esim-go.com/v2.4";
 export const ESIM_GO_SECRET_NAME = "ESIM_GO_API_KEY";
 
 /**
- * Reads ISO codes out of a provider country list; region labels are ignored.
- * Subdivision codes (US-HI, ES-CN …) fall back to their parent country so a
- * real bundle is never dropped for lacking a plain two-letter code.
+ * Reads plain country ISO codes out of a provider country list; region labels
+ * are ignored. Subdivision codes (US-HI, ES-CN …) are NOT folded into their
+ * parent country — a Hawaii-only bundle must never look like a USA bundle.
  */
 function isoListOf(value: unknown): string[] {
+  return tokensOf(value).filter((iso) => /^[A-Z]{2}$/.test(iso));
+}
+
+function subdivisionListOf(value: unknown): string[] {
+  return tokensOf(value).filter((code) => /^[A-Z]{2}-[A-Z0-9]{1,3}$/.test(code));
+}
+
+function tokensOf(value: unknown): string[] {
   if (!Array.isArray(value)) return [];
   return value
     .map((entry) =>
@@ -25,9 +33,7 @@ function isoListOf(value: unknown): string[] {
         ? String((entry as any).iso ?? (entry as any).country ?? (entry as any).code ?? "")
         : String(entry ?? ""),
     )
-    .map((iso) => iso.trim().toUpperCase())
-    .map((iso) => (/^[A-Z]{2}-[A-Z0-9]{1,3}$/.test(iso) ? iso.slice(0, 2) : iso))
-    .filter((iso) => /^[A-Z]{2}$/.test(iso));
+    .map((token) => token.trim().toUpperCase());
 }
 
 /** Provider payload → internal field names. Nothing is invented. */
@@ -35,6 +41,7 @@ function normalizeBundle(row: Record<string, unknown>): Record<string, unknown> 
   // Regional/global bundles list only a region label under `countries`; the real
   // ISO coverage lives in `roamingEnabled`. Both are merged, labels are dropped.
   const countries = [...new Set([...isoListOf(row["countries"]), ...isoListOf(row["roamingEnabled"])])];
+  const subdivisions = [...new Set([...subdivisionListOf(row["countries"]), ...subdivisionListOf(row["roamingEnabled"])])];
   const dataMb = row["dataAmount"] ?? row["dataAmountMB"];
   return {
     ...row,
@@ -48,9 +55,11 @@ function normalizeBundle(row: Record<string, unknown>): Record<string, unknown> 
     providerCost: row["price"] ?? row["wholesalePrice"],
     currency: row["currency"] ?? "EUR",
     coverage: countries.filter(Boolean),
+    subdivisions,
     speed: row["speed"],
   };
 }
+
 
 export function createEsimGoAdapter(ctx: AdapterContext): CatalogueAdapter {
   const baseUrl = ctx.baseUrl || ESIM_GO_DEFAULT_BASE_URL;
