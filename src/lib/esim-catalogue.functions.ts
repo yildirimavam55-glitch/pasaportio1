@@ -67,21 +67,27 @@ export const listEsimPackages = createServerFn({ method: "GET" })
     coverageIsos: (input.coverageIsos ?? []).map((iso) => String(iso).toUpperCase().slice(0, 2)).filter(Boolean).slice(0, 25),
   }))
   .handler(async ({ data }): Promise<EsimPackage[]> => {
-    const { data: rows, error } = await publicClient()
+    const wantedIsos = data.coverageIsos;
+    let query = publicClient()
       .from("service_products")
       .select(
-        "id, provider_external_id, slug, name, currency, sale_price, badge, featured, sort_order, lifecycle, customer_visible, provider_available, margin_flagged, service_type, is_test, source, esim_product_details(data_gb, data_type, unlimited_data, validity_days, raw_validity_value, raw_validity_unit, activation_policy, fair_use_note, fair_use_policy, high_speed_allowance, speed_after_fair_use, coverage_country_isos, country_iso, supports_5g, supports_hotspot, network_operators)",
+        "id, provider_external_id, slug, name, currency, sale_price, badge, featured, sort_order, lifecycle, customer_visible, provider_available, margin_flagged, service_type, is_test, source, esim_product_details!inner(data_gb, data_type, unlimited_data, validity_days, raw_validity_value, raw_validity_unit, activation_policy, fair_use_note, fair_use_policy, high_speed_allowance, speed_after_fair_use, coverage_country_isos, country_iso, supports_5g, supports_hotspot, network_operators)",
       )
       .eq("service_type", "ESIM")
       .eq("lifecycle", "PUBLISHED")
       .eq("customer_visible", true)
       .eq("provider_available", true)
       .eq("margin_flagged", false)
-      .order("sort_order");
+      .gt("sale_price", 0)
+      .order("sort_order")
+      .limit(400);
+    // Coverage is filtered in the database so large catalogues are never truncated.
+    if (wantedIsos.length) query = query.contains("esim_product_details.coverage_country_isos", wantedIsos);
+    const { data: rows, error } = await query;
     if (error) throw new Error(error.message);
 
     const showTest = await isTestCatalogueVisible();
-    const wanted = data.coverageIsos;
+    const wanted = wantedIsos;
     return (rows ?? [])
       .map((row) => {
         const details = (Array.isArray(row.esim_product_details) ? row.esim_product_details[0] : row.esim_product_details) as
@@ -155,35 +161,31 @@ export const listEsimStartingPrices = createServerFn({ method: "GET" })
     })),
   }))
   .handler(async ({ data }): Promise<EsimStartingPrice[]> => {
-    const { data: rows, error } = await publicClient()
-      .from("service_products")
-      .select("currency, sale_price, is_test, esim_product_details(coverage_country_isos, country_iso)")
-      .eq("service_type", "ESIM")
-      .eq("lifecycle", "PUBLISHED")
-      .eq("customer_visible", true)
-      .eq("provider_available", true)
-      .eq("margin_flagged", false)
-      .gt("sale_price", 0);
-    if (error) throw new Error(error.message);
-
+    const client = publicClient();
     const showTest = await isTestCatalogueVisible();
-    const products = (rows ?? []).flatMap((row) => {
-      if (row.is_test && !showTest) return [];
-      const details = (Array.isArray(row.esim_product_details) ? row.esim_product_details[0] : row.esim_product_details) as
-        | { coverage_country_isos: string[] | null; country_iso: string | null }
-        | null
-        | undefined;
-      const coverage = [...(details?.coverage_country_isos ?? []), ...(details?.country_iso ? [details.country_iso] : [])]
-        .map((iso) => String(iso).toUpperCase());
-      const amount = row.sale_price == null ? null : Number(row.sale_price);
-      return amount && amount > 0 ? [{ amount, currency: row.currency ?? "EUR", coverage }] : [];
-    });
+    const results: EsimStartingPrice[] = [];
 
-    return data.targets.flatMap((target) => {
-      const matching = products
-        .filter((product) => target.coverageIsos.every((iso) => product.coverage.includes(iso)))
-        .sort((a, b) => a.amount - b.amount);
-      const lowest = matching[0];
-      return lowest ? [{ targetId: target.id, amount: lowest.amount, currency: lowest.currency }] : [];
-    });
+    for (const target of data.targets) {
+      let query = client
+        .from("service_products")
+        .select("currency, sale_price, is_test, esim_product_details!inner(coverage_country_isos)")
+        .eq("service_type", "ESIM")
+        .eq("lifecycle", "PUBLISHED")
+        .eq("customer_visible", true)
+        .eq("provider_available", true)
+        .eq("margin_flagged", false)
+        .gt("sale_price", 0)
+        .order("sale_price")
+        .limit(5);
+      if (target.coverageIsos.length) {
+        query = query.contains("esim_product_details.coverage_country_isos", target.coverageIsos);
+      }
+      const { data: rows, error } = await query;
+      if (error) throw new Error(error.message);
+      const lowest = (rows ?? []).find((row) => showTest || !row.is_test);
+      if (lowest?.sale_price != null) {
+        results.push({ targetId: target.id, amount: Number(lowest.sale_price), currency: lowest.currency ?? "EUR" });
+      }
+    }
+    return results;
   });
