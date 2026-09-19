@@ -162,7 +162,7 @@ function Experience({
         }
       };
       window.requestAnimationFrame(() => window.requestAnimationFrame(settleScroll));
-      window.setTimeout(settleScroll, 250);
+      window.setTimeout(settleScroll, pending?.scrollToFinder ? 380 : 250);
     });
   };
   const scrollToFinder = () =>
