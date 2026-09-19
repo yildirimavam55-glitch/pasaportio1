@@ -745,7 +745,9 @@ export async function runProviderSync(
 }
 
 /** Scheduler entry: syncs every provider whose interval is due, and raises stale alerts. */
-export async function runDueProviderSyncs(): Promise<{ ok: boolean; ran: SyncResult[]; skipped: number }> {
+export async function runDueProviderSyncs(
+  options: { budgetMs?: number } = {},
+): Promise<{ ok: boolean; ran: SyncResult[]; skipped: number }> {
   const db = await adminDb();
   const { data: providers } = await db
     .from("providers")
@@ -775,12 +777,21 @@ export async function runDueProviderSyncs(): Promise<{ ok: boolean; ran: SyncRes
       });
     }
 
-    if (!isSyncDue({ autoSync: provider.auto_sync, active: provider.active, nextSyncAt: connection?.next_sync_at ?? null })) {
+    // An unfinished run always resumes, even when the interval is not due yet.
+    const { data: openRun } = await db
+      .from("provider_sync_runs")
+      .select("id")
+      .eq("provider_id", provider.id)
+      .eq("status", "RUNNING")
+      .limit(1)
+      .maybeSingle();
+
+    if (!openRun && !isSyncDue({ autoSync: provider.auto_sync, active: provider.active, nextSyncAt: connection?.next_sync_at ?? null })) {
       skipped += 1;
       continue;
     }
     try {
-      ran.push(await runProviderSync(db, provider.id, "SCHEDULED"));
+      ran.push(await runProviderSync(db, provider.id, "SCHEDULED", { budgetMs: options.budgetMs ?? DEFAULT_SYNC_BUDGET_MS }));
     } catch (error) {
       ran.push({
         providerId: provider.id,
