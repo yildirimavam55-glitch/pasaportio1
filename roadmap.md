@@ -141,3 +141,10 @@
 - [ ] Lounge finder: compact airport/date/situation/travelers + dark petrol summary CTA
 - [ ] Lounge result card mock data interface and UI render (data-driven, no hard-code)
 - [ ] Playwright QA at 360/390/430: no overflow, correct service switching, backend logic intact
+
+## eSIM katalog bölümleri (tamamlandı)
+- Tüm paketler tedarikçi kataloğundan gelir; storefront'ta mock/hard-coded paket listesi yok.
+- Ürünler provider + provider ürün kimliğine göre tekilleştirilir.
+- Her ürün tek bir kategoriye girer: Önerilen > Sınırsız > Daha geniş kapsam > Standart.
+- Render sırası: Önerilen, Standart, Sınırsız, Daha fazla ülke kapsayan.
+- Güvenlik kontrolü + sayaç invariantı ve 10 otomatik test eklendi.
