@@ -29,6 +29,7 @@ const groups: AdminGroup[] = [
   { label: "eSIM", links: [
     { to: "/admin", label: "eSIM genel bakış", icon: RadioTower },
     { to: "/admin/products", label: "Paketler", icon: Boxes },
+    { to: "/admin/esim/coverage", label: "Kapsama", icon: Globe },
     { to: "/admin/smart-finders/esim", label: "Smart Finder", icon: Sparkles },
     { to: "/admin/esim/devices", label: "Cihaz uyumluluğu", icon: Smartphone },
     { to: "/admin/esim/fulfillment", label: "eSIM teslimat", icon: DatabaseZap },
