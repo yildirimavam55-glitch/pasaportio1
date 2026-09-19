@@ -190,9 +190,13 @@ export async function runProviderSync(
 
   let checkpointPage = Number(openRun?.checkpoint_page ?? 0);
   let receivedTotal = Number(openRun?.items_received ?? 0);
+  let parsedTotal = Number(openRun?.items_parsed ?? 0);
   let created = Number(openRun?.items_created ?? 0);
   let updated = Number(openRun?.items_updated ?? 0);
   let unchanged = Number(openRun?.items_unchanged ?? 0);
+  let invalid = Number(openRun?.items_invalid ?? 0);
+  let duplicate = Number(openRun?.items_duplicate ?? 0);
+  let excluded = Number(openRun?.items_excluded ?? 0);
   let returned = Number(openRun?.items_returned ?? 0);
   let failed = Number(openRun?.items_failed ?? 0);
   let priceChanges = Number(openRun?.price_changes ?? 0);
@@ -202,17 +206,30 @@ export async function runProviderSync(
     await db.from("provider_connections").update({ sync_state: "RUNNING", last_attempt_at: nowIso }).eq("id", connection.id);
   }
 
+  /**
+   * Explicit accounting. Every supplier row received is either processed,
+   * invalid, duplicate, deliberately excluded, or failed — a sync can never
+   * report a clean pass while rows silently disappeared.
+   */
+  const warningCount = () => invalid + duplicate + excluded + failed;
+  const processedCount = () => created + updated + unchanged;
   const counters = () => ({
     items_received: receivedTotal,
+    items_parsed: parsedTotal,
     items_created: created,
     items_updated: updated,
     items_unchanged: unchanged,
+    items_invalid: invalid,
+    items_duplicate: duplicate,
+    items_excluded: excluded,
     items_returned: returned,
     items_failed: failed,
+    warnings: warningCount(),
     price_changes: priceChanges,
     coverage_changes: coverageChanges,
-    items_processed: created + updated + unchanged,
+    items_processed: processedCount(),
   });
+
 
   /** Persist progress after every batch so an interrupted sync resumes safely. */
   const checkpoint = async (page: number) => {
