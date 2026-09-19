@@ -404,6 +404,11 @@ function SecondaryGroup({ title, packages, defaultOpen = false, activeSelectedId
           ))}
         </div>
       )}
+      {open && packages.length > visible && (
+        <Button type="button" variant="outline" className="mt-3 w-full" onClick={() => setVisible((count) => count + SECTION_PAGE_SIZE)}>
+          {copy.showMore} ({packages.length - visible})
+        </Button>
+      )}
     </div>
   );
 }
