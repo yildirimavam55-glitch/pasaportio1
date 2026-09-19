@@ -163,7 +163,16 @@ function Products() {
                 ))}
               </div>
             )}
+            <div className="mt-3 flex flex-wrap items-center gap-2 border-t border-border pt-3 text-xs">
+              <span className="text-muted-foreground">
+                Toplam {catalogue.data?.total ?? 0} ürün · filtrelenen {catalogue.data?.filtered ?? 0} · sayfa {catalogue.data?.page ?? 1}/{catalogue.data?.pageCount ?? 1}
+              </span>
+              <span className="flex-1" />
+              <Button size="sm" variant="outline" disabled={page <= 1 || catalogue.isFetching} onClick={() => setPage((current) => Math.max(1, current - 1))}>Önceki</Button>
+              <Button size="sm" variant="outline" disabled={page >= (catalogue.data?.pageCount ?? 1) || catalogue.isFetching} onClick={() => setPage((current) => current + 1)}>Sonraki</Button>
+            </div>
           </AdminPanel>
+
         )}
       </div>
       <ProductDrawer product={selected} onClose={() => setOpenId(null)} />
