@@ -117,12 +117,24 @@ function Providers() {
             ? "API anahtarı sunucuda tanımlı değil; hiçbir ürün kapatılmadı."
             : `Senkron başarısız: ${result.error ?? "bilinmeyen hata"} — ürünler değiştirilmedi.`,
         );
+      } else if (result.status === "PARTIAL") {
+        toast.message(
+          `Senkron devam ediyor: ${result.created} yeni · ${result.updated} güncellendi. Kaldığı yerden otomatik sürecek.`,
+        );
       } else {
         toast.success(`${result.created} yeni · ${result.updated} güncellendi · ${result.unavailable} kapandı`);
       }
       invalidate();
     },
     onError: (error: any) => toast.error(error?.message ?? "Senkron çalıştırılamadı."),
+  });
+  const cancelSync = useMutation({
+    mutationFn: (providerId: string) => cancelProviderSync({ data: { providerId } }),
+    onSuccess: (result: any) => {
+      toast.success(result.cancelled ? "Senkron durduruldu; içe aktarılan katalog korundu." : "Devam eden senkron yok.");
+      invalidate();
+    },
+    onError: (error: any) => toast.error(error?.message ?? "Senkron durdurulamadı."),
   });
 
   const openNew = () => setDraft({ ...emptyDraft, serviceType: tab });
