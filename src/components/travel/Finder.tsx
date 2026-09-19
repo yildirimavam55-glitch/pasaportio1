@@ -870,7 +870,7 @@ export function EsimFinder({
           />
           <div className="mt-2 grid grid-cols-2 gap-2 sm:grid-cols-4">
             {USAGE_ITEMS.map((item) => (
-              <CompactChip
+              <UsageOptionButton
                 key={item.key}
                 selected={state.usage.includes(item.key)}
                 icon={item.icon}
