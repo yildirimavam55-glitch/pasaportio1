@@ -33,6 +33,8 @@ export type SectionCounters = {
   standard: number;
   unlimited: number;
   broaderCoverage: number;
+  /** All broader-coverage products before customer-facing curation. */
+  broaderCoverageTotal: number;
 };
 
 export type CatalogueSections<T> = {
@@ -68,14 +70,55 @@ const sufficient = (pkg: MatchablePackage, requiredGb: number) =>
   pkg.unlimited || (pkg.dataGb ?? 0) >= requiredGb;
 
 /**
- * Coverage is "meaningfully wider" when the package is not a country/subdivision
- * product for this trip and actually covers countries the trip does not include.
+ * EXACT/LOCAL for this trip: the package covers the requested countries and
+ * nothing else. "Covers Türkiye" and "is a Türkiye package" are different
+ * things — only the latter belongs in the Standard/Unlimited sections.
  */
-function isBroaderCoverage(pkg: CatalogueProduct, requestedIsos: string[]): boolean {
-  const scope = coverageScopeOf(pkg);
-  if (scope !== "REGION" && scope !== "GLOBAL") return false;
+function isLocalForTrip(pkg: CatalogueProduct, requestedIsos: string[]): boolean {
+  if (!requestedIsos.length) return true;
   const requested = new Set(requestedIsos);
-  return pkg.coverage.some((iso) => !requested.has(iso));
+  return !pkg.coverage.some((iso) => !requested.has(iso));
+}
+
+/** Broader coverage: regional / global / multi-country for this trip. */
+function isBroaderCoverage(pkg: CatalogueProduct, requestedIsos: string[]): boolean {
+  return !isLocalForTrip(pkg, requestedIsos);
+}
+
+/**
+ * Customer-facing shortlist for the broader-coverage section: a handful of
+ * genuinely different alternatives instead of dozens of near-identical rows.
+ * Nothing is removed from the catalogue — this is presentation only.
+ */
+function curateBroaderCoverage<T extends CatalogueProduct>(packages: T[], limit: number): T[] {
+  const bucketOf = (pkg: T) =>
+    `${coverageScopeOf(pkg) === "GLOBAL" ? "GLOBAL" : "REGION"}:${pkg.unlimited ? "UNLIMITED" : "FIXED"}`;
+  const ranked = [...packages].sort(
+    (a, b) =>
+      byPrice(a, b) || (b.dataGb ?? 0) - (a.dataGb ?? 0) || a.coverage.length - b.coverage.length,
+  );
+  const picked: T[] = [];
+  const usedBuckets = new Set<string>();
+  // Pass 1: the best option of each distinct kind, so the list stays diverse.
+  for (const pkg of ranked) {
+    const bucket = bucketOf(pkg);
+    if (usedBuckets.has(bucket)) continue;
+    usedBuckets.add(bucket);
+    picked.push(pkg);
+    if (picked.length >= limit) return picked;
+  }
+  // Pass 2: fill remaining slots with the next best value, skipping duplicates
+  // of an allowance already on screen within the same kind.
+  const usedSizes = new Set(picked.map((pkg) => `${bucketOf(pkg)}|${pkg.dataGb ?? "U"}`));
+  for (const pkg of ranked) {
+    if (picked.includes(pkg)) continue;
+    const key = `${bucketOf(pkg)}|${pkg.dataGb ?? "U"}`;
+    if (usedSizes.has(key)) continue;
+    usedSizes.add(key);
+    picked.push(pkg);
+    if (picked.length >= limit) break;
+  }
+  return picked;
 }
 
 /**
@@ -113,19 +156,26 @@ export function buildCatalogueSections<T extends CatalogueProduct>(
     null;
 
   // 3. Mutually exclusive classification.
+  //    Standard/Unlimited hold EXACT/LOCAL products for the selected trip only;
+  //    every regional / global / multi-country product goes to broader coverage.
   const standard: T[] = [];
   const unlimited: T[] = [];
-  const broaderCoverage: T[] = [];
+  const broaderAll: T[] = [];
   for (const pkg of unique) {
     if (recommended && pkg.id === recommended.id) continue;
-    if (pkg.unlimited) unlimited.push(pkg);
-    else if (isBroaderCoverage(pkg, requestedIsos)) broaderCoverage.push(pkg);
+    if (isBroaderCoverage(pkg, requestedIsos)) broaderAll.push(pkg);
+    else if (pkg.unlimited) unlimited.push(pkg);
     else standard.push(pkg);
   }
 
   standard.sort((a, b) => (a.dataGb ?? 0) - (b.dataGb ?? 0) || byPrice(a, b));
   unlimited.sort((a, b) => byPrice(a, b) || (a.validityDays ?? 0) - (b.validityDays ?? 0));
-  broaderCoverage.sort((a, b) => a.coverage.length - b.coverage.length || byPrice(a, b));
+  broaderAll.sort((a, b) => a.coverage.length - b.coverage.length || byPrice(a, b));
+
+  // Curated shortlist: a few meaningful alternatives, more when the trip has no
+  // local products at all. The catalogue itself keeps every product.
+  const broaderLimit = standard.length + unlimited.length ? 6 : 12;
+  const broaderCoverage = curateBroaderCoverage(broaderAll, broaderLimit);
 
   // 4. Safety pass: a product id may appear in one section only.
   const seenId = new Set<string>();
@@ -152,13 +202,16 @@ export function buildCatalogueSections<T extends CatalogueProduct>(
     standard: safeStandard.length,
     unlimited: safeUnlimited.length,
     broaderCoverage: safeBroader.length,
+    broaderCoverageTotal: broaderAll.length,
   };
 
   if (duplicates.length && import.meta.env?.DEV) {
     console.error("[esim] duplicate products detected across sections", duplicates);
   }
+  // Every unique eligible product is classified exactly once; only the broader
+  // section is trimmed for presentation.
   const classified =
-    counters.recommended + counters.standard + counters.unlimited + counters.broaderCoverage;
+    counters.recommended + counters.standard + counters.unlimited + counters.broaderCoverageTotal;
   if (classified !== counters.unique && import.meta.env?.DEV) {
     console.error("[esim] classification invariant broken", counters);
   }

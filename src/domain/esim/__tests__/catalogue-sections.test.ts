@@ -24,7 +24,7 @@ const sectionOf = (sections: ReturnType<typeof buildCatalogueSections>, id: stri
 
 const assertInvariant = (sections: ReturnType<typeof buildCatalogueSections>) => {
   const c = sections.counters;
-  expect(c.recommended + c.standard + c.unlimited + c.broaderCoverage).toBe(c.unique);
+  expect(c.recommended + c.standard + c.unlimited + c.broaderCoverageTotal).toBe(c.unique);
   expect(sections.duplicates).toEqual([]);
   expect(new Set(sections.all.map((p) => p.id)).size).toBe(sections.all.length);
 };
@@ -48,7 +48,7 @@ describe("buildCatalogueSections", () => {
     assertInvariant(sections);
   });
 
-  it("TEST 2: unlimited global appears only under unlimited", () => {
+  it("TEST 2: unlimited global appears only under broader coverage, never unlimited", () => {
     const sections = buildCatalogueSections(
       [
         pkg({ id: "local-2", dataGb: 2 }),
@@ -62,7 +62,7 @@ describe("buildCatalogueSections", () => {
       ],
       input,
     );
-    expect(sectionOf(sections, "uni-global")).toEqual(["UNLIMITED"]);
+    expect(sectionOf(sections, "uni-global")).toEqual(["BROADER"]);
     assertInvariant(sections);
   });
 
@@ -151,9 +151,34 @@ describe("buildCatalogueSections", () => {
       const sections = buildCatalogueSections(catalogue, { ...input, coverageIsos: [iso] });
       assertInvariant(sections);
       expect(sections.counters.unique).toBe(5);
-      expect(sectionOf(sections, `${iso}-glob-u`)).toEqual(["UNLIMITED"]);
+      expect(sectionOf(sections, `${iso}-glob-u`)).toEqual(["BROADER"]);
       expect(sectionOf(sections, `${iso}-glob`)).toEqual(["BROADER"]);
     }
+  });
+
+  it("TEST 9: unlimited holds only exact-country products and broader stays a shortlist", () => {
+    const catalogue = [
+      pkg({ id: "tr-u7", unlimited: true, dataGb: null, validityDays: 7 }),
+      pkg({ id: "tr-u30", unlimited: true, dataGb: null, validityDays: 30, salePrice: 30 }),
+      pkg({ id: "tr-5", dataGb: 5 }),
+      ...Array.from({ length: 40 }, (_, index) =>
+        pkg({
+          id: `multi-${index}`,
+          providerProductId: `multi-${index}`,
+          dataGb: index % 2 ? null : 10 + index,
+          unlimited: index % 2 === 1,
+          coverage: ["TR", "DE", "FR"],
+          scope: "REGION",
+          salePrice: 20 + index,
+        }),
+      ),
+    ];
+    const sections = buildCatalogueSections(catalogue, input);
+    expect(sections.unlimited.every((p) => p.coverage.join() === "TR")).toBe(true);
+    expect(sections.standard.every((p) => p.coverage.join() === "TR")).toBe(true);
+    expect(sections.broaderCoverage.length).toBeLessThanOrEqual(6);
+    expect(sections.counters.broaderCoverageTotal).toBeGreaterThan(sections.broaderCoverage.length);
+    assertInvariant(sections);
   });
 
   it("matches the documented expected example", () => {
@@ -182,8 +207,8 @@ describe("buildCatalogueSections", () => {
     });
     expect(sections.recommended?.id).toBe("tr10");
     expect(sections.standard.map((p) => p.id)).toEqual(["tr2", "tr5", "tr20"]);
-    expect(sections.unlimited.map((p) => p.id)).toEqual(["tru7", "tru30", "globu"]);
-    expect(sections.broaderCoverage.map((p) => p.id)).toEqual(["glob50", "eu20"]);
+    expect(sections.unlimited.map((p) => p.id)).toEqual(["tru7", "tru30"]);
+    expect(sections.broaderCoverage.map((p) => p.id)).toEqual(["glob50", "eu20", "globu"]);
     assertInvariant(sections);
   });
 });
