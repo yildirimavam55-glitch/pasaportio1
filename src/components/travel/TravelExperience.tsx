@@ -153,12 +153,10 @@ function Experience({
       onServiceChange(next);
       const pending = pendingScrollRef.current;
       pendingScrollRef.current = null;
+      const scrollTop = window.scrollY;
       const settleScroll = () => {
         if (pending?.preserveAnchor) {
-          const anchor = document.getElementById("service-selector");
-          if (!anchor) return;
-          const delta = anchor.getBoundingClientRect().top - pending.anchorTop;
-          if (Math.abs(delta) > 0.5) window.scrollBy({ top: delta, behavior: "auto" });
+          window.scrollTo({ top: scrollTop, behavior: "auto" });
         } else if (pending?.scrollToFinder) {
           smoothlyShowFinder();
         }
