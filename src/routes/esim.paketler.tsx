@@ -255,6 +255,29 @@ function PackagesPage() {
               </div>
             )}
           </div>
+          {shortlist.moreUnlimited.length > 0 && (
+            <SecondaryGroup
+              title={copy.moreUnlimited}
+              packages={shortlist.moreUnlimited}
+              activeSelectedId={activeSelectedId}
+              onSelect={setSelectedProductId}
+              destinationIso={destination}
+              routeIsos={routeIsos}
+              copy={copy}
+            />
+          )}
+          {shortlist.widerCoverage.length > 0 && (
+            <SecondaryGroup
+              title={copy.widerCoverage}
+              packages={shortlist.widerCoverage}
+              activeSelectedId={activeSelectedId}
+              onSelect={setSelectedProductId}
+              destinationIso={destination}
+              routeIsos={routeIsos}
+              copy={copy}
+            />
+          )}
+          </>
         ) : (
           <div className="mt-5 rounded-card border border-dashed border-border bg-card p-6 text-center">
             <p className="text-sm font-semibold">{copy.empty}</p>
