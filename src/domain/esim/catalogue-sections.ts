@@ -33,7 +33,10 @@ export type SectionCounters = {
   standard: number;
   unlimited: number;
   broaderCoverage: number;
+  /** All broader-coverage products before customer-facing curation. */
+  broaderCoverageTotal: number;
 };
+
 
 export type CatalogueSections<T> = {
   recommended: T | null;
