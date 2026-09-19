@@ -294,7 +294,9 @@ function PackagesPage() {
           </>
         ) : (
           <div className="mt-5 rounded-card border border-dashed border-border bg-card p-6 text-center">
-            <p className="text-sm font-semibold">{copy.empty}</p>
+            <p className="text-sm font-semibold">{shortlist.gap === "NO_SUFFICIENT" ? copy.gapTitle : copy.empty}</p>
+            {shortlist.gap === "NO_SUFFICIENT" && <p className="mt-2 text-xs text-muted-foreground">{copy.gapDetail}</p>}
+
             <div className="mt-4 flex flex-wrap justify-center gap-2">
               <Link to="/esim/paketler" search={{ destination: "", route: "", days: search.days, travelers: search.travelers, estimated: search.estimated, required: search.required, recommended: search.recommended, recommendedProductId: "", usage: search.usage, intensity: search.intensity }}>
                 <Button variant="outline">{copy.emptyOther}</Button>
