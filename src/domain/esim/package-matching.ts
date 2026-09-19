@@ -15,6 +15,19 @@ export type MatchablePackage = {
   salePrice: number | null;
 };
 
+/** Derived purely from real stored ISO coverage — never from a product title. */
+export type CoverageScope = "SINGLE_COUNTRY" | "REGIONAL" | "GLOBAL";
+
+export const GLOBAL_COVERAGE_MIN = 40;
+
+export function coverageScopeOf(pkg: MatchablePackage): CoverageScope {
+  const size = pkg.coverage.length;
+  if (size >= GLOBAL_COVERAGE_MIN) return "GLOBAL";
+  return size > 1 ? "REGIONAL" : "SINGLE_COUNTRY";
+}
+
+const SCOPE_ORDER: CoverageScope[] = ["SINGLE_COUNTRY", "REGIONAL", "GLOBAL"];
+
 export type PackageMatchInput = {
   requiredGb: number;
   /** ISO codes that must all be covered (destination or full route). */
@@ -111,4 +124,115 @@ export function resolvePackageRecommendation<T extends MatchablePackage>(
   if (unlimited.length) return { status: "UNLIMITED_ALTERNATIVE", package: unlimited[0]! };
 
   return { status: "NO_SUFFICIENT", package: null };
+}
+
+/* ------------------------------------------------------------------ *
+ * Tiered coverage resolution (single country -> regional -> global).
+ * Identical for every country: no ISO is ever special-cased.
+ * ------------------------------------------------------------------ */
+
+export type TieredRecommendation<T> = {
+  /** Scope the winning product belongs to; null when nothing matched. */
+  scope: CoverageScope | null;
+  status: "MATCHED" | "UNLIMITED_ALTERNATIVE" | "NO_SUFFICIENT" | "NO_CATALOGUE";
+  recommended: T | null;
+  /** Cheapest valid package that still meets the requirement. */
+  economy: T | null;
+  /** Next sensible larger valid package. */
+  comfort: T | null;
+  /** Every package that covers the trip, cheapest first within scope order. */
+  candidates: T[];
+};
+
+/** Packages that cover every requested ISO and stay valid for the whole trip. */
+export function coveringPackages<T extends MatchablePackage>(packages: T[], input: PackageMatchInput): T[] {
+  const isos = (input.coverageIsos ?? []).map((iso) => iso.toUpperCase()).filter(Boolean);
+  const days = Number.isFinite(input.days) ? Number(input.days) : 0;
+  return packages.filter((pkg) => {
+    if (isos.length && !isos.every((iso) => pkg.coverage.includes(iso))) return false;
+    return validityCoversTrip(pkg, days);
+  });
+}
+
+const cheapest = <T extends MatchablePackage>(a: T, b: T) =>
+  (a.salePrice ?? Number.POSITIVE_INFINITY) - (b.salePrice ?? Number.POSITIVE_INFINITY);
+
+const sufficient = <T extends MatchablePackage>(pkg: T, requiredGb: number) =>
+  pkg.unlimited || (pkg.dataGb ?? 0) >= requiredGb;
+
+/**
+ * Resolves the recommendation for one destination or full route.
+ * Fallback order is coverage scope, then smallest sufficient allowance, then price.
+ * Returns NO_CATALOGUE only when no scope covers the trip at all.
+ */
+export function resolveTieredRecommendation<T extends MatchablePackage>(
+  packages: T[],
+  input: PackageMatchInput,
+): TieredRecommendation<T> {
+  const covering = coveringPackages(packages, input);
+  const empty: TieredRecommendation<T> = {
+    scope: null,
+    status: "NO_CATALOGUE",
+    recommended: null,
+    economy: null,
+    comfort: null,
+    candidates: [],
+  };
+  if (!covering.length) return empty;
+
+  const candidates = [...covering].sort(
+    (a, b) =>
+      SCOPE_ORDER.indexOf(coverageScopeOf(a)) - SCOPE_ORDER.indexOf(coverageScopeOf(b)) ||
+      (a.unlimited ? Number.POSITIVE_INFINITY : a.dataGb ?? 0) - (b.unlimited ? Number.POSITIVE_INFINITY : b.dataGb ?? 0) ||
+      cheapest(a, b),
+  );
+
+  // Step 1-3: prefer the narrowest scope that can actually satisfy the need.
+  let winner: T | null = null;
+  for (const scope of SCOPE_ORDER) {
+    const inScope = candidates.filter((pkg) => coverageScopeOf(pkg) === scope);
+    const capped = inScope
+      .filter((pkg) => !pkg.unlimited && sufficient(pkg, input.requiredGb))
+      .sort((a, b) => (a.dataGb ?? 0) - (b.dataGb ?? 0) || cheapest(a, b));
+    if (capped.length) {
+      winner = capped[0]!;
+      break;
+    }
+  }
+
+  if (winner) {
+    const valid = candidates.filter((pkg) => sufficient(pkg, input.requiredGb));
+    const economy = [...valid].sort(cheapest)[0] ?? null;
+    const larger = valid
+      .filter((pkg) => pkg.unlimited || (pkg.dataGb ?? 0) > (winner!.dataGb ?? 0))
+      .sort(
+        (a, b) =>
+          (a.unlimited ? Number.POSITIVE_INFINITY : a.dataGb ?? 0) - (b.unlimited ? Number.POSITIVE_INFINITY : b.dataGb ?? 0) ||
+          cheapest(a, b),
+      );
+    return {
+      scope: coverageScopeOf(winner),
+      status: "MATCHED",
+      recommended: winner,
+      economy: economy && economy.id !== winner.id ? economy : null,
+      comfort: larger[0] ?? null,
+      candidates,
+    };
+  }
+
+  // No capped size is big enough anywhere: a valid unlimited product still works.
+  const unlimited = candidates.filter((pkg) => pkg.unlimited).sort(cheapest);
+  if (unlimited.length) {
+    const pick = unlimited[0]!;
+    return {
+      scope: coverageScopeOf(pick),
+      status: "UNLIMITED_ALTERNATIVE",
+      recommended: pick,
+      economy: null,
+      comfort: null,
+      candidates,
+    };
+  }
+
+  return { ...empty, status: "NO_SUFFICIENT", candidates };
 }

@@ -39,6 +39,7 @@ import { Route as AuthenticatedAdminThemeRouteImport } from './routes/_authentic
 import { Route as AuthenticatedHesabimIndexRouteImport } from './routes/_authenticated/hesabim.index'
 import { Route as AuthenticatedHesabimSeyahatlerRouteImport } from './routes/_authenticated/hesabim.seyahatler'
 import { Route as ApiPublicProviderSyncRouteImport } from './routes/api/public/provider-sync'
+import { Route as AuthenticatedAdminEsimCoverageRouteImport } from './routes/_authenticated/admin.esim.coverage'
 import { Route as AuthenticatedAdminEsimDevicesRouteImport } from './routes/_authenticated/admin.esim.devices'
 import { Route as AuthenticatedAdminEsimFulfillmentRouteImport } from './routes/_authenticated/admin.esim.fulfillment'
 import { Route as AuthenticatedAdminEsimProviderImportRouteImport } from './routes/_authenticated/admin.esim.provider-import'
@@ -215,6 +216,12 @@ const ApiPublicProviderSyncRoute = ApiPublicProviderSyncRouteImport.update({
   path: '/api/public/provider-sync',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedAdminEsimCoverageRoute =
+  AuthenticatedAdminEsimCoverageRouteImport.update({
+    id: '/admin/esim/coverage',
+    path: '/admin/esim/coverage',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedAdminEsimDevicesRoute =
   AuthenticatedAdminEsimDevicesRouteImport.update({
     id: '/admin/esim/devices',
@@ -312,6 +319,7 @@ export interface FileRoutesByFullPath {
   '/api/public/provider-sync': typeof ApiPublicProviderSyncRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
   '/hesabim/': typeof AuthenticatedHesabimIndexRoute
+  '/admin/esim/coverage': typeof AuthenticatedAdminEsimCoverageRoute
   '/admin/esim/devices': typeof AuthenticatedAdminEsimDevicesRoute
   '/admin/esim/fulfillment': typeof AuthenticatedAdminEsimFulfillmentRoute
   '/admin/esim/provider-import': typeof AuthenticatedAdminEsimProviderImportRoute
@@ -354,6 +362,7 @@ export interface FileRoutesByTo {
   '/api/public/provider-sync': typeof ApiPublicProviderSyncRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
   '/hesabim': typeof AuthenticatedHesabimIndexRoute
+  '/admin/esim/coverage': typeof AuthenticatedAdminEsimCoverageRoute
   '/admin/esim/devices': typeof AuthenticatedAdminEsimDevicesRoute
   '/admin/esim/fulfillment': typeof AuthenticatedAdminEsimFulfillmentRoute
   '/admin/esim/provider-import': typeof AuthenticatedAdminEsimProviderImportRoute
@@ -398,6 +407,7 @@ export interface FileRoutesById {
   '/api/public/provider-sync': typeof ApiPublicProviderSyncRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
   '/_authenticated/hesabim/': typeof AuthenticatedHesabimIndexRoute
+  '/_authenticated/admin/esim/coverage': typeof AuthenticatedAdminEsimCoverageRoute
   '/_authenticated/admin/esim/devices': typeof AuthenticatedAdminEsimDevicesRoute
   '/_authenticated/admin/esim/fulfillment': typeof AuthenticatedAdminEsimFulfillmentRoute
   '/_authenticated/admin/esim/provider-import': typeof AuthenticatedAdminEsimProviderImportRoute
@@ -442,6 +452,7 @@ export interface FileRouteTypes {
     | '/api/public/provider-sync'
     | '/admin/'
     | '/hesabim/'
+    | '/admin/esim/coverage'
     | '/admin/esim/devices'
     | '/admin/esim/fulfillment'
     | '/admin/esim/provider-import'
@@ -484,6 +495,7 @@ export interface FileRouteTypes {
     | '/api/public/provider-sync'
     | '/admin'
     | '/hesabim'
+    | '/admin/esim/coverage'
     | '/admin/esim/devices'
     | '/admin/esim/fulfillment'
     | '/admin/esim/provider-import'
@@ -527,6 +539,7 @@ export interface FileRouteTypes {
     | '/api/public/provider-sync'
     | '/_authenticated/admin/'
     | '/_authenticated/hesabim/'
+    | '/_authenticated/admin/esim/coverage'
     | '/_authenticated/admin/esim/devices'
     | '/_authenticated/admin/esim/fulfillment'
     | '/_authenticated/admin/esim/provider-import'
@@ -764,6 +777,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicProviderSyncRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/admin/esim/coverage': {
+      id: '/_authenticated/admin/esim/coverage'
+      path: '/admin/esim/coverage'
+      fullPath: '/admin/esim/coverage'
+      preLoaderRoute: typeof AuthenticatedAdminEsimCoverageRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/admin/esim/devices': {
       id: '/_authenticated/admin/esim/devices'
       path: '/admin/esim/devices'
@@ -866,6 +886,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedHesabimSeyahatlerRoute: typeof AuthenticatedHesabimSeyahatlerRoute
   AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
   AuthenticatedHesabimIndexRoute: typeof AuthenticatedHesabimIndexRoute
+  AuthenticatedAdminEsimCoverageRoute: typeof AuthenticatedAdminEsimCoverageRoute
   AuthenticatedAdminEsimDevicesRoute: typeof AuthenticatedAdminEsimDevicesRoute
   AuthenticatedAdminEsimFulfillmentRoute: typeof AuthenticatedAdminEsimFulfillmentRoute
   AuthenticatedAdminEsimProviderImportRoute: typeof AuthenticatedAdminEsimProviderImportRoute
@@ -902,6 +923,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedHesabimSeyahatlerRoute: AuthenticatedHesabimSeyahatlerRoute,
   AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
   AuthenticatedHesabimIndexRoute: AuthenticatedHesabimIndexRoute,
+  AuthenticatedAdminEsimCoverageRoute: AuthenticatedAdminEsimCoverageRoute,
   AuthenticatedAdminEsimDevicesRoute: AuthenticatedAdminEsimDevicesRoute,
   AuthenticatedAdminEsimFulfillmentRoute:
     AuthenticatedAdminEsimFulfillmentRoute,

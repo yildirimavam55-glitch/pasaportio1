@@ -39,7 +39,7 @@ import type { Locale } from "@/domain/enums";
 import { DEFAULT_USAGE_SETTINGS, estimateUsageNeed } from "@/domain/esim/usage-recommendation";
 import { getEsimUsageSettings } from "@/lib/esim-settings.functions";
 import { listEsimPackages } from "@/lib/esim-catalogue.functions";
-import { resolvePackageRecommendation } from "@/domain/esim/package-matching";
+import { resolveTieredRecommendation } from "@/domain/esim/package-matching";
 import { activationNote } from "@/domain/esim/activation";
 
 import { useCart } from "@/domain/cart/store";
@@ -61,6 +61,7 @@ const COPY = {
     whyPackage: "Neden bu paket?", noPackage: "Bu seyahat için şu anda tam uygun bir paket bulunamadı.",
     whyText: (days: number, usage: string, need: number, size: string) => `${days} günlük seyahatin için ${usage} kullanımına göre tahmini ihtiyacın ${need} GB. Mevcut paketler arasında ihtiyacını karşılayan en yakın seçenek ${size}.`,
     shortWhy: "Tahmini kullanımına ve seyahat sürene uygun mevcut paket.",
+    scopeRegional: "Bu destinasyon bölgesel paket kapsamında.", scopeGlobal: "Bu destinasyon Global paket kapsamında.",
     validity: "gün geçerli", unlimited: "Sınırsız veri",
     unlimitedAlternative: "Sınırsız alternatif",
     noSufficient: "Bu seyahat için şu anda tam uygun bir paket bulunamadı.",
@@ -89,6 +90,7 @@ const COPY = {
     whyPackage: "Warum dieses Paket?", noPackage: "Für diese Reise ist derzeit kein vollständig passendes Paket verfügbar.",
     whyText: (days: number, usage: string, need: number, size: string) => `Für deine ${days}-tägige Reise liegt dein geschätzter Bedarf bei ${usage} bei ${need} GB. Das nächstpassende verfügbare Paket, das deinen Bedarf deckt, ist ${size}.`,
     shortWhy: "Passend zu deinem geschätzten Verbrauch und deiner Reisedauer.",
+    scopeRegional: "Dieses Reiseziel ist von einem Regionalpaket abgedeckt.", scopeGlobal: "Dieses Reiseziel ist von einem Global-Paket abgedeckt.",
     validity: "Tage gültig", unlimited: "Unbegrenzte Daten",
     unlimitedAlternative: "Unbegrenzte Alternative",
     noSufficient: "Für diese Reise ist derzeit kein vollständig passendes Paket verfügbar.",
@@ -117,6 +119,7 @@ const COPY = {
     whyPackage: "Why this package?", noPackage: "No fully suitable package is available for this trip right now.",
     whyText: (days: number, usage: string, need: number, size: string) => `For your ${days}-day trip, your estimated need for ${usage} is ${need} GB. The closest available package that covers your need is ${size}.`,
     shortWhy: "Matches your estimated usage and your travel duration.",
+    scopeRegional: "This destination is covered by a regional package.", scopeGlobal: "This destination is covered by a global package.",
     validity: "days valid", unlimited: "Unlimited data",
     unlimitedAlternative: "Unlimited alternative",
     noSufficient: "No fully suitable package is available for this trip right now.",
@@ -282,9 +285,10 @@ export function EsimFinder({ state, onChange }: { state: EsimFinderState; onChan
     enabled: canSeePackages,
   });
   const match = canSeePackages
-    ? resolvePackageRecommendation(packages, { requiredGb: recommendation.requiredGb, coverageIsos, days: state.days })
-    : ({ status: "NO_CATALOGUE", package: null } as const);
-  const recommended = match.package;
+    ? resolveTieredRecommendation(packages, { requiredGb: recommendation.requiredGb, coverageIsos, days: state.days })
+    : ({ status: "NO_CATALOGUE", scope: null, recommended: null } as const);
+  const recommended = match.recommended;
+  const scopeNote = match.scope === "REGIONAL" ? copy.scopeRegional : match.scope === "GLOBAL" ? copy.scopeGlobal : "";
   const { lines, addLine } = useCart();
   const recommendedInCart = Boolean(recommended && lines.some((line) => line.productId === recommended.id));
 
@@ -446,6 +450,7 @@ export function EsimFinder({ state, onChange }: { state: EsimFinderState; onChan
               <p className="mt-3 text-sm leading-6 text-muted-foreground">
                 {copy.shortWhy}
               </p>
+              {scopeNote && <p className="mt-1 text-sm text-muted-foreground">{scopeNote}</p>}
               {activationNote(recommended.activationPolicy, locale) && (
                 <p className="mt-1 text-xs text-muted-foreground">{activationNote(recommended.activationPolicy, locale)}</p>
               )}

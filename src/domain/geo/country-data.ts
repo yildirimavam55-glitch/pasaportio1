@@ -197,4 +197,38 @@ SB|OCEANIA|Solomon Adaları|Salomonen|Solomon Islands
 TO|OCEANIA|Tonga|Tonga|Tonga
 TV|OCEANIA|Tuvalu|Tuvalu|Tuvalu
 VU|OCEANIA|Vanuatu|Vanuatu|Vanuatu
+AX|EUROPE|Aland Adaları|Ålandinseln|Åland Islands
+FO|EUROPE|Faroe Adaları|Färöer|Faroe Islands
+GI|EUROPE|Cebelitarık|Gibraltar|Gibraltar
+GG|EUROPE|Guernsey|Guernsey|Guernsey
+JE|EUROPE|Jersey|Jersey|Jersey
+IM|EUROPE|Man Adası|Isle of Man|Isle of Man
+AG|AMERICAS|Antigua ve Barbuda|Antigua und Barbuda|Antigua & Barbuda
+AI|AMERICAS|Anguilla|Anguilla|Anguilla
+BM|AMERICAS|Bermuda|Bermuda|Bermuda
+BQ|AMERICAS|Karayip Hollandası|Karibische Niederlande|Caribbean Netherlands
+BL|AMERICAS|Saint Barthélemy|St. Barthélemy|St. Barthélemy
+GD|AMERICAS|Grenada|Grenada|Grenada
+GF|AMERICAS|Fransız Guyanası|Französisch-Guayana|French Guiana
+GP|AMERICAS|Guadeloupe|Guadeloupe|Guadeloupe
+KN|AMERICAS|Saint Kitts ve Nevis|St. Kitts und Nevis|St. Kitts & Nevis
+KY|AMERICAS|Cayman Adaları|Kaimaninseln|Cayman Islands
+LC|AMERICAS|Saint Lucia|St. Lucia|St. Lucia
+MF|AMERICAS|Saint Martin|St. Martin|St. Martin
+MQ|AMERICAS|Martinik|Martinique|Martinique
+MS|AMERICAS|Montserrat|Montserrat|Montserrat
+SR|AMERICAS|Surinam|Suriname|Suriname
+SX|AMERICAS|Sint Maarten|Sint Maarten|Sint Maarten
+TC|AMERICAS|Turks ve Caicos Adaları|Turks- und Caicosinseln|Turks & Caicos Islands
+VC|AMERICAS|Saint Vincent ve Grenadinler|St. Vincent und die Grenadinen|St. Vincent & Grenadines
+VG|AMERICAS|Britanya Virjin Adaları|Britische Jungferninseln|British Virgin Islands
+VI|AMERICAS|ABD Virjin Adaları|Amerikanische Jungferninseln|U.S. Virgin Islands
+CF|AFRICA|Orta Afrika Cumhuriyeti|Zentralafrikanische Republik|Central African Republic
+GW|AFRICA|Gine-Bissau|Guinea-Bissau|Guinea-Bissau
+SZ|AFRICA|Esvatini|Eswatini|Eswatini
+RE|AFRICA|Réunion|Réunion|Réunion
+YT|AFRICA|Mayotte|Mayotte|Mayotte
+ST|AFRICA|São Tomé ve Príncipe|São Tomé und Príncipe|São Tomé & Príncipe
+AS|OCEANIA|Amerikan Samoası|Amerikanisch-Samoa|American Samoa
+PF|OCEANIA|Fransız Polinezyası|Französisch-Polynesien|French Polynesia
 `.trim().split("\n");

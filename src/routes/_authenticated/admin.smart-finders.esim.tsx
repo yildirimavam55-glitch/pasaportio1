@@ -14,6 +14,9 @@ import {
   type EsimUsageSettings,
 } from "@/domain/esim/usage-recommendation";
 import type { UsageIntensity, UsageKind } from "@/domain/experience/types";
+import { COUNTRIES } from "@/domain/geo/countries";
+import { listEsimPackages } from "@/lib/esim-catalogue.functions";
+import { coverageScopeOf, resolveTieredRecommendation } from "@/domain/esim/package-matching";
 
 export const Route = createFileRoute("/_authenticated/admin/smart-finders/esim")({ component: EsimRecommendationSettings });
 
@@ -43,6 +46,96 @@ function NumberField({ label, value, min, max, step = 1, suffix, onChange }: { l
         {suffix && <span className="shrink-0 text-xs text-muted-foreground">{suffix}</span>}
       </span>
     </label>
+  );
+}
+
+
+/** Admin algorithm tester: same engine and same catalogue the customer Finder uses. */
+function RecommendationTester({ settings }: { settings: EsimUsageSettings }) {
+  const [iso, setIso] = useState("TR");
+  const [days, setDays] = useState(10);
+  const [intensity, setIntensity] = useState<UsageIntensity>("NORMAL");
+  const [usage, setUsage] = useState<UsageKind[]>(["MESSAGING", "SOCIAL", "MAPS"]);
+
+  const estimate = estimateUsageNeed({ days, usage, intensity }, settings);
+  const { data: packages = [], isFetching } = useQuery({
+    queryKey: ["admin-esim-test", iso],
+    queryFn: () => listEsimPackages({ data: { coverageIsos: [iso] } }),
+  });
+  const match = resolveTieredRecommendation(packages, { requiredGb: estimate.requiredGb, coverageIsos: [iso], days });
+  const scopeLabel = { SINGLE_COUNTRY: "Tek ülke", REGIONAL: "Bölgesel", GLOBAL: "Global" } as const;
+
+  return (
+    <section className="rounded-card border border-border bg-card p-5">
+      <h2 className="font-display text-lg font-bold">Öneri test aracı</h2>
+      <p className="mt-1 text-sm text-muted-foreground">Müşteri Finder ile aynı motor ve aynı yayınlanmış katalog kullanılır.</p>
+      <div className="mt-4 grid gap-3 sm:grid-cols-3">
+        <label className="block min-w-0">
+          <span className="mb-1 block text-sm font-semibold">Ülke</span>
+          <select className="h-12 w-full rounded-xl border border-border bg-card px-3 text-sm" value={iso} onChange={(event) => setIso(event.target.value)}>
+            {COUNTRIES.map((country) => (
+              <option key={country.iso} value={country.iso}>{country.flag} {country.name.tr} ({country.iso})</option>
+            ))}
+          </select>
+        </label>
+        <NumberField label="Gün" value={days} min={1} max={90} onChange={setDays} suffix="gün" />
+        <label className="block min-w-0">
+          <span className="mb-1 block text-sm font-semibold">Yoğunluk</span>
+          <select className="h-12 w-full rounded-xl border border-border bg-card px-3 text-sm" value={intensity} onChange={(event) => setIntensity(event.target.value as UsageIntensity)}>
+            {(Object.keys(INTENSITY_LABELS) as UsageIntensity[]).map((key) => <option key={key} value={key}>{INTENSITY_LABELS[key]}</option>)}
+          </select>
+        </label>
+      </div>
+      <div className="mt-3 flex flex-wrap gap-2">
+        {USAGE_KEYS.map((key) => {
+          const active = usage.includes(key);
+          return (
+            <button
+              key={key}
+              type="button"
+              aria-pressed={active}
+              className={`rounded-full border px-3 py-1.5 text-sm font-semibold ${active ? "border-primary bg-primary-soft text-primary" : "border-border bg-card"}`}
+              onClick={() => setUsage(active ? usage.filter((item) => item !== key) : [...usage, key])}
+            >
+              {USAGE_LABELS[key]}
+            </button>
+          );
+        })}
+      </div>
+
+      <dl className="mt-4 grid gap-3 sm:grid-cols-3 text-sm">
+        <div className="rounded-xl bg-secondary/60 p-3"><dt className="text-xs font-semibold uppercase text-muted-foreground">Tahmini kullanım</dt><dd className="mt-1 text-lg font-bold">~{estimate.estimatedGb} GB</dd></div>
+        <div className="rounded-xl bg-secondary/60 p-3"><dt className="text-xs font-semibold uppercase text-muted-foreground">Gerekli veri</dt><dd className="mt-1 text-lg font-bold">{estimate.requiredGb} GB</dd></div>
+        <div className="rounded-xl bg-accent-soft p-3"><dt className="text-xs font-semibold uppercase text-muted-foreground">Kapsayan ürün</dt><dd className="mt-1 text-lg font-bold">{isFetching ? "…" : match.candidates.length}</dd></div>
+      </dl>
+
+      <div className="mt-4 rounded-xl border border-border p-3 text-sm">
+        {isFetching ? (
+          <p className="flex items-center gap-2 text-muted-foreground"><LoaderCircle className="animate-spin" /> Katalog sorgulanıyor…</p>
+        ) : match.recommended ? (
+          <>
+            <p className="font-semibold">
+              Seçilen öneri: {match.recommended.unlimited ? "Sınırsız" : `${match.recommended.dataGb} GB`} · {match.recommended.validityDays ?? "?"} gün · {match.recommended.salePrice} {match.recommended.currency}
+            </p>
+            <p className="mt-1 text-muted-foreground">
+              Neden: {match.scope ? scopeLabel[match.scope] : "-"} kapsama ({match.recommended.coverage.length} ülke), ihtiyacı karşılayan en küçük paket, eşitlikte en düşük fiyat.
+            </p>
+            <p className="mt-1 text-muted-foreground">
+              Ekonomik: {match.economy ? `${match.economy.dataGb ?? "Sınırsız"} · ${match.economy.salePrice} ${match.economy.currency}` : "-"} · Rahat kullanım: {match.comfort ? `${match.comfort.dataGb ?? "Sınırsız"} · ${match.comfort.salePrice} ${match.comfort.currency}` : "-"}
+            </p>
+            <ul className="mt-2 space-y-1 text-xs text-muted-foreground">
+              {match.candidates.slice(0, 6).map((pkg) => (
+                <li key={pkg.id}>
+                  {scopeLabel[coverageScopeOf(pkg)]} · {pkg.unlimited ? "Sınırsız" : `${pkg.dataGb} GB`} · {pkg.validityDays} gün · {pkg.salePrice} {pkg.currency}
+                </li>
+              ))}
+            </ul>
+          </>
+        ) : (
+          <p className="text-muted-foreground">Bu ülke ve süre için yayınlanmış uygun ürün bulunamadı (tek ülke, bölgesel ve global seviyeler kontrol edildi).</p>
+        )}
+      </div>
+    </section>
   );
 }
 
@@ -138,6 +231,8 @@ function EsimRecommendationSettings() {
                 />
               </div>
             </section>
+
+            <RecommendationTester settings={effective} />
 
             <div className="flex flex-wrap items-center gap-3">
               <Button onClick={() => mutation.mutate(effective)} disabled={mutation.isPending}>

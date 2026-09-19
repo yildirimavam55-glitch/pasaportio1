@@ -2,6 +2,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import { toast } from "sonner";
 import {
+  Globe,
   AlertTriangle, BarChart3, Boxes, BriefcaseBusiness, Building2, ChevronDown,
   CircleDollarSign, ClipboardList, CloudUpload, DatabaseZap, ExternalLink, Flag,
   Image, LayoutDashboard, LayoutTemplate, LoaderCircle, LogOut, MapPin, Megaphone, Menu, MonitorCog, PanelLeftClose, Plane,
@@ -29,6 +30,7 @@ const groups: AdminGroup[] = [
   { label: "eSIM", links: [
     { to: "/admin", label: "eSIM genel bakış", icon: RadioTower },
     { to: "/admin/products", label: "Paketler", icon: Boxes },
+    { to: "/admin/esim/coverage", label: "Kapsama", icon: Globe },
     { to: "/admin/smart-finders/esim", label: "Smart Finder", icon: Sparkles },
     { to: "/admin/esim/devices", label: "Cihaz uyumluluğu", icon: Smartphone },
     { to: "/admin/esim/fulfillment", label: "eSIM teslimat", icon: DatabaseZap },

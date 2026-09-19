@@ -12,13 +12,24 @@ import type { AdapterContext, CatalogueAdapter } from "./types";
 export const ESIM_GO_DEFAULT_BASE_URL = "https://api.esim-go.com/v2.4";
 export const ESIM_GO_SECRET_NAME = "ESIM_GO_API_KEY";
 
+/** Reads ISO codes out of a provider country list; region labels are ignored. */
+function isoListOf(value: unknown): string[] {
+  if (!Array.isArray(value)) return [];
+  return value
+    .map((entry) =>
+      entry && typeof entry === "object"
+        ? String((entry as any).iso ?? (entry as any).country ?? (entry as any).code ?? "")
+        : String(entry ?? ""),
+    )
+    .map((iso) => iso.trim().toUpperCase())
+    .filter((iso) => /^[A-Z]{2}$/.test(iso));
+}
+
 /** Provider payload → internal field names. Nothing is invented. */
 function normalizeBundle(row: Record<string, unknown>): Record<string, unknown> {
-  const countries = Array.isArray(row["countries"])
-    ? (row["countries"] as unknown[]).map((entry) =>
-        entry && typeof entry === "object" ? String((entry as any).iso ?? (entry as any).country ?? "") : String(entry ?? ""),
-      )
-    : [];
+  // Regional/global bundles list only a region label under `countries`; the real
+  // ISO coverage lives in `roamingEnabled`. Both are merged, labels are dropped.
+  const countries = [...new Set([...isoListOf(row["countries"]), ...isoListOf(row["roamingEnabled"])])];
   const dataMb = row["dataAmount"] ?? row["dataAmountMB"];
   return {
     ...row,
