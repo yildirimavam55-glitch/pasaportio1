@@ -242,19 +242,6 @@ function PackagesPage() {
                 copy={copy}
               />
             )}
-            {sections.standard.slice(0, 2).map((pkg) => (
-              <PackageCard
-                key={pkg.id}
-                pkg={pkg}
-                isRecommended={false}
-                isSelected={activeSelectedId === pkg.id}
-                onSelect={() => setSelectedProductId(pkg.id)}
-                whyText=""
-                destinationIso={destination}
-                routeIsos={routeIsos}
-                copy={copy}
-              />
-            ))}
             {selectedProduct && (
               <div className="fixed inset-x-0 bottom-[4.7rem] z-40 border-t border-border bg-background/98 p-3 shadow-nav backdrop-blur md:static md:col-span-2 md:border-0 md:bg-transparent md:p-0 md:shadow-none lg:col-span-3">
                 <div className="mx-auto flex max-w-site items-center gap-3">
