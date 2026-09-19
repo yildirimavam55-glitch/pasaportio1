@@ -1,19 +1,18 @@
-import { ArrowRight, ShieldCheck, Smartphone, Zap } from "lucide-react";
+import { ArrowRight, Globe2, ShieldCheck, Zap } from "lucide-react";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { useQuery } from "@tanstack/react-query";
+import sharedHeroDesktop from "@/assets/shared-travel-hero-desktop.jpg";
+import sharedHeroMobile from "@/assets/shared-travel-hero-mobile.jpg";
 import { Button } from "@/components/ui/button";
 import { useI18n } from "@/i18n";
 import {
   ESIM_CONTENT,
   LOUNGE_CONTENT,
+  SHARED_HERO_CONTENT,
   localized,
   type ServiceSlug,
 } from "@/content/travel-content";
-import {
-  ESIM_SERVICE_CONFIG,
-  LOUNGE_SERVICE_CONFIG,
-  SERVICE_REGISTRY,
-} from "@/domain/experience/config";
+import { ESIM_SERVICE_CONFIG, LOUNGE_SERVICE_CONFIG } from "@/domain/experience/config";
 import type { EsimFinderState, LoungeFinderState } from "@/domain/experience/types";
 import {
   defaultStorefront,
@@ -24,7 +23,7 @@ import {
 } from "@/domain/storefront/registry";
 import { HERO_HEIGHT_CLASS, surfaceClasses, widthClass } from "@/domain/storefront/styles";
 import { getPublishedStorefront } from "@/lib/storefront.functions";
-import { StorefrontProvider, useMediaUrl } from "@/components/storefront/StorefrontContext";
+import { StorefrontProvider } from "@/components/storefront/StorefrontContext";
 import { FinderShell, EsimFinder, LoungeFinder } from "./Finder";
 import { DeviceCompatibilitySection } from "./DeviceCompatibility";
 import { PublicShell } from "./PublicShell";
@@ -60,8 +59,15 @@ export function TravelExperience({
     queryFn: () => getPublishedStorefront({ data: { service } }),
     staleTime: 60 * 1000,
   });
+  const sharedPublished = useQuery({
+    queryKey: ["storefront", "global"],
+    queryFn: () => getPublishedStorefront({ data: { service: "global" } }),
+    staleTime: 60 * 1000,
+  });
   const availability = useServiceAvailability();
   const config = published.data?.config ?? defaultStorefront(service);
+  const sharedConfig = sharedPublished.data?.config ?? defaultStorefront("global");
+  const sharedHero = sharedConfig.sections.find((section) => section.type === "HERO");
 
   /** A paused service keeps its navigation but stops new discovery. */
   if (!availability.isPending && !availability[service].storefront) {
@@ -74,40 +80,37 @@ export function TravelExperience({
 
   return (
     <StorefrontProvider config={config} media={published.data?.media ?? {}}>
-      <Experience service={service} onServiceChange={onServiceChange} config={config} />
+      <Experience
+        service={service}
+        onServiceChange={onServiceChange}
+        config={config}
+        sharedHero={sharedHero}
+        sharedMedia={sharedPublished.data?.media ?? {}}
+      />
     </StorefrontProvider>
   );
 }
-
-const ESIM_TRUST: Record<string, { tr: string; de: string; en: string }> = {
-  instant: { tr: "Anında QR", de: "Sofortiger QR", en: "Instant QR" },
-  digital: { tr: "Fiziksel SIM gerekmez", de: "Keine physische SIM", en: "No physical SIM" },
-  easy: { tr: "Kolay kurulum", de: "Einfache Einrichtung", en: "Easy setup" },
-};
-const LOUNGE_TRUST: Record<string, { tr: string; de: string; en: string }> = {
-  global: {
-    tr: "Dünya genelinde binlerce lounge",
-    de: "Tausende Lounges weltweit",
-    en: "Thousands of lounges worldwide",
-  },
-  easy: { tr: "Kolay rezervasyon", de: "Einfache Buchung", en: "Easy booking" },
-  secure: { tr: "Güvenli ödeme", de: "Sichere Zahlung", en: "Secure payment" },
-};
 
 function Experience({
   service,
   onServiceChange,
   config,
+  sharedHero,
+  sharedMedia,
 }: {
   service: ServiceSlug;
   onServiceChange: (service: ServiceSlug) => void;
   config: StorefrontConfig;
+  sharedHero: StorefrontSection | undefined;
+  sharedMedia: Record<string, { url: string; alt: string; focalX: number; focalY: number }>;
 }) {
   const { locale } = useI18n();
   const copy = localized(service === "esim" ? ESIM_CONTENT : LOUNGE_CONTENT, locale);
-  const [esimState, setEsimState] = useState<EsimFinderState>(ESIM_SERVICE_CONFIG.initialState);
-  const [loungeState, setLoungeState] = useState<LoungeFinderState>(
-    LOUNGE_SERVICE_CONFIG.initialState,
+  const [esimState, setEsimState] = useState<EsimFinderState>(() =>
+    restoreFinderState("travel-esim-finder", ESIM_SERVICE_CONFIG.initialState),
+  );
+  const [loungeState, setLoungeState] = useState<LoungeFinderState>(() =>
+    restoreFinderState("travel-lounge-finder", LOUNGE_SERVICE_CONFIG.initialState),
   );
   const { switchService, isSwitching, target, phase } = useServiceSwitchTransition();
   const selectedService = target ?? service;
@@ -127,6 +130,14 @@ function Experience({
     [],
   );
 
+  useEffect(() => {
+    window.sessionStorage.setItem("travel-esim-finder", JSON.stringify(esimState));
+  }, [esimState]);
+
+  useEffect(() => {
+    window.sessionStorage.setItem("travel-lounge-finder", JSON.stringify(loungeState));
+  }, [loungeState]);
+
   const finderIsNearViewport = () => {
     const selector = document.getElementById("service-selector");
     const finder = document.getElementById("finder");
@@ -138,9 +149,10 @@ function Experience({
 
   const smoothlyShowFinder = () => {
     const reduced = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches ?? false;
-    const finder = document.getElementById("finder");
-    if (!finder) return;
-    const destination = window.scrollY + finder.getBoundingClientRect().top;
+    const selector = document.getElementById("service-selector");
+    if (!selector) return;
+    const headerOffset = document.querySelector("header")?.getBoundingClientRect().height ?? 0;
+    const destination = window.scrollY + selector.getBoundingClientRect().top - headerOffset - 8;
     if (reduced) {
       window.scrollTo({ top: destination, behavior: "auto" });
       return;
@@ -165,10 +177,7 @@ function Experience({
     scrollAnimationRef.current = window.requestAnimationFrame(step);
   };
 
-  const requestServiceChange = (
-    next: ServiceSlug,
-    options: { scrollToFinder?: boolean } = {},
-  ) => {
+  const requestServiceChange = (next: ServiceSlug, options: { scrollToFinder?: boolean } = {}) => {
     const finder = document.getElementById("finder");
     const nearFinder = finderIsNearViewport();
     if (next === service) {
@@ -185,21 +194,23 @@ function Experience({
       onServiceChange(next);
       const pending = pendingScrollRef.current;
       pendingScrollRef.current = null;
-      const scrollTop = window.scrollY;
       const settleScroll = () => {
         if (pending?.preserveAnchor) {
-          window.scrollTo({ top: scrollTop, behavior: "auto" });
+          const selector = document.getElementById("service-selector");
+          if (!selector) return;
+          const delta = selector.getBoundingClientRect().top - pending.anchorTop;
+          if (Math.abs(delta) > 0.5) window.scrollBy({ top: delta, behavior: "auto" });
         } else if (pending?.scrollToFinder) {
           smoothlyShowFinder();
         }
       };
       window.requestAnimationFrame(() => window.requestAnimationFrame(settleScroll));
-      window.setTimeout(settleScroll, pending?.scrollToFinder ? 380 : 250);
+      window.setTimeout(settleScroll, pending?.scrollToFinder ? 450 : 80);
+      if (pending?.preserveAnchor) window.setTimeout(settleScroll, 740);
     });
   };
   const scrollToFinder = () => smoothlyShowFinder();
 
-  const heroSection = config.sections.find((s) => s.type === "HERO");
   const selectorSection = config.sections.find((s) => s.type === "SERVICE_SELECTOR");
   const render = (section: StorefrontSection, index: number): ReactNode => {
     if (!section.visible) return null;
@@ -301,14 +312,7 @@ function Experience({
 
   return (
     <PublicShell activeService={service} onServiceChange={requestServiceChange}>
-      {heroSection && (
-        <Hero
-          service={service}
-          section={heroSection}
-          onFind={scrollToFinder}
-          transitionPhase={phase}
-        />
-      )}
+      {sharedHero && <Hero section={sharedHero} media={sharedMedia} onFind={scrollToFinder} />}
       <div id="service-selector" className="mx-auto mt-4 max-w-finder px-3 sm:mt-5 sm:px-6">
         <div
           className="service-selector relative grid grid-cols-2 rounded-2xl border border-border bg-card p-1.5 shadow-soft"
@@ -336,6 +340,16 @@ function Experience({
   );
 }
 
+function restoreFinderState<T>(key: string, fallback: T): T {
+  if (typeof window === "undefined") return fallback;
+  try {
+    const saved = window.sessionStorage.getItem(key);
+    return saved ? ({ ...fallback, ...JSON.parse(saved) } as T) : fallback;
+  } catch {
+    return fallback;
+  }
+}
+
 function ServiceButton({
   active,
   onClick,
@@ -361,33 +375,28 @@ function ServiceButton({
 }
 
 function Hero({
-  service,
   section,
+  media,
   onFind,
-  transitionPhase,
 }: {
-  service: ServiceSlug;
   section: StorefrontSection;
+  media: Record<string, { url: string; alt: string; focalX: number; focalY: number }>;
   onFind: () => void;
-  transitionPhase: "outgoing" | "incoming" | null;
 }) {
   const { locale } = useI18n();
-  const copy = localized(service === "esim" ? ESIM_CONTENT : LOUNGE_CONTENT, locale);
-  const media = SERVICE_REGISTRY[service].media;
-  const desktop = useMediaUrl(section.mediaId);
-  const mobile = useMediaUrl(section.mobileMediaId ?? section.mediaId);
+  const copy = localized(SHARED_HERO_CONTENT, locale);
+  const desktop = section.mediaId ? media[section.mediaId] : undefined;
+  const mobileId = section.mobileMediaId ?? section.mediaId;
+  const mobile = mobileId ? media[mobileId] : undefined;
   const [failed, setFailed] = useState(false);
-  const desktopSrc = failed ? media.fallbackSrc : (desktop?.url ?? media.desktopSrc);
-  const mobileSrc = failed ? media.fallbackSrc : (mobile?.url ?? media.mobileSrc);
+  const desktopSrc = failed ? sharedHeroDesktop : (desktop?.url ?? sharedHeroDesktop);
+  const mobileSrc = failed ? sharedHeroMobile : (mobile?.url ?? sharedHeroMobile);
   const heightClass = HERO_HEIGHT_CLASS[section.height] ?? HERO_HEIGHT_CLASS["normal"];
   const centered = section.align === "center";
-  const trust = service === "esim" ? ESIM_TRUST : LOUNGE_TRUST;
+  const trustIcons = [Globe2, Zap, ShieldCheck];
 
   return (
-    <section
-      className={`service-hero-transition mx-auto ${widthClass(section)} px-3 pt-3 sm:px-6 sm:pt-5`}
-      data-phase={transitionPhase ?? undefined}
-    >
+    <section className={`mx-auto ${widthClass(section)} px-3 pt-3 sm:px-6 sm:pt-5`}>
       <div
         className={`relative ${heightClass} overflow-hidden rounded-hero bg-primary sm:rounded-[1.75rem]`}
       >
@@ -396,13 +405,17 @@ function Hero({
           <img
             src={desktopSrc}
             onError={() => setFailed(true)}
-            alt={desktop?.alt || media.alt[locale] || media.alt.tr}
+            alt={desktop?.alt || "Havalimanında telefonuyla seyahatini planlayan yolcu"}
             width={1600}
             height={1008}
             fetchPriority="high"
             decoding="async"
             className="absolute inset-0 size-full object-cover"
-            style={{ objectPosition: desktop?.position ?? `${section.focalX}% ${section.focalY}%` }}
+            style={{
+              objectPosition: desktop
+                ? `${desktop.focalX}% ${desktop.focalY}%`
+                : `${section.focalX}% ${section.focalY}%`,
+            }}
           />
         </picture>
         <div
@@ -413,6 +426,9 @@ function Hero({
           className={`relative flex ${heightClass} flex-col justify-between gap-5 p-5 text-hero-foreground sm:p-10 lg:p-14 ${centered ? "mx-auto items-center text-center" : ""}`}
         >
           <div className="max-w-xl">
+            <p className="mb-2 text-xs font-bold uppercase text-hero-foreground/85 sm:mb-3 sm:text-sm">
+              {tx(section, "eyebrow", locale, copy.eyebrow)}
+            </p>
             <h1 className="font-display text-[1.75rem] font-bold leading-[1.08] text-balance sm:text-5xl">
               {tx(section, "headline", locale, copy.headline)}
             </h1>
@@ -434,39 +450,23 @@ function Hero({
             </div>
           </div>
           <div className={`flex w-full gap-2 ${centered ? "justify-center" : ""}`}>
-            {Object.entries(trust).map(([key, label]) => (
-              <div
-                key={key}
-                className="flex flex-1 items-center gap-1.5 rounded-xl bg-card/90 px-2 py-2.5 text-card-foreground shadow-soft backdrop-blur sm:max-w-[10rem] sm:px-3 sm:py-2"
-              >
-                <span className="grid size-6 shrink-0 place-items-center rounded-full bg-primary-soft text-primary sm:size-7">
-                  {key === "instant" || key === "global" ? (
-                    <Zap className="size-3 sm:size-3.5" />
-                  ) : key === "digital" || key === "easy" ? (
-                    <Smartphone className="size-3 sm:size-3.5" />
-                  ) : (
-                    <ShieldCheck className="size-3 sm:size-3.5" />
-                  )}
-                </span>
-                <span className="min-w-0 text-[0.65rem] font-semibold leading-tight sm:text-xs">
-                  {label[locale]}
-                </span>
-              </div>
-            ))}
+            {copy.trust.map((label, index) => {
+              const TrustIcon = trustIcons[index] ?? ShieldCheck;
+              return (
+                <div
+                  key={label}
+                  className="flex flex-1 items-center gap-1.5 rounded-xl bg-card/90 px-2 py-2.5 text-card-foreground shadow-soft backdrop-blur sm:max-w-[10rem] sm:px-3 sm:py-2"
+                >
+                  <span className="grid size-6 shrink-0 place-items-center rounded-full bg-primary-soft text-primary sm:size-7">
+                    <TrustIcon className="size-3 sm:size-3.5" />
+                  </span>
+                  <span className="min-w-0 text-[0.65rem] font-semibold leading-tight sm:text-xs">
+                    {label}
+                  </span>
+                </div>
+              );
+            })}
           </div>
-          {section.showOffer && (
-            <div className="w-fit max-w-xs rounded-2xl bg-card/95 p-3 text-card-foreground shadow-card backdrop-blur sm:p-4">
-              <span className="text-xs font-semibold uppercase text-muted-foreground">
-                {tx(section, "offerTitle", locale, copy.offerTitle)}
-              </span>
-              <strong className="mt-1 block text-base sm:text-lg">
-                {tx(section, "offerValue", locale, copy.offerValue)}
-              </strong>
-              <span className="mt-1 block text-xs text-muted-foreground">
-                {tx(section, "offerMeta", locale, copy.offerMeta)}
-              </span>
-            </div>
-          )}
         </div>
       </div>
     </section>

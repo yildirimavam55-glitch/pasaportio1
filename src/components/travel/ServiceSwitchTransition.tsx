@@ -1,4 +1,12 @@
-import { createContext, useCallback, useContext, useEffect, useRef, useState, type ReactNode } from "react";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+  type ReactNode,
+} from "react";
 import type { ServiceSlug } from "@/content/travel-content";
 
 export type TransitionPhase = "outgoing" | "incoming";
@@ -28,8 +36,8 @@ export function ServiceSwitchTransitionProvider({ children }: { children: ReactN
     if (runningRef.current) return;
     runningRef.current = true;
     const reduced = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches ?? false;
-    const commitAt = reduced ? 10 : 500;
-    const finishAt = reduced ? 40 : 1150;
+    const commitAt = reduced ? 10 : 400;
+    const finishAt = reduced ? 40 : 1100;
 
     setTransition({ target, phase: "outgoing" });
     timersRef.current = [
@@ -46,7 +54,14 @@ export function ServiceSwitchTransitionProvider({ children }: { children: ReactN
   }, []);
 
   return (
-    <ServiceSwitchContext.Provider value={{ switchService, isSwitching: transition !== null, target: transition?.target ?? null, phase: transition?.phase ?? null }}>
+    <ServiceSwitchContext.Provider
+      value={{
+        switchService,
+        isSwitching: transition !== null,
+        target: transition?.target ?? null,
+        phase: transition?.phase ?? null,
+      }}
+    >
       {children}
     </ServiceSwitchContext.Provider>
   );
@@ -54,6 +69,9 @@ export function ServiceSwitchTransitionProvider({ children }: { children: ReactN
 
 export function useServiceSwitchTransition() {
   const context = useContext(ServiceSwitchContext);
-  if (!context) throw new Error("useServiceSwitchTransition must be used within ServiceSwitchTransitionProvider");
+  if (!context)
+    throw new Error(
+      "useServiceSwitchTransition must be used within ServiceSwitchTransitionProvider",
+    );
   return context;
 }

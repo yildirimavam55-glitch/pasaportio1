@@ -46,6 +46,41 @@ export type ServiceCopy = {
   crossSellDescription: string;
 };
 
+export type SharedHeroCopy = {
+  eyebrow: string;
+  headline: string;
+  description: string;
+  cta: string;
+  trust: [string, string, string];
+};
+
+export const SHARED_HERO_CONTENT: Localized<SharedHeroCopy> = {
+  tr: {
+    eyebrow: "Seyahatini kolaylaştır",
+    headline: "Seyahatin için ihtiyacın olan her şey",
+    description:
+      "İnternetini hazırla, havalimanında rahatla. eSIM ve Lounge seçeneklerini tek yerden kolayca bul.",
+    cta: "Seyahatini planla",
+    trust: ["Tek yerden seyahat hizmetleri", "Hızlı ve kolay", "Güvenli satın alma"],
+  },
+  de: {
+    eyebrow: "Einfacher reisen",
+    headline: "Alles, was du für deine Reise brauchst",
+    description:
+      "Bereite deine Verbindung vor und entspanne am Flughafen. Finde eSIM- und Lounge-Angebote bequem an einem Ort.",
+    cta: "Reise planen",
+    trust: ["Reiseservices an einem Ort", "Schnell und einfach", "Sicher buchen"],
+  },
+  en: {
+    eyebrow: "Make travel easier",
+    headline: "Everything you need for your journey",
+    description:
+      "Get connected and relax at the airport. Find eSIM and Lounge options easily in one place.",
+    cta: "Plan your trip",
+    trust: ["Travel services in one place", "Fast and easy", "Secure checkout"],
+  },
+};
+
 export const GLOBAL_CONTENT: Localized<GlobalCopy> = {
   tr: {
     nav: {
