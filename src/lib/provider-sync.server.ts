@@ -341,7 +341,46 @@ export async function runProviderSync(
       });
     }
 
+    /**
+     * Fast path: an item whose provider payload is byte-identical to the stored
+     * one needs no rewrite. Only its freshness marker is touched, and an
+     * eligible DRAFT is still promoted so publishing never depends on a change.
+     */
+    const pending: PricedItem[] = [];
+    const seenExternalIds: string[] = [];
+    const promoteProductIds: string[] = [];
     for (const item of priced) {
+      const prevRaw = rawByExternal.get(item.externalId) as any;
+      const prevMapping = mappingByExternal.get(item.externalId) as any;
+      const identical =
+        Boolean(prevRaw && prevRaw.payload_hash === hashItem(item) && prevRaw.available) &&
+        Boolean(prevMapping?.product_id && prevMapping.available);
+      if (!identical) {
+        pending.push(item);
+        continue;
+      }
+      unchanged += 1;
+      seenExternalIds.push(item.externalId);
+      const cov = mapCoverageToCanonical(item.coverage);
+      const stored = [...new Set([...cov.canonical, ...cov.unknown])];
+      if (publishable(item, stored)) promoteProductIds.push(prevMapping.product_id);
+    }
+    for (let i = 0; i < seenExternalIds.length; i += 200) {
+      await db
+        .from("provider_raw_items")
+        .update({ last_seen_at: new Date().toISOString(), last_sync_run_id: runId })
+        .eq("provider_id", providerId)
+        .in("external_id", seenExternalIds.slice(i, i + 200));
+    }
+    for (let i = 0; i < promoteProductIds.length; i += 200) {
+      await db
+        .from("service_products")
+        .update({ lifecycle: "PUBLISHED", customer_visible: true })
+        .eq("lifecycle", "DRAFT")
+        .in("id", promoteProductIds.slice(i, i + 200));
+    }
+
+    const processItem = async (item: PricedItem) => {
       try {
         const coverage = mapCoverageToCanonical(item.coverage);
         coverage.unknown.forEach((iso) => unknownIsos.add(iso));
@@ -357,7 +396,7 @@ export async function runProviderSync(
             code: "UNKNOWN_COUNTRY_ISO",
             message: `Kapsama ülkeleri kanonik ülke listesiyle eşleşmedi: ${item.coverage.join(", ")}`,
           });
-          continue;
+          return;
         }
 
         const previous = previousSnapshot.get(item.externalId);
@@ -580,7 +619,16 @@ export async function runProviderSync(
           message: (error as Error).message.slice(0, 400),
         });
       }
-    }
+    };
+
+    // Bounded parallelism: a full 5,000+ bundle catalogue cannot be written one
+    // sequential round-trip at a time within a single invocation budget.
+    const queue = [...pending];
+    await Promise.all(
+      Array.from({ length: Math.min(8, queue.length) }, async () => {
+        for (let next = queue.shift(); next; next = queue.shift()) await processItem(next);
+      }),
+    );
 
     receivedTotal += priced.length;
     for (let i = 0; i < changeRows.length; i += 200) {
@@ -590,8 +638,10 @@ export async function runProviderSync(
 
   // Batched, resumable catalogue fetch.
   const cfg = (connection?.config ?? {}) as any;
-  const perPage = Math.max(1, Number(cfg.pageSize) || 100);
-  const maxPages = Math.max(1, Number(cfg.maxPages) || 60);
+  // The supplier catalogue is the source of truth: page size and page budget are
+  // sized so no bundle is ever left unfetched, and pagination stops on hasMore.
+  const perPage = Math.min(1000, Math.max(1, Number(cfg.pageSize) || 500));
+  const maxPages = Math.max(1, Number(cfg.maxPages) || 500);
   let complete = false;
   let fetchError: string | null = null;
 
@@ -620,7 +670,10 @@ export async function runProviderSync(
     complete = fetched.complete;
     fetchError = fetched.error ?? null;
   } else {
-    for (let page = checkpointPage + 1; page <= maxPages; page += 1) {
+    // A checkpoint is expressed in pages, so a changed page size must not skip
+    // bundles: the resume point is clamped to the items actually processed.
+    const resumePage = Math.min(checkpointPage, Math.floor(receivedTotal / perPage));
+    for (let page = resumePage + 1; page <= maxPages; page += 1) {
       // Admin cancellation stops the run without touching the catalogue.
       if (runId) {
         const { data: state } = await db.from("provider_sync_runs").select("status").eq("id", runId).maybeSingle();
@@ -770,7 +823,7 @@ export async function runProviderSync(
 
 /** Scheduler entry: syncs every provider whose interval is due, and raises stale alerts. */
 export async function runDueProviderSyncs(
-  options: { budgetMs?: number } = {},
+  options: { budgetMs?: number; toCompletion?: boolean; maxInvocations?: number } = {},
 ): Promise<{ ok: boolean; ran: SyncResult[]; skipped: number }> {
   const db = await adminDb();
   const { data: providers } = await db
@@ -815,7 +868,15 @@ export async function runDueProviderSyncs(
       continue;
     }
     try {
-      ran.push(await runProviderSync(db, provider.id, "SCHEDULED", { budgetMs: options.budgetMs ?? DEFAULT_SYNC_BUDGET_MS }));
+      const opts = { budgetMs: options.budgetMs ?? DEFAULT_SYNC_BUDGET_MS };
+      ran.push(
+        options.toCompletion
+          ? await runProviderSyncToCompletion(db, provider.id, "SCHEDULED", {
+              ...opts,
+              ...(options.maxInvocations ? { maxInvocations: options.maxInvocations } : {}),
+            })
+          : await runProviderSync(db, provider.id, "SCHEDULED", opts),
+      );
     } catch (error) {
       ran.push({
         providerId: provider.id,
@@ -837,4 +898,25 @@ export async function runDueProviderSyncs(
   }
 
   return { ok: true, ran, skipped };
+}
+
+/**
+ * Drives one provider's catalogue to completion. A single invocation stops at
+ * its time budget and checkpoints; without this loop the run stayed PARTIAL and
+ * the catalogue remained half imported. Never deletes, never places orders.
+ */
+export async function runProviderSyncToCompletion(
+  db: Db,
+  providerId: string,
+  trigger: "MANUAL" | "SCHEDULED" | "WEBHOOK" = "MANUAL",
+  options: { budgetMs?: number; maxInvocations?: number } = {},
+): Promise<SyncResult> {
+  const maxInvocations = Math.max(1, options.maxInvocations ?? 40);
+  let last: SyncResult | null = null;
+  for (let i = 0; i < maxInvocations; i += 1) {
+    last = await runProviderSync(db, providerId, trigger, { budgetMs: options.budgetMs ?? DEFAULT_SYNC_BUDGET_MS });
+    if (last.status !== "PARTIAL") return last;
+    if (last.error === "Senkronizasyon iptal edildi.") return last;
+  }
+  return last!;
 }

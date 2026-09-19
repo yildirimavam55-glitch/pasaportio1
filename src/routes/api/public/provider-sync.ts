@@ -15,7 +15,8 @@ export const Route = createFileRoute("/api/public/provider-sync")({
 
         const { runDueProviderSyncs } = await import("@/lib/provider-sync.server");
         try {
-          const result = await runDueProviderSyncs();
+          // Runs to completion so a paginated catalogue is never left half imported.
+          const result = await runDueProviderSyncs({ toCompletion: true });
           return new Response(JSON.stringify(result), {
             status: 200,
             headers: { "Content-Type": "application/json" },
