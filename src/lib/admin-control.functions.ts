@@ -288,8 +288,9 @@ export const getAdminCatalogueFacets = createServerFn({ method: "GET" })
     ]);
     return {
       providers: providers ?? [],
-      countries: [...new Set((countries ?? []).map((row: any) => row.country_iso).filter(Boolean))].sort(),
-      packageKinds: [...new Set((countries ?? []).map((row: any) => row.package_kind).filter(Boolean))].sort(),
+      countries: [...new Set((countries ?? []).map((row: any) => String(row.country_iso ?? "")))].filter(Boolean).sort(),
+      packageKinds: [...new Set((countries ?? []).map((row: any) => String(row.package_kind ?? "")))].filter(Boolean).sort(),
+
     };
   });
 
