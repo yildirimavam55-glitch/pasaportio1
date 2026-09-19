@@ -541,6 +541,36 @@ function CompactChip({
   );
 }
 
+function UsageOptionButton({
+  selected,
+  icon,
+  label,
+  onClick,
+}: {
+  selected: boolean;
+  icon: React.ReactNode;
+  label: string;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      aria-pressed={selected}
+      onClick={onClick}
+      className={`flex h-[3.25rem] min-h-[3.25rem] w-full items-center gap-2 rounded-2xl border px-3.5 text-left transition-colors ${selected ? "border-primary bg-primary-soft text-primary" : "border-border bg-card text-foreground hover:border-primary/50"}`}
+    >
+      <span className="shrink-0 text-primary">
+        {cloneElement(icon as React.ReactElement<{ className?: string }>, {
+          className: "size-5 shrink-0",
+        })}
+      </span>
+      <span className="flex-1 whitespace-nowrap text-[15px] font-semibold leading-none">
+        {label}
+      </span>
+    </button>
+  );
+}
+
 export function EsimFinder({
   state,
   onChange,
