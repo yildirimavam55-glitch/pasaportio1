@@ -437,7 +437,7 @@ export function SegmentedChoice<T extends string>({
             role="radio"
             aria-checked={selected}
             onClick={() => onChange(option.key)}
-            className={`flex min-h-11 min-w-0 items-center justify-center gap-1.5 rounded-xl border px-2 text-sm font-semibold transition-colors ${selected ? "border-primary bg-primary-soft text-primary" : "border-transparent bg-card/45 text-foreground hover:border-border hover:bg-card"}`}
+            className={`flex min-h-11 min-w-0 items-center justify-center gap-1 rounded-xl border px-1 text-sm font-semibold transition-colors ${selected ? "border-primary bg-primary-soft text-primary" : "border-transparent bg-card/45 text-foreground hover:border-border hover:bg-card"}`}
           >
             {option.icon && (!option.iconWhenSelectedOnly || selected) && (
               <span
