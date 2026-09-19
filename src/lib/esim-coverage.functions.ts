@@ -77,10 +77,16 @@ export const getEsimCoverageAudit = createServerFn({ method: "GET" })
           broken += 1;
           continue;
         }
-        const scope = coverage.length >= GLOBAL_MIN ? "global" : coverage.length > 1 ? "regional" : "single";
+        const kind = normalizeStoredScope(
+          details?.package_kind,
+          coverage.length,
+          (details?.coverage_subdivision_codes ?? []).length,
+        );
+        const scope = kind === "GLOBAL" ? "global" : kind === "REGION" ? "regional" : "single";
         if (scope === "global") globalCount += 1;
         else if (scope === "regional") regional += 1;
         else single += 1;
+
 
         const sellable =
           row.lifecycle === "PUBLISHED" && row.customer_visible && row.provider_available && Number(row.sale_price) > 0;
