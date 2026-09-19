@@ -91,6 +91,7 @@
 - [x] Add compatibility-only dimmed backdrop and adaptive sheet/modal surface
 - [x] Polish mobile Finder selection typography, selected hierarchy, and icon consistency
 - [x] Mobile usage option buttons: icon inline, no check, 15px/600, mint/petrol selected state, all labels fit at 360px
+- [x] Mobile Lounge options: complete labels, simplified icons, clear date placeholder, and unbroken bottom navigation text
 - [x] Preserve scroll locking, close cleanup, and reduced-motion behavior
 
 ## Real provider eSIM import

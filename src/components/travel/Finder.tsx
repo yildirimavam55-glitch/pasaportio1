@@ -186,9 +186,9 @@ const COPY = {
     selectedAirport: "Gewählter Flughafen",
     loungeHint: "Passende Lounges werden je Flughafen angezeigt.",
     loungeWhat: "Was suchst du?",
-    loungeComfort: "Gemütliches Warten",
-    loungePremium: "Premium-Erlebnis",
-    loungeLong: "Langer Umstieg",
+    loungeComfort: "Komfort",
+    loungePremium: "Premium",
+    loungeLong: "Langer Stop",
     loungeRecommended: "Empfohlene Lounge für dich",
     loungeAll: "Alle Lounges →",
     loungeBuy: (name: string) => `${name} kaufen →`,
@@ -333,10 +333,20 @@ export function FinderShell({
   );
 }
 
-export function FinderStep({ label, children }: { label: string; children: React.ReactNode }) {
+export function FinderStep({
+  label,
+  children,
+  labelClassName = "",
+}: {
+  label: string;
+  children: React.ReactNode;
+  labelClassName?: string;
+}) {
   return (
     <div className="min-w-0">
-      <span className="mb-1.5 block text-xs font-semibold text-muted-foreground sm:text-sm">
+      <span
+        className={`mb-1.5 block text-xs font-semibold text-muted-foreground sm:text-sm ${labelClassName}`}
+      >
         {label}
       </span>
       {children}
@@ -410,6 +420,7 @@ export function SegmentedChoice<T extends string>({
   options,
   onChange,
   className = "",
+  optionClassName = "",
 }: {
   label: string;
   value: T;
@@ -421,6 +432,7 @@ export function SegmentedChoice<T extends string>({
   }>;
   onChange: (value: T) => void;
   className?: string;
+  optionClassName?: string;
 }) {
   return (
     <div
@@ -437,7 +449,7 @@ export function SegmentedChoice<T extends string>({
             role="radio"
             aria-checked={selected}
             onClick={() => onChange(option.key)}
-            className={`flex min-h-11 min-w-0 items-center justify-center gap-1 rounded-xl border px-1 text-sm font-semibold transition-colors ${selected ? "border-primary bg-primary-soft text-primary" : "border-transparent bg-card/45 text-foreground hover:border-border hover:bg-card"}`}
+            className={`flex min-h-11 min-w-0 items-center justify-center gap-1 rounded-xl border px-1 text-sm font-semibold transition-colors ${selected ? "border-primary bg-primary-soft text-primary" : "border-transparent bg-card/45 text-foreground hover:border-border hover:bg-card"} ${optionClassName}`}
           >
             {option.icon && (!option.iconWhenSelectedOnly || selected) && (
               <span
@@ -446,7 +458,7 @@ export function SegmentedChoice<T extends string>({
                 {option.icon}
               </span>
             )}
-            <span className="min-w-0 truncate whitespace-nowrap leading-none">{option.label}</span>
+            <span className="min-w-0 whitespace-nowrap leading-none">{option.label}</span>
           </button>
         );
       })}
@@ -528,15 +540,12 @@ function CompactChip({
       type="button"
       aria-pressed={selected}
       onClick={onClick}
-      className={`relative flex min-h-11 min-w-0 items-center gap-2 rounded-2xl border px-2.5 text-sm font-semibold transition-colors sm:min-h-12 sm:px-3 ${selected ? "border-primary bg-primary-soft text-primary" : "border-border bg-secondary/40 text-foreground hover:border-primary/50"}`}
+      className={`flex h-[3.25rem] min-h-[3.25rem] min-w-0 items-center justify-center gap-1 rounded-2xl border px-0.5 text-sm font-semibold leading-none transition-colors sm:gap-2 sm:px-3 ${selected ? "border-primary bg-primary-soft text-primary" : "border-border bg-card text-foreground hover:border-primary/50"}`}
     >
-      <span
-        className={`icon-slot-flight rounded-lg ${selected ? "bg-card/70 text-primary" : "text-foreground"}`}
-      >
+      <span className="hidden shrink-0 text-primary min-[400px]:block [&>svg]:size-3.5 sm:[&>svg]:size-[1.125rem]">
         {icon}
       </span>
-      <span className="min-w-0 flex-1 truncate whitespace-nowrap text-left">{label}</span>
-      {selected && <Check className="size-4 shrink-0 text-primary" aria-hidden="true" />}
+      <span className="min-w-0 whitespace-nowrap text-center">{label}</span>
     </button>
   );
 }
@@ -882,7 +891,10 @@ export function EsimFinder({
         </FinderStep>
       </div>
 
-      <div key={recommendation.requiredGb} className="finder-result-reveal mt-3 flex h-[7.5rem] items-center justify-between gap-4 rounded-3xl bg-primary px-4 py-3 text-primary-foreground sm:h-28">
+      <div
+        key={recommendation.requiredGb}
+        className="finder-result-reveal mt-3 flex h-[7.5rem] items-center justify-between gap-4 rounded-3xl bg-primary px-4 py-3 text-primary-foreground sm:h-28"
+      >
         <div className="flex min-w-0 items-center gap-3">
           <span className="grid size-10 shrink-0 place-items-center rounded-full bg-primary-foreground/12 sm:size-11">
             <Gauge className="size-5" aria-hidden="true" />
@@ -1094,7 +1106,7 @@ export function LoungeFinder({
   return (
     <>
       <FinderProgress labels={copy.loungeSteps} active={state.travelers ? 3 : 0} />
-      <FinderStep label={copy.airport}>
+      <FinderStep label={copy.airport} labelClassName="text-sm">
         <AirportPicker
           valueId={state.airportId}
           onSelect={(next) => {
@@ -1113,16 +1125,23 @@ export function LoungeFinder({
       </FinderStep>
 
       <div className="mt-3 grid grid-cols-2 gap-2 sm:gap-4">
-        <FinderStep label={copy.date}>
-          <input
-            type="date"
-            value={state.date}
-            onChange={(event) => onChange({ ...state, date: event.target.value })}
-            className="h-[3.25rem] min-h-[3.25rem] w-full rounded-xl border border-input bg-secondary/60 px-3 text-sm sm:h-14"
-            aria-label={copy.date}
-          />
+        <FinderStep label={copy.date} labelClassName="text-sm">
+          <div className="relative">
+            <input
+              type="date"
+              value={state.date}
+              onChange={(event) => onChange({ ...state, date: event.target.value })}
+              className={`h-[3.25rem] min-h-[3.25rem] w-full rounded-xl border border-input bg-secondary/60 px-3 text-sm font-semibold sm:h-14 ${state.date ? "text-foreground" : "text-transparent"}`}
+              aria-label={copy.date}
+            />
+            {!state.date && (
+              <span className="pointer-events-none absolute inset-y-0 left-3 flex items-center text-sm font-semibold text-muted-foreground">
+                {copy.date}
+              </span>
+            )}
+          </div>
         </FinderStep>
-        <FinderStep label={copy.travelers}>
+        <FinderStep label={copy.travelers} labelClassName="text-sm">
           <Stepper
             value={state.travelers}
             onChange={(travelers) => onChange({ ...state, travelers })}
@@ -1134,11 +1153,12 @@ export function LoungeFinder({
       </div>
 
       <div className="mt-3">
-        <FinderStep label={copy.situation}>
+        <FinderStep label={copy.situation} labelClassName="text-sm">
           <SegmentedChoice
             label={copy.situation}
             value={state.flightSituation}
             onChange={(flightSituation) => onChange({ ...state, flightSituation })}
+            optionClassName="h-[3.25rem] gap-1 px-0.5 text-sm [&_.icon-slot-flight]:size-auto [&_.icon-slot-flight>svg]:size-3.5"
             options={[
               {
                 key: "DEPARTURE" as const,
@@ -1161,7 +1181,7 @@ export function LoungeFinder({
       </div>
 
       <div className="mt-3">
-        <FinderStep label={copy.loungeWhat}>
+        <FinderStep label={copy.loungeWhat} labelClassName="text-sm">
           <div className="grid grid-cols-3 gap-2">
             {LOUNGE_PREFERENCE_OPTIONS.map((option) => (
               <CompactChip
