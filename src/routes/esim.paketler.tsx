@@ -93,6 +93,10 @@ const COPY = {
     tierNext: "Next step", tierComfort: "Comfort", tierHeavy: "Heavy use", tierUnlimited: "Unlimited",
     moreUnlimited: "Other unlimited options", widerCoverage: "Packages covering more countries",
     showMore: "Show", hideMore: "Hide",
+    perTraveler: (count: number) => `Each traveller needs their own eSIM · ${count} added to the cart`,
+    gapTitle: "No single package fully covers this trip.",
+    gapDetail: "The real catalogue options below fall short of your need; try a different duration or destination.",
+
     scopeRegional: "This destination is covered by a regional package.",
     scopeGlobal: "This destination is covered by a global package.",
     whyText: (need: number, size: string) => `For your roughly ${need} GB need, this is the closest suitable available option: ${size}.`,
