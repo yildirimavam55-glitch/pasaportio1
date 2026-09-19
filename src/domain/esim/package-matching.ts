@@ -6,6 +6,8 @@
  * available product that fully satisfies the estimated need.
  */
 
+import { resolvePackageScope, SCOPE_PREFERENCE, type PackageScope } from "./package-scope";
+
 export type MatchablePackage = {
   id: string;
   dataGb: number | null;
@@ -13,20 +15,25 @@ export type MatchablePackage = {
   validityDays: number | null;
   coverage: string[];
   salePrice: number | null;
+  /** Provider-declared / normalized kind. THE source of truth for scope. */
+  scope?: PackageScope | null;
+  /** Subdivision codes (US-HI …). Never imply the parent country. */
+  subdivisions?: string[];
 };
 
-/** Derived purely from real stored ISO coverage — never from a product title. */
-export type CoverageScope = "SINGLE_COUNTRY" | "REGIONAL" | "GLOBAL";
-
-export const GLOBAL_COVERAGE_MIN = 40;
+/** Alias kept for call sites; scope semantics live in package-scope.ts. */
+export type CoverageScope = PackageScope;
 
 export function coverageScopeOf(pkg: MatchablePackage): CoverageScope {
-  const size = pkg.coverage.length;
-  if (size >= GLOBAL_COVERAGE_MIN) return "GLOBAL";
-  return size > 1 ? "REGIONAL" : "SINGLE_COUNTRY";
+  return resolvePackageScope({
+    declaredKind: pkg.scope ?? null,
+    coverageCount: pkg.coverage.length,
+    subdivisionCount: pkg.subdivisions?.length ?? 0,
+  });
 }
 
-const SCOPE_ORDER: CoverageScope[] = ["SINGLE_COUNTRY", "REGIONAL", "GLOBAL"];
+const SCOPE_ORDER: CoverageScope[] = SCOPE_PREFERENCE;
+
 
 export type PackageMatchInput = {
   requiredGb: number;
