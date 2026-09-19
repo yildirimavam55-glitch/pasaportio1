@@ -1,5 +1,5 @@
 import { ArrowRight, ShieldCheck, Smartphone, Zap } from "lucide-react";
-import { useEffect, useState, type ReactNode } from "react";
+import { useRef, useState, type ReactNode } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { useI18n } from "@/i18n";
@@ -111,10 +111,59 @@ function Experience({
   );
   const { switchService, isSwitching, target, phase } = useServiceSwitchTransition();
   const selectedService = target ?? service;
+  const pendingScrollRef = useRef<{
+    anchorTop: number;
+    preserveAnchor: boolean;
+    scrollToFinder: boolean;
+  } | null>(null);
 
-  const requestServiceChange = (next: ServiceSlug) => {
-    if (next === service || isSwitching) return;
-    switchService(next, () => onServiceChange(next));
+  const finderIsNearViewport = () => {
+    const selector = document.getElementById("service-selector");
+    const finder = document.getElementById("finder");
+    if (!selector || !finder) return false;
+    const top = selector.getBoundingClientRect().top;
+    const bottom = finder.getBoundingClientRect().bottom;
+    return bottom >= -window.innerHeight * 0.15 && top <= window.innerHeight * 1.15;
+  };
+
+  const smoothlyShowFinder = () => {
+    const reduced = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches ?? false;
+    document
+      .getElementById("finder")
+      ?.scrollIntoView({ behavior: reduced ? "auto" : "smooth", block: "start" });
+  };
+
+  const requestServiceChange = (
+    next: ServiceSlug,
+    options: { scrollToFinder?: boolean } = {},
+  ) => {
+    const finder = document.getElementById("finder");
+    const nearFinder = finderIsNearViewport();
+    if (next === service) {
+      if (options.scrollToFinder && !nearFinder) smoothlyShowFinder();
+      return;
+    }
+    if (isSwitching) return;
+    pendingScrollRef.current = {
+      anchorTop: document.getElementById("service-selector")?.getBoundingClientRect().top ?? 0,
+      preserveAnchor: nearFinder && Boolean(finder),
+      scrollToFinder: Boolean(options.scrollToFinder && !nearFinder),
+    };
+    switchService(next, () => {
+      onServiceChange(next);
+      const pending = pendingScrollRef.current;
+      pendingScrollRef.current = null;
+      const scrollTop = window.scrollY;
+      const settleScroll = () => {
+        if (pending?.preserveAnchor) {
+          window.scrollTo({ top: scrollTop, behavior: "auto" });
+        } else if (pending?.scrollToFinder) {
+          smoothlyShowFinder();
+        }
+      };
+      window.requestAnimationFrame(() => window.requestAnimationFrame(settleScroll));
+      window.setTimeout(settleScroll, pending?.scrollToFinder ? 380 : 250);
+    });
   };
   const scrollToFinder = () =>
     document.getElementById("finder")?.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -152,25 +201,25 @@ function Experience({
         return service === "esim" ? <DeviceCompatibilitySection key={section.id} /> : null;
       case "TRUST":
         return (
-          <Reveal key={section.id}>
+          <Reveal key={section.id} className="reveal-stagger">
             <TrustStrip section={section} />
           </Reveal>
         );
       case "POPULAR_DESTINATIONS":
         return (
-          <Reveal key={section.id}>
+          <Reveal key={section.id} className="reveal-stagger">
             <VisualPopular service={service} section={section} />
           </Reveal>
         );
       case "PRODUCT_SOLUTIONS":
         return (
-          <Reveal key={section.id}>
+          <Reveal key={section.id} className="reveal-stagger">
             <ProductSolutions section={section} />
           </Reveal>
         );
       case "CAMPAIGN_BANNER":
         return (
-          <Reveal key={section.id}>
+          <Reveal key={section.id} className="reveal-stagger">
             <CampaignBanner section={section} />
           </Reveal>
         );
@@ -229,7 +278,7 @@ function Experience({
           transitionPhase={phase}
         />
       )}
-      <div className="mx-auto mt-4 max-w-finder px-3 sm:mt-5 sm:px-6">
+      <div id="service-selector" className="mx-auto mt-4 max-w-finder px-3 sm:mt-5 sm:px-6">
         <div
           className="service-selector relative grid grid-cols-2 rounded-2xl border border-border bg-card p-1.5 shadow-soft"
           data-service={selectedService}

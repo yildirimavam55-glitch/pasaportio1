@@ -882,7 +882,7 @@ export function EsimFinder({
         </FinderStep>
       </div>
 
-      <div className="mt-3 flex h-[7.5rem] items-center justify-between gap-4 rounded-3xl bg-primary px-4 py-3 text-primary-foreground sm:h-28">
+      <div key={recommendation.requiredGb} className="finder-result-reveal mt-3 flex h-[7.5rem] items-center justify-between gap-4 rounded-3xl bg-primary px-4 py-3 text-primary-foreground sm:h-28">
         <div className="flex min-w-0 items-center gap-3">
           <span className="grid size-10 shrink-0 place-items-center rounded-full bg-primary-foreground/12 sm:size-11">
             <Gauge className="size-5" aria-hidden="true" />
@@ -1188,7 +1188,7 @@ export function LoungeFinder({
       </Button>
 
       {showMockResult && mockLounge && (
-        <Reveal className="mt-3">
+        <Reveal className="recommendation-reveal mt-3">
           <section className="rounded-2xl border border-border bg-card p-4 shadow-soft">
             <div className="flex items-start justify-between gap-3">
               <div>
