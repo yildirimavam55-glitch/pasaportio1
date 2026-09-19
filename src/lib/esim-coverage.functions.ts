@@ -29,7 +29,7 @@ export type EsimCoverageAudit = {
   rows: CountryCoverageRow[];
 };
 
-const GLOBAL_MIN = 40;
+// Scope is never derived from a coverage-count threshold here; see package-scope.ts.
 
 /**
  * Whole-catalogue coverage audit for Admin. Reads real published products only,
