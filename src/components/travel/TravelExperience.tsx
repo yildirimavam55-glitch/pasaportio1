@@ -12,10 +12,7 @@ import {
   localized,
   type ServiceSlug,
 } from "@/content/travel-content";
-import {
-  ESIM_SERVICE_CONFIG,
-  LOUNGE_SERVICE_CONFIG,
-} from "@/domain/experience/config";
+import { ESIM_SERVICE_CONFIG, LOUNGE_SERVICE_CONFIG } from "@/domain/experience/config";
 import type { EsimFinderState, LoungeFinderState } from "@/domain/experience/types";
 import {
   defaultStorefront,
@@ -170,10 +167,7 @@ function Experience({
     scrollAnimationRef.current = window.requestAnimationFrame(step);
   };
 
-  const requestServiceChange = (
-    next: ServiceSlug,
-    options: { scrollToFinder?: boolean } = {},
-  ) => {
+  const requestServiceChange = (next: ServiceSlug, options: { scrollToFinder?: boolean } = {}) => {
     const finder = document.getElementById("finder");
     const nearFinder = finderIsNearViewport();
     if (next === service) {
@@ -308,13 +302,7 @@ function Experience({
 
   return (
     <PublicShell activeService={service} onServiceChange={requestServiceChange}>
-      {sharedHero && (
-        <Hero
-          section={sharedHero}
-          media={sharedMedia}
-          onFind={scrollToFinder}
-        />
-      )}
+      {sharedHero && <Hero section={sharedHero} media={sharedMedia} onFind={scrollToFinder} />}
       <div id="service-selector" className="mx-auto mt-4 max-w-finder px-3 sm:mt-5 sm:px-6">
         <div
           className="service-selector relative grid grid-cols-2 rounded-2xl border border-border bg-card p-1.5 shadow-soft"
@@ -403,7 +391,11 @@ function Hero({
             fetchPriority="high"
             decoding="async"
             className="absolute inset-0 size-full object-cover"
-            style={{ objectPosition: desktop ? `${desktop.focalX}% ${desktop.focalY}%` : `${section.focalX}% ${section.focalY}%` }}
+            style={{
+              objectPosition: desktop
+                ? `${desktop.focalX}% ${desktop.focalY}%`
+                : `${section.focalX}% ${section.focalY}%`,
+            }}
           />
         </picture>
         <div
@@ -441,17 +433,17 @@ function Hero({
             {copy.trust.map((label, index) => {
               const TrustIcon = trustIcons[index] ?? ShieldCheck;
               return (
-              <div
-                key={label}
-                className="flex flex-1 items-center gap-1.5 rounded-xl bg-card/90 px-2 py-2.5 text-card-foreground shadow-soft backdrop-blur sm:max-w-[10rem] sm:px-3 sm:py-2"
-              >
-                <span className="grid size-6 shrink-0 place-items-center rounded-full bg-primary-soft text-primary sm:size-7">
-                  <TrustIcon className="size-3 sm:size-3.5" />
-                </span>
-                <span className="min-w-0 text-[0.65rem] font-semibold leading-tight sm:text-xs">
-                  {label}
-                </span>
-              </div>
+                <div
+                  key={label}
+                  className="flex flex-1 items-center gap-1.5 rounded-xl bg-card/90 px-2 py-2.5 text-card-foreground shadow-soft backdrop-blur sm:max-w-[10rem] sm:px-3 sm:py-2"
+                >
+                  <span className="grid size-6 shrink-0 place-items-center rounded-full bg-primary-soft text-primary sm:size-7">
+                    <TrustIcon className="size-3 sm:size-3.5" />
+                  </span>
+                  <span className="min-w-0 text-[0.65rem] font-semibold leading-tight sm:text-xs">
+                    {label}
+                  </span>
+                </div>
               );
             })}
           </div>

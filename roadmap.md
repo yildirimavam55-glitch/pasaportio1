@@ -8,6 +8,7 @@
 - [x] Verify both services and languages at 360, 390, and 430 pixels
 
 ## Phase 1.4 — Finder compaction + package purchase flow
+
 - [x] Days + travelers side by side on mobile (360/390/430)
 - [x] Compact finder, usage section higher
 - [x] esim_usage_settings table + admin-configurable recommendation engine
@@ -18,6 +19,7 @@
 - [x] Lounge flight status segmented selection (no arrow/check icons)
 
 ## Phase 1.5 — eSIM device compatibility + lounge icons
+
 - [x] Lounge flight status icons (takeoff / transfer / landing, no check or arrow markers)
 - [x] "Telefonum eSIM uyumlu mu?" section under the eSIM finder
 - [x] Brand → model → result checker sheet with model/alias search
@@ -29,6 +31,7 @@
 - [x] TR/DE/EN + 360/390/430 QA
 
 ## Phase 1.6 — Public customer flow correction
+
 - [x] eSIM result card shows one need value (~X GB) + explanation
 - [x] Real recommended package block (catalogue-driven) with Önerilen badge + Sepete Ekle
 - [x] Orange Paketleri Gör CTA → /esim/paketler with full finder state
@@ -38,6 +41,7 @@
 - [x] Rendered QA at 360/390/430 (no overflow, no console errors)
 
 ## eSIM result area visual correction
+
 - [x] Compact usage intensity selector and two-column usage grid
 - [x] Compact estimated-need bar separated from recommendation
 - [x] Mint real-product recommendation card with catalogue price and explanation
@@ -46,6 +50,7 @@
 - [x] Rendered QA at 360/390/430 and public deployment verification
 
 ## Catalogue-backed eSIM selection
+
 - [x] Filter recommendation products by published, visible, available, and margin-safe catalogue state
 - [x] Preserve stable recommended product ID through the package-page handoff
 - [x] Preselect the exact recommendation and allow one alternative selection
@@ -53,6 +58,7 @@
 - [x] Verify rendered Finder and package page at 360/390/430
 
 ## Test catalogue (INTERNAL_TEST)
+
 - [x] is_test + source columns on service_products
 - [x] showTestCatalogue feature flag (kill switch, OFF before launch)
 - [x] 10 eSIM + 3 Lounge demo products seeded
@@ -60,12 +66,14 @@
 - [x] Cart snapshot with is_test + DEMO QR placeholder at /sepet
 
 ## Catalogue-backed customer merchandising
+
 - [x] Remove the generic non-action package-options section
 - [x] Derive popular eSIM destination starting prices from published catalogue rows
 - [x] Add package CTAs to popular eSIM destination and route cards
 - [x] Keep Finder recommendation and pricing strictly catalogue-backed
 
 ## Service switch transition
+
 - [x] Guard repeated eSIM/Lounge switch taps
 - [x] Keep the application shell visible with no full-screen loading surface
 - [x] Animate the service-selector pill and transition Hero/Finder locally
@@ -77,13 +85,16 @@
 - [x] Use one shared CMS-editable Hero and isolate service switching to the stable Finder anchor
 
 ## Icon alignment and compatibility layer polish
+
 - [x] Normalize core customer icon boxes, SVG size, and stroke weight
 - [x] Align Lounge flight-status icons and mobile bottom navigation
 - [x] Add compatibility-only dimmed backdrop and adaptive sheet/modal surface
 - [x] Polish mobile Finder selection typography, selected hierarchy, and icon consistency
 - [x] Mobile usage option buttons: icon inline, no check, 15px/600, mint/petrol selected state, all labels fit at 360px
 - [x] Preserve scroll locking, close cleanup, and reduced-motion behavior
+
 ## Real provider eSIM import
+
 - [x] /admin/esim/provider-import: provider kaydı, JSON katalog önizleme ve diff
 - [x] Idempotent import (provider_raw_items, service_products, esim_product_details, mappings, sync run, audit)
 - [x] Fiyat kuralı, marj koruması ve MARGIN_BELOW_MINIMUM uyarısı
@@ -91,6 +102,7 @@
 - [x] Test paketlerini gizle: showTestCatalogue kapalı + INTERNAL_TEST PAUSED
 
 ## Admin Phase B — Business dashboard + analytics + attribution
+
 - [x] /admin is the business dashboard (date presets + custom range, comparison period)
 - [x] KPI cards with revenue / provider cost / fees / discounts / refunds / gross contribution kept separate
 - [x] Revenue, orders and gross contribution over time charts
@@ -101,7 +113,9 @@
 - [x] Top products, top travel destinations vs customer countries
 - [x] "Dikkat gerektirenler" alert counts + last provider import summary (import engine untouched)
 - [x] Test catalogue orders excluded from production dashboard; zero-data empty states
+
 ## Admin V2 — Business Control Center
+
 - [x] Audit current admin routes and data surfaces
 - [x] Redesign global admin shell and grouped navigation
 - [x] Add General / eSIM / Lounge dashboard contexts
@@ -109,12 +123,14 @@
 - [x] Verify access control, responsive layouts, tests, and no fake data
 
 ## Final customer-facing package QA
+
 - [x] Verify current source and published eSIM/Lounge journeys
 - [x] Fix only confirmed package presentation and purchase-flow failures
 - [ ] Re-test TR/DE/EN and 360/390/430 mobile layouts
 - [ ] Publish and verify the production URL
 
 ## Mobile-first eSIM/Lounge homepage redesign
+
 - [ ] Warm cream/petrol/mint/orange tokens verified; compact spacing utilities
 - [ ] Compact mobile header + service-aware 4-item bottom navigation
 - [x] Compact shared eSIM + Lounge hero with service-neutral trust chips and orange CTA
