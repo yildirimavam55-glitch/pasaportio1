@@ -12,7 +12,7 @@ import { DeviceCompatibilityInline } from "@/components/travel/DeviceCompatibili
 import { useI18n } from "@/i18n";
 import { getCountryByIso } from "@/domain/geo/countries";
 import { useCart } from "@/domain/cart/store";
-import { filterEligiblePackages, selectRecommendedPackage } from "@/domain/esim/package-matching";
+import { resolveTieredRecommendation } from "@/domain/esim/package-matching";
 import { activationNote } from "@/domain/esim/activation";
 
 import { listEsimPackages, type EsimPackage } from "@/lib/esim-catalogue.functions";
@@ -42,6 +42,9 @@ const COPY = {
     hotspot: "Hotspot", fiveG: "5G", coverage: "ülke kapsamı",
     lead: "Seçimlerine uyan güncel paketler.",
     why: "Neden bu paket?", goToCart: "Sepete git",
+    economyBadge: "Ekonomik", comfortBadge: "Rahat kullanım",
+    scopeRegional: "Bu destinasyon bölgesel paket kapsamında.",
+    scopeGlobal: "Bu destinasyon Global paket kapsamında.",
     whyText: (need: number, size: string) => `Yaklaşık ${need} GB ihtiyacın için mevcut paketler arasındaki en yakın uygun seçenek: ${size}.`,
   },
   de: {
@@ -54,6 +57,9 @@ const COPY = {
     hotspot: "Hotspot", fiveG: "5G", coverage: "Länder abgedeckt",
     lead: "Aktuelle Pakete passend zu deiner Auswahl.",
     why: "Warum dieses Paket?", goToCart: "Zum Warenkorb",
+    economyBadge: "Günstig", comfortBadge: "Komfort",
+    scopeRegional: "Dieses Reiseziel ist von einem Regionalpaket abgedeckt.",
+    scopeGlobal: "Dieses Reiseziel ist von einem Global-Paket abgedeckt.",
     whyText: (need: number, size: string) => `Für deinen Bedarf von rund ${need} GB ist dies das nächstpassende verfügbare Paket: ${size}.`,
   },
   en: {
@@ -66,6 +72,9 @@ const COPY = {
     hotspot: "Hotspot", fiveG: "5G", coverage: "countries covered",
     lead: "Live packages matching your selection.",
     why: "Why this package?", goToCart: "Go to cart",
+    economyBadge: "Best value", comfortBadge: "Comfort",
+    scopeRegional: "This destination is covered by a regional package.",
+    scopeGlobal: "This destination is covered by a global package.",
     whyText: (need: number, size: string) => `For your roughly ${need} GB need, this is the closest suitable available option: ${size}.`,
   },
 } satisfies Record<Locale, Record<string, unknown>>;
@@ -100,15 +109,12 @@ function PackagesPage() {
     queryFn: () => listEsimPackages({ data: { coverageIsos } }),
   });
 
-  // Layer 2: the recommendation is an actual available product, never an invented size.
-  const recommended = selectRecommendedPackage(packages, {
-    requiredGb: required,
-    coverageIsos,
-    days,
-  });
-  const eligiblePackages = filterEligiblePackages(packages, { requiredGb: required, coverageIsos, days });
-  const handedOffProduct = eligiblePackages.find((pkg) => pkg.id === search.recommendedProductId);
-  const recommendedProduct = handedOffProduct ?? recommended;
+  // Layer 2: real catalogue products only, resolved single-country -> regional -> global.
+  const match = resolveTieredRecommendation(packages, { requiredGb: required, coverageIsos, days });
+  const handedOffProduct = match.candidates.find((pkg) => pkg.id === search.recommendedProductId);
+  const recommendedProduct = handedOffProduct ?? match.recommended;
+  const scopeNote =
+    match.scope === "REGIONAL" ? copy.scopeRegional : match.scope === "GLOBAL" ? copy.scopeGlobal : "";
   const recommendedLabel = recommendedProduct ? (recommendedProduct.unlimited ? copy.unlimited : `${recommendedProduct.dataGb} GB`) : "";
   const [selectedProductId, setSelectedProductId] = useState("");
   const [hasScrolled, setHasScrolled] = useState(false);
@@ -167,6 +173,7 @@ function PackagesPage() {
           <div className="mt-3 rounded-xl bg-accent-soft p-3">
             <span className="text-xs font-semibold uppercase text-muted-foreground">{copy.need}</span>
             <strong className="mt-1 flex items-center gap-1.5 text-xl"><Gauge className="size-5 text-primary" aria-hidden="true" />~{required} GB</strong>
+            {scopeNote && <p className="mt-1 text-xs text-muted-foreground">{scopeNote}</p>}
           </div>
         </div>
 
@@ -185,6 +192,7 @@ function PackagesPage() {
                 key={pkg.id}
                 pkg={pkg}
                 isRecommended={recommendedProduct?.id === pkg.id}
+                variantLabel={pkg.id === match.economy?.id ? copy.economyBadge : pkg.id === match.comfort?.id ? copy.comfortBadge : ""}
                 isSelected={activeSelectedId === pkg.id}
                 onSelect={() => setSelectedProductId(pkg.id)}
                 whyText={copy.whyText(required, recommendedLabel)}
@@ -222,7 +230,7 @@ function PackagesPage() {
   );
 }
 
-function PackageCard({ pkg, isRecommended, isSelected, onSelect, whyText, copy }: { pkg: EsimPackage; isRecommended: boolean; isSelected: boolean; onSelect: () => void; whyText: string; copy: (typeof COPY)["tr"] }) {
+function PackageCard({ pkg, isRecommended, variantLabel, isSelected, onSelect, whyText, copy }: { pkg: EsimPackage; isRecommended: boolean; variantLabel?: string; isSelected: boolean; onSelect: () => void; whyText: string; copy: (typeof COPY)["tr"] }) {
   const { locale } = useI18n();
   const [showWhy, setShowWhy] = useState(false);
   const price = pkg.salePrice ?? 0;
@@ -238,9 +246,9 @@ function PackageCard({ pkg, isRecommended, isSelected, onSelect, whyText, copy }
         {pkg.isTest && (
           <span className="shrink-0 rounded-full border border-primary px-2 py-1 text-xs font-bold text-primary">TEST</span>
         )}
-        {(isRecommended || pkg.badge) && (
+        {(isRecommended || variantLabel || pkg.badge) && (
           <span className="shrink-0 rounded-full bg-accent-soft px-2 py-1 text-xs font-bold text-primary">
-            {isRecommended ? copy.recommendedBadge : pkg.badge}
+            {isRecommended ? copy.recommendedBadge : variantLabel || pkg.badge}
           </span>
         )}
       </div>

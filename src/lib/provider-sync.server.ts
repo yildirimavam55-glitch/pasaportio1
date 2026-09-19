@@ -271,6 +271,20 @@ export async function runProviderSync(
   const providerMinMargin = provider.minimum_margin_percent == null ? null : Number(provider.minimum_margin_percent);
   const pricing = pricingFromRule(rule, provider.currency ?? "EUR", providerMinMargin);
 
+  /**
+   * Admin-controlled publishing rule. When enabled, a synced product that meets
+   * every quality gate becomes customer visible; a DRAFT is never promoted while
+   * the flag is off, and nothing published by an Admin is ever un-published here.
+   */
+  const { data: publishFlag } = await db
+    .from("feature_flags")
+    .select("enabled")
+    .eq("key", "esim_auto_publish")
+    .maybeSingle();
+  const autoPublish = publishFlag?.enabled !== false;
+  const publishable = (item: PricedItem, coverage: string[]) =>
+    autoPublish && coverage.length > 0 && item.salePrice > 0 && !item.belowMinimumMargin;
+
   const [{ data: rawRows }, { data: mappingRows }] = await Promise.all([
     db.from("provider_raw_items").select("external_id, payload_hash, available").eq("provider_id", providerId),
     db.from("provider_product_mappings").select("external_id, product_id, provider_cost, available").eq("provider_id", providerId),
@@ -331,7 +345,10 @@ export async function runProviderSync(
       try {
         const coverage = mapCoverageToCanonical(item.coverage);
         coverage.unknown.forEach((iso) => unknownIsos.add(iso));
-        if (!coverage.canonical.length) {
+        // Valid ISO codes outside the canonical directory are still stored, so a
+        // regional product is never dropped because of one unlisted territory.
+        const storedCoverage = [...new Set([...coverage.canonical, ...coverage.unknown])];
+        if (!storedCoverage.length) {
           failed += 1;
           await db.from("provider_sync_errors").insert({
             provider_id: providerId,
@@ -396,8 +413,8 @@ export async function runProviderSync(
               currency: pricing.currency,
               sale_price: item.salePrice,
               pricing_rule_id: rule?.id ?? null,
-              lifecycle: "DRAFT",
-              customer_visible: false,
+              lifecycle: publishable(item, storedCoverage) ? "PUBLISHED" : "DRAFT",
+              customer_visible: publishable(item, storedCoverage),
               margin_flagged: item.belowMinimumMargin,
             })
             .select("id")
@@ -427,9 +444,16 @@ export async function runProviderSync(
             patch["sale_price"] = item.salePrice;
             patch["currency"] = pricing.currency;
           }
+          // Publishing rule: only an eligible DRAFT is promoted. PAUSED, ARCHIVED
+          // and Admin-published states are left exactly as the Admin set them.
+          if (current?.lifecycle === "DRAFT" && publishable(item, storedCoverage)) {
+            patch["lifecycle"] = "PUBLISHED";
+            patch["customer_visible"] = true;
+          }
           // A returned product reuses its mapping and leaves UNAVAILABLE.
           if (current?.lifecycle === "UNAVAILABLE") {
-            patch["lifecycle"] = "DRAFT";
+            patch["lifecycle"] = publishable(item, storedCoverage) ? "PUBLISHED" : "DRAFT";
+            patch["customer_visible"] = publishable(item, storedCoverage);
             returned += 1;
             changeRows.push({
               provider_id: providerId,
@@ -467,7 +491,7 @@ export async function runProviderSync(
 
         if (previous) {
           const detected: CatalogueChange[] = classifyItem(
-            { ...snapshotOf(item), coverage: coverage.canonical },
+            { ...snapshotOf(item), coverage: storedCoverage },
             { ...previous, coverage: previous.coverage },
           );
           for (const change of detected) {
@@ -489,7 +513,7 @@ export async function runProviderSync(
           {
             product_id: productId,
             country_iso: item.countryIso,
-            coverage_country_isos: coverage.canonical,
+            coverage_country_isos: storedCoverage,
             package_kind: item.packageKind,
             data_gb: item.dataGb,
             data_type: item.dataType,
@@ -527,7 +551,7 @@ export async function runProviderSync(
         );
 
         // Keep the in-memory snapshot current so a replayed page stays idempotent.
-        previousSnapshot.set(item.externalId, { ...snapshotOf(item), coverage: coverage.canonical });
+        previousSnapshot.set(item.externalId, { ...snapshotOf(item), coverage: storedCoverage });
         rawByExternal.set(item.externalId, { external_id: item.externalId, payload_hash: hash, available: true });
         mappingByExternal.set(item.externalId, {
           external_id: item.externalId,

@@ -79,7 +79,9 @@ function toIsoList(value: unknown): string[] {
   const raw = Array.isArray(value) ? value : typeof value === "string" ? value.split(/[,;\s]+/) : [];
   const seen = new Set<string>();
   for (const entry of raw) {
-    const iso = String(entry ?? "").trim().toUpperCase().slice(0, 2);
+    // Exact two-letter tokens only: truncating free text ("South East Asia")
+    // would silently invent a wrong country ("SO").
+    const iso = String(entry ?? "").trim().toUpperCase();
     if (/^[A-Z]{2}$/.test(iso)) seen.add(iso);
   }
   return [...seen];
