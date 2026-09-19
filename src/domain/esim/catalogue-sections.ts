@@ -64,7 +64,8 @@ export function productIdentity(pkg: CatalogueProduct): string {
 
 const priceOf = (pkg: MatchablePackage) => pkg.salePrice ?? Number.POSITIVE_INFINITY;
 const byPrice = (a: MatchablePackage, b: MatchablePackage) => priceOf(a) - priceOf(b);
-const sufficient = (pkg: MatchablePackage, requiredGb: number) => pkg.unlimited || (pkg.dataGb ?? 0) >= requiredGb;
+const sufficient = (pkg: MatchablePackage, requiredGb: number) =>
+  pkg.unlimited || (pkg.dataGb ?? 0) >= requiredGb;
 
 /**
  * Coverage is "meaningfully wider" when the package is not a country/subdivision
@@ -85,7 +86,9 @@ export function buildCatalogueSections<T extends CatalogueProduct>(
   packages: T[],
   input: SectionInput,
 ): CatalogueSections<T> {
-  const requestedIsos = (input.coverageIsos ?? []).map((iso) => String(iso).toUpperCase()).filter(Boolean);
+  const requestedIsos = (input.coverageIsos ?? [])
+    .map((iso) => String(iso).toUpperCase())
+    .filter(Boolean);
   const covering = coveringPackages(packages, { ...input, coverageIsos: requestedIsos });
   const eligible = covering.filter((pkg) => sufficient(pkg, input.requiredGb));
 
@@ -101,9 +104,13 @@ export function buildCatalogueSections<T extends CatalogueProduct>(
 
   // 2. Recommendation: the finder hand-off when still eligible, otherwise the
   //    narrowest sufficient product resolved by the shared engine.
-  const handoff = input.recommendedId ? unique.find((pkg) => pkg.id === input.recommendedId) ?? null : null;
+  const handoff = input.recommendedId
+    ? (unique.find((pkg) => pkg.id === input.recommendedId) ?? null)
+    : null;
   const recommended =
-    handoff ?? resolveTieredRecommendation(unique, { ...input, coverageIsos: requestedIsos }).recommended ?? null;
+    handoff ??
+    resolveTieredRecommendation(unique, { ...input, coverageIsos: requestedIsos }).recommended ??
+    null;
 
   // 3. Mutually exclusive classification.
   const standard: T[] = [];
@@ -150,7 +157,8 @@ export function buildCatalogueSections<T extends CatalogueProduct>(
   if (duplicates.length && import.meta.env?.DEV) {
     console.error("[esim] duplicate products detected across sections", duplicates);
   }
-  const classified = counters.recommended + counters.standard + counters.unlimited + counters.broaderCoverage;
+  const classified =
+    counters.recommended + counters.standard + counters.unlimited + counters.broaderCoverage;
   if (classified !== counters.unique && import.meta.env?.DEV) {
     console.error("[esim] classification invariant broken", counters);
   }
@@ -160,7 +168,12 @@ export function buildCatalogueSections<T extends CatalogueProduct>(
     standard: safeStandard,
     unlimited: safeUnlimited,
     broaderCoverage: safeBroader,
-    all: [...(safeRecommended ? [safeRecommended] : []), ...safeStandard, ...safeUnlimited, ...safeBroader],
+    all: [
+      ...(safeRecommended ? [safeRecommended] : []),
+      ...safeStandard,
+      ...safeUnlimited,
+      ...safeBroader,
+    ],
     counters,
     duplicates,
   };

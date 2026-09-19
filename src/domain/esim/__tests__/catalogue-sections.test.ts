@@ -52,7 +52,13 @@ describe("buildCatalogueSections", () => {
     const sections = buildCatalogueSections(
       [
         pkg({ id: "local-2", dataGb: 2 }),
-        pkg({ id: "uni-global", unlimited: true, dataGb: null, coverage: ["TR", "DE", "US"], scope: "GLOBAL" }),
+        pkg({
+          id: "uni-global",
+          unlimited: true,
+          dataGb: null,
+          coverage: ["TR", "DE", "US"],
+          scope: "GLOBAL",
+        }),
       ],
       input,
     );
@@ -61,10 +67,13 @@ describe("buildCatalogueSections", () => {
   });
 
   it("TEST 3: a recommended standard package is not repeated below", () => {
-    const sections = buildCatalogueSections([pkg({ id: "a", dataGb: 2 }), pkg({ id: "b", dataGb: 10 })], {
-      ...input,
-      recommendedId: "b",
-    });
+    const sections = buildCatalogueSections(
+      [pkg({ id: "a", dataGb: 2 }), pkg({ id: "b", dataGb: 10 })],
+      {
+        ...input,
+        recommendedId: "b",
+      },
+    );
     expect(sectionOf(sections, "b")).toEqual(["RECOMMENDED"]);
     assertInvariant(sections);
   });
@@ -80,7 +89,10 @@ describe("buildCatalogueSections", () => {
 
   it("TEST 5: a regional capped package lands in broader coverage", () => {
     const sections = buildCatalogueSections(
-      [pkg({ id: "local", dataGb: 5 }), pkg({ id: "eu", dataGb: 20, coverage: ["TR", "DE", "FR"], scope: "REGION" })],
+      [
+        pkg({ id: "local", dataGb: 5 }),
+        pkg({ id: "eu", dataGb: 20, coverage: ["TR", "DE", "FR"], scope: "REGION" }),
+      ],
       input,
     );
     expect(sectionOf(sections, "eu")).toEqual(["BROADER"]);
@@ -113,7 +125,13 @@ describe("buildCatalogueSections", () => {
       const catalogue = [
         pkg({ id: `${iso}-2`, dataGb: 2, coverage: [iso], providerProductId: `${iso}-2` }),
         pkg({ id: `${iso}-20`, dataGb: 20, coverage: [iso], providerProductId: `${iso}-20` }),
-        pkg({ id: `${iso}-u`, unlimited: true, dataGb: null, coverage: [iso], providerProductId: `${iso}-u` }),
+        pkg({
+          id: `${iso}-u`,
+          unlimited: true,
+          dataGb: null,
+          coverage: [iso],
+          providerProductId: `${iso}-u`,
+        }),
         pkg({
           id: `${iso}-glob`,
           dataGb: 50,
@@ -147,10 +165,21 @@ describe("buildCatalogueSections", () => {
       pkg({ id: "tru7", unlimited: true, dataGb: null, validityDays: 7 }),
       pkg({ id: "tru30", unlimited: true, dataGb: null, validityDays: 30, salePrice: 40 }),
       pkg({ id: "eu20", dataGb: 20, coverage: ["TR", "DE", "FR"], scope: "REGION" }),
-      pkg({ id: "globu", unlimited: true, dataGb: null, coverage: ["TR", "US"], scope: "GLOBAL", salePrice: 50 }),
+      pkg({
+        id: "globu",
+        unlimited: true,
+        dataGb: null,
+        coverage: ["TR", "US"],
+        scope: "GLOBAL",
+        salePrice: 50,
+      }),
       pkg({ id: "glob50", dataGb: 50, coverage: ["TR", "US"], scope: "GLOBAL" }),
     ];
-    const sections = buildCatalogueSections(catalogue, { ...input, days: 7, recommendedId: "tr10" });
+    const sections = buildCatalogueSections(catalogue, {
+      ...input,
+      days: 7,
+      recommendedId: "tr10",
+    });
     expect(sections.recommended?.id).toBe("tr10");
     expect(sections.standard.map((p) => p.id)).toEqual(["tr2", "tr5", "tr20"]);
     expect(sections.unlimited.map((p) => p.id)).toEqual(["tru7", "tru30", "globu"]);
