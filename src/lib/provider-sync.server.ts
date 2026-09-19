@@ -860,12 +860,23 @@ export async function runProviderSync(
     }
   }
 
+  const warnings = warningCount();
+  const processed = processedCount();
+  const reconciled = receivedTotal === processed + warnings;
   const status = resolveSyncStatus({
     complete,
     received: receivedTotal,
     failed,
-    processed: created + updated + unchanged,
+    processed,
+    warnings,
+    reconciled,
   });
+
+  const summary =
+    fetchError ??
+    (warnings || !reconciled
+      ? `Alınan ${receivedTotal} · işlenen ${processed} · geçersiz ${invalid} · tekrar ${duplicate} · hariç ${excluded} · hatalı ${failed}${reconciled ? "" : " · mutabakat sağlanamadı"}`
+      : null);
 
   return finish(
     {
@@ -873,19 +884,26 @@ export async function runProviderSync(
       runId,
       status,
       itemsReceived: receivedTotal,
+      itemsParsed: parsedTotal,
       created,
       updated,
       unchanged,
+      invalid,
+      duplicate,
+      excluded,
       unavailable: missing.length,
       returned,
       priceChanges,
       coverageChanges,
       failed,
-      error: fetchError ?? (failed ? `${failed} ürün işlenemedi.` : null),
+      warnings,
+      reconciled,
+      error: summary,
     },
     complete,
   );
 }
+
 
 /** Scheduler entry: syncs every provider whose interval is due, and raises stale alerts. */
 export async function runDueProviderSyncs(
