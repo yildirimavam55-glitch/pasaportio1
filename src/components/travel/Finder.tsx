@@ -989,7 +989,6 @@ export function LoungeFinder({
 }) {
   const { locale } = useI18n();
   const copy = COPY[locale];
-  const navigate = useNavigate();
   const airport = getAirport(state.airportId);
   const [preference, setPreference] = useState<LoungePreference>("COMFORT");
   const [showMockResult, setShowMockResult] = useState(false);
