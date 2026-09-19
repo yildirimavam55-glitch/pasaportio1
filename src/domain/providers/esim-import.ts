@@ -25,22 +25,34 @@ export type NormalizedEsimItem = {
   /** Comparison-only value, always expressed in days. */
   validityDays: number | null;
   activationPolicy: ActivationPolicy;
+  /** Supplier wording for when validity starts; null when not provided. */
+  validityStartRule: string | null;
   /** Customer-facing short note (derived), never raw provider jargon. */
   fairUseNote: string | null;
   /** Provider fair-use values, stored verbatim or null. */
   fairUsePolicy: string | null;
   highSpeedAllowance: string | null;
   speedAfterFairUse: string | null;
+  /** null for capped plans; false when an unlimited plan lacks its FUP terms. */
+  unlimitedDetailsComplete: boolean | null;
   coverage: string[];
+  /** Subdivision codes such as US-HI. Never merged into `coverage`. */
+  subdivisions: string[];
   countryIso: string | null;
-  packageKind: "COUNTRY" | "REGION" | "GLOBAL";
+  packageKind: PackageScope;
   providerCost: number;
   providerCurrency: string;
   networks: string[];
   supports5g: boolean | null;
   supportsHotspot: boolean | null;
   topupSupported: boolean | null;
+  dataOnly: boolean | null;
+  apnInfo: Record<string, unknown>;
+  speed: string | null;
+  /** SUPPLIER_PROVIDED vs SUPPLIER_DID_NOT_PROVIDE, per technical field. */
+  metadataProvenance: Record<string, string>;
   payload: RawImportItem;
+
 };
 
 
