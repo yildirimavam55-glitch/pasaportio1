@@ -123,29 +123,44 @@ function PackagesPage() {
     queryFn: () => listEsimPackages({ data: { coverageIsos } }),
   });
 
-  // Layer 2: real catalogue products only, resolved single-country -> regional -> global.
-  const match = resolveTieredRecommendation(packages, { requiredGb: required, coverageIsos, days });
-  const handedOffProduct = match.candidates.find((pkg) => pkg.id === search.recommendedProductId);
-  const recommendedProduct = handedOffProduct ?? match.recommended;
+  // Layer 3: the eligible catalogue is curated down to a small customer shortlist.
+  const shortlist = buildCustomerShortlist(packages, {
+    requiredGb: required,
+    coverageIsos,
+    days,
+    preferredId: search.recommendedProductId || null,
+  });
+  const primaryEntries = shortlist.primary;
+  const recommendedProduct = primaryEntries[0]?.package ?? null;
   const scopeNote =
-    match.scope === "REGIONAL" ? copy.scopeRegional : match.scope === "GLOBAL" ? copy.scopeGlobal : "";
+    shortlist.scope === "REGIONAL" ? copy.scopeRegional : shortlist.scope === "GLOBAL" ? copy.scopeGlobal : "";
   const recommendedLabel = recommendedProduct ? (recommendedProduct.unlimited ? copy.unlimited : `${recommendedProduct.dataGb} GB`) : "";
   const [selectedProductId, setSelectedProductId] = useState("");
   const [hasScrolled, setHasScrolled] = useState(false);
   const { lines, addLine } = useCart();
   const availability = useServiceAvailability();
-  const sufficientPackages = match.candidates.filter((pkg) => pkg.unlimited || (pkg.dataGb ?? 0) >= required);
-  const visiblePackages = recommendedProduct
-    ? [recommendedProduct, ...sufficientPackages.filter((pkg) => pkg.id !== recommendedProduct.id)]
-    : [];
-  const activeSelectedId = selectedProductId || recommendedProduct?.id || visiblePackages[0]?.id || "";
-  const selectedProduct = visiblePackages.find((pkg) => pkg.id === activeSelectedId) ?? null;
+  // Secondary options stay selectable even though they live outside the main grid.
+  const selectablePackages = [
+    ...primaryEntries.map((entry) => entry.package),
+    ...shortlist.moreUnlimited,
+    ...shortlist.widerCoverage,
+  ];
+  const selectableIds = selectablePackages.map((pkg) => pkg.id).join(",");
+  const activeSelectedId = selectedProductId || recommendedProduct?.id || "";
+  const selectedProduct = selectablePackages.find((pkg) => pkg.id === activeSelectedId) ?? null;
   const selectedInCart = Boolean(selectedProduct && lines.some((line) => line.productId === selectedProduct.id));
+  const tierLabel = (tier: ShortlistTier) =>
+    tier === "NEXT_STEP" ? copy.tierNext
+      : tier === "COMFORT" ? copy.tierComfort
+        : tier === "HEAVY_USE" ? copy.tierHeavy
+          : tier === "UNLIMITED" ? copy.tierUnlimited
+            : "";
 
   useEffect(() => {
-    if (!visiblePackages.length) return;
-    setSelectedProductId((current) => visiblePackages.some((pkg) => pkg.id === current) ? current : (recommendedProduct?.id ?? visiblePackages[0]?.id ?? ""));
-  }, [visiblePackages, recommendedProduct?.id]);
+    if (!selectableIds) return;
+    const ids = selectableIds.split(",");
+    setSelectedProductId((current) => (ids.includes(current) ? current : ids[0] ?? ""));
+  }, [selectableIds]);
 
   const addSelectedToCart = () => {
     if (!selectedProduct || selectedProduct.salePrice == null) return;
