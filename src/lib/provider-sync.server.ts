@@ -170,8 +170,9 @@ export async function runProviderSync(
   const { data: openRun } = await db
     .from("provider_sync_runs")
     .select(
-      "id, checkpoint_page, items_received, items_created, items_updated, items_unchanged, items_returned, items_failed, price_changes, coverage_changes",
+      "id, checkpoint_page, items_received, items_parsed, items_created, items_updated, items_unchanged, items_invalid, items_duplicate, items_excluded, items_returned, items_failed, price_changes, coverage_changes",
     )
+
     .eq("provider_id", providerId)
     .eq("status", "RUNNING")
     .order("started_at", { ascending: false })
@@ -286,16 +287,23 @@ export async function runProviderSync(
       runId,
       status: "PARTIAL",
       itemsReceived: receivedTotal,
+      itemsParsed: parsedTotal,
       created,
       updated,
       unchanged,
+      invalid,
+      duplicate,
+      excluded,
       unavailable: 0,
       returned,
       priceChanges,
       coverageChanges,
       failed,
+      warnings: warningCount(),
+      reconciled: receivedTotal === processedCount() + warningCount(),
       error: reason,
     };
+
   };
 
   // Pricing rule + previous valid snapshot are loaded once per invocation.
