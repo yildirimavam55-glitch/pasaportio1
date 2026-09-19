@@ -112,7 +112,7 @@ function Experience({
   const { switchService, isSwitching, target, phase } = useServiceSwitchTransition();
   const selectedService = target ?? service;
   const pendingScrollRef = useRef<{
-    finderTop: number;
+    anchorTop: number;
     preserveAnchor: boolean;
     scrollToFinder: boolean;
   } | null>(null);
@@ -138,11 +138,19 @@ function Experience({
     if (!pending) return;
     pendingScrollRef.current = null;
 
-    const finder = document.getElementById("finder");
-    if (pending.preserveAnchor && finder) {
-      const delta = finder.getBoundingClientRect().top - pending.finderTop;
-      if (Math.abs(delta) > 0.5) window.scrollBy({ top: delta, behavior: "auto" });
-      return;
+    const anchor = document.getElementById("service-selector");
+    if (pending.preserveAnchor && anchor) {
+      const restoreAnchor = () => {
+        const delta = anchor.getBoundingClientRect().top - pending.anchorTop;
+        if (Math.abs(delta) > 0.5) window.scrollBy({ top: delta, behavior: "auto" });
+      };
+      restoreAnchor();
+      const frame = window.requestAnimationFrame(restoreAnchor);
+      const settle = window.setTimeout(restoreAnchor, 250);
+      return () => {
+        window.cancelAnimationFrame(frame);
+        window.clearTimeout(settle);
+      };
     }
     if (pending.scrollToFinder) window.requestAnimationFrame(smoothlyShowFinder);
   }, [service]);
@@ -159,7 +167,7 @@ function Experience({
     }
     if (isSwitching) return;
     pendingScrollRef.current = {
-      finderTop: finder?.getBoundingClientRect().top ?? 0,
+      anchorTop: document.getElementById("service-selector")?.getBoundingClientRect().top ?? 0,
       preserveAnchor: nearFinder && Boolean(finder),
       scrollToFinder: Boolean(options.scrollToFinder && !nearFinder),
     };
