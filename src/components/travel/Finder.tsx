@@ -440,7 +440,9 @@ export function SegmentedChoice<T extends string>({
             className={`flex min-h-11 min-w-0 items-center justify-center gap-1.5 rounded-xl border px-2 text-sm font-semibold transition-colors ${selected ? "border-primary bg-primary-soft text-primary" : "border-transparent bg-card/45 text-foreground hover:border-border hover:bg-card"}`}
           >
             {option.icon && (!option.iconWhenSelectedOnly || selected) && (
-              <span className={`icon-slot-flight ${selected ? "text-primary" : "text-foreground"}`}>
+              <span
+                className={`${option.iconWhenSelectedOnly ? "flex size-4 shrink-0 items-center justify-center" : "icon-slot-flight"} ${selected ? "text-primary" : "text-foreground"}`}
+              >
                 {option.icon}
               </span>
             )}
