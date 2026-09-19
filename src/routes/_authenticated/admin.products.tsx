@@ -22,30 +22,33 @@ function Products() {
   const [search, setSearch] = useState("");
   const [provider, setProvider] = useState("ALL");
   const [place, setPlace] = useState("ALL");
-  const [availability, setAvailability] = useState("ALL");
+  const [availability, setAvailability] = useState<"ALL" | "AVAILABLE" | "UNAVAILABLE">("ALL");
   const [lifecycle, setLifecycle] = useState("ALL");
   const [marginOnly, setMarginOnly] = useState(false);
+  const [page, setPage] = useState(1);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [bulkRule, setBulkRule] = useState("");
-  const catalogue = useQuery({ queryKey: ["admin-catalogue-v3"], queryFn: () => getAdminCatalogue() });
+
+  // Server-side paging: the catalogue holds thousands of products, so the
+  // browser only ever receives the current page.
+  const query = { page, limit: 50, service, search, providerId: provider, countryIso: place, availability, lifecycle, packageKind: "ALL", marginOnly };
+  const catalogue = useQuery({
+    queryKey: ["admin-catalogue-v4", query],
+    queryFn: () => getAdminCatalogue({ data: query }),
+    placeholderData: (previous) => previous,
+  });
+  const facets = useQuery({ queryKey: ["admin-catalogue-facets"], queryFn: () => getAdminCatalogueFacets() });
   const rules = useQuery({ queryKey: ["pricing-rules"], queryFn: () => listPricingRules() });
+
+  useEffect(() => { setPage(1); }, [service, search, provider, place, availability, lifecycle, marginOnly]);
 
   const placeOf = (product: any) =>
     product.service_type === "ESIM"
       ? (product.esim_product_details?.regions?.name ?? product.destinations?.name ?? product.esim_product_details?.country_iso ?? product.esim_product_details?.package_kind ?? "Diğer kapsama")
       : `${product.lounge_product_details?.iata ?? product.airports?.iata ?? "Havalimanı yok"} · ${product.lounge_product_details?.terminal ?? "Terminal belirtilmedi"}`;
 
-  const filtered = useMemo(() => (catalogue.data ?? []).filter((product: any) => {
-    if (product.service_type !== service) return false;
-    if (search && !`${product.name} ${product.slug ?? ""}`.toLowerCase().includes(search.toLowerCase())) return false;
-    if (provider !== "ALL" && (product.providers?.name ?? "—") !== provider) return false;
-    if (place !== "ALL" && placeOf(product) !== place) return false;
-    if (availability === "AVAILABLE" && !product.provider_available) return false;
-    if (availability === "UNAVAILABLE" && product.provider_available) return false;
-    if (lifecycle !== "ALL" && product.lifecycle !== lifecycle) return false;
-    if (marginOnly && !product.margin_flagged) return false;
-    return true;
-  }), [catalogue.data, service, search, provider, place, availability, lifecycle, marginOnly]);
+  const rows: any[] = (catalogue.data?.rows ?? []) as any[];
+  const filtered = rows;
 
   const groups = useMemo(() => {
     const map = new Map<string, any[]>();
@@ -53,9 +56,10 @@ function Products() {
     return [...map.entries()];
   }, [filtered]);
 
-  const providerOptions = [...new Set((catalogue.data ?? []).filter((row: any) => row.service_type === service).map((row: any) => row.providers?.name ?? "—"))];
-  const placeOptions = [...new Set((catalogue.data ?? []).filter((row: any) => row.service_type === service).map(placeOf))];
-  const selected = (catalogue.data ?? []).find((product: any) => product.id === openId) ?? null;
+  const providerOptions = (facets.data?.providers ?? []).filter((row) => row.service_type === service);
+  const placeOptions = service === "ESIM" ? (facets.data?.countries ?? []) : [];
+  const selected = rows.find((product: any) => product.id === openId) ?? null;
+
 
   const bulk = useMutation({
     mutationFn: (action: Parameters<typeof bulkUpdateProducts>[0]["data"]["action"]) =>
