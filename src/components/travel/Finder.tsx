@@ -977,7 +977,7 @@ const LOUNGE_PREFERENCE_OPTIONS: Array<{
 }> = [
   { key: "COMFORT", icon: <Sofa />, tone: "" },
   { key: "PREMIUM", icon: <Crown />, tone: "" },
-  { key: "LONG_TRANSIT", icon: <Suitcase />, tone: "" },
+  { key: "LONG_TRANSIT", icon: <Luggage />, tone: "" },
 ];
 
 export function LoungeFinder({
