@@ -174,7 +174,10 @@ function PackagesPage() {
 
   const addSelectedToCart = () => {
     if (!selectedProduct || selectedProduct.salePrice == null) return;
-    addLine({ productId: selectedProduct.id, providerProductId: selectedProduct.providerProductId, serviceType: "ESIM", name: customerPackageTitle({ locale, destinationIso: destination, routeIsos, coverage: selectedProduct.coverage }), meta: selectedProduct.unlimited ? copy.unlimited : `${selectedProduct.dataGb ?? "—"} GB`, price: selectedProduct.salePrice, currency: selectedProduct.currency, dataGb: selectedProduct.dataGb, validityDays: selectedProduct.validityDays, coverage: selectedProduct.coverage, isTest: selectedProduct.isTest });
+    // One eSIM per traveller: an eSIM is tied to a single device, so the data
+    // requirement is per person and the cart quantity follows the party size.
+    addLine({ quantity: travelers, productId: selectedProduct.id, providerProductId: selectedProduct.providerProductId, serviceType: "ESIM", name: customerPackageTitle({ locale, destinationIso: destination, routeIsos, coverage: selectedProduct.coverage }), meta: selectedProduct.unlimited ? copy.unlimited : `${selectedProduct.dataGb ?? "—"} GB`, price: selectedProduct.salePrice, currency: selectedProduct.currency, dataGb: selectedProduct.dataGb, validityDays: selectedProduct.validityDays, coverage: selectedProduct.coverage, isTest: selectedProduct.isTest });
+
   };
 
   useEffect(() => {
@@ -217,6 +220,10 @@ function PackagesPage() {
             <span>{days} {copy.days}</span>
             <span className="text-muted-foreground">·</span>
             <span>{copy.travelers(travelers)}</span>
+          </div>
+          {travelers > 1 && <p className="mt-2 text-xs text-muted-foreground">{copy.perTraveler(travelers)}</p>}
+          <div className="hidden">
+
           </div>
           <div className="mt-3 grid grid-cols-2 gap-2 rounded-xl bg-accent-soft p-3">
             <div><span className="text-xs font-semibold uppercase text-muted-foreground">{copy.estimate}</span><strong className="mt-1 flex items-center gap-1.5 text-xl"><Gauge className="size-5 text-primary" aria-hidden="true" />~{search.estimated || required} GB</strong></div>
