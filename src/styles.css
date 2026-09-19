@@ -378,10 +378,10 @@
 }
 .reveal-item {
   opacity: 0;
-  transform: translate3d(0, 24px, 0) scale(0.99);
+  transform: translate3d(0, 30px, 0) scale(0.985);
   transition:
-    opacity 0.65s cubic-bezier(0.22, 1, 0.36, 1),
-    transform 0.65s cubic-bezier(0.22, 1, 0.36, 1);
+    opacity 1.15s cubic-bezier(0.16, 1, 0.3, 1) 0.15s,
+    transform 1.15s cubic-bezier(0.16, 1, 0.3, 1) 0.15s;
   will-change: opacity, transform;
 }
 .reveal-item.is-revealed {
@@ -389,34 +389,39 @@
   transform: translate3d(0, 0, 0) scale(1);
 }
 .recommendation-reveal {
-  transform: translate3d(0, 8px, 0);
-  transition-duration: 0.3s;
+  transform: translate3d(0, 10px, 0);
+  transition-duration: 0.5s;
+  transition-delay: 0s;
+  transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
 }
 .recommendation-reveal.is-revealed {
   transform: translate3d(0, 0, 0);
 }
 .finder-result-reveal {
-  animation: finder-result-in 0.3s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation: finder-result-in 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 .reveal-stagger [data-reveal-card] {
   opacity: 0;
   transform: translate3d(0, 12px, 0);
   transition:
-    opacity 0.42s cubic-bezier(0.22, 1, 0.36, 1),
-    transform 0.42s cubic-bezier(0.22, 1, 0.36, 1);
+    opacity 1s cubic-bezier(0.16, 1, 0.3, 1) 0.15s,
+    transform 1s cubic-bezier(0.16, 1, 0.3, 1) 0.15s;
 }
 .reveal-stagger.is-revealed [data-reveal-card] {
   opacity: 1;
   transform: translate3d(0, 0, 0);
 }
 .reveal-stagger.is-revealed [data-reveal-card]:nth-child(2) {
-  transition-delay: 70ms;
+  transition-delay: 270ms;
 }
 .reveal-stagger.is-revealed [data-reveal-card]:nth-child(3) {
-  transition-delay: 140ms;
+  transition-delay: 390ms;
 }
 .reveal-stagger.is-revealed [data-reveal-card]:nth-child(4) {
-  transition-delay: 210ms;
+  transition-delay: 510ms;
+}
+.reveal-stagger.is-revealed [data-reveal-card]:nth-child(5) {
+  transition-delay: 630ms;
 }
 .icon-slot-sm > svg,
 .icon-box-sm > svg {
@@ -456,7 +461,7 @@
   border-radius: 0.75rem;
   background: var(--color-primary);
   box-shadow: 0 1px 3px color-mix(in oklab, var(--foreground) 14%, transparent);
-  transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+  transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
   will-change: transform;
 }
 .service-selector[data-service="lounge"] .service-selector-pill {
@@ -472,8 +477,11 @@
   background: var(--color-secondary);
   color: var(--color-primary);
   transition:
-    color 0.25s cubic-bezier(0.22, 1, 0.36, 1),
-    background-color 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+    color 0.4s cubic-bezier(0.16, 1, 0.3, 1),
+    background-color 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.service-selector-button {
+  transition: color 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 .service-selector-icon > svg {
   width: 1.25rem;
@@ -490,38 +498,43 @@
 }
 .service-hero-transition[data-phase="outgoing"] {
   opacity: 0;
-  transform: translate3d(0, 6px, 0);
-  transition:
-    opacity 0.2s cubic-bezier(0.22, 1, 0.36, 1),
-    transform 0.2s cubic-bezier(0.22, 1, 0.36, 1);
+  transition: opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1);
 }
 .service-hero-transition[data-phase="incoming"] {
-  animation: service-content-in 0.36s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation: service-hero-in 0.75s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 .service-finder-transition[data-phase="outgoing"] {
   opacity: 0;
-  transform: translate3d(0, 6px, 0);
+  transform: translate3d(0, 8px, 0);
   transition:
-    opacity 0.2s cubic-bezier(0.22, 1, 0.36, 1),
-    transform 0.2s cubic-bezier(0.22, 1, 0.36, 1);
+    opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 .service-finder-transition[data-phase="incoming"] {
-  animation: service-content-in 0.36s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation: service-content-in 0.65s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 @keyframes service-content-in {
   from {
     opacity: 0;
-    transform: translate3d(0, 11px, 0);
+    transform: translate3d(0, 14px, 0);
   }
   to {
     opacity: 1;
     transform: translate3d(0, 0, 0);
   }
 }
+@keyframes service-hero-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
 @keyframes finder-result-in {
   from {
     opacity: 0;
-    transform: translate3d(0, 8px, 0);
+    transform: translate3d(0, 10px, 0);
   }
   to {
     opacity: 1;
@@ -544,6 +557,10 @@
     animation: none;
   }
   .service-selector-pill {
+    transition-duration: 0.01ms;
+  }
+  .service-selector-button,
+  .service-selector-icon {
     transition-duration: 0.01ms;
   }
   .service-hero-transition[data-phase],

@@ -28,8 +28,8 @@ export function ServiceSwitchTransitionProvider({ children }: { children: ReactN
     if (runningRef.current) return;
     runningRef.current = true;
     const reduced = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches ?? false;
-    const commitAt = reduced ? 10 : 200;
-    const finishAt = reduced ? 40 : 560;
+    const commitAt = reduced ? 10 : 500;
+    const finishAt = reduced ? 40 : 1150;
 
     setTransition({ target, phase: "outgoing" });
     timersRef.current = [

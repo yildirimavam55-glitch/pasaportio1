@@ -1,5 +1,5 @@
 import { ArrowRight, ShieldCheck, Smartphone, Zap } from "lucide-react";
-import { useRef, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { useI18n } from "@/i18n";
@@ -116,6 +116,16 @@ function Experience({
     preserveAnchor: boolean;
     scrollToFinder: boolean;
   } | null>(null);
+  const scrollAnimationRef = useRef<number | null>(null);
+
+  useEffect(
+    () => () => {
+      if (scrollAnimationRef.current !== null) {
+        window.cancelAnimationFrame(scrollAnimationRef.current);
+      }
+    },
+    [],
+  );
 
   const finderIsNearViewport = () => {
     const selector = document.getElementById("service-selector");
@@ -128,9 +138,31 @@ function Experience({
 
   const smoothlyShowFinder = () => {
     const reduced = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches ?? false;
-    document
-      .getElementById("finder")
-      ?.scrollIntoView({ behavior: reduced ? "auto" : "smooth", block: "start" });
+    const finder = document.getElementById("finder");
+    if (!finder) return;
+    const destination = window.scrollY + finder.getBoundingClientRect().top;
+    if (reduced) {
+      window.scrollTo({ top: destination, behavior: "auto" });
+      return;
+    }
+    if (scrollAnimationRef.current !== null) {
+      window.cancelAnimationFrame(scrollAnimationRef.current);
+    }
+    const start = window.scrollY;
+    const distance = destination - start;
+    const startedAt = performance.now();
+    const duration = 800;
+    const step = (now: number) => {
+      const progress = Math.min((now - startedAt) / duration, 1);
+      const eased = 1 - Math.pow(1 - progress, 4);
+      window.scrollTo({ top: start + distance * eased, behavior: "auto" });
+      if (progress < 1) {
+        scrollAnimationRef.current = window.requestAnimationFrame(step);
+      } else {
+        scrollAnimationRef.current = null;
+      }
+    };
+    scrollAnimationRef.current = window.requestAnimationFrame(step);
   };
 
   const requestServiceChange = (
@@ -165,8 +197,7 @@ function Experience({
       window.setTimeout(settleScroll, pending?.scrollToFinder ? 380 : 250);
     });
   };
-  const scrollToFinder = () =>
-    document.getElementById("finder")?.scrollIntoView({ behavior: "smooth", block: "start" });
+  const scrollToFinder = () => smoothlyShowFinder();
 
   const heroSection = config.sections.find((s) => s.type === "HERO");
   const selectorSection = config.sections.find((s) => s.type === "SERVICE_SELECTOR");
@@ -321,7 +352,7 @@ function ServiceButton({
       type="button"
       aria-pressed={active}
       onClick={onClick}
-      className={`relative z-10 flex min-h-12 items-center justify-center gap-2 rounded-xl text-sm font-semibold transition-colors duration-200 ${active ? "text-primary-foreground" : "text-primary hover:text-foreground"}`}
+      className={`service-selector-button relative z-10 flex min-h-12 items-center justify-center gap-2 rounded-xl text-sm font-semibold ${active ? "text-primary-foreground" : "text-primary hover:text-foreground"}`}
     >
       <span className={`service-selector-icon ${active ? "is-active" : ""}`}>{icon}</span>
       {children}

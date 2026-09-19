@@ -73,6 +73,7 @@
 - [x] Respect reduced-motion preferences
 - [x] Preserve Finder viewport position across service switches and smooth-scroll bottom navigation only when needed
 - [x] Add premium reveal-once motion, short card staggers, and immediate Finder-result feedback
+- [x] Slow customer motion to calm premium timings while preserving Finder position and reduced motion
 
 ## Icon alignment and compatibility layer polish
 - [x] Normalize core customer icon boxes, SVG size, and stroke weight
