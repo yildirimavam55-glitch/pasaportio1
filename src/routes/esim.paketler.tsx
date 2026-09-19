@@ -257,10 +257,11 @@ function PackagesPage() {
               </div>
             )}
           </div>
-          {shortlist.moreUnlimited.length > 0 && (
+          {sections.standard.length > 0 && (
             <SecondaryGroup
-              title={copy.moreUnlimited}
-              packages={shortlist.moreUnlimited}
+              title={copy.standardPackages}
+              packages={sections.standard}
+              defaultOpen
               activeSelectedId={activeSelectedId}
               onSelect={setSelectedProductId}
               destinationIso={destination}
@@ -268,10 +269,21 @@ function PackagesPage() {
               copy={copy}
             />
           )}
-          {shortlist.widerCoverage.length > 0 && (
+          {sections.unlimited.length > 0 && (
+            <SecondaryGroup
+              title={copy.moreUnlimited}
+              packages={sections.unlimited}
+              activeSelectedId={activeSelectedId}
+              onSelect={setSelectedProductId}
+              destinationIso={destination}
+              routeIsos={routeIsos}
+              copy={copy}
+            />
+          )}
+          {sections.broaderCoverage.length > 0 && (
             <SecondaryGroup
               title={copy.widerCoverage}
-              packages={shortlist.widerCoverage}
+              packages={sections.broaderCoverage}
               activeSelectedId={activeSelectedId}
               onSelect={setSelectedProductId}
               destinationIso={destination}
@@ -282,8 +294,8 @@ function PackagesPage() {
           </>
         ) : (
           <div className="mt-5 rounded-card border border-dashed border-border bg-card p-6 text-center">
-            <p className="text-sm font-semibold">{shortlist.gap === "NO_SUFFICIENT" ? copy.gapTitle : copy.empty}</p>
-            {shortlist.gap === "NO_SUFFICIENT" && <p className="mt-2 text-xs text-muted-foreground">{copy.gapDetail}</p>}
+            <p className="text-sm font-semibold">{sections.counters.covering ? copy.gapTitle : copy.empty}</p>
+            {sections.counters.covering > 0 && <p className="mt-2 text-xs text-muted-foreground">{copy.gapDetail}</p>}
 
             <div className="mt-4 flex flex-wrap justify-center gap-2">
               <Link to="/esim/paketler" search={{ destination: "", route: "", days: search.days, travelers: search.travelers, estimated: search.estimated, required: search.required, recommended: search.recommended, recommendedProductId: "", usage: search.usage, intensity: search.intensity }}>
