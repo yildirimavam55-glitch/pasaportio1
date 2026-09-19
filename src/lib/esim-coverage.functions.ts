@@ -3,6 +3,8 @@ import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { adminDb } from "@/lib/admin-guard";
 import { COUNTRIES } from "@/domain/geo/countries";
+import { normalizeStoredScope } from "@/domain/esim/package-scope";
+
 
 export type CountryCoverageRow = {
   iso: string;
