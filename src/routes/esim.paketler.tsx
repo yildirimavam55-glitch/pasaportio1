@@ -12,7 +12,7 @@ import { DeviceCompatibilityInline } from "@/components/travel/DeviceCompatibili
 import { useI18n } from "@/i18n";
 import { getCountryByIso } from "@/domain/geo/countries";
 import { useCart } from "@/domain/cart/store";
-import { buildCustomerShortlist, type ShortlistTier } from "@/domain/esim/shortlist";
+import { buildCatalogueSections } from "@/domain/esim/catalogue-sections";
 import { activationNote } from "@/domain/esim/activation";
 
 import { listEsimPackages, type EsimPackage } from "@/lib/esim-catalogue.functions";
@@ -133,38 +133,27 @@ function PackagesPage() {
     queryFn: () => listEsimPackages({ data: { coverageIsos } }),
   });
 
-  // Layer 3: the eligible catalogue is curated down to a small customer shortlist.
-  const shortlist = buildCustomerShortlist(packages, {
+  // Layer 4: the eligible catalogue is deduplicated and split into mutually
+  // exclusive sections, so no product is ever rendered twice.
+  const sections = buildCatalogueSections(packages, {
     requiredGb: required,
     coverageIsos,
     days,
-    preferredId: search.recommendedProductId || null,
+    recommendedId: search.recommendedProductId || null,
   });
-  const primaryEntries = shortlist.primary;
-  const recommendedProduct = primaryEntries[0]?.package ?? null;
-  const scopeNote =
-    shortlist.scope === "REGION" ? copy.scopeRegional : shortlist.scope === "GLOBAL" ? copy.scopeGlobal : "";
+  const recommendedProduct = sections.recommended;
+  const scopeNote = "";
   const recommendedLabel = recommendedProduct ? (recommendedProduct.unlimited ? copy.unlimited : `${recommendedProduct.dataGb} GB`) : "";
   const [selectedProductId, setSelectedProductId] = useState("");
   const [hasScrolled, setHasScrolled] = useState(false);
   const { lines, addLine } = useCart();
   const availability = useServiceAvailability();
-  // Secondary options stay selectable even though they live outside the main grid.
-  const selectablePackages = [
-    ...primaryEntries.map((entry) => entry.package),
-    ...shortlist.moreUnlimited,
-    ...shortlist.widerCoverage,
-  ];
+  // Every rendered product stays selectable, including the collapsed sections.
+  const selectablePackages = sections.all;
   const selectableIds = selectablePackages.map((pkg) => pkg.id).join(",");
   const activeSelectedId = selectedProductId || recommendedProduct?.id || "";
   const selectedProduct = selectablePackages.find((pkg) => pkg.id === activeSelectedId) ?? null;
   const selectedInCart = Boolean(selectedProduct && lines.some((line) => line.productId === selectedProduct.id));
-  const tierLabel = (tier: ShortlistTier) =>
-    tier === "NEXT_STEP" ? copy.tierNext
-      : tier === "COMFORT" ? copy.tierComfort
-        : tier === "HEAVY_USE" ? copy.tierHeavy
-          : tier === "UNLIMITED" ? copy.tierUnlimited
-            : "";
 
   useEffect(() => {
     if (!selectableIds) return;
