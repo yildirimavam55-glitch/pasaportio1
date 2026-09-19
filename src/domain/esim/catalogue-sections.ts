@@ -157,19 +157,26 @@ export function buildCatalogueSections<T extends CatalogueProduct>(
     null;
 
   // 3. Mutually exclusive classification.
+  //    Standard/Unlimited hold EXACT/LOCAL products for the selected trip only;
+  //    every regional / global / multi-country product goes to broader coverage.
   const standard: T[] = [];
   const unlimited: T[] = [];
-  const broaderCoverage: T[] = [];
+  const broaderAll: T[] = [];
   for (const pkg of unique) {
     if (recommended && pkg.id === recommended.id) continue;
-    if (pkg.unlimited) unlimited.push(pkg);
-    else if (isBroaderCoverage(pkg, requestedIsos)) broaderCoverage.push(pkg);
+    if (isBroaderCoverage(pkg, requestedIsos)) broaderAll.push(pkg);
+    else if (pkg.unlimited) unlimited.push(pkg);
     else standard.push(pkg);
   }
 
   standard.sort((a, b) => (a.dataGb ?? 0) - (b.dataGb ?? 0) || byPrice(a, b));
   unlimited.sort((a, b) => byPrice(a, b) || (a.validityDays ?? 0) - (b.validityDays ?? 0));
-  broaderCoverage.sort((a, b) => a.coverage.length - b.coverage.length || byPrice(a, b));
+  broaderAll.sort((a, b) => a.coverage.length - b.coverage.length || byPrice(a, b));
+
+  // Curated shortlist: a few meaningful alternatives, more when the trip has no
+  // local products at all. The catalogue itself keeps every product.
+  const broaderLimit = standard.length + unlimited.length ? 6 : 12;
+  const broaderCoverage = curateBroaderCoverage(broaderAll, broaderLimit);
 
   // 4. Safety pass: a product id may appear in one section only.
   const seenId = new Set<string>();
@@ -196,16 +203,20 @@ export function buildCatalogueSections<T extends CatalogueProduct>(
     standard: safeStandard.length,
     unlimited: safeUnlimited.length,
     broaderCoverage: safeBroader.length,
+    broaderCoverageTotal: broaderAll.length,
   };
 
   if (duplicates.length && import.meta.env?.DEV) {
     console.error("[esim] duplicate products detected across sections", duplicates);
   }
+  // Every unique eligible product is classified exactly once; only the broader
+  // section is trimmed for presentation.
   const classified =
-    counters.recommended + counters.standard + counters.unlimited + counters.broaderCoverage;
+    counters.recommended + counters.standard + counters.unlimited + counters.broaderCoverageTotal;
   if (classified !== counters.unique && import.meta.env?.DEV) {
     console.error("[esim] classification invariant broken", counters);
   }
+
 
   return {
     recommended: safeRecommended,
