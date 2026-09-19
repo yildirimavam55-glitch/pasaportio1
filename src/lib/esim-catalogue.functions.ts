@@ -3,6 +3,7 @@ import { createClient } from "@supabase/supabase-js";
 
 import type { Database } from "@/integrations/supabase/types";
 import { isTestCatalogueVisible } from "@/lib/test-catalogue.functions";
+import { commercialDataGb } from "@/domain/esim/customer-presentation";
 
 export type ActivationPolicy = "ON_INSTALL" | "ON_FIRST_NETWORK_CONNECTION" | "ON_PURCHASE" | "UNKNOWN";
 
@@ -32,6 +33,8 @@ export type EsimPackage = {
   coverage: string[];
   supports5g: boolean;
   supportsHotspot: boolean;
+  dataOnly: boolean | null;
+  topupSupported: boolean | null;
   networks: string[];
   isTest: boolean;
 };
@@ -71,7 +74,7 @@ export const listEsimPackages = createServerFn({ method: "GET" })
     let query = publicClient()
       .from("service_products")
       .select(
-        "id, provider_external_id, slug, name, currency, sale_price, badge, featured, sort_order, lifecycle, customer_visible, provider_available, margin_flagged, service_type, is_test, source, esim_product_details!inner(data_gb, data_type, unlimited_data, validity_days, raw_validity_value, raw_validity_unit, activation_policy, fair_use_note, fair_use_policy, high_speed_allowance, speed_after_fair_use, coverage_country_isos, country_iso, supports_5g, supports_hotspot, network_operators)",
+        "id, provider_external_id, slug, name, currency, sale_price, badge, featured, sort_order, lifecycle, customer_visible, provider_available, margin_flagged, service_type, is_test, source, esim_product_details!inner(data_gb, data_type, unlimited_data, validity_days, raw_validity_value, raw_validity_unit, activation_policy, fair_use_note, fair_use_policy, high_speed_allowance, speed_after_fair_use, coverage_country_isos, country_iso, supports_5g, supports_hotspot, data_only, topup_supported, network_operators)",
       )
       .eq("service_type", "ESIM")
       .eq("lifecycle", "PUBLISHED")
@@ -107,6 +110,8 @@ export const listEsimPackages = createServerFn({ method: "GET" })
               country_iso: string | null;
               supports_5g: boolean | null;
               supports_hotspot: boolean | null;
+              data_only: boolean | null;
+              topup_supported: boolean | null;
               network_operators: string[] | null;
             }
           | null
@@ -127,7 +132,7 @@ export const listEsimPackages = createServerFn({ method: "GET" })
           badge: row.badge,
           featured: Boolean(row.featured),
           dataType: unlimited ? "UNLIMITED" : "FIXED",
-          dataGb: unlimited || details?.data_gb == null ? null : Number(details.data_gb),
+          dataGb: unlimited || details?.data_gb == null ? null : commercialDataGb(Number(details.data_gb)),
           unlimited,
           rawValidityValue: details?.raw_validity_value == null ? null : Number(details.raw_validity_value),
           rawValidityUnit: details?.raw_validity_unit ?? null,
@@ -142,6 +147,8 @@ export const listEsimPackages = createServerFn({ method: "GET" })
           coverage,
           supports5g: Boolean(details?.supports_5g),
           supportsHotspot: Boolean(details?.supports_hotspot),
+          dataOnly: details?.data_only ?? null,
+          topupSupported: details?.topup_supported ?? null,
           networks: details?.network_operators ?? [],
           isTest: Boolean(row.is_test),
         } satisfies EsimPackage;

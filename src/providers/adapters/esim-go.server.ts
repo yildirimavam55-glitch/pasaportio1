@@ -35,7 +35,8 @@ function normalizeBundle(row: Record<string, unknown>): Record<string, unknown> 
     ...row,
     externalId: row["name"] ?? row["bundleName"] ?? row["id"],
     name: row["description"] ?? row["name"],
-    dataMb: typeof dataMb === "number" && dataMb > 0 ? dataMb : undefined,
+    // eSIM Go sells decimal GB bundles: 2000 MB is commercially 2 GB, not 1.95 GB.
+    dataGb: typeof dataMb === "number" && dataMb > 0 ? dataMb / 1000 : undefined,
     unlimited: row["unlimited"] === true || dataMb === -1,
     validityDays: row["duration"] ?? row["validity"],
     validityUnit: row["durationUnit"] ?? "DAYS",
