@@ -997,16 +997,6 @@ export function LoungeFinder({
   const goToLoungeOptions = () => {
     if (!airport) return;
     setShowMockResult(true);
-    void navigate({
-      to: "/lounge/secenekler",
-      search: {
-        airport: state.airportId,
-        iata: airport?.iata ?? "",
-        date: state.date,
-        situation: state.flightSituation,
-        travelers: state.travelers,
-      },
-    });
   };
 
   const preferenceLabel = (key: LoungePreference) =>
