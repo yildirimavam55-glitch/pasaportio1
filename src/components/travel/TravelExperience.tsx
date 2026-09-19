@@ -1,5 +1,5 @@
 import { ArrowRight, ShieldCheck, Smartphone, Zap } from "lucide-react";
-import { useLayoutEffect, useRef, useState, type ReactNode } from "react";
+import { useRef, useState, type ReactNode } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { useI18n } from "@/i18n";
@@ -133,28 +133,6 @@ function Experience({
       ?.scrollIntoView({ behavior: reduced ? "auto" : "smooth", block: "start" });
   };
 
-  useLayoutEffect(() => {
-    const pending = pendingScrollRef.current;
-    if (!pending) return;
-    pendingScrollRef.current = null;
-
-    const anchor = document.getElementById("service-selector");
-    if (pending.preserveAnchor && anchor) {
-      const restoreAnchor = () => {
-        const delta = anchor.getBoundingClientRect().top - pending.anchorTop;
-        if (Math.abs(delta) > 0.5) window.scrollBy({ top: delta, behavior: "auto" });
-      };
-      restoreAnchor();
-      const frame = window.requestAnimationFrame(restoreAnchor);
-      const settle = window.setTimeout(restoreAnchor, 250);
-      return () => {
-        window.cancelAnimationFrame(frame);
-        window.clearTimeout(settle);
-      };
-    }
-    if (pending.scrollToFinder) window.requestAnimationFrame(smoothlyShowFinder);
-  }, [service]);
-
   const requestServiceChange = (
     next: ServiceSlug,
     options: { scrollToFinder?: boolean } = {},
@@ -171,7 +149,23 @@ function Experience({
       preserveAnchor: nearFinder && Boolean(finder),
       scrollToFinder: Boolean(options.scrollToFinder && !nearFinder),
     };
-    switchService(next, () => onServiceChange(next));
+    switchService(next, () => {
+      onServiceChange(next);
+      const pending = pendingScrollRef.current;
+      pendingScrollRef.current = null;
+      const settleScroll = () => {
+        if (pending?.preserveAnchor) {
+          const anchor = document.getElementById("service-selector");
+          if (!anchor) return;
+          const delta = anchor.getBoundingClientRect().top - pending.anchorTop;
+          if (Math.abs(delta) > 0.5) window.scrollBy({ top: delta, behavior: "auto" });
+        } else if (pending?.scrollToFinder) {
+          smoothlyShowFinder();
+        }
+      };
+      window.requestAnimationFrame(() => window.requestAnimationFrame(settleScroll));
+      window.setTimeout(settleScroll, 250);
+    });
   };
   const scrollToFinder = () =>
     document.getElementById("finder")?.scrollIntoView({ behavior: "smooth", block: "start" });
