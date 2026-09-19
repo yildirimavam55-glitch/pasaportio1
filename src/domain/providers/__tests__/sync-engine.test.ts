@@ -80,7 +80,10 @@ describe("failed sync protection", () => {
   it("treats an incomplete fetch as partial, not success", () => {
     expect(resolveSyncStatus({ complete: false, received: 10, failed: 0, processed: 10 })).toBe("PARTIAL");
     expect(resolveSyncStatus({ complete: true, received: 10, failed: 0, processed: 10 })).toBe("SUCCESS");
-    expect(resolveSyncStatus({ complete: true, received: 10, failed: 2, processed: 8 })).toBe("PARTIAL");
+    expect(resolveSyncStatus({ complete: true, received: 10, failed: 2, processed: 8 })).toBe("SUCCESS_WITH_WARNINGS");
+    expect(resolveSyncStatus({ complete: true, received: 10, failed: 10, processed: 0 })).toBe("FAILED");
+    // Unexplained loss can never be reported as a success.
+    expect(resolveSyncStatus({ complete: true, received: 10, failed: 0, processed: 8, warnings: 0, reconciled: false })).toBe("PARTIAL");
     expect(resolveSyncStatus({ complete: false, received: 0, failed: 0, processed: 0 })).toBe("FAILED");
   });
   it("retries 429, 5xx and timeouts only", () => {
