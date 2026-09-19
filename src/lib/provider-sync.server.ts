@@ -31,6 +31,9 @@ import { buildAdapter } from "@/providers/adapters/factory.server";
 
 type Db = any;
 
+/** One invocation processes catalogue pages until this budget, then checkpoints. */
+export const DEFAULT_SYNC_BUDGET_MS = 45_000;
+
 export type SyncResult = {
   providerId: string;
   providerCode: string;
