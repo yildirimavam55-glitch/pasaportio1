@@ -906,16 +906,23 @@ export async function runDueProviderSyncs(
         status: "FAILED",
         runId: null,
         itemsReceived: 0,
+        itemsParsed: 0,
         created: 0,
         updated: 0,
         unchanged: 0,
+        invalid: 0,
+        duplicate: 0,
+        excluded: 0,
         unavailable: 0,
         returned: 0,
         priceChanges: 0,
         coverageChanges: 0,
         failed: 0,
+        warnings: 0,
+        reconciled: true,
         error: (error as Error).message,
       });
+
     }
   }
 
