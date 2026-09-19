@@ -226,18 +226,30 @@ function PackagesPage() {
           <div className="mt-5 grid gap-3 sm:grid-cols-3">
             {[0, 1, 2].map((key) => <div key={key} className="h-44 animate-pulse rounded-card bg-secondary" />)}
           </div>
-        ) : primaryEntries.length ? (
+        ) : sections.all.length ? (
           <>
           <div className="mt-5 grid gap-3 pb-28 sm:grid-cols-2 sm:pb-0 lg:grid-cols-3" role="radiogroup" aria-label={copy.title}>
-            {primaryEntries.map((entry) => (
+            {recommendedProduct && (
               <PackageCard
-                key={entry.package.id}
-                pkg={entry.package}
-                isRecommended={recommendedProduct?.id === entry.package.id}
-                variantLabel={tierLabel(entry.tier)}
-                isSelected={activeSelectedId === entry.package.id}
-                onSelect={() => setSelectedProductId(entry.package.id)}
+                key={recommendedProduct.id}
+                pkg={recommendedProduct}
+                isRecommended
+                isSelected={activeSelectedId === recommendedProduct.id}
+                onSelect={() => setSelectedProductId(recommendedProduct.id)}
                 whyText={copy.whyText(required, recommendedLabel)}
+                destinationIso={destination}
+                routeIsos={routeIsos}
+                copy={copy}
+              />
+            )}
+            {sections.standard.slice(0, 2).map((pkg) => (
+              <PackageCard
+                key={pkg.id}
+                pkg={pkg}
+                isRecommended={false}
+                isSelected={activeSelectedId === pkg.id}
+                onSelect={() => setSelectedProductId(pkg.id)}
+                whyText=""
                 destinationIso={destination}
                 routeIsos={routeIsos}
                 copy={copy}
