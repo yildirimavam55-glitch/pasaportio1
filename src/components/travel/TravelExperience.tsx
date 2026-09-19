@@ -1,4 +1,4 @@
-import { ArrowRight, QrCode, ShieldCheck, Smartphone, Zap } from "lucide-react";
+import { ArrowRight, ShieldCheck, Smartphone, Zap } from "lucide-react";
 import { useEffect, useState, type ReactNode } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
