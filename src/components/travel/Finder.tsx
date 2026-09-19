@@ -542,7 +542,9 @@ function CompactChip({
       onClick={onClick}
       className={`flex h-[3.25rem] min-h-[3.25rem] min-w-0 items-center justify-center gap-1 rounded-2xl border px-0.5 text-sm font-semibold leading-none transition-colors sm:gap-2 sm:px-3 ${selected ? "border-primary bg-primary-soft text-primary" : "border-border bg-card text-foreground hover:border-primary/50"}`}
     >
-      <span className="shrink-0 text-primary [&>svg]:size-3.5 sm:[&>svg]:size-[1.125rem]">{icon}</span>
+      <span className="hidden shrink-0 text-primary min-[400px]:block [&>svg]:size-3.5 sm:[&>svg]:size-[1.125rem]">
+        {icon}
+      </span>
       <span className="min-w-0 whitespace-nowrap text-center">{label}</span>
     </button>
   );
@@ -1156,7 +1158,7 @@ export function LoungeFinder({
             label={copy.situation}
             value={state.flightSituation}
             onChange={(flightSituation) => onChange({ ...state, flightSituation })}
-            optionClassName="h-[3.25rem] gap-2 px-1.5 text-sm"
+            optionClassName="h-[3.25rem] gap-1 px-0.5 text-sm [&_.icon-slot-flight]:size-auto [&_.icon-slot-flight>svg]:size-3.5"
             options={[
               {
                 key: "DEPARTURE" as const,
