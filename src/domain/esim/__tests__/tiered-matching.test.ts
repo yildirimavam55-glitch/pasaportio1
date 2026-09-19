@@ -15,9 +15,11 @@ const many = (count: number) => Array.from({ length: count }, (_, index) => `C${
 
 describe("coverage scope", () => {
   it("derives scope from real ISO coverage, never from a title", () => {
-    expect(coverageScopeOf(pkg("a", 5, ["JP"]))).toBe("SINGLE_COUNTRY");
-    expect(coverageScopeOf(pkg("b", 5, ["TH", "SG", "VN"]))).toBe("REGIONAL");
-    expect(coverageScopeOf(pkg("c", 5, [...many(60), "TH"]))).toBe("GLOBAL");
+    expect(coverageScopeOf(pkg("a", 5, ["JP"]))).toBe("COUNTRY");
+    expect(coverageScopeOf(pkg("b", 5, ["TH", "SG", "VN"]))).toBe("REGION");
+    // Scope is supplier-declared: a wide coverage list alone is not GLOBAL.
+    expect(coverageScopeOf(pkg("c", 5, [...many(60), "TH"]))).toBe("REGION");
+    expect(coverageScopeOf(pkg("d", 5, [...many(60), "TH"], { scope: "GLOBAL" }))).toBe("GLOBAL");
   });
 });
 
@@ -28,7 +30,7 @@ describe("tiered recommendation", () => {
       { requiredGb: 4, coverageIsos: ["JP"], days: 10 },
     );
     expect(result.recommended?.id).toBe("single");
-    expect(result.scope).toBe("SINGLE_COUNTRY");
+    expect(result.scope).toBe("COUNTRY");
   });
 
   it("falls back to a regional product when no single-country product is sufficient", () => {
@@ -37,11 +39,11 @@ describe("tiered recommendation", () => {
       { requiredGb: 4, coverageIsos: ["TH"], days: 10 },
     );
     expect(result.recommended?.id).toBe("regional");
-    expect(result.scope).toBe("REGIONAL");
+    expect(result.scope).toBe("REGION");
   });
 
   it("falls back to a global product as the last covering tier", () => {
-    const result = resolveTieredRecommendation([pkg("global", 20, [...many(60), "ZA"])], {
+    const result = resolveTieredRecommendation([pkg("global", 20, [...many(60), "ZA"], { scope: "GLOBAL" })], {
       requiredGb: 4,
       coverageIsos: ["ZA"],
       days: 10,
