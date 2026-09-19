@@ -282,16 +282,19 @@ export const getAdminCatalogueFacets = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     const db = await adminDb(context as Ctx);
-    const [{ data: providers }, { data: countries }] = await Promise.all([
+    const [{ data: providers }, { data: details }] = await Promise.all([
       db.from("providers").select("id, name, service_type").order("name"),
       db.from("esim_product_details").select("country_iso, package_kind").limit(10000),
     ]);
+    const rows = (details ?? []) as { country_iso: string | null; package_kind: string | null }[];
+    const unique = (values: (string | null)[]): string[] =>
+      [...new Set(values.map((value) => String(value ?? "")).filter((value) => value.length > 0))].sort();
     return {
-      providers: providers ?? [],
-      countries: [...new Set((countries ?? []).map((row: any) => String(row.country_iso ?? "")))].filter(Boolean).sort(),
-      packageKinds: [...new Set((countries ?? []).map((row: any) => String(row.package_kind ?? "")))].filter(Boolean).sort(),
-
+      providers: (providers ?? []) as { id: string; name: string; service_type: string }[],
+      countries: unique(rows.map((row) => row.country_iso)),
+      packageKinds: unique(rows.map((row) => row.package_kind)),
     };
+
   });
 
 
