@@ -442,8 +442,11 @@ export async function runProviderSync(
         // Valid ISO codes outside the canonical directory are still stored, so a
         // regional product is never dropped because of one unlisted territory.
         const storedCoverage = [...new Set([...coverage.canonical, ...coverage.unknown])];
-        if (!storedCoverage.length) {
-          failed += 1;
+        // A subdivision-only bundle (US-HI) is legitimately stored without
+        // country coverage; only a bundle with no usable geography at all is
+        // excluded, and the exclusion is always counted and reported.
+        if (!storedCoverage.length && !item.subdivisions.length) {
+          excluded += 1;
           await db.from("provider_sync_errors").insert({
             provider_id: providerId,
             sync_run_id: runId,
@@ -453,6 +456,7 @@ export async function runProviderSync(
           });
           return;
         }
+
 
         const previous = previousSnapshot.get(item.externalId);
         const previousRaw = rawByExternal.get(item.externalId) as any;
@@ -608,6 +612,7 @@ export async function runProviderSync(
             product_id: productId,
             country_iso: item.countryIso,
             coverage_country_isos: storedCoverage,
+            coverage_subdivision_codes: item.subdivisions,
             package_kind: item.packageKind,
             data_gb: item.dataGb,
             data_type: item.dataType,
@@ -616,19 +621,25 @@ export async function runProviderSync(
             raw_validity_value: item.rawValidityValue,
             raw_validity_unit: item.rawValidityUnit,
             activation_policy: item.activationPolicy,
+            validity_start_rule: item.validityStartRule,
             fair_use_note: item.fairUseNote,
             fair_use_policy: item.fairUsePolicy,
             high_speed_allowance: item.highSpeedAllowance,
             speed_after_fair_use: item.speedAfterFairUse,
+            unlimited_details_complete: item.unlimitedDetailsComplete,
             provider_bundle_id: item.externalId,
             network_operators: item.networks,
             supports_5g: item.supports5g,
             supports_hotspot: item.supportsHotspot,
+            data_only: item.dataOnly,
             topup_supported: item.topupSupported,
+            apn_info: item.apnInfo as any,
+            metadata_provenance: item.metadataProvenance as any,
             provider_metadata: item.payload as any,
           },
           { onConflict: "product_id" },
         );
+
 
         await db.from("provider_product_mappings").upsert(
           {
