@@ -1013,7 +1013,7 @@ export function LoungeFinder({
         airportCode: airport.iata,
         airportName: airport.airport[locale],
         city: airport.city[locale],
-        country: airport.countryName?.[locale] ?? airport.countryIso,
+        country: countryName(airport.countryIso, locale),
         terminal:
           locale === "tr"
             ? "Dış hatlar · Terminal 1"
