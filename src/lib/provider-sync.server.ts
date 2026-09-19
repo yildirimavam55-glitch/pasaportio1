@@ -929,12 +929,19 @@ export async function runProviderSync(
 /** Scheduler entry: syncs every provider whose interval is due, and raises stale alerts. */
 export async function runDueProviderSyncs(
   options: { budgetMs?: number; toCompletion?: boolean; maxInvocations?: number } = {},
-): Promise<{ ok: boolean; ran: SyncResult[]; skipped: number }> {
+): Promise<{ ok: boolean; ran: SyncResult[]; skipped: number; disabled?: boolean }> {
   const db = await adminDb();
+
+  // Kill switch is checked before anything is read or written.
+  if (!(await isProviderSyncEnabled(db))) {
+    return { ok: true, ran: [], skipped: 0, disabled: true };
+  }
+
   const { data: providers } = await db
     .from("providers")
     .select("id, code, name, active, auto_sync, sync_interval_hours")
     .eq("active", true);
+
 
   const ran: SyncResult[] = [];
   let skipped = 0;
