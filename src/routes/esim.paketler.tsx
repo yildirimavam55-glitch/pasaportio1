@@ -356,3 +356,33 @@ function CoverageSheet({ isos, copy }: { isos: string[]; copy: (typeof COPY)["tr
   const countries = [...new Set(isos)].map((iso) => getCountryByIso(iso)).filter((country) => country && country.name[locale].toLocaleLowerCase(locale).includes(query.toLocaleLowerCase(locale)));
   return <Sheet><SheetTrigger asChild><Button type="button" variant="ghost" size="sm" className="mt-2 w-fit px-0 text-primary">{copy.coverageOpen}</Button></SheetTrigger><SheetContent side="bottom" className="max-h-[78svh] overflow-y-auto rounded-t-2xl pb-24 sm:bottom-auto sm:left-1/2 sm:top-1/2 sm:w-[min(36rem,calc(100vw-3rem))] sm:-translate-x-1/2 sm:-translate-y-1/2 sm:rounded-2xl sm:border"><SheetHeader><SheetTitle>{copy.coverageTitle}</SheetTitle><SheetDescription>{isos.length} {copy.coverage}</SheetDescription></SheetHeader><label className="mt-4 flex min-h-11 items-center gap-2 rounded-xl border border-border bg-secondary/60 px-3"><Search className="size-4 text-muted-foreground"/><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder={copy.coverageSearch} className="min-w-0 flex-1 bg-transparent text-sm outline-none" /></label><ul className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-3">{countries.map((country) => country ? <li key={country.iso} className="flex items-center gap-2 rounded-lg bg-secondary/60 p-2 text-sm"><CountryFlag iso={country.iso}/><span className="truncate">{country.name[locale]}</span></li> : null)}</ul></SheetContent></Sheet>;
 }
+
+/** Collapsed extras: near-duplicate unlimited variants and broader-coverage options. */
+function SecondaryGroup({ title, packages, activeSelectedId, onSelect, destinationIso, routeIsos, copy }: { title: string; packages: EsimPackage[]; activeSelectedId: string; onSelect: (id: string) => void; destinationIso: string; routeIsos: string[]; copy: (typeof COPY)["tr"] }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <div className="mt-4">
+      <button type="button" onClick={() => setOpen((value) => !value)} aria-expanded={open} className="flex min-h-11 w-full items-center justify-between gap-2 rounded-card border border-border bg-card px-4 text-sm font-semibold">
+        <span className="truncate">{title} ({packages.length})</span>
+        <span className="shrink-0 text-primary">{open ? copy.hideMore : copy.showMore}</span>
+      </button>
+      {open && (
+        <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          {packages.map((pkg) => (
+            <PackageCard
+              key={pkg.id}
+              pkg={pkg}
+              isRecommended={false}
+              isSelected={activeSelectedId === pkg.id}
+              onSelect={() => onSelect(pkg.id)}
+              whyText=""
+              destinationIso={destinationIso}
+              routeIsos={routeIsos}
+              copy={copy}
+            />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
