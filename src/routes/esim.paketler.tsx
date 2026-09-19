@@ -133,7 +133,7 @@ function PackagesPage() {
   const primaryEntries = shortlist.primary;
   const recommendedProduct = primaryEntries[0]?.package ?? null;
   const scopeNote =
-    shortlist.scope === "REGIONAL" ? copy.scopeRegional : shortlist.scope === "GLOBAL" ? copy.scopeGlobal : "";
+    shortlist.scope === "REGION" ? copy.scopeRegional : shortlist.scope === "GLOBAL" ? copy.scopeGlobal : "";
   const recommendedLabel = recommendedProduct ? (recommendedProduct.unlimited ? copy.unlimited : `${recommendedProduct.dataGb} GB`) : "";
   const [selectedProductId, setSelectedProductId] = useState("");
   const [hasScrolled, setHasScrolled] = useState(false);

@@ -63,7 +63,7 @@ function RecommendationTester({ settings }: { settings: EsimUsageSettings }) {
     queryFn: () => listEsimPackages({ data: { coverageIsos: [iso] } }),
   });
   const match = resolveTieredRecommendation(packages, { requiredGb: estimate.requiredGb, coverageIsos: [iso], days });
-  const scopeLabel = { SINGLE_COUNTRY: "Tek ülke", REGIONAL: "Bölgesel", GLOBAL: "Global" } as const;
+  const scopeLabel = { COUNTRY: "Tek ülke", REGION: "Bölgesel", GLOBAL: "Global", SUBDIVISION: "Bölge içi" } as const;
 
   return (
     <section className="rounded-card border border-border bg-card p-5">
