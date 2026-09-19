@@ -2650,7 +2650,13 @@ export type Database = {
         | "BALANCE"
       refund_status: "REQUESTED" | "APPROVED" | "REJECTED" | "PROCESSED"
       service_type: "ESIM" | "LOUNGE" | "CAR_RENTAL" | "TRANSFER"
-      sync_status: "PENDING" | "RUNNING" | "SUCCESS" | "PARTIAL" | "FAILED"
+      sync_status:
+        | "PENDING"
+        | "RUNNING"
+        | "SUCCESS"
+        | "PARTIAL"
+        | "FAILED"
+        | "CANCELLED"
       sync_trigger: "SCHEDULED" | "MANUAL" | "WEBHOOK"
       traveler_relation: "SELF" | "PARTNER" | "CHILD" | "OTHER"
     }
@@ -2863,7 +2869,14 @@ export const Constants = {
       ],
       refund_status: ["REQUESTED", "APPROVED", "REJECTED", "PROCESSED"],
       service_type: ["ESIM", "LOUNGE", "CAR_RENTAL", "TRANSFER"],
-      sync_status: ["PENDING", "RUNNING", "SUCCESS", "PARTIAL", "FAILED"],
+      sync_status: [
+        "PENDING",
+        "RUNNING",
+        "SUCCESS",
+        "PARTIAL",
+        "FAILED",
+        "CANCELLED",
+      ],
       sync_trigger: ["SCHEDULED", "MANUAL", "WEBHOOK"],
       traveler_relation: ["SELF", "PARTNER", "CHILD", "OTHER"],
     },
