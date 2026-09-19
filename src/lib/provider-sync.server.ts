@@ -107,14 +107,30 @@ function snapshotOf(item: PricedItem): CatalogueSnapshotItem {
   };
 }
 
+/**
+ * PROVIDER SYNC KILL SWITCH.
+ *
+ * `provider.sync = false` stops ALL catalogue mutation:
+ *  - scheduled syncs never run;
+ *  - manual syncs are refused unless an Admin passes an explicit override.
+ * The existing catalogue stays fully readable and manageable in Admin.
+ */
+export async function isProviderSyncEnabled(db: Db): Promise<boolean> {
+  const { data } = await db.from("feature_flags").select("enabled").eq("key", "provider.sync").maybeSingle();
+  return data?.enabled !== false;
+}
+
+export const SYNC_DISABLED_ERROR = "PROVIDER_SYNC_DISABLED";
+
 /** Runs one full catalogue sync for a provider. Never places provider orders. */
 export async function runProviderSync(
   db: Db,
   providerId: string,
   trigger: "MANUAL" | "SCHEDULED" | "WEBHOOK" = "MANUAL",
-  options: { budgetMs?: number } = {},
+  options: { budgetMs?: number; overrideKillSwitch?: boolean } = {},
 ): Promise<SyncResult> {
   const deadline = Date.now() + (options.budgetMs ?? DEFAULT_SYNC_BUDGET_MS);
+
   const { data: provider } = await db
     .from("providers")
     .select("id, code, name, service_type, adapter_type, currency, minimum_margin_percent, sync_interval_hours, low_balance_threshold, active")
