@@ -327,6 +327,31 @@ export const syncProviderNow = createServerFn({ method: "POST" })
     return result;
   });
 
+/** Stops an unfinished run. The imported catalogue stays exactly as it is. */
+export const cancelProviderSync = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: { providerId: string }) => ({ providerId: String(input?.providerId ?? "") }))
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context as Ctx);
+    const db = (context as Ctx).supabase;
+    const { data: run } = await db
+      .from("provider_sync_runs")
+      .select("id")
+      .eq("provider_id", data.providerId)
+      .eq("status", "RUNNING")
+      .order("started_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    if (!run?.id) return { cancelled: false };
+    await db
+      .from("provider_sync_runs")
+      .update({ status: "CANCELLED", completed_at: new Date().toISOString(), error_summary: "Yönetici tarafından durduruldu." })
+      .eq("id", run.id);
+    await db.from("provider_connections").update({ sync_state: "IDLE" }).eq("provider_id", data.providerId);
+    await audit(db, (context as Ctx).userId, "provider.sync.cancelled", data.providerId, { runId: run.id });
+    return { cancelled: true };
+  });
+
 export const getProviderSyncErrors = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: { providerId: string }) => ({ providerId: String(input?.providerId ?? "") }))
