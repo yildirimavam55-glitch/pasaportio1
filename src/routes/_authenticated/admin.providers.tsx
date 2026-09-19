@@ -17,6 +17,7 @@ import {
   getProviderHub,
   getProviderPriceHistory,
   getProviderSyncErrors,
+  cancelProviderSync,
   saveProvider,
   syncProviderNow,
   testProviderConnection,
@@ -61,7 +62,13 @@ function Providers() {
   const [detailTab, setDetailTab] = useState<"runs" | "changes" | "errors" | "prices">("runs");
   const queryClient = useQueryClient();
 
-  const hub = useQuery({ queryKey: ["provider-hub"], queryFn: () => getProviderHub() });
+  const hub = useQuery({
+    queryKey: ["provider-hub"],
+    queryFn: () => getProviderHub(),
+    // Progress keeps updating without the admin keeping this page open.
+    refetchInterval: (query) =>
+      ((query.state.data as any[]) ?? []).some((provider: any) => provider.activeRun) ? 10_000 : false,
+  });
   const rows = (hub.data ?? []).filter((provider: any) => provider.serviceType === tab);
   const selected = (hub.data ?? []).find((provider: any) => provider.id === detailId) ?? null;
 
