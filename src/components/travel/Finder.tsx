@@ -1188,7 +1188,7 @@ export function LoungeFinder({
       </Button>
 
       {showMockResult && mockLounge && (
-        <Reveal className="mt-3">
+        <Reveal className="recommendation-reveal mt-3">
           <section className="rounded-2xl border border-border bg-card p-4 shadow-soft">
             <div className="flex items-start justify-between gap-3">
               <div>
