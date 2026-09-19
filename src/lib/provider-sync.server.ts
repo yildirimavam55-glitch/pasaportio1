@@ -1028,12 +1028,17 @@ export async function runProviderSyncToCompletion(
   db: Db,
   providerId: string,
   trigger: "MANUAL" | "SCHEDULED" | "WEBHOOK" = "MANUAL",
-  options: { budgetMs?: number; maxInvocations?: number } = {},
+  options: { budgetMs?: number; maxInvocations?: number; overrideKillSwitch?: boolean } = {},
 ): Promise<SyncResult> {
   const maxInvocations = Math.max(1, options.maxInvocations ?? 40);
   let last: SyncResult | null = null;
   for (let i = 0; i < maxInvocations; i += 1) {
-    last = await runProviderSync(db, providerId, trigger, { budgetMs: options.budgetMs ?? DEFAULT_SYNC_BUDGET_MS });
+    last = await runProviderSync(db, providerId, trigger, {
+      budgetMs: options.budgetMs ?? DEFAULT_SYNC_BUDGET_MS,
+      overrideKillSwitch: options.overrideKillSwitch === true,
+    });
+    if (last.error === SYNC_DISABLED_ERROR) return last;
+
     if (last.status !== "PARTIAL") return last;
     if (last.error === "Senkronizasyon iptal edildi.") return last;
   }
