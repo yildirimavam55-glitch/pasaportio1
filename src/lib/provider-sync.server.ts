@@ -696,7 +696,7 @@ export async function runProviderSync(
       }),
     );
 
-    receivedTotal += priced.length;
+    // receivedTotal is counted from the raw rows at the top of the batch.
     for (let i = 0; i < changeRows.length; i += 200) {
       await db.from("provider_catalogue_changes").insert(changeRows.slice(i, i + 200));
     }
