@@ -1952,6 +1952,7 @@ export type Database = {
       }
       provider_sync_runs: {
         Row: {
+          checkpoint_page: number
           complete: boolean
           completed_at: string | null
           connection_id: string | null
@@ -1961,11 +1962,13 @@ export type Database = {
           idempotency_key: string | null
           items_created: number
           items_failed: number
+          items_processed: number
           items_received: number
           items_returned: number
           items_unavailable: number
           items_unchanged: number
           items_updated: number
+          last_checkpoint_at: string | null
           price_changes: number
           provider_id: string
           started_at: string
@@ -1973,6 +1976,7 @@ export type Database = {
           trigger: Database["public"]["Enums"]["sync_trigger"]
         }
         Insert: {
+          checkpoint_page?: number
           complete?: boolean
           completed_at?: string | null
           connection_id?: string | null
@@ -1982,11 +1986,13 @@ export type Database = {
           idempotency_key?: string | null
           items_created?: number
           items_failed?: number
+          items_processed?: number
           items_received?: number
           items_returned?: number
           items_unavailable?: number
           items_unchanged?: number
           items_updated?: number
+          last_checkpoint_at?: string | null
           price_changes?: number
           provider_id: string
           started_at?: string
@@ -1994,6 +2000,7 @@ export type Database = {
           trigger?: Database["public"]["Enums"]["sync_trigger"]
         }
         Update: {
+          checkpoint_page?: number
           complete?: boolean
           completed_at?: string | null
           connection_id?: string | null
@@ -2003,11 +2010,13 @@ export type Database = {
           idempotency_key?: string | null
           items_created?: number
           items_failed?: number
+          items_processed?: number
           items_received?: number
           items_returned?: number
           items_unavailable?: number
           items_unchanged?: number
           items_updated?: number
+          last_checkpoint_at?: string | null
           price_changes?: number
           provider_id?: string
           started_at?: string
