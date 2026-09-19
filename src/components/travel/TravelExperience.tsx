@@ -112,7 +112,6 @@ function Experience({
   const { switchService, isSwitching, target, phase } = useServiceSwitchTransition();
   const selectedService = target ?? service;
 
-
   const requestServiceChange = (next: ServiceSlug) => {
     if (next === service || isSwitching) return;
     switchService(next, () => onServiceChange(next));
