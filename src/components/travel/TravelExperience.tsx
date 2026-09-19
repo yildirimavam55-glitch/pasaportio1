@@ -106,9 +106,11 @@ function Experience({
 }) {
   const { locale } = useI18n();
   const copy = localized(service === "esim" ? ESIM_CONTENT : LOUNGE_CONTENT, locale);
-  const [esimState, setEsimState] = useState<EsimFinderState>(ESIM_SERVICE_CONFIG.initialState);
-  const [loungeState, setLoungeState] = useState<LoungeFinderState>(
-    LOUNGE_SERVICE_CONFIG.initialState,
+  const [esimState, setEsimState] = useState<EsimFinderState>(() =>
+    restoreFinderState("travel-esim-finder", ESIM_SERVICE_CONFIG.initialState),
+  );
+  const [loungeState, setLoungeState] = useState<LoungeFinderState>(() =>
+    restoreFinderState("travel-lounge-finder", LOUNGE_SERVICE_CONFIG.initialState),
   );
   const { switchService, isSwitching, target, phase } = useServiceSwitchTransition();
   const selectedService = target ?? service;
@@ -127,6 +129,14 @@ function Experience({
     },
     [],
   );
+
+  useEffect(() => {
+    window.sessionStorage.setItem("travel-esim-finder", JSON.stringify(esimState));
+  }, [esimState]);
+
+  useEffect(() => {
+    window.sessionStorage.setItem("travel-lounge-finder", JSON.stringify(loungeState));
+  }, [loungeState]);
 
   const finderIsNearViewport = () => {
     const selector = document.getElementById("service-selector");
@@ -328,6 +338,16 @@ function Experience({
       {config.sections.map(render)}
     </PublicShell>
   );
+}
+
+function restoreFinderState<T>(key: string, fallback: T): T {
+  if (typeof window === "undefined") return fallback;
+  try {
+    const saved = window.sessionStorage.getItem(key);
+    return saved ? ({ ...fallback, ...JSON.parse(saved) } as T) : fallback;
+  } catch {
+    return fallback;
+  }
 }
 
 function ServiceButton({
