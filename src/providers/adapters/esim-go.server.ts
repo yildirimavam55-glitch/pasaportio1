@@ -12,7 +12,11 @@ import type { AdapterContext, CatalogueAdapter } from "./types";
 export const ESIM_GO_DEFAULT_BASE_URL = "https://api.esim-go.com/v2.4";
 export const ESIM_GO_SECRET_NAME = "ESIM_GO_API_KEY";
 
-/** Reads ISO codes out of a provider country list; region labels are ignored. */
+/**
+ * Reads ISO codes out of a provider country list; region labels are ignored.
+ * Subdivision codes (US-HI, ES-CN …) fall back to their parent country so a
+ * real bundle is never dropped for lacking a plain two-letter code.
+ */
 function isoListOf(value: unknown): string[] {
   if (!Array.isArray(value)) return [];
   return value
@@ -22,6 +26,7 @@ function isoListOf(value: unknown): string[] {
         : String(entry ?? ""),
     )
     .map((iso) => iso.trim().toUpperCase())
+    .map((iso) => (/^[A-Z]{2}-[A-Z0-9]{1,3}$/.test(iso) ? iso.slice(0, 2) : iso))
     .filter((iso) => /^[A-Z]{2}$/.test(iso));
 }
 

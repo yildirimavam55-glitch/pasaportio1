@@ -143,7 +143,9 @@ export function parseEsimCatalogue(input: unknown, defaultCurrency = "EUR"): Par
     let dataGb = toNumber(pick(row, ["dataGb", "data_gb", "gb", "dataAmountGb"]));
     if (dataGb == null) {
       const mb = toNumber(pick(row, ["dataMb", "data_mb", "mb"]));
-      if (mb != null) dataGb = Math.round((mb / 1024) * 100) / 100;
+      // Providers sell commercial GB (1 GB = 1000 MB); binary division would
+      // turn a 5 GB bundle into 4.88 GB on the storefront.
+      if (mb != null) dataGb = Math.round((mb / 1000) * 100) / 100;
     }
     if (!unlimited && (dataGb == null || dataGb <= 0)) {
       issues.push({ index, externalId, message: "Veri miktarı eksik (GB) ve paket sınırsız değil." });
