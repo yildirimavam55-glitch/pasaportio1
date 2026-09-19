@@ -32,6 +32,15 @@ export type AdapterContext = {
   config: ConnectionConfig;
 };
 
+/** One provider catalogue page — the unit of a resumable sync batch. */
+export type CataloguePage = {
+  items: Record<string, unknown>[];
+  hasMore: boolean;
+  /** HTTP status of the page request (0 = network/timeout). */
+  status: number;
+  error: string | null;
+};
+
 /** Phase 2A adapters are catalogue-first. Ordering methods stay unimplemented. */
 export interface CatalogueAdapter {
   type: AdapterType;
@@ -39,6 +48,8 @@ export interface CatalogueAdapter {
   hasCredential(): boolean;
   testConnection(): Promise<{ ok: boolean; status: ConnectionStatus; message: string }>;
   fetchCatalogue(): Promise<CatalogueFetch>;
+  /** Resumable pagination. One page per call so progress can be checkpointed. */
+  fetchCataloguePage?(page: number, perPage: number): Promise<CataloguePage>;
   fetchBalance?(): Promise<{ amount: number; currency: string } | null>;
   /** Real-time pre-purchase validation. Never places an order. */
   validateItem?(externalId: string): Promise<{ available: boolean; providerCost: number | null; currency: string | null }>;

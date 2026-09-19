@@ -31,6 +31,9 @@ import { buildAdapter } from "@/providers/adapters/factory.server";
 
 type Db = any;
 
+/** One invocation processes catalogue pages until this budget, then checkpoints. */
+export const DEFAULT_SYNC_BUDGET_MS = 45_000;
+
 export type SyncResult = {
   providerId: string;
   providerCode: string;
@@ -94,7 +97,9 @@ export async function runProviderSync(
   db: Db,
   providerId: string,
   trigger: "MANUAL" | "SCHEDULED" | "WEBHOOK" = "MANUAL",
+  options: { budgetMs?: number } = {},
 ): Promise<SyncResult> {
+  const deadline = Date.now() + (options.budgetMs ?? DEFAULT_SYNC_BUDGET_MS);
   const { data: provider } = await db
     .from("providers")
     .select("id, code, name, service_type, adapter_type, currency, minimum_margin_percent, sync_interval_hours, low_balance_threshold, active")
@@ -139,16 +144,63 @@ export async function runProviderSync(
     return { ...base, error: "CREDENTIAL_REQUIRED" };
   }
 
-  const { data: run } = await db
+  // Resume the last unfinished run instead of restarting the whole catalogue.
+  const { data: openRun } = await db
     .from("provider_sync_runs")
-    .insert({ provider_id: providerId, connection_id: connection?.id ?? null, trigger, status: "RUNNING" })
-    .select("id")
-    .single();
-  const runId = run?.id ?? null;
+    .select(
+      "id, checkpoint_page, items_received, items_created, items_updated, items_unchanged, items_returned, items_failed, price_changes, coverage_changes",
+    )
+    .eq("provider_id", providerId)
+    .eq("status", "RUNNING")
+    .order("started_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  let runId: string | null = openRun?.id ?? null;
+  if (!runId) {
+    const { data: run } = await db
+      .from("provider_sync_runs")
+      .insert({ provider_id: providerId, connection_id: connection?.id ?? null, trigger, status: "RUNNING" })
+      .select("id")
+      .single();
+    runId = run?.id ?? null;
+  }
+
+  let checkpointPage = Number(openRun?.checkpoint_page ?? 0);
+  let receivedTotal = Number(openRun?.items_received ?? 0);
+  let created = Number(openRun?.items_created ?? 0);
+  let updated = Number(openRun?.items_updated ?? 0);
+  let unchanged = Number(openRun?.items_unchanged ?? 0);
+  let returned = Number(openRun?.items_returned ?? 0);
+  let failed = Number(openRun?.items_failed ?? 0);
+  let priceChanges = Number(openRun?.price_changes ?? 0);
+  let coverageChanges = Number(openRun?.coverage_changes ?? 0);
 
   if (connection?.id) {
     await db.from("provider_connections").update({ sync_state: "RUNNING", last_attempt_at: nowIso }).eq("id", connection.id);
   }
+
+  const counters = () => ({
+    items_received: receivedTotal,
+    items_created: created,
+    items_updated: updated,
+    items_unchanged: unchanged,
+    items_returned: returned,
+    items_failed: failed,
+    price_changes: priceChanges,
+    coverage_changes: coverageChanges,
+    items_processed: created + updated + unchanged,
+  });
+
+  /** Persist progress after every batch so an interrupted sync resumes safely. */
+  const checkpoint = async (page: number) => {
+    checkpointPage = page;
+    if (!runId) return;
+    await db
+      .from("provider_sync_runs")
+      .update({ ...counters(), checkpoint_page: page, last_checkpoint_at: new Date().toISOString() })
+      .eq("id", runId);
+  };
 
   const finish = async (result: SyncResult, complete: boolean) => {
     if (runId) {
@@ -157,15 +209,10 @@ export async function runProviderSync(
         .update({
           status: result.status,
           completed_at: new Date().toISOString(),
+          ...counters(),
           items_received: result.itemsReceived,
-          items_created: result.created,
-          items_updated: result.updated,
-          items_unchanged: result.unchanged,
           items_unavailable: result.unavailable,
-          items_failed: result.failed,
-          items_returned: result.returned,
-          price_changes: result.priceChanges,
-          coverage_changes: result.coverageChanges,
+          checkpoint_page: checkpointPage,
           complete,
           error_summary: result.error ?? null,
         })
@@ -186,29 +233,33 @@ export async function runProviderSync(
     return result;
   };
 
-  // 1. Fetch the whole catalogue.
-  const fetched = await adapter.fetchCatalogue();
-  if (!fetched.complete && fetched.items.length === 0) {
-    await db.from("provider_sync_errors").insert({
-      provider_id: providerId,
-      sync_run_id: runId,
-      code: "CATALOGUE_FETCH_FAILED",
-      message: fetched.error ?? "Katalog alınamadı.",
-    });
-    await db.from("ops_alerts").insert({
-      type: "CATALOGUE_SYNC_FAILED",
-      severity: "ERROR",
-      message: `${provider.name}: katalog senkronizasyonu başarısız (${fetched.error ?? "bilinmeyen hata"}).`,
-      entity_type: "providers",
-      entity_id: providerId,
-      context: { trigger },
-    });
-    // Nothing is marked unavailable because of a failed fetch.
-    return finish({ ...base, runId, status: "FAILED", error: fetched.error ?? "Katalog alınamadı." }, false);
-  }
+  /** Interrupted (budget, rate limit, network): keep the run RUNNING and resumable. */
+  const pause = async (reason: string): Promise<SyncResult> => {
+    await checkpoint(checkpointPage);
+    if (connection?.id) {
+      await db
+        .from("provider_connections")
+        .update({ sync_state: "RUNNING", last_checked_at: new Date().toISOString() })
+        .eq("id", connection.id);
+    }
+    return {
+      ...base,
+      runId,
+      status: "PARTIAL",
+      itemsReceived: receivedTotal,
+      created,
+      updated,
+      unchanged,
+      unavailable: 0,
+      returned,
+      priceChanges,
+      coverageChanges,
+      failed,
+      error: reason,
+    };
+  };
 
-  // 2. Normalize + price.
-  const parsed = parseEsimCatalogue(fetched.items, provider.currency ?? "EUR");
+  // Pricing rule + previous valid snapshot are loaded once per invocation.
   const { data: rule } = await db
     .from("pricing_rules")
     .select("id, strategy, markup_percent, fixed_markup, minimum_margin_percent, rounding_mode, currency, priority")
@@ -219,19 +270,7 @@ export async function runProviderSync(
     .maybeSingle();
   const providerMinMargin = provider.minimum_margin_percent == null ? null : Number(provider.minimum_margin_percent);
   const pricing = pricingFromRule(rule, provider.currency ?? "EUR", providerMinMargin);
-  const priced = priceItems(parsed.items, pricing, provider.code);
 
-  for (const issue of parsed.issues.slice(0, 50)) {
-    await db.from("provider_sync_errors").insert({
-      provider_id: providerId,
-      sync_run_id: runId,
-      external_id: issue.externalId,
-      code: "INVALID_ITEM",
-      message: issue.message,
-    });
-  }
-
-  // 3. Previous valid snapshot.
   const [{ data: rawRows }, { data: mappingRows }] = await Promise.all([
     db.from("provider_raw_items").select("external_id, payload_hash, available").eq("provider_id", providerId),
     db.from("provider_product_mappings").select("external_id, product_id, provider_cost, available").eq("provider_id", providerId),
@@ -267,235 +306,335 @@ export async function runProviderSync(
     });
   }
 
-
-  let created = 0;
-  let updated = 0;
-  let unchanged = 0;
-  let failed = 0;
-  let returned = 0;
-  let priceChanges = 0;
-  let coverageChanges = 0;
-  const changeRows: any[] = [];
   const unknownIsos = new Set<string>();
 
-  for (const item of priced) {
-    try {
-      const coverage = mapCoverageToCanonical(item.coverage);
-      coverage.unknown.forEach((iso) => unknownIsos.add(iso));
-      if (!coverage.canonical.length) {
+  /**
+   * Processes one catalogue batch. Idempotent and retry safe: every write is
+   * keyed by (provider, externalId) so a replayed page never duplicates data.
+   */
+  const processBatch = async (rawItems: Record<string, unknown>[]) => {
+    const parsed = parseEsimCatalogue(rawItems, provider.currency ?? "EUR");
+    const priced = priceItems(parsed.items, pricing, provider.code);
+    const changeRows: any[] = [];
+
+    for (const issue of parsed.issues.slice(0, 20)) {
+      await db.from("provider_sync_errors").insert({
+        provider_id: providerId,
+        sync_run_id: runId,
+        external_id: issue.externalId,
+        code: "INVALID_ITEM",
+        message: issue.message,
+      });
+    }
+
+    for (const item of priced) {
+      try {
+        const coverage = mapCoverageToCanonical(item.coverage);
+        coverage.unknown.forEach((iso) => unknownIsos.add(iso));
+        if (!coverage.canonical.length) {
+          failed += 1;
+          await db.from("provider_sync_errors").insert({
+            provider_id: providerId,
+            sync_run_id: runId,
+            external_id: item.externalId,
+            code: "UNKNOWN_COUNTRY_ISO",
+            message: `Kapsama ülkeleri kanonik ülke listesiyle eşleşmedi: ${item.coverage.join(", ")}`,
+          });
+          continue;
+        }
+
+        const previous = previousSnapshot.get(item.externalId);
+        const previousRaw = rawByExternal.get(item.externalId) as any;
+        const previousMapping = mappingByExternal.get(item.externalId) as any;
+        const hash = hashItem(item);
+        const isUnchanged = Boolean(previousRaw && previousRaw.payload_hash === hash && previousRaw.available);
+
+        const { data: rawRow } = await db
+          .from("provider_raw_items")
+          .upsert(
+            {
+              provider_id: providerId,
+              external_id: item.externalId,
+              service_type: provider.service_type,
+              payload: item.payload as any,
+              payload_hash: hash,
+              available: true,
+              last_seen_at: new Date().toISOString(),
+              last_sync_run_id: runId,
+            },
+            { onConflict: "provider_id,external_id" },
+          )
+          .select("id")
+          .single();
+
+        // Existing internal product is always reused — never duplicated.
+        let productId: string | null = previousMapping?.product_id ?? null;
+        if (!productId) {
+          const { data: bySlug } = await db.from("service_products").select("id").eq("slug", item.slug).maybeSingle();
+          productId = bySlug?.id ?? null;
+        }
+
+        const providerOwned = {
+          service_type: provider.service_type,
+          slug: item.slug,
+          provider_cost: item.providerCost,
+          provider_currency: item.providerCurrency,
+          provider_external_id: item.externalId,
+          primary_provider_id: providerId,
+          provider_available: true,
+          provider_synced_at: new Date().toISOString(),
+          source: "PROVIDER",
+          is_test: false,
+        };
+
+        if (!productId) {
+          const { data: inserted, error } = await db
+            .from("service_products")
+            .insert({
+              ...providerOwned,
+              name: item.name,
+              currency: pricing.currency,
+              sale_price: item.salePrice,
+              pricing_rule_id: rule?.id ?? null,
+              lifecycle: "DRAFT",
+              customer_visible: false,
+              margin_flagged: item.belowMinimumMargin,
+            })
+            .select("id")
+            .single();
+          if (error) throw new Error(error.message);
+          productId = inserted.id as string;
+          created += 1;
+          changeRows.push({
+            provider_id: providerId,
+            sync_run_id: runId,
+            product_id: productId,
+            external_id: item.externalId,
+            change_type: "NEW_PRODUCT",
+            needs_review: true,
+            details: { providerCost: item.providerCost, salePrice: item.salePrice, currency: pricing.currency },
+          });
+        } else {
+          const { data: current } = await db
+            .from("service_products")
+            .select("price_overridden, sale_price, lifecycle, provider_available")
+            .eq("id", productId)
+            .maybeSingle();
+
+          const patch: Record<string, unknown> = { ...providerOwned, margin_flagged: item.belowMinimumMargin };
+          // Admin-owned fields are never touched by a sync.
+          if (!current?.price_overridden) {
+            patch["sale_price"] = item.salePrice;
+            patch["currency"] = pricing.currency;
+          }
+          // A returned product reuses its mapping and leaves UNAVAILABLE.
+          if (current?.lifecycle === "UNAVAILABLE") {
+            patch["lifecycle"] = "DRAFT";
+            returned += 1;
+            changeRows.push({
+              provider_id: providerId,
+              sync_run_id: runId,
+              product_id: productId,
+              external_id: item.externalId,
+              change_type: "PRODUCT_RETURNED",
+              needs_review: true,
+              details: {},
+            });
+          }
+          const { error } = await db.from("service_products").update(patch).eq("id", productId);
+          if (error) throw new Error(error.message);
+          if (isUnchanged) unchanged += 1;
+          else updated += 1;
+        }
+
+        // Provider cost history — a cost is never overwritten without a record.
+        const previousCost = previous?.providerCost ?? null;
+        if (previousCost == null || previousCost !== item.providerCost) {
+          const change = computeCostChange(previousCost, item.providerCost, item.providerCurrency);
+          if (previousCost != null && change.direction !== "SAME") priceChanges += 1;
+          await db.from("provider_price_history").insert({
+            provider_id: providerId,
+            product_id: productId,
+            external_id: item.externalId,
+            old_cost: change.oldCost,
+            new_cost: change.newCost,
+            currency: change.currency,
+            change_amount: change.changeAmount,
+            change_percent: change.changePercent,
+            sync_run_id: runId,
+          });
+        }
+
+        if (previous) {
+          const detected: CatalogueChange[] = classifyItem(
+            { ...snapshotOf(item), coverage: coverage.canonical },
+            { ...previous, coverage: previous.coverage },
+          );
+          for (const change of detected) {
+            if (change.type === "COVERAGE_CHANGE") coverageChanges += 1;
+            if (change.type === "NEW_PRODUCT" || change.type === "PRODUCT_RETURNED") continue;
+            changeRows.push({
+              provider_id: providerId,
+              sync_run_id: runId,
+              product_id: productId,
+              external_id: item.externalId,
+              change_type: change.type,
+              needs_review: change.needsReview,
+              details: change.details as any,
+            });
+          }
+        }
+
+        await db.from("esim_product_details").upsert(
+          {
+            product_id: productId,
+            country_iso: item.countryIso,
+            coverage_country_isos: coverage.canonical,
+            package_kind: item.packageKind,
+            data_gb: item.dataGb,
+            data_type: item.dataType,
+            unlimited_data: item.unlimited,
+            validity_days: item.validityDays,
+            raw_validity_value: item.rawValidityValue,
+            raw_validity_unit: item.rawValidityUnit,
+            activation_policy: item.activationPolicy,
+            fair_use_note: item.fairUseNote,
+            fair_use_policy: item.fairUsePolicy,
+            high_speed_allowance: item.highSpeedAllowance,
+            speed_after_fair_use: item.speedAfterFairUse,
+            provider_bundle_id: item.externalId,
+            network_operators: item.networks,
+            supports_5g: item.supports5g,
+            supports_hotspot: item.supportsHotspot,
+            topup_supported: item.topupSupported,
+            provider_metadata: item.payload as any,
+          },
+          { onConflict: "product_id" },
+        );
+
+        await db.from("provider_product_mappings").upsert(
+          {
+            provider_id: providerId,
+            external_id: item.externalId,
+            product_id: productId,
+            raw_item_id: rawRow?.id ?? null,
+            provider_cost: item.providerCost,
+            provider_currency: item.providerCurrency,
+            available: true,
+            last_synced_at: new Date().toISOString(),
+          },
+          { onConflict: "provider_id,external_id" },
+        );
+
+        // Keep the in-memory snapshot current so a replayed page stays idempotent.
+        previousSnapshot.set(item.externalId, { ...snapshotOf(item), coverage: coverage.canonical });
+        rawByExternal.set(item.externalId, { external_id: item.externalId, payload_hash: hash, available: true });
+        mappingByExternal.set(item.externalId, {
+          external_id: item.externalId,
+          product_id: productId,
+          provider_cost: item.providerCost,
+          available: true,
+        });
+
+        if (item.belowMinimumMargin) {
+          await db.from("ops_alerts").insert({
+            type: "MARGIN_BELOW_MINIMUM",
+            severity: "WARNING",
+            message: `${item.name}: provider maliyeti sonrası marj minimumun altında.`,
+            entity_type: "service_products",
+            entity_id: productId,
+            context: { externalId: item.externalId, marginPercent: item.marginPercent, providerCost: item.providerCost },
+          });
+        }
+      } catch (error) {
         failed += 1;
         await db.from("provider_sync_errors").insert({
           provider_id: providerId,
           sync_run_id: runId,
           external_id: item.externalId,
-          code: "UNKNOWN_COUNTRY_ISO",
-          message: `Kapsama ülkeleri kanonik ülke listesiyle eşleşmedi: ${item.coverage.join(", ")}`,
-        });
-        continue;
-      }
-
-      const previous = previousSnapshot.get(item.externalId);
-      const previousRaw = rawByExternal.get(item.externalId) as any;
-      const previousMapping = mappingByExternal.get(item.externalId) as any;
-      const hash = hashItem(item);
-      const isUnchanged = Boolean(previousRaw && previousRaw.payload_hash === hash && previousRaw.available);
-
-      const { data: rawRow } = await db
-        .from("provider_raw_items")
-        .upsert(
-          {
-            provider_id: providerId,
-            external_id: item.externalId,
-            service_type: provider.service_type,
-            payload: item.payload as any,
-            payload_hash: hash,
-            available: true,
-            last_seen_at: new Date().toISOString(),
-            last_sync_run_id: runId,
-          },
-          { onConflict: "provider_id,external_id" },
-        )
-        .select("id")
-        .single();
-
-      // Existing internal product is always reused — never duplicated.
-      let productId: string | null = previousMapping?.product_id ?? null;
-      if (!productId) {
-        const { data: bySlug } = await db.from("service_products").select("id").eq("slug", item.slug).maybeSingle();
-        productId = bySlug?.id ?? null;
-      }
-
-      const providerOwned = {
-        service_type: provider.service_type,
-        slug: item.slug,
-        provider_cost: item.providerCost,
-        provider_currency: item.providerCurrency,
-        provider_external_id: item.externalId,
-        primary_provider_id: providerId,
-        provider_available: true,
-        provider_synced_at: new Date().toISOString(),
-        source: "PROVIDER",
-        is_test: false,
-      };
-
-      if (!productId) {
-        const { data: inserted, error } = await db
-          .from("service_products")
-          .insert({
-            ...providerOwned,
-            name: item.name,
-            currency: pricing.currency,
-            sale_price: item.salePrice,
-            pricing_rule_id: rule?.id ?? null,
-            lifecycle: "DRAFT",
-            customer_visible: false,
-            margin_flagged: item.belowMinimumMargin,
-          })
-          .select("id")
-          .single();
-        if (error) throw new Error(error.message);
-        productId = inserted.id as string;
-        created += 1;
-        changeRows.push({
-          provider_id: providerId,
-          sync_run_id: runId,
-          product_id: productId,
-          external_id: item.externalId,
-          change_type: "NEW_PRODUCT",
-          needs_review: true,
-          details: { providerCost: item.providerCost, salePrice: item.salePrice, currency: pricing.currency },
-        });
-      } else {
-        const { data: current } = await db
-          .from("service_products")
-          .select("price_overridden, sale_price, lifecycle, provider_available")
-          .eq("id", productId)
-          .maybeSingle();
-
-        const patch: Record<string, unknown> = { ...providerOwned, margin_flagged: item.belowMinimumMargin };
-        // Admin-owned fields are never touched by a sync.
-        if (!current?.price_overridden) {
-          patch["sale_price"] = item.salePrice;
-          patch["currency"] = pricing.currency;
-        }
-        // A returned product reuses its mapping and leaves UNAVAILABLE.
-        if (current?.lifecycle === "UNAVAILABLE") {
-          patch["lifecycle"] = "DRAFT";
-          returned += 1;
-          changeRows.push({
-            provider_id: providerId,
-            sync_run_id: runId,
-            product_id: productId,
-            external_id: item.externalId,
-            change_type: "PRODUCT_RETURNED",
-            needs_review: true,
-            details: {},
-          });
-        }
-        const { error } = await db.from("service_products").update(patch).eq("id", productId);
-        if (error) throw new Error(error.message);
-        if (isUnchanged) unchanged += 1;
-        else updated += 1;
-      }
-
-      // Provider cost history — a cost is never overwritten without a record.
-      const previousCost = previous?.providerCost ?? null;
-      if (previousCost == null || previousCost !== item.providerCost) {
-        const change = computeCostChange(previousCost, item.providerCost, item.providerCurrency);
-        if (previousCost != null && change.direction !== "SAME") priceChanges += 1;
-        await db.from("provider_price_history").insert({
-          provider_id: providerId,
-          product_id: productId,
-          external_id: item.externalId,
-          old_cost: change.oldCost,
-          new_cost: change.newCost,
-          currency: change.currency,
-          change_amount: change.changeAmount,
-          change_percent: change.changePercent,
-          sync_run_id: runId,
+          code: "ITEM_FAILED",
+          message: (error as Error).message.slice(0, 400),
         });
       }
+    }
 
-      if (previous) {
-        const detected: CatalogueChange[] = classifyItem(
-          { ...snapshotOf(item), coverage: coverage.canonical },
-          { ...previous, coverage: previous.coverage },
-        );
-        for (const change of detected) {
-          if (change.type === "COVERAGE_CHANGE") coverageChanges += 1;
-          if (change.type === "NEW_PRODUCT" || change.type === "PRODUCT_RETURNED") continue;
-          changeRows.push({
-            provider_id: providerId,
-            sync_run_id: runId,
-            product_id: productId,
-            external_id: item.externalId,
-            change_type: change.type,
-            needs_review: change.needsReview,
-            details: change.details as any,
-          });
-        }
-      }
+    receivedTotal += priced.length;
+    for (let i = 0; i < changeRows.length; i += 200) {
+      await db.from("provider_catalogue_changes").insert(changeRows.slice(i, i + 200));
+    }
+  };
 
-      await db.from("esim_product_details").upsert(
-        {
-          product_id: productId,
-          country_iso: item.countryIso,
-          coverage_country_isos: coverage.canonical,
-          package_kind: item.packageKind,
-          data_gb: item.dataGb,
-          data_type: item.dataType,
-          unlimited_data: item.unlimited,
-          validity_days: item.validityDays,
-          raw_validity_value: item.rawValidityValue,
-          raw_validity_unit: item.rawValidityUnit,
-          activation_policy: item.activationPolicy,
-          fair_use_note: item.fairUseNote,
-          fair_use_policy: item.fairUsePolicy,
-          high_speed_allowance: item.highSpeedAllowance,
-          speed_after_fair_use: item.speedAfterFairUse,
-          provider_bundle_id: item.externalId,
-          network_operators: item.networks,
-          supports_5g: item.supports5g,
-          supports_hotspot: item.supportsHotspot,
-          topup_supported: item.topupSupported,
-          provider_metadata: item.payload as any,
-        },
-        { onConflict: "product_id" },
-      );
+  // Batched, resumable catalogue fetch.
+  const cfg = (connection?.config ?? {}) as any;
+  const perPage = Math.max(1, Number(cfg.pageSize) || 100);
+  const maxPages = Math.max(1, Number(cfg.maxPages) || 60);
+  let complete = false;
+  let fetchError: string | null = null;
 
-      await db.from("provider_product_mappings").upsert(
-        {
-          provider_id: providerId,
-          external_id: item.externalId,
-          product_id: productId,
-          raw_item_id: rawRow?.id ?? null,
-          provider_cost: item.providerCost,
-          provider_currency: item.providerCurrency,
-          available: true,
-          last_synced_at: new Date().toISOString(),
-        },
-        { onConflict: "provider_id,external_id" },
-      );
-
-      if (item.belowMinimumMargin) {
-        await db.from("ops_alerts").insert({
-          type: "MARGIN_BELOW_MINIMUM",
-          severity: "WARNING",
-          message: `${item.name}: provider maliyeti sonrası marj minimumun altında.`,
-          entity_type: "service_products",
-          entity_id: productId,
-          context: { externalId: item.externalId, marginPercent: item.marginPercent, providerCost: item.providerCost },
-        });
-      }
-    } catch (error) {
-      failed += 1;
+  if (typeof adapter.fetchCataloguePage !== "function") {
+    // Adapters without pagination stay on the single-shot path.
+    const fetched = await adapter.fetchCatalogue();
+    if (!fetched.complete && fetched.items.length === 0) {
       await db.from("provider_sync_errors").insert({
         provider_id: providerId,
         sync_run_id: runId,
-        external_id: item.externalId,
-        code: "ITEM_FAILED",
-        message: (error as Error).message.slice(0, 400),
+        code: "CATALOGUE_FETCH_FAILED",
+        message: fetched.error ?? "Katalog alınamadı.",
       });
+      await db.from("ops_alerts").insert({
+        type: "CATALOGUE_SYNC_FAILED",
+        severity: "ERROR",
+        message: `${provider.name}: katalog senkronizasyonu başarısız (${fetched.error ?? "bilinmeyen hata"}).`,
+        entity_type: "providers",
+        entity_id: providerId,
+        context: { trigger },
+      });
+      return finish({ ...base, runId, status: "FAILED", error: fetched.error ?? "Katalog alınamadı." }, false);
+    }
+    await processBatch(fetched.items);
+    await checkpoint(1);
+    complete = fetched.complete;
+    fetchError = fetched.error ?? null;
+  } else {
+    for (let page = checkpointPage + 1; page <= maxPages; page += 1) {
+      // Admin cancellation stops the run without touching the catalogue.
+      if (runId) {
+        const { data: state } = await db.from("provider_sync_runs").select("status").eq("id", runId).maybeSingle();
+        if (state?.status === "CANCELLED") return pause("Senkronizasyon iptal edildi.");
+      }
+      if (Date.now() > deadline) return pause("Zaman bütçesi doldu, kaldığı yerden devam edecek.");
+
+      const result = await adapter.fetchCataloguePage(page, perPage);
+      if (result.error) {
+        await db.from("provider_sync_errors").insert({
+          provider_id: providerId,
+          sync_run_id: runId,
+          code: result.status === 429 ? "RATE_LIMITED" : result.status === 0 ? "NETWORK_ERROR" : `HTTP_${result.status}`,
+          message: `Sayfa ${page}: ${result.error}`,
+        });
+        if (receivedTotal === 0 && checkpointPage === 0) {
+          await db.from("ops_alerts").insert({
+            type: "CATALOGUE_SYNC_FAILED",
+            severity: "ERROR",
+            message: `${provider.name}: katalog senkronizasyonu başarısız (${result.error}).`,
+            entity_type: "providers",
+            entity_id: providerId,
+            context: { trigger, page },
+          });
+          // Nothing is marked unavailable because of a failed fetch.
+          return finish({ ...base, runId, status: "FAILED", error: result.error }, false);
+        }
+        // Partial progress is kept; the next run resumes from the checkpoint.
+        return pause(result.error);
+      }
+
+      await processBatch(result.items);
+      await checkpoint(page);
+      if (!result.hasMore) {
+        complete = true;
+        break;
+      }
+      if (page === maxPages) fetchError = "Sayfalama sınırına ulaşıldı.";
     }
   }
 
@@ -508,46 +647,48 @@ export async function runProviderSync(
     });
   }
 
-  // 4. Missing items — ONLY after a complete, successful fetch.
-  const knownAvailable = [...mappingByExternal.entries()]
-    .filter(([, row]) => (row as any).available)
-    .map(([externalId]) => externalId as string);
-  const missing = resolveMissingItems({
-    incomingIds: priced.map((item) => item.externalId),
-    knownAvailableIds: knownAvailable,
-    fetchComplete: fetched.complete,
-    fetchSucceeded: !fetched.error,
-    itemsReceived: priced.length,
-  });
+  // Missing items — ONLY after a complete, successful catalogue pass.
+  let missing: string[] = [];
+  if (complete) {
+    const { data: staleRows } = await db
+      .from("provider_raw_items")
+      .select("external_id")
+      .eq("provider_id", providerId)
+      .eq("available", true)
+      .or(`last_sync_run_id.is.null,last_sync_run_id.neq.${runId}`);
+    missing = resolveMissingItems({
+      incomingIds: [],
+      knownAvailableIds: (staleRows ?? []).map((row: any) => row.external_id as string),
+      fetchComplete: true,
+      fetchSucceeded: true,
+      itemsReceived: receivedTotal,
+    });
+  }
 
   if (missing.length) {
-    await db.from("provider_raw_items").update({ available: false }).eq("provider_id", providerId).in("external_id", missing);
-    await db.from("provider_product_mappings").update({ available: false }).eq("provider_id", providerId).in("external_id", missing);
-    // Historical orders keep their purchase-time snapshot; nothing is deleted.
-    await db
-      .from("service_products")
-      .update({ provider_available: false, customer_visible: false, lifecycle: "UNAVAILABLE" })
-      .eq("primary_provider_id", providerId)
-      .in("provider_external_id", missing);
-    for (const externalId of missing.slice(0, 200)) {
-      changeRows.push({
-        provider_id: providerId,
-        sync_run_id: runId,
-        external_id: externalId,
-        change_type: "PRODUCT_REMOVED",
-        needs_review: true,
-        details: {},
-      });
+    for (let i = 0; i < missing.length; i += 200) {
+      const slice = missing.slice(i, i + 200);
+      await db.from("provider_raw_items").update({ available: false }).eq("provider_id", providerId).in("external_id", slice);
+      await db.from("provider_product_mappings").update({ available: false }).eq("provider_id", providerId).in("external_id", slice);
+      // Historical orders keep their purchase-time snapshot; nothing is deleted.
+      await db
+        .from("service_products")
+        .update({ provider_available: false, customer_visible: false, lifecycle: "UNAVAILABLE" })
+        .eq("primary_provider_id", providerId)
+        .in("provider_external_id", slice);
     }
+    const removedRows = missing.slice(0, 200).map((externalId) => ({
+      provider_id: providerId,
+      sync_run_id: runId,
+      external_id: externalId,
+      change_type: "PRODUCT_REMOVED",
+      needs_review: true,
+      details: {},
+    }));
+    if (removedRows.length) await db.from("provider_catalogue_changes").insert(removedRows);
   }
 
-  if (changeRows.length) {
-    for (let i = 0; i < changeRows.length; i += 200) {
-      await db.from("provider_catalogue_changes").insert(changeRows.slice(i, i + 200));
-    }
-  }
-
-  // 5. Balance + freshness.
+  // Balance + freshness.
   if (adapter.fetchBalance) {
     try {
       const balance = await adapter.fetchBalance();
@@ -577,8 +718,8 @@ export async function runProviderSync(
   }
 
   const status = resolveSyncStatus({
-    complete: fetched.complete,
-    received: priced.length,
+    complete,
+    received: receivedTotal,
     failed,
     processed: created + updated + unchanged,
   });
@@ -588,7 +729,7 @@ export async function runProviderSync(
       ...base,
       runId,
       status,
-      itemsReceived: priced.length,
+      itemsReceived: receivedTotal,
       created,
       updated,
       unchanged,
@@ -597,14 +738,16 @@ export async function runProviderSync(
       priceChanges,
       coverageChanges,
       failed,
-      error: fetched.error ?? (failed ? `${failed} ürün işlenemedi.` : null),
+      error: fetchError ?? (failed ? `${failed} ürün işlenemedi.` : null),
     },
-    fetched.complete,
+    complete,
   );
 }
 
 /** Scheduler entry: syncs every provider whose interval is due, and raises stale alerts. */
-export async function runDueProviderSyncs(): Promise<{ ok: boolean; ran: SyncResult[]; skipped: number }> {
+export async function runDueProviderSyncs(
+  options: { budgetMs?: number } = {},
+): Promise<{ ok: boolean; ran: SyncResult[]; skipped: number }> {
   const db = await adminDb();
   const { data: providers } = await db
     .from("providers")
@@ -634,12 +777,21 @@ export async function runDueProviderSyncs(): Promise<{ ok: boolean; ran: SyncRes
       });
     }
 
-    if (!isSyncDue({ autoSync: provider.auto_sync, active: provider.active, nextSyncAt: connection?.next_sync_at ?? null })) {
+    // An unfinished run always resumes, even when the interval is not due yet.
+    const { data: openRun } = await db
+      .from("provider_sync_runs")
+      .select("id")
+      .eq("provider_id", provider.id)
+      .eq("status", "RUNNING")
+      .limit(1)
+      .maybeSingle();
+
+    if (!openRun && !isSyncDue({ autoSync: provider.auto_sync, active: provider.active, nextSyncAt: connection?.next_sync_at ?? null })) {
       skipped += 1;
       continue;
     }
     try {
-      ran.push(await runProviderSync(db, provider.id, "SCHEDULED"));
+      ran.push(await runProviderSync(db, provider.id, "SCHEDULED", { budgetMs: options.budgetMs ?? DEFAULT_SYNC_BUDGET_MS }));
     } catch (error) {
       ran.push({
         providerId: provider.id,

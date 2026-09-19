@@ -40,7 +40,7 @@ export const getProviderHub = createServerFn({ method: "GET" })
       db.from("provider_connections").select("*"),
       db
         .from("provider_sync_runs")
-        .select("id, provider_id, status, trigger, started_at, completed_at, items_received, items_created, items_updated, items_unchanged, items_unavailable, items_returned, items_failed, price_changes, coverage_changes, complete, error_summary")
+        .select("id, provider_id, status, trigger, started_at, completed_at, items_received, items_created, items_updated, items_unchanged, items_unavailable, items_returned, items_failed, price_changes, coverage_changes, complete, error_summary, checkpoint_page, items_processed, last_checkpoint_at")
         .order("started_at", { ascending: false })
         .limit(100),
       db.from("provider_catalogue_changes").select("provider_id, change_type, needs_review, created_at").order("created_at", { ascending: false }).limit(1000),
@@ -103,6 +103,8 @@ export const getProviderHub = createServerFn({ method: "GET" })
         productCount: providerMappings.length,
         availableProductCount: providerMappings.filter((row: any) => row.available).length,
         runs: providerRuns.slice(0, 10),
+        // Live progress of an unfinished, resumable run.
+        activeRun: providerRuns.find((row: any) => row.status === "RUNNING") ?? null,
         changeSummary: {
           newProducts: providerChanges.filter((row: any) => row.change_type === "NEW_PRODUCT").length,
           priceIncreases: providerChanges.filter((row: any) => row.change_type === "PRICE_INCREASE").length,
@@ -323,6 +325,31 @@ export const syncProviderNow = createServerFn({ method: "POST" })
     const result = await runProviderSync(db, data.providerId, "MANUAL");
     await audit(db, (context as Ctx).userId, "provider.sync.manual", data.providerId, result);
     return result;
+  });
+
+/** Stops an unfinished run. The imported catalogue stays exactly as it is. */
+export const cancelProviderSync = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: { providerId: string }) => ({ providerId: String(input?.providerId ?? "") }))
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context as Ctx);
+    const db = (context as Ctx).supabase;
+    const { data: run } = await db
+      .from("provider_sync_runs")
+      .select("id")
+      .eq("provider_id", data.providerId)
+      .eq("status", "RUNNING")
+      .order("started_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    if (!run?.id) return { cancelled: false };
+    await db
+      .from("provider_sync_runs")
+      .update({ status: "CANCELLED", completed_at: new Date().toISOString(), error_summary: "Yönetici tarafından durduruldu." })
+      .eq("id", run.id);
+    await db.from("provider_connections").update({ sync_state: "IDLE" }).eq("provider_id", data.providerId);
+    await audit(db, (context as Ctx).userId, "provider.sync.cancelled", data.providerId, { runId: run.id });
+    return { cancelled: true };
   });
 
 export const getProviderSyncErrors = createServerFn({ method: "POST" })

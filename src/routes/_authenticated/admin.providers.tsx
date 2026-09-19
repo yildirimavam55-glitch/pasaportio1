@@ -17,6 +17,7 @@ import {
   getProviderHub,
   getProviderPriceHistory,
   getProviderSyncErrors,
+  cancelProviderSync,
   saveProvider,
   syncProviderNow,
   testProviderConnection,
@@ -61,7 +62,13 @@ function Providers() {
   const [detailTab, setDetailTab] = useState<"runs" | "changes" | "errors" | "prices">("runs");
   const queryClient = useQueryClient();
 
-  const hub = useQuery({ queryKey: ["provider-hub"], queryFn: () => getProviderHub() });
+  const hub = useQuery({
+    queryKey: ["provider-hub"],
+    queryFn: () => getProviderHub(),
+    // Progress keeps updating without the admin keeping this page open.
+    refetchInterval: (query) =>
+      ((query.state.data as any[]) ?? []).some((provider: any) => provider.activeRun) ? 10_000 : false,
+  });
   const rows = (hub.data ?? []).filter((provider: any) => provider.serviceType === tab);
   const selected = (hub.data ?? []).find((provider: any) => provider.id === detailId) ?? null;
 
@@ -110,12 +117,24 @@ function Providers() {
             ? "API anahtarı sunucuda tanımlı değil; hiçbir ürün kapatılmadı."
             : `Senkron başarısız: ${result.error ?? "bilinmeyen hata"} — ürünler değiştirilmedi.`,
         );
+      } else if (result.status === "PARTIAL") {
+        toast.message(
+          `Senkron devam ediyor: ${result.created} yeni · ${result.updated} güncellendi. Kaldığı yerden otomatik sürecek.`,
+        );
       } else {
         toast.success(`${result.created} yeni · ${result.updated} güncellendi · ${result.unavailable} kapandı`);
       }
       invalidate();
     },
     onError: (error: any) => toast.error(error?.message ?? "Senkron çalıştırılamadı."),
+  });
+  const cancelSync = useMutation({
+    mutationFn: (providerId: string) => cancelProviderSync({ data: { providerId } }),
+    onSuccess: (result: any) => {
+      toast.success(result.cancelled ? "Senkron durduruldu; içe aktarılan katalog korundu." : "Devam eden senkron yok.");
+      invalidate();
+    },
+    onError: (error: any) => toast.error(error?.message ?? "Senkron durdurulamadı."),
   });
 
   const openNew = () => setDraft({ ...emptyDraft, serviceType: tab });
@@ -179,8 +198,20 @@ function Providers() {
                     <p className="mt-1 text-xs text-muted-foreground">
                       Yeni {provider.changeSummary.newProducts} · Fiyat ↑{provider.changeSummary.priceIncreases} ↓{provider.changeSummary.priceDecreases} · Kapanan {provider.changeSummary.removed} · Dönen {provider.changeSummary.returnedProducts} · İnceleme {provider.changeSummary.needsReview}
                     </p>
+                    {provider.activeRun && (
+                      <p className="mt-1 text-xs text-foreground">
+                        Senkron sürüyor · {provider.activeRun.items_processed ?? 0} ürün işlendi · Yeni {provider.activeRun.items_created ?? 0} · Güncel {provider.activeRun.items_updated ?? 0} · Hatalı {provider.activeRun.items_failed ?? 0} · Son kayıt noktası: sayfa {provider.activeRun.checkpoint_page ?? 0} ({dt(provider.activeRun.last_checkpoint_at)})
+                      </p>
+                    )}
                     <div className="mt-3 flex flex-wrap gap-2">
-                      <Button size="sm" disabled={sync.isPending} onClick={() => sync.mutate(provider.id)}>Şimdi senkronla</Button>
+                      <Button size="sm" disabled={sync.isPending} onClick={() => sync.mutate(provider.id)}>
+                        {provider.activeRun ? "Kaldığı yerden devam et" : "Şimdi senkronla"}
+                      </Button>
+                      {provider.activeRun && (
+                        <Button size="sm" variant="outline" disabled={cancelSync.isPending} onClick={() => cancelSync.mutate(provider.id)}>
+                          Senkronu durdur
+                        </Button>
+                      )}
                       <Button size="sm" variant="outline" disabled={test.isPending} onClick={() => test.mutate(provider.id)}>Bağlantıyı test et</Button>
                       <Button size="sm" variant="outline" onClick={() => openEdit(provider)}>Ayarlar</Button>
                       <Button size="sm" variant="outline" onClick={() => { setDetailId(provider.id); setDetailTab("runs"); }}>Değişiklikler ve hatalar</Button>

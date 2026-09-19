@@ -61,6 +61,24 @@ export function createGenericRestAdapter(ctx: AdapterContext, type: "GENERIC_RES
       // Page budget exhausted: treat as incomplete so nothing is disabled.
       return { items, complete: false, pages, error: "Sayfalama sınırına ulaşıldı." };
     },
+    async fetchCataloguePage(page: number, perPage: number) {
+      if (!ctx.baseUrl || !ctx.config.endpoints.catalogue) {
+        return { items: [], hasMore: false, status: 0, error: "Katalog uç noktası yapılandırılmadı." };
+      }
+      if (!secret()) return { items: [], hasMore: false, status: 0, error: "CREDENTIAL_REQUIRED" };
+      const url = urlFor("catalogue", { page: String(page), perPage: String(perPage) })!;
+      const result = await requestJson(url, { headers: headers() });
+      if (!result.ok) {
+        return { items: [], hasMore: true, status: result.status, error: result.error ?? `HTTP ${result.status}` };
+      }
+      const rows = extractItemArray(result.body) ?? [];
+      return {
+        items: rows.map((row) => applyFieldMap(row as Record<string, unknown>, ctx.config.fieldMap)),
+        hasMore: rows.length >= perPage,
+        status: result.status,
+        error: null,
+      };
+    },
     async fetchBalance() {
       const url = urlFor("balance");
       if (!url || !secret()) return null;
