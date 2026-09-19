@@ -40,7 +40,7 @@ export const getProviderHub = createServerFn({ method: "GET" })
       db.from("provider_connections").select("*"),
       db
         .from("provider_sync_runs")
-        .select("id, provider_id, status, trigger, started_at, completed_at, items_received, items_created, items_updated, items_unchanged, items_unavailable, items_returned, items_failed, price_changes, coverage_changes, complete, error_summary")
+        .select("id, provider_id, status, trigger, started_at, completed_at, items_received, items_created, items_updated, items_unchanged, items_unavailable, items_returned, items_failed, price_changes, coverage_changes, complete, error_summary, checkpoint_page, items_processed, last_checkpoint_at")
         .order("started_at", { ascending: false })
         .limit(100),
       db.from("provider_catalogue_changes").select("provider_id, change_type, needs_review, created_at").order("created_at", { ascending: false }).limit(1000),
@@ -103,6 +103,8 @@ export const getProviderHub = createServerFn({ method: "GET" })
         productCount: providerMappings.length,
         availableProductCount: providerMappings.filter((row: any) => row.available).length,
         runs: providerRuns.slice(0, 10),
+        // Live progress of an unfinished, resumable run.
+        activeRun: providerRuns.find((row: any) => row.status === "RUNNING") ?? null,
         changeSummary: {
           newProducts: providerChanges.filter((row: any) => row.change_type === "NEW_PRODUCT").length,
           priceIncreases: providerChanges.filter((row: any) => row.change_type === "PRICE_INCREASE").length,
