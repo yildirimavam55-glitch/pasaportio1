@@ -32,24 +32,39 @@ import { buildAdapter } from "@/providers/adapters/factory.server";
 type Db = any;
 
 /** One invocation processes catalogue pages until this budget, then checkpoints. */
-export const DEFAULT_SYNC_BUDGET_MS = 45_000;
+export const DEFAULT_SYNC_BUDGET_MS = 600_000;
+
+export type SyncStatusValue = "SUCCESS" | "SUCCESS_WITH_WARNINGS" | "PARTIAL" | "FAILED";
 
 export type SyncResult = {
   providerId: string;
   providerCode: string;
-  status: "SUCCESS" | "PARTIAL" | "FAILED";
+  status: SyncStatusValue;
   runId: string | null;
   itemsReceived: number;
+  /** Rows the parser accepted as structurally valid products. */
+  itemsParsed: number;
   created: number;
   updated: number;
   unchanged: number;
+  /** Rows rejected by the parser (missing price, validity, coverage …). */
+  invalid: number;
+  /** Rows the supplier sent more than once inside the same page set. */
+  duplicate: number;
+  /** Parsed rows deliberately not imported (no usable canonical coverage). */
+  excluded: number;
   unavailable: number;
   returned: number;
   priceChanges: number;
   coverageChanges: number;
   failed: number;
+  /** invalid + duplicate + excluded + failed. A warning is never hidden. */
+  warnings: number;
+  /** True when received == processed + invalid + duplicate + excluded + failed. */
+  reconciled: boolean;
   error?: string | null;
 };
+
 
 async function adminDb(): Promise<Db> {
   const mod = await import("@/integrations/supabase/client.server");
