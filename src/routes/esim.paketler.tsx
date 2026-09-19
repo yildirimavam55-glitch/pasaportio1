@@ -222,9 +222,6 @@ function PackagesPage() {
             <span>{copy.travelers(travelers)}</span>
           </div>
           {travelers > 1 && <p className="mt-2 text-xs text-muted-foreground">{copy.perTraveler(travelers)}</p>}
-          <div className="hidden">
-
-          </div>
           <div className="mt-3 grid grid-cols-2 gap-2 rounded-xl bg-accent-soft p-3">
             <div><span className="text-xs font-semibold uppercase text-muted-foreground">{copy.estimate}</span><strong className="mt-1 flex items-center gap-1.5 text-xl"><Gauge className="size-5 text-primary" aria-hidden="true" />~{search.estimated || required} GB</strong></div>
             <div><span className="text-xs font-semibold uppercase text-muted-foreground">{copy.need}</span><strong className="mt-1 block text-xl">{recommendedLabel || `~${required} GB`}</strong></div>
