@@ -378,15 +378,23 @@ export async function runProviderSync(
     const priced = priceItems(parsed.items, pricing, provider.code);
     const changeRows: any[] = [];
 
+    // Every received row is accounted for: parsed, duplicate or invalid.
+    receivedTotal += rawItems.length;
+    parsedTotal += parsed.items.length;
+    const duplicateIssues = parsed.issues.filter((issue) => issue.message.includes("birden fazla"));
+    duplicate += duplicateIssues.length;
+    invalid += parsed.issues.length - duplicateIssues.length;
+
     for (const issue of parsed.issues.slice(0, 20)) {
       await db.from("provider_sync_errors").insert({
         provider_id: providerId,
         sync_run_id: runId,
         external_id: issue.externalId,
-        code: "INVALID_ITEM",
+        code: issue.message.includes("birden fazla") ? "DUPLICATE_ITEM" : "INVALID_ITEM",
         message: issue.message,
       });
     }
+
 
     /**
      * Fast path: an item whose provider payload is byte-identical to the stored
