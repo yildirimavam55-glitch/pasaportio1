@@ -321,7 +321,7 @@ function ServiceButton({
       type="button"
       aria-pressed={active}
       onClick={onClick}
-      className={`relative z-10 flex min-h-12 items-center justify-center gap-2 rounded-xl text-sm font-semibold transition-colors duration-200 ${active ? "text-primary-foreground" : "text-primary hover:text-foreground"}`}
+      className={`service-selector-button relative z-10 flex min-h-12 items-center justify-center gap-2 rounded-xl text-sm font-semibold ${active ? "text-primary-foreground" : "text-primary hover:text-foreground"}`}
     >
       <span className={`service-selector-icon ${active ? "is-active" : ""}`}>{icon}</span>
       {children}
