@@ -1,11 +1,11 @@
 {
-  "version": 1,
   "asset_id": "30fdb151-014d-4c3f-901e-a47ca044f9ac",
-  "project_id": "5935541c-e09e-4174-a6f1-5df69ebd0f14",
-  "url": "/__l5e/assets-v1/30fdb151-014d-4c3f-901e-a47ca044f9ac/airport-istanbul.jpg",
-  "r2_key": "a/v1/5935541c-e09e-4174-a6f1-5df69ebd0f14/30fdb151-014d-4c3f-901e-a47ca044f9ac/airport-istanbul.jpg",
-  "original_filename": "airport-istanbul.jpg",
-  "size": 155461,
   "content_type": "image/jpeg",
-  "created_at": "2026-09-17T09:33:45Z"
+  "created_at": "2026-09-17T09:33:45Z",
+  "original_filename": "airport-istanbul.jpg",
+  "project_id": "44ff46d5-a238-4339-8cdb-c9807f14c9d3",
+  "r2_key": "a/v1/44ff46d5-a238-4339-8cdb-c9807f14c9d3/30fdb151-014d-4c3f-901e-a47ca044f9ac/airport-istanbul.jpg",
+  "size": 155461,
+  "url": "/__l5e/assets-v1/30fdb151-014d-4c3f-901e-a47ca044f9ac/airport-istanbul.jpg",
+  "version": 1
 }
