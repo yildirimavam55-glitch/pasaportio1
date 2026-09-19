@@ -426,7 +426,7 @@ export function SegmentedChoice<T extends string>({
     <div
       role="radiogroup"
       aria-label={label}
-      className={`grid grid-cols-3 gap-1.5 rounded-2xl border border-border bg-secondary/50 p-1 ${className}`}
+      className={`grid ${options.length === 2 ? "grid-cols-2" : "grid-cols-3"} gap-1.5 rounded-2xl border border-border bg-secondary/50 p-1 ${className}`}
     >
       {options.map((option) => {
         const selected = option.key === value;
@@ -658,7 +658,6 @@ export function EsimFinder({
             },
             { key: "multi" as const, label: copy.multi },
           ]}
-          className="grid-cols-2"
         />
       </FinderStep>
 
