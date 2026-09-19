@@ -190,6 +190,7 @@
 @utility shadow-brand { box-shadow: 0 6px 20px color-mix(in oklab, var(--primary) 28%, transparent); }
 @utility shadow-cta { box-shadow: 0 8px 22px color-mix(in oklab, var(--cta) 30%, transparent); }
 @utility shadow-nav { box-shadow: 0 -8px 24px color-mix(in oklab, var(--foreground) 8%, transparent); }
+@utility shadow-soft { box-shadow: 0 4px 14px color-mix(in oklab, var(--foreground) 6%, transparent); }
 @utility bg-hero-overlay { background: linear-gradient(90deg, color-mix(in oklab, var(--primary) 88%, transparent) 0%, color-mix(in oklab, var(--primary) 56%, transparent) 44%, transparent 78%); }
 @utility bg-image-scrim { background: linear-gradient(180deg, transparent 25%, color-mix(in oklab, var(--foreground) 76%, transparent) 100%); }
 @utility pb-safe { padding-bottom: max(0.4rem, env(safe-area-inset-bottom)); }
@@ -198,6 +199,7 @@
 @utility icon-box-sm { display: flex; width: 2rem; height: 2rem; flex-shrink: 0; align-items: center; justify-content: center; }
 @utility icon-box-normal { display: flex; width: 2.25rem; height: 2.25rem; flex-shrink: 0; align-items: center; justify-content: center; }
 @utility icon-box-feature { display: flex; width: 2.5rem; height: 2.5rem; flex-shrink: 0; align-items: center; justify-content: center; }
+@utility text-balance { text-wrap: balance; }
 
 @layer components {
   .nav-link { border-radius: .75rem; padding: .65rem .75rem; font-size: .875rem; font-weight: 600; color: var(--color-muted-foreground); transition: color .2s, background-color .2s; }
