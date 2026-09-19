@@ -94,7 +94,9 @@ export async function runProviderSync(
   db: Db,
   providerId: string,
   trigger: "MANUAL" | "SCHEDULED" | "WEBHOOK" = "MANUAL",
+  options: { budgetMs?: number } = {},
 ): Promise<SyncResult> {
+  const deadline = Date.now() + (options.budgetMs ?? DEFAULT_SYNC_BUDGET_MS);
   const { data: provider } = await db
     .from("providers")
     .select("id, code, name, service_type, adapter_type, currency, minimum_margin_percent, sync_interval_hours, low_balance_threshold, active")
