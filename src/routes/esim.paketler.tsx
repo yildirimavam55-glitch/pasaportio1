@@ -223,16 +223,17 @@ function PackagesPage() {
           <div className="mt-5 grid gap-3 sm:grid-cols-3">
             {[0, 1, 2].map((key) => <div key={key} className="h-44 animate-pulse rounded-card bg-secondary" />)}
           </div>
-        ) : visiblePackages.length ? (
+        ) : primaryEntries.length ? (
+          <>
           <div className="mt-5 grid gap-3 pb-28 sm:grid-cols-2 sm:pb-0 lg:grid-cols-3" role="radiogroup" aria-label={copy.title}>
-            {visiblePackages.map((pkg) => (
+            {primaryEntries.map((entry) => (
               <PackageCard
-                key={pkg.id}
-                pkg={pkg}
-                isRecommended={recommendedProduct?.id === pkg.id}
-                variantLabel={pkg.id === match.economy?.id ? copy.economyBadge : pkg.id === match.comfort?.id ? copy.comfortBadge : ""}
-                isSelected={activeSelectedId === pkg.id}
-                onSelect={() => setSelectedProductId(pkg.id)}
+                key={entry.package.id}
+                pkg={entry.package}
+                isRecommended={recommendedProduct?.id === entry.package.id}
+                variantLabel={tierLabel(entry.tier)}
+                isSelected={activeSelectedId === entry.package.id}
+                onSelect={() => setSelectedProductId(entry.package.id)}
                 whyText={copy.whyText(required, recommendedLabel)}
                 destinationIso={destination}
                 routeIsos={routeIsos}
