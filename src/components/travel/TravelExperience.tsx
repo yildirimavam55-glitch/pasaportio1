@@ -447,19 +447,6 @@ function Hero({
               );
             })}
           </div>
-          {section.showOffer && (
-            <div className="w-fit max-w-xs rounded-2xl bg-card/95 p-3 text-card-foreground shadow-card backdrop-blur sm:p-4">
-              <span className="text-xs font-semibold uppercase text-muted-foreground">
-                {tx(section, "offerTitle", locale, copy.offerTitle)}
-              </span>
-              <strong className="mt-1 block text-base sm:text-lg">
-                {tx(section, "offerValue", locale, copy.offerValue)}
-              </strong>
-              <span className="mt-1 block text-xs text-muted-foreground">
-                {tx(section, "offerMeta", locale, copy.offerMeta)}
-              </span>
-            </div>
-          )}
         </div>
       </div>
     </section>
