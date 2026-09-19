@@ -49,6 +49,9 @@ const COPY = {
     tierNext: "Bir üst adım", tierComfort: "Rahat kullanım", tierHeavy: "Yoğun kullanım", tierUnlimited: "Sınırsız",
     moreUnlimited: "Diğer sınırsız seçenekler", widerCoverage: "Daha fazla ülke kapsayan paketler",
     showMore: "Göster", hideMore: "Gizle",
+    perTraveler: (count: number) => `Her yolcu için ayrı bir eSIM gerekir · sepete ${count} adet eklenir`,
+    gapTitle: "Bu seyahat için ihtiyacını tamamen karşılayan tek paket bulunamadı.",
+    gapDetail: "Aşağıdaki gerçek katalog seçenekleri ihtiyacının altında kalıyor; süreyi ya da destinasyonu değiştirebilirsin.",
     scopeRegional: "Bu destinasyon bölgesel paket kapsamında.",
     scopeGlobal: "Bu destinasyon Global paket kapsamında.",
     whyText: (need: number, size: string) => `Yaklaşık ${need} GB ihtiyacın için mevcut paketler arasındaki en yakın uygun seçenek: ${size}.`,
@@ -68,6 +71,9 @@ const COPY = {
     tierNext: "Nächste Stufe", tierComfort: "Komfort", tierHeavy: "Intensive Nutzung", tierUnlimited: "Unbegrenzt",
     moreUnlimited: "Weitere Unbegrenzt-Optionen", widerCoverage: "Pakete mit mehr Ländern",
     showMore: "Anzeigen", hideMore: "Ausblenden",
+    perTraveler: (count: number) => `Jede Person braucht eine eigene eSIM · ${count} Stück im Warenkorb`,
+    gapTitle: "Kein einzelnes Paket deckt diese Reise vollständig ab.",
+    gapDetail: "Die folgenden echten Katalogoptionen liegen unter deinem Bedarf; ändere Dauer oder Reiseziel.",
     scopeRegional: "Dieses Reiseziel ist von einem Regionalpaket abgedeckt.",
     scopeGlobal: "Dieses Reiseziel ist von einem Global-Paket abgedeckt.",
     whyText: (need: number, size: string) => `Für deinen Bedarf von rund ${need} GB ist dies das nächstpassende verfügbare Paket: ${size}.`,
@@ -87,6 +93,10 @@ const COPY = {
     tierNext: "Next step", tierComfort: "Comfort", tierHeavy: "Heavy use", tierUnlimited: "Unlimited",
     moreUnlimited: "Other unlimited options", widerCoverage: "Packages covering more countries",
     showMore: "Show", hideMore: "Hide",
+    perTraveler: (count: number) => `Each traveller needs their own eSIM · ${count} added to the cart`,
+    gapTitle: "No single package fully covers this trip.",
+    gapDetail: "The real catalogue options below fall short of your need; try a different duration or destination.",
+
     scopeRegional: "This destination is covered by a regional package.",
     scopeGlobal: "This destination is covered by a global package.",
     whyText: (need: number, size: string) => `For your roughly ${need} GB need, this is the closest suitable available option: ${size}.`,
@@ -133,7 +143,7 @@ function PackagesPage() {
   const primaryEntries = shortlist.primary;
   const recommendedProduct = primaryEntries[0]?.package ?? null;
   const scopeNote =
-    shortlist.scope === "REGIONAL" ? copy.scopeRegional : shortlist.scope === "GLOBAL" ? copy.scopeGlobal : "";
+    shortlist.scope === "REGION" ? copy.scopeRegional : shortlist.scope === "GLOBAL" ? copy.scopeGlobal : "";
   const recommendedLabel = recommendedProduct ? (recommendedProduct.unlimited ? copy.unlimited : `${recommendedProduct.dataGb} GB`) : "";
   const [selectedProductId, setSelectedProductId] = useState("");
   const [hasScrolled, setHasScrolled] = useState(false);
@@ -164,7 +174,10 @@ function PackagesPage() {
 
   const addSelectedToCart = () => {
     if (!selectedProduct || selectedProduct.salePrice == null) return;
-    addLine({ productId: selectedProduct.id, providerProductId: selectedProduct.providerProductId, serviceType: "ESIM", name: customerPackageTitle({ locale, destinationIso: destination, routeIsos, coverage: selectedProduct.coverage }), meta: selectedProduct.unlimited ? copy.unlimited : `${selectedProduct.dataGb ?? "—"} GB`, price: selectedProduct.salePrice, currency: selectedProduct.currency, dataGb: selectedProduct.dataGb, validityDays: selectedProduct.validityDays, coverage: selectedProduct.coverage, isTest: selectedProduct.isTest });
+    // One eSIM per traveller: an eSIM is tied to a single device, so the data
+    // requirement is per person and the cart quantity follows the party size.
+    addLine({ quantity: travelers, productId: selectedProduct.id, providerProductId: selectedProduct.providerProductId, serviceType: "ESIM", name: customerPackageTitle({ locale, destinationIso: destination, routeIsos, coverage: selectedProduct.coverage }), meta: selectedProduct.unlimited ? copy.unlimited : `${selectedProduct.dataGb ?? "—"} GB`, price: selectedProduct.salePrice, currency: selectedProduct.currency, dataGb: selectedProduct.dataGb, validityDays: selectedProduct.validityDays, coverage: selectedProduct.coverage, isTest: selectedProduct.isTest });
+
   };
 
   useEffect(() => {
@@ -208,6 +221,7 @@ function PackagesPage() {
             <span className="text-muted-foreground">·</span>
             <span>{copy.travelers(travelers)}</span>
           </div>
+          {travelers > 1 && <p className="mt-2 text-xs text-muted-foreground">{copy.perTraveler(travelers)}</p>}
           <div className="mt-3 grid grid-cols-2 gap-2 rounded-xl bg-accent-soft p-3">
             <div><span className="text-xs font-semibold uppercase text-muted-foreground">{copy.estimate}</span><strong className="mt-1 flex items-center gap-1.5 text-xl"><Gauge className="size-5 text-primary" aria-hidden="true" />~{search.estimated || required} GB</strong></div>
             <div><span className="text-xs font-semibold uppercase text-muted-foreground">{copy.need}</span><strong className="mt-1 block text-xl">{recommendedLabel || `~${required} GB`}</strong></div>
@@ -280,7 +294,9 @@ function PackagesPage() {
           </>
         ) : (
           <div className="mt-5 rounded-card border border-dashed border-border bg-card p-6 text-center">
-            <p className="text-sm font-semibold">{copy.empty}</p>
+            <p className="text-sm font-semibold">{shortlist.gap === "NO_SUFFICIENT" ? copy.gapTitle : copy.empty}</p>
+            {shortlist.gap === "NO_SUFFICIENT" && <p className="mt-2 text-xs text-muted-foreground">{copy.gapDetail}</p>}
+
             <div className="mt-4 flex flex-wrap justify-center gap-2">
               <Link to="/esim/paketler" search={{ destination: "", route: "", days: search.days, travelers: search.travelers, estimated: search.estimated, required: search.required, recommended: search.recommended, recommendedProductId: "", usage: search.usage, intensity: search.intensity }}>
                 <Button variant="outline">{copy.emptyOther}</Button>

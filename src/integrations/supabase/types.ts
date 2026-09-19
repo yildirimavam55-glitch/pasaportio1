@@ -316,6 +316,51 @@ export type Database = {
           },
         ]
       }
+      canonical_destinations: {
+        Row: {
+          active: boolean
+          canonical_code: string
+          created_at: string
+          display_name: string
+          has_sellable_products: boolean
+          id: string
+          parent_country_iso: string | null
+          provider_code: string | null
+          refreshed_at: string | null
+          sellable_product_count: number
+          type: string
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          canonical_code: string
+          created_at?: string
+          display_name: string
+          has_sellable_products?: boolean
+          id?: string
+          parent_country_iso?: string | null
+          provider_code?: string | null
+          refreshed_at?: string | null
+          sellable_product_count?: number
+          type?: string
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          canonical_code?: string
+          created_at?: string
+          display_name?: string
+          has_sellable_products?: boolean
+          id?: string
+          parent_country_iso?: string | null
+          provider_code?: string | null
+          refreshed_at?: string | null
+          sellable_product_count?: number
+          type?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       cms_documents: {
         Row: {
           created_at: string
@@ -816,12 +861,14 @@ export type Database = {
           country_id: string | null
           country_iso: string | null
           coverage_country_isos: string[]
+          coverage_subdivision_codes: string[]
           data_gb: number | null
           data_only: boolean | null
           data_type: string
           fair_use_note: string | null
           fair_use_policy: string | null
           high_speed_allowance: string | null
+          metadata_provenance: Json
           network_operators: string[]
           package_kind: string
           product_id: string
@@ -835,6 +882,7 @@ export type Database = {
           supports_hotspot: boolean | null
           topup_supported: boolean | null
           unlimited_data: boolean
+          unlimited_details_complete: boolean | null
           validity_days: number | null
           validity_start_rule: string | null
         }
@@ -844,12 +892,14 @@ export type Database = {
           country_id?: string | null
           country_iso?: string | null
           coverage_country_isos?: string[]
+          coverage_subdivision_codes?: string[]
           data_gb?: number | null
           data_only?: boolean | null
           data_type?: string
           fair_use_note?: string | null
           fair_use_policy?: string | null
           high_speed_allowance?: string | null
+          metadata_provenance?: Json
           network_operators?: string[]
           package_kind?: string
           product_id: string
@@ -863,6 +913,7 @@ export type Database = {
           supports_hotspot?: boolean | null
           topup_supported?: boolean | null
           unlimited_data?: boolean
+          unlimited_details_complete?: boolean | null
           validity_days?: number | null
           validity_start_rule?: string | null
         }
@@ -872,12 +923,14 @@ export type Database = {
           country_id?: string | null
           country_iso?: string | null
           coverage_country_isos?: string[]
+          coverage_subdivision_codes?: string[]
           data_gb?: number | null
           data_only?: boolean | null
           data_type?: string
           fair_use_note?: string | null
           fair_use_policy?: string | null
           high_speed_allowance?: string | null
+          metadata_provenance?: Json
           network_operators?: string[]
           package_kind?: string
           product_id?: string
@@ -891,6 +944,7 @@ export type Database = {
           supports_hotspot?: boolean | null
           topup_supported?: boolean | null
           unlimited_data?: boolean
+          unlimited_details_complete?: boolean | null
           validity_days?: number | null
           validity_start_rule?: string | null
         }
@@ -1961,7 +2015,11 @@ export type Database = {
           id: string
           idempotency_key: string | null
           items_created: number
+          items_duplicate: number
+          items_excluded: number
           items_failed: number
+          items_invalid: number
+          items_parsed: number
           items_processed: number
           items_received: number
           items_returned: number
@@ -1974,6 +2032,7 @@ export type Database = {
           started_at: string
           status: Database["public"]["Enums"]["sync_status"]
           trigger: Database["public"]["Enums"]["sync_trigger"]
+          warnings: number
         }
         Insert: {
           checkpoint_page?: number
@@ -1985,7 +2044,11 @@ export type Database = {
           id?: string
           idempotency_key?: string | null
           items_created?: number
+          items_duplicate?: number
+          items_excluded?: number
           items_failed?: number
+          items_invalid?: number
+          items_parsed?: number
           items_processed?: number
           items_received?: number
           items_returned?: number
@@ -1998,6 +2061,7 @@ export type Database = {
           started_at?: string
           status?: Database["public"]["Enums"]["sync_status"]
           trigger?: Database["public"]["Enums"]["sync_trigger"]
+          warnings?: number
         }
         Update: {
           checkpoint_page?: number
@@ -2009,7 +2073,11 @@ export type Database = {
           id?: string
           idempotency_key?: string | null
           items_created?: number
+          items_duplicate?: number
+          items_excluded?: number
           items_failed?: number
+          items_invalid?: number
+          items_parsed?: number
           items_processed?: number
           items_received?: number
           items_returned?: number
@@ -2022,6 +2090,7 @@ export type Database = {
           started_at?: string
           status?: Database["public"]["Enums"]["sync_status"]
           trigger?: Database["public"]["Enums"]["sync_trigger"]
+          warnings?: number
         }
         Relationships: [
           {
@@ -2666,6 +2735,7 @@ export type Database = {
         | "PARTIAL"
         | "FAILED"
         | "CANCELLED"
+        | "SUCCESS_WITH_WARNINGS"
       sync_trigger: "SCHEDULED" | "MANUAL" | "WEBHOOK"
       traveler_relation: "SELF" | "PARTNER" | "CHILD" | "OTHER"
     }
@@ -2885,6 +2955,7 @@ export const Constants = {
         "PARTIAL",
         "FAILED",
         "CANCELLED",
+        "SUCCESS_WITH_WARNINGS",
       ],
       sync_trigger: ["SCHEDULED", "MANUAL", "WEBHOOK"],
       traveler_relation: ["SELF", "PARTNER", "CHILD", "OTHER"],

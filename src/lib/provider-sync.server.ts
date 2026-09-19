@@ -32,24 +32,39 @@ import { buildAdapter } from "@/providers/adapters/factory.server";
 type Db = any;
 
 /** One invocation processes catalogue pages until this budget, then checkpoints. */
-export const DEFAULT_SYNC_BUDGET_MS = 45_000;
+export const DEFAULT_SYNC_BUDGET_MS = 600_000;
+
+export type SyncStatusValue = "SUCCESS" | "SUCCESS_WITH_WARNINGS" | "PARTIAL" | "FAILED";
 
 export type SyncResult = {
   providerId: string;
   providerCode: string;
-  status: "SUCCESS" | "PARTIAL" | "FAILED";
+  status: SyncStatusValue;
   runId: string | null;
   itemsReceived: number;
+  /** Rows the parser accepted as structurally valid products. */
+  itemsParsed: number;
   created: number;
   updated: number;
   unchanged: number;
+  /** Rows rejected by the parser (missing price, validity, coverage …). */
+  invalid: number;
+  /** Rows the supplier sent more than once inside the same page set. */
+  duplicate: number;
+  /** Parsed rows deliberately not imported (no usable canonical coverage). */
+  excluded: number;
   unavailable: number;
   returned: number;
   priceChanges: number;
   coverageChanges: number;
   failed: number;
+  /** invalid + duplicate + excluded + failed. A warning is never hidden. */
+  warnings: number;
+  /** True when received == processed + invalid + duplicate + excluded + failed. */
+  reconciled: boolean;
   error?: string | null;
 };
+
 
 async function adminDb(): Promise<Db> {
   const mod = await import("@/integrations/supabase/client.server");
@@ -92,14 +107,30 @@ function snapshotOf(item: PricedItem): CatalogueSnapshotItem {
   };
 }
 
+/**
+ * PROVIDER SYNC KILL SWITCH.
+ *
+ * `provider.sync = false` stops ALL catalogue mutation:
+ *  - scheduled syncs never run;
+ *  - manual syncs are refused unless an Admin passes an explicit override.
+ * The existing catalogue stays fully readable and manageable in Admin.
+ */
+export async function isProviderSyncEnabled(db: Db): Promise<boolean> {
+  const { data } = await db.from("feature_flags").select("enabled").eq("key", "provider.sync").maybeSingle();
+  return data?.enabled !== false;
+}
+
+export const SYNC_DISABLED_ERROR = "PROVIDER_SYNC_DISABLED";
+
 /** Runs one full catalogue sync for a provider. Never places provider orders. */
 export async function runProviderSync(
   db: Db,
   providerId: string,
   trigger: "MANUAL" | "SCHEDULED" | "WEBHOOK" = "MANUAL",
-  options: { budgetMs?: number } = {},
+  options: { budgetMs?: number; overrideKillSwitch?: boolean } = {},
 ): Promise<SyncResult> {
   const deadline = Date.now() + (options.budgetMs ?? DEFAULT_SYNC_BUDGET_MS);
+
   const { data: provider } = await db
     .from("providers")
     .select("id, code, name, service_type, adapter_type, currency, minimum_margin_percent, sync_interval_hours, low_balance_threshold, active")
@@ -121,17 +152,29 @@ export async function runProviderSync(
     status: "FAILED",
     runId: null,
     itemsReceived: 0,
+    itemsParsed: 0,
     created: 0,
     updated: 0,
     unchanged: 0,
+    invalid: 0,
+    duplicate: 0,
+    excluded: 0,
     unavailable: 0,
     returned: 0,
     priceChanges: 0,
     coverageChanges: 0,
     failed: 0,
+    warnings: 0,
+    reconciled: true,
   };
 
+  // Kill switch: no catalogue mutation at all while provider sync is disabled.
+  if (!options.overrideKillSwitch && !(await isProviderSyncEnabled(db))) {
+    return { ...base, error: SYNC_DISABLED_ERROR };
+  }
+
   const adapter = buildAdapter(provider, connection ?? null);
+
   const nowIso = new Date().toISOString();
 
   if (!adapter.hasCredential()) {
@@ -148,8 +191,9 @@ export async function runProviderSync(
   const { data: openRun } = await db
     .from("provider_sync_runs")
     .select(
-      "id, checkpoint_page, items_received, items_created, items_updated, items_unchanged, items_returned, items_failed, price_changes, coverage_changes",
+      "id, checkpoint_page, items_received, items_parsed, items_created, items_updated, items_unchanged, items_invalid, items_duplicate, items_excluded, items_returned, items_failed, price_changes, coverage_changes",
     )
+
     .eq("provider_id", providerId)
     .eq("status", "RUNNING")
     .order("started_at", { ascending: false })
@@ -168,9 +212,13 @@ export async function runProviderSync(
 
   let checkpointPage = Number(openRun?.checkpoint_page ?? 0);
   let receivedTotal = Number(openRun?.items_received ?? 0);
+  let parsedTotal = Number(openRun?.items_parsed ?? 0);
   let created = Number(openRun?.items_created ?? 0);
   let updated = Number(openRun?.items_updated ?? 0);
   let unchanged = Number(openRun?.items_unchanged ?? 0);
+  let invalid = Number(openRun?.items_invalid ?? 0);
+  let duplicate = Number(openRun?.items_duplicate ?? 0);
+  let excluded = Number(openRun?.items_excluded ?? 0);
   let returned = Number(openRun?.items_returned ?? 0);
   let failed = Number(openRun?.items_failed ?? 0);
   let priceChanges = Number(openRun?.price_changes ?? 0);
@@ -180,17 +228,30 @@ export async function runProviderSync(
     await db.from("provider_connections").update({ sync_state: "RUNNING", last_attempt_at: nowIso }).eq("id", connection.id);
   }
 
+  /**
+   * Explicit accounting. Every supplier row received is either processed,
+   * invalid, duplicate, deliberately excluded, or failed — a sync can never
+   * report a clean pass while rows silently disappeared.
+   */
+  const warningCount = () => invalid + duplicate + excluded + failed;
+  const processedCount = () => created + updated + unchanged;
   const counters = () => ({
     items_received: receivedTotal,
+    items_parsed: parsedTotal,
     items_created: created,
     items_updated: updated,
     items_unchanged: unchanged,
+    items_invalid: invalid,
+    items_duplicate: duplicate,
+    items_excluded: excluded,
     items_returned: returned,
     items_failed: failed,
+    warnings: warningCount(),
     price_changes: priceChanges,
     coverage_changes: coverageChanges,
-    items_processed: created + updated + unchanged,
+    items_processed: processedCount(),
   });
+
 
   /** Persist progress after every batch so an interrupted sync resumes safely. */
   const checkpoint = async (page: number) => {
@@ -247,16 +308,23 @@ export async function runProviderSync(
       runId,
       status: "PARTIAL",
       itemsReceived: receivedTotal,
+      itemsParsed: parsedTotal,
       created,
       updated,
       unchanged,
+      invalid,
+      duplicate,
+      excluded,
       unavailable: 0,
       returned,
       priceChanges,
       coverageChanges,
       failed,
+      warnings: warningCount(),
+      reconciled: receivedTotal === processedCount() + warningCount(),
       error: reason,
     };
+
   };
 
   // Pricing rule + previous valid snapshot are loaded once per invocation.
@@ -331,15 +399,23 @@ export async function runProviderSync(
     const priced = priceItems(parsed.items, pricing, provider.code);
     const changeRows: any[] = [];
 
+    // Every received row is accounted for: parsed, duplicate or invalid.
+    receivedTotal += rawItems.length;
+    parsedTotal += parsed.items.length;
+    const duplicateIssues = parsed.issues.filter((issue) => issue.message.includes("birden fazla"));
+    duplicate += duplicateIssues.length;
+    invalid += parsed.issues.length - duplicateIssues.length;
+
     for (const issue of parsed.issues.slice(0, 20)) {
       await db.from("provider_sync_errors").insert({
         provider_id: providerId,
         sync_run_id: runId,
         external_id: issue.externalId,
-        code: "INVALID_ITEM",
+        code: issue.message.includes("birden fazla") ? "DUPLICATE_ITEM" : "INVALID_ITEM",
         message: issue.message,
       });
     }
+
 
     /**
      * Fast path: an item whose provider payload is byte-identical to the stored
@@ -387,8 +463,11 @@ export async function runProviderSync(
         // Valid ISO codes outside the canonical directory are still stored, so a
         // regional product is never dropped because of one unlisted territory.
         const storedCoverage = [...new Set([...coverage.canonical, ...coverage.unknown])];
-        if (!storedCoverage.length) {
-          failed += 1;
+        // A subdivision-only bundle (US-HI) is legitimately stored without
+        // country coverage; only a bundle with no usable geography at all is
+        // excluded, and the exclusion is always counted and reported.
+        if (!storedCoverage.length && !item.subdivisions.length) {
+          excluded += 1;
           await db.from("provider_sync_errors").insert({
             provider_id: providerId,
             sync_run_id: runId,
@@ -398,6 +477,7 @@ export async function runProviderSync(
           });
           return;
         }
+
 
         const previous = previousSnapshot.get(item.externalId);
         const previousRaw = rawByExternal.get(item.externalId) as any;
@@ -553,6 +633,7 @@ export async function runProviderSync(
             product_id: productId,
             country_iso: item.countryIso,
             coverage_country_isos: storedCoverage,
+            coverage_subdivision_codes: item.subdivisions,
             package_kind: item.packageKind,
             data_gb: item.dataGb,
             data_type: item.dataType,
@@ -561,19 +642,25 @@ export async function runProviderSync(
             raw_validity_value: item.rawValidityValue,
             raw_validity_unit: item.rawValidityUnit,
             activation_policy: item.activationPolicy,
+            validity_start_rule: item.validityStartRule,
             fair_use_note: item.fairUseNote,
             fair_use_policy: item.fairUsePolicy,
             high_speed_allowance: item.highSpeedAllowance,
             speed_after_fair_use: item.speedAfterFairUse,
+            unlimited_details_complete: item.unlimitedDetailsComplete,
             provider_bundle_id: item.externalId,
             network_operators: item.networks,
             supports_5g: item.supports5g,
             supports_hotspot: item.supportsHotspot,
+            data_only: item.dataOnly,
             topup_supported: item.topupSupported,
+            apn_info: item.apnInfo as any,
+            metadata_provenance: item.metadataProvenance as any,
             provider_metadata: item.payload as any,
           },
           { onConflict: "product_id" },
         );
+
 
         await db.from("provider_product_mappings").upsert(
           {
@@ -630,7 +717,7 @@ export async function runProviderSync(
       }),
     );
 
-    receivedTotal += priced.length;
+    // receivedTotal is counted from the raw rows at the top of the batch.
     for (let i = 0; i < changeRows.length; i += 200) {
       await db.from("provider_catalogue_changes").insert(changeRows.slice(i, i + 200));
     }
@@ -794,12 +881,23 @@ export async function runProviderSync(
     }
   }
 
+  const warnings = warningCount();
+  const processed = processedCount();
+  const reconciled = receivedTotal === processed + warnings;
   const status = resolveSyncStatus({
     complete,
     received: receivedTotal,
     failed,
-    processed: created + updated + unchanged,
+    processed,
+    warnings,
+    reconciled,
   });
+
+  const summary =
+    fetchError ??
+    (warnings || !reconciled
+      ? `Alınan ${receivedTotal} · işlenen ${processed} · geçersiz ${invalid} · tekrar ${duplicate} · hariç ${excluded} · hatalı ${failed}${reconciled ? "" : " · mutabakat sağlanamadı"}`
+      : null);
 
   return finish(
     {
@@ -807,29 +905,43 @@ export async function runProviderSync(
       runId,
       status,
       itemsReceived: receivedTotal,
+      itemsParsed: parsedTotal,
       created,
       updated,
       unchanged,
+      invalid,
+      duplicate,
+      excluded,
       unavailable: missing.length,
       returned,
       priceChanges,
       coverageChanges,
       failed,
-      error: fetchError ?? (failed ? `${failed} ürün işlenemedi.` : null),
+      warnings,
+      reconciled,
+      error: summary,
     },
     complete,
   );
 }
 
+
 /** Scheduler entry: syncs every provider whose interval is due, and raises stale alerts. */
 export async function runDueProviderSyncs(
   options: { budgetMs?: number; toCompletion?: boolean; maxInvocations?: number } = {},
-): Promise<{ ok: boolean; ran: SyncResult[]; skipped: number }> {
+): Promise<{ ok: boolean; ran: SyncResult[]; skipped: number; disabled?: boolean }> {
   const db = await adminDb();
+
+  // Kill switch is checked before anything is read or written.
+  if (!(await isProviderSyncEnabled(db))) {
+    return { ok: true, ran: [], skipped: 0, disabled: true };
+  }
+
   const { data: providers } = await db
     .from("providers")
     .select("id, code, name, active, auto_sync, sync_interval_hours")
     .eq("active", true);
+
 
   const ran: SyncResult[] = [];
   let skipped = 0;
@@ -884,16 +996,23 @@ export async function runDueProviderSyncs(
         status: "FAILED",
         runId: null,
         itemsReceived: 0,
+        itemsParsed: 0,
         created: 0,
         updated: 0,
         unchanged: 0,
+        invalid: 0,
+        duplicate: 0,
+        excluded: 0,
         unavailable: 0,
         returned: 0,
         priceChanges: 0,
         coverageChanges: 0,
         failed: 0,
+        warnings: 0,
+        reconciled: true,
         error: (error as Error).message,
       });
+
     }
   }
 
@@ -909,12 +1028,17 @@ export async function runProviderSyncToCompletion(
   db: Db,
   providerId: string,
   trigger: "MANUAL" | "SCHEDULED" | "WEBHOOK" = "MANUAL",
-  options: { budgetMs?: number; maxInvocations?: number } = {},
+  options: { budgetMs?: number; maxInvocations?: number; overrideKillSwitch?: boolean } = {},
 ): Promise<SyncResult> {
   const maxInvocations = Math.max(1, options.maxInvocations ?? 40);
   let last: SyncResult | null = null;
   for (let i = 0; i < maxInvocations; i += 1) {
-    last = await runProviderSync(db, providerId, trigger, { budgetMs: options.budgetMs ?? DEFAULT_SYNC_BUDGET_MS });
+    last = await runProviderSync(db, providerId, trigger, {
+      budgetMs: options.budgetMs ?? DEFAULT_SYNC_BUDGET_MS,
+      overrideKillSwitch: options.overrideKillSwitch === true,
+    });
+    if (last.error === SYNC_DISABLED_ERROR) return last;
+
     if (last.status !== "PARTIAL") return last;
     if (last.error === "Senkronizasyon iptal edildi.") return last;
   }

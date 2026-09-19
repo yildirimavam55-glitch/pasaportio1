@@ -314,18 +314,32 @@ export const testProviderConnection = createServerFn({ method: "POST" })
     return result;
   });
 
-/** Manual "Sync Now". Catalogue only — no orders, no provisioning. */
+/**
+ * Manual "Sync Now". Catalogue only — no orders, no provisioning.
+ *
+ * Kill switch behaviour (documented, single rule): when the `provider.sync`
+ * feature flag is off, a manual sync is refused as well, unless the Admin
+ * explicitly confirms an override on this call.
+ */
 export const syncProviderNow = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { providerId: string }) => ({ providerId: String(input?.providerId ?? "") }))
+  .inputValidator((input: { providerId: string; override?: boolean }) => ({
+    providerId: String(input?.providerId ?? ""),
+    override: input?.override === true,
+  }))
   .handler(async ({ data, context }) => {
     await assertAdmin(context as Ctx);
     const db = (context as Ctx).supabase;
-    const { runProviderSync } = await import("@/lib/provider-sync.server");
-    const result = await runProviderSync(db, data.providerId, "MANUAL");
-    await audit(db, (context as Ctx).userId, "provider.sync.manual", data.providerId, result);
+    const { runProviderSync, isProviderSyncEnabled, SYNC_DISABLED_ERROR } = await import("@/lib/provider-sync.server");
+    if (!data.override && !(await isProviderSyncEnabled(db))) {
+      await audit(db, (context as Ctx).userId, "provider.sync.blocked", data.providerId, { reason: SYNC_DISABLED_ERROR });
+      throw new Error("Provider senkronizasyonu kapalı. Açmak için Özellik Bayrakları > provider.sync.");
+    }
+    const result = await runProviderSync(db, data.providerId, "MANUAL", { overrideKillSwitch: data.override });
+    await audit(db, (context as Ctx).userId, "provider.sync.manual", data.providerId, { ...result, override: data.override });
     return result;
   });
+
 
 /** Stops an unfinished run. The imported catalogue stays exactly as it is. */
 export const cancelProviderSync = createServerFn({ method: "POST" })

@@ -81,15 +81,23 @@ export type UsageEstimate = {
 
 const round1 = (value: number) => Math.round(value * 10) / 10;
 
+/**
+ * Telecom decimal units everywhere: 1 GB = 1000 MB. Catalogue sizes, the
+ * estimate and every comparison use the same standard, so a 5000 MB bundle is
+ * 5 GB in the estimate as well as on the card.
+ */
+export const MB_PER_GB = 1000;
+
 /** Pure calculation. Transparent: duration × selected usage × intensity + safety buffer. */
 export function estimateUsageNeed(input: UsageEstimateInput, settings: EsimUsageSettings = DEFAULT_USAGE_SETTINGS): UsageEstimate {
   const config = sanitizeUsageSettings(settings);
   const days = Math.max(1, Math.round(Number(input.days) || 1));
   const multiplier = config.intensityMultipliers[input.intensity ?? "NORMAL"];
   const dailyMb = input.usage.reduce((total, key) => total + (config.perDayMb[key] ?? 0), 0);
-  const estimatedGb = round1(Math.max(0, (dailyMb * days * multiplier) / 1024));
+  const estimatedGb = round1(Math.max(0, (dailyMb * days * multiplier) / MB_PER_GB));
   const safetyAdjustedGb = round1(estimatedGb * (1 + config.safetyBufferPercent / 100));
   const requiredGb = round1(Math.max(safetyAdjustedGb, config.minimumRecommendedGb));
+
 
   return { estimatedGb, safetyAdjustedGb, requiredGb, safetyBufferPercent: config.safetyBufferPercent };
 }

@@ -5,6 +5,8 @@
  */
 import { computePrice, type PricingRule, type RoundingMode } from "@/domain/pricing";
 import { normalizeValidityToDays } from "@/domain/esim/package-matching";
+import { resolvePackageScope, type PackageScope } from "@/domain/esim/package-scope";
+
 
 
 export type RawImportItem = Record<string, unknown>;
@@ -23,22 +25,34 @@ export type NormalizedEsimItem = {
   /** Comparison-only value, always expressed in days. */
   validityDays: number | null;
   activationPolicy: ActivationPolicy;
+  /** Supplier wording for when validity starts; null when not provided. */
+  validityStartRule: string | null;
   /** Customer-facing short note (derived), never raw provider jargon. */
   fairUseNote: string | null;
   /** Provider fair-use values, stored verbatim or null. */
   fairUsePolicy: string | null;
   highSpeedAllowance: string | null;
   speedAfterFairUse: string | null;
+  /** null for capped plans; false when an unlimited plan lacks its FUP terms. */
+  unlimitedDetailsComplete: boolean | null;
   coverage: string[];
+  /** Subdivision codes such as US-HI. Never merged into `coverage`. */
+  subdivisions: string[];
   countryIso: string | null;
-  packageKind: "COUNTRY" | "REGION" | "GLOBAL";
+  packageKind: PackageScope;
   providerCost: number;
   providerCurrency: string;
   networks: string[];
   supports5g: boolean | null;
   supportsHotspot: boolean | null;
   topupSupported: boolean | null;
+  dataOnly: boolean | null;
+  apnInfo: Record<string, unknown>;
+  speed: string | null;
+  /** SUPPLIER_PROVIDED vs SUPPLIER_DID_NOT_PROVIDE, per technical field. */
+  metadataProvenance: Record<string, string>;
   payload: RawImportItem;
+
 };
 
 
@@ -86,6 +100,22 @@ function toIsoList(value: unknown): string[] {
   }
   return [...seen];
 }
+
+/**
+ * Subdivision tokens (US-HI, ES-CN …) are kept separate on purpose. Collapsing
+ * them into the parent country would make a Hawaii-only bundle look like a
+ * nationwide USA package.
+ */
+function toSubdivisionList(value: unknown): string[] {
+  const raw = Array.isArray(value) ? value : typeof value === "string" ? value.split(/[,;\s]+/) : [];
+  const seen = new Set<string>();
+  for (const entry of raw) {
+    const code = String(entry ?? "").trim().toUpperCase();
+    if (/^[A-Z]{2}-[A-Z0-9]{1,3}$/.test(code)) seen.add(code);
+  }
+  return [...seen];
+}
+
 
 /** Accepts an array, or an object wrapping the array under a common key. */
 export function extractItemArray(input: unknown): RawImportItem[] | null {
@@ -180,23 +210,61 @@ export function parseEsimCatalogue(input: unknown, defaultCurrency = "EUR"): Par
       clean(pick(row, ["fairUseNote", "fair_use_note"])) ??
       (highSpeedAllowance && speedAfterFairUse ? `${highSpeedAllowance} — ${speedAfterFairUse}` : highSpeedAllowance);
 
-
+    const dataOnly = toBool(pick(row, ["dataOnly", "data_only", "isDataOnly"]));
+    const supports5g = toBool(pick(row, ["supports5g", "supports_5g", "fiveG", "5g"]));
+    const supportsHotspot = toBool(pick(row, ["supportsHotspot", "supports_hotspot", "hotspot", "tethering"]));
+    const topupSupported = toBool(pick(row, ["topupSupported", "topup_supported", "topup"]));
+    const apnInfoRaw = pick(row, ["apn", "apnInfo", "apn_info"]);
+    const speed = clean(pick(row, ["speed", "networkSpeed", "network_speed"]), 60);
+    const validityStartRule = clean(pick(row, ["validityStartRule", "validity_start_rule"]), 60);
 
     const countryIso = toIsoList(pick(row, ["countryIso", "country_iso", "country"]))[0] ?? null;
     const coverage = toIsoList(pick(row, ["coverage", "coverageCountryIsos", "coverage_country_isos", "countries", "countryList"]));
+    const subdivisions = toSubdivisionList(
+      pick(row, ["subdivisions", "coverageSubdivisionCodes", "coverage_subdivision_codes"]) ??
+        pick(row, ["coverage", "countries", "countryList"]),
+    );
     const finalCoverage = coverage.length ? coverage : countryIso ? [countryIso] : [];
-    if (!finalCoverage.length) {
+    // A subdivision-only bundle is valid, but it must never inherit its parent
+    // country's coverage: Hawaii is not the United States.
+    if (!finalCoverage.length && !subdivisions.length) {
       issues.push({ index, externalId, message: "Kapsama ülkeleri (ISO) eksik." });
       return;
     }
 
-    const declaredKind = String(pick(row, ["packageKind", "package_kind", "type", "scope"]) ?? "").toUpperCase();
-    const packageKind: NormalizedEsimItem["packageKind"] =
-      declaredKind === "GLOBAL" || finalCoverage.length >= 60
-        ? "GLOBAL"
-        : declaredKind === "REGION" || declaredKind === "REGIONAL" || finalCoverage.length > 1
-          ? "REGION"
-          : "COUNTRY";
+    const packageKind = resolvePackageScope({
+      declaredKind: pick(row, ["packageKind", "package_kind", "type", "scope"]) as string,
+      coverageCount: finalCoverage.length,
+      subdivisionCount: subdivisions.length,
+    });
+
+    /**
+     * Provenance separates "the supplier did not send this" from
+     * "the supplier says it is not supported", so the storefront never states
+     * an activation or hotspot behaviour the supplier never confirmed.
+     */
+    const provenance = (value: unknown) => (value === undefined || value === null || value === "" ? "SUPPLIER_DID_NOT_PROVIDE" : "SUPPLIER_PROVIDED");
+    const metadataProvenance: Record<string, string> = {
+      activationPolicy: activationPolicy === "UNKNOWN" ? "SUPPLIER_DID_NOT_PROVIDE" : "SUPPLIER_PROVIDED",
+      validityStartRule: provenance(validityStartRule),
+      networks: provenance(pick(row, ["networks", "operators", "network_operators"])),
+      supports5g: provenance(pick(row, ["supports5g", "supports_5g", "fiveG", "5g"])),
+      supportsHotspot: provenance(pick(row, ["supportsHotspot", "supports_hotspot", "hotspot", "tethering"])),
+      topupSupported: provenance(pick(row, ["topupSupported", "topup_supported", "topup"])),
+      dataOnly: provenance(pick(row, ["dataOnly", "data_only", "isDataOnly"])),
+      apn: provenance(apnInfoRaw),
+      speed: provenance(speed),
+      fairUsePolicy: provenance(fairUsePolicy ?? highSpeedAllowance),
+    };
+
+    /**
+     * Unlimited plans differ wildly (Lite / Essential / Plus). Without the
+     * supplier's fair-use terms the product is flagged so Admin can hide it
+     * instead of the storefront showing an indistinguishable "Sınırsız".
+     */
+    const unlimitedDetailsComplete = unlimited
+      ? Boolean(fairUsePolicy || highSpeedAllowance || speedAfterFairUse)
+      : null;
 
     seen.add(externalId);
     items.push({
@@ -209,12 +277,15 @@ export function parseEsimCatalogue(input: unknown, defaultCurrency = "EUR"): Par
       rawValidityUnit,
       validityDays: Math.round(validityDays),
       activationPolicy,
+      validityStartRule,
       fairUseNote,
       fairUsePolicy,
       highSpeedAllowance,
       speedAfterFairUse,
+      unlimitedDetailsComplete,
 
       coverage: finalCoverage,
+      subdivisions,
       countryIso: packageKind === "COUNTRY" ? (countryIso ?? finalCoverage[0] ?? null) : countryIso,
       packageKind,
       providerCost,
@@ -225,11 +296,16 @@ export function parseEsimCatalogue(input: unknown, defaultCurrency = "EUR"): Par
       )
         .map((entry) => String(entry).trim())
         .filter(Boolean),
-      supports5g: toBool(pick(row, ["supports5g", "supports_5g", "fiveG"])),
-      supportsHotspot: toBool(pick(row, ["supportsHotspot", "supports_hotspot", "hotspot", "tethering"])),
-      topupSupported: toBool(pick(row, ["topupSupported", "topup_supported", "topup"])),
+      supports5g,
+      supportsHotspot,
+      topupSupported,
+      dataOnly,
+      apnInfo: apnInfoRaw && typeof apnInfoRaw === "object" ? (apnInfoRaw as Record<string, unknown>) : apnInfoRaw ? { apn: String(apnInfoRaw) } : {},
+      speed,
+      metadataProvenance,
       payload: row,
     });
+
   });
 
   return { items, issues };
@@ -320,6 +396,8 @@ export function hashItem(item: NormalizedEsimItem): string {
     item.speedAfterFairUse,
 
     [...item.coverage].sort(),
+    [...item.subdivisions].sort(),
+
     item.providerCost,
     item.providerCurrency,
     item.packageKind,

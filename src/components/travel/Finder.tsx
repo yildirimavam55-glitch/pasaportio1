@@ -288,7 +288,7 @@ export function EsimFinder({ state, onChange }: { state: EsimFinderState; onChan
     ? resolveTieredRecommendation(packages, { requiredGb: recommendation.requiredGb, coverageIsos, days: state.days })
     : ({ status: "NO_CATALOGUE", scope: null, recommended: null } as const);
   const recommended = match.recommended;
-  const scopeNote = match.scope === "REGIONAL" ? copy.scopeRegional : match.scope === "GLOBAL" ? copy.scopeGlobal : "";
+  const scopeNote = match.scope === "REGION" ? copy.scopeRegional : match.scope === "GLOBAL" ? copy.scopeGlobal : "";
   const { lines, addLine } = useCart();
   const recommendedInCart = Boolean(recommended && lines.some((line) => line.productId === recommended.id));
 

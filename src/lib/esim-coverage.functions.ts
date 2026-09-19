@@ -3,6 +3,8 @@ import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { adminDb } from "@/lib/admin-guard";
 import { COUNTRIES } from "@/domain/geo/countries";
+import { normalizeStoredScope } from "@/domain/esim/package-scope";
+
 
 export type CountryCoverageRow = {
   iso: string;
@@ -29,7 +31,7 @@ export type EsimCoverageAudit = {
   rows: CountryCoverageRow[];
 };
 
-const GLOBAL_MIN = 40;
+// Scope is never derived from a coverage-count threshold here; see package-scope.ts.
 
 /**
  * Whole-catalogue coverage audit for Admin. Reads real published products only,
@@ -58,7 +60,7 @@ export const getEsimCoverageAudit = createServerFn({ method: "GET" })
     for (let from = 0; ; from += pageSize) {
       const { data: rows, error } = await db
         .from("service_products")
-        .select("id, lifecycle, customer_visible, provider_available, sale_price, currency, is_test, esim_product_details(coverage_country_isos)")
+        .select("id, lifecycle, customer_visible, provider_available, sale_price, currency, is_test, esim_product_details(coverage_country_isos, coverage_subdivision_codes, package_kind)")
         .eq("service_type", "ESIM")
         .eq("is_test", false)
         .range(from, from + pageSize - 1);
@@ -77,10 +79,16 @@ export const getEsimCoverageAudit = createServerFn({ method: "GET" })
           broken += 1;
           continue;
         }
-        const scope = coverage.length >= GLOBAL_MIN ? "global" : coverage.length > 1 ? "regional" : "single";
+        const kind = normalizeStoredScope(
+          details?.package_kind,
+          coverage.length,
+          (details?.coverage_subdivision_codes ?? []).length,
+        );
+        const scope = kind === "GLOBAL" ? "global" : kind === "REGION" ? "regional" : "single";
         if (scope === "global") globalCount += 1;
         else if (scope === "regional") regional += 1;
         else single += 1;
+
 
         const sellable =
           row.lifecycle === "PUBLISHED" && row.customer_visible && row.provider_available && Number(row.sale_price) > 0;

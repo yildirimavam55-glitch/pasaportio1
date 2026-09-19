@@ -37,6 +37,7 @@ function turkeyCatalogue(): Pkg[] {
   );
   const global = [5, 20].map((size) =>
     pkg({
+      scope: "GLOBAL",
       coverage: [...Array.from({ length: 60 }, (_, index) => `X${index}`), "TR", "DE", "FR"],
       dataGb: size,
       validityDays: 30,
@@ -59,8 +60,8 @@ describe("buildCustomerShortlist", () => {
 
   it("B) keeps regional/global out of the primary list when country products exist", () => {
     const result = buildCustomerShortlist(turkeyCatalogue(), { requiredGb: 1, coverageIsos: ["TR"], days: 10 });
-    expect(result.scope).toBe("SINGLE_COUNTRY");
-    for (const entry of result.primary) expect(coverageScopeOf(entry.package)).toBe("SINGLE_COUNTRY");
+    expect(result.scope).toBe("COUNTRY");
+    for (const entry of result.primary) expect(coverageScopeOf(entry.package)).toBe("COUNTRY");
     expect(result.widerCoverage.length).toBeLessThanOrEqual(2);
   });
 
@@ -71,13 +72,13 @@ describe("buildCustomerShortlist", () => {
       pkg({ coverage: ["TR", "GR", "BG"], dataGb: 10, validityDays: 30, salePrice: 20 }),
     ];
     const result = buildCustomerShortlist(catalogue, { requiredGb: 5, coverageIsos: ["TR"], days: 10 });
-    expect(result.scope).toBe("REGIONAL");
+    expect(result.scope).toBe("REGION");
     expect(result.primary[0]!.package.dataGb).toBe(5);
   });
 
   it("D) selects regional/global products for a multi-country route", () => {
     const result = buildCustomerShortlist(turkeyCatalogue(), { requiredGb: 3, coverageIsos: ["TR", "DE"], days: 10 });
-    expect(result.scope).not.toBe("SINGLE_COUNTRY");
+    expect(result.scope).not.toBe("COUNTRY");
     expect(result.primary.length).toBeGreaterThan(0);
     for (const entry of result.primary) {
       expect(entry.package.coverage).toContain("TR");
@@ -86,11 +87,28 @@ describe("buildCustomerShortlist", () => {
   });
 
   it("E) shows at most one unlimited card and hides the other variants", () => {
-    const result = buildCustomerShortlist(turkeyCatalogue(), { requiredGb: 1, coverageIsos: ["TR"], days: 10 });
-    const unlimitedPrimary = result.primary.filter((entry) => entry.package.unlimited);
-    expect(unlimitedPrimary).toHaveLength(1);
+    // Cheap unlimited: exactly one card earns a primary slot, the rest collapse.
+    const catalogue = [
+      pkg({ coverage: ["TR"], dataGb: 5, validityDays: 30, salePrice: 10 }),
+      ...[10, 15, 30].flatMap((validity) => [
+        pkg({ coverage: ["TR"], unlimited: true, validityDays: validity, salePrice: 11 }),
+        pkg({ coverage: ["TR"], unlimited: true, validityDays: validity, salePrice: 13 }),
+      ]),
+    ];
+    const result = buildCustomerShortlist(catalogue, { requiredGb: 1, coverageIsos: ["TR"], days: 10 });
+    expect(result.primary.filter((entry) => entry.package.unlimited)).toHaveLength(1);
     expect(result.moreUnlimited.length).toBeGreaterThan(0);
     for (const extra of result.moreUnlimited) expect(extra.unlimited).toBe(true);
+  });
+
+  it("E2) keeps a disproportionately expensive unlimited out of the primary grid", () => {
+    const catalogue = [
+      pkg({ coverage: ["TR"], dataGb: 5, validityDays: 30, salePrice: 10 }),
+      pkg({ coverage: ["TR"], unlimited: true, validityDays: 30, salePrice: 120 }),
+    ];
+    const result = buildCustomerShortlist(catalogue, { requiredGb: 1, coverageIsos: ["TR"], days: 10 });
+    expect(result.primary.some((entry) => entry.package.unlimited)).toBe(false);
+    expect(result.moreUnlimited.some((extra) => extra.unlimited)).toBe(true);
   });
 
   it("F) excludes packages that expire before the trip ends", () => {

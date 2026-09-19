@@ -199,21 +199,104 @@ export const getAdminOperations = createServerFn({ method: "GET" })
       }));
   });
 
-export const getAdminCatalogue = createServerFn({ method: "GET" })
+const CATALOGUE_SELECT =
+  "id, name, slug, service_type, lifecycle, customer_visible, provider_available, sale_price, provider_cost, provider_currency, currency, badge, featured, sort_order, margin_flagged, price_overridden, pricing_rule_id, is_test, primary_provider_id, destinations(name, slug), airports(iata, name), providers(name), product_translations(locale, short_description), esim_product_details(country_iso, package_kind, coverage_country_isos, coverage_subdivision_codes, data_gb, unlimited_data, validity_days, regions(name)), lounge_product_details(iata, terminal, lounge_name)";
+
+export type AdminCatalogueQuery = {
+  page: number;
+  limit: number;
+  service: "ESIM" | "LOUNGE";
+  search: string;
+  providerId: string;
+  countryIso: string;
+  availability: "ALL" | "AVAILABLE" | "UNAVAILABLE";
+  lifecycle: string;
+  packageKind: string;
+  marginOnly: boolean;
+};
+
+function normalizeCatalogueQuery(input: Partial<AdminCatalogueQuery> | undefined): AdminCatalogueQuery {
+  const limit = Math.min(100, Math.max(10, Number(input?.limit ?? 50)));
+  return {
+    page: Math.max(1, Number(input?.page ?? 1)),
+    limit,
+    service: input?.service === "LOUNGE" ? "LOUNGE" : "ESIM",
+    search: String(input?.search ?? "").trim().slice(0, 120),
+    providerId: String(input?.providerId ?? "ALL"),
+    countryIso: String(input?.countryIso ?? "ALL").toUpperCase().slice(0, 4),
+    availability: input?.availability === "AVAILABLE" || input?.availability === "UNAVAILABLE" ? input.availability : "ALL",
+    lifecycle: String(input?.lifecycle ?? "ALL"),
+    packageKind: String(input?.packageKind ?? "ALL"),
+    marginOnly: input?.marginOnly === true,
+  };
+}
+
+/**
+ * Server-side catalogue browsing. The eSIM catalogue holds thousands of
+ * products, so filtering, counting and paging all happen in the database —
+ * the browser never receives the full catalogue.
+ */
+export const getAdminCatalogue = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: Partial<AdminCatalogueQuery>) => normalizeCatalogueQuery(input))
+  .handler(async ({ data, context }) => {
+    const db = await adminDb(context as Ctx);
+    const needsEsimJoin = data.countryIso !== "ALL" || data.packageKind !== "ALL";
+
+    const build = () => {
+      let query = db
+        .from("service_products")
+        .select(needsEsimJoin ? CATALOGUE_SELECT.replace("esim_product_details(", "esim_product_details!inner(") : CATALOGUE_SELECT, {
+          count: "exact",
+        })
+        .eq("service_type", data.service);
+      if (data.search) query = query.or(`name.ilike.%${data.search}%,slug.ilike.%${data.search}%`);
+      if (data.providerId !== "ALL") query = query.eq("primary_provider_id", data.providerId);
+      if (data.availability !== "ALL") query = query.eq("provider_available", data.availability === "AVAILABLE");
+      if (data.lifecycle !== "ALL") query = query.eq("lifecycle", data.lifecycle);
+      if (data.marginOnly) query = query.eq("margin_flagged", true);
+      if (data.countryIso !== "ALL") query = query.eq("esim_product_details.country_iso", data.countryIso);
+      if (data.packageKind !== "ALL") query = query.eq("esim_product_details.package_kind", data.packageKind);
+      return query;
+    };
+
+    const from = (data.page - 1) * data.limit;
+    const [{ data: rows, error, count }, { count: total }] = await Promise.all([
+      build().order("sort_order").order("name").range(from, from + data.limit - 1),
+      db.from("service_products").select("id", { count: "exact", head: true }).eq("service_type", data.service),
+    ]);
+    if (error) throw new Error(error.message);
+    const filtered = count ?? 0;
+    return {
+      rows: rows ?? [],
+      total: total ?? 0,
+      filtered,
+      page: data.page,
+      limit: data.limit,
+      pageCount: Math.max(1, Math.ceil(filtered / data.limit)),
+    };
+  });
+
+/** Filter options are derived server-side so they cover the whole catalogue. */
+export const getAdminCatalogueFacets = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     const db = await adminDb(context as Ctx);
-    const { data, error } = await db
-      .from("service_products")
-      .select(
-        "id, name, slug, service_type, lifecycle, customer_visible, provider_available, sale_price, provider_cost, provider_currency, currency, badge, featured, sort_order, margin_flagged, price_overridden, pricing_rule_id, is_test, primary_provider_id, destinations(name, slug), airports(iata, name), providers(name), product_translations(locale, short_description), esim_product_details(country_iso, package_kind, coverage_country_isos, data_gb, unlimited_data, validity_days, regions(name)), lounge_product_details(iata, terminal, lounge_name)",
-      )
-      .order("service_type")
-      .order("sort_order")
-      .limit(500);
-    if (error) throw new Error(error.message);
-    return data ?? [];
+    const [{ data: providers }, { data: details }] = await Promise.all([
+      db.from("providers").select("id, name, service_type").order("name"),
+      db.from("esim_product_details").select("country_iso, package_kind").limit(10000),
+    ]);
+    const rows = (details ?? []) as { country_iso: string | null; package_kind: string | null }[];
+    const unique = (values: (string | null)[]): string[] =>
+      [...new Set(values.map((value) => String(value ?? "")).filter((value) => value.length > 0))].sort();
+    return {
+      providers: (providers ?? []) as { id: string; name: string; service_type: string }[],
+      countries: unique(rows.map((row) => row.country_iso)),
+      packageKinds: unique(rows.map((row) => row.package_kind)),
+    };
+
   });
+
 
 export const getAdminProviders = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])

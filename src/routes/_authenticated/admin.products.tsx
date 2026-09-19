@@ -6,7 +6,7 @@ import { AdminGate } from "@/components/AdminGate";
 import { AdminDrawer, AdminError, AdminLoading, AdminPanel, DataRow, EmptyState, Field, StatusBadge, money } from "@/components/admin/AdminUi";
 import { adminHead } from "@/components/admin/AdminSectionPage";
 import { Button } from "@/components/ui/button";
-import { getAdminCatalogue } from "@/lib/admin-control.functions";
+import { getAdminCatalogue, getAdminCatalogueFacets } from "@/lib/admin-control.functions";
 import { bulkUpdateProducts, listPricingRules, updateProduct } from "@/lib/admin-catalog.functions";
 import { itemMargin } from "@/domain/finance/formulas";
 
@@ -22,30 +22,33 @@ function Products() {
   const [search, setSearch] = useState("");
   const [provider, setProvider] = useState("ALL");
   const [place, setPlace] = useState("ALL");
-  const [availability, setAvailability] = useState("ALL");
+  const [availability, setAvailability] = useState<"ALL" | "AVAILABLE" | "UNAVAILABLE">("ALL");
   const [lifecycle, setLifecycle] = useState("ALL");
   const [marginOnly, setMarginOnly] = useState(false);
+  const [page, setPage] = useState(1);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [bulkRule, setBulkRule] = useState("");
-  const catalogue = useQuery({ queryKey: ["admin-catalogue-v3"], queryFn: () => getAdminCatalogue() });
+
+  // Server-side paging: the catalogue holds thousands of products, so the
+  // browser only ever receives the current page.
+  const query = { page, limit: 50, service, search, providerId: provider, countryIso: place, availability, lifecycle, packageKind: "ALL", marginOnly };
+  const catalogue = useQuery({
+    queryKey: ["admin-catalogue-v4", query],
+    queryFn: () => getAdminCatalogue({ data: query }),
+    placeholderData: (previous) => previous,
+  });
+  const facets = useQuery({ queryKey: ["admin-catalogue-facets"], queryFn: () => getAdminCatalogueFacets() });
   const rules = useQuery({ queryKey: ["pricing-rules"], queryFn: () => listPricingRules() });
+
+  useEffect(() => { setPage(1); }, [service, search, provider, place, availability, lifecycle, marginOnly]);
 
   const placeOf = (product: any) =>
     product.service_type === "ESIM"
       ? (product.esim_product_details?.regions?.name ?? product.destinations?.name ?? product.esim_product_details?.country_iso ?? product.esim_product_details?.package_kind ?? "Diğer kapsama")
       : `${product.lounge_product_details?.iata ?? product.airports?.iata ?? "Havalimanı yok"} · ${product.lounge_product_details?.terminal ?? "Terminal belirtilmedi"}`;
 
-  const filtered = useMemo(() => (catalogue.data ?? []).filter((product: any) => {
-    if (product.service_type !== service) return false;
-    if (search && !`${product.name} ${product.slug ?? ""}`.toLowerCase().includes(search.toLowerCase())) return false;
-    if (provider !== "ALL" && (product.providers?.name ?? "—") !== provider) return false;
-    if (place !== "ALL" && placeOf(product) !== place) return false;
-    if (availability === "AVAILABLE" && !product.provider_available) return false;
-    if (availability === "UNAVAILABLE" && product.provider_available) return false;
-    if (lifecycle !== "ALL" && product.lifecycle !== lifecycle) return false;
-    if (marginOnly && !product.margin_flagged) return false;
-    return true;
-  }), [catalogue.data, service, search, provider, place, availability, lifecycle, marginOnly]);
+  const rows: any[] = (catalogue.data?.rows ?? []) as any[];
+  const filtered = rows;
 
   const groups = useMemo(() => {
     const map = new Map<string, any[]>();
@@ -53,14 +56,15 @@ function Products() {
     return [...map.entries()];
   }, [filtered]);
 
-  const providerOptions = [...new Set((catalogue.data ?? []).filter((row: any) => row.service_type === service).map((row: any) => row.providers?.name ?? "—"))];
-  const placeOptions = [...new Set((catalogue.data ?? []).filter((row: any) => row.service_type === service).map(placeOf))];
-  const selected = (catalogue.data ?? []).find((product: any) => product.id === openId) ?? null;
+  const providerOptions = (facets.data?.providers ?? []).filter((row) => row.service_type === service);
+  const placeOptions = service === "ESIM" ? (facets.data?.countries ?? []) : [];
+  const selected = rows.find((product: any) => product.id === openId) ?? null;
+
 
   const bulk = useMutation({
     mutationFn: (action: Parameters<typeof bulkUpdateProducts>[0]["data"]["action"]) =>
       bulkUpdateProducts({ data: { ids: selectedIds, action, pricingRuleId: bulkRule || null } }),
-    onSuccess: async () => { setSelectedIds([]); await queryClient.invalidateQueries({ queryKey: ["admin-catalogue-v3"] }); },
+    onSuccess: async () => { setSelectedIds([]); await queryClient.invalidateQueries({ queryKey: ["admin-catalogue-v4"] }); },
   });
 
   const toggle = (id: string) => setSelectedIds((current) => (current.includes(id) ? current.filter((row) => row !== id) : [...current, id]));
@@ -79,17 +83,18 @@ function Products() {
             <Field label="Provider">
               <select className="admin-field mt-1 w-full" value={provider} onChange={(event) => setProvider(event.target.value)}>
                 <option value="ALL">Tümü</option>
-                {providerOptions.map((name) => <option key={String(name)} value={String(name)}>{String(name)}</option>)}
+                {providerOptions.map((row: { id: string; name: string }) => <option key={row.id} value={row.id}>{row.name}</option>)}
               </select>
             </Field>
-            <Field label={service === "ESIM" ? "Ülke / bölge" : "Havalimanı"}>
+            <Field label={service === "ESIM" ? "Ülke" : "Havalimanı"}>
               <select className="admin-field mt-1 w-full" value={place} onChange={(event) => setPlace(event.target.value)}>
                 <option value="ALL">Tümü</option>
-                {placeOptions.map((name) => <option key={String(name)} value={String(name)}>{String(name)}</option>)}
+                {placeOptions.map((name: string) => <option key={name} value={name}>{name}</option>)}
               </select>
             </Field>
             <Field label="Uygunluk">
-              <select className="admin-field mt-1 w-full" value={availability} onChange={(event) => setAvailability(event.target.value)}>
+              <select className="admin-field mt-1 w-full" value={availability} onChange={(event) => setAvailability(event.target.value as "ALL" | "AVAILABLE" | "UNAVAILABLE")}>
+
                 <option value="ALL">Tümü</option>
                 <option value="AVAILABLE">Satışa uygun</option>
                 <option value="UNAVAILABLE">Provider’da yok</option>
@@ -158,7 +163,16 @@ function Products() {
                 ))}
               </div>
             )}
+            <div className="mt-3 flex flex-wrap items-center gap-2 border-t border-border pt-3 text-xs">
+              <span className="text-muted-foreground">
+                Toplam {catalogue.data?.total ?? 0} ürün · filtrelenen {catalogue.data?.filtered ?? 0} · sayfa {catalogue.data?.page ?? 1}/{catalogue.data?.pageCount ?? 1}
+              </span>
+              <span className="flex-1" />
+              <Button size="sm" variant="outline" disabled={page <= 1 || catalogue.isFetching} onClick={() => setPage((current) => Math.max(1, current - 1))}>Önceki</Button>
+              <Button size="sm" variant="outline" disabled={page >= (catalogue.data?.pageCount ?? 1) || catalogue.isFetching} onClick={() => setPage((current) => current + 1)}>Sonraki</Button>
+            </div>
           </AdminPanel>
+
         )}
       </div>
       <ProductDrawer product={selected} onClose={() => setOpenId(null)} />
@@ -205,7 +219,7 @@ function ProductDrawer({ product, onClose }: { product: any; onClose: () => void
     }),
     onSuccess: async () => {
       setMessage("Kaydedildi.");
-      await queryClient.invalidateQueries({ queryKey: ["admin-catalogue-v3"] });
+      await queryClient.invalidateQueries({ queryKey: ["admin-catalogue-v4"] });
     },
     onError: (error) => setMessage(error instanceof Error ? error.message : "Kaydedilemedi."),
   });

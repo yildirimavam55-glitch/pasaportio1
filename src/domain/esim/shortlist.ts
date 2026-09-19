@@ -15,10 +15,14 @@ import {
   type MatchablePackage,
   type PackageMatchInput,
 } from "./package-matching";
+import { SCOPE_PREFERENCE } from "./package-scope";
 
 export type ShortlistTier = "RECOMMENDED" | "NEXT_STEP" | "COMFORT" | "HEAVY_USE" | "UNLIMITED";
 
 export type ShortlistEntry<T> = { tier: ShortlistTier; package: T };
+
+/** Why no primary card could be offered. */
+export type ShortlistGap = "NO_CATALOGUE" | "NO_SUFFICIENT";
 
 export type CustomerShortlist<T> = {
   /** Coverage scope the primary cards were taken from. */
@@ -31,12 +35,20 @@ export type CustomerShortlist<T> = {
   widerCoverage: T[];
   /** How many catalogue products were technically eligible before curation. */
   eligibleCount: number;
+  /** Set when nothing fully satisfies the trip; never called "recommended". */
+  gap: ShortlistGap | null;
+  /** Real but insufficient products offered as an honest fallback. */
+  closest: T[];
 };
 
-const SCOPE_ORDER: CoverageScope[] = ["SINGLE_COUNTRY", "REGIONAL", "GLOBAL"];
 const MAX_PRIMARY = 5;
 /** A larger card is only worth a slot when the allowance is meaningfully bigger. */
 const MEANINGFUL_STEP = 1.4;
+/**
+ * An unlimited card only earns a primary slot when it is not wildly more
+ * expensive than the best fixed option. Configurable per call.
+ */
+export const DEFAULT_UNLIMITED_PRICE_RATIO = 2.5;
 
 const priceOf = <T extends MatchablePackage>(pkg: T) => pkg.salePrice ?? Number.POSITIVE_INFINITY;
 const byPrice = <T extends MatchablePackage>(a: T, b: T) => priceOf(a) - priceOf(b);
@@ -66,19 +78,27 @@ function curatedUnlimited<T extends MatchablePackage>(packages: T[]): T[] {
   return [...best.values()].sort((a, b) => byPrice(a, b) || (a.validityDays ?? 0) - (b.validityDays ?? 0));
 }
 
+export type ShortlistInput = PackageMatchInput & {
+  maxPrimary?: number;
+  preferredId?: string | null;
+  /** Unlimited is primary only within this multiple of the best fixed price. */
+  unlimitedPriceRatio?: number;
+};
+
 /**
  * Curated storefront selection for one destination or route.
  *
- * Single-country searches stay on single-country products whenever suitable
- * ones exist; regional and global products are a fallback, or an optional
+ * Single-country searches stay on country products whenever suitable ones
+ * exist; regional and global products are a fallback, or an optional
  * "wider coverage" extra. Route searches naturally resolve to regional/global
- * because no single-country product can cover every requested ISO.
+ * because no country product can cover every requested ISO.
  */
 export function buildCustomerShortlist<T extends MatchablePackage>(
   packages: T[],
-  input: PackageMatchInput & { maxPrimary?: number; preferredId?: string | null },
+  input: ShortlistInput,
 ): CustomerShortlist<T> {
   const limit = Math.max(1, Math.min(MAX_PRIMARY, input.maxPrimary ?? MAX_PRIMARY));
+  const ratio = Math.max(1, Number(input.unlimitedPriceRatio ?? DEFAULT_UNLIMITED_PRICE_RATIO));
   const covering = coveringPackages(packages, input);
   const eligible = covering.filter((pkg) => isSufficient(pkg, input.requiredGb));
   const empty: CustomerShortlist<T> = {
@@ -87,6 +107,11 @@ export function buildCustomerShortlist<T extends MatchablePackage>(
     moreUnlimited: [],
     widerCoverage: [],
     eligibleCount: eligible.length,
+    // Products exist for the trip but none is big enough -> honest gap state.
+    gap: covering.length ? "NO_SUFFICIENT" : "NO_CATALOGUE",
+    closest: covering.length
+      ? [...covering].sort((a, b) => sizeOf(b) - sizeOf(a) || byPrice(a, b)).slice(0, 3)
+      : [],
   };
   if (!eligible.length) return empty;
 
@@ -96,7 +121,7 @@ export function buildCustomerShortlist<T extends MatchablePackage>(
     const scope = coverageScopeOf(pkg);
     byScope.set(scope, [...(byScope.get(scope) ?? []), pkg]);
   }
-  const scope = SCOPE_ORDER.find((candidate) => (byScope.get(candidate)?.length ?? 0) > 0) ?? null;
+  const scope = SCOPE_PREFERENCE.find((candidate) => (byScope.get(candidate)?.length ?? 0) > 0) ?? null;
   if (!scope) return empty;
   const pool = byScope.get(scope)!;
 
@@ -129,15 +154,25 @@ export function buildCustomerShortlist<T extends MatchablePackage>(
     }
   }
 
-  // Exactly one unlimited card in the primary grid; the rest stay collapsed.
-  const primaryUnlimited = unlimited.find((pkg) => !used.has(pkg.id)) ?? null;
-  if (primaryUnlimited && primary.length < limit) {
-    primary.push({ tier: "UNLIMITED", package: primaryUnlimited });
-    used.add(primaryUnlimited.id);
+  /**
+   * Value guard: an unlimited plan that costs several times the best fixed
+   * option is not useful next to a €10 card, so it moves behind the
+   * "other unlimited options" action instead of taking a primary slot.
+   */
+  const fixedPrimaryPrices = primary.filter((entry) => !entry.package.unlimited).map((entry) => priceOf(entry.package));
+  const cheapestFixed = fixedPrimaryPrices.length ? Math.min(...fixedPrimaryPrices) : null;
+  const candidateUnlimited = unlimited.find((pkg) => !used.has(pkg.id)) ?? null;
+  const unlimitedIsGoodValue =
+    candidateUnlimited != null &&
+    (cheapestFixed == null || !Number.isFinite(cheapestFixed) || priceOf(candidateUnlimited) <= cheapestFixed * ratio);
+
+  if (candidateUnlimited && unlimitedIsGoodValue && primary.length < limit) {
+    primary.push({ tier: "UNLIMITED", package: candidateUnlimited });
+    used.add(candidateUnlimited.id);
   }
 
-  const widerCoverage = scope === "SINGLE_COUNTRY"
-    ? SCOPE_ORDER.slice(1)
+  const widerCoverage = scope === "COUNTRY"
+    ? SCOPE_PREFERENCE.slice(1)
         .map((other) => [...(byScope.get(other) ?? [])].sort(byPrice)[0])
         .filter((pkg): pkg is T => Boolean(pkg))
         .slice(0, 2)
@@ -149,5 +184,7 @@ export function buildCustomerShortlist<T extends MatchablePackage>(
     moreUnlimited: unlimited.filter((pkg) => !used.has(pkg.id)).slice(0, 4),
     widerCoverage,
     eligibleCount: eligible.length,
+    gap: null,
+    closest: [],
   };
 }
