@@ -12,7 +12,7 @@ import { DeviceCompatibilityInline } from "@/components/travel/DeviceCompatibili
 import { useI18n } from "@/i18n";
 import { getCountryByIso } from "@/domain/geo/countries";
 import { useCart } from "@/domain/cart/store";
-import { resolveTieredRecommendation } from "@/domain/esim/package-matching";
+import { buildCustomerShortlist, type ShortlistTier } from "@/domain/esim/shortlist";
 import { activationNote } from "@/domain/esim/activation";
 
 import { listEsimPackages, type EsimPackage } from "@/lib/esim-catalogue.functions";
@@ -46,6 +46,9 @@ const COPY = {
     lead: "Seçimlerine uyan güncel paketler.",
     why: "Neden bu paket?", goToCart: "Sepete git",
     economyBadge: "Ekonomik", comfortBadge: "Rahat kullanım",
+    tierNext: "Bir üst adım", tierComfort: "Rahat kullanım", tierHeavy: "Yoğun kullanım", tierUnlimited: "Sınırsız",
+    moreUnlimited: "Diğer sınırsız seçenekler", widerCoverage: "Daha fazla ülke kapsayan paketler",
+    showMore: "Göster", hideMore: "Gizle",
     scopeRegional: "Bu destinasyon bölgesel paket kapsamında.",
     scopeGlobal: "Bu destinasyon Global paket kapsamında.",
     whyText: (need: number, size: string) => `Yaklaşık ${need} GB ihtiyacın için mevcut paketler arasındaki en yakın uygun seçenek: ${size}.`,
@@ -62,6 +65,9 @@ const COPY = {
     lead: "Aktuelle Pakete passend zu deiner Auswahl.",
     why: "Warum dieses Paket?", goToCart: "Zum Warenkorb",
     economyBadge: "Günstig", comfortBadge: "Komfort",
+    tierNext: "Nächste Stufe", tierComfort: "Komfort", tierHeavy: "Intensive Nutzung", tierUnlimited: "Unbegrenzt",
+    moreUnlimited: "Weitere Unbegrenzt-Optionen", widerCoverage: "Pakete mit mehr Ländern",
+    showMore: "Anzeigen", hideMore: "Ausblenden",
     scopeRegional: "Dieses Reiseziel ist von einem Regionalpaket abgedeckt.",
     scopeGlobal: "Dieses Reiseziel ist von einem Global-Paket abgedeckt.",
     whyText: (need: number, size: string) => `Für deinen Bedarf von rund ${need} GB ist dies das nächstpassende verfügbare Paket: ${size}.`,
@@ -78,6 +84,9 @@ const COPY = {
     lead: "Live packages matching your selection.",
     why: "Why this package?", goToCart: "Go to cart",
     economyBadge: "Best value", comfortBadge: "Comfort",
+    tierNext: "Next step", tierComfort: "Comfort", tierHeavy: "Heavy use", tierUnlimited: "Unlimited",
+    moreUnlimited: "Other unlimited options", widerCoverage: "Packages covering more countries",
+    showMore: "Show", hideMore: "Hide",
     scopeRegional: "This destination is covered by a regional package.",
     scopeGlobal: "This destination is covered by a global package.",
     whyText: (need: number, size: string) => `For your roughly ${need} GB need, this is the closest suitable available option: ${size}.`,
@@ -114,29 +123,44 @@ function PackagesPage() {
     queryFn: () => listEsimPackages({ data: { coverageIsos } }),
   });
 
-  // Layer 2: real catalogue products only, resolved single-country -> regional -> global.
-  const match = resolveTieredRecommendation(packages, { requiredGb: required, coverageIsos, days });
-  const handedOffProduct = match.candidates.find((pkg) => pkg.id === search.recommendedProductId);
-  const recommendedProduct = handedOffProduct ?? match.recommended;
+  // Layer 3: the eligible catalogue is curated down to a small customer shortlist.
+  const shortlist = buildCustomerShortlist(packages, {
+    requiredGb: required,
+    coverageIsos,
+    days,
+    preferredId: search.recommendedProductId || null,
+  });
+  const primaryEntries = shortlist.primary;
+  const recommendedProduct = primaryEntries[0]?.package ?? null;
   const scopeNote =
-    match.scope === "REGIONAL" ? copy.scopeRegional : match.scope === "GLOBAL" ? copy.scopeGlobal : "";
+    shortlist.scope === "REGIONAL" ? copy.scopeRegional : shortlist.scope === "GLOBAL" ? copy.scopeGlobal : "";
   const recommendedLabel = recommendedProduct ? (recommendedProduct.unlimited ? copy.unlimited : `${recommendedProduct.dataGb} GB`) : "";
   const [selectedProductId, setSelectedProductId] = useState("");
   const [hasScrolled, setHasScrolled] = useState(false);
   const { lines, addLine } = useCart();
   const availability = useServiceAvailability();
-  const sufficientPackages = match.candidates.filter((pkg) => pkg.unlimited || (pkg.dataGb ?? 0) >= required);
-  const visiblePackages = recommendedProduct
-    ? [recommendedProduct, ...sufficientPackages.filter((pkg) => pkg.id !== recommendedProduct.id)]
-    : [];
-  const activeSelectedId = selectedProductId || recommendedProduct?.id || visiblePackages[0]?.id || "";
-  const selectedProduct = visiblePackages.find((pkg) => pkg.id === activeSelectedId) ?? null;
+  // Secondary options stay selectable even though they live outside the main grid.
+  const selectablePackages = [
+    ...primaryEntries.map((entry) => entry.package),
+    ...shortlist.moreUnlimited,
+    ...shortlist.widerCoverage,
+  ];
+  const selectableIds = selectablePackages.map((pkg) => pkg.id).join(",");
+  const activeSelectedId = selectedProductId || recommendedProduct?.id || "";
+  const selectedProduct = selectablePackages.find((pkg) => pkg.id === activeSelectedId) ?? null;
   const selectedInCart = Boolean(selectedProduct && lines.some((line) => line.productId === selectedProduct.id));
+  const tierLabel = (tier: ShortlistTier) =>
+    tier === "NEXT_STEP" ? copy.tierNext
+      : tier === "COMFORT" ? copy.tierComfort
+        : tier === "HEAVY_USE" ? copy.tierHeavy
+          : tier === "UNLIMITED" ? copy.tierUnlimited
+            : "";
 
   useEffect(() => {
-    if (!visiblePackages.length) return;
-    setSelectedProductId((current) => visiblePackages.some((pkg) => pkg.id === current) ? current : (recommendedProduct?.id ?? visiblePackages[0]?.id ?? ""));
-  }, [visiblePackages, recommendedProduct?.id]);
+    if (!selectableIds) return;
+    const ids = selectableIds.split(",");
+    setSelectedProductId((current) => (ids.includes(current) ? current : ids[0] ?? ""));
+  }, [selectableIds]);
 
   const addSelectedToCart = () => {
     if (!selectedProduct || selectedProduct.salePrice == null) return;
@@ -199,16 +223,17 @@ function PackagesPage() {
           <div className="mt-5 grid gap-3 sm:grid-cols-3">
             {[0, 1, 2].map((key) => <div key={key} className="h-44 animate-pulse rounded-card bg-secondary" />)}
           </div>
-        ) : visiblePackages.length ? (
+        ) : primaryEntries.length ? (
+          <>
           <div className="mt-5 grid gap-3 pb-28 sm:grid-cols-2 sm:pb-0 lg:grid-cols-3" role="radiogroup" aria-label={copy.title}>
-            {visiblePackages.map((pkg) => (
+            {primaryEntries.map((entry) => (
               <PackageCard
-                key={pkg.id}
-                pkg={pkg}
-                isRecommended={recommendedProduct?.id === pkg.id}
-                variantLabel={pkg.id === match.economy?.id ? copy.economyBadge : pkg.id === match.comfort?.id ? copy.comfortBadge : ""}
-                isSelected={activeSelectedId === pkg.id}
-                onSelect={() => setSelectedProductId(pkg.id)}
+                key={entry.package.id}
+                pkg={entry.package}
+                isRecommended={recommendedProduct?.id === entry.package.id}
+                variantLabel={tierLabel(entry.tier)}
+                isSelected={activeSelectedId === entry.package.id}
+                onSelect={() => setSelectedProductId(entry.package.id)}
                 whyText={copy.whyText(required, recommendedLabel)}
                 destinationIso={destination}
                 routeIsos={routeIsos}
@@ -230,6 +255,29 @@ function PackagesPage() {
               </div>
             )}
           </div>
+          {shortlist.moreUnlimited.length > 0 && (
+            <SecondaryGroup
+              title={copy.moreUnlimited}
+              packages={shortlist.moreUnlimited}
+              activeSelectedId={activeSelectedId}
+              onSelect={setSelectedProductId}
+              destinationIso={destination}
+              routeIsos={routeIsos}
+              copy={copy}
+            />
+          )}
+          {shortlist.widerCoverage.length > 0 && (
+            <SecondaryGroup
+              title={copy.widerCoverage}
+              packages={shortlist.widerCoverage}
+              activeSelectedId={activeSelectedId}
+              onSelect={setSelectedProductId}
+              destinationIso={destination}
+              routeIsos={routeIsos}
+              copy={copy}
+            />
+          )}
+          </>
         ) : (
           <div className="mt-5 rounded-card border border-dashed border-border bg-card p-6 text-center">
             <p className="text-sm font-semibold">{copy.empty}</p>
@@ -307,4 +355,34 @@ function CoverageSheet({ isos, copy }: { isos: string[]; copy: (typeof COPY)["tr
   const [query, setQuery] = useState("");
   const countries = [...new Set(isos)].map((iso) => getCountryByIso(iso)).filter((country) => country && country.name[locale].toLocaleLowerCase(locale).includes(query.toLocaleLowerCase(locale)));
   return <Sheet><SheetTrigger asChild><Button type="button" variant="ghost" size="sm" className="mt-2 w-fit px-0 text-primary">{copy.coverageOpen}</Button></SheetTrigger><SheetContent side="bottom" className="max-h-[78svh] overflow-y-auto rounded-t-2xl pb-24 sm:bottom-auto sm:left-1/2 sm:top-1/2 sm:w-[min(36rem,calc(100vw-3rem))] sm:-translate-x-1/2 sm:-translate-y-1/2 sm:rounded-2xl sm:border"><SheetHeader><SheetTitle>{copy.coverageTitle}</SheetTitle><SheetDescription>{isos.length} {copy.coverage}</SheetDescription></SheetHeader><label className="mt-4 flex min-h-11 items-center gap-2 rounded-xl border border-border bg-secondary/60 px-3"><Search className="size-4 text-muted-foreground"/><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder={copy.coverageSearch} className="min-w-0 flex-1 bg-transparent text-sm outline-none" /></label><ul className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-3">{countries.map((country) => country ? <li key={country.iso} className="flex items-center gap-2 rounded-lg bg-secondary/60 p-2 text-sm"><CountryFlag iso={country.iso}/><span className="truncate">{country.name[locale]}</span></li> : null)}</ul></SheetContent></Sheet>;
+}
+
+/** Collapsed extras: near-duplicate unlimited variants and broader-coverage options. */
+function SecondaryGroup({ title, packages, activeSelectedId, onSelect, destinationIso, routeIsos, copy }: { title: string; packages: EsimPackage[]; activeSelectedId: string; onSelect: (id: string) => void; destinationIso: string; routeIsos: string[]; copy: (typeof COPY)["tr"] }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <div className="mt-4">
+      <button type="button" onClick={() => setOpen((value) => !value)} aria-expanded={open} className="flex min-h-11 w-full items-center justify-between gap-2 rounded-card border border-border bg-card px-4 text-sm font-semibold">
+        <span className="truncate">{title} ({packages.length})</span>
+        <span className="shrink-0 text-primary">{open ? copy.hideMore : copy.showMore}</span>
+      </button>
+      {open && (
+        <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          {packages.map((pkg) => (
+            <PackageCard
+              key={pkg.id}
+              pkg={pkg}
+              isRecommended={false}
+              isSelected={activeSelectedId === pkg.id}
+              onSelect={() => onSelect(pkg.id)}
+              whyText=""
+              destinationIso={destinationIso}
+              routeIsos={routeIsos}
+              copy={copy}
+            />
+          ))}
+        </div>
+      )}
+    </div>
+  );
 }

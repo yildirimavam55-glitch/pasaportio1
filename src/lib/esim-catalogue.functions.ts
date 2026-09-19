@@ -116,10 +116,17 @@ export const listEsimPackages = createServerFn({ method: "GET" })
             }
           | null
           | undefined;
+        // Deduplicated: the primary country is usually repeated inside the
+        // coverage list, and a duplicate would make a single-country package
+        // look like a regional one to both the customer and the shortlist.
         const coverage = [
-          ...(details?.coverage_country_isos ?? []),
-          ...(details?.country_iso ? [details.country_iso] : []),
-        ].map((iso) => String(iso).toUpperCase());
+          ...new Set(
+            [
+              ...(details?.coverage_country_isos ?? []),
+              ...(details?.country_iso ? [details.country_iso] : []),
+            ].map((iso) => String(iso).toUpperCase()),
+          ),
+        ];
         const unlimited = details?.data_type === "UNLIMITED" || Boolean(details?.unlimited_data);
         const activation = String(details?.activation_policy ?? "").toUpperCase();
         return {
