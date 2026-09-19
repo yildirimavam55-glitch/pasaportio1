@@ -143,6 +143,7 @@ export function PublicShell({
     return () => data.subscription.unsubscribe();
   }, []);
   const selectAndFind = (service: ServiceSlug) => {
+    console.log("[DEBUG] selectAndFind", service, onServiceChange);
     onServiceChange?.(service);
     window.setTimeout(
       () =>
