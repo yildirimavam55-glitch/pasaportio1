@@ -13,6 +13,7 @@ import { useI18n } from "@/i18n";
 import { getCountryByIso } from "@/domain/geo/countries";
 import { useCart } from "@/domain/cart/store";
 import { buildCatalogueSections } from "@/domain/esim/catalogue-sections";
+import { coverageScopeOf } from "@/domain/esim/package-matching";
 import { activationNote } from "@/domain/esim/activation";
 
 import { listEsimPackages, type EsimPackage } from "@/lib/esim-catalogue.functions";
@@ -47,7 +48,7 @@ const COPY = {
     why: "Neden bu paket?", goToCart: "Sepete git",
     economyBadge: "Ekonomik", comfortBadge: "Rahat kullanım",
     tierNext: "Bir üst adım", tierComfort: "Rahat kullanım", tierHeavy: "Yoğun kullanım", tierUnlimited: "Sınırsız",
-    moreUnlimited: "Diğer sınırsız seçenekler", widerCoverage: "Daha fazla ülke kapsayan paketler",
+    standardPackages: "Standart paketler", moreUnlimited: "Sınırsız seçenekler", widerCoverage: "Daha fazla ülke kapsayan paketler",
     showMore: "Göster", hideMore: "Gizle",
     perTraveler: (count: number) => `Her yolcu için ayrı bir eSIM gerekir · sepete ${count} adet eklenir`,
     gapTitle: "Bu seyahat için ihtiyacını tamamen karşılayan tek paket bulunamadı.",
@@ -69,7 +70,7 @@ const COPY = {
     why: "Warum dieses Paket?", goToCart: "Zum Warenkorb",
     economyBadge: "Günstig", comfortBadge: "Komfort",
     tierNext: "Nächste Stufe", tierComfort: "Komfort", tierHeavy: "Intensive Nutzung", tierUnlimited: "Unbegrenzt",
-    moreUnlimited: "Weitere Unbegrenzt-Optionen", widerCoverage: "Pakete mit mehr Ländern",
+    standardPackages: "Standard-Pakete", moreUnlimited: "Unbegrenzt-Optionen", widerCoverage: "Pakete mit mehr Ländern",
     showMore: "Anzeigen", hideMore: "Ausblenden",
     perTraveler: (count: number) => `Jede Person braucht eine eigene eSIM · ${count} Stück im Warenkorb`,
     gapTitle: "Kein einzelnes Paket deckt diese Reise vollständig ab.",
@@ -91,7 +92,7 @@ const COPY = {
     why: "Why this package?", goToCart: "Go to cart",
     economyBadge: "Best value", comfortBadge: "Comfort",
     tierNext: "Next step", tierComfort: "Comfort", tierHeavy: "Heavy use", tierUnlimited: "Unlimited",
-    moreUnlimited: "Other unlimited options", widerCoverage: "Packages covering more countries",
+    standardPackages: "Standard packages", moreUnlimited: "Unlimited options", widerCoverage: "Packages covering more countries",
     showMore: "Show", hideMore: "Hide",
     perTraveler: (count: number) => `Each traveller needs their own eSIM · ${count} added to the cart`,
     gapTitle: "No single package fully covers this trip.",
@@ -142,7 +143,8 @@ function PackagesPage() {
     recommendedId: search.recommendedProductId || null,
   });
   const recommendedProduct = sections.recommended;
-  const scopeNote = "";
+  const recommendedScope = recommendedProduct ? coverageScopeOf(recommendedProduct) : null;
+  const scopeNote = recommendedScope === "REGION" ? copy.scopeRegional : recommendedScope === "GLOBAL" ? copy.scopeGlobal : "";
   const recommendedLabel = recommendedProduct ? (recommendedProduct.unlimited ? copy.unlimited : `${recommendedProduct.dataGb} GB`) : "";
   const [selectedProductId, setSelectedProductId] = useState("");
   const [hasScrolled, setHasScrolled] = useState(false);
@@ -374,8 +376,8 @@ function CoverageSheet({ isos, copy }: { isos: string[]; copy: (typeof COPY)["tr
 }
 
 /** Collapsed extras: near-duplicate unlimited variants and broader-coverage options. */
-function SecondaryGroup({ title, packages, activeSelectedId, onSelect, destinationIso, routeIsos, copy }: { title: string; packages: EsimPackage[]; activeSelectedId: string; onSelect: (id: string) => void; destinationIso: string; routeIsos: string[]; copy: (typeof COPY)["tr"] }) {
-  const [open, setOpen] = useState(false);
+function SecondaryGroup({ title, packages, defaultOpen = false, activeSelectedId, onSelect, destinationIso, routeIsos, copy }: { title: string; packages: EsimPackage[]; defaultOpen?: boolean; activeSelectedId: string; onSelect: (id: string) => void; destinationIso: string; routeIsos: string[]; copy: (typeof COPY)["tr"] }) {
+  const [open, setOpen] = useState(defaultOpen);
   return (
     <div className="mt-4">
       <button type="button" onClick={() => setOpen((value) => !value)} aria-expanded={open} className="flex min-h-11 w-full items-center justify-between gap-2 rounded-card border border-border bg-card px-4 text-sm font-semibold">
