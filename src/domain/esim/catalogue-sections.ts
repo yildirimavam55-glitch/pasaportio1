@@ -37,7 +37,6 @@ export type SectionCounters = {
   broaderCoverageTotal: number;
 };
 
-
 export type CatalogueSections<T> = {
   recommended: T | null;
   standard: T[];
@@ -95,7 +94,8 @@ function curateBroaderCoverage<T extends CatalogueProduct>(packages: T[], limit:
   const bucketOf = (pkg: T) =>
     `${coverageScopeOf(pkg) === "GLOBAL" ? "GLOBAL" : "REGION"}:${pkg.unlimited ? "UNLIMITED" : "FIXED"}`;
   const ranked = [...packages].sort(
-    (a, b) => byPrice(a, b) || (b.dataGb ?? 0) - (a.dataGb ?? 0) || a.coverage.length - b.coverage.length,
+    (a, b) =>
+      byPrice(a, b) || (b.dataGb ?? 0) - (a.dataGb ?? 0) || a.coverage.length - b.coverage.length,
   );
   const picked: T[] = [];
   const usedBuckets = new Set<string>();
@@ -120,7 +120,6 @@ function curateBroaderCoverage<T extends CatalogueProduct>(packages: T[], limit:
   }
   return picked;
 }
-
 
 /**
  * Deduplicate, then classify each eligible product into exactly one bucket.
@@ -216,7 +215,6 @@ export function buildCatalogueSections<T extends CatalogueProduct>(
   if (classified !== counters.unique && import.meta.env?.DEV) {
     console.error("[esim] classification invariant broken", counters);
   }
-
 
   return {
     recommended: safeRecommended,
