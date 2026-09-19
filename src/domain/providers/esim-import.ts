@@ -396,6 +396,8 @@ export function hashItem(item: NormalizedEsimItem): string {
     item.speedAfterFairUse,
 
     [...item.coverage].sort(),
+    [...item.subdivisions].sort(),
+
     item.providerCost,
     item.providerCurrency,
     item.packageKind,
