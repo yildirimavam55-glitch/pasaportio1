@@ -129,7 +129,7 @@ export function PublicShell({
 }: {
   children: ReactNode;
   activeService?: ServiceSlug;
-  onServiceChange?: (service: ServiceSlug) => void;
+  onServiceChange?: (service: ServiceSlug, options?: { scrollToFinder?: boolean }) => void;
 }) {
   const { locale } = useI18n();
   const copy = localized(GLOBAL_CONTENT, locale);
@@ -143,12 +143,7 @@ export function PublicShell({
     return () => data.subscription.unsubscribe();
   }, []);
   const selectAndFind = (service: ServiceSlug) => {
-    onServiceChange?.(service);
-    window.setTimeout(
-      () =>
-        document.getElementById("finder")?.scrollIntoView({ behavior: "smooth", block: "start" }),
-      30,
-    );
+    onServiceChange?.(service, { scrollToFinder: true });
   };
   return (
     <div className="min-h-screen bg-background text-foreground">

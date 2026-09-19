@@ -60,7 +60,7 @@ export function TrustStrip({ section }: SectionProp) {
     <section className={`mx-auto ${widthClass(section)} px-4 py-7 sm:px-6`}>
       <div className="grid grid-cols-2 gap-x-3 gap-y-4 border-y border-border py-5 md:grid-cols-4">
         {rows.map((row) => (
-          <div key={row.id} className="flex items-center gap-2 text-xs font-semibold sm:text-sm">
+          <div key={row.id} data-reveal-card className="flex items-center gap-2 text-xs font-semibold sm:text-sm">
             <span className="icon-box-sm rounded-lg bg-primary-soft text-primary"><StorefrontIcon name={row.icon} /></span>
             <span className="leading-snug">{row.label}</span>
           </div>
@@ -120,7 +120,7 @@ export function VisualPopular({ service, section }: { service: ServiceSlug } & S
             const price = card.showPrice ? priceById.get(card.id) : undefined;
             const multi = card.coverageIsos.length > 1;
             return (
-              <article key={card.id} className="group relative aspect-[4/3] overflow-hidden rounded-card bg-primary shadow-card">
+              <article key={card.id} data-reveal-card className="group relative aspect-[4/3] overflow-hidden rounded-card bg-primary shadow-card">
                 <CardImage mediaId={card.mediaId} fallback={card.image} alt={card.title} className="absolute inset-0 size-full object-cover transition duration-500 group-hover:scale-105" />
                 <div className="absolute inset-0 bg-image-scrim" />
                 <div className="absolute inset-x-0 bottom-0 p-4 text-hero-foreground">
@@ -188,7 +188,7 @@ export function ProductSolutions({ section }: SectionProp) {
         <p className="mt-2 max-w-2xl text-sm text-muted-foreground">{tx(section, "description", locale, "")}</p>
         <div className="mt-6 grid gap-3 md:grid-cols-3">
           {items.map((item) => (
-            <article key={item.id} className="rounded-card border border-border bg-card p-5 shadow-card">
+            <article key={item.id} data-reveal-card className="rounded-card border border-border bg-card p-5 shadow-card">
               <span className="icon-box-feature rounded-xl bg-primary-soft text-primary"><StorefrontIcon name={item.icon} /></span>
               <h3 className="mt-4 font-bold">{itemText(item.title, locale)}</h3>
               <p className="mt-1 text-sm leading-6 text-muted-foreground">{itemText(item.description, locale)}</p>
@@ -211,7 +211,7 @@ export function HowItWorks({ service, section }: { service: ServiceSlug } & Sect
         <h2 className="mt-2 max-w-xl font-display text-2xl font-bold sm:text-3xl">{tx(section, "headline", locale, "")}</h2>
         <ol className="mt-7 grid grid-cols-2 gap-3 lg:grid-cols-4">
           {steps.map((step, index) => (
-            <li key={step.id} className="relative rounded-card bg-card p-4 shadow-card">
+            <li key={step.id} data-reveal-card className="relative rounded-card bg-card p-4 shadow-card">
               <span className="absolute right-3 top-3 text-xs font-bold text-muted-foreground">0{index + 1}</span>
               <span className={`icon-box-feature rounded-xl ${index % 2 ? "bg-cta-soft text-cta" : "bg-primary-soft text-primary"}`}><StorefrontIcon name={step.icon} /></span>
               <h3 className="mt-4 font-bold">{itemText(step.title, locale)}</h3>
@@ -288,7 +288,7 @@ export function VisualComplementary({ service, section, onSwitch }: { service: S
           <span className="text-xs font-bold uppercase opacity-70">{tx(section, "eyebrow", locale, locale === "tr" ? "Seyahat önerisi" : locale === "de" ? "Reise-Empfehlung" : "Travel recommendation")}</span>
           <h2 className="mt-2 font-display text-2xl font-bold sm:text-3xl">{tx(section, "headline", locale, copy.crossSellTitle)}</h2>
           <p className="mt-3 max-w-lg text-sm leading-6 opacity-80">{tx(section, "description", locale, copy.crossSellDescription)}</p>
-          <Button variant="light" className="mt-6 w-fit" onClick={() => { onSwitch(next); window.scrollTo({ top: 0, behavior: "smooth" }); }}>
+          <Button variant="light" className="mt-6 w-fit" onClick={() => onSwitch(next)}>
             {tx(section, "ctaLabel", locale, next === "lounge" ? "Lounge" : "eSIM")}
             <ArrowRight />
           </Button>

@@ -71,6 +71,8 @@
 - [x] Animate the service-selector pill and transition Hero/Finder locally
 - [x] Use shared SIM-card and airplane service icons at equal visual weight
 - [x] Respect reduced-motion preferences
+- [x] Preserve Finder viewport position across service switches and smooth-scroll bottom navigation only when needed
+- [x] Add premium reveal-once motion, short card staggers, and immediate Finder-result feedback
 
 ## Icon alignment and compatibility layer polish
 - [x] Normalize core customer icon boxes, SVG size, and stroke weight
