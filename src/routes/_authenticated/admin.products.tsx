@@ -6,7 +6,7 @@ import { AdminGate } from "@/components/AdminGate";
 import { AdminDrawer, AdminError, AdminLoading, AdminPanel, DataRow, EmptyState, Field, StatusBadge, money } from "@/components/admin/AdminUi";
 import { adminHead } from "@/components/admin/AdminSectionPage";
 import { Button } from "@/components/ui/button";
-import { getAdminCatalogue } from "@/lib/admin-control.functions";
+import { getAdminCatalogue, getAdminCatalogueFacets } from "@/lib/admin-control.functions";
 import { bulkUpdateProducts, listPricingRules, updateProduct } from "@/lib/admin-catalog.functions";
 import { itemMargin } from "@/domain/finance/formulas";
 
@@ -83,17 +83,18 @@ function Products() {
             <Field label="Provider">
               <select className="admin-field mt-1 w-full" value={provider} onChange={(event) => setProvider(event.target.value)}>
                 <option value="ALL">Tümü</option>
-                {providerOptions.map((name) => <option key={String(name)} value={String(name)}>{String(name)}</option>)}
+                {providerOptions.map((row: { id: string; name: string }) => <option key={row.id} value={row.id}>{row.name}</option>)}
               </select>
             </Field>
-            <Field label={service === "ESIM" ? "Ülke / bölge" : "Havalimanı"}>
+            <Field label={service === "ESIM" ? "Ülke" : "Havalimanı"}>
               <select className="admin-field mt-1 w-full" value={place} onChange={(event) => setPlace(event.target.value)}>
                 <option value="ALL">Tümü</option>
-                {placeOptions.map((name) => <option key={String(name)} value={String(name)}>{String(name)}</option>)}
+                {placeOptions.map((name: string) => <option key={name} value={name}>{name}</option>)}
               </select>
             </Field>
             <Field label="Uygunluk">
-              <select className="admin-field mt-1 w-full" value={availability} onChange={(event) => setAvailability(event.target.value)}>
+              <select className="admin-field mt-1 w-full" value={availability} onChange={(event) => setAvailability(event.target.value as "ALL" | "AVAILABLE" | "UNAVAILABLE")}>
+
                 <option value="ALL">Tümü</option>
                 <option value="AVAILABLE">Satışa uygun</option>
                 <option value="UNAVAILABLE">Provider’da yok</option>
