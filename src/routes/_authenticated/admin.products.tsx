@@ -64,7 +64,7 @@ function Products() {
   const bulk = useMutation({
     mutationFn: (action: Parameters<typeof bulkUpdateProducts>[0]["data"]["action"]) =>
       bulkUpdateProducts({ data: { ids: selectedIds, action, pricingRuleId: bulkRule || null } }),
-    onSuccess: async () => { setSelectedIds([]); await queryClient.invalidateQueries({ queryKey: ["admin-catalogue-v3"] }); },
+    onSuccess: async () => { setSelectedIds([]); await queryClient.invalidateQueries({ queryKey: ["admin-catalogue-v4"] }); },
   });
 
   const toggle = (id: string) => setSelectedIds((current) => (current.includes(id) ? current.filter((row) => row !== id) : [...current, id]));
@@ -219,7 +219,7 @@ function ProductDrawer({ product, onClose }: { product: any; onClose: () => void
     }),
     onSuccess: async () => {
       setMessage("Kaydedildi.");
-      await queryClient.invalidateQueries({ queryKey: ["admin-catalogue-v3"] });
+      await queryClient.invalidateQueries({ queryKey: ["admin-catalogue-v4"] });
     },
     onError: (error) => setMessage(error instanceof Error ? error.message : "Kaydedilemedi."),
   });
