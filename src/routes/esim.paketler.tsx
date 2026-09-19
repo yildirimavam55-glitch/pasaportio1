@@ -12,7 +12,7 @@ import { DeviceCompatibilityInline } from "@/components/travel/DeviceCompatibili
 import { useI18n } from "@/i18n";
 import { getCountryByIso } from "@/domain/geo/countries";
 import { useCart } from "@/domain/cart/store";
-import { resolveTieredRecommendation } from "@/domain/esim/package-matching";
+import { buildCustomerShortlist, type ShortlistTier } from "@/domain/esim/shortlist";
 import { activationNote } from "@/domain/esim/activation";
 
 import { listEsimPackages, type EsimPackage } from "@/lib/esim-catalogue.functions";
@@ -46,6 +46,9 @@ const COPY = {
     lead: "Seçimlerine uyan güncel paketler.",
     why: "Neden bu paket?", goToCart: "Sepete git",
     economyBadge: "Ekonomik", comfortBadge: "Rahat kullanım",
+    tierNext: "Bir üst adım", tierComfort: "Rahat kullanım", tierHeavy: "Yoğun kullanım", tierUnlimited: "Sınırsız",
+    moreUnlimited: "Diğer sınırsız seçenekler", widerCoverage: "Daha fazla ülke kapsayan paketler",
+    showMore: "Göster", hideMore: "Gizle",
     scopeRegional: "Bu destinasyon bölgesel paket kapsamında.",
     scopeGlobal: "Bu destinasyon Global paket kapsamında.",
     whyText: (need: number, size: string) => `Yaklaşık ${need} GB ihtiyacın için mevcut paketler arasındaki en yakın uygun seçenek: ${size}.`,
@@ -62,6 +65,9 @@ const COPY = {
     lead: "Aktuelle Pakete passend zu deiner Auswahl.",
     why: "Warum dieses Paket?", goToCart: "Zum Warenkorb",
     economyBadge: "Günstig", comfortBadge: "Komfort",
+    tierNext: "Nächste Stufe", tierComfort: "Komfort", tierHeavy: "Intensive Nutzung", tierUnlimited: "Unbegrenzt",
+    moreUnlimited: "Weitere Unbegrenzt-Optionen", widerCoverage: "Pakete mit mehr Ländern",
+    showMore: "Anzeigen", hideMore: "Ausblenden",
     scopeRegional: "Dieses Reiseziel ist von einem Regionalpaket abgedeckt.",
     scopeGlobal: "Dieses Reiseziel ist von einem Global-Paket abgedeckt.",
     whyText: (need: number, size: string) => `Für deinen Bedarf von rund ${need} GB ist dies das nächstpassende verfügbare Paket: ${size}.`,
@@ -78,6 +84,9 @@ const COPY = {
     lead: "Live packages matching your selection.",
     why: "Why this package?", goToCart: "Go to cart",
     economyBadge: "Best value", comfortBadge: "Comfort",
+    tierNext: "Next step", tierComfort: "Comfort", tierHeavy: "Heavy use", tierUnlimited: "Unlimited",
+    moreUnlimited: "Other unlimited options", widerCoverage: "Packages covering more countries",
+    showMore: "Show", hideMore: "Hide",
     scopeRegional: "This destination is covered by a regional package.",
     scopeGlobal: "This destination is covered by a global package.",
     whyText: (need: number, size: string) => `For your roughly ${need} GB need, this is the closest suitable available option: ${size}.`,
