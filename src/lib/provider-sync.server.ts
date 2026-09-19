@@ -168,8 +168,13 @@ export async function runProviderSync(
     reconciled: true,
   };
 
+  // Kill switch: no catalogue mutation at all while provider sync is disabled.
+  if (!options.overrideKillSwitch && !(await isProviderSyncEnabled(db))) {
+    return { ...base, error: SYNC_DISABLED_ERROR };
+  }
 
   const adapter = buildAdapter(provider, connection ?? null);
+
   const nowIso = new Date().toISOString();
 
   if (!adapter.hasCredential()) {
