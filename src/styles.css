@@ -492,43 +492,28 @@
   background: color-mix(in oklab, var(--primary-foreground) 16%, transparent);
   color: var(--color-primary-foreground);
 }
-.service-hero-transition,
 .service-finder-transition {
   will-change: opacity, transform;
-}
-.service-hero-transition[data-phase="outgoing"] {
-  opacity: 0;
-  transition: opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1);
-}
-.service-hero-transition[data-phase="incoming"] {
-  animation: service-hero-in 0.75s cubic-bezier(0.16, 1, 0.3, 1) both;
+  overflow-anchor: none;
 }
 .service-finder-transition[data-phase="outgoing"] {
   opacity: 0;
-  transform: translate3d(0, 8px, 0);
+  transform: translate3d(0, 6px, 0);
   transition:
     opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1),
     transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 .service-finder-transition[data-phase="incoming"] {
-  animation: service-content-in 0.65s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation: service-content-in 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 @keyframes service-content-in {
   from {
     opacity: 0;
-    transform: translate3d(0, 14px, 0);
+    transform: translate3d(0, 12px, 0);
   }
   to {
     opacity: 1;
     transform: translate3d(0, 0, 0);
-  }
-}
-@keyframes service-hero-in {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
   }
 }
 @keyframes finder-result-in {
@@ -563,7 +548,6 @@
   .service-selector-icon {
     transition-duration: 0.01ms;
   }
-  .service-hero-transition[data-phase],
   .service-finder-transition[data-phase] {
     animation-duration: 0.01ms;
     transform: none;

@@ -74,6 +74,7 @@
 - [x] Preserve Finder viewport position across service switches and smooth-scroll bottom navigation only when needed
 - [x] Add premium reveal-once motion, short card staggers, and immediate Finder-result feedback
 - [x] Slow customer motion to calm premium timings while preserving Finder position and reduced motion
+- [x] Use one shared CMS-editable Hero and isolate service switching to the stable Finder anchor
 
 ## Icon alignment and compatibility layer polish
 - [x] Normalize core customer icon boxes, SVG size, and stroke weight
@@ -116,7 +117,7 @@
 ## Mobile-first eSIM/Lounge homepage redesign
 - [ ] Warm cream/petrol/mint/orange tokens verified; compact spacing utilities
 - [ ] Compact mobile header + service-aware 4-item bottom navigation
-- [ ] Compact hero with service-specific headline, trust chips, and orange CTA
+- [x] Compact shared eSIM + Lounge hero with service-neutral trust chips and orange CTA
 - [ ] eSIM/Lounge segmented selector directly under hero
 - [ ] eSIM finder: dynamic country title, compact trip/days/travelers/usage layout
 - [ ] eSIM: dark petrol estimated-usage bar + mint recommended package card
