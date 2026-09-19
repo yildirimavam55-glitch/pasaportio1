@@ -69,6 +69,20 @@ export function createEsimGoAdapter(ctx: AdapterContext): CatalogueAdapter {
       }
       return { items, complete: false, pages, error: "Sayfalama sınırına ulaşıldı." };
     },
+    async fetchCataloguePage(page: number, perPage: number) {
+      if (!secret()) return { items: [], hasMore: false, status: 0, error: "CREDENTIAL_REQUIRED" };
+      const result = await requestJson(`${baseUrl}/catalogue?perPage=${perPage}&page=${page}`, { headers: headers() });
+      if (!result.ok) {
+        return { items: [], hasMore: true, status: result.status, error: result.error ?? `HTTP ${result.status}` };
+      }
+      const rows = extractItemArray(result.body) ?? [];
+      return {
+        items: rows.map((row) => normalizeBundle(row as Record<string, unknown>)),
+        hasMore: rows.length >= perPage,
+        status: result.status,
+        error: null,
+      };
+    },
     async fetchBalance() {
       if (!secret()) return null;
       const result = await requestJson(`${baseUrl}/organisation`, { headers: headers(), retries: 1 });
