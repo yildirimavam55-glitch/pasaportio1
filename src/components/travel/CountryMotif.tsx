@@ -34,12 +34,18 @@ const ICON_BY_MOTIF: Readonly<Record<MotifKey, LucideIcon>> = {
   temple: Castle,
 };
 
-export type CountryCardPresentation = "symbolic-single-country" | "minimal-single-country" | "neutral-multi-country";
+export type CountryCardPresentation =
+  "symbolic-single-country" | "minimal-single-country" | "neutral-multi-country";
 
 /** One presentation decision for every card; unknown countries intentionally stay minimal. */
-export function getCountryCardPresentation(countryCode: string | undefined, coverageCount: number): CountryCardPresentation {
+export function getCountryCardPresentation(
+  countryCode: string | undefined,
+  coverageCount: number,
+): CountryCardPresentation {
   if (coverageCount !== 1 || !countryCode) return "neutral-multi-country";
-  return MOTIF_BY_COUNTRY[countryCode.toUpperCase()] ? "symbolic-single-country" : "minimal-single-country";
+  return MOTIF_BY_COUNTRY[countryCode.toUpperCase()]
+    ? "symbolic-single-country"
+    : "minimal-single-country";
 }
 
 /** Decorative only: the flag and localized country name remain the accessible identity. */
