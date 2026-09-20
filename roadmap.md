@@ -279,3 +279,13 @@
 - [x] Keep country search navigating directly to Standard / Unlimited and live catalogue prices
 - [x] Move compatibility and the secondary package-assistant link below the product grids
 - [x] Verify the complete purchase path at 360/390/430 px
+
+## Complete global destination system (catalogue-driven)
+
+- [x] `listEsimDestinations` server function derives destinations from published, customer-visible, provider-available products (no hard-coded country list, no storefront section.items as source).
+- [x] Homepage eSIM discovery: coverage-region cards + max 8 popular countries + "Tüm ülkeleri gör" CTA.
+- [x] `/esim/ulkeler`: every sellable single-country destination, localized search (name/ISO/aliases), region chips, paginated rendering, lazy images.
+- [x] One visual identity per ISO reused on homepage, all-countries page and package header (`CountryScene`); regions use abstract coverage graphics (`RegionScene`).
+- [x] Real starting prices from the catalogue minimum sale price; no hard-coded prices.
+- [x] Country landmark motifs removed from package cards; multi-country cards stay neutral.
+- [x] Validation: 191 sellable ISOs = 191 destination cards = 191 visuals, 0 missing, 0 duplicates; tests in `src/components/travel/destinations.test.ts`.

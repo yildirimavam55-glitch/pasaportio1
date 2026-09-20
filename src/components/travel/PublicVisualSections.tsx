@@ -28,6 +28,7 @@ import { surfaceClasses, widthClass } from "@/domain/storefront/styles";
 import { StorefrontIcon } from "@/domain/storefront/icons";
 import { useMediaUrl } from "@/components/storefront/StorefrontContext";
 import { CountryFlag } from "./CountryFlag";
+import { DestinationDiscovery } from "./DestinationDiscovery";
 import airportFrankfurtAsset from "@/assets/airport-frankfurt.jpg.asset.json";
 import airportIstanbulAsset from "@/assets/airport-istanbul.jpg.asset.json";
 import destinationEuropeAsset from "@/assets/destination-europe.jpg.asset.json";
@@ -199,6 +200,12 @@ export function TrustStrip({ section }: SectionProp) {
 }
 
 export function VisualPopular({ service, section }: { service: ServiceSlug } & SectionProp) {
+  // eSIM destinations come from the live catalogue, never from section items.
+  if (service === "esim") return <DestinationDiscovery section={section ?? null} />;
+  return <LoungePopular service={service} section={section ?? null} />;
+}
+
+function LoungePopular({ service, section }: { service: ServiceSlug } & SectionProp) {
   const { locale } = useI18n();
   const navigate = useNavigate();
   const copy = localized(service === "esim" ? ESIM_CONTENT : LOUNGE_CONTENT, locale);

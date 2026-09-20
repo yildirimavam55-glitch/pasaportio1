@@ -28,7 +28,7 @@ import {
   useServiceAvailability,
 } from "@/components/travel/ServiceAvailability";
 import { CountryFlag } from "@/components/travel/CountryFlag";
-import { CountryMotif, getCountryCardPresentation } from "@/components/travel/CountryMotif";
+import { CountryScene } from "@/components/travel/CountryScene";
 import { DeviceCompatibilityInline } from "@/components/travel/DeviceCompatibility";
 import { useI18n } from "@/i18n";
 import { getCountryByIso } from "@/domain/geo/countries";
@@ -473,7 +473,15 @@ function PackagesPage() {
         >
           <ArrowLeft className="size-4" /> {copy.back}
         </Button>
-        <div className="mt-2 grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3">
+        {destination && (
+          <div className="destination-header mt-2">
+            <CountryScene iso={destination} />
+            <span className="destination-header-flag">
+              <CountryFlag iso={destination} className="text-2xl" />
+            </span>
+          </div>
+        )}
+        <div className="mt-3 grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3">
           <div className="min-w-0">
             <h1 className="flex min-w-0 items-center gap-2 font-display text-2xl font-bold leading-tight sm:text-3xl">
               {destination && <CountryFlag iso={destination} className="text-xl" />}
@@ -1129,8 +1137,6 @@ function SecondaryGroup({
       >
         {visiblePackages.map((pkg) => {
           const selected = activeSelectedId === pkg.id;
-          const localCountryIso = pkg.coverage.length === 1 ? pkg.coverage[0] : undefined;
-          const cardPresentation = getCountryCardPresentation(localCountryIso, pkg.coverage.length);
           return (
             <article
               key={pkg.id}
@@ -1146,11 +1152,6 @@ function SecondaryGroup({
               onClick={(event) => selectFromCard(event, pkg.id)}
               onKeyDown={(event) => selectFromKeyboard(event, pkg.id)}
             >
-              {cardPresentation === "symbolic-single-country" && localCountryIso ? (
-                <CountryMotif iso={localCountryIso} />
-              ) : cardPresentation === "neutral-multi-country" ? (
-                <Globe2 className="coverage-card-mark" strokeWidth={1.2} aria-hidden="true" />
-              ) : null}
               <div className="relative z-10 flex h-full min-w-0 flex-col items-start text-left">
                 {variant === "unlimited" && (
                   <div className="flex min-h-4 w-full items-start pr-7">

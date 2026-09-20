@@ -890,3 +890,130 @@
     animation: none;
   }
 }
+
+/* Destination identity: one reusable scene per country, shared across the site. */
+.country-scene {
+  position: relative;
+  display: block;
+  overflow: hidden;
+  border-radius: inherit;
+  background: linear-gradient(
+    150deg,
+    color-mix(in oklab, var(--color-primary) 18%, var(--color-card)),
+    color-mix(in oklab, var(--color-primary) 4%, var(--color-card))
+  );
+  color: var(--color-primary);
+}
+.country-scene[data-tone="lavender"] {
+  background: linear-gradient(
+    150deg,
+    color-mix(in oklab, var(--color-accent) 20%, var(--color-card)),
+    color-mix(in oklab, var(--color-accent) 5%, var(--color-card))
+  );
+  color: var(--color-accent);
+}
+.country-scene[data-tone="orange"] {
+  background: linear-gradient(
+    150deg,
+    color-mix(in oklab, var(--color-warning) 20%, var(--color-card)),
+    color-mix(in oklab, var(--color-warning) 5%, var(--color-card))
+  );
+  color: var(--color-warning);
+}
+.country-scene[data-tone="petrol"] {
+  color: var(--color-foreground);
+}
+.country-scene svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0.32;
+}
+.country-scene.is-region svg {
+  opacity: 0.26;
+  padding: 12%;
+}
+
+.destination-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.6rem;
+}
+@media (min-width: 768px) {
+  .destination-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 0.75rem;
+  }
+}
+.destination-card {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  overflow: hidden;
+  text-align: left;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-card, 1rem);
+  background: var(--color-card);
+  box-shadow: var(--shadow-card, 0 1px 2px rgb(0 0 0 / 0.05));
+  transition:
+    transform 240ms ease,
+    border-color 240ms ease;
+}
+.destination-card:hover {
+  border-color: color-mix(in oklab, var(--color-primary) 45%, var(--color-border));
+}
+.destination-card:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+.destination-card > .country-scene {
+  aspect-ratio: 16 / 9;
+  border-radius: 0;
+  flex: none;
+}
+.destination-card-body {
+  display: flex;
+  min-height: 5.25rem;
+  min-width: 0;
+  flex: 1 1 auto;
+  flex-direction: column;
+  gap: 0.2rem;
+  padding: 0.6rem 0.7rem 0.7rem;
+}
+.destination-card-skeleton {
+  height: 10.5rem;
+  border-radius: var(--radius-card, 1rem);
+  background: color-mix(in oklab, var(--color-muted) 60%, transparent);
+}
+
+.destination-header {
+  position: relative;
+  height: 6.5rem;
+  border-radius: 1.25rem;
+  overflow: hidden;
+}
+@media (min-width: 640px) {
+  .destination-header {
+    height: 9rem;
+  }
+}
+.destination-header-flag {
+  position: absolute;
+  bottom: 0.6rem;
+  left: 0.75rem;
+  display: grid;
+  place-items: center;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.75rem;
+  background: color-mix(in oklab, var(--color-card) 82%, transparent);
+}
+@media (prefers-reduced-motion: reduce) {
+  .destination-card {
+    transition: none;
+  }
+}
+
+.destination-header .country-scene svg {
+  opacity: 0.45;
+}
