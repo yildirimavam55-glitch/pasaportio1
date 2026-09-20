@@ -359,6 +359,13 @@ function Experience({
           </ServiceButton>
         </div>
       </div>
+      <QuickSearch
+        service={service}
+        onAirportSelect={(airportId) => {
+          setLoungeState((prev) => ({ ...prev, airportId }));
+          smoothlyShowFinder();
+        }}
+      />
       {sharedHero && (
         <div className="hidden sm:block">
           <Hero section={sharedHero} media={sharedMedia} onFind={scrollToFinder} />
