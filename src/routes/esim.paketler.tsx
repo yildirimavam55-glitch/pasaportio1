@@ -179,6 +179,18 @@ const COPY = {
     flexible: "Flexible Nutzung",
     showMore: "Anzeigen",
     hideMore: "Ausblenden",
+    details: "Details",
+    detailsTitle: "Paketdetails",
+    countryCount: (count: number) => (count === 1 ? "1 Land" : `${count} Länder`),
+    fieldDataType: "Datentyp",
+    fieldPrice: "Preis",
+    fieldValidity: "Gültigkeit",
+    fieldCoverage: "Abdeckung",
+    fieldActivation: "Aktivierung",
+    fieldFairUse: "Fair Use",
+    yes: "Ja",
+    no: "Nein",
+
     perTraveler: (count: number) =>
       `Jede Person braucht eine eigene eSIM · ${count} Stück im Warenkorb`,
     gapTitle: "Kein einzelnes Paket deckt diese Reise vollständig ab.",
