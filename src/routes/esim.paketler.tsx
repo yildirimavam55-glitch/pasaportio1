@@ -112,6 +112,10 @@ const COPY = {
     widerUnlimitedLead: "Daha geniş kapsamlı sınırsız alternatifler",
     noLocalUnlimited: "Bu ülkeye özel sınırsız paket bulunamadı.",
     fitsTrip: "Bu seyahate uygun",
+    instant: "Anında teslim",
+    noRoaming: "Roaming yok",
+    showAllPackages: (count: number) => `Tüm standart paketleri gör (${count})`,
+    showFewerPackages: "Daha az paket göster",
 
     widerCoverage: "Daha fazla ülke kapsayan paketler",
     standardLead: "Bu destinasyon için popüler veri paketleri",
@@ -191,6 +195,10 @@ const COPY = {
     widerUnlimitedLead: "Unbegrenzte Alternativen mit größerer Abdeckung",
     noLocalUnlimited: "Für dieses Land gibt es kein eigenes Unbegrenzt-Paket.",
     fitsTrip: "Passt zur Reise",
+    instant: "Sofort verfügbar",
+    noRoaming: "Kein Roaming",
+    showAllPackages: (count: number) => `Alle Standard-Pakete anzeigen (${count})`,
+    showFewerPackages: "Weniger Pakete anzeigen",
 
     widerCoverage: "Pakete mit mehr Ländern",
     standardLead: "Beliebte Datenpakete für dieses Reiseziel",
@@ -270,6 +278,10 @@ const COPY = {
     widerUnlimitedLead: "Unlimited alternatives with wider coverage",
     noLocalUnlimited: "No unlimited package is available for this country.",
     fitsTrip: "Fits this trip",
+    instant: "Instant delivery",
+    noRoaming: "No roaming",
+    showAllPackages: (count: number) => `View all standard packages (${count})`,
+    showFewerPackages: "Show fewer packages",
 
     widerCoverage: "Packages covering more countries",
     standardLead: "Popular data packages for this destination",
@@ -459,15 +471,18 @@ function PackagesPage() {
         >
           <ArrowLeft className="size-4" /> {copy.back}
         </Button>
-        <div className="mt-3 grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3">
+        <div className="mt-2 grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3">
           <div className="min-w-0">
-            <h1 className="flex min-w-0 items-center gap-2 font-display text-3xl font-bold leading-tight sm:text-4xl">
+            <h1 className="flex min-w-0 items-center gap-2 font-display text-2xl font-bold leading-tight sm:text-3xl">
               {destination && <CountryFlag iso={destination} className="text-xl" />}
-              <span className="truncate">{destinationCountry?.name[locale] ?? copy.title}</span>
+              <span className="truncate">
+                {destinationCountry ? `${destinationCountry.name[locale]} eSIM` : copy.title}
+              </span>
             </h1>
-            <p className="mt-0.5 text-sm text-muted-foreground">
-              {directMode ? copy.choosePlan : copy.lead}
-            </p>
+            <div className="mt-1 flex items-center gap-3 text-xs font-semibold text-muted-foreground">
+              <span className="inline-flex items-center gap-1"><Zap className="size-3.5 text-primary" />{copy.instant}</span>
+              <span className="inline-flex items-center gap-1"><Globe2 className="size-3.5 text-primary" />{copy.noRoaming}</span>
+            </div>
           </div>
           <Link to="/esim">
             <Button type="button" variant="outline" size="sm">
@@ -507,21 +522,21 @@ function PackagesPage() {
           </>
         )}
 
-        <div className="mt-4">
+        <div className="mt-3">
           <DeviceCompatibilityInline />
-          <div className="mt-6">
+          <div className="mt-4">
             <span className="block text-xs font-bold uppercase text-primary">
               {destinationCountry ? `${destinationCountry.name[locale]} · ` : ""}
               {copy.choosePlan}
             </span>
             <div
-              className="mt-2 grid w-full grid-cols-2 rounded-xl bg-secondary/70 p-1"
+               className="mt-2 grid w-full grid-cols-2 rounded-xl bg-secondary/70 p-1"
               role="tablist"
             >
               <Button
                 type="button"
                 variant={activeSegment === "standard" ? "light" : "ghost"}
-                className="h-11 rounded-lg shadow-none"
+                 className="h-11 rounded-lg text-sm font-bold uppercase shadow-none"
                 onClick={() => setActiveSegment("standard")}
                 role="tab"
                 aria-selected={activeSegment === "standard"}
@@ -531,7 +546,7 @@ function PackagesPage() {
               <Button
                 type="button"
                 variant={activeSegment === "unlimited" ? "light" : "ghost"}
-                className="h-11 rounded-lg shadow-none"
+                 className="h-11 rounded-lg text-sm font-bold uppercase shadow-none"
                 onClick={() => setActiveSegment("unlimited")}
                 role="tab"
                 aria-selected={activeSegment === "unlimited"}
@@ -543,9 +558,9 @@ function PackagesPage() {
         </div>
 
         {isPending ? (
-          <div className="mt-5 grid gap-3 sm:grid-cols-3">
-            {[0, 1, 2].map((key) => (
-              <div key={key} className="h-44 animate-pulse rounded-card bg-secondary" />
+          <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-3">
+            {[0, 1, 2, 3, 4, 5].map((key) => (
+              <div key={key} className="h-30 animate-pulse rounded-xl bg-secondary" />
             ))}
           </div>
         ) : sections.all.length ? (
@@ -1018,10 +1033,13 @@ function SecondaryGroup({
   bestForTripId?: string | null;
 }) {
   const { locale } = useI18n();
+  const [expanded, setExpanded] = useState(false);
   const pointerStart = useRef<{ x: number; y: number } | null>(null);
   const suppressSelection = useRef(false);
   const Icon = variant === "unlimited" ? InfinityIcon : variant === "coverage" ? Globe2 : Signal;
   const isSub = level === "sub";
+  const canCollapse = variant === "orb" && packages.length > 6;
+  const visiblePackages = canCollapse && !expanded ? packages.slice(0, 6) : packages;
 
   const startPointer = (event: React.PointerEvent<HTMLElement>) => {
     pointerStart.current = { x: event.clientX, y: event.clientY };
@@ -1060,7 +1078,7 @@ function SecondaryGroup({
   };
 
   return (
-    <section className={isSub ? "mt-6 scroll-mt-28 pt-1" : "mt-10 scroll-mt-28 pt-2 sm:mt-12"}>
+    <section className={isSub ? "mt-5 scroll-mt-28" : "mt-6 scroll-mt-28 sm:mt-8"}>
       <div className="flex min-w-0 items-start gap-3 px-1 py-1">
         <Icon
           className={`mt-0.5 shrink-0 text-primary ${isSub ? "size-4" : "size-6"}`}
@@ -1080,7 +1098,7 @@ function SecondaryGroup({
         role="radiogroup"
         aria-label={title}
       >
-        {packages.map((pkg) => {
+          {visiblePackages.map((pkg) => {
           const selected = activeSelectedId === pkg.id;
           const localCountryIso = pkg.coverage.length === 1 ? pkg.coverage[0] : undefined;
           return (
@@ -1103,27 +1121,27 @@ function SecondaryGroup({
               ) : (
                 <Globe2 className="coverage-card-mark" strokeWidth={1.2} aria-hidden="true" />
               )}
-              <div className="relative z-10 flex h-full flex-col items-start text-left">
+              <div className="relative z-10 flex h-full min-w-0 flex-col items-start text-left">
                 {variant === "unlimited" && (
-                  <div className="flex min-h-6 w-full items-start pr-8">
+                  <div className="flex min-h-4 w-full items-start pr-7">
                     {pkg.id === bestForTripId && (
-                      <span className="inline-flex min-h-5 items-center rounded-full bg-primary px-2 py-0.5 text-[10px] font-bold leading-tight text-primary-foreground">
+                      <span className="inline-flex min-h-4 items-center rounded-full bg-primary px-1.5 py-0.5 text-[9px] font-bold leading-tight text-primary-foreground">
                         {copy.fitsTrip}
                       </span>
                     )}
                   </div>
                 )}
                 {variant === "unlimited" && (
-                  <InfinityIcon className="mb-1 mt-1 size-5 shrink-0 text-primary" />
+                  <InfinityIcon className="mb-0.5 size-4 shrink-0 text-primary" />
                 )}
-                <strong className="max-w-full font-display text-base leading-snug sm:text-lg">
+                <strong className="max-w-[calc(100%-1.5rem)] font-display text-lg leading-none sm:text-xl">
                   {pkg.unlimited ? copy.unlimited : `${pkg.dataGb ?? "—"} GB`}
                   {pkg.unlimited && fairUseText(pkg) ? "*" : ""}
                 </strong>
-                <span className="mt-1 text-sm font-semibold opacity-75">
+                <span className="mt-1.5 text-xs font-semibold text-muted-foreground">
                   {pkg.validityDays ?? "—"} {copy.days}
                 </span>
-                <span className="mt-2 flex max-w-full items-center gap-1 text-xs opacity-75">
+                <span className="mt-auto flex max-w-full items-center gap-1 text-[11px] text-muted-foreground">
                   {pkg.coverage.length === 1 && pkg.coverage[0] ? (
                     <>
                       <CountryFlag iso={pkg.coverage[0]} />
@@ -1144,16 +1162,14 @@ function SecondaryGroup({
                     </>
                   )}
                 </span>
-                <span className="mt-2 text-lg font-bold leading-none">
+                <span className="mt-1.5 max-w-full text-lg font-bold leading-none">
                   {formatSalePrice(pkg.salePrice ?? 0, pkg.currency, locale)}
                 </span>
-                <span
-                  className={`mt-auto inline-flex h-8 items-center justify-center gap-1 rounded-full px-3 text-xs font-bold ${selected ? "bg-primary text-primary-foreground" : "bg-secondary text-primary"}`}
-                  aria-hidden="true"
-                >
-                  {selected && <Check className="size-3.5" />}
-                  {selected ? copy.selected : copy.select}
-                </span>
+                {selected && (
+                  <span className="absolute bottom-0 right-0 grid size-5 place-items-center rounded-full bg-primary text-primary-foreground" aria-hidden="true">
+                    <Check className="size-3.5" strokeWidth={3} />
+                  </span>
+                )}
               </div>
               <div
                 className="absolute right-2.5 top-2.5 z-20"
@@ -1171,6 +1187,18 @@ function SecondaryGroup({
           );
         })}
       </div>
+      {canCollapse && (
+        <Button
+          type="button"
+          variant="ghost"
+          size="sm"
+          className="mx-auto mt-2 flex text-primary"
+          onClick={() => setExpanded((current) => !current)}
+          aria-expanded={expanded}
+        >
+          {expanded ? copy.showFewerPackages : copy.showAllPackages(packages.length)}
+        </Button>
+      )}
       {variant === "orb" && (
         <div className="mt-4 flex items-center justify-center gap-5 text-xs font-semibold text-muted-foreground">
           <span className="flex items-center gap-1">

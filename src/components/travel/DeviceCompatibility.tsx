@@ -476,14 +476,14 @@ export function DeviceCompatibilityInline() {
   }
 
   return (
-    <div className="flex flex-wrap items-center gap-2 rounded-2xl border border-accent/60 bg-lavender-soft p-4 text-sm">
-      <Smartphone className="size-5 shrink-0 text-primary" aria-hidden="true" />
-      <span className="min-w-0 flex-1 font-semibold">{copy.sectionTitle}</span>
+    <div className="flex min-h-12 items-center gap-2 rounded-xl border border-accent/60 bg-lavender-soft px-3 py-2 text-sm">
+      <Smartphone className="size-4 shrink-0 text-primary" aria-hidden="true" />
+      <span className="min-w-0 flex-1 truncate font-semibold">{copy.recheck}</span>
       <DeviceCheckSheet
         surface="packages"
         trigger={
-          <Button variant="ghost" size="sm" className="text-primary">
-            {copy.check} <ChevronRight />
+          <Button variant="ghost" size="icon" className="size-8 shrink-0 text-primary" aria-label={copy.check}>
+            <ChevronRight />
           </Button>
         }
       />
