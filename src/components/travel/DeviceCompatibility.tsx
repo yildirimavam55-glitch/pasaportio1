@@ -408,16 +408,16 @@ export function DeviceCompatibilitySection() {
   const { compatibilityChecked, deviceModel, compatibilityResult } = useDeviceCheck();
 
   return (
-    <section className="mx-auto mt-7 max-w-finder px-3 sm:px-6">
-      <div className="rounded-[1.5rem] border border-accent/60 bg-accent-soft p-5 shadow-soft sm:flex sm:items-center sm:justify-between sm:gap-5 sm:p-7">
+    <section className="mx-auto mt-4 max-w-finder px-3 sm:mt-7 sm:px-6">
+      <div className="rounded-2xl border border-accent/60 bg-lavender-soft p-4 sm:flex sm:items-center sm:justify-between sm:gap-5 sm:p-6">
         <div className="min-w-0">
-          <h2 className="flex items-center gap-2 font-display text-xl font-bold sm:text-2xl">
-            <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-card text-primary shadow-soft">
+          <h2 className="flex items-center gap-2 font-display text-lg font-bold sm:text-2xl">
+            <span className="grid size-9 shrink-0 place-items-center rounded-lg bg-card text-primary shadow-soft">
               <Smartphone aria-hidden="true" />
             </span>
             <span className="leading-tight">{copy.sectionTitle}</span>
           </h2>
-          <p className="mt-2 text-sm leading-6 text-muted-foreground">{copy.sectionLead}</p>
+          <p className="mt-1 text-sm leading-5 text-muted-foreground">{copy.sectionLead}</p>
           {compatibilityChecked && compatibilityResult && (
             <p className="mt-2 flex items-center gap-1.5 text-sm font-semibold">
               <StatusIcon status={compatibilityResult} />
@@ -430,8 +430,8 @@ export function DeviceCompatibilitySection() {
             surface="finder"
             trigger={
               <Button variant="default" size="lg" className="w-full sm:w-auto">
-                <Smartphone />
                 {compatibilityChecked ? copy.change : copy.check}
+                <ChevronRight />
               </Button>
             }
           />
@@ -476,14 +476,14 @@ export function DeviceCompatibilityInline() {
   }
 
   return (
-    <div className="flex flex-wrap items-center gap-2 rounded-xl border border-border bg-card p-3 text-sm">
-      <Smartphone className="size-4 shrink-0 text-primary" aria-hidden="true" />
-      <span className="min-w-0 flex-1">{copy.productPrompt}</span>
+    <div className="flex flex-wrap items-center gap-2 rounded-2xl border border-accent/60 bg-lavender-soft p-4 text-sm">
+      <Smartphone className="size-5 shrink-0 text-primary" aria-hidden="true" />
+      <span className="min-w-0 flex-1 font-semibold">{copy.sectionTitle}</span>
       <DeviceCheckSheet
         surface="packages"
         trigger={
-          <Button variant="outline" size="sm">
-            {copy.recheck}
+          <Button variant="ghost" size="sm" className="text-primary">
+            {copy.check} <ChevronRight />
           </Button>
         }
       />

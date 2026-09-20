@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { z } from "zod";
@@ -25,6 +26,7 @@ import { getAirportByIata } from "@/domain/geo/airports";
 import { useCart } from "@/domain/cart/store";
 import { listLoungeOptions, type LoungeOption } from "@/lib/lounge-catalogue.functions";
 import type { Locale } from "@/domain/enums";
+import loungeImage from "@/assets/lounge-card.jpg.asset.json";
 
 const searchSchema = z.object({
   airport: z.string().max(40).catch("").default(""),
@@ -51,6 +53,9 @@ const COPY = {
     departure: "Kalkış",
     transit: "Aktarma",
     arrival: "Varış",
+    recommended: "Önerilen Lounge",
+    other: "Diğer Lounge’lar",
+    buy: "Satın Al",
   },
   de: {
     title: "Lounge-Optionen",
@@ -68,6 +73,9 @@ const COPY = {
     departure: "Abflug",
     transit: "Umstieg",
     arrival: "Ankunft",
+    recommended: "Empfohlene Lounge",
+    other: "Weitere Lounges",
+    buy: "Kaufen",
   },
   en: {
     title: "Lounge options",
@@ -85,6 +93,9 @@ const COPY = {
     departure: "Departure",
     transit: "Transit",
     arrival: "Arrival",
+    recommended: "Recommended Lounge",
+    other: "Other Lounges",
+    buy: "Buy",
   },
 } satisfies Record<Locale, Record<string, string>>;
 
@@ -139,11 +150,25 @@ function LoungeOptionsPage() {
   const search = Route.useSearch();
   const airport = getAirportByIata(search.iata);
   const availability = useServiceAvailability();
+  const { lines, addLine } = useCart();
+
+  const [selectedId, setSelectedId] = useState<string | null>(null);
   const { data: options = [], isPending } = useQuery({
     queryKey: ["lounge-options", search.iata, search.situation],
     queryFn: () => listLoungeOptions({ data: { iata: search.iata, situation: search.situation } }),
   });
 
+  useEffect(() => {
+    const firstOption = options[0];
+    if (firstOption && !selectedId) {
+      setSelectedId(firstOption.id);
+    }
+  }, [options, selectedId]);
+
+  const selectedOption = options.find((option) => option.id === selectedId) ?? options[0];
+  const selectedInCart = Boolean(
+    selectedOption && lines.some((line) => line.productId === selectedOption.id),
+  );
   const situationIcon =
     search.situation === "TRANSIT" ? (
       <ArrowRightLeft className="size-4 text-primary" />
@@ -169,7 +194,7 @@ function LoungeOptionsPage() {
 
   return (
     <PublicShell activeService="lounge">
-      <section className="mx-auto max-w-site px-4 pb-[calc(7rem+env(safe-area-inset-bottom))] pt-5 sm:px-6 sm:py-8 md:pb-8">
+      <section className="mx-auto max-w-site px-4 pb-[calc(12rem+env(safe-area-inset-bottom))] pt-5 sm:px-6 sm:py-8 md:pb-8">
         <Link
           to="/lounge"
           className="inline-flex items-center gap-1 text-sm font-semibold text-primary"
@@ -210,18 +235,43 @@ function LoungeOptionsPage() {
             ))}
           </div>
         ) : options.length ? (
-          <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {options.map((option, index) => (
-              <LoungeCard
-                key={option.id}
-                option={option}
-                featured={index === 0}
-                travelers={search.travelers}
-                copy={copy}
-                locale={locale}
-                search={search}
-              />
-            ))}
+          <div className="mt-5">
+            <h2 className="text-xs font-bold uppercase text-primary">{copy.recommended}</h2>
+            <div className="mt-2">
+              {options.slice(0, 1).map((option) => (
+                <LoungeCard
+                  key={option.id}
+                  option={option}
+                  featured
+                  travelers={search.travelers}
+                  selected={selectedId === option.id}
+                  onSelect={() => setSelectedId(option.id)}
+                  copy={copy}
+                  locale={locale}
+                  search={search}
+                />
+              ))}
+            </div>
+            {options.length > 1 && (
+              <>
+                <h2 className="mt-7 font-display text-xl font-bold">{copy.other}</h2>
+                <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3">
+                  {options.slice(1).map((option) => (
+                    <LoungeCard
+                      key={option.id}
+                      option={option}
+                      featured={false}
+                      travelers={search.travelers}
+                      selected={selectedId === option.id}
+                      onSelect={() => setSelectedId(option.id)}
+                      copy={copy}
+                      locale={locale}
+                      search={search}
+                    />
+                  ))}
+                </div>
+              </>
+            )}
           </div>
         ) : (
           <div className="mt-5 rounded-card border border-dashed border-border bg-card p-6 text-center">
@@ -230,6 +280,49 @@ function LoungeOptionsPage() {
               <Link to="/lounge">
                 <Button variant="secondary">{copy.changeAirport}</Button>
               </Link>
+            </div>
+          </div>
+        )}
+
+        {selectedOption && (
+          <div className="fixed inset-x-0 bottom-[4.7rem] z-40 border-t border-border/80 bg-card/98 p-3 shadow-nav backdrop-blur md:static md:mt-6 md:rounded-2xl md:border">
+            <div className="mx-auto flex max-w-site items-center justify-between gap-3">
+              <div className="min-w-0">
+                <p className="truncate text-sm font-bold">
+                  {selectedOption.loungeName ?? selectedOption.name}
+                </p>
+                <p className="text-sm font-semibold text-primary">
+                  {search.travelers} {copy.travelers} ·{" "}
+                  {new Intl.NumberFormat(undefined, {
+                    style: "currency",
+                    currency: selectedOption.currency,
+                  }).format((selectedOption.salePrice ?? 0) * search.travelers)}
+                </p>
+              </div>
+              <Button
+                variant="cta"
+                size="lg"
+                className="shrink-0"
+                onClick={() => {
+                  if (selectedInCart) return;
+                  addLine({
+                    productId: selectedOption.id,
+                    serviceType: "LOUNGE",
+                    name: selectedOption.loungeName ?? selectedOption.name,
+                    meta: "",
+                    price: selectedOption.salePrice || 0,
+                    currency: selectedOption.currency,
+                    quantity: search.travelers,
+                    isTest: selectedOption.isTest,
+                    airport: selectedOption.iata,
+                    terminal: selectedOption.terminal,
+                    date: search.date || null,
+                    situation: search.situation,
+                  });
+                }}
+              >
+                {selectedInCart ? copy.goToCart : copy.buy}
+              </Button>
             </div>
           </div>
         )}
@@ -245,6 +338,8 @@ function LoungeCard({
   copy,
   locale,
   search,
+  selected,
+  onSelect,
 }: {
   option: LoungeOption;
   featured: boolean;
@@ -252,6 +347,8 @@ function LoungeCard({
   copy: (typeof COPY)["tr"];
   locale: Locale;
   search: { date: string; situation: string };
+  selected: boolean;
+  onSelect: () => void;
 }) {
   const { lines, addLine } = useCart();
   const availability = useServiceAvailability();
@@ -264,12 +361,24 @@ function LoungeCard({
 
   return (
     <article
-      className={`relative flex flex-col overflow-hidden rounded-[1.5rem] border bg-card p-5 shadow-card ${featured ? "border-primary/40 sm:col-span-2 lg:col-span-1" : "border-border"}`}
+      role="radio"
+      aria-checked={selected}
+      tabIndex={0}
+      onClick={onSelect}
+      onKeyDown={(event) => {
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          onSelect();
+        }
+      }}
+      className={`relative flex cursor-pointer flex-col overflow-hidden rounded-2xl border transition-colors ${featured ? "p-5 sm:max-w-xl" : "min-h-44 p-4"} ${selected ? "border-primary bg-primary-soft ring-1 ring-primary" : "border-border bg-card"} shadow-soft`}
     >
       {featured && (
-        <div className="-mx-5 -mt-5 mb-4 flex h-28 items-end bg-primary p-4 text-primary-foreground">
-          <span className="rounded-full bg-card px-3 py-1 text-xs font-bold text-primary">
-            {copy.select}
+        <div className="relative -mx-5 -mt-5 mb-4 h-36 overflow-hidden">
+          <img src={loungeImage.url} alt="" loading="lazy" className="size-full object-cover" />
+          <div className="absolute inset-0 bg-image-scrim" />
+          <span className="absolute bottom-3 left-3 rounded-full bg-card px-3 py-1 text-xs font-bold text-primary">
+            {copy.recommended}
           </span>
         </div>
       )}
@@ -293,7 +402,7 @@ function LoungeCard({
       )}
       {option.amenities.length > 0 && (
         <ul className="mt-3 flex flex-wrap gap-1.5">
-          {option.amenities.slice(0, 6).map((amenity) => (
+          {option.amenities.slice(0, featured ? 6 : 2).map((amenity) => (
             <li
               key={amenity}
               className="inline-flex items-center gap-1 rounded-full bg-secondary px-2.5 py-1.5 text-xs font-semibold text-muted-foreground"
@@ -315,12 +424,15 @@ function LoungeCard({
           </span>
         )}
       </div>
-      {availability.lounge.checkout ? (
+      {availability.lounge.checkout && featured ? (
         <Button
           variant="cta"
-          className="mt-4 h-12 w-full"
-          disabled={inCart}
-          onClick={() =>
+          className={`mt-4 h-12 w-full ${!selected && !featured ? "hidden md:inline-flex" : ""}`}
+          disabled={inCart && selected}
+          onClick={(event) => {
+            event.stopPropagation();
+            onSelect();
+            if (inCart) return;
             addLine({
               productId: option.id,
               serviceType: "LOUNGE",
@@ -334,10 +446,10 @@ function LoungeCard({
               terminal: option.terminal,
               date: search.date || null,
               situation: search.situation,
-            })
-          }
+            });
+          }}
         >
-          {copy.select}
+          {inCart ? copy.goToCart : copy.select}
         </Button>
       ) : (
         <CheckoutPausedNote service="lounge" className="mt-3" />

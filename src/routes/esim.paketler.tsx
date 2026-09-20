@@ -17,6 +17,8 @@ import {
   Signal,
   Wifi,
   Zap,
+  Minus,
+  Plus,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { PublicShell } from "@/components/travel/PublicShell";
@@ -101,6 +103,10 @@ const COPY = {
     tierUnlimited: "Sınırsız",
     standardPackages: "Standart paketler",
     moreUnlimited: "Sınırsız seçenekler",
+    choosePlan: "Tarifeni seç",
+    standardTab: "Standart",
+    unlimitedTab: "Sınırsız",
+    quantity: "Kaç eSIM?",
     widerUnlimited: "Diğer bölgelerde sınırsız",
     widerUnlimitedLead: "Daha geniş kapsamlı sınırsız alternatifler",
     noLocalUnlimited: "Bu ülkeye özel sınırsız paket bulunamadı.",
@@ -176,6 +182,10 @@ const COPY = {
     tierUnlimited: "Unbegrenzt",
     standardPackages: "Standard-Pakete",
     moreUnlimited: "Unbegrenzt-Optionen",
+    choosePlan: "Tarif auswählen",
+    standardTab: "Standard",
+    unlimitedTab: "Unbegrenzt",
+    quantity: "Wie viele eSIMs?",
     widerUnlimited: "Unbegrenzt in weiteren Regionen",
     widerUnlimitedLead: "Unbegrenzte Alternativen mit größerer Abdeckung",
     noLocalUnlimited: "Für dieses Land gibt es kein eigenes Unbegrenzt-Paket.",
@@ -251,6 +261,10 @@ const COPY = {
     tierUnlimited: "Unlimited",
     standardPackages: "Standard packages",
     moreUnlimited: "Unlimited options",
+    choosePlan: "Choose your plan",
+    standardTab: "Standard",
+    unlimitedTab: "Unlimited",
+    quantity: "How many eSIMs?",
     widerUnlimited: "Unlimited in more regions",
     widerUnlimitedLead: "Unlimited alternatives with wider coverage",
     noLocalUnlimited: "No unlimited package is available for this country.",
@@ -346,7 +360,11 @@ function PackagesPage() {
       : `${recommendedProduct.dataGb} GB`
     : "";
   const [selectedProductId, setSelectedProductId] = useState("");
-  const [hasScrolled, setHasScrolled] = useState(false);
+  const [activeSegment, setActiveSegment] = useState<"standard" | "unlimited">(
+    recommendedProduct?.unlimited ? "unlimited" : "standard",
+  );
+  const [localQuantity, setLocalQuantity] = useState(travelers);
+
   const { lines, addLine } = useCart();
   const availability = useServiceAvailability();
   // Every rendered product stays selectable, including the collapsed sections.
@@ -377,7 +395,7 @@ function PackagesPage() {
     // One eSIM per traveller: an eSIM is tied to a single device, so the data
     // requirement is per person and the cart quantity follows the party size.
     addLine({
-      quantity: travelers,
+      quantity: localQuantity,
       productId: selectedProduct.id,
       providerProductId: selectedProduct.providerProductId,
       serviceType: "ESIM",
@@ -396,16 +414,6 @@ function PackagesPage() {
       isTest: selectedProduct.isTest,
     });
   };
-
-  useEffect(() => {
-    if (!recommendedProduct || hasScrolled) return;
-    setHasScrolled(true);
-    requestAnimationFrame(() =>
-      document
-        .getElementById(`esim-package-${recommendedProduct.id}`)
-        ?.scrollIntoView({ behavior: "smooth", block: "center" }),
-    );
-  }, [hasScrolled, recommendedProduct]);
 
   if (!availability.isPending && !availability.esim.storefront) {
     return (
@@ -471,8 +479,39 @@ function PackagesPage() {
           <p className="mt-2 text-xs text-muted-foreground">{copy.perTraveler(travelers)}</p>
         )}
 
-        <div className="mt-3">
+        <div className="mt-4">
           <DeviceCompatibilityInline />
+          <div className="mt-6">
+            <span className="block text-xs font-bold uppercase text-primary">
+              {destinationCountry ? `${destinationCountry.name[locale]} · ` : ""}
+              {copy.choosePlan}
+            </span>
+            <div
+              className="mt-2 grid w-full grid-cols-2 rounded-xl bg-secondary/70 p-1"
+              role="tablist"
+            >
+              <Button
+                type="button"
+                variant={activeSegment === "standard" ? "light" : "ghost"}
+                className="h-11 rounded-lg shadow-none"
+                onClick={() => setActiveSegment("standard")}
+                role="tab"
+                aria-selected={activeSegment === "standard"}
+              >
+                {copy.standardTab}
+              </Button>
+              <Button
+                type="button"
+                variant={activeSegment === "unlimited" ? "light" : "ghost"}
+                className="h-11 rounded-lg shadow-none"
+                onClick={() => setActiveSegment("unlimited")}
+                role="tab"
+                aria-selected={activeSegment === "unlimited"}
+              >
+                {copy.unlimitedTab}
+              </Button>
+            </div>
+          </div>
         </div>
 
         {isPending ? (
@@ -484,45 +523,77 @@ function PackagesPage() {
         ) : sections.all.length ? (
           <>
             <div className="mt-6" role="radiogroup" aria-label={copy.title}>
-              {recommendedProduct && (
-                <RecommendedPackageCard
-                  key={recommendedProduct.id}
-                  pkg={recommendedProduct}
-                  isSelected={activeSelectedId === recommendedProduct.id}
-                  onSelect={() => setSelectedProductId(recommendedProduct.id)}
-                  whyText={copy.whyText(required, recommendedLabel)}
-                  destinationIso={destination}
-                  routeIsos={routeIsos}
-                  copy={copy}
-                  imageUrl={destinationImage}
-                />
-              )}
+              {recommendedProduct &&
+                ((activeSegment === "unlimited" && recommendedProduct.unlimited) ||
+                  (activeSegment === "standard" && !recommendedProduct.unlimited)) && (
+                  <RecommendedPackageCard
+                    key={recommendedProduct.id}
+                    pkg={recommendedProduct}
+                    isSelected={activeSelectedId === recommendedProduct.id}
+                    onSelect={() => setSelectedProductId(recommendedProduct.id)}
+                    whyText={copy.whyText(required, recommendedLabel)}
+                    destinationIso={destination}
+                    routeIsos={routeIsos}
+                    copy={copy}
+                    imageUrl={destinationImage}
+                  />
+                )}
               {selectedProduct && (
                 <div className="fixed inset-x-0 bottom-[4.7rem] z-40 border-t border-border/80 bg-card/98 p-3 shadow-nav backdrop-blur md:static md:mt-5 md:rounded-2xl md:border md:bg-card md:p-3 md:shadow-card">
-                  <div className="mx-auto grid max-w-site grid-cols-[minmax(0,1fr)_auto] items-center gap-3">
-                    <div key={selectedProduct.id} className="esim-sticky-product min-w-0 flex-1">
-                      <strong className="block truncate">
-                        {selectedProduct.unlimited
-                          ? copy.unlimited
-                          : `${selectedProduct.dataGb} GB`}{" "}
-                        · {selectedProduct.validityDays ?? "—"} {copy.days}
-                      </strong>
-                      <span className="text-sm font-semibold">
-                        {formatSalePrice(
-                          selectedProduct.salePrice ?? 0,
-                          selectedProduct.currency,
-                          locale,
-                        )}
-                      </span>
+                  <div className="mx-auto flex max-w-site items-center gap-3">
+                    <div className="flex flex-1 flex-col min-w-0">
+                      <div key={selectedProduct.id} className="esim-sticky-product min-w-0 flex-1">
+                        <strong className="block truncate text-sm">
+                          {selectedProduct.unlimited
+                            ? copy.unlimited
+                            : `${selectedProduct.dataGb} GB`}{" "}
+                          · {selectedProduct.validityDays ?? "—"} {copy.days}
+                        </strong>
+                        <span className="text-xs font-semibold opacity-70">
+                          {formatSalePrice(
+                            selectedProduct.salePrice ?? 0,
+                            selectedProduct.currency,
+                            locale,
+                          )}
+                        </span>
+                      </div>
+                    </div>
+                    <div
+                      className="flex items-center gap-1 rounded-lg bg-secondary/60 p-1"
+                      aria-label={copy.quantity}
+                    >
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => setLocalQuantity(Math.max(1, localQuantity - 1))}
+                        className="size-8 rounded-md bg-card text-primary shadow-sm"
+                        disabled={localQuantity <= 1}
+                        aria-label="−"
+                      >
+                        <Minus className="size-4" />
+                      </Button>
+                      <span className="min-w-6 text-center text-sm font-bold">{localQuantity}</span>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => setLocalQuantity(Math.min(9, localQuantity + 1))}
+                        className="size-8 rounded-md bg-card text-primary shadow-sm"
+                        disabled={localQuantity >= 9}
+                        aria-label="+"
+                      >
+                        <Plus className="size-4" />
+                      </Button>
                     </div>
                     <Button
                       variant="cta"
                       size="lg"
-                      className="h-12 shrink-0 px-4"
+                      className="h-10 shrink-0 px-4 text-sm"
                       disabled={selectedInCart || selectedProduct.salePrice == null}
                       onClick={addSelectedToCart}
                     >
-                      <ShoppingCart /> {selectedInCart ? copy.inCart : copy.add}
+                      {selectedInCart ? copy.inCart : copy.add}
                     </Button>
                   </div>
                   {lines.length > 0 && (
@@ -541,7 +612,7 @@ function PackagesPage() {
                 </div>
               )}
             </div>
-            {sections.standard.length > 0 && (
+            {activeSegment === "standard" && sections.standard.length > 0 && (
               <SecondaryGroup
                 title={copy.standardPackages}
                 subtitle={copy.standardLead}
@@ -555,7 +626,7 @@ function PackagesPage() {
                 imageUrl={destinationImage}
               />
             )}
-            {sections.unlimited.length > 0 && (
+            {activeSegment === "unlimited" && sections.unlimited.length > 0 && (
               <SecondaryGroup
                 title={copy.moreUnlimited}
                 subtitle={copy.unlimitedLead}
@@ -570,14 +641,14 @@ function PackagesPage() {
                 bestForTripId={sections.bestForTripId}
               />
             )}
-            {sections.broaderUnlimited.length > 0 && (
+            {activeSegment === "unlimited" && sections.broaderUnlimited.length > 0 && (
               <>
-                {sections.unlimited.length === 0 && (
+                {activeSegment === "unlimited" && sections.unlimited.length === 0 && (
                   <h2 className="mt-8 px-1 font-display text-xl font-bold leading-tight">
                     {copy.moreUnlimited}
                   </h2>
                 )}
-                {sections.unlimited.length === 0 && (
+                {activeSegment === "unlimited" && sections.unlimited.length === 0 && (
                   <p className="mt-1 px-1 text-xs text-muted-foreground">{copy.noLocalUnlimited}</p>
                 )}
                 <SecondaryGroup
@@ -596,7 +667,7 @@ function PackagesPage() {
               </>
             )}
 
-            {sections.broaderCoverage.length > 0 && (
+            {activeSegment === "standard" && sections.broaderCoverage.length > 0 && (
               <SecondaryGroup
                 title={copy.widerCoverage}
                 subtitle={copy.widerLead}
