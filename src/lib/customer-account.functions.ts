@@ -95,7 +95,11 @@ export const getCustomerAccount = createServerFn({ method: "GET" })
         topupSupported: row.topup_supported,
         installInfo,
         hasQr: Boolean(row.qr_payload),
-        hasInstallInfo: Object.keys(installInfo).length > 0,
+        hasInstallInfo:
+          installInfo !== null &&
+          typeof installInfo === "object" &&
+          !Array.isArray(installInfo) &&
+          Object.keys(installInfo).length > 0,
         hasIccid: Boolean(row.iccid),
         providerCapabilities: capabilitiesFromRow(row as unknown as Record<string, unknown>),
         createdAt: row.created_at,
