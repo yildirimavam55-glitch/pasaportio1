@@ -12,9 +12,9 @@ type ThemePreferenceContextValue = {
 const ThemePreferenceContext = createContext<ThemePreferenceContextValue | null>(null);
 
 function storedPreference(): ThemePreference {
-  if (typeof window === "undefined") return "system";
+  if (typeof window === "undefined") return "light";
   const saved = window.localStorage.getItem(STORAGE_KEY);
-  return saved === "light" || saved === "dark" || saved === "system" ? saved : "system";
+  return saved === "light" || saved === "dark" || saved === "system" ? saved : "light";
 }
 
 function applyTheme(preference: ThemePreference) {
@@ -26,13 +26,18 @@ function applyTheme(preference: ThemePreference) {
 }
 
 export function ThemePreferenceProvider({ children }: { children: ReactNode }) {
-  const [preference, setPreference] = useState<ThemePreference>("system");
+  const [preference, setPreference] = useState<ThemePreference>("light");
+  const [preferenceLoaded, setPreferenceLoaded] = useState(false);
 
   useEffect(() => {
-    setPreference(storedPreference());
+    const savedPreference = storedPreference();
+    setPreference(savedPreference);
+    applyTheme(savedPreference);
+    setPreferenceLoaded(true);
   }, []);
 
   useEffect(() => {
+    if (!preferenceLoaded) return;
     applyTheme(preference);
     window.localStorage.setItem(STORAGE_KEY, preference);
     const media = window.matchMedia("(prefers-color-scheme: dark)");
@@ -41,7 +46,7 @@ export function ThemePreferenceProvider({ children }: { children: ReactNode }) {
     };
     media.addEventListener("change", updateSystemTheme);
     return () => media.removeEventListener("change", updateSystemTheme);
-  }, [preference]);
+  }, [preference, preferenceLoaded]);
 
   return (
     <ThemePreferenceContext.Provider value={{ preference, setPreference }}>

@@ -7,6 +7,7 @@ import {
   CalendarDays,
   Check,
   Clock3,
+  LockKeyhole,
   MapPin,
   PlaneLanding,
   PlaneTakeoff,
@@ -59,6 +60,8 @@ const COPY = {
     other: "Diğer Lounge’lar",
     buy: "Satın Al",
     reserve: "Rezerve et",
+    securePayment: "Güvenli ödeme",
+    methodsAtCheckout: "Ödeme yöntemleri henüz aktif değil",
   },
   de: {
     title: "Lounge-Optionen",
@@ -80,6 +83,8 @@ const COPY = {
     other: "Weitere Lounges",
     buy: "Kaufen",
     reserve: "Reservieren",
+    securePayment: "Sichere Zahlung",
+    methodsAtCheckout: "Zahlungsarten noch nicht aktiv",
   },
   en: {
     title: "Lounge options",
@@ -101,6 +106,8 @@ const COPY = {
     other: "Other Lounges",
     buy: "Buy",
     reserve: "Reserve",
+    securePayment: "Secure payment",
+    methodsAtCheckout: "Payment methods are not active yet",
   },
 } satisfies Record<Locale, Record<string, string>>;
 
@@ -194,7 +201,7 @@ function LoungeOptionsPage() {
 
   return (
     <PublicShell activeService="lounge">
-      <section className="mx-auto max-w-site px-4 pb-[calc(12rem+env(safe-area-inset-bottom))] pt-5 sm:px-6 sm:py-8 md:pb-8">
+      <section className="mx-auto max-w-site px-4 pb-[calc(10.5rem+env(safe-area-inset-bottom))] pt-5 sm:px-6 sm:py-8 md:pb-8">
         <Link
           to="/lounge"
           className="inline-flex items-center gap-1 text-sm font-semibold text-primary"
@@ -285,33 +292,51 @@ function LoungeOptionsPage() {
         )}
 
         {selectedOption && (
-          <div className="mobile-purchase-bar fixed inset-x-0 z-40 border-t border-border/80 bg-card/98 p-3 shadow-nav backdrop-blur md:static md:mt-6 md:rounded-2xl md:border">
-            <div className="mx-auto flex max-w-site items-center gap-2 sm:gap-3">
+          <div className="mobile-purchase-bar fixed z-40 rounded-[1.375rem] border border-border/80 bg-card/98 px-3.5 py-3 shadow-panel backdrop-blur md:static md:mt-6 md:rounded-2xl md:p-3 md:shadow-card">
+            <div className="mx-auto grid max-w-site grid-cols-[minmax(0,1fr)_auto] items-center gap-x-3 gap-y-1.5">
               <div className="min-w-0">
                 <p className="truncate text-sm font-bold">
                   {selectedOption.loungeName ?? selectedOption.name}
                 </p>
-                <p className="text-sm font-semibold text-primary">
-                  {quantity} {copy.travelers} ·{" "}
-                  {new Intl.NumberFormat(undefined, {
-                    style: "currency",
-                    currency: selectedOption.currency,
-                  }).format((selectedOption.salePrice ?? 0) * quantity)}
+                <p className="text-xs font-semibold text-muted-foreground">
+                  {quantity} {copy.travelers}
                 </p>
               </div>
-              <div className="ml-auto flex shrink-0 items-center gap-1 rounded-lg bg-secondary/60 p-1">
-                <Button type="button" variant="ghost" size="icon" className="size-8 bg-card" disabled={quantity <= 1} onClick={() => setQuantity((value) => Math.max(1, value - 1))} aria-label="−">
+              <div className="flex shrink-0 items-center gap-0.5 rounded-lg bg-secondary/60 p-1">
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  className="size-8 bg-card"
+                  disabled={quantity <= 1}
+                  onClick={() => setQuantity((value) => Math.max(1, value - 1))}
+                  aria-label="−"
+                >
                   <Minus className="size-4" />
                 </Button>
                 <span className="min-w-5 text-center text-sm font-bold">{quantity}</span>
-                <Button type="button" variant="ghost" size="icon" className="size-8 bg-card" disabled={quantity >= 9} onClick={() => setQuantity((value) => Math.min(9, value + 1))} aria-label="+">
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  className="size-8 bg-card"
+                  disabled={quantity >= 9}
+                  onClick={() => setQuantity((value) => Math.min(9, value + 1))}
+                  aria-label="+"
+                >
                   <Plus className="size-4" />
                 </Button>
               </div>
+              <p className="text-lg font-extrabold text-primary">
+                {new Intl.NumberFormat(undefined, {
+                  style: "currency",
+                  currency: selectedOption.currency,
+                }).format((selectedOption.salePrice ?? 0) * quantity)}
+              </p>
               <Button
                 variant="cta"
                 size="lg"
-                className="shrink-0"
+                className="h-10 shrink-0 rounded-xl px-5 text-sm"
                 onClick={() => {
                   if (selectedInCart) {
                     void navigate({ to: "/sepet" });
@@ -336,6 +361,12 @@ function LoungeOptionsPage() {
               >
                 {selectedInCart ? copy.goToCart : copy.reserve}
               </Button>
+              <div className="col-span-2 flex min-w-0 items-center gap-1.5 border-t border-border/60 pt-2 text-[11px] leading-tight text-muted-foreground">
+                <LockKeyhole className="size-3.5 shrink-0 text-primary" aria-hidden="true" />
+                <strong className="shrink-0 text-foreground">{copy.securePayment}</strong>
+                <span aria-hidden="true">·</span>
+                <span className="truncate">{copy.methodsAtCheckout}</span>
+              </div>
             </div>
           </div>
         )}

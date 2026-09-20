@@ -11,6 +11,7 @@ import {
   Info,
   Infinity as InfinityIcon,
   Leaf,
+  LockKeyhole,
   Route as RouteIcon,
   Search,
   ShoppingCart,
@@ -147,6 +148,9 @@ const COPY = {
     scopeGlobal: "Bu destinasyon Global paket kapsamında.",
     assistant: "Emin değil misin? Paket yardımcısını aç →",
     buy: "Satın al",
+    continue: "Devam et",
+    securePayment: "Güvenli ödeme",
+    methodsAtCheckout: "Ödeme yöntemleri henüz aktif değil",
 
     whyText: (need: number, size: string) =>
       `Yaklaşık ${need} GB ihtiyacın için mevcut paketler arasındaki en yakın uygun seçenek: ${size}.`,
@@ -204,6 +208,9 @@ const COPY = {
     showFewerPackages: "Weniger Pakete anzeigen",
     assistant: "Unsicher? Paket-Assistent öffnen →",
     buy: "Kaufen",
+    continue: "Weiter",
+    securePayment: "Sichere Zahlung",
+    methodsAtCheckout: "Zahlungsarten noch nicht aktiv",
 
     widerCoverage: "Pakete mit mehr Ländern",
     standardLead: "Beliebte Datenpakete für dieses Reiseziel",
@@ -289,6 +296,9 @@ const COPY = {
     showFewerPackages: "Show fewer packages",
     assistant: "Not sure? Open the package assistant →",
     buy: "Buy now",
+    continue: "Continue",
+    securePayment: "Secure payment",
+    methodsAtCheckout: "Payment methods are not active yet",
 
     widerCoverage: "Packages covering more countries",
     standardLead: "Popular data packages for this destination",
@@ -466,7 +476,7 @@ function PackagesPage() {
 
   return (
     <PublicShell activeService="esim">
-      <section className="mx-auto max-w-site px-4 pb-[calc(11.5rem+env(safe-area-inset-bottom))] pt-5 sm:px-6 sm:pt-8 md:pb-8">
+      <section className="mx-auto max-w-site px-4 pb-[calc(10.5rem+env(safe-area-inset-bottom))] pt-5 sm:px-6 sm:pt-8 md:pb-8">
         <Button
           type="button"
           variant="ghost"
@@ -503,7 +513,12 @@ function PackagesPage() {
             </div>
           </div>
           <Link to="/esim">
-            <Button type="button" variant="ghost" size="sm" className="border border-border/80 px-2.5 text-xs text-muted-foreground shadow-none">
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              className="border border-border/80 px-2.5 text-xs text-muted-foreground shadow-none"
+            >
               {copy.change}
             </Button>
           </Link>
@@ -541,36 +556,44 @@ function PackagesPage() {
         )}
 
         <div className="mt-3">
-            <div
-              className="esim-plan-tabs relative grid w-full grid-cols-2 rounded-xl bg-secondary/70 p-1"
-              data-active={activeSegment}
-              role="tablist"
-              aria-label={copy.choosePlan}
+          <div
+            className="esim-plan-tabs relative grid w-full grid-cols-2 rounded-xl bg-secondary/70 p-1"
+            data-active={activeSegment}
+            role="tablist"
+            aria-label={copy.choosePlan}
+          >
+            <span className="esim-plan-tabs-indicator" aria-hidden="true" />
+            <Button
+              type="button"
+              variant="ghost"
+              className={`relative z-10 h-11 min-w-0 rounded-lg px-2 text-sm font-bold uppercase shadow-none hover:bg-transparent ${activeSegment === "standard" ? "text-primary-foreground hover:text-primary-foreground" : "text-foreground"}`}
+              onClick={() => setActiveSegment("standard")}
+              role="tab"
+              aria-selected={activeSegment === "standard"}
             >
-              <span className="esim-plan-tabs-indicator" aria-hidden="true" />
-              <Button
-                type="button"
-                variant="ghost"
-                className={`relative z-10 h-11 min-w-0 rounded-lg px-2 text-sm font-bold uppercase shadow-none hover:bg-transparent ${activeSegment === "standard" ? "text-primary-foreground hover:text-primary-foreground" : "text-foreground"}`}
-                onClick={() => setActiveSegment("standard")}
-                role="tab"
-                aria-selected={activeSegment === "standard"}
-              >
-                {activeSegment === "standard" && <Check className="size-4 shrink-0" strokeWidth={3} />}
-                <span className="truncate">{copy.standardTab} · {standardList.length}</span>
-              </Button>
-              <Button
-                type="button"
-                variant="ghost"
-                className={`relative z-10 h-11 min-w-0 rounded-lg px-2 text-sm font-bold uppercase shadow-none hover:bg-transparent ${activeSegment === "unlimited" ? "text-primary-foreground hover:text-primary-foreground" : "text-foreground"}`}
-                onClick={() => setActiveSegment("unlimited")}
-                role="tab"
-                aria-selected={activeSegment === "unlimited"}
-              >
-                {activeSegment === "unlimited" && <Check className="size-4 shrink-0" strokeWidth={3} />}
-                <span className="truncate">{copy.unlimitedTab} · {unlimitedList.length}</span>
-              </Button>
-            </div>
+              {activeSegment === "standard" && (
+                <Check className="size-4 shrink-0" strokeWidth={3} />
+              )}
+              <span className="truncate">
+                {copy.standardTab} · {standardList.length}
+              </span>
+            </Button>
+            <Button
+              type="button"
+              variant="ghost"
+              className={`relative z-10 h-11 min-w-0 rounded-lg px-2 text-sm font-bold uppercase shadow-none hover:bg-transparent ${activeSegment === "unlimited" ? "text-primary-foreground hover:text-primary-foreground" : "text-foreground"}`}
+              onClick={() => setActiveSegment("unlimited")}
+              role="tab"
+              aria-selected={activeSegment === "unlimited"}
+            >
+              {activeSegment === "unlimited" && (
+                <Check className="size-4 shrink-0" strokeWidth={3} />
+              )}
+              <span className="truncate">
+                {copy.unlimitedTab} · {unlimitedList.length}
+              </span>
+            </Button>
+          </div>
         </div>
 
         {isPending ? (
@@ -598,30 +621,33 @@ function PackagesPage() {
                   />
                 )}
               {selectedProduct && (
-                <div className="mobile-purchase-bar fixed inset-x-0 z-40 border-t border-border/80 bg-card/98 p-3 shadow-nav backdrop-blur md:static md:mt-5 md:rounded-2xl md:border md:bg-card md:p-3 md:shadow-card">
-                  <div className="mx-auto flex max-w-site items-center gap-3">
-                    <div className="flex flex-1 flex-col min-w-0">
-                      <div key={selectedProduct.id} className="esim-sticky-product min-w-0 flex-1">
-                        <strong className="block truncate text-sm">
-                          {selectedProduct.unlimited
-                            ? copy.unlimited
-                            : `${selectedProduct.dataGb} GB`}{" "}
-                          · {selectedProduct.validityDays ?? "—"} {copy.days}
-                        </strong>
-                        <span className="block truncate text-xs text-muted-foreground">
-                          {destinationCountry?.name[locale] ?? customerPackageTitle({ locale, destinationIso: destination, routeIsos, coverage: selectedProduct.coverage })}
+                <div className="mobile-purchase-bar fixed z-40 rounded-[1.375rem] border border-border/80 bg-card/98 px-3.5 py-3 shadow-panel backdrop-blur md:static md:mt-5 md:rounded-2xl md:p-3 md:shadow-card">
+                  <div
+                    key={selectedProduct.id}
+                    className="esim-sticky-product mx-auto grid max-w-site grid-cols-[minmax(0,1fr)_auto] items-center gap-x-3 gap-y-1.5"
+                  >
+                    <div className="min-w-0">
+                      <strong className="block truncate text-sm leading-tight">
+                        {selectedProduct.unlimited
+                          ? copy.unlimited
+                          : `${selectedProduct.dataGb} GB`}{" "}
+                        · {selectedProduct.validityDays ?? "—"} {copy.days}
+                      </strong>
+                      <span className="mt-1 flex min-w-0 items-center gap-1.5 text-xs text-muted-foreground">
+                        {destination && <CountryFlag iso={destination} />}
+                        <span className="truncate">
+                          {destinationCountry?.name[locale] ??
+                            customerPackageTitle({
+                              locale,
+                              destinationIso: destination,
+                              routeIsos,
+                              coverage: selectedProduct.coverage,
+                            })}
                         </span>
-                        <span className="text-sm font-bold text-primary">
-                          {formatSalePrice(
-                            (selectedProduct.salePrice ?? 0) * localQuantity,
-                            selectedProduct.currency,
-                            locale,
-                          )}
-                        </span>
-                      </div>
+                      </span>
                     </div>
                     <div
-                      className="flex items-center gap-1 rounded-lg bg-secondary/60 p-1"
+                      className="flex shrink-0 items-center gap-0.5 rounded-lg bg-secondary/60 p-1"
                       aria-label={copy.quantity}
                     >
                       <Button
@@ -648,24 +674,31 @@ function PackagesPage() {
                         <Plus className="size-4" />
                       </Button>
                     </div>
+                    <span className="text-lg font-extrabold text-primary">
+                      {formatSalePrice(
+                        (selectedProduct.salePrice ?? 0) * localQuantity,
+                        selectedProduct.currency,
+                        locale,
+                      )}
+                    </span>
                     <Button
                       variant="cta"
                       size="lg"
-                      className="h-10 shrink-0 px-4 text-sm"
-                      disabled={selectedInCart || selectedProduct.salePrice == null}
-                      onClick={addSelectedToCart}
+                      className="h-10 shrink-0 rounded-xl px-5 text-sm"
+                      disabled={selectedProduct.salePrice == null}
+                      onClick={() =>
+                        selectedInCart ? void navigate({ to: "/sepet" }) : addSelectedToCart()
+                      }
                     >
-                       {selectedInCart ? copy.inCart : copy.buy as string}
+                      {selectedInCart ? copy.goToCart : copy.continue}
                     </Button>
+                    <div className="col-span-2 flex min-w-0 items-center gap-1.5 border-t border-border/60 pt-2 text-[11px] leading-tight text-muted-foreground">
+                      <LockKeyhole className="size-3.5 shrink-0 text-primary" aria-hidden="true" />
+                      <strong className="shrink-0 text-foreground">{copy.securePayment}</strong>
+                      <span aria-hidden="true">·</span>
+                      <span className="truncate">{copy.methodsAtCheckout}</span>
+                    </div>
                   </div>
-                  {lines.length > 0 && (
-                    <Link
-                      to="/sepet"
-                      className="mt-1 block text-center text-xs font-semibold text-primary"
-                    >
-                      {copy.goToCart}
-                    </Link>
-                  )}
                   {!availability.esim.checkout && (
                     <div className="hidden md:block">
                       <CheckoutPausedNote service="esim" />
@@ -1127,21 +1160,27 @@ function SecondaryGroup({
   };
 
   return (
-    <section className={hideHeader ? "mt-0 scroll-mt-28" : isSub ? "mt-5 scroll-mt-28" : "mt-6 scroll-mt-28 sm:mt-8"}>
-      {!hideHeader && <div className="flex min-w-0 items-start gap-3 px-1 py-1">
-        <Icon
-          className={`mt-0.5 shrink-0 text-primary ${isSub ? "size-4" : "size-6"}`}
-          aria-hidden="true"
-        />
-        <div className="min-w-0">
-          {isSub ? (
-            <h3 className="font-display text-base font-bold leading-tight">{title}</h3>
-          ) : (
-            <h2 className="font-display text-xl font-bold leading-tight">{title}</h2>
-          )}
-          <p className="mt-0.5 text-xs text-muted-foreground">{subtitle}</p>
+    <section
+      className={
+        hideHeader ? "mt-0 scroll-mt-28" : isSub ? "mt-5 scroll-mt-28" : "mt-6 scroll-mt-28 sm:mt-8"
+      }
+    >
+      {!hideHeader && (
+        <div className="flex min-w-0 items-start gap-3 px-1 py-1">
+          <Icon
+            className={`mt-0.5 shrink-0 text-primary ${isSub ? "size-4" : "size-6"}`}
+            aria-hidden="true"
+          />
+          <div className="min-w-0">
+            {isSub ? (
+              <h3 className="font-display text-base font-bold leading-tight">{title}</h3>
+            ) : (
+              <h2 className="font-display text-xl font-bold leading-tight">{title}</h2>
+            )}
+            <p className="mt-0.5 text-xs text-muted-foreground">{subtitle}</p>
+          </div>
         </div>
-      </div>}
+      )}
       <div
         className={`esim-package-rail ${hideHeader ? "mt-0" : "mt-3"} ${variant === "orb" ? "is-standard" : ""} ${variant === "unlimited" ? "is-unlimited" : ""}`}
         role="radiogroup"
@@ -1184,28 +1223,32 @@ function SecondaryGroup({
                 <span className="mt-1.5 text-xs font-semibold text-muted-foreground">
                   {pkg.validityDays ?? "—"} {copy.days}
                 </span>
-                {!hideLocalCountry && <span className="mt-auto flex max-w-full items-center gap-1 text-[11px] text-muted-foreground">
-                  {pkg.coverage.length === 1 && pkg.coverage[0] ? (
-                    <>
-                      <CountryFlag iso={pkg.coverage[0]} />
-                      <span className="truncate">
-                        {getCountryByIso(pkg.coverage[0])?.name[locale] ??
-                          customerPackageTitle({
-                            locale,
-                            destinationIso,
-                            routeIsos,
-                            coverage: pkg.coverage,
-                          })}
-                      </span>
-                    </>
-                  ) : (
-                    <>
-                      <Globe2 className="size-3 shrink-0" aria-hidden="true" />
-                      <span className="truncate">{copy.countryCount(pkg.coverage.length)}</span>
-                    </>
-                  )}
-                </span>}
-                <span className={`${hideLocalCountry ? "mt-auto" : "mt-1.5"} max-w-full text-lg font-bold leading-none`}>
+                {!hideLocalCountry && (
+                  <span className="mt-auto flex max-w-full items-center gap-1 text-[11px] text-muted-foreground">
+                    {pkg.coverage.length === 1 && pkg.coverage[0] ? (
+                      <>
+                        <CountryFlag iso={pkg.coverage[0]} />
+                        <span className="truncate">
+                          {getCountryByIso(pkg.coverage[0])?.name[locale] ??
+                            customerPackageTitle({
+                              locale,
+                              destinationIso,
+                              routeIsos,
+                              coverage: pkg.coverage,
+                            })}
+                        </span>
+                      </>
+                    ) : (
+                      <>
+                        <Globe2 className="size-3 shrink-0" aria-hidden="true" />
+                        <span className="truncate">{copy.countryCount(pkg.coverage.length)}</span>
+                      </>
+                    )}
+                  </span>
+                )}
+                <span
+                  className={`${hideLocalCountry ? "mt-auto" : "mt-1.5"} max-w-full text-lg font-bold leading-none`}
+                >
                   {formatSalePrice(pkg.salePrice ?? 0, pkg.currency, locale)}
                 </span>
                 {selected && (

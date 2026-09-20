@@ -324,3 +324,11 @@
 - [x] Unify eSIM and Lounge sticky purchase bars above mobile navigation
 - [x] Refine the real-catalogue cart summary and remove fake payment-success output
 - [x] Validate TR/DE/EN at 360/375/390/412/430px and report integration blockers honestly
+
+## Mobile final UI correction
+
+- [x] Default new visitors to Light while preserving explicit Light / Dark / System choices
+- [x] Remove the fixed mobile bottom navigation and its reserved spacing
+- [x] Convert eSIM and Lounge purchase summaries into compact floating cards above the safe area
+- [x] Keep product, quantity, and total synchronized without advertising unverified payment brands
+- [x] Verify theme persistence, navigation, selection, totals, overflow, and safe areas at 360/375/390/412/430px

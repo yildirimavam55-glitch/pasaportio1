@@ -95,7 +95,7 @@ function AllCountriesPage() {
 
   return (
     <PublicShell activeService="esim">
-      <section className="mx-auto max-w-site px-4 pb-[calc(6rem+env(safe-area-inset-bottom))] pt-5 sm:px-6 sm:pt-8">
+      <section className="mx-auto max-w-site px-4 pb-10 pt-5 sm:px-6 sm:pt-8">
         <h1 className="font-display text-2xl font-bold sm:text-3xl">{copy.allTitle}</h1>
         <p className="mt-1.5 text-sm text-muted-foreground">{copy.allLead(countries.length)}</p>
 

@@ -1,4 +1,4 @@
-import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
+import { Link, useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { getPublishedStorefront } from "@/lib/storefront.functions";
 import { itemText } from "@/domain/storefront/registry";
@@ -6,7 +6,6 @@ import {
   Check,
   Globe2,
   Headphones,
-  Home,
   LogIn,
   LogOut,
   Menu,
@@ -34,7 +33,6 @@ import { useI18n } from "@/i18n";
 import { GLOBAL_CONTENT, localized, type ServiceSlug } from "@/content/travel-content";
 import { supabase } from "@/integrations/supabase/client";
 import { CountryFlag } from "./CountryFlag";
-import { EsimServiceIcon, LoungeServiceIcon } from "./ServiceIcons";
 import { useThemePreference, type ThemePreference } from "@/components/ThemePreference";
 
 const localeMeta = {
@@ -150,7 +148,7 @@ function PublicFooter({ fallback, supportLabel }: { fallback: string; supportLab
   const links = (data?.footerLinks ?? []).filter((link) => link.visible);
   const copyright = itemText(data?.copyright, locale, "");
   return (
-    <footer id="support" className="border-t border-border bg-secondary/50 pb-28 pt-10 md:pb-10">
+    <footer id="support" className="border-t border-border bg-secondary/50 pb-10 pt-10">
       <div className="mx-auto flex max-w-site flex-col gap-6 px-4 sm:px-6 md:flex-row md:items-center md:justify-between">
         <Brand />
         <p className="max-w-md text-sm text-muted-foreground">{text}</p>
@@ -191,21 +189,6 @@ export function PublicShell({
 }) {
   const { locale } = useI18n();
   const copy = localized(GLOBAL_CONTENT, locale);
-  const location = useRouterState({ select: (state) => state.location });
-  const pathname = location.pathname;
-  const finderTargeted = pathname === "/" && location.hash === "finder";
-  const activeMobileNav: "home" | "esim" | "lounge" | "account" =
-    pathname.startsWith("/hesabim") || pathname === "/auth"
-      ? "account"
-      : pathname.startsWith("/esim")
-        ? "esim"
-        : pathname.startsWith("/lounge")
-          ? "lounge"
-          : finderTargeted
-            ? activeService === "lounge"
-              ? "lounge"
-              : "esim"
-            : "home";
   const [signedIn, setSignedIn] = useState(false);
   useEffect(() => {
     void supabase.auth.getSession().then(({ data }) => setSignedIn(Boolean(data.session)));
@@ -214,9 +197,6 @@ export function PublicShell({
     );
     return () => data.subscription.unsubscribe();
   }, []);
-  const selectAndFind = (service: ServiceSlug) => {
-    onServiceChange?.(service, { scrollToFinder: true });
-  };
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const signOut = async () => {
@@ -468,62 +448,6 @@ export function PublicShell({
       </header>
       <main>{children}</main>
       <PublicFooter fallback={copy.footer} supportLabel={copy.nav.support} />
-      <nav
-        className="mobile-bottom-navigation fixed inset-x-0 bottom-0 z-50 border-t border-border/80 bg-card/98 pb-safe shadow-nav backdrop-blur md:hidden"
-        aria-label="Mobil menü"
-      >
-        <div className="grid grid-cols-4">
-          <Link
-            to="/"
-            search={{ service: activeService ?? "esim" }}
-            hash=""
-            resetScroll
-            className={`bottom-link ${activeMobileNav === "home" ? "is-active" : ""}`}
-            aria-current={activeMobileNav === "home" ? "page" : undefined}
-          >
-            <Home className="size-[1.15rem]" />
-            <span>{copy.mobile.home}</span>
-          </Link>
-          <button
-            type="button"
-            className={`bottom-link ${activeMobileNav === "esim" ? "is-active" : ""}`}
-            onClick={() => selectAndFind("esim")}
-            aria-current={activeMobileNav === "esim" ? "page" : undefined}
-          >
-            <EsimServiceIcon className="size-[1.15rem]" />
-            <span>{copy.mobile.esim}</span>
-          </button>
-          <button
-            type="button"
-            className={`bottom-link ${activeMobileNav === "lounge" ? "is-active" : ""}`}
-            onClick={() => selectAndFind("lounge")}
-            aria-current={activeMobileNav === "lounge" ? "page" : undefined}
-          >
-            <LoungeServiceIcon className="size-[1.15rem]" />
-            <span>{copy.mobile.lounge}</span>
-          </button>
-          {signedIn ? (
-            <Link
-              to="/hesabim/seyahatler"
-              className={`bottom-link ${activeMobileNav === "account" ? "is-active" : ""}`}
-              aria-current={activeMobileNav === "account" ? "page" : undefined}
-            >
-              <UserRound className="size-[1.15rem]" />
-              <span>{copy.mobile.account}</span>
-            </Link>
-          ) : (
-            <Link
-              to="/auth"
-              search={{ redirect: "/hesabim/seyahatler" }}
-              className={`bottom-link ${activeMobileNav === "account" ? "is-active" : ""}`}
-              aria-current={activeMobileNav === "account" ? "page" : undefined}
-            >
-              <UserRound className="size-[1.15rem]" />
-              <span>{copy.mobile.account}</span>
-            </Link>
-          )}
-        </div>
-      </nav>
     </div>
   );
 }
