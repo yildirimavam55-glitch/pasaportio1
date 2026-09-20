@@ -67,13 +67,13 @@ const searchSchema = z.object({
 const COPY = {
   tr: {
     title: "eSIM paketleri",
-    back: "Finder’a dön",
+    back: "Geri",
     days: "gün",
     travelers: (count: number) => `${count} kişi`,
     estimate: "Tahmini kullanım",
     need: "Önerilen veri",
     route: "Rotan",
-    change: "Değiştir",
+    change: "Ülkeyi değiştir",
     empty: "Bu destinasyon için şu anda uygun paket bulunamadı.",
     emptyOther: "Diğer paketleri gör",
     emptyChange: "Destinasyonu değiştir",
@@ -152,13 +152,13 @@ const COPY = {
   },
   de: {
     title: "eSIM-Pakete",
-    back: "Zurück zum Finder",
+    back: "Zurück",
     days: "Tage",
     travelers: (count: number) => (count === 1 ? "1 Person" : `${count} Personen`),
     estimate: "Geschätzter Verbrauch",
     need: "Empfohlenes Datenvolumen",
     route: "Deine Route",
-    change: "Ändern",
+    change: "Land ändern",
     empty: "Für diese Reise ist derzeit kein passendes Paket verfügbar.",
     emptyOther: "Andere Pakete ansehen",
     emptyChange: "Reiseziel ändern",
@@ -236,13 +236,13 @@ const COPY = {
   },
   en: {
     title: "eSIM packages",
-    back: "Back to finder",
+    back: "Back",
     days: "days",
     travelers: (count: number) => (count === 1 ? "1 person" : `${count} people`),
     estimate: "Estimated usage",
     need: "Recommended data",
     route: "Your route",
-    change: "Change",
+    change: "Change country",
     empty: "No suitable package is available for this trip right now.",
     emptyOther: "See other packages",
     emptyChange: "Change destination",
@@ -475,10 +475,7 @@ function PackagesPage() {
         </Button>
         {destination && (
           <div className="destination-header mt-2">
-            <CountryScene iso={destination} />
-            <span className="destination-header-flag">
-              <CountryFlag iso={destination} className="text-2xl" />
-            </span>
+            <CountryScene iso={destination} eager />
           </div>
         )}
         <div className="mt-3 grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3">
@@ -501,7 +498,7 @@ function PackagesPage() {
             </div>
           </div>
           <Link to="/esim">
-            <Button type="button" variant="outline" size="sm">
+            <Button type="button" variant="ghost" size="sm" className="border border-border/80 px-2.5 text-xs text-muted-foreground shadow-none">
               {copy.change}
             </Button>
           </Link>
@@ -539,37 +536,36 @@ function PackagesPage() {
         )}
 
         <div className="mt-3">
-          <div className="mt-0">
-            <span className="block text-xs font-bold uppercase text-primary">
-              {destinationCountry ? `${destinationCountry.name[locale]} · ` : ""}
-              {copy.choosePlan}
-            </span>
             <div
-              className="mt-2 grid w-full grid-cols-2 rounded-xl bg-secondary/70 p-1"
+              className="esim-plan-tabs relative grid w-full grid-cols-2 rounded-xl bg-secondary/70 p-1"
+              data-active={activeSegment}
               role="tablist"
+              aria-label={copy.choosePlan}
             >
+              <span className="esim-plan-tabs-indicator" aria-hidden="true" />
               <Button
                 type="button"
-                variant={activeSegment === "standard" ? "light" : "ghost"}
-                className="h-11 rounded-lg text-sm font-bold uppercase shadow-none"
+                variant="ghost"
+                className={`relative z-10 h-11 min-w-0 rounded-lg px-2 text-sm font-bold uppercase shadow-none hover:bg-transparent ${activeSegment === "standard" ? "text-primary-foreground hover:text-primary-foreground" : "text-foreground"}`}
                 onClick={() => setActiveSegment("standard")}
                 role="tab"
                 aria-selected={activeSegment === "standard"}
               >
-                {copy.standardTab}
+                {activeSegment === "standard" && <Check className="size-4 shrink-0" strokeWidth={3} />}
+                <span className="truncate">{copy.standardTab} · {standardList.length}</span>
               </Button>
               <Button
                 type="button"
-                variant={activeSegment === "unlimited" ? "light" : "ghost"}
-                className="h-11 rounded-lg text-sm font-bold uppercase shadow-none"
+                variant="ghost"
+                className={`relative z-10 h-11 min-w-0 rounded-lg px-2 text-sm font-bold uppercase shadow-none hover:bg-transparent ${activeSegment === "unlimited" ? "text-primary-foreground hover:text-primary-foreground" : "text-foreground"}`}
                 onClick={() => setActiveSegment("unlimited")}
                 role="tab"
                 aria-selected={activeSegment === "unlimited"}
               >
-                {copy.unlimitedTab}
+                {activeSegment === "unlimited" && <Check className="size-4 shrink-0" strokeWidth={3} />}
+                <span className="truncate">{copy.unlimitedTab} · {unlimitedList.length}</span>
               </Button>
             </div>
-          </div>
         </div>
 
         {isPending ? (
@@ -580,7 +576,7 @@ function PackagesPage() {
           </div>
         ) : sections.all.length ? (
           <>
-            <div className="mt-6" role="radiogroup" aria-label={copy.title}>
+            <div className="mt-4" role="radiogroup" aria-label={copy.title}>
               {recommendedProduct &&
                 ((activeSegment === "unlimited" && recommendedProduct.unlimited) ||
                   (activeSegment === "standard" && !recommendedProduct.unlimited)) && (
@@ -681,6 +677,8 @@ function PackagesPage() {
                 destinationIso={destination}
                 routeIsos={routeIsos}
                 copy={copy}
+                hideHeader
+                hideLocalCountry
               />
             )}
             {activeSegment === "unlimited" && unlimitedList.length > 0 && (
@@ -695,6 +693,8 @@ function PackagesPage() {
                 routeIsos={routeIsos}
                 copy={copy}
                 bestForTripId={sections.bestForTripId}
+                hideHeader
+                hideLocalCountry
               />
             )}
             {activeSegment === "unlimited" && sections.broaderUnlimited.length > 0 && (
@@ -1056,6 +1056,8 @@ function SecondaryGroup({
   copy,
   level = "section",
   bestForTripId = null,
+  hideHeader = false,
+  hideLocalCountry = false,
 }: {
   title: string;
   subtitle: string;
@@ -1068,6 +1070,8 @@ function SecondaryGroup({
   copy: (typeof COPY)["tr"];
   level?: "section" | "sub";
   bestForTripId?: string | null;
+  hideHeader?: boolean;
+  hideLocalCountry?: boolean;
 }) {
   const { locale } = useI18n();
   const [expanded, setExpanded] = useState(false);
@@ -1115,8 +1119,8 @@ function SecondaryGroup({
   };
 
   return (
-    <section className={isSub ? "mt-5 scroll-mt-28" : "mt-6 scroll-mt-28 sm:mt-8"}>
-      <div className="flex min-w-0 items-start gap-3 px-1 py-1">
+    <section className={hideHeader ? "mt-0 scroll-mt-28" : isSub ? "mt-5 scroll-mt-28" : "mt-6 scroll-mt-28 sm:mt-8"}>
+      {!hideHeader && <div className="flex min-w-0 items-start gap-3 px-1 py-1">
         <Icon
           className={`mt-0.5 shrink-0 text-primary ${isSub ? "size-4" : "size-6"}`}
           aria-hidden="true"
@@ -1129,9 +1133,9 @@ function SecondaryGroup({
           )}
           <p className="mt-0.5 text-xs text-muted-foreground">{subtitle}</p>
         </div>
-      </div>
+      </div>}
       <div
-        className={`esim-package-rail mt-3 ${variant === "orb" ? "is-standard" : ""} ${variant === "unlimited" ? "is-unlimited" : ""}`}
+        className={`esim-package-rail ${hideHeader ? "mt-0" : "mt-3"} ${variant === "orb" ? "is-standard" : ""} ${variant === "unlimited" ? "is-unlimited" : ""}`}
         role="radiogroup"
         aria-label={title}
       >
@@ -1172,7 +1176,7 @@ function SecondaryGroup({
                 <span className="mt-1.5 text-xs font-semibold text-muted-foreground">
                   {pkg.validityDays ?? "—"} {copy.days}
                 </span>
-                <span className="mt-auto flex max-w-full items-center gap-1 text-[11px] text-muted-foreground">
+                {!hideLocalCountry && <span className="mt-auto flex max-w-full items-center gap-1 text-[11px] text-muted-foreground">
                   {pkg.coverage.length === 1 && pkg.coverage[0] ? (
                     <>
                       <CountryFlag iso={pkg.coverage[0]} />
@@ -1192,8 +1196,8 @@ function SecondaryGroup({
                       <span className="truncate">{copy.countryCount(pkg.coverage.length)}</span>
                     </>
                   )}
-                </span>
-                <span className="mt-1.5 max-w-full text-lg font-bold leading-none">
+                </span>}
+                <span className={`${hideLocalCountry ? "mt-auto" : "mt-1.5"} max-w-full text-lg font-bold leading-none`}>
                   {formatSalePrice(pkg.salePrice ?? 0, pkg.currency, locale)}
                 </span>
                 {selected && (

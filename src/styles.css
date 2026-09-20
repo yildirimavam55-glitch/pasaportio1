@@ -653,6 +653,20 @@
   margin-inline: 0;
   padding: 0.25rem 0 0.5rem;
 }
+.esim-plan-tabs-indicator {
+  position: absolute;
+  inset-block: 0.25rem;
+  left: 0.25rem;
+  width: calc(50% - 0.25rem);
+  border-radius: 0.5rem;
+  background: var(--color-primary);
+  box-shadow: 0 6px 16px color-mix(in oklab, var(--color-primary) 22%, transparent);
+  transform: translate3d(0, 0, 0);
+  transition: transform 280ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+.esim-plan-tabs[data-active="unlimited"] .esim-plan-tabs-indicator {
+  transform: translate3d(100%, 0, 0);
+}
 .esim-package-rail::-webkit-scrollbar {
   display: none;
 }
@@ -889,6 +903,9 @@
   .esim-sticky-product {
     animation: none;
   }
+  .esim-plan-tabs-indicator {
+    transition: none;
+  }
 }
 
 /* Destination identity: one reusable scene per country, shared across the site. */
@@ -1017,7 +1034,7 @@
 
 .destination-header {
   position: relative;
-  height: 6.5rem;
+  height: 5.75rem;
   border-radius: 1.25rem;
   overflow: hidden;
 }
