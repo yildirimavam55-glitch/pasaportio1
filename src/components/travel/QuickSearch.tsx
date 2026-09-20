@@ -67,10 +67,20 @@ export function QuickSearch({
     return () => document.removeEventListener("mousedown", onDocClick);
   }, []);
 
-  const countries: Country[] = useMemo(
-    () => (service === "esim" ? searchCountries(query, 6) : []),
-    [query, service],
-  );
+  const countries: Country[] = useMemo(() => {
+    if (service !== "esim") return [];
+    const needle = query.trim().toLocaleLowerCase(locale);
+    const found = searchCountries(query, 8);
+    if (!needle) return found.slice(0, 6);
+    // Keep names that start with what the customer typed at the top.
+    return [...found]
+      .sort((a, b) => {
+        const rank = (country: Country) =>
+          country.name[locale].toLocaleLowerCase(locale).startsWith(needle) ? 0 : 1;
+        return rank(a) - rank(b);
+      })
+      .slice(0, 6);
+  }, [locale, query, service]);
   const airports: Airport[] = useMemo(
     () => (service === "lounge" ? searchAirports(query, 6) : []),
     [query, service],
