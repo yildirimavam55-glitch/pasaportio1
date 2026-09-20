@@ -61,7 +61,7 @@ const COPY = {
     buy: "Satın Al",
     reserve: "Rezerve et",
     securePayment: "Güvenli ödeme",
-    methodsAtCheckout: "Ödeme seçenekleri sonraki adımda",
+    methodsAtCheckout: "Ödeme yöntemleri henüz aktif değil",
   },
   de: {
     title: "Lounge-Optionen",
@@ -84,7 +84,7 @@ const COPY = {
     buy: "Kaufen",
     reserve: "Reservieren",
     securePayment: "Sichere Zahlung",
-    methodsAtCheckout: "Zahlungsarten im nächsten Schritt",
+    methodsAtCheckout: "Zahlungsarten noch nicht aktiv",
   },
   en: {
     title: "Lounge options",
@@ -107,7 +107,7 @@ const COPY = {
     buy: "Buy",
     reserve: "Reserve",
     securePayment: "Secure payment",
-    methodsAtCheckout: "Payment options at the next step",
+    methodsAtCheckout: "Payment methods are not active yet",
   },
 } satisfies Record<Locale, Record<string, string>>;
 
@@ -298,12 +298,8 @@ function LoungeOptionsPage() {
                 <p className="truncate text-sm font-bold">
                   {selectedOption.loungeName ?? selectedOption.name}
                 </p>
-                <p className="text-sm font-semibold text-primary">
-                  {quantity} {copy.travelers} ·{" "}
-                  {new Intl.NumberFormat(undefined, {
-                    style: "currency",
-                    currency: selectedOption.currency,
-                  }).format((selectedOption.salePrice ?? 0) * quantity)}
+                <p className="text-xs font-semibold text-muted-foreground">
+                  {quantity} {copy.travelers}
                 </p>
               </div>
               <div className="flex shrink-0 items-center gap-0.5 rounded-lg bg-secondary/60 p-1">

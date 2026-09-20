@@ -150,7 +150,7 @@ const COPY = {
     buy: "Satın al",
     continue: "Devam et",
     securePayment: "Güvenli ödeme",
-    methodsAtCheckout: "Ödeme seçenekleri sonraki adımda",
+    methodsAtCheckout: "Ödeme yöntemleri henüz aktif değil",
 
     whyText: (need: number, size: string) =>
       `Yaklaşık ${need} GB ihtiyacın için mevcut paketler arasındaki en yakın uygun seçenek: ${size}.`,
@@ -210,7 +210,7 @@ const COPY = {
     buy: "Kaufen",
     continue: "Weiter",
     securePayment: "Sichere Zahlung",
-    methodsAtCheckout: "Zahlungsarten im nächsten Schritt",
+    methodsAtCheckout: "Zahlungsarten noch nicht aktiv",
 
     widerCoverage: "Pakete mit mehr Ländern",
     standardLead: "Beliebte Datenpakete für dieses Reiseziel",
@@ -298,7 +298,7 @@ const COPY = {
     buy: "Buy now",
     continue: "Continue",
     securePayment: "Secure payment",
-    methodsAtCheckout: "Payment options at the next step",
+    methodsAtCheckout: "Payment methods are not active yet",
 
     widerCoverage: "Packages covering more countries",
     standardLead: "Popular data packages for this destination",
