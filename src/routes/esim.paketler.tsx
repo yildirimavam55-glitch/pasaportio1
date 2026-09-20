@@ -488,27 +488,30 @@ function PackagesPage() {
               {destinationCountry ? `${destinationCountry.name[locale]} · ` : ""}
               {copy.choosePlan}
             </span>
-            <div className="mt-2 grid w-full grid-cols-2 rounded-xl bg-secondary/70 p-1" role="tablist">
-            <Button
-              type="button"
-              variant={activeSegment === "standard" ? "light" : "ghost"}
-              className="h-11 rounded-lg shadow-none"
-              onClick={() => setActiveSegment("standard")}
-              role="tab"
-              aria-selected={activeSegment === "standard"}
+            <div
+              className="mt-2 grid w-full grid-cols-2 rounded-xl bg-secondary/70 p-1"
+              role="tablist"
             >
-              {copy.standardTab}
-            </Button>
-            <Button
-              type="button"
-              variant={activeSegment === "unlimited" ? "light" : "ghost"}
-              className="h-11 rounded-lg shadow-none"
-              onClick={() => setActiveSegment("unlimited")}
-              role="tab"
-              aria-selected={activeSegment === "unlimited"}
-            >
-              {copy.unlimitedTab}
-            </Button>
+              <Button
+                type="button"
+                variant={activeSegment === "standard" ? "light" : "ghost"}
+                className="h-11 rounded-lg shadow-none"
+                onClick={() => setActiveSegment("standard")}
+                role="tab"
+                aria-selected={activeSegment === "standard"}
+              >
+                {copy.standardTab}
+              </Button>
+              <Button
+                type="button"
+                variant={activeSegment === "unlimited" ? "light" : "ghost"}
+                className="h-11 rounded-lg shadow-none"
+                onClick={() => setActiveSegment("unlimited")}
+                role="tab"
+                aria-selected={activeSegment === "unlimited"}
+              >
+                {copy.unlimitedTab}
+              </Button>
             </div>
           </div>
         </div>
@@ -525,18 +528,18 @@ function PackagesPage() {
               {recommendedProduct &&
                 ((activeSegment === "unlimited" && recommendedProduct.unlimited) ||
                   (activeSegment === "standard" && !recommendedProduct.unlimited)) && (
-                <RecommendedPackageCard
-                  key={recommendedProduct.id}
-                  pkg={recommendedProduct}
-                  isSelected={activeSelectedId === recommendedProduct.id}
-                  onSelect={() => setSelectedProductId(recommendedProduct.id)}
-                  whyText={copy.whyText(required, recommendedLabel)}
-                  destinationIso={destination}
-                  routeIsos={routeIsos}
-                  copy={copy}
-                  imageUrl={destinationImage}
-                />
-              )}
+                  <RecommendedPackageCard
+                    key={recommendedProduct.id}
+                    pkg={recommendedProduct}
+                    isSelected={activeSelectedId === recommendedProduct.id}
+                    onSelect={() => setSelectedProductId(recommendedProduct.id)}
+                    whyText={copy.whyText(required, recommendedLabel)}
+                    destinationIso={destination}
+                    routeIsos={routeIsos}
+                    copy={copy}
+                    imageUrl={destinationImage}
+                  />
+                )}
               {selectedProduct && (
                 <div className="fixed inset-x-0 bottom-[4.7rem] z-40 border-t border-border/80 bg-card/98 p-3 shadow-nav backdrop-blur md:static md:mt-5 md:rounded-2xl md:border md:bg-card md:p-3 md:shadow-card">
                   <div className="mx-auto flex max-w-site items-center gap-3">
@@ -557,7 +560,10 @@ function PackagesPage() {
                         </span>
                       </div>
                     </div>
-                    <div className="flex items-center gap-1 rounded-lg bg-secondary/60 p-1" aria-label={copy.quantity}>
+                    <div
+                      className="flex items-center gap-1 rounded-lg bg-secondary/60 p-1"
+                      aria-label={copy.quantity}
+                    >
                       <Button
                         type="button"
                         variant="ghost"
@@ -608,7 +614,7 @@ function PackagesPage() {
                 </div>
               )}
             </div>
-             {activeSegment === "standard" && sections.standard.length > 0 && (
+            {activeSegment === "standard" && sections.standard.length > 0 && (
               <SecondaryGroup
                 title={copy.standardPackages}
                 subtitle={copy.standardLead}
@@ -622,7 +628,7 @@ function PackagesPage() {
                 imageUrl={destinationImage}
               />
             )}
-            {(activeSegment === "unlimited") && sections.unlimited.length > 0 && (
+            {activeSegment === "unlimited" && sections.unlimited.length > 0 && (
               <SecondaryGroup
                 title={copy.moreUnlimited}
                 subtitle={copy.unlimitedLead}
@@ -637,7 +643,7 @@ function PackagesPage() {
                 bestForTripId={sections.bestForTripId}
               />
             )}
-            {(activeSegment === "unlimited") && sections.broaderUnlimited.length > 0 && (
+            {activeSegment === "unlimited" && sections.broaderUnlimited.length > 0 && (
               <>
                 {activeSegment === "unlimited" && sections.unlimited.length === 0 && (
                   <h2 className="mt-8 px-1 font-display text-xl font-bold leading-tight">
@@ -663,7 +669,7 @@ function PackagesPage() {
               </>
             )}
 
-            {(activeSegment === "standard") && sections.broaderCoverage.length > 0 && (
+            {activeSegment === "standard" && sections.broaderCoverage.length > 0 && (
               <SecondaryGroup
                 title={copy.widerCoverage}
                 subtitle={copy.widerLead}

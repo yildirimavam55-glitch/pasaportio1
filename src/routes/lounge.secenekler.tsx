@@ -36,7 +36,6 @@ const searchSchema = z.object({
   travelers: z.coerce.number().int().min(1).max(9).catch(1).default(1),
 });
 
-
 const COPY = {
   tr: {
     title: "Lounge seçenekleri",
@@ -239,18 +238,18 @@ function LoungeOptionsPage() {
             <h2 className="text-xs font-bold uppercase text-primary">{copy.recommended}</h2>
             <div className="mt-2">
               {options.slice(0, 1).map((option) => (
-              <LoungeCard
-                key={option.id}
-                option={option}
-                featured
-                travelers={search.travelers}
-                selected={selectedId === option.id}
-                onSelect={() => setSelectedId(option.id)}
-                copy={copy}
-                locale={locale}
-                search={search}
-              />
-            ))}
+                <LoungeCard
+                  key={option.id}
+                  option={option}
+                  featured
+                  travelers={search.travelers}
+                  selected={selectedId === option.id}
+                  onSelect={() => setSelectedId(option.id)}
+                  copy={copy}
+                  locale={locale}
+                  search={search}
+                />
+              ))}
             </div>
             {options.length > 1 && (
               <>
@@ -283,14 +282,20 @@ function LoungeOptionsPage() {
             </div>
           </div>
         )}
-      
+
         {selectedOption && (
           <div className="fixed inset-x-0 bottom-[4.7rem] z-40 border-t border-border/80 bg-card/98 p-3 shadow-nav backdrop-blur md:static md:mt-6 md:rounded-2xl md:border">
             <div className="mx-auto flex max-w-site items-center justify-between gap-3">
               <div className="min-w-0">
-                <p className="truncate text-sm font-bold">{selectedOption.loungeName ?? selectedOption.name}</p>
+                <p className="truncate text-sm font-bold">
+                  {selectedOption.loungeName ?? selectedOption.name}
+                </p>
                 <p className="text-sm font-semibold text-primary">
-                  {search.travelers} {copy.travelers} · {new Intl.NumberFormat(undefined, { style: "currency", currency: selectedOption.currency }).format((selectedOption.salePrice ?? 0) * search.travelers)}
+                  {search.travelers} {copy.travelers} ·{" "}
+                  {new Intl.NumberFormat(undefined, {
+                    style: "currency",
+                    currency: selectedOption.currency,
+                  }).format((selectedOption.salePrice ?? 0) * search.travelers)}
                 </p>
               </div>
               <Button
@@ -320,7 +325,6 @@ function LoungeOptionsPage() {
             </div>
           </div>
         )}
-
       </section>
     </PublicShell>
   );
@@ -427,10 +431,10 @@ function LoungeCard({
           variant="cta"
           className={`mt-4 h-12 w-full ${!selected && !featured ? "hidden md:inline-flex" : ""}`}
           disabled={inCart && selected}
-           onClick={(event) => {
-             event.stopPropagation();
-             onSelect();
-             if (inCart) return;
+          onClick={(event) => {
+            event.stopPropagation();
+            onSelect();
+            if (inCart) return;
             addLine({
               productId: option.id,
               serviceType: "LOUNGE",
@@ -444,8 +448,8 @@ function LoungeCard({
               terminal: option.terminal,
               date: search.date || null,
               situation: search.situation,
-             });
-           }}
+            });
+          }}
         >
           {inCart ? copy.goToCart : copy.select}
         </Button>
