@@ -255,19 +255,24 @@ export function buildCatalogueSections<T extends CatalogueProduct>(
     standard: safeStandard.length,
     unlimited: safeUnlimited.length,
     broaderCoverage: safeBroader.length,
+    unlimitedTotal: unlimited.length,
     broaderCoverageTotal: broaderAll.length,
   };
 
   if (duplicates.length && import.meta.env?.DEV) {
     console.error("[esim] duplicate products detected across sections", duplicates);
   }
-  // Every unique eligible product is classified exactly once; only the broader
-  // section is trimmed for presentation.
+  // Every unique eligible product is classified exactly once; only the
+  // unlimited and broader sections are trimmed for presentation.
   const classified =
-    counters.recommended + counters.standard + counters.unlimited + counters.broaderCoverageTotal;
+    counters.recommended +
+    counters.standard +
+    counters.unlimitedTotal +
+    counters.broaderCoverageTotal;
   if (classified !== counters.unique && import.meta.env?.DEV) {
     console.error("[esim] classification invariant broken", counters);
   }
+
 
   return {
     recommended: safeRecommended,
