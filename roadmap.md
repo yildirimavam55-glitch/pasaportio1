@@ -308,9 +308,9 @@
 
 ## Real customer eSIM account and secure sign-out
 
-- [ ] Audit customer eSIM ownership, order/fulfillment/provider flow, usage/status/top-up capabilities, and current account/logout implementation
-- [ ] Build the authenticated account service center from real `customer_esims` rows with active/history grouping and multiple-instance support
-- [ ] Normalize statuses and calculate bounded usage/expiration only from stored or provider-backed values; show honest unavailable states otherwise
-- [ ] Add owner-only QR/install actions and capability-gated top-up or buy-again actions without exposing sensitive payloads
-- [ ] Add localized, visible sign-out with error handling, cache teardown, protected-route redirect, and back-navigation safety
-- [ ] Validate zero/one/multiple, fixed/unlimited, expired/exhausted, capability states, TR/DE/EN, and 360/390/430px
+- [x] Audit customer eSIM ownership, order/fulfillment/provider flow, usage/status/top-up capabilities, and current account/logout implementation
+- [x] Build the authenticated account service center from real `customer_esims` rows with active/history grouping and multiple-instance support
+- [x] Normalize statuses and calculate bounded usage/expiration only from stored or provider-backed values; show honest unavailable states otherwise
+- [x] Add owner-only QR/install actions and capability-gated top-up or buy-again actions without exposing sensitive payloads
+- [x] Add localized, visible sign-out with error handling, cache teardown, protected-route redirect, and back-navigation safety
+- [x] Validate zero-state, fixed/unlimited, expired/exhausted, capability states through tests, plus the live TR account at 360/390/430px; real one/multiple-instance provider states remain blocked by absent fulfillment rows
