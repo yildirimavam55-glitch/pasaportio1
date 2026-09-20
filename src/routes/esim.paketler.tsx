@@ -13,7 +13,6 @@ import { useI18n } from "@/i18n";
 import { getCountryByIso } from "@/domain/geo/countries";
 import { useCart } from "@/domain/cart/store";
 import { buildCatalogueSections } from "@/domain/esim/catalogue-sections";
-import { coverageScopeOf } from "@/domain/esim/package-matching";
 import { activationNote } from "@/domain/esim/activation";
 
 import { listEsimPackages, type EsimPackage } from "@/lib/esim-catalogue.functions";
@@ -153,7 +152,6 @@ function PackagesPage() {
     recommendedId: search.recommendedProductId || null,
   });
   const recommendedProduct = sections.recommended;
-  const recommendedScope = recommendedProduct ? coverageScopeOf(recommendedProduct) : null;
   const recommendedLabel = recommendedProduct ? (recommendedProduct.unlimited ? copy.unlimited : `${recommendedProduct.dataGb} GB`) : "";
   const [selectedProductId, setSelectedProductId] = useState("");
   const [hasScrolled, setHasScrolled] = useState(false);
