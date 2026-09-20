@@ -232,4 +232,4 @@
 - [x] Use product-explicit eSIM connection and airport Lounge imagery
 - [x] Keep the country/airport search overlaid inside a compact 340px mobile hero
 - [x] Add concise TR/DE/EN service-specific copy without changing search or service logic
-- [ ] Verify both services and search focus mode at 360/390/430px
+- [x] Verify both services and search focus mode at 360/390/430px
