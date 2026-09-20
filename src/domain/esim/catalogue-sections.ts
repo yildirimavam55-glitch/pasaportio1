@@ -262,6 +262,7 @@ export function buildCatalogueSections<T extends CatalogueProduct>(
   const safeRecommended = recommended && keep(recommended) ? recommended : null;
   const safeStandard = standard.filter(keep);
   const safeUnlimited = unlimitedCurated.filter(keep);
+  const safeBroaderUnlimited = broaderUnlimited.filter(keep);
   const safeBroader = broaderCoverage.filter(keep);
 
   const counters: SectionCounters = {
@@ -272,6 +273,7 @@ export function buildCatalogueSections<T extends CatalogueProduct>(
     recommended: safeRecommended ? 1 : 0,
     standard: safeStandard.length,
     unlimited: safeUnlimited.length,
+    broaderUnlimited: safeBroaderUnlimited.length,
     broaderCoverage: safeBroader.length,
     unlimitedTotal: unlimited.length,
     broaderCoverageTotal: broaderAll.length,
@@ -295,14 +297,18 @@ export function buildCatalogueSections<T extends CatalogueProduct>(
     recommended: safeRecommended,
     standard: safeStandard,
     unlimited: safeUnlimited,
+    broaderUnlimited: safeBroaderUnlimited,
+    bestForTripId: bestForTrip(safeUnlimited, input.days ?? 0)?.id ?? null,
     broaderCoverage: safeBroader,
     all: [
       ...(safeRecommended ? [safeRecommended] : []),
       ...safeStandard,
       ...safeUnlimited,
+      ...safeBroaderUnlimited,
       ...safeBroader,
     ],
     counters,
     duplicates,
   };
+
 }
