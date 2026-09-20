@@ -239,7 +239,7 @@ function PackagesPage() {
           </div>
         ) : sections.all.length ? (
           <>
-          <div className="mt-5 pb-28 sm:pb-0" role="radiogroup" aria-label={copy.title}>
+          <div className="mt-5" role="radiogroup" aria-label={copy.title}>
             {recommendedProduct && (
               <RecommendedPackageCard
                 key={recommendedProduct.id}
