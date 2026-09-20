@@ -866,6 +866,8 @@ function SecondaryGroup({
   routeIsos,
   copy,
   imageUrl,
+  level = "section",
+  bestForTripId = null,
 }: {
   title: string;
   subtitle: string;
@@ -877,11 +879,14 @@ function SecondaryGroup({
   routeIsos: string[];
   copy: (typeof COPY)["tr"];
   imageUrl: string;
+  level?: "section" | "sub";
+  bestForTripId?: string | null;
 }) {
   const { locale } = useI18n();
   const pointerStart = useRef<{ x: number; y: number } | null>(null);
   const suppressSelection = useRef(false);
   const Icon = variant === "unlimited" ? InfinityIcon : variant === "coverage" ? Globe2 : Signal;
+  const isSub = level === "sub";
 
   const startPointer = (event: React.PointerEvent<HTMLElement>) => {
     pointerStart.current = { x: event.clientX, y: event.clientY };
@@ -920,11 +925,18 @@ function SecondaryGroup({
   };
 
   return (
-    <section className="mt-8">
+    <section className={isSub ? "mt-4" : "mt-8"}>
       <div className="flex min-w-0 items-start gap-3 px-1">
-        <Icon className="mt-0.5 size-6 shrink-0 text-primary" aria-hidden="true" />
+        <Icon
+          className={`mt-0.5 shrink-0 text-primary ${isSub ? "size-4" : "size-6"}`}
+          aria-hidden="true"
+        />
         <div className="min-w-0">
-          <h2 className="font-display text-xl font-bold leading-tight">{title}</h2>
+          {isSub ? (
+            <h3 className="font-display text-base font-bold leading-tight">{title}</h3>
+          ) : (
+            <h2 className="font-display text-xl font-bold leading-tight">{title}</h2>
+          )}
           <p className="mt-0.5 text-xs text-muted-foreground">{subtitle}</p>
         </div>
       </div>
@@ -933,6 +945,7 @@ function SecondaryGroup({
         role="radiogroup"
         aria-label={title}
       >
+
         {packages.map((pkg) => {
           const selected = activeSelectedId === pkg.id;
           return (
