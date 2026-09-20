@@ -159,8 +159,9 @@ function LoungeOptionsPage() {
   });
 
   useEffect(() => {
-    if (options.length > 0 && !selectedId) {
-      setSelectedId(options[0].id);
+    const firstOption = options[0];
+    if (firstOption && !selectedId) {
+      setSelectedId(firstOption.id);
     }
   }, [options, selectedId]);
 
@@ -376,9 +377,6 @@ function LoungeCard({
         <div className="relative -mx-5 -mt-5 mb-4 h-36 overflow-hidden">
           <img src={loungeImage.url} alt="" loading="lazy" className="size-full object-cover" />
           <div className="absolute inset-0 bg-image-scrim" />
-          <span className="rounded-full bg-card px-3 py-1 text-xs font-bold text-primary">
-            {copy.recommended}
-          </span>
           <span className="absolute bottom-3 left-3 rounded-full bg-card px-3 py-1 text-xs font-bold text-primary">
             {copy.recommended}
           </span>

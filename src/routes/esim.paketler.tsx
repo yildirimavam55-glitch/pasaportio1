@@ -19,8 +19,6 @@ import {
   Zap,
   Minus,
   Plus,
-  Minus,
-  Plus,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { PublicShell } from "@/components/travel/PublicShell";
