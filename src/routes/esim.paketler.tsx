@@ -145,7 +145,7 @@ const COPY = {
       "Aşağıdaki gerçek katalog seçenekleri ihtiyacının altında kalıyor; süreyi ya da destinasyonu değiştirebilirsin.",
     scopeRegional: "Bu destinasyon bölgesel paket kapsamında.",
     scopeGlobal: "Bu destinasyon Global paket kapsamında.",
-    assistant: "Hangi pakete ihtiyacın olduğunu bilmiyor musun? Paket yardımcısını kullan →",
+    assistant: "Emin değil misin? Paket yardımcısını aç →",
 
     whyText: (need: number, size: string) =>
       `Yaklaşık ${need} GB ihtiyacın için mevcut paketler arasındaki en yakın uygun seçenek: ${size}.`,
@@ -231,7 +231,6 @@ const COPY = {
       "Die folgenden echten Katalogoptionen liegen unter deinem Bedarf; ändere Dauer oder Reiseziel.",
     scopeRegional: "Dieses Reiseziel ist von einem Regionalpaket abgedeckt.",
     scopeGlobal: "Dieses Reiseziel ist von einem Global-Paket abgedeckt.",
-    assistant: "Du weißt nicht, welches Paket passt? Paket-Assistent öffnen →",
     whyText: (need: number, size: string) =>
       `Für deinen Bedarf von rund ${need} GB ist dies das nächstpassende verfügbare Paket: ${size}.`,
   },
@@ -317,7 +316,6 @@ const COPY = {
 
     scopeRegional: "This destination is covered by a regional package.",
     scopeGlobal: "This destination is covered by a global package.",
-    assistant: "Not sure which package you need? Use the package assistant →",
     whyText: (need: number, size: string) =>
       `For your roughly ${need} GB need, this is the closest suitable available option: ${size}.`,
   },
