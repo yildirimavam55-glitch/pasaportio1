@@ -133,7 +133,21 @@ export function PublicShell({
 }) {
   const { locale } = useI18n();
   const copy = localized(GLOBAL_CONTENT, locale);
-  const pathname = useRouterState({ select: (state) => state.location.pathname });
+  const location = useRouterState({ select: (state) => state.location });
+  const pathname = location.pathname;
+  const finderTargeted = pathname === "/" && location.hash === "finder";
+  const activeMobileNav: "home" | "esim" | "lounge" | "account" =
+    pathname.startsWith("/hesabim") || pathname === "/auth"
+      ? "account"
+      : pathname.startsWith("/esim")
+        ? "esim"
+        : pathname.startsWith("/lounge")
+          ? "lounge"
+          : finderTargeted
+            ? activeService === "lounge"
+              ? "lounge"
+              : "esim"
+            : "home";
   const [signedIn, setSignedIn] = useState(false);
   useEffect(() => {
     void supabase.auth.getSession().then(({ data }) => setSignedIn(Boolean(data.session)));
@@ -323,24 +337,28 @@ export function PublicShell({
           <Link
             to="/"
             search={{ service: activeService ?? "esim" }}
-            className="bottom-link"
-            activeOptions={{ exact: true }}
+            hash=""
+            resetScroll
+            className={`bottom-link ${activeMobileNav === "home" ? "is-active" : ""}`}
+            aria-current={activeMobileNav === "home" ? "page" : undefined}
           >
             <Home className="size-[1.15rem]" />
             <span>{copy.mobile.home}</span>
           </Link>
           <button
             type="button"
-            className={`bottom-link ${activeService === "esim" ? "is-active" : ""}`}
+            className={`bottom-link ${activeMobileNav === "esim" ? "is-active" : ""}`}
             onClick={() => selectAndFind("esim")}
+            aria-current={activeMobileNav === "esim" ? "page" : undefined}
           >
             <EsimServiceIcon className="size-[1.15rem]" />
             <span>{copy.mobile.esim}</span>
           </button>
           <button
             type="button"
-            className={`bottom-link ${activeService === "lounge" ? "is-active" : ""}`}
+            className={`bottom-link ${activeMobileNav === "lounge" ? "is-active" : ""}`}
             onClick={() => selectAndFind("lounge")}
+            aria-current={activeMobileNav === "lounge" ? "page" : undefined}
           >
             <LoungeServiceIcon className="size-[1.15rem]" />
             <span>{copy.mobile.lounge}</span>
@@ -348,7 +366,8 @@ export function PublicShell({
           {signedIn ? (
             <Link
               to="/hesabim/seyahatler"
-              className={`bottom-link ${pathname.startsWith("/hesabim") ? "is-active" : ""}`}
+              className={`bottom-link ${activeMobileNav === "account" ? "is-active" : ""}`}
+              aria-current={activeMobileNav === "account" ? "page" : undefined}
             >
               <UserRound className="size-[1.15rem]" />
               <span>{copy.mobile.account}</span>
@@ -357,7 +376,8 @@ export function PublicShell({
             <Link
               to="/auth"
               search={{ redirect: "/hesabim/seyahatler" }}
-              className={`bottom-link ${pathname === "/auth" ? "is-active" : ""}`}
+              className={`bottom-link ${activeMobileNav === "account" ? "is-active" : ""}`}
+              aria-current={activeMobileNav === "account" ? "page" : undefined}
             >
               <UserRound className="size-[1.15rem]" />
               <span>{copy.mobile.account}</span>

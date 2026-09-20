@@ -36,11 +36,12 @@ function Index() {
   return (
     <TravelExperience
       service={service}
-      onServiceChange={(next) =>
+      onServiceChange={(next, options) =>
         void navigate({
           to: ".",
           search: { service: next },
-          replace: true,
+          hash: options?.finderTarget ? "finder" : undefined,
+          replace: !options?.finderTarget,
           resetScroll: false,
         })
       }

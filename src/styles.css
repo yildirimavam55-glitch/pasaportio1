@@ -323,7 +323,6 @@
     line-height: 1rem;
     white-space: nowrap;
   }
-  .bottom-link[data-status="active"],
   .bottom-link.is-active {
     color: var(--color-primary);
     background: var(--color-primary-soft);

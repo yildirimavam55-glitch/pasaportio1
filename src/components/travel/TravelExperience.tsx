@@ -58,7 +58,7 @@ export function TravelExperience({
   onServiceChange,
 }: {
   service: ServiceSlug;
-  onServiceChange: (service: ServiceSlug) => void;
+  onServiceChange: (service: ServiceSlug, options?: { finderTarget?: boolean }) => void;
 }) {
   const published = useQuery({
     queryKey: ["storefront", service],
@@ -90,7 +90,7 @@ function Experience({
   config,
 }: {
   service: ServiceSlug;
-  onServiceChange: (service: ServiceSlug) => void;
+  onServiceChange: (service: ServiceSlug, options?: { finderTarget?: boolean }) => void;
   config: StorefrontConfig;
 }) {
   const { locale } = useI18n();
@@ -172,6 +172,7 @@ function Experience({
     const finder = document.getElementById("finder");
     const nearFinder = finderIsNearViewport();
     if (next === service) {
+      if (options.scrollToFinder) onServiceChange(next, { finderTarget: true });
       if (options.scrollToFinder && !nearFinder) smoothlyShowFinder();
       return;
     }
@@ -182,7 +183,7 @@ function Experience({
       scrollToFinder: Boolean(options.scrollToFinder && !nearFinder),
     };
     switchService(next, () => {
-      onServiceChange(next);
+      onServiceChange(next, { finderTarget: options.scrollToFinder });
       const pending = pendingScrollRef.current;
       pendingScrollRef.current = null;
       const settleScroll = () => {
