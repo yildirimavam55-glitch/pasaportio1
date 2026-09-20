@@ -578,9 +578,7 @@ function PackagesPage() {
                   </h2>
                 )}
                 {sections.unlimited.length === 0 && (
-                  <p className="mt-1 px-1 text-xs text-muted-foreground">
-                    {copy.noLocalUnlimited}
-                  </p>
+                  <p className="mt-1 px-1 text-xs text-muted-foreground">{copy.noLocalUnlimited}</p>
                 )}
                 <SecondaryGroup
                   title={copy.widerUnlimited}
@@ -989,7 +987,6 @@ function SecondaryGroup({
         role="radiogroup"
         aria-label={title}
       >
-
         {packages.map((pkg) => {
           const selected = activeSelectedId === pkg.id;
           return (
@@ -1050,7 +1047,6 @@ function SecondaryGroup({
                       <span className="truncate">{copy.countryCount(pkg.coverage.length)}</span>
                     </>
                   )}
-
                 </span>
                 <span className="mt-1 text-base font-bold">
                   {formatSalePrice(pkg.salePrice ?? 0, pkg.currency, locale)}

@@ -57,7 +57,6 @@ export type CatalogueSections<T> = {
   duplicates: string[];
 };
 
-
 export type SectionInput = PackageMatchInput & {
   /** Product the finder handed off; honoured only when still eligible. */
   recommendedId?: string | null;
@@ -191,7 +190,6 @@ function bestForTrip<T extends CatalogueProduct>(packages: T[], days: number): T
   );
 }
 
-
 /**
  * Deduplicate, then classify each eligible product into exactly one bucket.
  * Priority: RECOMMENDED > UNLIMITED > BROADER_COVERAGE > STANDARD.
@@ -253,7 +251,6 @@ export function buildCatalogueSections<T extends CatalogueProduct>(
   const broaderUnlimited = curateBroaderUnlimited(broaderUnlimitedAll, 2);
   const broaderLimit = standard.length + unlimited.length ? 6 : 12;
   const broaderCoverage = curateBroaderCoverage(broaderCappedAll, broaderLimit);
-
 
   // 4. Safety pass: a product id may appear in one section only.
   const seenId = new Set<string>();
@@ -317,5 +314,4 @@ export function buildCatalogueSections<T extends CatalogueProduct>(
     counters,
     duplicates,
   };
-
 }

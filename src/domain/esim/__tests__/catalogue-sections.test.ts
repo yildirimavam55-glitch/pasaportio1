@@ -23,7 +23,6 @@ const sectionOf = (sections: ReturnType<typeof buildCatalogueSections>, id: stri
     sections.broaderCoverage.some((p) => p.id === id) ? "BROADER" : null,
   ].filter(Boolean);
 
-
 const assertInvariant = (sections: ReturnType<typeof buildCatalogueSections>) => {
   const c = sections.counters;
   expect(c.recommended + c.standard + c.unlimitedTotal + c.broaderCoverageTotal).toBe(c.unique);
@@ -244,5 +243,4 @@ describe("buildCatalogueSections", () => {
     expect(sections.counters.unlimitedTotal).toBeGreaterThan(ids.length);
     assertInvariant(sections);
   });
-
 });
