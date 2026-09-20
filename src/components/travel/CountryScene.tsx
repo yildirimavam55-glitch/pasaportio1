@@ -44,7 +44,6 @@ export function CountryScene({
           loading={eager ? "eager" : "lazy"}
           fetchPriority={eager ? "high" : "auto"}
           decoding="async"
-          style={{ objectPosition: `${photo.focalX}% ${photo.focalY}%` }}
         />
       ) : (
         <span className="country-scene-fallback" role="img" aria-label={fallback.label}>
