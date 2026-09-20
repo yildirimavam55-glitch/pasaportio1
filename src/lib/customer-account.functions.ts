@@ -108,7 +108,20 @@ export const getCustomerAccount = createServerFn({ method: "GET" })
     });
 
     return {
-      profile: profileResult.data,
+      profile: profileResult.data
+        ? {
+            ...profileResult.data,
+            email:
+              profileResult.data.email ??
+              (typeof context.claims.email === "string" ? context.claims.email : null),
+          }
+        : {
+            id: context.userId,
+            email: typeof context.claims.email === "string" ? context.claims.email : null,
+            full_name: null,
+            preferred_locale: "tr" as const,
+            country_iso: null,
+          },
       esims,
       lounges: loungesResult.data ?? [],
       orders: ordersResult.data ?? [],
