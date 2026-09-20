@@ -8,6 +8,7 @@ import {
   Check,
   Globe2,
   HelpCircle,
+  Info,
   Infinity as InfinityIcon,
   Leaf,
   Route as RouteIcon,
@@ -109,6 +110,18 @@ const COPY = {
     flexible: "Esnek kullanım",
     showMore: "Göster",
     hideMore: "Gizle",
+    details: "Detaylar",
+    detailsTitle: "Paket detayları",
+    countryCount: (count: number) => `${count} ülke`,
+    fieldDataType: "Veri tipi",
+    fieldPrice: "Fiyat",
+    fieldValidity: "Geçerlilik",
+    fieldCoverage: "Kapsam",
+    fieldActivation: "Aktivasyon",
+    fieldFairUse: "Adil kullanım",
+    yes: "Var",
+    no: "Yok",
+
     perTraveler: (count: number) =>
       `Her yolcu için ayrı bir eSIM gerekir · sepete ${count} adet eklenir`,
     gapTitle: "Bu seyahat için ihtiyacını tamamen karşılayan tek paket bulunamadı.",
@@ -167,6 +180,18 @@ const COPY = {
     flexible: "Flexible Nutzung",
     showMore: "Anzeigen",
     hideMore: "Ausblenden",
+    details: "Details",
+    detailsTitle: "Paketdetails",
+    countryCount: (count: number) => (count === 1 ? "1 Land" : `${count} Länder`),
+    fieldDataType: "Datentyp",
+    fieldPrice: "Preis",
+    fieldValidity: "Gültigkeit",
+    fieldCoverage: "Abdeckung",
+    fieldActivation: "Aktivierung",
+    fieldFairUse: "Fair Use",
+    yes: "Ja",
+    no: "Nein",
+
     perTraveler: (count: number) =>
       `Jede Person braucht eine eigene eSIM · ${count} Stück im Warenkorb`,
     gapTitle: "Kein einzelnes Paket deckt diese Reise vollständig ab.",
@@ -225,6 +250,18 @@ const COPY = {
     flexible: "Flexible use",
     showMore: "Show",
     hideMore: "Hide",
+    details: "Details",
+    detailsTitle: "Package details",
+    countryCount: (count: number) => (count === 1 ? "1 country" : `${count} countries`),
+    fieldDataType: "Data type",
+    fieldPrice: "Price",
+    fieldValidity: "Validity",
+    fieldCoverage: "Coverage",
+    fieldActivation: "Activation",
+    fieldFairUse: "Fair use",
+    yes: "Yes",
+    no: "No",
+
     perTraveler: (count: number) =>
       `Each traveller needs their own eSIM · ${count} added to the cart`,
     gapTitle: "No single package fully covers this trip.",
@@ -730,6 +767,94 @@ function CoverageSheet({ isos, copy }: { isos: string[]; copy: (typeof COPY)["tr
 
 type RailVariant = "orb" | "unlimited" | "coverage";
 
+/** Provider fair-use wording, verbatim; never invented. */
+function fairUseText(pkg: EsimPackage): string | null {
+  return pkg.fairUseNote ?? pkg.highSpeedAllowance ?? pkg.fairUsePolicy ?? null;
+}
+
+function PackageDetailsSheet({
+  pkg,
+  copy,
+  destinationIso,
+  routeIsos,
+}: {
+  pkg: EsimPackage;
+  copy: (typeof COPY)["tr"];
+  destinationIso: string;
+  routeIsos: string[];
+}) {
+  const { locale } = useI18n();
+  const coverageLabel =
+    pkg.coverage.length === 1 && pkg.coverage[0]
+      ? (getCountryByIso(pkg.coverage[0])?.name[locale] ?? pkg.coverage[0])
+      : copy.countryCount(pkg.coverage.length);
+  const rows: Array<[string, string]> = [
+    [copy.fieldDataType, pkg.unlimited ? copy.unlimited : `${pkg.dataGb ?? "—"} GB`],
+    [copy.fieldPrice, formatSalePrice(pkg.salePrice ?? 0, pkg.currency, locale)],
+    [copy.fieldValidity, `${pkg.validityDays ?? "—"} ${copy.days}`],
+    [
+      copy.fieldCoverage,
+      `${customerPackageTitle({ locale, destinationIso, routeIsos, coverage: pkg.coverage })} · ${coverageLabel}`,
+    ],
+    [copy.fiveG, pkg.supports5g ? copy.yes : copy.no],
+    [copy.hotspot, pkg.supportsHotspot ? copy.yes : copy.no],
+    [copy.dataOnly, pkg.dataOnly ? copy.yes : copy.no],
+    [copy.topup, pkg.topupSupported ? copy.yes : copy.no],
+  ];
+  const activation = activationNote(pkg.activationPolicy, locale);
+  if (activation) rows.push([copy.fieldActivation, activation]);
+  const fairUse = fairUseText(pkg);
+  if (fairUse) rows.push([copy.fieldFairUse, fairUse]);
+  if (pkg.speedAfterFairUse) rows.push([copy.fieldFairUse, pkg.speedAfterFairUse]);
+
+  return (
+    <Sheet>
+      <SheetTrigger asChild>
+        <button
+          type="button"
+          aria-label={`${copy.detailsTitle} — ${pkg.name}`}
+          className="flex size-7 items-center justify-center rounded-full bg-background/85 text-primary shadow-card"
+        >
+          <Info className="size-4" />
+        </button>
+      </SheetTrigger>
+      <SheetContent
+        side="bottom"
+        className="max-h-[78svh] overflow-y-auto rounded-t-2xl pb-24 sm:bottom-auto sm:left-1/2 sm:top-1/2 sm:w-[min(32rem,calc(100vw-3rem))] sm:-translate-x-1/2 sm:-translate-y-1/2 sm:rounded-2xl sm:border"
+      >
+        <SheetHeader>
+          <SheetTitle>{copy.detailsTitle}</SheetTitle>
+          <SheetDescription>
+            {pkg.unlimited ? copy.unlimited : `${pkg.dataGb ?? "—"} GB`} · {pkg.validityDays ?? "—"}{" "}
+            {copy.days}
+          </SheetDescription>
+        </SheetHeader>
+        <dl className="mt-4 grid gap-2 text-sm">
+          {rows.map(([label, value], index) => (
+            <div
+              key={`${label}-${index}`}
+              className="flex items-start justify-between gap-4 border-b border-border/60 pb-2"
+            >
+              <dt className="text-muted-foreground">{label}</dt>
+              <dd className="text-right font-semibold">{value}</dd>
+            </div>
+          ))}
+        </dl>
+        {pkg.coverage.length > 1 && (
+          <p className="mt-3 flex flex-wrap gap-1 text-xs text-muted-foreground">
+            {pkg.coverage.slice(0, 24).map((iso) => (
+              <span key={iso} className="rounded-full bg-secondary px-2 py-0.5">
+                {getCountryByIso(iso)?.name[locale] ?? iso}
+              </span>
+            ))}
+            {pkg.coverage.length > 24 && <span>+{pkg.coverage.length - 24}</span>}
+          </p>
+        )}
+      </SheetContent>
+    </Sheet>
+  );
+}
+
 function SecondaryGroup({
   title,
   subtitle,
@@ -835,25 +960,34 @@ function SecondaryGroup({
               )}
               {variant === "coverage" && <div className="absolute inset-0 bg-image-scrim" />}
               <div className="relative z-10 flex h-full flex-col items-center justify-center text-center">
-                {variant === "unlimited" && <InfinityIcon className="mb-1 size-6 text-primary" />}
-                <strong className="font-display text-xl">
+                {variant === "unlimited" && <InfinityIcon className="mb-1 size-5 text-primary" />}
+                <strong className="font-display text-lg leading-tight">
                   {pkg.unlimited ? copy.unlimited : `${pkg.dataGb ?? "—"} GB`}
+                  {pkg.unlimited && fairUseText(pkg) ? "*" : ""}
                 </strong>
                 <span className="mt-0.5 text-sm opacity-70">
                   {pkg.validityDays ?? "—"} {copy.days}
                 </span>
-                <span className="mt-2 text-base font-bold">
-                  {formatSalePrice(pkg.salePrice ?? 0, pkg.currency, locale)}
+                <span className="mt-1 flex max-w-full items-center justify-center gap-1 text-[11px] opacity-75">
+                  {pkg.coverage.length === 1 && pkg.coverage[0] ? (
+                    <>
+                      <CountryFlag iso={pkg.coverage[0]} />
+                      <span className="truncate">
+                        {getCountryByIso(pkg.coverage[0])?.name[locale] ??
+                          customerPackageTitle({
+                            locale,
+                            destinationIso,
+                            routeIsos,
+                            coverage: pkg.coverage,
+                          })}
+                      </span>
+                    </>
+                  ) : (
+                    <span className="truncate">{copy.countryCount(pkg.coverage.length)}</span>
+                  )}
                 </span>
-                <span className="mt-1 max-w-full truncate text-[11px] opacity-70">
-                  {variant === "coverage"
-                    ? `${pkg.coverage.length} ${copy.coverage}`
-                    : customerPackageTitle({
-                        locale,
-                        destinationIso,
-                        routeIsos,
-                        coverage: pkg.coverage,
-                      })}
+                <span className="mt-1 text-base font-bold">
+                  {formatSalePrice(pkg.salePrice ?? 0, pkg.currency, locale)}
                 </span>
                 <span
                   className={`mt-2 inline-flex h-7 items-center justify-center gap-1 rounded-full px-3 text-xs font-bold ${selected ? "bg-primary text-primary-foreground" : variant === "coverage" ? "bg-background/90 text-primary" : "bg-secondary text-primary"}`}
@@ -862,6 +996,18 @@ function SecondaryGroup({
                   {selected && <Check className="size-3.5" />}
                   {selected ? copy.selected : copy.select}
                 </span>
+              </div>
+              <div
+                className="absolute right-1.5 top-1.5 z-20"
+                onClick={(event) => event.stopPropagation()}
+                onPointerDown={(event) => event.stopPropagation()}
+              >
+                <PackageDetailsSheet
+                  pkg={pkg}
+                  copy={copy}
+                  destinationIso={destinationIso}
+                  routeIsos={routeIsos}
+                />
               </div>
             </article>
           );
