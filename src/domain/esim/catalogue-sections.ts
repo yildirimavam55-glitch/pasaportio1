@@ -32,8 +32,9 @@ export type SectionCounters = {
   recommended: number;
   standard: number;
   unlimited: number;
+  broaderUnlimited: number;
   broaderCoverage: number;
-  /** All exact-country unlimited products before customer-facing curation. */
+  /** All exact-country unlimited products before per-validity curation. */
   unlimitedTotal: number;
   /** All broader-coverage products before customer-facing curation. */
   broaderCoverageTotal: number;
@@ -42,7 +43,12 @@ export type SectionCounters = {
 export type CatalogueSections<T> = {
   recommended: T | null;
   standard: T[];
+  /** Exact-country unlimited: one card per real provider validity. */
   unlimited: T[];
+  /** 1–2 wider (regional/global) unlimited alternatives, shown separately. */
+  broaderUnlimited: T[];
+  /** Local unlimited card that fits the trip length best, for highlighting. */
+  bestForTripId: string | null;
   broaderCoverage: T[];
   /** Every rendered product, in render order, guaranteed duplicate-free. */
   all: T[];
@@ -50,6 +56,7 @@ export type CatalogueSections<T> = {
   /** Ids that were dropped by the final safety pass; always empty when correct. */
   duplicates: string[];
 };
+
 
 export type SectionInput = PackageMatchInput & {
   /** Product the finder handed off; honoured only when still eligible. */
