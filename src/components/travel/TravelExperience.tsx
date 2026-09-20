@@ -215,21 +215,7 @@ function Experience({
     switch (section.type) {
       case "FINDER":
         if (service === "esim" && !assistantOpen) {
-          return (
-            <div
-              key={section.id}
-              className="service-finder-transition mx-auto mt-3 max-w-finder px-3 sm:px-6"
-              data-phase={phase ?? undefined}
-            >
-              <button
-                type="button"
-                onClick={() => setAssistantOpen(true)}
-                className="w-full rounded-2xl border border-dashed border-border bg-secondary/50 px-4 py-3 text-left text-sm font-semibold text-primary"
-              >
-                {ASSISTANT_COPY[locale].open}
-              </button>
-            </div>
-          );
+          return null;
         }
         return (
           <div
@@ -363,6 +349,20 @@ function Experience({
           </div>
         </div>
         {config.sections.map(render)}
+        {service === "esim" && !assistantOpen && (
+          <div className="mx-auto mt-6 max-w-finder px-3 text-center sm:px-6">
+            <button
+              type="button"
+              onClick={() => {
+                setAssistantOpen(true);
+                scrollToFinder();
+              }}
+              className="text-sm font-semibold text-primary underline-offset-4 hover:underline"
+            >
+              {ASSISTANT_COPY[locale].open}
+            </button>
+          </div>
+        )}
       </div>
     </PublicShell>
   );
