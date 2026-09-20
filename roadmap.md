@@ -300,11 +300,11 @@
 
 ## Global compact country product pages
 
-- [ ] Apply one compact image, identity, benefits, selector, and product-grid structure to every sellable single-country destination
-- [ ] Remove the duplicate local Standard/Unlimited headings and descriptions after the selector in TR/DE/EN
-- [ ] Add catalogue-derived local product counts and one clearly sliding active selector state
-- [ ] Minimize repeated country identity inside local package cards while preserving broader-coverage context
-- [ ] Verify all sellable destinations and representative countries at 360/375/390/412/430px
+- [x] Apply one compact image, identity, benefits, selector, and product-grid structure to every sellable single-country destination
+- [x] Remove the duplicate local Standard/Unlimited headings and descriptions after the selector in TR/DE/EN
+- [x] Add catalogue-derived local product counts and one clearly sliding active selector state
+- [x] Minimize repeated country identity inside local package cards while preserving broader-coverage context
+- [x] Verify all sellable destinations and representative countries at 360/375/390/412/430px
 
 ## Real customer eSIM account and secure sign-out
 
