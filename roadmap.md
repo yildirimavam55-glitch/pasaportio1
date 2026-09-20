@@ -331,4 +331,4 @@
 - [x] Remove the fixed mobile bottom navigation and its reserved spacing
 - [x] Convert eSIM and Lounge purchase summaries into compact floating cards above the safe area
 - [x] Keep product, quantity, and total synchronized without advertising unverified payment brands
-- [ ] Verify theme persistence, navigation, selection, totals, overflow, and safe areas at 360/375/390/412/430px
+- [x] Verify theme persistence, navigation, selection, totals, overflow, and safe areas at 360/375/390/412/430px
