@@ -704,9 +704,25 @@
   width: 5.25rem;
   height: 5.25rem;
   color: var(--color-primary);
-  opacity: 0.055;
+  opacity: 0.075;
   pointer-events: none;
   user-select: none;
+}
+.country-card-motif[data-position="right-center"] {
+  bottom: 50%;
+  transform: translateY(55%);
+}
+.country-card-motif[data-position="center-bottom"] {
+  right: 0.45rem;
+}
+.country-card-motif[data-tone="lavender"] {
+  color: var(--color-accent);
+}
+.country-card-motif[data-tone="orange"] {
+  color: var(--color-warning);
+}
+.country-card-motif[data-tone="petrol"] {
+  color: var(--color-foreground);
 }
 .country-card-motif svg {
   position: absolute;
@@ -722,6 +738,7 @@
   font-family: var(--font-display);
   font-size: 1.45rem;
   font-weight: 700;
+  opacity: 0.45;
 }
 .coverage-card-mark {
   position: absolute;

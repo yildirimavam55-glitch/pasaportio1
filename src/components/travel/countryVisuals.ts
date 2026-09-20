@@ -1,0 +1,267 @@
+export type CountryMotifKey =
+  | "arch"
+  | "aurora"
+  | "baobab"
+  | "balloons"
+  | "bridge"
+  | "cactus"
+  | "city"
+  | "clover"
+  | "columns"
+  | "desert"
+  | "fern"
+  | "gate"
+  | "harbor"
+  | "island"
+  | "islands"
+  | "landscape"
+  | "leaf"
+  | "mosque"
+  | "mountain"
+  | "mountain-city"
+  | "pagoda"
+  | "palace"
+  | "palm"
+  | "pyramid"
+  | "savanna"
+  | "skyline"
+  | "steppe"
+  | "tower"
+  | "tram"
+  | "tropical"
+  | "volcano"
+  | "windmill";
+
+export type CountryVisual = {
+  motif: CountryMotifKey;
+  label: string;
+  tone: "mint" | "lavender" | "orange" | "petrol";
+  position: "right-bottom" | "right-center" | "center-bottom";
+};
+
+/** One explicit, reusable visual identity per currently sellable single-country destination. */
+export const countryVisuals = {
+  AD: { motif: "gate", label: "AD travel motif", tone: "mint", position: "right-bottom" },
+  AE: { motif: "skyline", label: "Gulf skyline", tone: "lavender", position: "right-center" },
+  AG: { motif: "island", label: "AG travel motif", tone: "orange", position: "center-bottom" },
+  AI: { motif: "island", label: "AI travel motif", tone: "petrol", position: "right-bottom" },
+  AL: { motif: "gate", label: "AL travel motif", tone: "mint", position: "right-center" },
+  AM: { motif: "gate", label: "AM travel motif", tone: "lavender", position: "center-bottom" },
+  AN: { motif: "island", label: "AN travel motif", tone: "orange", position: "right-bottom" },
+  AR: { motif: "mountain", label: "Andes city", tone: "petrol", position: "right-center" },
+  AT: { motif: "mountain", label: "Alpine city", tone: "mint", position: "center-bottom" },
+  AU: {
+    motif: "harbor",
+    label: "Sydney-inspired harbor",
+    tone: "lavender",
+    position: "right-bottom",
+  },
+  AW: { motif: "island", label: "AW travel motif", tone: "orange", position: "right-center" },
+  AX: { motif: "island", label: "AX travel motif", tone: "petrol", position: "center-bottom" },
+  AZ: { motif: "desert", label: "AZ travel motif", tone: "mint", position: "right-bottom" },
+  BA: { motif: "gate", label: "BA travel motif", tone: "lavender", position: "right-center" },
+  BB: { motif: "island", label: "BB travel motif", tone: "orange", position: "center-bottom" },
+  BD: { motif: "pagoda", label: "BD travel motif", tone: "petrol", position: "right-bottom" },
+  BE: { motif: "gate", label: "Atomium-inspired geometry", tone: "mint", position: "right-center" },
+  BF: { motif: "baobab", label: "BF travel motif", tone: "lavender", position: "center-bottom" },
+  BG: { motif: "gate", label: "BG travel motif", tone: "orange", position: "right-bottom" },
+  BH: { motif: "skyline", label: "BH travel motif", tone: "petrol", position: "right-center" },
+  BJ: { motif: "baobab", label: "BJ travel motif", tone: "mint", position: "center-bottom" },
+  BL: { motif: "island", label: "BL travel motif", tone: "lavender", position: "right-bottom" },
+  BM: { motif: "island", label: "BM travel motif", tone: "orange", position: "right-center" },
+  BN: { motif: "palace", label: "BN travel motif", tone: "petrol", position: "center-bottom" },
+  BO: { motif: "mountain", label: "BO travel motif", tone: "mint", position: "right-bottom" },
+  BQ: { motif: "island", label: "BQ travel motif", tone: "lavender", position: "right-center" },
+  BR: { motif: "mountain-city", label: "Rio mountain", tone: "orange", position: "center-bottom" },
+  BS: { motif: "island", label: "BS travel motif", tone: "petrol", position: "right-bottom" },
+  BW: { motif: "savanna", label: "BW travel motif", tone: "mint", position: "right-center" },
+  BY: { motif: "gate", label: "BY travel motif", tone: "lavender", position: "center-bottom" },
+  BZ: { motif: "tropical", label: "BZ travel motif", tone: "orange", position: "right-bottom" },
+  CA: { motif: "leaf", label: "Maple mountain", tone: "petrol", position: "right-center" },
+  CF: { motif: "savanna", label: "CF travel motif", tone: "mint", position: "center-bottom" },
+  CH: { motif: "mountain", label: "Alpine peaks", tone: "lavender", position: "right-bottom" },
+  CI: { motif: "baobab", label: "CI travel motif", tone: "orange", position: "right-center" },
+  CL: { motif: "mountain", label: "Andes peaks", tone: "petrol", position: "center-bottom" },
+  CM: { motif: "palm", label: "CM travel motif", tone: "mint", position: "right-bottom" },
+  CN: {
+    motif: "pagoda",
+    label: "Great Wall-inspired ridge",
+    tone: "lavender",
+    position: "right-center",
+  },
+  CO: {
+    motif: "mountain-city",
+    label: "Tropical mountain",
+    tone: "orange",
+    position: "center-bottom",
+  },
+  CR: { motif: "tropical", label: "CR travel motif", tone: "petrol", position: "right-bottom" },
+  CU: { motif: "city", label: "CU travel motif", tone: "mint", position: "right-center" },
+  CV: { motif: "volcano", label: "CV travel motif", tone: "lavender", position: "center-bottom" },
+  CW: { motif: "island", label: "CW travel motif", tone: "orange", position: "right-bottom" },
+  CY: { motif: "island", label: "CY travel motif", tone: "petrol", position: "right-center" },
+  CZ: { motif: "gate", label: "CZ travel motif", tone: "mint", position: "center-bottom" },
+  DE: {
+    motif: "gate",
+    label: "Brandenburg-inspired gate",
+    tone: "lavender",
+    position: "right-bottom",
+  },
+  DK: { motif: "harbor", label: "Copenhagen harbor", tone: "orange", position: "right-center" },
+  DM: { motif: "island", label: "DM travel motif", tone: "petrol", position: "center-bottom" },
+  DO: { motif: "island", label: "DO travel motif", tone: "mint", position: "right-bottom" },
+  DZ: { motif: "desert", label: "DZ travel motif", tone: "lavender", position: "right-center" },
+  EC: { motif: "mountain", label: "EC travel motif", tone: "orange", position: "center-bottom" },
+  EE: { motif: "tower", label: "EE travel motif", tone: "petrol", position: "right-bottom" },
+  EG: { motif: "pyramid", label: "Pyramids", tone: "mint", position: "right-center" },
+  ES: { motif: "arch", label: "Catalan arch", tone: "lavender", position: "center-bottom" },
+  ET: { motif: "volcano", label: "ET travel motif", tone: "orange", position: "right-bottom" },
+  FI: { motif: "aurora", label: "Northern forest", tone: "petrol", position: "right-center" },
+  FJ: { motif: "island", label: "FJ travel motif", tone: "mint", position: "center-bottom" },
+  FO: { motif: "island", label: "FO travel motif", tone: "lavender", position: "right-bottom" },
+  FR: { motif: "tower", label: "Eiffel-inspired tower", tone: "orange", position: "right-center" },
+  GA: { motif: "volcano", label: "GA travel motif", tone: "petrol", position: "center-bottom" },
+  GB: { motif: "bridge", label: "London bridge", tone: "mint", position: "right-bottom" },
+  GD: { motif: "island", label: "GD travel motif", tone: "lavender", position: "right-center" },
+  GE: { motif: "gate", label: "GE travel motif", tone: "orange", position: "center-bottom" },
+  GF: { motif: "tropical", label: "GF travel motif", tone: "petrol", position: "right-bottom" },
+  GH: { motif: "landscape", label: "GH travel motif", tone: "mint", position: "right-center" },
+  GI: { motif: "harbor", label: "GI travel motif", tone: "lavender", position: "center-bottom" },
+  GL: { motif: "island", label: "GL travel motif", tone: "orange", position: "right-bottom" },
+  GM: { motif: "baobab", label: "GM travel motif", tone: "petrol", position: "right-center" },
+  GN: { motif: "baobab", label: "GN travel motif", tone: "mint", position: "center-bottom" },
+  GP: { motif: "island", label: "GP travel motif", tone: "lavender", position: "right-bottom" },
+  GR: { motif: "columns", label: "Classical columns", tone: "orange", position: "right-center" },
+  GT: { motif: "tropical", label: "GT travel motif", tone: "petrol", position: "center-bottom" },
+  GU: { motif: "island", label: "GU travel motif", tone: "mint", position: "right-bottom" },
+  GW: { motif: "baobab", label: "GW travel motif", tone: "lavender", position: "right-center" },
+  GY: { motif: "tropical", label: "GY travel motif", tone: "orange", position: "center-bottom" },
+  HK: { motif: "skyline", label: "HK travel motif", tone: "petrol", position: "right-bottom" },
+  HN: { motif: "tropical", label: "HN travel motif", tone: "mint", position: "right-center" },
+  HR: { motif: "gate", label: "Adriatic old town", tone: "lavender", position: "center-bottom" },
+  HT: { motif: "landscape", label: "HT travel motif", tone: "orange", position: "right-bottom" },
+  HU: { motif: "gate", label: "HU travel motif", tone: "petrol", position: "right-center" },
+  IC: { motif: "island", label: "IC travel motif", tone: "mint", position: "center-bottom" },
+  ID: { motif: "pagoda", label: "Island temple", tone: "lavender", position: "right-bottom" },
+  IE: { motif: "clover", label: "Clover and cliffs", tone: "orange", position: "right-center" },
+  IL: { motif: "skyline", label: "IL travel motif", tone: "petrol", position: "center-bottom" },
+  IM: { motif: "island", label: "IM travel motif", tone: "mint", position: "right-bottom" },
+  IN: {
+    motif: "palace",
+    label: "Mughal-inspired palace",
+    tone: "lavender",
+    position: "right-center",
+  },
+  IQ: { motif: "desert", label: "IQ travel motif", tone: "orange", position: "center-bottom" },
+  IR: { motif: "desert", label: "IR travel motif", tone: "petrol", position: "right-bottom" },
+  IS: { motif: "aurora", label: "Aurora mountain", tone: "mint", position: "right-center" },
+  IT: { motif: "arch", label: "Roman arch", tone: "lavender", position: "center-bottom" },
+  JM: { motif: "island", label: "JM travel motif", tone: "orange", position: "right-bottom" },
+  JO: { motif: "desert", label: "JO travel motif", tone: "petrol", position: "right-center" },
+  JP: { motif: "pagoda", label: "Torii gate", tone: "mint", position: "center-bottom" },
+  KE: { motif: "savanna", label: "Savanna acacia", tone: "lavender", position: "right-bottom" },
+  KG: { motif: "mountain", label: "KG travel motif", tone: "orange", position: "right-center" },
+  KH: { motif: "pagoda", label: "KH travel motif", tone: "petrol", position: "center-bottom" },
+  KN: { motif: "island", label: "KN travel motif", tone: "mint", position: "right-bottom" },
+  KR: { motif: "pagoda", label: "Traditional gate", tone: "lavender", position: "right-center" },
+  KW: { motif: "skyline", label: "KW travel motif", tone: "orange", position: "center-bottom" },
+  KY: { motif: "island", label: "KY travel motif", tone: "petrol", position: "right-bottom" },
+  KZ: { motif: "mountain", label: "KZ travel motif", tone: "mint", position: "right-center" },
+  LA: { motif: "pagoda", label: "LA travel motif", tone: "lavender", position: "center-bottom" },
+  LC: { motif: "island", label: "LC travel motif", tone: "orange", position: "right-bottom" },
+  LI: { motif: "gate", label: "LI travel motif", tone: "petrol", position: "right-center" },
+  LK: { motif: "pagoda", label: "LK travel motif", tone: "mint", position: "center-bottom" },
+  LR: { motif: "palm", label: "LR travel motif", tone: "lavender", position: "right-bottom" },
+  LS: { motif: "mountain", label: "LS travel motif", tone: "orange", position: "right-center" },
+  LT: { motif: "gate", label: "LT travel motif", tone: "petrol", position: "center-bottom" },
+  LU: { motif: "gate", label: "LU travel motif", tone: "mint", position: "right-bottom" },
+  LV: { motif: "gate", label: "LV travel motif", tone: "lavender", position: "right-center" },
+  MA: { motif: "arch", label: "Moroccan arch", tone: "orange", position: "center-bottom" },
+  MC: { motif: "skyline", label: "MC travel motif", tone: "petrol", position: "right-bottom" },
+  MD: { motif: "gate", label: "MD travel motif", tone: "mint", position: "right-center" },
+  ME: { motif: "gate", label: "ME travel motif", tone: "lavender", position: "center-bottom" },
+  MF: { motif: "island", label: "MF travel motif", tone: "orange", position: "right-bottom" },
+  MG: { motif: "palm", label: "MG travel motif", tone: "petrol", position: "right-center" },
+  MK: { motif: "gate", label: "MK travel motif", tone: "mint", position: "center-bottom" },
+  ML: { motif: "baobab", label: "ML travel motif", tone: "lavender", position: "right-bottom" },
+  MN: { motif: "steppe", label: "MN travel motif", tone: "orange", position: "right-center" },
+  MO: { motif: "skyline", label: "MO travel motif", tone: "petrol", position: "center-bottom" },
+  MQ: { motif: "island", label: "MQ travel motif", tone: "mint", position: "right-bottom" },
+  MR: { motif: "desert", label: "MR travel motif", tone: "lavender", position: "right-center" },
+  MS: { motif: "island", label: "MS travel motif", tone: "orange", position: "center-bottom" },
+  MT: { motif: "island", label: "MT travel motif", tone: "petrol", position: "right-bottom" },
+  MU: { motif: "palm", label: "MU travel motif", tone: "mint", position: "right-center" },
+  MW: { motif: "palm", label: "MW travel motif", tone: "lavender", position: "center-bottom" },
+  MX: { motif: "cactus", label: "Mesoamerican cactus", tone: "orange", position: "right-bottom" },
+  MY: { motif: "palace", label: "Twin-tower skyline", tone: "petrol", position: "right-center" },
+  MZ: { motif: "palm", label: "MZ travel motif", tone: "mint", position: "center-bottom" },
+  NA: { motif: "desert", label: "NA travel motif", tone: "lavender", position: "right-bottom" },
+  NE: { motif: "baobab", label: "NE travel motif", tone: "orange", position: "right-center" },
+  NG: { motif: "palm", label: "NG travel motif", tone: "petrol", position: "center-bottom" },
+  NI: { motif: "tropical", label: "NI travel motif", tone: "mint", position: "right-bottom" },
+  NL: { motif: "windmill", label: "Dutch windmill", tone: "lavender", position: "right-center" },
+  NO: { motif: "aurora", label: "Fjord", tone: "orange", position: "center-bottom" },
+  NR: { motif: "island", label: "NR travel motif", tone: "petrol", position: "right-bottom" },
+  NZ: { motif: "fern", label: "Mountain fern", tone: "mint", position: "right-center" },
+  OM: { motif: "desert", label: "OM travel motif", tone: "lavender", position: "center-bottom" },
+  PA: { motif: "harbor", label: "PA travel motif", tone: "orange", position: "right-bottom" },
+  PE: { motif: "mountain", label: "PE travel motif", tone: "petrol", position: "right-center" },
+  PG: { motif: "islands", label: "PG travel motif", tone: "mint", position: "center-bottom" },
+  PH: { motif: "islands", label: "Tropical islands", tone: "lavender", position: "right-bottom" },
+  PK: { motif: "palace", label: "PK travel motif", tone: "orange", position: "right-center" },
+  PL: { motif: "gate", label: "PL travel motif", tone: "petrol", position: "center-bottom" },
+  PR: { motif: "island", label: "PR travel motif", tone: "mint", position: "right-bottom" },
+  PS: { motif: "mosque", label: "PS travel motif", tone: "lavender", position: "right-center" },
+  PT: { motif: "tram", label: "Lisbon tram", tone: "orange", position: "center-bottom" },
+  PY: { motif: "tropical", label: "PY travel motif", tone: "petrol", position: "right-bottom" },
+  QA: { motif: "skyline", label: "Doha skyline", tone: "mint", position: "right-center" },
+  RE: { motif: "volcano", label: "RE travel motif", tone: "lavender", position: "center-bottom" },
+  RO: { motif: "gate", label: "RO travel motif", tone: "orange", position: "right-bottom" },
+  RS: { motif: "gate", label: "RS travel motif", tone: "petrol", position: "right-center" },
+  RU: { motif: "gate", label: "RU travel motif", tone: "mint", position: "center-bottom" },
+  RW: { motif: "savanna", label: "RW travel motif", tone: "lavender", position: "right-bottom" },
+  SA: { motif: "skyline", label: "Desert skyline", tone: "orange", position: "right-center" },
+  SC: { motif: "island", label: "SC travel motif", tone: "petrol", position: "center-bottom" },
+  SD: { motif: "desert", label: "SD travel motif", tone: "mint", position: "right-bottom" },
+  SE: { motif: "aurora", label: "Nordic skyline", tone: "lavender", position: "right-center" },
+  SG: { motif: "skyline", label: "Harbor skyline", tone: "orange", position: "center-bottom" },
+  SI: { motif: "gate", label: "SI travel motif", tone: "petrol", position: "right-bottom" },
+  SK: { motif: "gate", label: "SK travel motif", tone: "mint", position: "right-center" },
+  SN: { motif: "baobab", label: "SN travel motif", tone: "lavender", position: "center-bottom" },
+  SR: { motif: "tropical", label: "SR travel motif", tone: "orange", position: "right-bottom" },
+  SV: { motif: "city", label: "SV travel motif", tone: "petrol", position: "right-center" },
+  SZ: { motif: "savanna", label: "SZ travel motif", tone: "mint", position: "center-bottom" },
+  TC: { motif: "island", label: "TC travel motif", tone: "lavender", position: "right-bottom" },
+  TD: { motif: "baobab", label: "TD travel motif", tone: "orange", position: "right-center" },
+  TG: { motif: "baobab", label: "TG travel motif", tone: "petrol", position: "center-bottom" },
+  TH: { motif: "pagoda", label: "Thai temple", tone: "mint", position: "right-bottom" },
+  TJ: { motif: "mountain", label: "TJ travel motif", tone: "lavender", position: "right-center" },
+  TN: { motif: "desert", label: "TN travel motif", tone: "orange", position: "center-bottom" },
+  TO: { motif: "islands", label: "TO travel motif", tone: "petrol", position: "right-bottom" },
+  TR: { motif: "balloons", label: "Cappadocia balloons", tone: "mint", position: "right-center" },
+  TT: { motif: "island", label: "TT travel motif", tone: "lavender", position: "center-bottom" },
+  TW: { motif: "pagoda", label: "TW travel motif", tone: "orange", position: "right-bottom" },
+  TZ: { motif: "savanna", label: "TZ travel motif", tone: "petrol", position: "right-center" },
+  UA: { motif: "gate", label: "UA travel motif", tone: "mint", position: "center-bottom" },
+  UG: { motif: "savanna", label: "UG travel motif", tone: "lavender", position: "right-bottom" },
+  US: { motif: "skyline", label: "Liberty skyline", tone: "orange", position: "right-center" },
+  UY: { motif: "city", label: "UY travel motif", tone: "petrol", position: "center-bottom" },
+  UZ: { motif: "mosque", label: "UZ travel motif", tone: "mint", position: "right-bottom" },
+  VA: { motif: "gate", label: "VA travel motif", tone: "lavender", position: "right-center" },
+  VC: { motif: "island", label: "VC travel motif", tone: "orange", position: "center-bottom" },
+  VG: { motif: "island", label: "VG travel motif", tone: "petrol", position: "right-bottom" },
+  VI: { motif: "island", label: "VI travel motif", tone: "mint", position: "right-center" },
+  VN: { motif: "pagoda", label: "Pagoda bay", tone: "lavender", position: "center-bottom" },
+  VU: { motif: "islands", label: "VU travel motif", tone: "orange", position: "right-bottom" },
+  WS: { motif: "islands", label: "WS travel motif", tone: "petrol", position: "right-center" },
+  YT: { motif: "palm", label: "YT travel motif", tone: "mint", position: "center-bottom" },
+  ZA: { motif: "savanna", label: "Table Mountain", tone: "lavender", position: "right-bottom" },
+  ZM: { motif: "savanna", label: "ZM travel motif", tone: "orange", position: "right-center" },
+} as const satisfies Record<string, CountryVisual>;
+
+export type CountryVisualIso = keyof typeof countryVisuals;
+
+export function getCountryVisual(countryCode: string | undefined): CountryVisual | undefined {
+  if (!countryCode) return undefined;
+  return countryVisuals[countryCode.toUpperCase() as CountryVisualIso];
+}

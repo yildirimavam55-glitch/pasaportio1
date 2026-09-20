@@ -263,3 +263,11 @@
 - [x] Retain localized flag and country name on every single-country Standard and Unlimited card
 - [x] Keep multi-country products image-free and landmark-free with neutral globe treatment
 - [x] Verify mapped, unmapped, and multi-country cards at 360/375/390/412/430px
+
+## Complete country symbol coverage
+
+- [x] Extract all currently published single-country storefront ISO codes
+- [x] Add one centralized visual registry entry for every current supported country
+- [x] Render reusable low-contrast inline SVG motifs for Standard and Unlimited local cards
+- [x] Preserve neutral multi-country cards and future-safe unknown-country fallback
+- [x] Verify registry coverage, build, and 360/390/430 px representative countries
