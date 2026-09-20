@@ -239,4 +239,4 @@
 - [x] Add a reusable country-code to subtle motif mapping with a safe fallback
 - [x] Show motifs only on exact single-country cards while retaining flag and country name
 - [x] Remove large photography from regional/global cards and use neutral coverage iconography
-- [ ] Verify local and broader cards across countries at 360/390/430px
+- [x] Verify local and broader cards across countries at 360/390/430px
