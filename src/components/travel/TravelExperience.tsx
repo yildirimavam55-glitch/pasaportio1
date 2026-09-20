@@ -467,7 +467,7 @@ function ServiceHero({
   return (
     <section className="service-hero-shell mx-auto max-w-site px-3 pt-3 sm:px-6 sm:pt-5">
       <div
-        className="service-hero relative h-[21.25rem] rounded-hero sm:h-[26rem] sm:rounded-[1.75rem]"
+        className="service-hero relative h-[9rem] rounded-hero sm:h-[26rem] sm:rounded-[1.75rem]"
         data-service={service}
         data-search-mode={searchMode || undefined}
       >
