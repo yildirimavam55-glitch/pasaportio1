@@ -734,7 +734,7 @@ function RecommendedPackageCard({
         type="button"
         variant="ghost"
         size="sm"
-        className="absolute bottom-1 left-3 z-10 h-7 px-2 text-xs text-primary"
+        className="absolute right-3 top-3 z-10 h-8 bg-card/90 px-2.5 text-xs text-primary shadow-soft backdrop-blur"
         onClick={(event) => {
           event.stopPropagation();
           setShowWhy((open) => !open);
