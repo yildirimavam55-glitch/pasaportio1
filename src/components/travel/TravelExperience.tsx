@@ -217,6 +217,23 @@ function Experience({
     if (section.type === "HERO" || section.type === "SERVICE_SELECTOR") return null; // rendered explicitly
     switch (section.type) {
       case "FINDER":
+        if (service === "esim" && !assistantOpen) {
+          return (
+            <div
+              key={section.id}
+              className="service-finder-transition mx-auto mt-3 max-w-finder px-3 sm:px-6"
+              data-phase={phase ?? undefined}
+            >
+              <button
+                type="button"
+                onClick={() => setAssistantOpen(true)}
+                className="w-full rounded-2xl border border-dashed border-border bg-secondary/50 px-4 py-3 text-left text-sm font-semibold text-primary"
+              >
+                {ASSISTANT_COPY[locale].open}
+              </button>
+            </div>
+          );
+        }
         return (
           <div
             key={section.id}
