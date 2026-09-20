@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { z } from "zod";
-import { ArrowLeft, CalendarDays, Clock3, MapPin, PlaneLanding, PlaneTakeoff, ArrowRightLeft, Users } from "lucide-react";
+import { ArrowLeft, CalendarDays, Check, Clock3, MapPin, PlaneLanding, PlaneTakeoff, ArrowRightLeft, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { PublicShell } from "@/components/travel/PublicShell";
 import { CheckoutPausedNote, ServicePausedState, useServiceAvailability } from "@/components/travel/ServiceAvailability";
@@ -86,14 +86,14 @@ function LoungeOptionsPage() {
 
   return (
     <PublicShell activeService="lounge">
-      <section className="mx-auto max-w-site px-4 py-6 sm:px-6">
+      <section className="mx-auto max-w-site px-4 pb-[calc(7rem+env(safe-area-inset-bottom))] pt-5 sm:px-6 sm:py-8 md:pb-8">
         <Link to="/lounge" className="inline-flex items-center gap-1 text-sm font-semibold text-primary">
           <ArrowLeft className="size-4" /> {copy.back}
         </Link>
-        <h1 className="mt-3 font-display text-2xl font-bold sm:text-3xl">{copy.title}</h1>
+        <h1 className="mt-3 font-display text-3xl font-bold leading-tight sm:text-4xl">{copy.title}</h1>
         <p className="mt-1 text-sm text-muted-foreground">{copy.lead}</p>
 
-        <div className="mt-4 flex flex-wrap items-center gap-x-3 gap-y-2 rounded-card border border-border bg-card p-4 text-sm font-semibold shadow-card">
+        <div className="mt-5 flex flex-wrap items-center gap-x-3 gap-y-2 rounded-2xl border border-border/70 bg-secondary/55 p-4 text-sm font-semibold">
           <span className="flex items-center gap-1.5">
             {airport && <CountryFlag iso={airport.countryIso} />}
             <MapPin className="size-4 text-primary" aria-hidden="true" />
@@ -111,9 +111,9 @@ function LoungeOptionsPage() {
             {[0, 1, 2].map((key) => <div key={key} className="h-44 animate-pulse rounded-card bg-secondary" />)}
           </div>
         ) : options.length ? (
-          <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            {options.map((option) => (
-              <LoungeCard key={option.id} option={option} travelers={search.travelers} copy={copy} locale={locale} search={search} />
+          <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {options.map((option, index) => (
+              <LoungeCard key={option.id} option={option} featured={index === 0} travelers={search.travelers} copy={copy} locale={locale} search={search} />
             ))}
           </div>
         ) : (
@@ -129,7 +129,7 @@ function LoungeOptionsPage() {
   );
 }
 
-function LoungeCard({ option, travelers, copy, locale, search }: { option: LoungeOption; travelers: number; copy: (typeof COPY)["tr"]; locale: Locale; search: { date: string; situation: string } }) {
+function LoungeCard({ option, featured, travelers, copy, locale, search }: { option: LoungeOption; featured: boolean; travelers: number; copy: (typeof COPY)["tr"]; locale: Locale; search: { date: string; situation: string } }) {
   const { lines, addLine } = useCart();
   const availability = useServiceAvailability();
   const inCart = lines.some((line) => line.productId === option.id);
@@ -137,7 +137,8 @@ function LoungeCard({ option, travelers, copy, locale, search }: { option: Loung
   const money = (value: number) => new Intl.NumberFormat(undefined, { style: "currency", currency: option.currency }).format(value);
 
   return (
-    <article className="flex flex-col rounded-card border border-border bg-card p-5 shadow-card">
+    <article className={`relative flex flex-col overflow-hidden rounded-[1.5rem] border bg-card p-5 shadow-card ${featured ? "border-primary/40 sm:col-span-2 lg:col-span-1" : "border-border"}`}>
+      {featured && <div className="-mx-5 -mt-5 mb-4 flex h-28 items-end bg-primary p-4 text-primary-foreground"><span className="rounded-full bg-card px-3 py-1 text-xs font-bold text-primary">{copy.select}</span></div>}
       <div className="flex items-start justify-between gap-2">
         <strong className="font-display text-lg">{option.loungeName ?? option.name}</strong>
         {option.isTest && <span className="shrink-0 rounded-full border border-primary px-2 py-0.5 text-xs font-bold text-primary">TEST</span>}
@@ -153,7 +154,7 @@ function LoungeCard({ option, travelers, copy, locale, search }: { option: Loung
       {option.amenities.length > 0 && (
         <ul className="mt-3 flex flex-wrap gap-1.5">
           {option.amenities.slice(0, 6).map((amenity) => (
-            <li key={amenity} className="rounded-full bg-secondary px-2 py-1 text-xs font-semibold text-muted-foreground">{AMENITY_LABELS[locale][amenity] ?? amenity}</li>
+            <li key={amenity} className="inline-flex items-center gap-1 rounded-full bg-secondary px-2.5 py-1.5 text-xs font-semibold text-muted-foreground"><Check className="size-3 text-primary" />{AMENITY_LABELS[locale][amenity] ?? amenity}</li>
           ))}
         </ul>
       )}
@@ -164,7 +165,7 @@ function LoungeCard({ option, travelers, copy, locale, search }: { option: Loung
       {availability.lounge.checkout ? (
         <Button
           variant="cta"
-          className="mt-3 w-full"
+           className="mt-4 h-12 w-full"
           disabled={inCart}
           onClick={() => addLine({ productId: option.id, serviceType: "LOUNGE", name: option.loungeName ?? option.name, meta: "", price, currency: option.currency, quantity: travelers, isTest: option.isTest, airport: option.iata, terminal: option.terminal, date: search.date || null, situation: search.situation })}
         >

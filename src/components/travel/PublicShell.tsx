@@ -44,7 +44,7 @@ function Brand() {
       aria-label="Ana sayfa"
       className="flex shrink-0 items-center gap-2 text-primary"
     >
-      <span className="grid size-9 place-items-center rounded-full bg-primary text-primary-foreground shadow-brand">
+      <span className="grid size-9 place-items-center rounded-xl bg-primary text-primary-foreground shadow-brand">
         <Signal className="size-5" aria-hidden="true" />
       </span>
       <span className="font-display text-xl font-bold">{BRAND.name}</span>
@@ -147,8 +147,8 @@ export function PublicShell({
   };
   return (
     <div className="min-h-screen bg-background text-foreground">
-      <header className="sticky top-0 z-50 border-b border-border/70 bg-background/95 backdrop-blur-lg">
-        <div className="mx-auto grid min-h-12 max-w-site grid-cols-[minmax(0,1fr)_auto] items-center gap-2 px-3 sm:min-h-16 sm:gap-3 sm:px-6 lg:flex">
+      <header className="sticky top-0 z-50 border-b border-border/60 bg-background/95 backdrop-blur-lg">
+        <div className="mx-auto grid min-h-14 max-w-site grid-cols-[minmax(0,1fr)_auto] items-center gap-2 px-3 sm:min-h-16 sm:gap-3 sm:px-6 lg:flex">
           <Brand />
           <nav
             className="hidden min-w-0 flex-1 items-center justify-center gap-1 lg:flex"
@@ -316,7 +316,7 @@ export function PublicShell({
       <main>{children}</main>
       <PublicFooter fallback={copy.footer} supportLabel={copy.nav.support} />
       <nav
-        className="fixed inset-x-0 bottom-0 z-50 border-t border-border bg-background/98 pb-safe shadow-nav md:hidden"
+        className="fixed inset-x-0 bottom-0 z-50 border-t border-border/80 bg-card/98 pb-safe shadow-nav backdrop-blur md:hidden"
         aria-label="Mobil menü"
       >
         <div className="grid grid-cols-4">

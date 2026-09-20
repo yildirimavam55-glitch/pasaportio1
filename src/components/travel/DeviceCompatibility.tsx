@@ -312,14 +312,14 @@ export function DeviceCompatibilitySection() {
   const { compatibilityChecked, deviceModel, compatibilityResult } = useDeviceCheck();
 
   return (
-    <section className="mx-auto mt-6 max-w-finder px-3 sm:px-6">
-      <div className="rounded-card border border-border bg-card p-4 shadow-card sm:flex sm:items-center sm:justify-between sm:gap-4 sm:p-5">
+    <section className="mx-auto mt-7 max-w-finder px-3 sm:px-6">
+      <div className="rounded-[1.5rem] border border-accent/60 bg-accent-soft p-5 shadow-soft sm:flex sm:items-center sm:justify-between sm:gap-5 sm:p-7">
         <div className="min-w-0">
-          <h2 className="flex items-center gap-2 font-display text-lg font-bold">
-            <span className="icon-slot-sm text-primary"><Smartphone aria-hidden="true" /></span>
+          <h2 className="flex items-center gap-2 font-display text-xl font-bold sm:text-2xl">
+            <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-card text-primary shadow-soft"><Smartphone aria-hidden="true" /></span>
             <span className="leading-tight">{copy.sectionTitle}</span>
           </h2>
-          <p className="mt-1 text-sm text-muted-foreground">{copy.sectionLead}</p>
+          <p className="mt-2 text-sm leading-6 text-muted-foreground">{copy.sectionLead}</p>
           {compatibilityChecked && compatibilityResult && (
             <p className="mt-2 flex items-center gap-1.5 text-sm font-semibold">
               <StatusIcon status={compatibilityResult} />
@@ -330,7 +330,7 @@ export function DeviceCompatibilitySection() {
         <div className="mt-3 sm:mt-0 sm:shrink-0">
           <DeviceCheckSheet
             surface="finder"
-            trigger={<Button variant="outline" className="w-full sm:w-auto"><Smartphone />{compatibilityChecked ? copy.change : copy.check}</Button>}
+            trigger={<Button variant="default" size="lg" className="w-full sm:w-auto"><Smartphone />{compatibilityChecked ? copy.change : copy.check}</Button>}
           />
           <p className="mt-2 flex items-center gap-1 text-xs text-muted-foreground">
             <HelpCircle className="size-3.5" aria-hidden="true" />
