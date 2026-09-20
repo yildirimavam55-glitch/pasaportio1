@@ -225,3 +225,11 @@
 - [x] Collapse the mobile hero to header, search input, and autocomplete results
 - [x] Preserve active service and restore the selector after close, blur, submit, or selection
 - [x] Verify eSIM and Lounge flows at 360/390/430px
+
+## Compact product-led eSIM + Lounge hero
+
+- [x] Apply the selected Commerce Hero Refinement direction using Travely tokens
+- [x] Use product-explicit eSIM connection and airport Lounge imagery
+- [x] Keep the country/airport search overlaid inside a compact 340px mobile hero
+- [x] Add concise TR/DE/EN service-specific copy without changing search or service logic
+- [x] Verify both services and search focus mode at 360/390/430px

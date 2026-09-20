@@ -1,8 +1,8 @@
 import { ArrowRight } from "lucide-react";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { useQuery } from "@tanstack/react-query";
-import esimHero from "@/assets/travely-esim-hero.jpg";
-import loungeHero from "@/assets/travely-lounge-hero.jpg";
+import esimHero from "@/assets/travely-esim-hero-compact.jpg";
+import loungeHero from "@/assets/travely-lounge-hero-compact.jpg";
 import { Button } from "@/components/ui/button";
 import { useI18n } from "@/i18n";
 import {
@@ -400,43 +400,43 @@ const SERVICE_HERO_COPY = {
   tr: {
     esim: {
       eyebrow: "Seyahat eSIM’i",
-      headline: "Dünyayı keşfet, bağlantıda kal",
-      description: "Gideceğin ülkeyi seç, sana uygun internet paketlerine hemen ulaş.",
-      alt: "Havalimanında telefonundan seyahat bağlantısını hazırlayan yolcu",
+      headline: "Seyahatte bağlantın hazır.",
+      description: "Ülkeni seç, standart veya sınırsız eSIM paketlerini saniyeler içinde gör.",
+      alt: "Havalimanında telefonunda aktif eSIM bağlantısını gösteren yolcu",
     },
     lounge: {
       eyebrow: "Havalimanı Lounge",
-      headline: "Yolculuk başlamadan rahatla",
-      description: "Havalimanını seç, uçuşundan önce konforlu bir mola bul.",
-      alt: "Havalimanı lounge alanında uçuşunu bekleyen yolcu",
+      headline: "Yolculuğuna konfor kat.",
+      description: "Havalimanını seç, uygun lounge seçeneklerini hızlıca keşfet.",
+      alt: "Uçak manzaralı premium havalimanı lounge alanında dinlenen yolcu",
     },
   },
   de: {
     esim: {
       eyebrow: "Reise-eSIM",
-      headline: "Entdecke die Welt. Bleib verbunden.",
-      description: "Wähle dein Reiseland und finde sofort den passenden Datentarif.",
-      alt: "Reisende bereitet am Flughafen ihre mobile Verbindung vor",
+      headline: "Deine Verbindung ist startklar.",
+      description: "Wähle dein Land und entdecke Standard- oder Unlimited-eSIMs in Sekunden.",
+      alt: "Reisende zeigt am Flughafen ihre aktive eSIM-Verbindung",
     },
     lounge: {
       eyebrow: "Airport Lounge",
-      headline: "Entspannt reisen, bevor es losgeht",
-      description: "Wähle deinen Flughafen und finde eine komfortable Pause vor dem Flug.",
-      alt: "Reisende entspannt vor ihrem Flug in einer Flughafenlounge",
+      headline: "Mehr Komfort für deine Reise.",
+      description: "Wähle deinen Flughafen und entdecke schnell passende Lounges.",
+      alt: "Reisende entspannt in einer Premium-Flughafenlounge mit Blick aufs Rollfeld",
     },
   },
   en: {
     esim: {
       eyebrow: "Travel eSIM",
-      headline: "Explore the world. Stay connected.",
-      description: "Choose your destination and find the right data plan in seconds.",
-      alt: "Traveler preparing mobile connectivity at the airport",
+      headline: "Stay connected as you travel.",
+      description: "Choose your country and see standard or unlimited eSIM plans in seconds.",
+      alt: "Traveler showing an active eSIM connection at the airport",
     },
     lounge: {
       eyebrow: "Airport Lounge",
-      headline: "Relax before the journey begins",
-      description: "Choose your airport and find a comfortable pause before your flight.",
-      alt: "Traveler relaxing in an airport lounge before a flight",
+      headline: "Add comfort to your journey.",
+      description: "Choose your airport and quickly discover available lounge options.",
+      alt: "Traveler relaxing in a premium airport lounge overlooking the apron",
     },
   },
 } as const;
@@ -461,7 +461,7 @@ function ServiceHero({
   return (
     <section className="service-hero-shell mx-auto max-w-site px-3 pt-3 sm:px-6 sm:pt-5">
       <div
-        className="service-hero relative min-h-[31rem] rounded-hero sm:min-h-[34rem] sm:rounded-[1.75rem]"
+        className="service-hero relative h-[21.25rem] rounded-hero sm:h-[26rem] sm:rounded-[1.75rem]"
         data-service={service}
         data-search-mode={searchMode || undefined}
       >
@@ -479,19 +479,21 @@ function ServiceHero({
           <div className="service-hero-scrim absolute inset-0" />
         </div>
         <div
-          className="service-hero-content relative z-10 flex min-h-[31rem] flex-col p-5 sm:min-h-[34rem] sm:p-10 lg:p-14"
+          className="service-hero-content relative z-10 flex h-full flex-col p-5 sm:p-8 lg:p-10"
           data-phase={phase ?? undefined}
         >
-          <div className="service-hero-copy max-w-xl pt-1 sm:pt-3">
-            <p className="text-sm font-bold uppercase text-primary">{copy.eyebrow}</p>
-            <h1 className="mt-3 max-w-[19rem] font-display text-[2.55rem] font-bold leading-[1.02] text-balance text-foreground sm:max-w-2xl sm:text-6xl">
+          <div className="service-hero-copy max-w-xl">
+            <p className="text-xs font-bold uppercase text-primary-foreground/85 sm:text-sm">
+              {copy.eyebrow}
+            </p>
+            <h1 className="mt-2 max-w-[17rem] font-display text-[1.85rem] font-bold leading-[1.08] text-balance text-primary-foreground sm:max-w-xl sm:text-[2.65rem]">
               {copy.headline}
             </h1>
-            <p className="mt-3 max-w-[20rem] text-[15px] font-medium leading-6 text-foreground/80 sm:max-w-lg sm:text-lg">
+            <p className="mt-2 max-w-[18rem] text-sm font-medium leading-5 text-primary-foreground/85 sm:max-w-lg sm:text-base sm:leading-6">
               {copy.description}
             </p>
           </div>
-          <div className="service-hero-search relative z-20 mt-auto w-full max-w-xl pt-7">
+          <div className="service-hero-search relative z-20 mt-auto w-full max-w-xl pt-4">
             <QuickSearch
               service={service}
               onAirportSelect={onAirportSelect}
