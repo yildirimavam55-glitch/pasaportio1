@@ -7,7 +7,24 @@
 export const COMPATIBILITY_STATUSES = ["COMPATIBLE", "UNCERTAIN", "NOT_COMPATIBLE"] as const;
 export type CompatibilityStatus = (typeof COMPATIBILITY_STATUSES)[number];
 
-export const DEVICE_BRANDS = ["Apple", "Samsung", "Google", "Xiaomi", "Motorola", "Huawei", "Other"] as const;
+export const DEVICE_BRANDS = [
+  "Apple",
+  "Samsung",
+  "Google",
+  "Xiaomi",
+  "Motorola",
+  "Huawei",
+  "OnePlus",
+  "Oppo",
+  "Honor",
+  "Sony",
+  "Nothing",
+  "Fairphone",
+  "Asus",
+  "Vivo",
+  "Realme",
+  "Other",
+] as const;
 export type DeviceBrand = (typeof DEVICE_BRANDS)[number];
 
 export type DeviceRecord = {
