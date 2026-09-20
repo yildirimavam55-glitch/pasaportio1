@@ -217,3 +217,10 @@
 - [x] Place the existing country/airport quick search inside the hero
 - [x] Keep the service switch below the hero and preserve existing commerce behavior
 - [x] Verify both services at 360/375/390/412/430px
+
+## Mobile search focus mode
+
+- [x] Hide the service selector and secondary content while country/airport search is open
+- [x] Collapse the mobile hero to header, search input, and autocomplete results
+- [x] Preserve active service and restore the selector after close, blur, submit, or selection
+- [ ] Verify eSIM and Lounge flows at 360/390/430px

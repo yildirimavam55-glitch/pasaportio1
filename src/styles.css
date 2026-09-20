@@ -513,6 +513,7 @@
 
 .service-hero {
   background: var(--color-lavender-soft);
+  transition: min-height 0.22s cubic-bezier(0.16, 1, 0.3, 1);
 }
 .service-hero[data-service="lounge"] {
   background: var(--color-primary-soft);
@@ -550,6 +551,67 @@
 }
 .service-hero-content[data-phase="incoming"] {
   animation: service-content-in 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+.quick-search-container {
+  z-index: 60;
+}
+.quick-search-results {
+  z-index: 70;
+  max-height: min(22rem, calc(100dvh - 10.5rem));
+  overscroll-behavior: contain;
+  animation: quick-search-results-in 0.24s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@media (max-width: 639px) {
+  .service-hero-shell:has(.service-hero[data-search-mode="true"]) {
+    position: relative;
+    z-index: 40;
+  }
+  .service-hero[data-search-mode="true"],
+  .service-hero[data-search-mode="true"] .service-hero-content {
+    min-height: 5.5rem;
+  }
+  .service-hero[data-search-mode="true"] .service-hero-content {
+    padding: 0.75rem;
+  }
+  .service-hero-copy,
+  .service-hero-visual {
+    transition:
+      opacity 0.2s cubic-bezier(0.16, 1, 0.3, 1),
+      transform 0.2s cubic-bezier(0.16, 1, 0.3, 1),
+      visibility 0s linear 0s;
+  }
+  .service-hero[data-search-mode="true"] .service-hero-copy,
+  .service-hero[data-search-mode="true"] .service-hero-visual {
+    visibility: hidden;
+    opacity: 0;
+    transform: translate3d(0, 6px, 0);
+    transition-delay: 0s, 0s, 0.2s;
+  }
+  .service-hero[data-search-mode="true"] .service-hero-copy {
+    position: absolute;
+    pointer-events: none;
+  }
+  .service-hero-search {
+    transition: padding-top 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .service-hero[data-search-mode="true"] .service-hero-search {
+    margin-top: 0;
+    padding-top: 0;
+  }
+  .experience-secondary {
+    transition:
+      opacity 0.2s cubic-bezier(0.16, 1, 0.3, 1),
+      transform 0.2s cubic-bezier(0.16, 1, 0.3, 1),
+      visibility 0s linear 0s;
+  }
+  .experience-secondary[data-search-mode="true"] {
+    visibility: hidden;
+    opacity: 0;
+    transform: translate3d(0, 6px, 0);
+    pointer-events: none;
+    transition-delay: 0s, 0s, 0.2s;
+  }
 }
 
 @media (min-width: 640px) {
@@ -701,6 +763,16 @@
     transform: translate3d(0, 0, 0);
   }
 }
+@keyframes quick-search-results-in {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 8px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
 @keyframes finder-result-in {
   from {
     opacity: 0;
@@ -747,6 +819,16 @@
     animation-duration: 0.01ms;
     transform: none;
     transition-duration: 0.01ms;
+  }
+  .service-hero,
+  .service-hero-copy,
+  .service-hero-visual,
+  .service-hero-search,
+  .experience-secondary {
+    transition: none;
+  }
+  .quick-search-results {
+    animation: none;
   }
   .compatibility-backdrop,
   .compatibility-sheet {
