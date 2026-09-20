@@ -507,6 +507,97 @@
 .service-finder-transition[data-phase="incoming"] {
   animation: service-content-in 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
+
+.esim-package-rail {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(9.5rem, 43vw);
+  gap: 0.75rem;
+  margin-inline: -1rem;
+  padding: 0.35rem 1rem 0.9rem;
+  overflow-x: auto;
+  overscroll-behavior-inline: contain;
+  scroll-padding-inline: 1rem;
+  scroll-snap-type: inline mandatory;
+  scrollbar-width: none;
+}
+.esim-package-rail::-webkit-scrollbar {
+  display: none;
+}
+.esim-package-rail.is-orb {
+  grid-auto-columns: 8.8rem;
+  align-items: center;
+  gap: 0.9rem;
+  padding-block: 0.9rem 1.15rem;
+}
+.esim-rail-card {
+  position: relative;
+  min-width: 0;
+  height: 9rem;
+  overflow: hidden;
+  scroll-snap-align: center;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-card);
+  background: var(--color-card);
+  padding: 0.85rem;
+  box-shadow: 0 8px 22px color-mix(in oklab, var(--foreground) 7%, transparent);
+  color: var(--color-foreground);
+  transition:
+    border-color 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+    background-color 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.esim-rail-card.orb {
+  width: 8.8rem;
+  height: 8.8rem;
+  border-radius: 9999px;
+  padding: 1rem;
+}
+.esim-rail-card.coverage {
+  height: 8.5rem;
+  border-color: transparent;
+  color: var(--color-primary-foreground);
+}
+.esim-rail-card.coverage:nth-child(3n + 1) img {
+  object-position: 30% center;
+}
+.esim-rail-card.coverage:nth-child(3n + 2) img {
+  object-position: 55% center;
+}
+.esim-rail-card.coverage:nth-child(3n) img {
+  object-position: 78% center;
+}
+.esim-rail-card.is-selected {
+  border-color: var(--color-primary);
+  background: var(--color-primary-soft);
+  box-shadow: 0 12px 30px color-mix(in oklab, var(--primary) 20%, transparent);
+  transform: translateY(-2px);
+}
+.esim-rail-card.orb.is-selected {
+  box-shadow:
+    0 0 0 3px var(--color-background),
+    0 0 0 5px var(--color-primary),
+    0 14px 34px color-mix(in oklab, var(--primary) 24%, transparent);
+}
+.esim-rail-card.coverage.is-selected {
+  box-shadow:
+    0 0 0 2px var(--color-primary),
+    0 12px 30px color-mix(in oklab, var(--primary) 22%, transparent);
+}
+@media (min-width: 640px) {
+  .esim-package-rail {
+    grid-auto-columns: 14rem;
+    margin-inline: 0;
+    padding-inline: 0.15rem;
+  }
+  .esim-package-rail.is-orb {
+    grid-auto-columns: 10rem;
+  }
+  .esim-rail-card.orb {
+    width: 10rem;
+    height: 10rem;
+  }
+}
 @keyframes service-content-in {
   from {
     opacity: 0;
@@ -557,5 +648,8 @@
   .compatibility-backdrop,
   .compatibility-sheet {
     animation-duration: 0.01ms;
+  }
+  .esim-rail-card {
+    transition: none;
   }
 }

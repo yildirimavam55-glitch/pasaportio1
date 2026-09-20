@@ -143,6 +143,7 @@
 - [ ] Playwright QA at 360/390/430: no overflow, correct service switching, backend logic intact
 
 ## eSIM katalog bölümleri (tamamlandı)
+
 - Tüm paketler tedarikçi kataloğundan gelir; storefront'ta mock/hard-coded paket listesi yok.
 - Ürünler provider + provider ürün kimliğine göre tekilleştirilir.
 - Her ürün tek bir kategoriye girer: Önerilen > Sınırsız > Daha geniş kapsam > Standart.
@@ -150,8 +151,9 @@
 - Güvenlik kontrolü + sayaç invariantı ve 10 otomatik test eklendi.
 
 ## eSIM sonuç sayfası — premium swipe tasarımı
-- [ ] Referans görsele uygun mobil sonuç sayfası yönünü netleştir
-- [ ] Önerilen kartı ve üç açık swipe bölümünü mevcut katalog sınıflandırmasına bağla
-- [ ] Hafif ülke görsel eşlemesi ve generic fallback ekle
-- [ ] Sticky sepet çubuğunu bottom navigation üzerinde güvenli konumlandır
-- [ ] TR/DE/EN ve 360/375/390/412/430 px doğrulaması yap
+
+- [x] Referans görsele uygun mobil sonuç sayfası yönünü netleştir
+- [x] Önerilen kartı ve üç açık swipe bölümünü mevcut katalog sınıflandırmasına bağla
+- [x] Hafif ülke görsel eşlemesi ve generic fallback ekle
+- [x] Sticky sepet çubuğunu bottom navigation üzerinde güvenli konumlandır
+- [x] TR/DE/EN ve 360/375/390/412/430 px doğrulaması yap
