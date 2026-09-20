@@ -43,9 +43,11 @@ const COPY = {
 export function QuickSearch({
   service,
   onAirportSelect,
+  embedded = false,
 }: {
   service: ServiceSlug;
   onAirportSelect: (airportId: string) => void;
+  embedded?: boolean;
 }) {
   const { locale } = useI18n();
   const copy = COPY[locale];
@@ -123,8 +125,11 @@ export function QuickSearch({
   };
 
   return (
-    <div ref={boxRef} className="relative mx-auto mt-3 max-w-finder px-3 sm:px-6">
-      <div className="flex items-center gap-2 rounded-2xl border border-border/80 bg-card p-2 shadow-card">
+    <div
+      ref={boxRef}
+      className={embedded ? "relative w-full" : "relative mx-auto mt-3 max-w-finder px-3 sm:px-6"}
+    >
+      <div className="flex items-center gap-2 rounded-2xl border border-border/80 bg-card p-2 shadow-panel">
         <Input
           value={query}
           onChange={(event) => {
@@ -154,7 +159,9 @@ export function QuickSearch({
         </Button>
       </div>
       {open && (
-        <div className="absolute inset-x-3 top-full z-40 mt-1 overflow-hidden rounded-2xl border border-border bg-card shadow-panel sm:inset-x-6">
+        <div
+          className={`absolute top-full z-40 mt-1 overflow-hidden rounded-2xl border border-border bg-card shadow-panel ${embedded ? "inset-x-0" : "inset-x-3 sm:inset-x-6"}`}
+        >
           {service === "esim" ? (
             countries.length ? (
               countries.map((country) => (

@@ -1,14 +1,13 @@
-import { ArrowRight, Globe2, MapPin, Search, ShieldCheck, Zap } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { useQuery } from "@tanstack/react-query";
-import sharedHeroDesktop from "@/assets/shared-travel-hero-desktop.jpg";
-import sharedHeroMobile from "@/assets/shared-travel-hero-mobile.jpg";
+import esimHero from "@/assets/travely-esim-hero.jpg";
+import loungeHero from "@/assets/travely-lounge-hero.jpg";
 import { Button } from "@/components/ui/button";
 import { useI18n } from "@/i18n";
 import {
   ESIM_CONTENT,
   LOUNGE_CONTENT,
-  SHARED_HERO_CONTENT,
   localized,
   type ServiceSlug,
 } from "@/content/travel-content";
@@ -21,7 +20,7 @@ import {
   type StorefrontConfig,
   type StorefrontSection,
 } from "@/domain/storefront/registry";
-import { HERO_HEIGHT_CLASS, surfaceClasses, widthClass } from "@/domain/storefront/styles";
+import { surfaceClasses, widthClass } from "@/domain/storefront/styles";
 import { getPublishedStorefront } from "@/lib/storefront.functions";
 import { StorefrontProvider } from "@/components/storefront/StorefrontContext";
 import { FinderShell, EsimFinder, LoungeFinder } from "./Finder";
@@ -66,15 +65,8 @@ export function TravelExperience({
     queryFn: () => getPublishedStorefront({ data: { service } }),
     staleTime: 60 * 1000,
   });
-  const sharedPublished = useQuery({
-    queryKey: ["storefront", "global"],
-    queryFn: () => getPublishedStorefront({ data: { service: "global" } }),
-    staleTime: 60 * 1000,
-  });
   const availability = useServiceAvailability();
   const config = published.data?.config ?? defaultStorefront(service);
-  const sharedConfig = sharedPublished.data?.config ?? defaultStorefront("global");
-  const sharedHero = sharedConfig.sections.find((section) => section.type === "HERO");
 
   /** A paused service keeps its navigation but stops new discovery. */
   if (!availability.isPending && !availability[service].storefront) {
@@ -91,8 +83,6 @@ export function TravelExperience({
         service={service}
         onServiceChange={onServiceChange}
         config={config}
-        sharedHero={sharedHero}
-        sharedMedia={sharedPublished.data?.media ?? {}}
       />
     </StorefrontProvider>
   );
@@ -102,14 +92,10 @@ function Experience({
   service,
   onServiceChange,
   config,
-  sharedHero,
-  sharedMedia,
 }: {
   service: ServiceSlug;
   onServiceChange: (service: ServiceSlug) => void;
   config: StorefrontConfig;
-  sharedHero: StorefrontSection | undefined;
-  sharedMedia: Record<string, { url: string; alt: string; focalX: number; focalY: number }>;
 }) {
   const { locale } = useI18n();
   const copy = localized(service === "esim" ? ESIM_CONTENT : LOUNGE_CONTENT, locale);
@@ -220,7 +206,7 @@ function Experience({
   const scrollToFinder = () => smoothlyShowFinder();
 
   const selectorSection = config.sections.find((s) => s.type === "SERVICE_SELECTOR");
-  const render = (section: StorefrontSection, index: number): ReactNode => {
+  const render = (section: StorefrontSection): ReactNode => {
     if (!section.visible) return null;
     if (section.type === "HERO" || section.type === "SERVICE_SELECTOR") return null; // rendered explicitly
     switch (section.type) {
@@ -337,7 +323,15 @@ function Experience({
 
   return (
     <PublicShell activeService={service} onServiceChange={requestServiceChange}>
-      <div id="service-selector" className="mx-auto max-w-finder px-3 pt-3 sm:pt-6 sm:px-6">
+      <ServiceHero
+        service={service}
+        phase={phase}
+        onAirportSelect={(airportId) => {
+          setLoungeState((prev) => ({ ...prev, airportId }));
+          smoothlyShowFinder();
+        }}
+      />
+      <div id="service-selector" className="mx-auto max-w-finder px-3 pt-3 sm:px-6 sm:pt-5">
         <div
           className="service-selector relative grid grid-cols-2 rounded-xl border border-border/80 bg-secondary/70 p-1 shadow-soft"
           data-service={selectedService}
@@ -359,18 +353,6 @@ function Experience({
           </ServiceButton>
         </div>
       </div>
-      <QuickSearch
-        service={service}
-        onAirportSelect={(airportId) => {
-          setLoungeState((prev) => ({ ...prev, airportId }));
-          smoothlyShowFinder();
-        }}
-      />
-      {sharedHero && (
-        <div className="hidden sm:block">
-          <Hero section={sharedHero} media={sharedMedia} onFind={scrollToFinder} />
-        </div>
-      )}
       {config.sections.map(render)}
     </PublicShell>
   );
@@ -410,101 +392,92 @@ function ServiceButton({
   );
 }
 
-function Hero({
-  section,
-  media,
-  onFind,
+const SERVICE_HERO_COPY = {
+  tr: {
+    esim: {
+      eyebrow: "Seyahat eSIM’i",
+      headline: "Dünyayı keşfet, bağlantıda kal",
+      description: "Gideceğin ülkeyi seç, sana uygun internet paketlerine hemen ulaş.",
+      alt: "Havalimanında telefonundan seyahat bağlantısını hazırlayan yolcu",
+    },
+    lounge: {
+      eyebrow: "Havalimanı Lounge",
+      headline: "Yolculuk başlamadan rahatla",
+      description: "Havalimanını seç, uçuşundan önce konforlu bir mola bul.",
+      alt: "Havalimanı lounge alanında uçuşunu bekleyen yolcu",
+    },
+  },
+  de: {
+    esim: {
+      eyebrow: "Reise-eSIM",
+      headline: "Entdecke die Welt. Bleib verbunden.",
+      description: "Wähle dein Reiseland und finde sofort den passenden Datentarif.",
+      alt: "Reisende bereitet am Flughafen ihre mobile Verbindung vor",
+    },
+    lounge: {
+      eyebrow: "Airport Lounge",
+      headline: "Entspannt reisen, bevor es losgeht",
+      description: "Wähle deinen Flughafen und finde eine komfortable Pause vor dem Flug.",
+      alt: "Reisende entspannt vor ihrem Flug in einer Flughafenlounge",
+    },
+  },
+  en: {
+    esim: {
+      eyebrow: "Travel eSIM",
+      headline: "Explore the world. Stay connected.",
+      description: "Choose your destination and find the right data plan in seconds.",
+      alt: "Traveler preparing mobile connectivity at the airport",
+    },
+    lounge: {
+      eyebrow: "Airport Lounge",
+      headline: "Relax before the journey begins",
+      description: "Choose your airport and find a comfortable pause before your flight.",
+      alt: "Traveler relaxing in an airport lounge before a flight",
+    },
+  },
+} as const;
+
+function ServiceHero({
+  service,
+  phase,
+  onAirportSelect,
 }: {
-  section: StorefrontSection;
-  media: Record<string, { url: string; alt: string; focalX: number; focalY: number }>;
-  onFind: () => void;
+  service: ServiceSlug;
+  phase: "outgoing" | "incoming" | null;
+  onAirportSelect: (airportId: string) => void;
 }) {
   const { locale } = useI18n();
-  const copy = localized(SHARED_HERO_CONTENT, locale);
-  const desktop = section.mediaId ? media[section.mediaId] : undefined;
-  const mobileId = section.mobileMediaId ?? section.mediaId;
-  const mobile = mobileId ? media[mobileId] : undefined;
-  const [failed, setFailed] = useState(false);
-  const desktopSrc = failed ? sharedHeroDesktop : (desktop?.url ?? sharedHeroDesktop);
-  const mobileSrc = failed ? sharedHeroMobile : (mobile?.url ?? sharedHeroMobile);
-  const heightClass = HERO_HEIGHT_CLASS[section.height] ?? HERO_HEIGHT_CLASS["normal"];
-  const centered = section.align === "center";
-  const trustIcons = [Globe2, Zap, ShieldCheck];
+  const copy = SERVICE_HERO_COPY[locale][service];
+  const image = service === "esim" ? esimHero : loungeHero;
 
   return (
-    <section className={`mx-auto ${widthClass(section)} px-3 pt-3 sm:px-6 sm:pt-5`}>
-      <div
-        className={`relative ${heightClass} min-h-[31rem] overflow-hidden rounded-hero bg-primary sm:min-h-[34rem] sm:rounded-[1.75rem]`}
-      >
-        <picture>
-          <source media="(max-width: 639px)" srcSet={mobileSrc} />
+    <section className="mx-auto max-w-site px-3 pt-3 sm:px-6 sm:pt-5">
+      <div className="service-hero relative min-h-[31rem] rounded-hero sm:min-h-[34rem] sm:rounded-[1.75rem]" data-service={service}>
+        <div className="absolute inset-0 overflow-hidden rounded-[inherit] bg-lavender-soft">
           <img
-            src={desktopSrc}
-            onError={() => setFailed(true)}
-            alt={desktop?.alt || "Havalimanında telefonuyla seyahatini planlayan yolcu"}
-            width={1600}
-            height={1008}
+            key={service}
+            src={image}
+            alt={copy.alt}
+            width={1200}
+            height={1504}
             fetchPriority="high"
             decoding="async"
-            className="absolute inset-0 size-full object-cover"
-            style={{
-              objectPosition: desktop
-                ? `${desktop.focalX}% ${desktop.focalY}%`
-                : `${section.focalX}% ${section.focalY}%`,
-            }}
+            className="service-hero-image absolute inset-0 size-full object-cover"
           />
-        </picture>
-        <div
-          className="absolute inset-0 bg-hero-overlay"
-          style={{ opacity: section.overlay / 45 }}
-        />
-        <div
-          className={`relative flex ${heightClass} min-h-[31rem] flex-col justify-between gap-5 p-5 text-hero-foreground sm:min-h-[34rem] sm:p-10 lg:p-14 ${centered ? "mx-auto items-center text-center" : ""}`}
-        >
-          <div className="max-w-2xl pt-2 sm:pt-4">
-            <p className="mb-3 text-sm font-bold uppercase text-hero-foreground/85 sm:mb-4">
-              {tx(section, "eyebrow", locale, copy.eyebrow)}
-            </p>
-            <h1 className="font-display text-[2.45rem] font-bold leading-[1.02] text-balance sm:text-6xl">
-              {tx(section, "headline", locale, copy.headline)}
+          <div className="service-hero-scrim absolute inset-0" />
+        </div>
+        <div className="service-hero-content relative z-10 flex min-h-[31rem] flex-col p-5 sm:min-h-[34rem] sm:p-10 lg:p-14" data-phase={phase ?? undefined}>
+          <div className="max-w-xl pt-1 sm:pt-3">
+            <p className="text-sm font-bold uppercase text-primary">{copy.eyebrow}</p>
+            <h1 className="mt-3 max-w-[19rem] font-display text-[2.55rem] font-bold leading-[1.02] text-balance text-foreground sm:max-w-2xl sm:text-6xl">
+              {copy.headline}
             </h1>
-            <p className="mt-3 max-w-lg text-[15px] leading-6 text-hero-foreground/90 sm:mt-5 sm:text-lg">
-              {tx(section, "description", locale, copy.description)}
+            <p className="mt-3 max-w-[20rem] text-[15px] font-medium leading-6 text-foreground/80 sm:max-w-lg sm:text-lg">
+              {copy.description}
             </p>
-            <div className={`mt-5 sm:mt-7 ${centered ? "mx-auto" : ""}`}>
-              <Button
-                onClick={onFind}
-                variant="light"
-                size="lg"
-                className="grid h-14 w-full max-w-lg grid-cols-[auto_minmax(0,1fr)_auto] rounded-2xl px-3 text-left shadow-panel sm:h-16 sm:px-4"
-              >
-                <MapPin className="size-5 text-cta" />
-                <span className="min-w-0 text-[15px] font-bold text-foreground">
-                  {tx(section, "ctaLabel", locale, copy.cta)}
-                </span>
-                <span className="grid size-9 place-items-center rounded-xl bg-cta text-cta-foreground sm:size-10">
-                  <Search className="size-4 sm:size-5" />
-                </span>
-              </Button>
-            </div>
           </div>
-          <div className={`grid w-full grid-cols-3 gap-2 ${centered ? "mx-auto" : ""}`}>
-            {copy.trust.map((label, index) => {
-              const TrustIcon = trustIcons[index] ?? ShieldCheck;
-              return (
-                <div
-                  key={label}
-                  className="flex min-w-0 items-center gap-1.5 rounded-xl bg-card/92 px-2 py-2.5 text-card-foreground shadow-soft backdrop-blur sm:max-w-[11rem] sm:px-3"
-                >
-                  <span className="grid size-6 shrink-0 place-items-center rounded-full bg-primary-soft text-primary sm:size-7">
-                    <TrustIcon className="size-3 sm:size-3.5" />
-                  </span>
-                  <span className="min-w-0 text-[11px] font-semibold leading-tight sm:text-xs">
-                    {label}
-                  </span>
-                </div>
-              );
-            })}
+          <div className="relative z-20 mt-auto w-full max-w-xl pt-7">
+            <QuickSearch service={service} onAirportSelect={onAirportSelect} embedded />
           </div>
         </div>
       </div>

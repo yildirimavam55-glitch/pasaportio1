@@ -209,3 +209,11 @@
 - [x] Direct catalogue mode on the package page (no usage box, no auto recommendation)
 - [x] Quantity and sticky purchase bar appear after a real selection
 - [x] Verified TR/DE/EN at 360–430px, tests and build passing
+
+## Service-specific Travely hero
+
+- [x] Add original eSIM connectivity and Lounge comfort imagery
+- [x] Use one shared mobile hero structure with service-specific TR/DE/EN copy
+- [x] Place the existing country/airport quick search inside the hero
+- [x] Keep the service switch below the hero and preserve existing commerce behavior
+- [x] Verify both services at 360/375/390/412/430px
