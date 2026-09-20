@@ -216,4 +216,4 @@
 - [x] Use one shared mobile hero structure with service-specific TR/DE/EN copy
 - [x] Place the existing country/airport quick search inside the hero
 - [x] Keep the service switch below the hero and preserve existing commerce behavior
-- [ ] Verify both services at 360/375/390/412/430px
+- [x] Verify both services at 360/375/390/412/430px
