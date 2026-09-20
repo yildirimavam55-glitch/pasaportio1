@@ -24,10 +24,11 @@ const sectionOf = (sections: ReturnType<typeof buildCatalogueSections>, id: stri
 
 const assertInvariant = (sections: ReturnType<typeof buildCatalogueSections>) => {
   const c = sections.counters;
-  expect(c.recommended + c.standard + c.unlimited + c.broaderCoverageTotal).toBe(c.unique);
+  expect(c.recommended + c.standard + c.unlimitedTotal + c.broaderCoverageTotal).toBe(c.unique);
   expect(sections.duplicates).toEqual([]);
   expect(new Set(sections.all.map((p) => p.id)).size).toBe(sections.all.length);
 };
+
 
 describe("buildCatalogueSections", () => {
   it("TEST 1: the same provider product id is rendered once", () => {
