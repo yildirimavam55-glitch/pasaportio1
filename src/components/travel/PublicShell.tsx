@@ -166,6 +166,14 @@ export function PublicShell({
   const selectAndFind = (service: ServiceSlug) => {
     onServiceChange?.(service, { scrollToFinder: true });
   };
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  const signOut = async () => {
+    await queryClient.cancelQueries();
+    queryClient.clear();
+    await supabase.auth.signOut();
+    void navigate({ to: "/auth", replace: true });
+  };
   return (
     <div className="min-h-screen bg-background text-foreground">
       <header className="sticky top-0 z-50 border-b border-border/60 bg-background/95 backdrop-blur-lg">
