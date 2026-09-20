@@ -38,7 +38,6 @@ import { Reveal } from "./Reveal";
 import { useServiceSwitchTransition } from "./ServiceSwitchTransition";
 import { EsimServiceIcon, LoungeServiceIcon } from "./ServiceIcons";
 import {
-  CampaignBanner,
   DeliveryConfidence,
   HowItWorks,
   ImageTextSection,
