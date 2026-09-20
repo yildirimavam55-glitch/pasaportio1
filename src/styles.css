@@ -1008,9 +1008,23 @@
 .country-scene-fallback > span:first-child {
   font-size: 1.5rem;
 }
-.country-scene.is-region svg {
-  opacity: 0.26;
-  padding: 12%;
+.country-scene.is-region img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.country-scene.is-region.has-photo {
+  background: var(--color-muted);
+}
+/* Never an empty icon panel: missing region art degrades to a warm gradient. */
+.country-scene.is-region-fallback {
+  background: linear-gradient(
+    150deg,
+    color-mix(in oklab, var(--color-primary) 26%, var(--color-card)),
+    color-mix(in oklab, var(--color-warning) 18%, var(--color-card))
+  );
 }
 
 .destination-grid {
