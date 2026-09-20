@@ -223,8 +223,9 @@ export function buildCatalogueSections<T extends CatalogueProduct>(
   unlimited.sort((a, b) => byPrice(a, b) || (a.validityDays ?? 0) - (b.validityDays ?? 0));
   broaderAll.sort((a, b) => a.coverage.length - b.coverage.length || byPrice(a, b));
 
-  // Curated shortlist: a few meaningful alternatives, more when the trip has no
-  // local products at all. The catalogue itself keeps every product.
+  // Curated shortlists: a few meaningful alternatives, more when the trip has
+  // no local products at all. The catalogue itself keeps every product.
+  const unlimitedCurated = curateUnlimited(unlimited, input.days ?? 0, 3);
   const broaderLimit = standard.length + unlimited.length ? 6 : 12;
   const broaderCoverage = curateBroaderCoverage(broaderAll, broaderLimit);
 
@@ -241,8 +242,9 @@ export function buildCatalogueSections<T extends CatalogueProduct>(
   };
   const safeRecommended = recommended && keep(recommended) ? recommended : null;
   const safeStandard = standard.filter(keep);
-  const safeUnlimited = unlimited.filter(keep);
+  const safeUnlimited = unlimitedCurated.filter(keep);
   const safeBroader = broaderCoverage.filter(keep);
+
 
   const counters: SectionCounters = {
     received: packages.length,
