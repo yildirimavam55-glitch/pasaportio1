@@ -356,7 +356,21 @@ function PackagesPage() {
     days,
     recommendedId: search.recommendedProductId || null,
   });
-  const recommendedProduct = sections.recommended;
+  const recommendedProduct = directMode ? null : sections.recommended;
+  // In direct mode the top-tier product is a normal card inside its own tab.
+  const foldedProduct = directMode ? sections.recommended : null;
+  const standardList =
+    foldedProduct && !foldedProduct.unlimited
+      ? [foldedProduct, ...sections.standard].sort(
+          (a, b) => (a.dataGb ?? 0) - (b.dataGb ?? 0) || (a.salePrice ?? 0) - (b.salePrice ?? 0),
+        )
+      : sections.standard;
+  const unlimitedList =
+    foldedProduct && foldedProduct.unlimited
+      ? [foldedProduct, ...sections.unlimited].sort(
+          (a, b) => (a.validityDays ?? 0) - (b.validityDays ?? 0),
+        )
+      : sections.unlimited;
   const recommendedLabel = recommendedProduct
     ? recommendedProduct.unlimited
       ? copy.unlimited
