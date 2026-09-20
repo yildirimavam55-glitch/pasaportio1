@@ -28,6 +28,7 @@ import {
   useServiceAvailability,
 } from "@/components/travel/ServiceAvailability";
 import { CountryFlag } from "@/components/travel/CountryFlag";
+import { CountryMotif } from "@/components/travel/CountryMotif";
 import { DeviceCompatibilityInline } from "@/components/travel/DeviceCompatibility";
 import { useI18n } from "@/i18n";
 import { getCountryByIso } from "@/domain/geo/countries";
@@ -650,7 +651,6 @@ function PackagesPage() {
                 destinationIso={destination}
                 routeIsos={routeIsos}
                 copy={copy}
-                imageUrl={destinationImage}
               />
             )}
             {activeSegment === "unlimited" && unlimitedList.length > 0 && (
@@ -664,7 +664,6 @@ function PackagesPage() {
                 destinationIso={destination}
                 routeIsos={routeIsos}
                 copy={copy}
-                imageUrl={destinationImage}
                 bestForTripId={sections.bestForTripId}
               />
             )}
@@ -688,7 +687,6 @@ function PackagesPage() {
                   destinationIso={destination}
                   routeIsos={routeIsos}
                   copy={copy}
-                  imageUrl={destinationImage}
                   level="sub"
                 />
               </>
@@ -705,7 +703,6 @@ function PackagesPage() {
                 destinationIso={destination}
                 routeIsos={routeIsos}
                 copy={copy}
-                imageUrl={destinationImage}
               />
             )}
           </>
@@ -1005,7 +1002,6 @@ function SecondaryGroup({
   destinationIso,
   routeIsos,
   copy,
-  imageUrl,
   level = "section",
   bestForTripId = null,
 }: {
@@ -1018,7 +1014,6 @@ function SecondaryGroup({
   destinationIso: string;
   routeIsos: string[];
   copy: (typeof COPY)["tr"];
-  imageUrl: string;
   level?: "section" | "sub";
   bestForTripId?: string | null;
 }) {
@@ -1087,6 +1082,7 @@ function SecondaryGroup({
       >
         {packages.map((pkg) => {
           const selected = activeSelectedId === pkg.id;
+          const localCountryIso = pkg.coverage.length === 1 ? pkg.coverage[0] : undefined;
           return (
             <article
               key={pkg.id}
@@ -1102,15 +1098,11 @@ function SecondaryGroup({
               onClick={(event) => selectFromCard(event, pkg.id)}
               onKeyDown={(event) => selectFromKeyboard(event, pkg.id)}
             >
-              {variant === "coverage" && (
-                <img
-                  src={imageUrl}
-                  alt=""
-                  loading="lazy"
-                  className="absolute inset-0 h-full w-full object-cover"
-                />
+              {localCountryIso ? (
+                <CountryMotif iso={localCountryIso} />
+              ) : (
+                <Globe2 className="coverage-card-mark" strokeWidth={1.2} aria-hidden="true" />
               )}
-              {variant === "coverage" && <div className="absolute inset-0 bg-image-scrim" />}
               <div className="relative z-10 flex h-full flex-col items-start text-left">
                 {variant === "unlimited" && (
                   <div className="flex min-h-6 w-full items-start pr-8">
@@ -1156,7 +1148,7 @@ function SecondaryGroup({
                   {formatSalePrice(pkg.salePrice ?? 0, pkg.currency, locale)}
                 </span>
                 <span
-                  className={`mt-auto inline-flex h-8 items-center justify-center gap-1 rounded-full px-3 text-xs font-bold ${selected ? "bg-primary text-primary-foreground" : variant === "coverage" ? "bg-background/90 text-primary" : "bg-secondary text-primary"}`}
+                  className={`mt-auto inline-flex h-8 items-center justify-center gap-1 rounded-full px-3 text-xs font-bold ${selected ? "bg-primary text-primary-foreground" : "bg-secondary text-primary"}`}
                   aria-hidden="true"
                 >
                   {selected && <Check className="size-3.5" />}
