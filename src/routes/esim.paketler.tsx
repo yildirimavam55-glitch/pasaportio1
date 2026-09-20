@@ -402,10 +402,14 @@ function PackagesPage() {
   useEffect(() => {
     if (!selectableIds) return;
     const ids = selectableIds.split(",");
-    setSelectedProductId((current) =>
-      ids.includes(current) ? current : (recommendedProduct?.id ?? ids[0] ?? ""),
-    );
-  }, [recommendedProduct?.id, selectableIds]);
+    setSelectedProductId((current) => {
+      if (ids.includes(current)) return current;
+      // Direct mode waits for a real tap, so the quantity and purchase bar only
+      // appear once the customer picks a package.
+      if (directMode) return "";
+      return recommendedProduct?.id ?? ids[0] ?? "";
+    });
+  }, [directMode, recommendedProduct?.id, selectableIds]);
 
   const addSelectedToCart = () => {
     if (!selectedProduct || selectedProduct.salePrice == null) return;
