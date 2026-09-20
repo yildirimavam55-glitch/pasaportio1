@@ -211,7 +211,9 @@ describe("buildCatalogueSections", () => {
     expect(sections.recommended?.id).toBe("tr10");
     expect(sections.standard.map((p) => p.id)).toEqual(["tr2", "tr5", "tr20"]);
     expect(sections.unlimited.map((p) => p.id)).toEqual(["tru7", "tru30"]);
-    expect(sections.broaderCoverage.map((p) => p.id)).toEqual(["glob50", "eu20", "globu"]);
+    expect(sections.broaderCoverage.map((p) => p.id)).toEqual(["glob50", "eu20"]);
+    expect(sections.broaderUnlimited.map((p) => p.id)).toEqual(["globu"]);
+
     assertInvariant(sections);
   });
 
