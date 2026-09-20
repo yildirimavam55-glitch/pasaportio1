@@ -115,12 +115,12 @@ export function VisualPopular({ service, section }: { service: ServiceSlug } & S
           </div>
           <span className="hidden text-sm font-semibold text-primary sm:block">{strings.flexible}</span>
         </div>
-        <div className="mt-6 grid gap-3 md:grid-cols-3">
+        <div className="editorial-card-rail mt-6 grid gap-3 md:grid-cols-3">
           {cards.map((card) => {
             const price = card.showPrice ? priceById.get(card.id) : undefined;
             const multi = card.coverageIsos.length > 1;
             return (
-              <article key={card.id} data-reveal-card className="group relative aspect-[4/3] overflow-hidden rounded-card bg-primary shadow-card">
+              <article key={card.id} data-reveal-card className="group relative aspect-[4/3] overflow-hidden rounded-[1.5rem] bg-primary shadow-card">
                 <CardImage mediaId={card.mediaId} fallback={card.image} alt={card.title} className="absolute inset-0 size-full object-cover transition duration-500 group-hover:scale-105" />
                 <div className="absolute inset-0 bg-image-scrim" />
                 <div className="absolute inset-x-0 bottom-0 p-4 text-hero-foreground">

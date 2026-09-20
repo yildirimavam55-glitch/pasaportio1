@@ -184,3 +184,11 @@
 - [x] Seçili kart görünürlüğünü güçlendir
 - [x] Sticky sepet ve alt menü için safe-area uyumlu sayfa alt boşluğu ekle
 - [x] 360/375/390/412/430 px görünüm, swipe ve seçim doğrulaması
+
+## Travely public mobile visual redesign
+
+- [x] Shared Hero, header, service selector ve bottom navigation görsel dilini uygula
+- [x] eSIM/Lounge finder ve uyumluluk alanını Vibrant Editorial yönde sadeleştir
+- [x] eSIM paketlerini orb görünümden okunabilir swipe kartlarına taşı
+- [x] Lounge sonuçlarını güçlü ilk kart ve kompakt seçeneklerle yeniden düzenle
+- [ ] TR/DE/EN için 360/375/390/412/430 px etkileşim ve görünüm doğrulaması
