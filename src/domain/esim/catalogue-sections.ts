@@ -33,9 +33,12 @@ export type SectionCounters = {
   standard: number;
   unlimited: number;
   broaderCoverage: number;
+  /** All exact-country unlimited products before customer-facing curation. */
+  unlimitedTotal: number;
   /** All broader-coverage products before customer-facing curation. */
   broaderCoverageTotal: number;
 };
+
 
 export type CatalogueSections<T> = {
   recommended: T | null;
