@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { z } from "zod";
@@ -165,14 +165,7 @@ function LoungeOptionsPage() {
     queryFn: () => listLoungeOptions({ data: { iata: search.iata, situation: search.situation } }),
   });
 
-  useEffect(() => {
-    const firstOption = options[0];
-    if (firstOption && !selectedId) {
-      setSelectedId(firstOption.id);
-    }
-  }, [options, selectedId]);
-
-  const selectedOption = options.find((option) => option.id === selectedId) ?? options[0];
+  const selectedOption = options.find((option) => option.id === selectedId) ?? null;
   const selectedInCart = Boolean(
     selectedOption && lines.some((line) => line.productId === selectedOption.id),
   );
@@ -320,7 +313,10 @@ function LoungeOptionsPage() {
                 size="lg"
                 className="shrink-0"
                 onClick={() => {
-                  if (selectedInCart) return;
+                  if (selectedInCart) {
+                    void navigate({ to: "/sepet" });
+                    return;
+                  }
                   addLine({
                     productId: selectedOption.id,
                     serviceType: "LOUNGE",

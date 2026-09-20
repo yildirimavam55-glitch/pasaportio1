@@ -4,8 +4,6 @@ import { Check, LockKeyhole, Minus, Plus, ShoppingCart, Trash2, Zap } from "luci
 import { Button } from "@/components/ui/button";
 import { PublicShell } from "@/components/travel/PublicShell";
 import { useCart } from "@/domain/cart/store";
-import { assertCheckoutAllowed } from "@/lib/platform-settings.functions";
-import { settingsText } from "@/domain/platform/settings";
 import { useI18n } from "@/i18n";
 import type { Locale } from "@/domain/enums";
 
