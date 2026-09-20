@@ -270,4 +270,4 @@
 - [x] Add one centralized visual registry entry for every current supported country
 - [x] Render reusable low-contrast inline SVG motifs for Standard and Unlimited local cards
 - [x] Preserve neutral multi-country cards and future-safe unknown-country fallback
-- [ ] Verify registry coverage, build, and 360/390/430 px representative countries
+- [x] Verify registry coverage, build, and 360/390/430 px representative countries
