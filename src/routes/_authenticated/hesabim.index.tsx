@@ -195,7 +195,7 @@ function AccountPage() {
 
   return (
     <PublicShell>
-      <main className="mx-auto max-w-site px-4 pb-28 pt-6 sm:px-6 sm:pb-14 sm:pt-10">
+      <main className="mx-auto max-w-site px-4 pb-10 pt-6 sm:px-6 sm:pb-14 sm:pt-10">
         <header className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3">
           <div className="flex min-w-0 items-center gap-3">
             <span className="grid size-12 shrink-0 place-items-center rounded-full bg-primary text-lg font-bold text-primary-foreground shadow-brand">
