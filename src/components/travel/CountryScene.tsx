@@ -5,9 +5,8 @@
  * all-countries page and in the package page header. Unknown future ISO codes
  * fall back to a neutral travel scene instead of breaking the page.
  */
-import type { ReactNode } from "react";
-
 import { getCountryPhoto, getCountryPhotoFallback } from "./countryPhotos";
+import { getRegionPhoto } from "./regionPhotos";
 import { useI18n } from "@/i18n";
 import type { CoverageRegionKey } from "@/domain/geo/coverage-regions";
 
