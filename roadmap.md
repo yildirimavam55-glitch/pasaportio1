@@ -164,3 +164,11 @@
 - [x] Kartın tamamında tap ve klavye seçimini destekle
 - [x] Swipe hareketinin yanlışlıkla seçim yapmasını engelle
 - [x] 390 px seçim, sticky bar ve sepete ekleme akışını doğrula
+
+## Sınırsız paket kürasyonu (tüm ülkeler)
+
+- [x] Sınırsız bölümü yalnızca seçilen ülkeye özel paketleri gösteriyor
+- [x] Geçerlilik kovalarına göre en mantıklı 3 seçenek (fiyat koruması dahil)
+- [x] Her kartta kapsam satırı (bayrak + ülke / ülke sayısı) ve fair-use yıldızı
+- [x] Kart başına "Detaylar" alt sayfası (veri tipi, fiyat, süre, kapsam, 5G, hotspot, aktivasyon, fair-use)
+- [x] TR/DE/US/JP 390 px doğrulaması: tekrar yok, taşma yok, konsol hatası yok
