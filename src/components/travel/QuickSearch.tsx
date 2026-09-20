@@ -74,8 +74,17 @@ export function QuickSearch({
 
   useEffect(() => {
     onSearchModeChange?.(open);
+    if (open) document.documentElement.dataset.searchMode = "true";
+    else delete document.documentElement.dataset.searchMode;
     return () => onSearchModeChange?.(false);
   }, [onSearchModeChange, open]);
+
+  useEffect(
+    () => () => {
+      delete document.documentElement.dataset.searchMode;
+    },
+    [],
+  );
 
   useEffect(() => {
     const onDocPointerDown = (event: PointerEvent) => {
