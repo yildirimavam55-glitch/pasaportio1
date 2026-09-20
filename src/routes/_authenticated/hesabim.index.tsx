@@ -207,7 +207,15 @@ function AccountPage() {
             </div>
           </div>
           <div className="flex shrink-0 items-center gap-1">
-            <Button variant="outline" size="icon" aria-label={copy.refresh} disabled={account.isFetching} onClick={() => void account.refetch()}><RefreshCcw className={account.isFetching ? "animate-spin" : ""} /></Button>
+            <Button
+              variant="outline"
+              size="icon"
+              aria-label={copy.refresh}
+              disabled={account.isFetching}
+              onClick={() => void account.refetch()}
+            >
+              <RefreshCcw className={account.isFetching ? "animate-spin" : ""} />
+            </Button>
             <SignOutDialog copy={copy} signingOut={signingOut} onSignOut={handleSignOut} iconOnly />
           </div>
         </header>
@@ -367,6 +375,60 @@ function EmptyState({ text, children }: { text: string; children?: ReactNode }) 
   );
 }
 
-function SignOutDialog({ copy, signingOut, onSignOut, iconOnly = false }: { copy: (typeof COPY)[keyof typeof COPY]; signingOut: boolean; onSignOut: () => Promise<void>; iconOnly?: boolean }) {
-  return <AlertDialog><AlertDialogTrigger asChild>{iconOnly ? <Button type="button" variant="ghost" size="icon" aria-label={copy.logout} className="text-destructive hover:bg-destructive/10 hover:text-destructive"><LogOut /></Button> : <Button type="button" variant="ghost" className="mt-2 min-h-12 w-full justify-start px-3 text-destructive hover:bg-destructive/10 hover:text-destructive"><LogOut />{copy.logout}</Button>}</AlertDialogTrigger><AlertDialogContent className="mx-4 w-[calc(100%-2rem)] rounded-2xl sm:mx-0 sm:w-full"><AlertDialogHeader><AlertDialogTitle>{copy.logoutTitle}</AlertDialogTitle><AlertDialogDescription>{copy.logoutText}</AlertDialogDescription></AlertDialogHeader><AlertDialogFooter><AlertDialogCancel>{copy.cancel}</AlertDialogCancel><AlertDialogAction disabled={signingOut} onClick={(event) => { event.preventDefault(); void onSignOut(); }} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">{signingOut ? copy.loggingOut : copy.logout}</AlertDialogAction></AlertDialogFooter></AlertDialogContent></AlertDialog>;
+function SignOutDialog({
+  copy,
+  signingOut,
+  onSignOut,
+  iconOnly = false,
+}: {
+  copy: (typeof COPY)[keyof typeof COPY];
+  signingOut: boolean;
+  onSignOut: () => Promise<void>;
+  iconOnly?: boolean;
+}) {
+  return (
+    <AlertDialog>
+      <AlertDialogTrigger asChild>
+        {iconOnly ? (
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            aria-label={copy.logout}
+            className="text-destructive hover:bg-destructive/10 hover:text-destructive"
+          >
+            <LogOut />
+          </Button>
+        ) : (
+          <Button
+            type="button"
+            variant="ghost"
+            className="mt-2 min-h-12 w-full justify-start px-3 text-destructive hover:bg-destructive/10 hover:text-destructive"
+          >
+            <LogOut />
+            {copy.logout}
+          </Button>
+        )}
+      </AlertDialogTrigger>
+      <AlertDialogContent className="mx-4 w-[calc(100%-2rem)] rounded-2xl sm:mx-0 sm:w-full">
+        <AlertDialogHeader>
+          <AlertDialogTitle>{copy.logoutTitle}</AlertDialogTitle>
+          <AlertDialogDescription>{copy.logoutText}</AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel>{copy.cancel}</AlertDialogCancel>
+          <AlertDialogAction
+            disabled={signingOut}
+            onClick={(event) => {
+              event.preventDefault();
+              void onSignOut();
+            }}
+            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+          >
+            {signingOut ? copy.loggingOut : copy.logout}
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+  );
 }
