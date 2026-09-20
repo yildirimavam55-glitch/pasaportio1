@@ -84,7 +84,12 @@ export function formatFrom(amount: number, currency: string, locale: Locale) {
 }
 
 export function countryLabel(iso: string, locale: Locale) {
-  return getCountryByIso(iso)?.name[locale] ?? iso;
+  const territoryNames: Record<string, Record<Locale, string>> = {
+    AN: { tr: "Hollanda Antilleri", de: "Niederländische Antillen", en: "Netherlands Antilles" },
+    GL: { tr: "Grönland", de: "Grönland", en: "Greenland" },
+    IC: { tr: "Kanarya Adaları", de: "Kanarische Inseln", en: "Canary Islands" },
+  };
+  return getCountryByIso(iso)?.name[locale] ?? territoryNames[iso.toUpperCase()]?.[locale] ?? iso;
 }
 
 /** Country name for the active locale, plus ISO and every known alias. */

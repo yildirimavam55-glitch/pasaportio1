@@ -26,11 +26,16 @@ export type CountryPhoto = {
 
 function localizedAlt(iso: string): Record<Locale, string> {
   const country = getCountryByIso(iso);
-  const fallback = iso;
+  const territoryNames: Record<string, Record<Locale, string>> = {
+    AN: { tr: "Hollanda Antilleri", de: "Niederländische Antillen", en: "Netherlands Antilles" },
+    GL: { tr: "Grönland", de: "Grönland", en: "Greenland" },
+    IC: { tr: "Kanarya Adaları", de: "Kanarische Inseln", en: "Canary Islands" },
+  };
+  const fallback = territoryNames[iso] ?? { tr: iso, de: iso, en: iso };
   return {
-    tr: `${country?.name.tr ?? fallback} seyahat görünümü`,
-    de: `Reiseziel ${country?.name.de ?? fallback}`,
-    en: `${country?.name.en ?? fallback} travel destination`,
+    tr: `${country?.name.tr ?? fallback.tr} seyahat görünümü`,
+    de: `Reiseziel ${country?.name.de ?? fallback.de}`,
+    en: `${country?.name.en ?? fallback.en} travel destination`,
   };
 }
 
