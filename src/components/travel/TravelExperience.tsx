@@ -25,6 +25,13 @@ import { HERO_HEIGHT_CLASS, surfaceClasses, widthClass } from "@/domain/storefro
 import { getPublishedStorefront } from "@/lib/storefront.functions";
 import { StorefrontProvider } from "@/components/storefront/StorefrontContext";
 import { FinderShell, EsimFinder, LoungeFinder } from "./Finder";
+import { QuickSearch } from "./QuickSearch";
+
+const ASSISTANT_COPY = {
+  tr: { open: "Hangi pakete ihtiyacın olduğunu bilmiyor musun? Paket yardımcısını kullan →" },
+  de: { open: "Du weißt nicht, welches Paket passt? Paket-Assistent öffnen →" },
+  en: { open: "Not sure which package you need? Use the package assistant →" },
+} as const;
 import { DeviceCompatibilitySection } from "./DeviceCompatibility";
 import { PublicShell } from "./PublicShell";
 import { ServicePausedState, useServiceAvailability } from "./ServiceAvailability";
@@ -112,6 +119,7 @@ function Experience({
   const [loungeState, setLoungeState] = useState<LoungeFinderState>(() =>
     restoreFinderState("travel-lounge-finder", LOUNGE_SERVICE_CONFIG.initialState),
   );
+  const [assistantOpen, setAssistantOpen] = useState(false);
   const { switchService, isSwitching, target, phase } = useServiceSwitchTransition();
   const selectedService = target ?? service;
   const pendingScrollRef = useRef<{
