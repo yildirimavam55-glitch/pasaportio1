@@ -236,11 +236,17 @@ export function buildCatalogueSections<T extends CatalogueProduct>(
   unlimited.sort((a, b) => byPrice(a, b) || (a.validityDays ?? 0) - (b.validityDays ?? 0));
   broaderAll.sort((a, b) => a.coverage.length - b.coverage.length || byPrice(a, b));
 
-  // Curated shortlists: a few meaningful alternatives, more when the trip has
-  // no local products at all. The catalogue itself keeps every product.
-  const unlimitedCurated = curateUnlimited(unlimited, input.days ?? 0, 3);
+  // Curated shortlists. The catalogue itself keeps every product.
+  //  - local unlimited: every real validity the provider offers, one card each
+  //  - broader unlimited: 1–2 wider alternatives, shown separately
+  //  - broader coverage: capped regional/global data plans only
+  const unlimitedCurated = curateLocalUnlimited(unlimited);
+  const broaderUnlimitedAll = broaderAll.filter((pkg) => pkg.unlimited);
+  const broaderCappedAll = broaderAll.filter((pkg) => !pkg.unlimited);
+  const broaderUnlimited = curateBroaderUnlimited(broaderUnlimitedAll, 2);
   const broaderLimit = standard.length + unlimited.length ? 6 : 12;
-  const broaderCoverage = curateBroaderCoverage(broaderAll, broaderLimit);
+  const broaderCoverage = curateBroaderCoverage(broaderCappedAll, broaderLimit);
+
 
   // 4. Safety pass: a product id may appear in one section only.
   const seenId = new Set<string>();
