@@ -240,3 +240,10 @@
 - [x] Show motifs only on exact single-country cards while retaining flag and country name
 - [x] Remove large photography from regional/global cards and use neutral coverage iconography
 - [x] Verify local and broader cards across countries at 360/390/430px
+
+## Mobile bottom navigation single-active state
+
+- [x] Derive one active item from pathname and the explicit finder URL target
+- [x] Keep plain homepage visits Home-active even when eSIM is the default service
+- [x] Use URL-backed eSIM/Lounge finder targets and clear the target on Home
+- [x] Verify Home, eSIM, Lounge, Account routing, and browser Back at 360/390/430px

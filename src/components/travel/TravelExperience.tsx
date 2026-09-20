@@ -58,7 +58,7 @@ export function TravelExperience({
   onServiceChange,
 }: {
   service: ServiceSlug;
-  onServiceChange: (service: ServiceSlug) => void;
+  onServiceChange: (service: ServiceSlug, options?: { finderTarget?: boolean }) => void;
 }) {
   const published = useQuery({
     queryKey: ["storefront", service],
@@ -71,7 +71,12 @@ export function TravelExperience({
   /** A paused service keeps its navigation but stops new discovery. */
   if (!availability.isPending && !availability[service].storefront) {
     return (
-      <PublicShell activeService={service} onServiceChange={onServiceChange}>
+      <PublicShell
+        activeService={service}
+        onServiceChange={(next, options) =>
+          onServiceChange(next, options?.scrollToFinder ? { finderTarget: true } : undefined)
+        }
+      >
         <ServicePausedState service={service} />
       </PublicShell>
     );
@@ -90,7 +95,7 @@ function Experience({
   config,
 }: {
   service: ServiceSlug;
-  onServiceChange: (service: ServiceSlug) => void;
+  onServiceChange: (service: ServiceSlug, options?: { finderTarget?: boolean }) => void;
   config: StorefrontConfig;
 }) {
   const { locale } = useI18n();
@@ -172,6 +177,7 @@ function Experience({
     const finder = document.getElementById("finder");
     const nearFinder = finderIsNearViewport();
     if (next === service) {
+      if (options.scrollToFinder) onServiceChange(next, { finderTarget: true });
       if (options.scrollToFinder && !nearFinder) smoothlyShowFinder();
       return;
     }
@@ -182,7 +188,7 @@ function Experience({
       scrollToFinder: Boolean(options.scrollToFinder && !nearFinder),
     };
     switchService(next, () => {
-      onServiceChange(next);
+      onServiceChange(next, options.scrollToFinder ? { finderTarget: true } : undefined);
       const pending = pendingScrollRef.current;
       pendingScrollRef.current = null;
       const settleScroll = () => {

@@ -36,14 +36,23 @@ function Index() {
   return (
     <TravelExperience
       service={service}
-      onServiceChange={(next) =>
+      onServiceChange={(next, options) => {
+        if (options?.finderTarget) {
+          void navigate({
+            to: ".",
+            search: { service: next },
+            hash: "finder",
+            resetScroll: false,
+          });
+          return;
+        }
         void navigate({
           to: ".",
           search: { service: next },
           replace: true,
           resetScroll: false,
-        })
-      }
+        });
+      }}
     />
   );
 }
