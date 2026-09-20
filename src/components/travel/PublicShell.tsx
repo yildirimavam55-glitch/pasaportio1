@@ -218,12 +218,33 @@ export function PublicShell({
           </nav>
           <div className="flex shrink-0 items-center gap-0.5 sm:gap-1">
             <LanguageMenu />
-            <Button asChild variant="ghost" size="icon" className="size-9 sm:size-10">
-              {signedIn ? (
-                <Link to="/hesabim/seyahatler" aria-label={copy.nav.account}>
-                  <UserRound className="size-[18px] sm:size-5" />
-                </Link>
-              ) : (
+            {signedIn ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="size-9 sm:size-10"
+                    aria-label={copy.nav.account}
+                  >
+                    <UserRound className="size-[18px] sm:size-5" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-52">
+                  <DropdownMenuItem asChild>
+                    <Link to="/hesabim">{copy.nav.account}</Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link to="/hesabim/seyahatler">{ACCOUNT_COPY[locale].trips}</Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onSelect={() => void signOut()}>
+                    <LogOut className="size-4" />
+                    {ACCOUNT_COPY[locale].signOut}
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : (
+              <Button asChild variant="ghost" size="icon" className="size-9 sm:size-10">
                 <Link
                   to="/auth"
                   search={{ redirect: "/hesabim/seyahatler" }}
@@ -231,8 +252,8 @@ export function PublicShell({
                 >
                   <UserRound className="size-[18px] sm:size-5" />
                 </Link>
-              )}
-            </Button>
+              </Button>
+            )}
             <Button asChild className="hidden lg:inline-flex">
               <Link to="/" search={{ service: activeService ?? "esim" }} hash="finder">
                 {copy.nav.plan}
