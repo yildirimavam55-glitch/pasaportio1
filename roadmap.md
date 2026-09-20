@@ -163,4 +163,4 @@
 - [x] Tüm gerçek paket kartlarını tek `selectedProductId` state'ine bağla
 - [x] Kartın tamamında tap ve klavye seçimini destekle
 - [x] Swipe hareketinin yanlışlıkla seçim yapmasını engelle
-- [ ] 390 px seçim, sticky bar ve sepete ekleme akışını doğrula
+- [x] 390 px seçim, sticky bar ve sepete ekleme akışını doğrula
