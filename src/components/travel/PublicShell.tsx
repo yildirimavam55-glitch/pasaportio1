@@ -299,14 +299,23 @@ export function PublicShell({
                   <Menu className="size-[18px] sm:size-5" />
                 </Button>
               </SheetTrigger>
-              <SheetContent side="right" className="w-[86vw] max-w-sm bg-background p-6">
+              <SheetContent
+                side="right"
+                showCloseButton={false}
+                className="w-[86vw] max-w-sm bg-background p-6"
+              >
                 <div className="flex items-center justify-between">
                   <SheetTitle>
                     <Brand />
                   </SheetTitle>
                   <SheetClose asChild>
-                    <Button variant="ghost" size="icon" aria-label="Kapat">
-                      <X />
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      aria-label={MENU_CLOSE_LABEL[locale]}
+                      className="grid size-12 place-items-center rounded-2xl border-2 border-primary bg-card text-primary shadow-sm transition hover:bg-accent hover:text-primary focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+                    >
+                      <X className="size-5" strokeWidth={2.5} />
                     </Button>
                   </SheetClose>
                 </div>
