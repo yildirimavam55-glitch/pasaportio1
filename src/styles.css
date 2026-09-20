@@ -542,10 +542,16 @@
   padding: 0.85rem;
   box-shadow: 0 8px 22px color-mix(in oklab, var(--foreground) 7%, transparent);
   color: var(--color-foreground);
+  cursor: pointer;
+  touch-action: pan-x pan-y;
   transition:
     border-color 0.25s cubic-bezier(0.16, 1, 0.3, 1),
     background-color 0.25s cubic-bezier(0.16, 1, 0.3, 1),
     transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.esim-rail-card:focus-visible {
+  outline: 2px solid var(--color-ring);
+  outline-offset: 3px;
 }
 .esim-rail-card.orb {
   width: 8.8rem;
@@ -571,7 +577,7 @@
   border-color: var(--color-primary);
   background: var(--color-primary-soft);
   box-shadow: 0 12px 30px color-mix(in oklab, var(--primary) 20%, transparent);
-  transform: translateY(-2px);
+  transform: translateY(-2px) scale(1.02);
 }
 .esim-rail-card.orb.is-selected {
   box-shadow:
@@ -583,6 +589,9 @@
   box-shadow:
     0 0 0 2px var(--color-primary),
     0 12px 30px color-mix(in oklab, var(--primary) 22%, transparent);
+}
+.esim-sticky-product {
+  animation: esim-sticky-product-in 0.225s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 @media (min-width: 640px) {
   .esim-package-rail {
@@ -612,6 +621,16 @@
   from {
     opacity: 0;
     transform: translate3d(0, 10px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+@keyframes esim-sticky-product-in {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 4px, 0);
   }
   to {
     opacity: 1;
@@ -651,5 +670,8 @@
   }
   .esim-rail-card {
     transition: none;
+  }
+  .esim-sticky-product {
+    animation: none;
   }
 }

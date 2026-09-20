@@ -157,3 +157,10 @@
 - [x] Hafif ülke görsel eşlemesi ve generic fallback ekle
 - [x] Sticky sepet çubuğunu bottom navigation üzerinde güvenli konumlandır
 - [x] TR/DE/EN ve 360/375/390/412/430 px doğrulaması yap
+
+## eSIM paket carousel seçimi
+
+- [x] Tüm gerçek paket kartlarını tek `selectedProductId` state'ine bağla
+- [x] Kartın tamamında tap ve klavye seçimini destekle
+- [x] Swipe hareketinin yanlışlıkla seçim yapmasını engelle
+- [x] 390 px seçim, sticky bar ve sepete ekleme akışını doğrula
