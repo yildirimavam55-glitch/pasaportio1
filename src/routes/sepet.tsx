@@ -91,9 +91,9 @@ function CartPage() {
                     </div>
                     {line.isTest && <span className="mt-1 block text-xs text-muted-foreground">{copy.testNote}</span>}
                   </div>
-                  <button type="button" className="shrink-0 text-muted-foreground hover:text-destructive" onClick={() => removeLine(line.productId)} aria-label={copy.remove}>
+                  <Button type="button" variant="ghost" size="icon" className="shrink-0 text-muted-foreground hover:text-destructive" onClick={() => removeLine(line.productId)} aria-label={copy.remove}>
                     <Trash2 className="size-5" />
-                  </button>
+                  </Button>
                 </li>
               ))}
             </ul>

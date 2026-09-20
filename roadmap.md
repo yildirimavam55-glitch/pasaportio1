@@ -323,4 +323,4 @@
 - [x] Remove the redundant homepage campaign banner without changing destination discovery
 - [x] Unify eSIM and Lounge sticky purchase bars above mobile navigation
 - [x] Refine the real-catalogue cart summary and remove fake payment-success output
-- [ ] Validate TR/DE/EN at 360/375/390/412/430px and report integration blockers honestly
+- [x] Validate TR/DE/EN at 360/375/390/412/430px and report integration blockers honestly
