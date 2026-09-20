@@ -8,7 +8,9 @@ import {
   Check,
   Globe2,
   HelpCircle,
+  Info,
   Infinity as InfinityIcon,
+
   Leaf,
   Route as RouteIcon,
   Search,
