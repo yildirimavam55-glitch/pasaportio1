@@ -59,9 +59,7 @@ const REGION_ALT: Record<CoverageRegionKey, Record<Locale, string>> = {
 };
 
 function bySlug(slug: string): string | undefined {
-  const entry = Object.entries(regionModules).find(([path]) =>
-    path.endsWith(`/${slug}.webp`),
-  );
+  const entry = Object.entries(regionModules).find(([path]) => path.endsWith(`/${slug}.webp`));
   return entry?.[1];
 }
 
