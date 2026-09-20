@@ -464,7 +464,9 @@ function PackagesPage() {
               {destination && <CountryFlag iso={destination} className="text-xl" />}
               <span className="truncate">{destinationCountry?.name[locale] ?? copy.title}</span>
             </h1>
-            <p className="mt-0.5 text-sm text-muted-foreground">{copy.lead}</p>
+            <p className="mt-0.5 text-sm text-muted-foreground">
+              {directMode ? copy.choosePlan : copy.lead}
+            </p>
           </div>
           <Link to="/esim">
             <Button type="button" variant="outline" size="sm">
