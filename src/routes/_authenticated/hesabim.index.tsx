@@ -158,6 +158,7 @@ function AccountPage() {
       if (error) throw error;
       queryClient.clear();
       await navigate({ to: "/", search: { service: "esim" }, replace: true });
+      window.location.replace("/?service=esim");
     } catch {
       toast.error(copy.logoutError);
       setSigningOut(false);

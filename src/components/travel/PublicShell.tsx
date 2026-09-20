@@ -176,6 +176,7 @@ export function PublicShell({
       if (error) throw error;
       queryClient.clear();
       await navigate({ to: "/", search: { service: "esim" }, replace: true });
+      window.location.replace("/?service=esim");
     } catch {
       toast.error(
         locale === "tr"
