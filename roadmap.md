@@ -183,4 +183,4 @@
 - [x] Sınırsız kartlarda rozet, başlık, bilgi ikonu ve içerik hiyerarşisini ayır
 - [x] Seçili kart görünürlüğünü güçlendir
 - [x] Sticky sepet ve alt menü için safe-area uyumlu sayfa alt boşluğu ekle
-- [ ] 360/375/390/412/430 px görünüm, swipe ve seçim doğrulaması
+- [x] 360/375/390/412/430 px görünüm, swipe ve seçim doğrulaması
