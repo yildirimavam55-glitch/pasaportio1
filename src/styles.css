@@ -707,8 +707,50 @@
 }
 .esim-rail-card.coverage {
   height: 11.25rem;
-  border-color: transparent;
-  color: var(--color-primary-foreground);
+  border-color: var(--color-border);
+  color: var(--color-foreground);
+  background: var(--color-card);
+}
+.country-card-motif {
+  position: absolute;
+  right: -0.75rem;
+  bottom: -0.8rem;
+  width: 6.75rem;
+  height: 6.75rem;
+  color: var(--color-primary);
+  opacity: 0.075;
+  pointer-events: none;
+  user-select: none;
+}
+.country-card-motif svg {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  height: 100%;
+}
+.country-card-motif span {
+  position: absolute;
+  right: 0.8rem;
+  bottom: 0.5rem;
+  font-family: var(--font-display);
+  font-size: 1.45rem;
+  font-weight: 700;
+}
+.country-card-motif[data-motif="fallback"] {
+  width: 5.5rem;
+  height: 5.5rem;
+  opacity: 0.06;
+}
+.coverage-card-mark {
+  position: absolute;
+  right: 0.75rem;
+  bottom: 0.75rem;
+  width: 3.75rem;
+  height: 3.75rem;
+  color: var(--color-muted-foreground);
+  opacity: 0.09;
+  pointer-events: none;
 }
 
 .esim-rail-card.is-selected {
