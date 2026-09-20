@@ -639,11 +639,11 @@ function PackagesPage() {
                 </div>
               )}
             </div>
-            {activeSegment === "standard" && sections.standard.length > 0 && (
+            {activeSegment === "standard" && standardList.length > 0 && (
               <SecondaryGroup
                 title={copy.standardPackages}
                 subtitle={copy.standardLead}
-                packages={sections.standard}
+                packages={standardList}
                 variant="orb"
                 activeSelectedId={activeSelectedId}
                 onSelect={setSelectedProductId}
@@ -653,11 +653,11 @@ function PackagesPage() {
                 imageUrl={destinationImage}
               />
             )}
-            {activeSegment === "unlimited" && sections.unlimited.length > 0 && (
+            {activeSegment === "unlimited" && unlimitedList.length > 0 && (
               <SecondaryGroup
                 title={copy.moreUnlimited}
                 subtitle={copy.unlimitedLead}
-                packages={sections.unlimited}
+                packages={unlimitedList}
                 variant="unlimited"
                 activeSelectedId={activeSelectedId}
                 onSelect={setSelectedProductId}
@@ -670,12 +670,12 @@ function PackagesPage() {
             )}
             {activeSegment === "unlimited" && sections.broaderUnlimited.length > 0 && (
               <>
-                {activeSegment === "unlimited" && sections.unlimited.length === 0 && (
+                {activeSegment === "unlimited" && unlimitedList.length === 0 && (
                   <h2 className="mt-8 px-1 font-display text-xl font-bold leading-tight">
                     {copy.moreUnlimited}
                   </h2>
                 )}
-                {activeSegment === "unlimited" && sections.unlimited.length === 0 && (
+                {activeSegment === "unlimited" && unlimitedList.length === 0 && (
                   <p className="mt-1 px-1 text-xs text-muted-foreground">{copy.noLocalUnlimited}</p>
                 )}
                 <SecondaryGroup
