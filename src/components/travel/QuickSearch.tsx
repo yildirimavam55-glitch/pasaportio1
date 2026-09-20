@@ -61,6 +61,7 @@ export function QuickSearch({
   const [open, setOpen] = useState(false);
   const boxRef = useRef<HTMLDivElement | null>(null);
   const inputRef = useRef<HTMLInputElement | null>(null);
+  const resultsRef = useRef<HTMLDivElement | null>(null);
 
   const closeSearch = (blur = false) => {
     setOpen(false);
@@ -94,22 +95,58 @@ export function QuickSearch({
     return () => document.removeEventListener("pointerdown", onDocPointerDown);
   }, []);
 
+  useEffect(() => {
+    if (!open) return;
+
+    let frame = 0;
+    const updateResultsHeight = () => {
+      window.cancelAnimationFrame(frame);
+      frame = window.requestAnimationFrame(() => {
+        const results = resultsRef.current;
+        if (!results) return;
+        const viewport = window.visualViewport;
+        const visibleBottom = viewport
+          ? viewport.offsetTop + viewport.height
+          : window.innerHeight;
+        const availableHeight = Math.floor(
+          visibleBottom - results.getBoundingClientRect().top - 12,
+        );
+        results.style.setProperty(
+          "--quick-search-available-height",
+          `${Math.max(104, availableHeight)}px`,
+        );
+      });
+    };
+
+    updateResultsHeight();
+    window.addEventListener("resize", updateResultsHeight);
+    window.addEventListener("orientationchange", updateResultsHeight);
+    window.visualViewport?.addEventListener("resize", updateResultsHeight);
+    window.visualViewport?.addEventListener("scroll", updateResultsHeight);
+
+    return () => {
+      window.cancelAnimationFrame(frame);
+      window.removeEventListener("resize", updateResultsHeight);
+      window.removeEventListener("orientationchange", updateResultsHeight);
+      window.visualViewport?.removeEventListener("resize", updateResultsHeight);
+      window.visualViewport?.removeEventListener("scroll", updateResultsHeight);
+    };
+  }, [open]);
+
   const countries: Country[] = useMemo(() => {
     if (service !== "esim") return [];
     const needle = query.trim().toLocaleLowerCase(locale);
-    const found = searchCountries(query, 8);
-    if (!needle) return found.slice(0, 6);
+    const found = searchCountries(query, Number.MAX_SAFE_INTEGER);
+    if (!needle) return found;
     // Keep names that start with what the customer typed at the top.
-    return [...found]
-      .sort((a, b) => {
-        const rank = (country: Country) =>
-          country.name[locale].toLocaleLowerCase(locale).startsWith(needle) ? 0 : 1;
-        return rank(a) - rank(b);
-      })
-      .slice(0, 6);
+    return [...found].sort((a, b) => {
+      const rank = (country: Country) =>
+        country.name[locale].toLocaleLowerCase(locale).startsWith(needle) ? 0 : 1;
+      return rank(a) - rank(b);
+    });
   }, [locale, query, service]);
   const airports: Airport[] = useMemo(
-    () => (service === "lounge" ? searchAirports(query, 6) : []),
+    () => (service === "lounge" ? searchAirports(query, Number.MAX_SAFE_INTEGER) : []),
     [query, service],
   );
 
@@ -209,6 +246,9 @@ export function QuickSearch({
       </div>
       {open && (
         <div
+          ref={resultsRef}
+          role="listbox"
+          aria-label={service === "esim" ? copy.esimLabel : copy.loungeLabel}
           className={`quick-search-results absolute top-full mt-1 overflow-y-auto rounded-2xl border border-border bg-card shadow-panel ${embedded ? "inset-x-0" : "inset-x-3 sm:inset-x-6"}`}
         >
           {service === "esim" ? (
@@ -217,8 +257,10 @@ export function QuickSearch({
                 <button
                   key={country.id}
                   type="button"
+                  role="option"
+                  aria-selected="false"
                   onClick={() => goToCountry(country)}
-                  className="flex min-h-12 w-full items-center gap-3 px-3 text-left hover:bg-secondary"
+                  className="flex min-h-12 w-full touch-manipulation items-center gap-3 px-3 text-left hover:bg-secondary focus-visible:bg-secondary"
                 >
                   <CountryFlag iso={country.iso} className="text-xl" />
                   <span className="truncate text-sm font-semibold">{country.name[locale]}</span>
@@ -232,8 +274,10 @@ export function QuickSearch({
               <button
                 key={airport.id}
                 type="button"
+                role="option"
+                aria-selected="false"
                 onClick={() => pickAirport(airport)}
-                className="flex min-h-12 w-full items-center gap-3 px-3 text-left hover:bg-secondary"
+                className="flex min-h-12 w-full touch-manipulation items-center gap-3 px-3 text-left hover:bg-secondary focus-visible:bg-secondary"
               >
                 <CountryFlag iso={airport.countryIso} className="text-xl" />
                 <span className="min-w-0 flex-1">

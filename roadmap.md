@@ -225,6 +225,7 @@
 - [x] Collapse the mobile hero to header, search input, and autocomplete results
 - [x] Preserve active service and restore the selector after close, blur, submit, or selection
 - [x] Verify eSIM and Lounge flows at 360/390/430px
+- [x] Make full eSIM and Lounge result lists independently scrollable with keyboard-aware mobile height
 
 ## Compact product-led eSIM + Lounge hero
 
