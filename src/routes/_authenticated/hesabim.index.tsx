@@ -1,5 +1,50 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowRight, BriefcaseBusiness } from "lucide-react";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { useQueryClient } from "@tanstack/react-query";
+import { ArrowRight, BriefcaseBusiness, LogOut } from "lucide-react";
 import { PublicShell } from "@/components/travel/PublicShell";
-export const Route=createFileRoute("/_authenticated/hesabim/")({component:AccountPage});
-function AccountPage(){return <PublicShell><section className="mx-auto max-w-site px-4 py-10 sm:px-6"><span className="text-xs font-bold uppercase text-primary">Hesabım</span><h1 className="mt-2 font-display text-3xl font-bold">Seyahat merkezim</h1><div className="mt-7 grid gap-4 sm:grid-cols-2"><Link to="/hesabim/seyahatler" className="group rounded-card border border-border bg-card p-6 shadow-card"><span className="icon-box-feature rounded-full bg-primary-soft text-primary"><BriefcaseBusiness/></span><h2 className="mt-5 font-display text-xl font-bold">Seyahatlerim</h2><p className="mt-2 text-sm text-muted-foreground">eSIM ve Lounge hizmetlerini seyahat bazında gör.</p><span className="mt-5 inline-flex items-center gap-1 text-sm font-bold text-primary">Görüntüle <ArrowRight className="transition group-hover:translate-x-1"/></span></Link></div></section></PublicShell>;}
+import { Button } from "@/components/ui/button";
+import { supabase } from "@/integrations/supabase/client";
+export const Route = createFileRoute("/_authenticated/hesabim/")({ component: AccountPage });
+function AccountPage() {
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  async function handleSignOut() {
+    await queryClient.cancelQueries();
+    queryClient.clear();
+    await supabase.auth.signOut();
+    void navigate({ to: "/auth", replace: true });
+  }
+  return (
+    <PublicShell>
+      <section className="mx-auto max-w-site px-4 py-10 sm:px-6">
+        <span className="text-xs font-bold uppercase text-primary">Hesabım</span>
+        <h1 className="mt-2 font-display text-3xl font-bold">Seyahat merkezim</h1>
+        <div className="mt-7 grid gap-4 sm:grid-cols-2">
+          <Link
+            to="/hesabim/seyahatler"
+            className="group rounded-card border border-border bg-card p-6 shadow-card"
+          >
+            <span className="icon-box-feature rounded-full bg-primary-soft text-primary">
+              <BriefcaseBusiness />
+            </span>
+            <h2 className="mt-5 font-display text-xl font-bold">Seyahatlerim</h2>
+            <p className="mt-2 text-sm text-muted-foreground">
+              eSIM ve Lounge hizmetlerini seyahat bazında gör.
+            </p>
+            <span className="mt-5 inline-flex items-center gap-1 text-sm font-bold text-primary">
+              Görüntüle <ArrowRight className="transition group-hover:translate-x-1" />
+            </span>
+          </Link>
+        </div>
+        <Button
+          type="button"
+          variant="outline"
+          onClick={() => void handleSignOut()}
+          className="mt-8 min-h-12 gap-2"
+        >
+          <LogOut className="size-4" /> Çıkış yap
+        </Button>
+      </section>
+    </PublicShell>
+  );
+}
