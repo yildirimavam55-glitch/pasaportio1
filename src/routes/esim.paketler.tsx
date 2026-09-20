@@ -109,6 +109,18 @@ const COPY = {
     flexible: "Esnek kullanım",
     showMore: "Göster",
     hideMore: "Gizle",
+    details: "Detaylar",
+    detailsTitle: "Paket detayları",
+    countryCount: (count: number) => `${count} ülke`,
+    fieldDataType: "Veri tipi",
+    fieldPrice: "Fiyat",
+    fieldValidity: "Geçerlilik",
+    fieldCoverage: "Kapsam",
+    fieldActivation: "Aktivasyon",
+    fieldFairUse: "Adil kullanım",
+    yes: "Var",
+    no: "Yok",
+
     perTraveler: (count: number) =>
       `Her yolcu için ayrı bir eSIM gerekir · sepete ${count} adet eklenir`,
     gapTitle: "Bu seyahat için ihtiyacını tamamen karşılayan tek paket bulunamadı.",
