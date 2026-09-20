@@ -105,6 +105,10 @@ const COPY = {
     tierUnlimited: "Sınırsız",
     standardPackages: "Standart paketler",
     moreUnlimited: "Sınırsız seçenekler",
+    choosePlan: "Tarifeni seç",
+    standardTab: "Standart",
+    unlimitedTab: "Sınırsız",
+    quantity: "Kaç eSIM?",
     widerUnlimited: "Diğer bölgelerde sınırsız",
     widerUnlimitedLead: "Daha geniş kapsamlı sınırsız alternatifler",
     noLocalUnlimited: "Bu ülkeye özel sınırsız paket bulunamadı.",
@@ -180,6 +184,10 @@ const COPY = {
     tierUnlimited: "Unbegrenzt",
     standardPackages: "Standard-Pakete",
     moreUnlimited: "Unbegrenzt-Optionen",
+    choosePlan: "Tarif auswählen",
+    standardTab: "Standard",
+    unlimitedTab: "Unbegrenzt",
+    quantity: "Wie viele eSIMs?",
     widerUnlimited: "Unbegrenzt in weiteren Regionen",
     widerUnlimitedLead: "Unbegrenzte Alternativen mit größerer Abdeckung",
     noLocalUnlimited: "Für dieses Land gibt es kein eigenes Unbegrenzt-Paket.",
@@ -255,6 +263,10 @@ const COPY = {
     tierUnlimited: "Unlimited",
     standardPackages: "Standard packages",
     moreUnlimited: "Unlimited options",
+    choosePlan: "Choose your plan",
+    standardTab: "Standard",
+    unlimitedTab: "Unlimited",
+    quantity: "How many eSIMs?",
     widerUnlimited: "Unlimited in more regions",
     widerUnlimitedLead: "Unlimited alternatives with wider coverage",
     noLocalUnlimited: "No unlimited package is available for this country.",
@@ -350,9 +362,8 @@ function PackagesPage() {
       : `${recommendedProduct.dataGb} GB`
     : "";
   const [selectedProductId, setSelectedProductId] = useState("");
-  const [hasScrolled, setHasScrolled] = useState(false);
   const [activeSegment, setActiveSegment] = useState<"standard" | "unlimited">(
-    recommendedProduct?.unlimited ? "unlimited" : "standard"
+    recommendedProduct?.unlimited ? "unlimited" : "standard",
   );
   const [localQuantity, setLocalQuantity] = useState(travelers);
 
@@ -405,16 +416,6 @@ function PackagesPage() {
       isTest: selectedProduct.isTest,
     });
   };
-
-  useEffect(() => {
-    if (!recommendedProduct || hasScrolled) return;
-    setHasScrolled(true);
-    requestAnimationFrame(() =>
-      document
-        .getElementById(`esim-package-${recommendedProduct.id}`)
-        ?.scrollIntoView({ behavior: "smooth", block: "center" }),
-    );
-  }, [hasScrolled, recommendedProduct]);
 
   if (!availability.isPending && !availability.esim.storefront) {
     return (
@@ -480,26 +481,37 @@ function PackagesPage() {
           <p className="mt-2 text-xs text-muted-foreground">{copy.perTraveler(travelers)}</p>
         )}
 
-        <div className="mt-3">
+        <div className="mt-4">
           <DeviceCompatibilityInline />
-        <div className="mt-6 flex sm:hidden">
-          <div className="flex w-full rounded-xl bg-secondary/50 p-1">
-            <button
+          <div className="mt-6">
+            <span className="block text-xs font-bold uppercase text-primary">
+              {destinationCountry ? `${destinationCountry.name[locale]} · ` : ""}
+              {copy.choosePlan}
+            </span>
+            <div className="mt-2 grid w-full grid-cols-2 rounded-xl bg-secondary/70 p-1" role="tablist">
+            <Button
               type="button"
-              className={`flex-1 rounded-lg py-2 text-sm font-bold transition-colors ${activeSegment === "standard" ? "bg-card text-primary shadow-sm" : "text-muted-foreground"}`}
+              variant={activeSegment === "standard" ? "light" : "ghost"}
+              className="h-11 rounded-lg shadow-none"
               onClick={() => setActiveSegment("standard")}
+              role="tab"
+              aria-selected={activeSegment === "standard"}
             >
-              {copy.standardPackages}
-            </button>
-            <button
+              {copy.standardTab}
+            </Button>
+            <Button
               type="button"
-              className={`flex-1 rounded-lg py-2 text-sm font-bold transition-colors ${activeSegment === "unlimited" ? "bg-card text-primary shadow-sm" : "text-muted-foreground"}`}
+              variant={activeSegment === "unlimited" ? "light" : "ghost"}
+              className="h-11 rounded-lg shadow-none"
               onClick={() => setActiveSegment("unlimited")}
+              role="tab"
+              aria-selected={activeSegment === "unlimited"}
             >
-              {copy.unlimited}
-            </button>
+              {copy.unlimitedTab}
+            </Button>
+            </div>
           </div>
-        </div></div>
+        </div>
 
         {isPending ? (
           <div className="mt-5 grid gap-3 sm:grid-cols-3">
@@ -510,7 +522,9 @@ function PackagesPage() {
         ) : sections.all.length ? (
           <>
             <div className="mt-6" role="radiogroup" aria-label={copy.title}>
-              {recommendedProduct && (
+              {recommendedProduct &&
+                ((activeSegment === "unlimited" && recommendedProduct.unlimited) ||
+                  (activeSegment === "standard" && !recommendedProduct.unlimited)) && (
                 <RecommendedPackageCard
                   key={recommendedProduct.id}
                   pkg={recommendedProduct}
@@ -543,24 +557,30 @@ function PackagesPage() {
                         </span>
                       </div>
                     </div>
-                    <div className="flex items-center gap-2 rounded-lg bg-secondary/50 p-1">
-                      <button
+                    <div className="flex items-center gap-1 rounded-lg bg-secondary/60 p-1" aria-label={copy.quantity}>
+                      <Button
                         type="button"
+                        variant="ghost"
+                        size="icon"
                         onClick={() => setLocalQuantity(Math.max(1, localQuantity - 1))}
-                        className="flex size-7 items-center justify-center rounded-md bg-card text-primary shadow-sm disabled:opacity-50"
+                        className="size-8 rounded-md bg-card text-primary shadow-sm"
                         disabled={localQuantity <= 1}
+                        aria-label="−"
                       >
                         <Minus className="size-4" />
-                      </button>
+                      </Button>
                       <span className="min-w-6 text-center text-sm font-bold">{localQuantity}</span>
-                      <button
+                      <Button
                         type="button"
+                        variant="ghost"
+                        size="icon"
                         onClick={() => setLocalQuantity(Math.min(9, localQuantity + 1))}
-                        className="flex size-7 items-center justify-center rounded-md bg-card text-primary shadow-sm disabled:opacity-50"
+                        className="size-8 rounded-md bg-card text-primary shadow-sm"
                         disabled={localQuantity >= 9}
+                        aria-label="+"
                       >
                         <Plus className="size-4" />
-                      </button>
+                      </Button>
                     </div>
                     <Button
                       variant="cta"
@@ -588,7 +608,7 @@ function PackagesPage() {
                 </div>
               )}
             </div>
-            {(activeSegment === "standard" || !activeSegment) && (activeSegment === "standard") && sections.standard.length > 0 && (
+             {activeSegment === "standard" && sections.standard.length > 0 && (
               <SecondaryGroup
                 title={copy.standardPackages}
                 subtitle={copy.standardLead}

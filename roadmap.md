@@ -192,3 +192,12 @@
 - [x] eSIM paketlerini orb görünümden okunabilir swipe kartlarına taşı
 - [x] Lounge sonuçlarını güçlü ilk kart ve kompakt seçeneklerle yeniden düzenle
 - [x] TR/DE/EN için 360/375/390/412/430 px etkileşim ve görünüm doğrulaması
+
+## Travely clean mobile commerce
+
+- [x] Select Modern Utility Minimalism as the shared eSIM/Lounge direction
+- [x] Move the shared service selector and primary entry flow above mobile promotional content
+- [x] Simplify the Lounge finder and connect its CTA directly to real published results
+- [x] Add Standard/Unlimited package segmentation, compact two-column product cards, quantity controls, and live sticky summary
+- [x] Add recommended/alternative Lounge selection with a sticky purchase summary
+- [ ] Verify TR/DE/EN at 360/375/390/412/430 px and resolve any visual/runtime regression
