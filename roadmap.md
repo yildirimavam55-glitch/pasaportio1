@@ -300,8 +300,17 @@
 
 ## Global compact country product pages
 
-- [ ] Apply one compact image, identity, benefits, selector, and product-grid structure to every sellable single-country destination
-- [ ] Remove the duplicate local Standard/Unlimited headings and descriptions after the selector in TR/DE/EN
-- [ ] Add catalogue-derived local product counts and one clearly sliding active selector state
-- [ ] Minimize repeated country identity inside local package cards while preserving broader-coverage context
-- [ ] Verify all sellable destinations and representative countries at 360/375/390/412/430px
+- [x] Apply one compact image, identity, benefits, selector, and product-grid structure to every sellable single-country destination
+- [x] Remove the duplicate local Standard/Unlimited headings and descriptions after the selector in TR/DE/EN
+- [x] Add catalogue-derived local product counts and one clearly sliding active selector state
+- [x] Minimize repeated country identity inside local package cards while preserving broader-coverage context
+- [x] Verify all sellable destinations and representative countries at 360/375/390/412/430px
+
+## Real customer eSIM account and secure sign-out
+
+- [ ] Audit customer eSIM ownership, order/fulfillment/provider flow, usage/status/top-up capabilities, and current account/logout implementation
+- [ ] Build the authenticated account service center from real `customer_esims` rows with active/history grouping and multiple-instance support
+- [ ] Normalize statuses and calculate bounded usage/expiration only from stored or provider-backed values; show honest unavailable states otherwise
+- [ ] Add owner-only QR/install actions and capability-gated top-up or buy-again actions without exposing sensitive payloads
+- [ ] Add localized, visible sign-out with error handling, cache teardown, protected-route redirect, and back-navigation safety
+- [ ] Validate zero/one/multiple, fixed/unlimited, expired/exhausted, capability states, TR/DE/EN, and 360/390/430px

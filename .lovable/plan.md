@@ -1,21 +1,25 @@
-# Global Compact Country Product Pages
+# Real customer eSIM account and secure sign-out
 
-## Goal
-Apply one catalogue-driven country photo, compact header, selector, and product-grid structure to every sellable single-country destination, while removing repeated labels so the selected package type and first product row appear earlier on mobile.
+## Scope
+Build the existing `/hesabim` page into a real, authenticated service center without changing catalogue sync, recommendation, pricing, cart, admin, or existing public routes.
 
-## Changes
-- Keep one back action at the top and rename the country action to the localized equivalent of “Change country”; remove duplicate destination-change wording.
-- Reduce the mobile country-photo height by roughly 10–15% without changing its crop or desktop size.
-- Keep country title and delivery/roaming benefits directly below the photo in a compact two-column header.
-- Replace the current tabs with one accessible sliding segmented control: deep petrol active background, white text, check icon, subtle shadow, and calm 220–320ms movement.
-- Add catalogue-derived counts to Standard and Unlimited tabs using the complete displayable local lists for each selected destination.
-- Remove the destination eyebrow, duplicate Standard/Unlimited section heading, and explanatory subtitle before the first local product grid.
-- Start the active product grid 16–20px below the tabs, preserving the same card selection, details, expansion, quantity, sticky cart, broader-coverage sections, and catalogue logic.
-- Remove the repeated country row from local package cards to save mobile height; retain coverage context in details and broader-package cards.
-- Keep this logic generic with no country-specific exceptions, so all current and future sellable single-country destinations use the same page.
+## Implementation
+- Add authenticated server functions that explicitly scope every customer query to the signed-in user, even though row-level security already applies.
+- Load the customer profile, purchased eSIM instances, lounge bookings, and orders from the existing database tables with bounded, cache-friendly queries.
+- Keep sensitive QR and installation payloads out of the account-list response; load one eSIM's activation details only after its owner opens that action.
+- Normalize stored eSIM statuses into active/history groups and calculate usage percentages only when real total and remaining values exist. Clamp displayed percentages to 0–100 and show an honest unavailable/updating state otherwise.
+- Detect unlimited packages and fair-use details only from stored purchase/provider metadata. Never invent allowance, remaining data, expiration, status, or provider usage.
+- Build a compact TR/DE/EN account hub with profile identity, active/history eSIM cards, lounge bookings, orders, settings link, manual refresh, last-update time, and zero/one/multiple states.
+- Use mobile swipe cards with one full card and the next edge visible; use a responsive desktop grid. Show only valid actions: owner-only QR/install, provider-capability-gated top-up/extension, or buy again.
+- Add a localized customer sign-out confirmation and failure message. On success, cancel requests, clear cached/private screen data, sign out, replace history with `/`, and rely on the protected route gate to block `/hesabim`.
 
-## Validation
-- Check TR, DE, and EN at 360, 375, 390, 412, and 430px, including Turkey, Germany, France, Italy, Austria, Spain, Japan, USA, UAE, Thailand, and additional catalogue destinations.
-- Programmatically verify the compact structure across the complete sellable single-country destination set and report actual totals.
-- Confirm exactly one unmistakable active tab, correct live counts, no duplicate package heading, no scroll jump, stable tab-panel placement, fitting German labels, clean image crop, and immediate product-grid start.
-- Re-run the eSIM catalogue tests and confirm the preview remains healthy.
+## Honest capability boundaries
+- The current provider connection is catalogue-only: payment, provisioning, live status/usage, QR delivery, top-up, and extension calls are not implemented.
+- The account will faithfully render future real `customer_esims` rows, but it will not create demo rows or present unsupported provider actions as working.
+- Manual refresh will refresh the customer's stored records. Provider-backed refresh remains visibly unavailable until a provider usage endpoint exists.
+
+## Verification
+- Add focused tests for owner scoping, status grouping, usage clamping, unlimited/fair-use handling, active/history rules, and action capability rules.
+- Verify the real empty account and secure logout end to end with an authenticated session when available.
+- Verify TR/DE/EN and 360/390/430 px layouts, including no overflow and no sensitive values in logs or list responses.
+- Report PASS / FAIL / BLOCKED separately for account data, QR/install, live usage sync, top-up/extension, fulfillment chain, and logout.
