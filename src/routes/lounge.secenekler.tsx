@@ -307,11 +307,27 @@ function LoungeOptionsPage() {
                 </p>
               </div>
               <div className="flex shrink-0 items-center gap-0.5 rounded-lg bg-secondary/60 p-1">
-                <Button type="button" variant="ghost" size="icon" className="size-8 bg-card" disabled={quantity <= 1} onClick={() => setQuantity((value) => Math.max(1, value - 1))} aria-label="−">
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  className="size-8 bg-card"
+                  disabled={quantity <= 1}
+                  onClick={() => setQuantity((value) => Math.max(1, value - 1))}
+                  aria-label="−"
+                >
                   <Minus className="size-4" />
                 </Button>
                 <span className="min-w-5 text-center text-sm font-bold">{quantity}</span>
-                <Button type="button" variant="ghost" size="icon" className="size-8 bg-card" disabled={quantity >= 9} onClick={() => setQuantity((value) => Math.min(9, value + 1))} aria-label="+">
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  className="size-8 bg-card"
+                  disabled={quantity >= 9}
+                  onClick={() => setQuantity((value) => Math.min(9, value + 1))}
+                  aria-label="+"
+                >
                   <Plus className="size-4" />
                 </Button>
               </div>

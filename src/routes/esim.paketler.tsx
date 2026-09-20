@@ -513,7 +513,12 @@ function PackagesPage() {
             </div>
           </div>
           <Link to="/esim">
-            <Button type="button" variant="ghost" size="sm" className="border border-border/80 px-2.5 text-xs text-muted-foreground shadow-none">
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              className="border border-border/80 px-2.5 text-xs text-muted-foreground shadow-none"
+            >
               {copy.change}
             </Button>
           </Link>
@@ -551,36 +556,44 @@ function PackagesPage() {
         )}
 
         <div className="mt-3">
-            <div
-              className="esim-plan-tabs relative grid w-full grid-cols-2 rounded-xl bg-secondary/70 p-1"
-              data-active={activeSegment}
-              role="tablist"
-              aria-label={copy.choosePlan}
+          <div
+            className="esim-plan-tabs relative grid w-full grid-cols-2 rounded-xl bg-secondary/70 p-1"
+            data-active={activeSegment}
+            role="tablist"
+            aria-label={copy.choosePlan}
+          >
+            <span className="esim-plan-tabs-indicator" aria-hidden="true" />
+            <Button
+              type="button"
+              variant="ghost"
+              className={`relative z-10 h-11 min-w-0 rounded-lg px-2 text-sm font-bold uppercase shadow-none hover:bg-transparent ${activeSegment === "standard" ? "text-primary-foreground hover:text-primary-foreground" : "text-foreground"}`}
+              onClick={() => setActiveSegment("standard")}
+              role="tab"
+              aria-selected={activeSegment === "standard"}
             >
-              <span className="esim-plan-tabs-indicator" aria-hidden="true" />
-              <Button
-                type="button"
-                variant="ghost"
-                className={`relative z-10 h-11 min-w-0 rounded-lg px-2 text-sm font-bold uppercase shadow-none hover:bg-transparent ${activeSegment === "standard" ? "text-primary-foreground hover:text-primary-foreground" : "text-foreground"}`}
-                onClick={() => setActiveSegment("standard")}
-                role="tab"
-                aria-selected={activeSegment === "standard"}
-              >
-                {activeSegment === "standard" && <Check className="size-4 shrink-0" strokeWidth={3} />}
-                <span className="truncate">{copy.standardTab} · {standardList.length}</span>
-              </Button>
-              <Button
-                type="button"
-                variant="ghost"
-                className={`relative z-10 h-11 min-w-0 rounded-lg px-2 text-sm font-bold uppercase shadow-none hover:bg-transparent ${activeSegment === "unlimited" ? "text-primary-foreground hover:text-primary-foreground" : "text-foreground"}`}
-                onClick={() => setActiveSegment("unlimited")}
-                role="tab"
-                aria-selected={activeSegment === "unlimited"}
-              >
-                {activeSegment === "unlimited" && <Check className="size-4 shrink-0" strokeWidth={3} />}
-                <span className="truncate">{copy.unlimitedTab} · {unlimitedList.length}</span>
-              </Button>
-            </div>
+              {activeSegment === "standard" && (
+                <Check className="size-4 shrink-0" strokeWidth={3} />
+              )}
+              <span className="truncate">
+                {copy.standardTab} · {standardList.length}
+              </span>
+            </Button>
+            <Button
+              type="button"
+              variant="ghost"
+              className={`relative z-10 h-11 min-w-0 rounded-lg px-2 text-sm font-bold uppercase shadow-none hover:bg-transparent ${activeSegment === "unlimited" ? "text-primary-foreground hover:text-primary-foreground" : "text-foreground"}`}
+              onClick={() => setActiveSegment("unlimited")}
+              role="tab"
+              aria-selected={activeSegment === "unlimited"}
+            >
+              {activeSegment === "unlimited" && (
+                <Check className="size-4 shrink-0" strokeWidth={3} />
+              )}
+              <span className="truncate">
+                {copy.unlimitedTab} · {unlimitedList.length}
+              </span>
+            </Button>
+          </div>
         </div>
 
         {isPending ? (
@@ -609,18 +622,29 @@ function PackagesPage() {
                 )}
               {selectedProduct && (
                 <div className="mobile-purchase-bar fixed z-40 rounded-[1.375rem] border border-border/80 bg-card/98 px-3.5 py-3 shadow-panel backdrop-blur md:static md:mt-5 md:rounded-2xl md:p-3 md:shadow-card">
-                  <div key={selectedProduct.id} className="esim-sticky-product mx-auto grid max-w-site grid-cols-[minmax(0,1fr)_auto] items-center gap-x-3 gap-y-1.5">
+                  <div
+                    key={selectedProduct.id}
+                    className="esim-sticky-product mx-auto grid max-w-site grid-cols-[minmax(0,1fr)_auto] items-center gap-x-3 gap-y-1.5"
+                  >
                     <div className="min-w-0">
-                        <strong className="block truncate text-sm leading-tight">
-                          {selectedProduct.unlimited
-                            ? copy.unlimited
-                            : `${selectedProduct.dataGb} GB`}{" "}
-                          · {selectedProduct.validityDays ?? "—"} {copy.days}
-                        </strong>
-                        <span className="mt-1 flex min-w-0 items-center gap-1.5 text-xs text-muted-foreground">
-                          {destination && <CountryFlag iso={destination} />}
-                          <span className="truncate">{destinationCountry?.name[locale] ?? customerPackageTitle({ locale, destinationIso: destination, routeIsos, coverage: selectedProduct.coverage })}</span>
+                      <strong className="block truncate text-sm leading-tight">
+                        {selectedProduct.unlimited
+                          ? copy.unlimited
+                          : `${selectedProduct.dataGb} GB`}{" "}
+                        · {selectedProduct.validityDays ?? "—"} {copy.days}
+                      </strong>
+                      <span className="mt-1 flex min-w-0 items-center gap-1.5 text-xs text-muted-foreground">
+                        {destination && <CountryFlag iso={destination} />}
+                        <span className="truncate">
+                          {destinationCountry?.name[locale] ??
+                            customerPackageTitle({
+                              locale,
+                              destinationIso: destination,
+                              routeIsos,
+                              coverage: selectedProduct.coverage,
+                            })}
                         </span>
+                      </span>
                     </div>
                     <div
                       className="flex shrink-0 items-center gap-0.5 rounded-lg bg-secondary/60 p-1"
@@ -662,9 +686,11 @@ function PackagesPage() {
                       size="lg"
                       className="h-10 shrink-0 rounded-xl px-5 text-sm"
                       disabled={selectedProduct.salePrice == null}
-                      onClick={() => selectedInCart ? void navigate({ to: "/sepet" }) : addSelectedToCart()}
+                      onClick={() =>
+                        selectedInCart ? void navigate({ to: "/sepet" }) : addSelectedToCart()
+                      }
                     >
-                       {selectedInCart ? copy.goToCart : copy.continue}
+                      {selectedInCart ? copy.goToCart : copy.continue}
                     </Button>
                     <div className="col-span-2 flex min-w-0 items-center gap-1.5 border-t border-border/60 pt-2 text-[11px] leading-tight text-muted-foreground">
                       <LockKeyhole className="size-3.5 shrink-0 text-primary" aria-hidden="true" />
@@ -1134,21 +1160,27 @@ function SecondaryGroup({
   };
 
   return (
-    <section className={hideHeader ? "mt-0 scroll-mt-28" : isSub ? "mt-5 scroll-mt-28" : "mt-6 scroll-mt-28 sm:mt-8"}>
-      {!hideHeader && <div className="flex min-w-0 items-start gap-3 px-1 py-1">
-        <Icon
-          className={`mt-0.5 shrink-0 text-primary ${isSub ? "size-4" : "size-6"}`}
-          aria-hidden="true"
-        />
-        <div className="min-w-0">
-          {isSub ? (
-            <h3 className="font-display text-base font-bold leading-tight">{title}</h3>
-          ) : (
-            <h2 className="font-display text-xl font-bold leading-tight">{title}</h2>
-          )}
-          <p className="mt-0.5 text-xs text-muted-foreground">{subtitle}</p>
+    <section
+      className={
+        hideHeader ? "mt-0 scroll-mt-28" : isSub ? "mt-5 scroll-mt-28" : "mt-6 scroll-mt-28 sm:mt-8"
+      }
+    >
+      {!hideHeader && (
+        <div className="flex min-w-0 items-start gap-3 px-1 py-1">
+          <Icon
+            className={`mt-0.5 shrink-0 text-primary ${isSub ? "size-4" : "size-6"}`}
+            aria-hidden="true"
+          />
+          <div className="min-w-0">
+            {isSub ? (
+              <h3 className="font-display text-base font-bold leading-tight">{title}</h3>
+            ) : (
+              <h2 className="font-display text-xl font-bold leading-tight">{title}</h2>
+            )}
+            <p className="mt-0.5 text-xs text-muted-foreground">{subtitle}</p>
+          </div>
         </div>
-      </div>}
+      )}
       <div
         className={`esim-package-rail ${hideHeader ? "mt-0" : "mt-3"} ${variant === "orb" ? "is-standard" : ""} ${variant === "unlimited" ? "is-unlimited" : ""}`}
         role="radiogroup"
@@ -1191,28 +1223,32 @@ function SecondaryGroup({
                 <span className="mt-1.5 text-xs font-semibold text-muted-foreground">
                   {pkg.validityDays ?? "—"} {copy.days}
                 </span>
-                {!hideLocalCountry && <span className="mt-auto flex max-w-full items-center gap-1 text-[11px] text-muted-foreground">
-                  {pkg.coverage.length === 1 && pkg.coverage[0] ? (
-                    <>
-                      <CountryFlag iso={pkg.coverage[0]} />
-                      <span className="truncate">
-                        {getCountryByIso(pkg.coverage[0])?.name[locale] ??
-                          customerPackageTitle({
-                            locale,
-                            destinationIso,
-                            routeIsos,
-                            coverage: pkg.coverage,
-                          })}
-                      </span>
-                    </>
-                  ) : (
-                    <>
-                      <Globe2 className="size-3 shrink-0" aria-hidden="true" />
-                      <span className="truncate">{copy.countryCount(pkg.coverage.length)}</span>
-                    </>
-                  )}
-                </span>}
-                <span className={`${hideLocalCountry ? "mt-auto" : "mt-1.5"} max-w-full text-lg font-bold leading-none`}>
+                {!hideLocalCountry && (
+                  <span className="mt-auto flex max-w-full items-center gap-1 text-[11px] text-muted-foreground">
+                    {pkg.coverage.length === 1 && pkg.coverage[0] ? (
+                      <>
+                        <CountryFlag iso={pkg.coverage[0]} />
+                        <span className="truncate">
+                          {getCountryByIso(pkg.coverage[0])?.name[locale] ??
+                            customerPackageTitle({
+                              locale,
+                              destinationIso,
+                              routeIsos,
+                              coverage: pkg.coverage,
+                            })}
+                        </span>
+                      </>
+                    ) : (
+                      <>
+                        <Globe2 className="size-3 shrink-0" aria-hidden="true" />
+                        <span className="truncate">{copy.countryCount(pkg.coverage.length)}</span>
+                      </>
+                    )}
+                  </span>
+                )}
+                <span
+                  className={`${hideLocalCountry ? "mt-auto" : "mt-1.5"} max-w-full text-lg font-bold leading-none`}
+                >
                   {formatSalePrice(pkg.salePrice ?? 0, pkg.currency, locale)}
                 </span>
                 {selected && (
