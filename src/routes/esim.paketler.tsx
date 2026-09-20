@@ -480,8 +480,14 @@ function PackagesPage() {
               </span>
             </h1>
             <div className="mt-1 flex items-center gap-3 text-xs font-semibold text-muted-foreground">
-              <span className="inline-flex items-center gap-1"><Zap className="size-3.5 text-primary" />{copy.instant}</span>
-              <span className="inline-flex items-center gap-1"><Globe2 className="size-3.5 text-primary" />{copy.noRoaming}</span>
+              <span className="inline-flex items-center gap-1">
+                <Zap className="size-3.5 text-primary" />
+                {copy.instant}
+              </span>
+              <span className="inline-flex items-center gap-1">
+                <Globe2 className="size-3.5 text-primary" />
+                {copy.noRoaming}
+              </span>
             </div>
           </div>
           <Link to="/esim">
@@ -530,13 +536,13 @@ function PackagesPage() {
               {copy.choosePlan}
             </span>
             <div
-               className="mt-2 grid w-full grid-cols-2 rounded-xl bg-secondary/70 p-1"
+              className="mt-2 grid w-full grid-cols-2 rounded-xl bg-secondary/70 p-1"
               role="tablist"
             >
               <Button
                 type="button"
                 variant={activeSegment === "standard" ? "light" : "ghost"}
-                 className="h-11 rounded-lg text-sm font-bold uppercase shadow-none"
+                className="h-11 rounded-lg text-sm font-bold uppercase shadow-none"
                 onClick={() => setActiveSegment("standard")}
                 role="tab"
                 aria-selected={activeSegment === "standard"}
@@ -546,7 +552,7 @@ function PackagesPage() {
               <Button
                 type="button"
                 variant={activeSegment === "unlimited" ? "light" : "ghost"}
-                 className="h-11 rounded-lg text-sm font-bold uppercase shadow-none"
+                className="h-11 rounded-lg text-sm font-bold uppercase shadow-none"
                 onClick={() => setActiveSegment("unlimited")}
                 role="tab"
                 aria-selected={activeSegment === "unlimited"}
@@ -1098,7 +1104,7 @@ function SecondaryGroup({
         role="radiogroup"
         aria-label={title}
       >
-          {visiblePackages.map((pkg) => {
+        {visiblePackages.map((pkg) => {
           const selected = activeSelectedId === pkg.id;
           const localCountryIso = pkg.coverage.length === 1 ? pkg.coverage[0] : undefined;
           return (
@@ -1166,7 +1172,10 @@ function SecondaryGroup({
                   {formatSalePrice(pkg.salePrice ?? 0, pkg.currency, locale)}
                 </span>
                 {selected && (
-                  <span className="absolute bottom-0 right-0 grid size-5 place-items-center rounded-full bg-primary text-primary-foreground" aria-hidden="true">
+                  <span
+                    className="absolute bottom-0 right-0 grid size-5 place-items-center rounded-full bg-primary text-primary-foreground"
+                    aria-hidden="true"
+                  >
                     <Check className="size-3.5" strokeWidth={3} />
                   </span>
                 )}

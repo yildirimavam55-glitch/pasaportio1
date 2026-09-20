@@ -482,7 +482,12 @@ export function DeviceCompatibilityInline() {
       <DeviceCheckSheet
         surface="packages"
         trigger={
-          <Button variant="ghost" size="icon" className="size-8 shrink-0 text-primary" aria-label={copy.check}>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="size-8 shrink-0 text-primary"
+            aria-label={copy.check}
+          >
             <ChevronRight />
           </Button>
         }
