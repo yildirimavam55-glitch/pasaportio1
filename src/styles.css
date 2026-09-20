@@ -511,6 +511,64 @@
   animation: service-content-in 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
+.service-hero {
+  background: var(--color-lavender-soft);
+}
+.service-hero[data-service="lounge"] {
+  background: var(--color-primary-soft);
+}
+.service-hero-image {
+  object-position: 58% center;
+}
+.service-hero[data-service="lounge"] .service-hero-image {
+  object-position: 57% center;
+}
+.service-hero-scrim {
+  background: linear-gradient(
+    180deg,
+    color-mix(in oklab, var(--lavender-soft) 96%, transparent) 0%,
+    color-mix(in oklab, var(--lavender-soft) 82%, transparent) 35%,
+    color-mix(in oklab, var(--lavender-soft) 18%, transparent) 63%,
+    color-mix(in oklab, var(--foreground) 18%, transparent) 100%
+  );
+}
+.service-hero[data-service="lounge"] .service-hero-scrim {
+  background: linear-gradient(
+    180deg,
+    color-mix(in oklab, var(--primary-soft) 96%, transparent) 0%,
+    color-mix(in oklab, var(--primary-soft) 82%, transparent) 35%,
+    color-mix(in oklab, var(--primary-soft) 16%, transparent) 63%,
+    color-mix(in oklab, var(--foreground) 18%, transparent) 100%
+  );
+}
+.service-hero-content[data-phase="outgoing"] {
+  opacity: 0;
+  transform: translate3d(0, 6px, 0);
+  transition:
+    opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.service-hero-content[data-phase="incoming"],
+.service-hero-content[data-phase="incoming"] + * {
+  animation: service-content-in 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@media (min-width: 640px) {
+  .service-hero-image,
+  .service-hero[data-service="lounge"] .service-hero-image {
+    object-position: 68% center;
+  }
+  .service-hero-scrim,
+  .service-hero[data-service="lounge"] .service-hero-scrim {
+    background: linear-gradient(
+      90deg,
+      color-mix(in oklab, var(--background) 96%, transparent) 0%,
+      color-mix(in oklab, var(--background) 78%, transparent) 42%,
+      transparent 72%
+    );
+  }
+}
+
 .esim-package-rail {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
