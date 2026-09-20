@@ -548,8 +548,7 @@
     opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1),
     transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
-.service-hero-content[data-phase="incoming"],
-.service-hero-content[data-phase="incoming"] + * {
+.service-hero-content[data-phase="incoming"] {
   animation: service-content-in 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 

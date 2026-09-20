@@ -20,7 +20,7 @@ import {
   type StorefrontConfig,
   type StorefrontSection,
 } from "@/domain/storefront/registry";
-import { HERO_HEIGHT_CLASS, surfaceClasses, widthClass } from "@/domain/storefront/styles";
+import { surfaceClasses, widthClass } from "@/domain/storefront/styles";
 import { getPublishedStorefront } from "@/lib/storefront.functions";
 import { StorefrontProvider } from "@/components/storefront/StorefrontContext";
 import { FinderShell, EsimFinder, LoungeFinder } from "./Finder";
@@ -65,14 +65,8 @@ export function TravelExperience({
     queryFn: () => getPublishedStorefront({ data: { service } }),
     staleTime: 60 * 1000,
   });
-  const sharedPublished = useQuery({
-    queryKey: ["storefront", "global"],
-    queryFn: () => getPublishedStorefront({ data: { service: "global" } }),
-    staleTime: 60 * 1000,
-  });
   const availability = useServiceAvailability();
   const config = published.data?.config ?? defaultStorefront(service);
-  const sharedConfig = sharedPublished.data?.config ?? defaultStorefront("global");
 
   /** A paused service keeps its navigation but stops new discovery. */
   if (!availability.isPending && !availability[service].storefront) {
@@ -212,7 +206,7 @@ function Experience({
   const scrollToFinder = () => smoothlyShowFinder();
 
   const selectorSection = config.sections.find((s) => s.type === "SERVICE_SELECTOR");
-  const render = (section: StorefrontSection, index: number): ReactNode => {
+  const render = (section: StorefrontSection): ReactNode => {
     if (!section.visible) return null;
     if (section.type === "HERO" || section.type === "SERVICE_SELECTOR") return null; // rendered explicitly
     switch (section.type) {
