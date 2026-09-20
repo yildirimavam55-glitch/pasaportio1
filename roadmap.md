@@ -297,3 +297,11 @@
 - [x] Real starting prices from the catalogue minimum sale price; no hard-coded prices.
 - [x] Country landmark motifs removed from package cards; multi-country cards stay neutral.
 - [x] Validation: 191 sellable ISOs = 191 destination cards = 191 visuals, 0 missing, 0 duplicates; tests in `src/components/travel/destinations.test.ts`.
+
+## Global compact country product pages
+
+- [ ] Apply one compact image, identity, benefits, selector, and product-grid structure to every sellable single-country destination
+- [ ] Remove the duplicate local Standard/Unlimited headings and descriptions after the selector in TR/DE/EN
+- [ ] Add catalogue-derived local product counts and one clearly sliding active selector state
+- [ ] Minimize repeated country identity inside local package cards while preserving broader-coverage context
+- [ ] Verify all sellable destinations and representative countries at 360/375/390/412/430px
