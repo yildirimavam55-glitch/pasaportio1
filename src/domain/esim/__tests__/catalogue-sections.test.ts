@@ -154,7 +154,7 @@ describe("buildCatalogueSections", () => {
       const sections = buildCatalogueSections(catalogue, { ...input, coverageIsos: [iso] });
       assertInvariant(sections);
       expect(sections.counters.unique).toBe(5);
-      expect(sectionOf(sections, `${iso}-glob-u`)).toEqual(["BROADER"]);
+      expect(sectionOf(sections, `${iso}-glob-u`)).toEqual(["BROADER_UNLIMITED"]);
       expect(sectionOf(sections, `${iso}-glob`)).toEqual(["BROADER"]);
     }
   });
