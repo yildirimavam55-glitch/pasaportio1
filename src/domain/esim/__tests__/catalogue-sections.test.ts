@@ -50,7 +50,7 @@ describe("buildCatalogueSections", () => {
     assertInvariant(sections);
   });
 
-  it("TEST 2: unlimited global appears only under broader coverage, never unlimited", () => {
+  it("TEST 2: unlimited global appears only under broader unlimited, never local unlimited", () => {
     const sections = buildCatalogueSections(
       [
         pkg({ id: "local-2", dataGb: 2 }),
@@ -64,7 +64,8 @@ describe("buildCatalogueSections", () => {
       ],
       input,
     );
-    expect(sectionOf(sections, "uni-global")).toEqual(["BROADER"]);
+    expect(sectionOf(sections, "uni-global")).toEqual(["BROADER_UNLIMITED"]);
+
     assertInvariant(sections);
   });
 
