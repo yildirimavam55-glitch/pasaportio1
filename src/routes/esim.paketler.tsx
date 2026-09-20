@@ -146,8 +146,7 @@ const COPY = {
     scopeRegional: "Bu destinasyon bölgesel paket kapsamında.",
     scopeGlobal: "Bu destinasyon Global paket kapsamında.",
     assistant: "Hangi pakete ihtiyacın olduğunu bilmiyor musun? Paket yardımcısını kullan →",
-    assistant: "Du weißt nicht, welches Paket passt? Paket-Assistent öffnen →",
-    assistant: "Not sure which package you need? Use the package assistant →",
+
     whyText: (need: number, size: string) =>
       `Yaklaşık ${need} GB ihtiyacın için mevcut paketler arasındaki en yakın uygun seçenek: ${size}.`,
   },
@@ -202,6 +201,7 @@ const COPY = {
     noRoaming: "Kein Roaming",
     showAllPackages: (count: number) => `Alle Standard-Pakete anzeigen (${count})`,
     showFewerPackages: "Weniger Pakete anzeigen",
+    assistant: "Unsicher? Paket-Assistent öffnen →",
 
     widerCoverage: "Pakete mit mehr Ländern",
     standardLead: "Beliebte Datenpakete für dieses Reiseziel",
@@ -231,6 +231,7 @@ const COPY = {
       "Die folgenden echten Katalogoptionen liegen unter deinem Bedarf; ändere Dauer oder Reiseziel.",
     scopeRegional: "Dieses Reiseziel ist von einem Regionalpaket abgedeckt.",
     scopeGlobal: "Dieses Reiseziel ist von einem Global-Paket abgedeckt.",
+    assistant: "Du weißt nicht, welches Paket passt? Paket-Assistent öffnen →",
     whyText: (need: number, size: string) =>
       `Für deinen Bedarf von rund ${need} GB ist dies das nächstpassende verfügbare Paket: ${size}.`,
   },
@@ -285,6 +286,7 @@ const COPY = {
     noRoaming: "No roaming",
     showAllPackages: (count: number) => `View all standard packages (${count})`,
     showFewerPackages: "Show fewer packages",
+    assistant: "Not sure? Open the package assistant →",
 
     widerCoverage: "Packages covering more countries",
     standardLead: "Popular data packages for this destination",
@@ -315,6 +317,7 @@ const COPY = {
 
     scopeRegional: "This destination is covered by a regional package.",
     scopeGlobal: "This destination is covered by a global package.",
+    assistant: "Not sure which package you need? Use the package assistant →",
     whyText: (need: number, size: string) =>
       `For your roughly ${need} GB need, this is the closest suitable available option: ${size}.`,
   },
@@ -726,16 +729,13 @@ function PackagesPage() {
                 copy={copy}
               />
             )}
-          
+
             {directMode && (
               <div className="mt-8 px-1 text-center">
                 <Link to="/esim" hash="finder">
-                  <button
-                    type="button"
-                    className="text-sm font-semibold text-primary underline-offset-4 hover:underline"
-                  >
+                  <Button type="button" variant="link" className="min-h-11 px-0 text-sm">
                     {copy.assistant as string}
-                  </button>
+                  </Button>
                 </Link>
               </div>
             )}
@@ -743,7 +743,6 @@ function PackagesPage() {
               <DeviceCompatibilityInline />
             </div>
           </>
-        ) : (
         ) : (
           <div className="mt-5 rounded-card border border-dashed border-border bg-card p-6 text-center">
             <p className="text-sm font-semibold">
@@ -755,12 +754,9 @@ function PackagesPage() {
             {directMode && (
               <div className="mt-4 px-1 text-center">
                 <Link to="/esim" hash="finder">
-                  <button
-                    type="button"
-                    className="text-sm font-semibold text-primary underline-offset-4 hover:underline"
-                  >
+                  <Button type="button" variant="link" className="min-h-11 px-0 text-sm">
                     {copy.assistant as string}
-                  </button>
+                  </Button>
                 </Link>
               </div>
             )}

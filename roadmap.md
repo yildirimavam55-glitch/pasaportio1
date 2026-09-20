@@ -271,3 +271,11 @@
 - [x] Render reusable low-contrast inline SVG motifs for Standard and Unlimited local cards
 - [x] Preserve neutral multi-country cards and future-safe unknown-country fallback
 - [x] Verify registry coverage, build, and 360/390/430 px representative countries
+
+## Final homepage conversion polish
+
+- [x] Compact the mobile hero while preserving its image, copy, and embedded search
+- [x] Remove the eSIM package assistant and compatibility blocks from the homepage sales path
+- [x] Keep country search navigating directly to Standard / Unlimited and live catalogue prices
+- [x] Move compatibility and the secondary package-assistant link below the product grids
+- [ ] Verify the complete purchase path at 360/390/430 px

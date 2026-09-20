@@ -56,9 +56,11 @@ import {
 export function TravelExperience({
   service,
   onServiceChange,
+  assistantRoute = false,
 }: {
   service: ServiceSlug;
   onServiceChange: (service: ServiceSlug, options?: { finderTarget?: boolean }) => void;
+  assistantRoute?: boolean;
 }) {
   const published = useQuery({
     queryKey: ["storefront", service],
@@ -84,7 +86,12 @@ export function TravelExperience({
 
   return (
     <StorefrontProvider config={config} media={published.data?.media ?? {}}>
-      <Experience service={service} onServiceChange={onServiceChange} config={config} />
+      <Experience
+        service={service}
+        onServiceChange={onServiceChange}
+        config={config}
+        assistantRoute={assistantRoute}
+      />
     </StorefrontProvider>
   );
 }
@@ -93,10 +100,12 @@ function Experience({
   service,
   onServiceChange,
   config,
+  assistantRoute,
 }: {
   service: ServiceSlug;
   onServiceChange: (service: ServiceSlug, options?: { finderTarget?: boolean }) => void;
   config: StorefrontConfig;
+  assistantRoute: boolean;
 }) {
   const { locale } = useI18n();
   const copy = localized(service === "esim" ? ESIM_CONTENT : LOUNGE_CONTENT, locale);
@@ -106,7 +115,9 @@ function Experience({
   const [loungeState, setLoungeState] = useState<LoungeFinderState>(() =>
     restoreFinderState("travel-lounge-finder", LOUNGE_SERVICE_CONFIG.initialState),
   );
-  const [assistantOpen, setAssistantOpen] = useState(false);
+  const [assistantOpen, setAssistantOpen] = useState(
+    () => assistantRoute && window.location.hash === "#finder",
+  );
   const [searchMode, setSearchMode] = useState(false);
   const { switchService, isSwitching, target, phase } = useServiceSwitchTransition();
   const selectedService = target ?? service;
@@ -214,7 +225,7 @@ function Experience({
     if (section.type === "HERO" || section.type === "SERVICE_SELECTOR") return null; // rendered explicitly
     switch (section.type) {
       case "FINDER":
-        if (service === "esim" && !assistantOpen) {
+        if (service === "esim" && (!assistantRoute || !assistantOpen)) {
           return null;
         }
         return (
@@ -240,7 +251,9 @@ function Experience({
           </div>
         );
       case "COMPATIBILITY":
-        return service === "esim" ? <DeviceCompatibilitySection key={section.id} /> : null;
+        return service === "esim" && assistantRoute && assistantOpen ? (
+          <DeviceCompatibilitySection key={section.id} />
+        ) : null;
       case "TRUST":
         return (
           <Reveal key={section.id} className="reveal-stagger">
@@ -349,7 +362,7 @@ function Experience({
           </div>
         </div>
         {config.sections.map(render)}
-        {service === "esim" && !assistantOpen && (
+        {service === "esim" && assistantRoute && !assistantOpen && (
           <div className="mx-auto mt-6 max-w-finder px-3 text-center sm:px-6">
             <button
               type="button"
@@ -467,7 +480,7 @@ function ServiceHero({
   return (
     <section className="service-hero-shell mx-auto max-w-site px-3 pt-3 sm:px-6 sm:pt-5">
       <div
-        className="service-hero relative h-[9rem] rounded-hero sm:h-[26rem] sm:rounded-[1.75rem]"
+        className="service-hero relative h-[18.5rem] rounded-hero sm:h-[26rem] sm:rounded-[1.75rem]"
         data-service={service}
         data-search-mode={searchMode || undefined}
       >
@@ -485,7 +498,7 @@ function ServiceHero({
           <div className="service-hero-scrim absolute inset-0" />
         </div>
         <div
-          className="service-hero-content relative z-10 flex h-full flex-col p-5 sm:p-8 lg:p-10"
+          className="service-hero-content relative z-10 flex h-full flex-col p-4 sm:p-8 lg:p-10"
           data-phase={phase ?? undefined}
         >
           <div className="service-hero-copy max-w-xl">
@@ -495,11 +508,11 @@ function ServiceHero({
             <h1 className="mt-2 max-w-[17rem] font-display text-[1.85rem] font-bold leading-[1.08] text-balance text-primary-foreground sm:max-w-xl sm:text-[2.65rem]">
               {copy.headline}
             </h1>
-            <p className="mt-2 hidden max-w-[18rem] text-sm sm:block font-medium leading-5 text-primary-foreground/85 sm:max-w-lg sm:text-base sm:leading-6">
+            <p className="mt-2 max-w-[18rem] text-sm font-medium leading-5 text-primary-foreground/85 sm:max-w-lg sm:text-base sm:leading-6">
               {copy.description}
             </p>
           </div>
-          <div className="service-hero-search relative z-20 mt-auto w-full max-w-xl pt-4">
+          <div className="service-hero-search relative z-20 mt-auto w-full max-w-xl pt-3 sm:pt-4">
             <QuickSearch
               service={service}
               onAirportSelect={onAirportSelect}
