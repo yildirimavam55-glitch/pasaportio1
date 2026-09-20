@@ -264,7 +264,7 @@
 - [x] Use one central photo registry across homepage, all-countries, and package destination header
 - [x] Keep regional cards abstract and package comparison cards photo-free
 - [x] Add lazy loading, fixed image dimensions, localized alt text, and future-country fallback
-- [ ] Complete catalogue counts, broken-image checks, and 360–430px visual QA
+- [x] Complete catalogue counts, broken-image checks, and 360–430px visual QA
 
 - [x] Centralize symbolic, minimal single-country, and neutral multi-country presentation modes
 - [x] Keep mapped country motifs subtle and remove decorative fallback motifs for unmapped countries
