@@ -71,7 +71,12 @@ export function TravelExperience({
   /** A paused service keeps its navigation but stops new discovery. */
   if (!availability.isPending && !availability[service].storefront) {
     return (
-      <PublicShell activeService={service} onServiceChange={onServiceChange}>
+      <PublicShell
+        activeService={service}
+        onServiceChange={(next, options) =>
+          onServiceChange(next, options?.scrollToFinder ? { finderTarget: true } : undefined)
+        }
+      >
         <ServicePausedState service={service} />
       </PublicShell>
     );
@@ -183,7 +188,7 @@ function Experience({
       scrollToFinder: Boolean(options.scrollToFinder && !nearFinder),
     };
     switchService(next, () => {
-      onServiceChange(next, { finderTarget: options.scrollToFinder });
+      onServiceChange(next, options.scrollToFinder ? { finderTarget: true } : undefined);
       const pending = pendingScrollRef.current;
       pendingScrollRef.current = null;
       const settleScroll = () => {
