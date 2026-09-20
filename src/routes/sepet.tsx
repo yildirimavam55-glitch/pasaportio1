@@ -1,6 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useState } from "react";
-import { QrCode, ShoppingCart, Trash2, TriangleAlert } from "lucide-react";
+import { Check, LockKeyhole, Minus, Plus, ShoppingCart, Trash2, Zap } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { PublicShell } from "@/components/travel/PublicShell";
@@ -12,28 +11,25 @@ import type { Locale } from "@/domain/enums";
 
 const COPY = {
   tr: {
-    title: "Sepetin", lead: "Seçtiğin ürünler. Bu aşamada ödeme alınmaz.",
+    title: "Sipariş özeti", lead: "Seçtiğin gerçek katalog ürünlerini kontrol et.",
     empty: "Sepetin şu anda boş.", browse: "eSIM paketlerine bak", lounge: "Lounge seçeneklerine bak",
-    remove: "Kaldır", total: "Toplam", quantity: "adet", checkout: "Test ödemesine geç",
+    remove: "Kaldır", total: "Toplam", quantity: "Adet", checkout: "Ödeme entegrasyonu bekleniyor",
     testBadge: "TEST", testNote: "Bu ürün test kataloğundandır. Gerçek sağlayıcı ürünü değildir.",
-    demoTitle: "Rezervasyon hazır — DEMO", demoText: "Bu yalnızca arayüz testidir. Aşağıdaki kod geçerli bir sağlayıcı kuponu veya eSIM QR kodu değildir.",
-    demoQr: "Örnek QR görünümü",
+    paymentNote: "Henüz gerçek ödeme alınmıyor. Ödeme yöntemi bağlandığında burada güvenli checkout açılacak.", secure: "Güvenli ödeme", instant: "Anında dijital teslimat", noFees: "Gizli ücret yok", unit: "Birim fiyat",
   },
   de: {
-    title: "Dein Warenkorb", lead: "Deine Auswahl. In dieser Phase erfolgt keine Zahlung.",
+    title: "Bestellübersicht", lead: "Prüfe deine Auswahl aus dem echten Katalog.",
     empty: "Dein Warenkorb ist leer.", browse: "eSIM-Pakete ansehen", lounge: "Lounges ansehen",
-    remove: "Entfernen", total: "Gesamt", quantity: "Stk.", checkout: "Zum Test-Checkout",
+    remove: "Entfernen", total: "Gesamt", quantity: "Anzahl", checkout: "Zahlungsintegration ausstehend",
     testBadge: "TEST", testNote: "Testkatalog-Produkt. Kein echtes Anbieterprodukt.",
-    demoTitle: "Buchung bereit — DEMO", demoText: "Nur ein Oberflächentest. Der Code unten ist kein gültiger Anbieter-Voucher und kein eSIM-QR-Code.",
-    demoQr: "QR-Beispielansicht",
+    paymentNote: "Es wird noch keine echte Zahlung eingezogen. Der sichere Checkout erscheint nach Anbindung des Zahlungsanbieters.", secure: "Sichere Zahlung", instant: "Sofortige digitale Lieferung", noFees: "Keine versteckten Gebühren", unit: "Stückpreis",
   },
   en: {
-    title: "Your cart", lead: "Your selection. No payment is taken at this stage.",
+    title: "Order summary", lead: "Review your selected live catalogue products.",
     empty: "Your cart is empty.", browse: "Browse eSIM packages", lounge: "Browse lounges",
-    remove: "Remove", total: "Total", quantity: "pcs", checkout: "Go to test checkout",
+    remove: "Remove", total: "Total", quantity: "Quantity", checkout: "Payment integration pending",
     testBadge: "TEST", testNote: "Test catalogue product. Not real provider inventory.",
-    demoTitle: "Booking ready — DEMO", demoText: "Interface test only. The code below is not a valid provider voucher or eSIM QR code.",
-    demoQr: "Sample QR preview",
+    paymentNote: "No real payment is taken yet. Secure checkout will open here after a payment provider is connected.", secure: "Secure payment", instant: "Instant digital delivery", noFees: "No hidden fees", unit: "Unit price",
   },
 } satisfies Record<Locale, Record<string, string>>;
 
@@ -54,31 +50,7 @@ export const Route = createFileRoute("/sepet")({
 function CartPage() {
   const { locale } = useI18n();
   const copy = COPY[locale];
-  const { lines, removeLine } = useCart();
-  const [demo, setDemo] = useState(false);
-  const [checking, setChecking] = useState(false);
-  const [blocked, setBlocked] = useState<string | null>(null);
-
-  /** Purchase permission is verified on the server, never only in the browser. */
-  const startCheckout = async () => {
-    setChecking(true);
-    setBlocked(null);
-    try {
-      const services = [...new Set(lines.map((line) => (line.serviceType === "LOUNGE" ? "lounge" : "esim") as "esim" | "lounge"))];
-      for (const service of services) {
-        const result = await assertCheckoutAllowed({ data: { service } });
-        if (!result.allowed) {
-          setBlocked(settingsText(result.message, locale, "Yeni siparişler kısa süreliğine durduruldu."));
-          return;
-        }
-      }
-      setDemo(true);
-    } catch {
-      setBlocked("Şu anda devam edilemiyor. Lütfen kısa süre sonra tekrar deneyin.");
-    } finally {
-      setChecking(false);
-    }
-  };
+  const { lines, removeLine, updateQuantity } = useCart();
 
   const currency = lines[0]?.currency ?? "EUR";
   const money = (value: number) => new Intl.NumberFormat(undefined, { style: "currency", currency }).format(value);
@@ -113,9 +85,12 @@ function CartPage() {
                     <span className="mt-0.5 block text-sm text-muted-foreground">
                       {[line.meta, line.airport, line.terminal, line.date, line.situation].filter(Boolean).join(" · ")}
                     </span>
-                    <span className="mt-1 block text-sm font-semibold">
-                      {line.quantity} {copy.quantity} · {money((line.price ?? 0) * line.quantity)}
-                    </span>
+                    <span className="mt-1 block text-xs text-muted-foreground">{copy.unit}: {money(line.price ?? 0)}</span>
+                    <div className="mt-3 flex items-center gap-1" aria-label={copy.quantity}>
+                      <Button type="button" variant="outline" size="icon" className="size-8" disabled={line.quantity <= 1} onClick={() => updateQuantity(line.productId, line.quantity - 1)}><Minus className="size-3.5" /></Button>
+                      <span className="min-w-7 text-center text-sm font-bold">{line.quantity}</span>
+                      <Button type="button" variant="outline" size="icon" className="size-8" disabled={line.quantity >= 9} onClick={() => updateQuantity(line.productId, line.quantity + 1)}><Plus className="size-3.5" /></Button>
+                    </div>
                     {line.isTest && <span className="mt-1 block text-xs text-muted-foreground">{copy.testNote}</span>}
                   </div>
                   <button type="button" className="shrink-0 text-muted-foreground hover:text-destructive" onClick={() => removeLine(line.productId)} aria-label={copy.remove}>
@@ -130,23 +105,15 @@ function CartPage() {
               <strong className="text-xl">{money(total)}</strong>
             </div>
 
-            <Button variant="cta" size="lg" className="mt-4 w-full scroll-mb-24" disabled={checking} onClick={() => void startCheckout()}>
+            <div className="mt-4 grid grid-cols-3 gap-2 border-y border-border py-3 text-center text-[11px] font-semibold text-muted-foreground sm:text-xs">
+              <span className="flex flex-col items-center gap-1"><LockKeyhole className="size-4 text-primary" />{copy.secure}</span>
+              <span className="flex flex-col items-center gap-1"><Zap className="size-4 text-primary" />{copy.instant}</span>
+              <span className="flex flex-col items-center gap-1"><Check className="size-4 text-primary" />{copy.noFees}</span>
+            </div>
+            <Button variant="cta" size="lg" className="mt-4 w-full scroll-mb-24" disabled>
               <ShoppingCart /> {copy.checkout}
             </Button>
-            {blocked && <p className="mt-3 rounded-xl border border-warning/40 bg-sand-soft/60 px-3 py-2 text-sm font-semibold">{blocked}</p>}
-
-            {demo && (
-              <div className="mt-4 rounded-card border border-dashed border-primary bg-primary-soft p-5 text-center">
-                <p className="flex items-center justify-center gap-2 font-display text-lg font-bold">
-                  <TriangleAlert className="size-5 text-primary" aria-hidden="true" /> {copy.demoTitle}
-                </p>
-                <p className="mt-1 text-sm text-muted-foreground">{copy.demoText}</p>
-                <div className="mx-auto mt-4 grid w-40 place-items-center gap-2 rounded-xl border-2 border-dashed border-primary bg-card p-5">
-                  <QrCode className="size-12 text-primary" aria-hidden="true" />
-                  <span className="text-xs font-bold uppercase text-primary">{copy.demoQr}</span>
-                </div>
-              </div>
-            )}
+            <p className="mt-3 rounded-xl border border-warning/35 bg-sand-soft/60 px-3 py-2 text-center text-xs font-semibold text-muted-foreground">{copy.paymentNote}</p>
           </>
         )}
       </section>

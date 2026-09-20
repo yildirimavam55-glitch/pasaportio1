@@ -26,7 +26,11 @@ function applyTheme(preference: ThemePreference) {
 }
 
 export function ThemePreferenceProvider({ children }: { children: ReactNode }) {
-  const [preference, setPreference] = useState<ThemePreference>(storedPreference);
+  const [preference, setPreference] = useState<ThemePreference>("system");
+
+  useEffect(() => {
+    setPreference(storedPreference());
+  }, []);
 
   useEffect(() => {
     applyTheme(preference);
