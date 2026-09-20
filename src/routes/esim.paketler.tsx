@@ -417,7 +417,7 @@ function PackagesPage() {
 
   return (
     <PublicShell activeService="esim">
-      <section className="mx-auto max-w-site px-4 py-5 sm:px-6 sm:py-7">
+      <section className="mx-auto max-w-site px-4 pb-[calc(11.5rem+env(safe-area-inset-bottom))] pt-5 sm:px-6 sm:pt-7 md:pb-7">
         <Button
           type="button"
           variant="ghost"
@@ -967,8 +967,14 @@ function SecondaryGroup({
   };
 
   return (
-    <section className={isSub ? "mt-4" : "mt-8"}>
-      <div className="flex min-w-0 items-start gap-3 px-1">
+    <section
+      className={
+        isSub
+          ? "mt-6 scroll-mt-28 pt-1"
+          : "mt-10 scroll-mt-28 pt-2 sm:mt-12"
+      }
+    >
+      <div className="flex min-w-0 items-start gap-3 px-1 py-1">
         <Icon
           className={`mt-0.5 shrink-0 text-primary ${isSub ? "size-4" : "size-6"}`}
           aria-hidden="true"
@@ -983,7 +989,7 @@ function SecondaryGroup({
         </div>
       </div>
       <div
-        className={`esim-package-rail mt-3 ${variant === "orb" ? "is-orb" : ""}`}
+        className={`esim-package-rail mt-3 ${variant === "orb" ? "is-orb" : ""} ${variant === "unlimited" ? "is-unlimited" : ""}`}
         role="radiogroup"
         aria-label={title}
       >
@@ -1013,21 +1019,29 @@ function SecondaryGroup({
                 />
               )}
               {variant === "coverage" && <div className="absolute inset-0 bg-image-scrim" />}
-              {pkg.id === bestForTripId && (
-                <span className="absolute left-1.5 top-1.5 z-20 rounded-full bg-primary px-2 py-0.5 text-[10px] font-bold text-primary-foreground">
-                  {copy.fitsTrip}
-                </span>
-              )}
-              <div className="relative z-10 flex h-full flex-col items-center justify-center text-center">
-                {variant === "unlimited" && <InfinityIcon className="mb-1 size-5 text-primary" />}
-                <strong className="font-display text-lg leading-tight">
+              <div
+                className={`relative z-10 flex h-full flex-col items-center text-center ${variant === "unlimited" ? "justify-start" : "justify-center"}`}
+              >
+                {variant === "unlimited" && (
+                  <div className="flex min-h-6 w-full items-start pr-8 text-left">
+                    {pkg.id === bestForTripId && (
+                      <span className="inline-flex min-h-5 items-center rounded-full bg-primary px-2 py-0.5 text-[10px] font-bold leading-tight text-primary-foreground">
+                        {copy.fitsTrip}
+                      </span>
+                    )}
+                  </div>
+                )}
+                {variant === "unlimited" && (
+                  <InfinityIcon className="mt-1 mb-1 size-5 shrink-0 text-primary" />
+                )}
+                <strong className="max-w-full font-display text-base leading-snug sm:text-lg">
                   {pkg.unlimited ? copy.unlimited : `${pkg.dataGb ?? "—"} GB`}
                   {pkg.unlimited && fairUseText(pkg) ? "*" : ""}
                 </strong>
-                <span className="mt-0.5 text-sm opacity-70">
+                <span className="mt-1 text-sm font-semibold opacity-75">
                   {pkg.validityDays ?? "—"} {copy.days}
                 </span>
-                <span className="mt-1 flex max-w-full items-center justify-center gap-1 text-[11px] opacity-75">
+                <span className="mt-2 flex max-w-full items-center justify-center gap-1 text-xs opacity-75">
                   {pkg.coverage.length === 1 && pkg.coverage[0] ? (
                     <>
                       <CountryFlag iso={pkg.coverage[0]} />
@@ -1048,11 +1062,11 @@ function SecondaryGroup({
                     </>
                   )}
                 </span>
-                <span className="mt-1 text-base font-bold">
+                <span className="mt-2 text-lg font-bold leading-none">
                   {formatSalePrice(pkg.salePrice ?? 0, pkg.currency, locale)}
                 </span>
                 <span
-                  className={`mt-2 inline-flex h-7 items-center justify-center gap-1 rounded-full px-3 text-xs font-bold ${selected ? "bg-primary text-primary-foreground" : variant === "coverage" ? "bg-background/90 text-primary" : "bg-secondary text-primary"}`}
+                  className={`mt-auto inline-flex h-8 items-center justify-center gap-1 rounded-full px-3 text-xs font-bold ${selected ? "bg-primary text-primary-foreground" : variant === "coverage" ? "bg-background/90 text-primary" : "bg-secondary text-primary"}`}
                   aria-hidden="true"
                 >
                   {selected && <Check className="size-3.5" />}
@@ -1060,7 +1074,7 @@ function SecondaryGroup({
                 </span>
               </div>
               <div
-                className="absolute right-1.5 top-1.5 z-20"
+                className="absolute right-2.5 top-2.5 z-20"
                 onClick={(event) => event.stopPropagation()}
                 onPointerDown={(event) => event.stopPropagation()}
               >

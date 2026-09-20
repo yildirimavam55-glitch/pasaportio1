@@ -175,3 +175,12 @@
 - [x] Sınırsız bölümünde sağlayıcının sunduğu her gerçek süre tek kart olarak listeleniyor
 - [x] Seyahat süresine uyan kart "Bu seyahate uygun" rozetiyle vurgulanıyor
 - [x] Ayrı "Diğer bölgelerde sınırsız" alt rafında en fazla 2 geniş kapsamlı alternatif
+
+## eSIM sonuç sayfası görsel düzeltmeleri
+
+- [x] Bölüm başlıklarının üst boşluğunu ve scroll payını güvenli hale getir
+- [x] Standart orb kartları ve yatay ray aralıklarını dengele
+- [x] Sınırsız kartlarda rozet, başlık, bilgi ikonu ve içerik hiyerarşisini ayır
+- [x] Seçili kart görünürlüğünü güçlendir
+- [x] Sticky sepet ve alt menü için safe-area uyumlu sayfa alt boşluğu ekle
+- [x] 360/375/390/412/430 px görünüm, swipe ve seçim doğrulaması
