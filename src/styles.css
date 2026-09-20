@@ -723,11 +723,6 @@
   font-size: 1.45rem;
   font-weight: 700;
 }
-.country-card-motif[data-motif="fallback"] {
-  width: 5.5rem;
-  height: 5.5rem;
-  opacity: 0.06;
-}
 .coverage-card-mark {
   position: absolute;
   right: 0.75rem;

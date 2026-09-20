@@ -255,3 +255,11 @@
 - [x] Keep whole-card selection, details sheet, subtle country motifs, and neutral broader coverage cards
 - [x] Show six Standard products first and expand remaining catalogue products in the same grid
 - [x] Verify tabs, selection, quantity, cart consistency, TR/DE/EN, and 360/375/390/412/430px
+
+## Country symbol card system
+
+- [x] Centralize symbolic, minimal single-country, and neutral multi-country presentation modes
+- [x] Keep mapped country motifs subtle and remove decorative fallback motifs for unmapped countries
+- [x] Retain localized flag and country name on every single-country Standard and Unlimited card
+- [x] Keep multi-country products image-free and landmark-free with neutral globe treatment
+- [x] Verify mapped, unmapped, and multi-country cards at 360/375/390/412/430px

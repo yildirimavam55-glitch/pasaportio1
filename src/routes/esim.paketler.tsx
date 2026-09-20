@@ -28,7 +28,7 @@ import {
   useServiceAvailability,
 } from "@/components/travel/ServiceAvailability";
 import { CountryFlag } from "@/components/travel/CountryFlag";
-import { CountryMotif } from "@/components/travel/CountryMotif";
+import { CountryMotif, getCountryCardPresentation } from "@/components/travel/CountryMotif";
 import { DeviceCompatibilityInline } from "@/components/travel/DeviceCompatibility";
 import { useI18n } from "@/i18n";
 import { getCountryByIso } from "@/domain/geo/countries";
@@ -1107,6 +1107,7 @@ function SecondaryGroup({
         {visiblePackages.map((pkg) => {
           const selected = activeSelectedId === pkg.id;
           const localCountryIso = pkg.coverage.length === 1 ? pkg.coverage[0] : undefined;
+          const cardPresentation = getCountryCardPresentation(localCountryIso, pkg.coverage.length);
           return (
             <article
               key={pkg.id}
@@ -1122,11 +1123,11 @@ function SecondaryGroup({
               onClick={(event) => selectFromCard(event, pkg.id)}
               onKeyDown={(event) => selectFromKeyboard(event, pkg.id)}
             >
-              {localCountryIso ? (
+              {cardPresentation === "symbolic-single-country" && localCountryIso ? (
                 <CountryMotif iso={localCountryIso} />
-              ) : (
+              ) : cardPresentation === "neutral-multi-country" ? (
                 <Globe2 className="coverage-card-mark" strokeWidth={1.2} aria-hidden="true" />
-              )}
+              ) : null}
               <div className="relative z-10 flex h-full min-w-0 flex-col items-start text-left">
                 {variant === "unlimited" && (
                   <div className="flex min-h-4 w-full items-start pr-7">

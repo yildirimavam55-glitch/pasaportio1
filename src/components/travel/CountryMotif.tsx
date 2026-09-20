@@ -4,7 +4,6 @@ import {
   Church,
   Flower2,
   Landmark,
-  MapPin,
   Palmtree,
   TowerControl,
   type LucideIcon,
@@ -35,13 +34,28 @@ const ICON_BY_MOTIF: Readonly<Record<MotifKey, LucideIcon>> = {
   temple: Castle,
 };
 
+export type CountryCardPresentation =
+  "symbolic-single-country" | "minimal-single-country" | "neutral-multi-country";
+
+/** One presentation decision for every card; unknown countries intentionally stay minimal. */
+export function getCountryCardPresentation(
+  countryCode: string | undefined,
+  coverageCount: number,
+): CountryCardPresentation {
+  if (coverageCount !== 1 || !countryCode) return "neutral-multi-country";
+  return MOTIF_BY_COUNTRY[countryCode.toUpperCase()]
+    ? "symbolic-single-country"
+    : "minimal-single-country";
+}
+
 /** Decorative only: the flag and localized country name remain the accessible identity. */
 export function CountryMotif({ iso }: { iso: string }) {
   const motif = MOTIF_BY_COUNTRY[iso.toUpperCase()];
-  const Icon = motif ? ICON_BY_MOTIF[motif] : MapPin;
+  if (!motif) return null;
+  const Icon = ICON_BY_MOTIF[motif];
 
   return (
-    <span className="country-card-motif" data-motif={motif ?? "fallback"} aria-hidden="true">
+    <span className="country-card-motif" data-motif={motif} aria-hidden="true">
       <Icon strokeWidth={1.15} />
       <span>{iso.slice(0, 2).toUpperCase()}</span>
     </span>
