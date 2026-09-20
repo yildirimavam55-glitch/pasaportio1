@@ -841,7 +841,17 @@ function PackageDetailsSheet({
             </div>
           ))}
         </dl>
-        {pkg.coverage.length > 1 && <CoverageSheet isos={pkg.coverage} copy={copy} />}
+        {pkg.coverage.length > 1 && (
+          <p className="mt-3 flex flex-wrap gap-1 text-xs text-muted-foreground">
+            {pkg.coverage.slice(0, 24).map((iso) => (
+              <span key={iso} className="rounded-full bg-secondary px-2 py-0.5">
+                {getCountryByIso(iso)?.name[locale] ?? iso}
+              </span>
+            ))}
+            {pkg.coverage.length > 24 && <span>+{pkg.coverage.length - 24}</span>}
+          </p>
+        )}
+
       </SheetContent>
     </Sheet>
   );
