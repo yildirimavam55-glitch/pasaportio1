@@ -30,7 +30,7 @@ export function getCountryCardPresentation(
   return "minimal-single-country";
 }
 
-function MotifArt({ motif }: { motif: CountryMotifKey }) {
+export function MotifArt({ motif }: { motif: CountryMotifKey }) {
   const ground = <path d="M8 78h84" />;
   const mountain = <path d="m7 78 25-32 12 14 15-25 34 43M28 78l16-18" />;
   const skyline = <path d="M12 78V57h13V39h14v39h9V48h17v30h8V29h14v49" />;

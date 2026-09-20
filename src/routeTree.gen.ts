@@ -15,6 +15,7 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as SepetRouteImport } from './routes/sepet'
 import { Route as EsimIndexRouteImport } from './routes/esim.index'
 import { Route as EsimPaketlerRouteImport } from './routes/esim.paketler'
+import { Route as EsimUlkelerRouteImport } from './routes/esim.ulkeler'
 import { Route as LoungeIndexRouteImport } from './routes/lounge.index'
 import { Route as LoungeSeceneklerRouteImport } from './routes/lounge.secenekler'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin.index'
@@ -79,6 +80,11 @@ const EsimIndexRoute = EsimIndexRouteImport.update({
 const EsimPaketlerRoute = EsimPaketlerRouteImport.update({
   id: '/esim/paketler',
   path: '/esim/paketler',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EsimUlkelerRoute = EsimUlkelerRouteImport.update({
+  id: '/esim/ulkeler',
+  path: '/esim/ulkeler',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LoungeIndexRoute = LoungeIndexRouteImport.update({
@@ -294,6 +300,7 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/sepet': typeof SepetRoute
   '/esim/paketler': typeof EsimPaketlerRoute
+  '/esim/ulkeler': typeof EsimUlkelerRoute
   '/lounge/secenekler': typeof LoungeSeceneklerRoute
   '/esim/': typeof EsimIndexRoute
   '/lounge/': typeof LoungeIndexRoute
@@ -337,6 +344,7 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/sepet': typeof SepetRoute
   '/esim/paketler': typeof EsimPaketlerRoute
+  '/esim/ulkeler': typeof EsimUlkelerRoute
   '/lounge/secenekler': typeof LoungeSeceneklerRoute
   '/esim': typeof EsimIndexRoute
   '/lounge': typeof LoungeIndexRoute
@@ -382,6 +390,7 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/sepet': typeof SepetRoute
   '/esim/paketler': typeof EsimPaketlerRoute
+  '/esim/ulkeler': typeof EsimUlkelerRoute
   '/lounge/secenekler': typeof LoungeSeceneklerRoute
   '/esim/': typeof EsimIndexRoute
   '/lounge/': typeof LoungeIndexRoute
@@ -427,6 +436,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/sepet'
     | '/esim/paketler'
+    | '/esim/ulkeler'
     | '/lounge/secenekler'
     | '/esim/'
     | '/lounge/'
@@ -470,6 +480,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/sepet'
     | '/esim/paketler'
+    | '/esim/ulkeler'
     | '/lounge/secenekler'
     | '/esim'
     | '/lounge'
@@ -514,6 +525,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/sepet'
     | '/esim/paketler'
+    | '/esim/ulkeler'
     | '/lounge/secenekler'
     | '/esim/'
     | '/lounge/'
@@ -559,6 +571,7 @@ export interface RootRouteChildren {
   AuthRoute: typeof AuthRoute
   SepetRoute: typeof SepetRoute
   EsimPaketlerRoute: typeof EsimPaketlerRoute
+  EsimUlkelerRoute: typeof EsimUlkelerRoute
   LoungeSeceneklerRoute: typeof LoungeSeceneklerRoute
   EsimIndexRoute: typeof EsimIndexRoute
   LoungeIndexRoute: typeof LoungeIndexRoute
@@ -607,6 +620,13 @@ declare module '@tanstack/react-router' {
       path: '/esim/paketler'
       fullPath: '/esim/paketler'
       preLoaderRoute: typeof EsimPaketlerRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/esim/ulkeler': {
+      id: '/esim/ulkeler'
+      path: '/esim/ulkeler'
+      fullPath: '/esim/ulkeler'
+      preLoaderRoute: typeof EsimUlkelerRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/lounge/': {
@@ -952,6 +972,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRoute,
   SepetRoute: SepetRoute,
   EsimPaketlerRoute: EsimPaketlerRoute,
+  EsimUlkelerRoute: EsimUlkelerRoute,
   LoungeSeceneklerRoute: LoungeSeceneklerRoute,
   EsimIndexRoute: EsimIndexRoute,
   LoungeIndexRoute: LoungeIndexRoute,
