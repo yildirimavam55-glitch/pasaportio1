@@ -225,7 +225,7 @@ describe("buildCatalogueSections", () => {
       pkg({ id: "u60", unlimited: true, dataGb: null, validityDays: 60, salePrice: 114 }),
       pkg({ id: "u90", unlimited: true, dataGb: null, validityDays: 90, salePrice: 160 }),
     ];
-    const sections = buildCatalogueSections(catalogue, { ...input, days: 14 });
+    const sections = buildCatalogueSections(catalogue, { ...input, days: 14, recommendedId: "u30" });
     const ids = sections.unlimited.map((p) => p.id);
     expect(ids.length).toBeLessThanOrEqual(3);
     // One card per validity bucket, cheapest commercial option each.
@@ -236,6 +236,7 @@ describe("buildCatalogueSections", () => {
     // pricier long-validity SKUs stay out of the first screen.
     expect(ids).not.toContain("u7");
     expect(ids).not.toContain("u90");
+
     expect(sections.counters.unlimitedTotal).toBeGreaterThan(ids.length);
     assertInvariant(sections);
   });
