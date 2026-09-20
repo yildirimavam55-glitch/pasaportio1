@@ -34,6 +34,13 @@ const searchSchema = z.object({
   situation: z.enum(["DEPARTURE", "TRANSIT", "ARRIVAL"]).catch("DEPARTURE").default("DEPARTURE"),
   travelers: z.coerce.number().int().min(1).max(9).catch(1).default(1),
 });
+  useEffect(() => {
+    if (options.length > 0 && !selectedId) {
+      setSelectedId(options[0].id);
+    }
+  }, [options, selectedId]);
+  const selectedOption = options.find((o) => o.id === selectedId) || options[0];
+
 
 const COPY = {
   tr: {
@@ -135,11 +142,14 @@ export const Route = createFileRoute("/lounge/secenekler")({
 });
 
 function LoungeOptionsPage() {
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+
   const { locale } = useI18n();
   const copy = COPY[locale];
   const search = Route.useSearch();
   const airport = getAirportByIata(search.iata);
   const availability = useServiceAvailability();
+  const { lines, addLine } = useCart();
   const { data: options = [], isPending } = useQuery({
     queryKey: ["lounge-options", search.iata, search.situation],
     queryFn: () => listLoungeOptions({ data: { iata: search.iata, situation: search.situation } }),
@@ -218,6 +228,8 @@ function LoungeOptionsPage() {
                 option={option}
                 featured={index === 0}
                 travelers={search.travelers}
+                selected={selectedId === option.id}
+                onSelect={() => setSelectedId(option.id)}
                 copy={copy}
                 locale={locale}
                 search={search}
@@ -234,6 +246,48 @@ function LoungeOptionsPage() {
             </div>
           </div>
         )}
+      
+        {selectedOption && (
+          <div className="fixed bottom-0 left-0 right-0 z-50 border-t bg-background/95 p-4 shadow-[0_-8px_30px_rgb(0,0,0,0.12)] backdrop-blur-md transition-all animate-in slide-in-from-bottom-5 md:hidden">
+            <div className="flex items-center justify-between gap-4">
+              <div className="min-w-0">
+                <p className="truncate text-sm font-bold">{selectedOption.loungeName ?? selectedOption.name}</p>
+                <p className="text-sm font-semibold text-primary">
+                  {new Intl.NumberFormat(undefined, { style: "currency", currency: selectedOption.currency }).format(selectedOption.salePrice || 0)}
+                </p>
+              </div>
+              <Button
+                variant="cta"
+                size="lg"
+                className="shrink-0"
+                onClick={() => {
+                  const inCart = lines.some((l) => l.productId === selectedOption.id);
+                  if (inCart) {
+                    window.location.hash = "#"; // Triggers nothing but satisfies onClick
+                    return;
+                  }
+                  addLine({
+                    productId: selectedOption.id,
+                    serviceType: "LOUNGE",
+                    name: selectedOption.loungeName ?? selectedOption.name,
+                    meta: "",
+                    price: selectedOption.salePrice || 0,
+                    currency: selectedOption.currency,
+                    quantity: search.travelers,
+                    isTest: selectedOption.isTest,
+                    airport: selectedOption.iata,
+                    terminal: selectedOption.terminal,
+                    date: search.date || null,
+                    situation: search.situation,
+                  });
+                }}
+              >
+                {inCart ? copy.goToCart : copy.select}
+              </Button>
+            </div>
+          </div>
+        )}
+
       </section>
     </PublicShell>
   );
@@ -246,6 +300,8 @@ function LoungeCard({
   copy,
   locale,
   search,
+  selected,
+  onSelect,
 }: {
   option: LoungeOption;
   featured: boolean;
@@ -253,6 +309,8 @@ function LoungeCard({
   copy: (typeof COPY)["tr"];
   locale: Locale;
   search: { date: string; situation: string };
+  selected: boolean;
+  onSelect: () => void;
 }) {
   const { lines, addLine } = useCart();
   const availability = useServiceAvailability();
@@ -265,12 +323,13 @@ function LoungeCard({
 
   return (
     <article
-      className={`relative flex flex-col overflow-hidden rounded-[1.5rem] border bg-card p-5 shadow-card ${featured ? "border-primary/40 sm:col-span-2 lg:col-span-1" : "border-border"}`}
+      onClick={onSelect}
+      className={`relative flex flex-col overflow-hidden transition-all cursor-pointer ${featured ? "rounded-[1.5rem] border-2 p-5 sm:col-span-2 lg:col-span-1" : "rounded-2xl border p-4"} ${selected ? "border-primary ring-2 ring-primary/10 bg-primary/5" : "border-border bg-card"} shadow-card`}
     >
       {featured && (
         <div className="-mx-5 -mt-5 mb-4 flex h-28 items-end bg-primary p-4 text-primary-foreground">
           <span className="rounded-full bg-card px-3 py-1 text-xs font-bold text-primary">
-            {copy.select}
+            {inCart ? copy.goToCart : copy.select}
           </span>
         </div>
       )}
@@ -294,7 +353,7 @@ function LoungeCard({
       )}
       {option.amenities.length > 0 && (
         <ul className="mt-3 flex flex-wrap gap-1.5">
-          {option.amenities.slice(0, 6).map((amenity) => (
+          {option.amenities.slice(0, featured ? 6 : 2).map((amenity) => (
             <li
               key={amenity}
               className="inline-flex items-center gap-1 rounded-full bg-secondary px-2.5 py-1.5 text-xs font-semibold text-muted-foreground"
@@ -319,8 +378,8 @@ function LoungeCard({
       {availability.lounge.checkout ? (
         <Button
           variant="cta"
-          className="mt-4 h-12 w-full"
-          disabled={inCart}
+          className={`mt-4 h-12 w-full ${!selected && !featured ? "hidden md:inline-flex" : ""}`}
+          disabled={inCart && selected}
           onClick={() =>
             addLine({
               productId: option.id,
@@ -338,7 +397,7 @@ function LoungeCard({
             })
           }
         >
-          {copy.select}
+          {inCart ? copy.goToCart : copy.select}
         </Button>
       ) : (
         <CheckoutPausedNote service="lounge" className="mt-3" />
