@@ -44,6 +44,12 @@ const ACCOUNT_COPY = {
   en: { trips: "My trips", signOut: "Sign out" },
 } as const;
 
+const MENU_CLOSE_LABEL = {
+  tr: "Menüyü kapat",
+  de: "Menü schließen",
+  en: "Close menu",
+} as const;
+
 function Brand() {
   return (
     <Link
