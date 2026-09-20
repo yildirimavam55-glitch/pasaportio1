@@ -337,9 +337,12 @@ function PackagesPage() {
     .map((iso: string) => iso.trim().toUpperCase().slice(0, 2))
     .filter(Boolean);
   const coverageIsos = routeIsos.length ? routeIsos : destination ? [destination] : [];
-  const days = Math.max(1, Math.min(365, search.days));
+  const days = Math.max(1, Math.min(365, search.days > 0 ? search.days : 10));
   const travelers = Math.max(1, Math.min(9, search.travelers));
   const required = Math.max(0, Math.min(1000, search.required));
+  // Direct catalogue mode: the customer arrived from the country search without
+  // answering the package assistant, so no usage summary and no recommendation.
+  const directMode = required <= 0 && !search.recommendedProductId;
   const { data: packages = [], isPending } = useQuery({
     queryKey: ["esim-packages", coverageIsos.join(",")],
     queryFn: () => listEsimPackages({ data: { coverageIsos } }),
@@ -353,7 +356,21 @@ function PackagesPage() {
     days,
     recommendedId: search.recommendedProductId || null,
   });
-  const recommendedProduct = sections.recommended;
+  const recommendedProduct = directMode ? null : sections.recommended;
+  // In direct mode the top-tier product is a normal card inside its own tab.
+  const foldedProduct = directMode ? sections.recommended : null;
+  const standardList =
+    foldedProduct && !foldedProduct.unlimited
+      ? [foldedProduct, ...sections.standard].sort(
+          (a, b) => (a.dataGb ?? 0) - (b.dataGb ?? 0) || (a.salePrice ?? 0) - (b.salePrice ?? 0),
+        )
+      : sections.standard;
+  const unlimitedList =
+    foldedProduct && foldedProduct.unlimited
+      ? [foldedProduct, ...sections.unlimited].sort(
+          (a, b) => (a.validityDays ?? 0) - (b.validityDays ?? 0),
+        )
+      : sections.unlimited;
   const recommendedLabel = recommendedProduct
     ? recommendedProduct.unlimited
       ? copy.unlimited
@@ -385,10 +402,14 @@ function PackagesPage() {
   useEffect(() => {
     if (!selectableIds) return;
     const ids = selectableIds.split(",");
-    setSelectedProductId((current) =>
-      ids.includes(current) ? current : (recommendedProduct?.id ?? ids[0] ?? ""),
-    );
-  }, [recommendedProduct?.id, selectableIds]);
+    setSelectedProductId((current) => {
+      if (ids.includes(current)) return current;
+      // Direct mode waits for a real tap, so the quantity and purchase bar only
+      // appear once the customer picks a package.
+      if (directMode) return "";
+      return recommendedProduct?.id ?? ids[0] ?? "";
+    });
+  }, [directMode, recommendedProduct?.id, selectableIds]);
 
   const addSelectedToCart = () => {
     if (!selectedProduct || selectedProduct.salePrice == null) return;
@@ -443,7 +464,9 @@ function PackagesPage() {
               {destination && <CountryFlag iso={destination} className="text-xl" />}
               <span className="truncate">{destinationCountry?.name[locale] ?? copy.title}</span>
             </h1>
-            <p className="mt-0.5 text-sm text-muted-foreground">{copy.lead}</p>
+            <p className="mt-0.5 text-sm text-muted-foreground">
+              {directMode ? copy.choosePlan : copy.lead}
+            </p>
           </div>
           <Link to="/esim">
             <Button type="button" variant="outline" size="sm">
@@ -452,31 +475,35 @@ function PackagesPage() {
           </Link>
         </div>
 
-        <div className="mt-3 flex flex-wrap items-center gap-2 text-sm font-semibold text-muted-foreground">
-          {routeIsos.length ? (
-            <span className="flex min-w-0 flex-wrap items-center gap-1">
-              <RouteIcon className="size-4 shrink-0 text-primary" aria-hidden="true" />
-              {routeIsos.map((iso) => (
-                <span key={iso} className="flex items-center gap-1">
-                  <CountryFlag iso={iso} />
+        {!directMode && (
+          <>
+            <div className="mt-3 flex flex-wrap items-center gap-2 text-sm font-semibold text-muted-foreground">
+              {routeIsos.length ? (
+                <span className="flex min-w-0 flex-wrap items-center gap-1">
+                  <RouteIcon className="size-4 shrink-0 text-primary" aria-hidden="true" />
+                  {routeIsos.map((iso) => (
+                    <span key={iso} className="flex items-center gap-1">
+                      <CountryFlag iso={iso} />
+                    </span>
+                  ))}
                 </span>
-              ))}
-            </span>
-          ) : (
-            <span className="flex items-center gap-2">
-              {destination && <CountryFlag iso={destination} />}
-              {destinationCountry?.name[locale] ?? "—"}
-            </span>
-          )}
-          <span className="text-muted-foreground">·</span>
-          <span>
-            {days} {copy.days}
-          </span>
-          <span className="text-muted-foreground">·</span>
-          <span>{copy.travelers(travelers)}</span>
-        </div>
-        {travelers > 1 && (
-          <p className="mt-2 text-xs text-muted-foreground">{copy.perTraveler(travelers)}</p>
+              ) : (
+                <span className="flex items-center gap-2">
+                  {destination && <CountryFlag iso={destination} />}
+                  {destinationCountry?.name[locale] ?? "—"}
+                </span>
+              )}
+              <span className="text-muted-foreground">·</span>
+              <span>
+                {days} {copy.days}
+              </span>
+              <span className="text-muted-foreground">·</span>
+              <span>{copy.travelers(travelers)}</span>
+            </div>
+            {travelers > 1 && (
+              <p className="mt-2 text-xs text-muted-foreground">{copy.perTraveler(travelers)}</p>
+            )}
+          </>
         )}
 
         <div className="mt-4">
@@ -612,11 +639,11 @@ function PackagesPage() {
                 </div>
               )}
             </div>
-            {activeSegment === "standard" && sections.standard.length > 0 && (
+            {activeSegment === "standard" && standardList.length > 0 && (
               <SecondaryGroup
                 title={copy.standardPackages}
                 subtitle={copy.standardLead}
-                packages={sections.standard}
+                packages={standardList}
                 variant="orb"
                 activeSelectedId={activeSelectedId}
                 onSelect={setSelectedProductId}
@@ -626,11 +653,11 @@ function PackagesPage() {
                 imageUrl={destinationImage}
               />
             )}
-            {activeSegment === "unlimited" && sections.unlimited.length > 0 && (
+            {activeSegment === "unlimited" && unlimitedList.length > 0 && (
               <SecondaryGroup
                 title={copy.moreUnlimited}
                 subtitle={copy.unlimitedLead}
-                packages={sections.unlimited}
+                packages={unlimitedList}
                 variant="unlimited"
                 activeSelectedId={activeSelectedId}
                 onSelect={setSelectedProductId}
@@ -643,12 +670,12 @@ function PackagesPage() {
             )}
             {activeSegment === "unlimited" && sections.broaderUnlimited.length > 0 && (
               <>
-                {activeSegment === "unlimited" && sections.unlimited.length === 0 && (
+                {activeSegment === "unlimited" && unlimitedList.length === 0 && (
                   <h2 className="mt-8 px-1 font-display text-xl font-bold leading-tight">
                     {copy.moreUnlimited}
                   </h2>
                 )}
-                {activeSegment === "unlimited" && sections.unlimited.length === 0 && (
+                {activeSegment === "unlimited" && unlimitedList.length === 0 && (
                   <p className="mt-1 px-1 text-xs text-muted-foreground">{copy.noLocalUnlimited}</p>
                 )}
                 <SecondaryGroup

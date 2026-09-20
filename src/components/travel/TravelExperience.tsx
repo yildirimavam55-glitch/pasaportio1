@@ -25,6 +25,13 @@ import { HERO_HEIGHT_CLASS, surfaceClasses, widthClass } from "@/domain/storefro
 import { getPublishedStorefront } from "@/lib/storefront.functions";
 import { StorefrontProvider } from "@/components/storefront/StorefrontContext";
 import { FinderShell, EsimFinder, LoungeFinder } from "./Finder";
+import { QuickSearch } from "./QuickSearch";
+
+const ASSISTANT_COPY = {
+  tr: { open: "Hangi pakete ihtiyacın olduğunu bilmiyor musun? Paket yardımcısını kullan →" },
+  de: { open: "Du weißt nicht, welches Paket passt? Paket-Assistent öffnen →" },
+  en: { open: "Not sure which package you need? Use the package assistant →" },
+} as const;
 import { DeviceCompatibilitySection } from "./DeviceCompatibility";
 import { PublicShell } from "./PublicShell";
 import { ServicePausedState, useServiceAvailability } from "./ServiceAvailability";
@@ -112,6 +119,7 @@ function Experience({
   const [loungeState, setLoungeState] = useState<LoungeFinderState>(() =>
     restoreFinderState("travel-lounge-finder", LOUNGE_SERVICE_CONFIG.initialState),
   );
+  const [assistantOpen, setAssistantOpen] = useState(false);
   const { switchService, isSwitching, target, phase } = useServiceSwitchTransition();
   const selectedService = target ?? service;
   const pendingScrollRef = useRef<{
@@ -217,6 +225,23 @@ function Experience({
     if (section.type === "HERO" || section.type === "SERVICE_SELECTOR") return null; // rendered explicitly
     switch (section.type) {
       case "FINDER":
+        if (service === "esim" && !assistantOpen) {
+          return (
+            <div
+              key={section.id}
+              className="service-finder-transition mx-auto mt-3 max-w-finder px-3 sm:px-6"
+              data-phase={phase ?? undefined}
+            >
+              <button
+                type="button"
+                onClick={() => setAssistantOpen(true)}
+                className="w-full rounded-2xl border border-dashed border-border bg-secondary/50 px-4 py-3 text-left text-sm font-semibold text-primary"
+              >
+                {ASSISTANT_COPY[locale].open}
+              </button>
+            </div>
+          );
+        }
         return (
           <div
             key={section.id}
@@ -334,6 +359,13 @@ function Experience({
           </ServiceButton>
         </div>
       </div>
+      <QuickSearch
+        service={service}
+        onAirportSelect={(airportId) => {
+          setLoungeState((prev) => ({ ...prev, airportId }));
+          smoothlyShowFinder();
+        }}
+      />
       {sharedHero && (
         <div className="hidden sm:block">
           <Hero section={sharedHero} media={sharedMedia} onFind={scrollToFinder} />

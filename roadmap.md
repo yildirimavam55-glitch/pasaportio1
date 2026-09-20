@@ -201,3 +201,11 @@
 - [x] Add Standard/Unlimited package segmentation, compact two-column product cards, quantity controls, and live sticky summary
 - [x] Add recommended/alternative Lounge selection with a sticky purchase summary
 - [x] Verify TR/DE/EN at 360/375/390/412/430 px and resolve any visual/runtime regression
+
+## Direct eSIM purchase flow (country → plan → cart)
+- [x] Service-aware quick search on the home screen (country for eSIM, airport for Lounge)
+- [x] Country selection goes straight to the package page
+- [x] Long eSIM assistant moved behind an optional link
+- [x] Direct catalogue mode on the package page (no usage box, no auto recommendation)
+- [x] Quantity and sticky purchase bar appear after a real selection
+- [x] Verified TR/DE/EN at 360–430px, tests and build passing
