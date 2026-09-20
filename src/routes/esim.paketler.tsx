@@ -154,7 +154,6 @@ function PackagesPage() {
   });
   const recommendedProduct = sections.recommended;
   const recommendedScope = recommendedProduct ? coverageScopeOf(recommendedProduct) : null;
-  const scopeNote = recommendedScope === "REGION" ? copy.scopeRegional : recommendedScope === "GLOBAL" ? copy.scopeGlobal : "";
   const recommendedLabel = recommendedProduct ? (recommendedProduct.unlimited ? copy.unlimited : `${recommendedProduct.dataGb} GB`) : "";
   const [selectedProductId, setSelectedProductId] = useState("");
   const [hasScrolled, setHasScrolled] = useState(false);
@@ -388,7 +387,7 @@ function SecondaryGroup({ title, subtitle, packages, variant, activeSelectedId, 
           const selected = activeSelectedId === pkg.id;
           return (
             <article key={pkg.id} id={`esim-package-${pkg.id}`} className={`esim-rail-card ${variant} ${selected ? "is-selected" : ""}`}>
-              {variant === "coverage" && <img src={imageUrl} alt="" loading="lazy" className="absolute inset-0 h-full w-full object-cover" style={{ objectPosition: `${35 + (pkg.coverage.length % 3) * 20}% center` }} />}
+              {variant === "coverage" && <img src={imageUrl} alt="" loading="lazy" className="absolute inset-0 h-full w-full object-cover" />}
               {variant === "coverage" && <div className="absolute inset-0 bg-image-scrim" />}
               <div className="relative z-10 flex h-full flex-col items-center justify-center text-center">
                 {variant === "unlimited" && <InfinityIcon className="mb-1 size-6 text-primary" />}
