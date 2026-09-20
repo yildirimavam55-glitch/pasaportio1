@@ -41,7 +41,9 @@ export type DeviceRecord = {
 };
 
 export function normalizeStatus(value: unknown): CompatibilityStatus {
-  return COMPATIBILITY_STATUSES.includes(value as CompatibilityStatus) ? (value as CompatibilityStatus) : "UNCERTAIN";
+  return COMPATIBILITY_STATUSES.includes(value as CompatibilityStatus)
+    ? (value as CompatibilityStatus)
+    : "UNCERTAIN";
 }
 
 function normalizeText(value: string) {
@@ -54,12 +56,18 @@ function normalizeText(value: string) {
 }
 
 /** Search across brand, family, model and aliases. */
-export function searchDevices(devices: DeviceRecord[], query: string, brand?: string): DeviceRecord[] {
+export function searchDevices(
+  devices: DeviceRecord[],
+  query: string,
+  brand?: string,
+): DeviceRecord[] {
   const term = normalizeText(query);
   const scoped = brand ? devices.filter((device) => device.brand === brand) : devices;
   if (!term) return scoped;
   return scoped.filter((device) => {
-    const haystack = normalizeText([device.brand, device.family ?? "", device.model, ...device.aliases].join(" "));
+    const haystack = normalizeText(
+      [device.brand, device.family ?? "", device.model, ...device.aliases].join(" "),
+    );
     return term.split(" ").every((part) => haystack.includes(part));
   });
 }
