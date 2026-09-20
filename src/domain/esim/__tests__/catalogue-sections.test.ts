@@ -211,6 +211,9 @@ describe("buildCatalogueSections", () => {
     expect(sections.unlimited.map((p) => p.id)).toEqual(["tru7", "tru30"]);
     expect(sections.broaderCoverage.map((p) => p.id)).toEqual(["glob50", "eu20", "globu"]);
     assertInvariant(sections);
+  });
+
+
 
   it("TEST 10: unlimited is curated to a few trip-relevant validity buckets", () => {
     const catalogue = [
