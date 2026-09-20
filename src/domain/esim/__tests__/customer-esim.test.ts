@@ -33,9 +33,27 @@ describe("customer eSIM presentation", () => {
 
   it("moves expired and exhausted records to history", () => {
     const now = new Date("2026-09-20T12:00:00Z");
-    expect(isHistoryEsim({ status: "ACTIVE", totalMb: 100, remainingMb: 0, expiresAt: null, now })).toBe(true);
-    expect(isHistoryEsim({ status: "ACTIVE", totalMb: 100, remainingMb: 50, expiresAt: "2026-09-19T00:00:00Z", now })).toBe(true);
-    expect(isHistoryEsim({ status: "ACTIVE", totalMb: 100, remainingMb: 50, expiresAt: "2026-09-30T00:00:00Z", now })).toBe(false);
+    expect(
+      isHistoryEsim({ status: "ACTIVE", totalMb: 100, remainingMb: 0, expiresAt: null, now }),
+    ).toBe(true);
+    expect(
+      isHistoryEsim({
+        status: "ACTIVE",
+        totalMb: 100,
+        remainingMb: 50,
+        expiresAt: "2026-09-19T00:00:00Z",
+        now,
+      }),
+    ).toBe(true);
+    expect(
+      isHistoryEsim({
+        status: "ACTIVE",
+        totalMb: 100,
+        remainingMb: 50,
+        expiresAt: "2026-09-30T00:00:00Z",
+        now,
+      }),
+    ).toBe(false);
     expect(remainingDays("2026-09-22T12:00:00Z", now)).toBe(2);
   });
 });

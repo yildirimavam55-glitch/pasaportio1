@@ -37,7 +37,9 @@ function capabilitiesFromRow(row: Record<string, unknown>) {
     : (orderItem as JsonObject).providers;
   if (!provider || typeof provider !== "object") return [];
   const capabilities = (provider as JsonObject).capabilities;
-  return Array.isArray(capabilities) ? capabilities.filter((item): item is string => typeof item === "string") : [];
+  return Array.isArray(capabilities)
+    ? capabilities.filter((item): item is string => typeof item === "string")
+    : [];
 }
 
 export const getCustomerAccount = createServerFn({ method: "GET" })
@@ -59,19 +61,24 @@ export const getCustomerAccount = createServerFn({ method: "GET" })
         .limit(100),
       context.supabase
         .from("customer_lounge_bookings")
-        .select("id, airport_iata, terminal, lounge_name, visit_at, travelers_count, status, created_at")
+        .select(
+          "id, airport_iata, terminal, lounge_name, visit_at, travelers_count, status, created_at",
+        )
         .eq("customer_id", context.userId)
         .order("visit_at", { ascending: false })
         .limit(50),
       context.supabase
         .from("orders")
-        .select("id, order_number, status, payment_status, fulfillment_status, currency, gross_revenue, created_at")
+        .select(
+          "id, order_number, status, payment_status, fulfillment_status, currency, gross_revenue, created_at",
+        )
         .eq("customer_id", context.userId)
         .order("created_at", { ascending: false })
         .limit(50),
     ]);
 
-    const error = profileResult.error ?? esimsResult.error ?? loungesResult.error ?? ordersResult.error;
+    const error =
+      profileResult.error ?? esimsResult.error ?? loungesResult.error ?? ordersResult.error;
     if (error) throw new Error("Hesap bilgileri yüklenemedi.");
 
     const esims: CustomerEsimRecord[] = (esimsResult.data ?? []).map((row) => {

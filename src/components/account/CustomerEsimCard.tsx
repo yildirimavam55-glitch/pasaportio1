@@ -88,7 +88,8 @@ const COPY = {
     buyAgain: "Erneut kaufen",
     extend: "Verlängern",
     activationTitle: "eSIM installieren",
-    activationText: "Scanne den QR-Code in den Einstellungen des Telefons, das du verwenden möchtest.",
+    activationText:
+      "Scanne den QR-Code in den Einstellungen des Telefons, das du verwenden möchtest.",
     noQr: "Der QR-Code ist noch nicht verfügbar.",
     iccid: "ICCID",
     close: "Schließen",
@@ -165,7 +166,10 @@ export function CustomerEsimCard({ esim, locale }: { esim: CustomerEsimRecord; l
   const usage = boundedUsagePercent(esim.totalDataMb, esim.remainingDataMb);
   const days = remainingDays(esim.expiresAt);
   const fairUse = fairUseText(esim.installInfo);
-  const lowData = esim.totalDataMb != null && esim.remainingDataMb != null && esim.remainingDataMb / esim.totalDataMb <= 0.2;
+  const lowData =
+    esim.totalDataMb != null &&
+    esim.remainingDataMb != null &&
+    esim.remainingDataMb / esim.totalDataMb <= 0.2;
   const readyForActivation = status === "READY" || status === "ACTIVE";
   const canTopUp = esim.topupSupported && hasCapability(esim, "TOPUP");
   const canExtend = hasCapability(esim, "EXTENSION");
@@ -180,62 +184,197 @@ export function CustomerEsimCard({ esim, locale }: { esim: CustomerEsimRecord; l
     let current = true;
     if (!activation.data?.qrPayload) {
       setQrImage(null);
-      return () => { current = false; };
+      return () => {
+        current = false;
+      };
     }
     void QRCode.toDataURL(activation.data.qrPayload, { width: 640, margin: 2 }).then((image) => {
       if (current) setQrImage(image);
     });
-    return () => { current = false; };
+    return () => {
+      current = false;
+    };
   }, [activation.data?.qrPayload]);
 
   return (
     <article className="customer-esim-card snap-start border border-border bg-card shadow-card">
       <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3">
         <div className="min-w-0">
-          <p className="truncate text-xs font-bold uppercase text-muted-foreground">{esim.destinationLabel || "eSIM"}</p>
-          <h3 className="mt-1 truncate font-display text-xl font-bold">{esim.packageLabel || "eSIM"}</h3>
+          <p className="truncate text-xs font-bold uppercase text-muted-foreground">
+            {esim.destinationLabel || "eSIM"}
+          </p>
+          <h3 className="mt-1 truncate font-display text-xl font-bold">
+            {esim.packageLabel || "eSIM"}
+          </h3>
         </div>
-        <Badge variant="outline" className={STATUS_TONE[status]}>{copy.statuses[status]}</Badge>
+        <Badge variant="outline" className={STATUS_TONE[status]}>
+          {copy.statuses[status]}
+        </Badge>
       </div>
 
       {esim.travelerLabel && (
-        <p className="mt-3 flex items-center gap-2 text-sm text-muted-foreground"><UserRound className="size-4 text-primary" /> {copy.traveler}: <strong className="text-foreground">{esim.travelerLabel}</strong></p>
+        <p className="mt-3 flex items-center gap-2 text-sm text-muted-foreground">
+          <UserRound className="size-4 text-primary" /> {copy.traveler}:{" "}
+          <strong className="text-foreground">{esim.travelerLabel}</strong>
+        </p>
       )}
 
       <div className="mt-5 rounded-xl bg-secondary/70 p-4">
         {unlimited ? (
-          <div className="flex gap-3"><InfinityIcon className="mt-0.5 size-5 shrink-0 text-primary" /><div><p className="font-bold">{copy.unlimited}</p>{fairUse ? <p className="mt-1 text-xs leading-5 text-muted-foreground">{fairUse}</p> : <p className="mt-1 text-xs text-muted-foreground">{copy.usageUnavailable}</p>}</div></div>
+          <div className="flex gap-3">
+            <InfinityIcon className="mt-0.5 size-5 shrink-0 text-primary" />
+            <div>
+              <p className="font-bold">{copy.unlimited}</p>
+              {fairUse ? (
+                <p className="mt-1 text-xs leading-5 text-muted-foreground">{fairUse}</p>
+              ) : (
+                <p className="mt-1 text-xs text-muted-foreground">{copy.usageUnavailable}</p>
+              )}
+            </div>
+          </div>
         ) : usage != null && esim.totalDataMb != null && esim.remainingDataMb != null ? (
           <>
-            <div className="flex items-end justify-between gap-3 text-sm"><span>{copy.remaining}<strong className="ml-1 text-foreground">{formatMegabytes(Math.max(0, esim.remainingDataMb), locale)}</strong></span><span className="text-xs text-muted-foreground">{Math.round(usage)}% {copy.used.toLocaleLowerCase(locale)}</span></div>
-            <div className="mt-3 h-2 overflow-hidden rounded-full bg-primary/15"><div className="h-full rounded-full bg-primary transition-transform duration-500" style={{ transform: `translateX(-${100 - usage}%)` }} /></div>
-            <p className="mt-2 text-xs text-muted-foreground">{copy.total}: {formatMegabytes(esim.totalDataMb, locale)}</p>
-            {lowData && <p className="mt-3 flex items-center gap-1.5 text-xs font-semibold text-foreground"><AlertTriangle className="size-4 text-warning" />{copy.low}</p>}
+            <div className="flex items-end justify-between gap-3 text-sm">
+              <span>
+                {copy.remaining}
+                <strong className="ml-1 text-foreground">
+                  {formatMegabytes(Math.max(0, esim.remainingDataMb), locale)}
+                </strong>
+              </span>
+              <span className="text-xs text-muted-foreground">
+                {Math.round(usage)}% {copy.used.toLocaleLowerCase(locale)}
+              </span>
+            </div>
+            <div className="mt-3 h-2 overflow-hidden rounded-full bg-primary/15">
+              <div
+                className="h-full rounded-full bg-primary transition-transform duration-500"
+                style={{ transform: `translateX(-${100 - usage}%)` }}
+              />
+            </div>
+            <p className="mt-2 text-xs text-muted-foreground">
+              {copy.total}: {formatMegabytes(esim.totalDataMb, locale)}
+            </p>
+            {lowData && (
+              <p className="mt-3 flex items-center gap-1.5 text-xs font-semibold text-foreground">
+                <AlertTriangle className="size-4 text-warning" />
+                {copy.low}
+              </p>
+            )}
           </>
         ) : (
-          <p className="flex items-center gap-2 text-sm text-muted-foreground"><RefreshCcw className="size-4 text-primary" />{status === "PREPARING" ? copy.usageUpdating : copy.usageUnavailable}</p>
+          <p className="flex items-center gap-2 text-sm text-muted-foreground">
+            <RefreshCcw className="size-4 text-primary" />
+            {status === "PREPARING" ? copy.usageUpdating : copy.usageUnavailable}
+          </p>
         )}
-        {days != null && <p className="mt-3 flex items-center gap-2 text-xs font-semibold text-foreground"><CalendarClock className="size-4 text-primary" />{days === 0 ? copy.expiresToday : `${days} ${copy.days}`}</p>}
+        {days != null && (
+          <p className="mt-3 flex items-center gap-2 text-xs font-semibold text-foreground">
+            <CalendarClock className="size-4 text-primary" />
+            {days === 0 ? copy.expiresToday : `${days} ${copy.days}`}
+          </p>
+        )}
       </div>
 
       <div className="mt-4 grid grid-cols-2 gap-2">
-        {readyForActivation && esim.hasQr && <Button variant="outline" className="min-h-11" onClick={() => setActivationOpen(true)}><QrCode />{copy.qr}</Button>}
-        {readyForActivation && esim.hasInstallInfo && <Button variant="outline" className="min-h-11" onClick={() => setActivationOpen(true)}><Smartphone />{copy.install}</Button>}
-        {canTopUp ? <Button className="min-h-11"><RefreshCcw />{copy.topup}</Button> : <Button asChild variant="cta" className="min-h-11"><Link to="/" search={{ service: "esim" }} hash="finder">{copy.buyAgain}</Link></Button>}
-        {canExtend && <Button variant="secondary" className="min-h-11"><CalendarClock />{copy.extend}</Button>}
+        {readyForActivation && esim.hasQr && (
+          <Button variant="outline" className="min-h-11" onClick={() => setActivationOpen(true)}>
+            <QrCode />
+            {copy.qr}
+          </Button>
+        )}
+        {readyForActivation && esim.hasInstallInfo && (
+          <Button variant="outline" className="min-h-11" onClick={() => setActivationOpen(true)}>
+            <Smartphone />
+            {copy.install}
+          </Button>
+        )}
+        {canTopUp ? (
+          <Button className="min-h-11">
+            <RefreshCcw />
+            {copy.topup}
+          </Button>
+        ) : (
+          <Button asChild variant="cta" className="min-h-11">
+            <Link to="/" search={{ service: "esim" }} hash="finder">
+              {copy.buyAgain}
+            </Link>
+          </Button>
+        )}
+        {canExtend && (
+          <Button variant="secondary" className="min-h-11">
+            <CalendarClock />
+            {copy.extend}
+          </Button>
+        )}
       </div>
 
-      <Sheet open={activationOpen} onOpenChange={(open) => { setActivationOpen(open); if (!open) setQrImage(null); }}>
-        <SheetContent side="bottom" className="max-h-[88dvh] overflow-y-auto rounded-t-3xl px-5 pb-[calc(1.25rem+env(safe-area-inset-bottom))] sm:left-1/2 sm:max-w-lg sm:-translate-x-1/2">
-          <SheetHeader className="pr-10 text-left"><SheetTitle>{copy.activationTitle}</SheetTitle><SheetDescription>{copy.activationText}</SheetDescription></SheetHeader>
+      <Sheet
+        open={activationOpen}
+        onOpenChange={(open) => {
+          setActivationOpen(open);
+          if (!open) setQrImage(null);
+        }}
+      >
+        <SheetContent
+          side="bottom"
+          className="max-h-[88dvh] overflow-y-auto rounded-t-3xl px-5 pb-[calc(1.25rem+env(safe-area-inset-bottom))] sm:left-1/2 sm:max-w-lg sm:-translate-x-1/2"
+        >
+          <SheetHeader className="pr-10 text-left">
+            <SheetTitle>{copy.activationTitle}</SheetTitle>
+            <SheetDescription>{copy.activationText}</SheetDescription>
+          </SheetHeader>
           <div className="mt-5 grid gap-4">
-            {activation.isLoading && <div className="mx-auto size-48 animate-pulse rounded-xl bg-secondary" />}
-            {qrImage && <img src={qrImage} alt={copy.qr} width={640} height={640} className="mx-auto size-52 rounded-xl border border-border bg-card p-2" />}
-            {!activation.isLoading && !qrImage && !activation.data?.qrPayload && <p className="rounded-xl bg-secondary p-4 text-sm text-muted-foreground">{copy.noQr}</p>}
-            {activation.data?.iccid && <p className="text-sm"><span className="text-muted-foreground">{copy.iccid}</span><strong className="ml-2 break-all">{activation.data.iccid}</strong></p>}
-            {activation.data && ["smdp_address", "activation_code", "apn", "manual_instructions"].map((key) => { const value=installString(activation.data.installInfo,key); return value ? <div key={key} className="rounded-xl bg-secondary p-3"><p className="text-xs font-bold uppercase text-muted-foreground">{key.replaceAll("_", " ")}</p><p className="mt-1 break-all text-sm font-semibold">{value}</p></div> : null; })}
-            {qrImage && <Button asChild variant="outline"><a href={qrImage} download={`travely-esim-${esim.id}.png`}><Download />{copy.download}</a></Button>}
-            <p className="flex gap-2 text-xs leading-5 text-muted-foreground"><ShieldCheck className="size-4 shrink-0 text-primary" />{locale === "tr" ? "Bu bilgiler yalnızca hesabınızda gösterilir." : locale === "de" ? "Diese Daten werden nur in deinem Konto angezeigt." : "These details are shown only in your account."}</p>
+            {activation.isLoading && (
+              <div className="mx-auto size-48 animate-pulse rounded-xl bg-secondary" />
+            )}
+            {qrImage && (
+              <img
+                src={qrImage}
+                alt={copy.qr}
+                width={640}
+                height={640}
+                className="mx-auto size-52 rounded-xl border border-border bg-card p-2"
+              />
+            )}
+            {!activation.isLoading && !qrImage && !activation.data?.qrPayload && (
+              <p className="rounded-xl bg-secondary p-4 text-sm text-muted-foreground">
+                {copy.noQr}
+              </p>
+            )}
+            {activation.data?.iccid && (
+              <p className="text-sm">
+                <span className="text-muted-foreground">{copy.iccid}</span>
+                <strong className="ml-2 break-all">{activation.data.iccid}</strong>
+              </p>
+            )}
+            {activation.data &&
+              ["smdp_address", "activation_code", "apn", "manual_instructions"].map((key) => {
+                const value = installString(activation.data.installInfo, key);
+                return value ? (
+                  <div key={key} className="rounded-xl bg-secondary p-3">
+                    <p className="text-xs font-bold uppercase text-muted-foreground">
+                      {key.replaceAll("_", " ")}
+                    </p>
+                    <p className="mt-1 break-all text-sm font-semibold">{value}</p>
+                  </div>
+                ) : null;
+              })}
+            {qrImage && (
+              <Button asChild variant="outline">
+                <a href={qrImage} download={`travely-esim-${esim.id}.png`}>
+                  <Download />
+                  {copy.download}
+                </a>
+              </Button>
+            )}
+            <p className="flex gap-2 text-xs leading-5 text-muted-foreground">
+              <ShieldCheck className="size-4 shrink-0 text-primary" />
+              {locale === "tr"
+                ? "Bu bilgiler yalnızca hesabınızda gösterilir."
+                : locale === "de"
+                  ? "Diese Daten werden nur in deinem Konto angezeigt."
+                  : "These details are shown only in your account."}
+            </p>
           </div>
         </SheetContent>
       </Sheet>

@@ -1,11 +1,5 @@
 export type CustomerEsimStatus =
-  | "PREPARING"
-  | "READY"
-  | "ACTIVE"
-  | "EXPIRED"
-  | "EXHAUSTED"
-  | "CANCELLED"
-  | "SUPPORT";
+  "PREPARING" | "READY" | "ACTIVE" | "EXPIRED" | "EXHAUSTED" | "CANCELLED" | "SUPPORT";
 
 const READY = new Set(["READY", "FULFILLED", "INSTALLED"]);
 const ACTIVE = new Set(["ACTIVE", "IN_USE", "ENABLED"]);
@@ -15,7 +9,9 @@ const CANCELLED = new Set(["CANCELLED", "CANCELED", "REFUNDED", "REVOKED"]);
 const SUPPORT = new Set(["FAILED", "ERROR", "SUPPORT", "DELIVERY_EMAIL_FAILED"]);
 
 export function normalizeCustomerEsimStatus(value: string | null | undefined): CustomerEsimStatus {
-  const status = String(value ?? "PENDING").trim().toUpperCase();
+  const status = String(value ?? "PENDING")
+    .trim()
+    .toUpperCase();
   if (READY.has(status)) return "READY";
   if (ACTIVE.has(status)) return "ACTIVE";
   if (EXPIRED.has(status)) return "EXPIRED";
@@ -66,13 +62,15 @@ export function isHistoryEsim(args: {
   if (args.totalMb != null && args.remainingMb != null && args.remainingMb <= 0) return true;
   if (args.expiresAt) {
     const expires = new Date(args.expiresAt);
-    if (!Number.isNaN(expires.getTime()) && expires.getTime() <= (args.now ?? new Date()).getTime()) return true;
+    if (!Number.isNaN(expires.getTime()) && expires.getTime() <= (args.now ?? new Date()).getTime())
+      return true;
   }
   return false;
 }
 
 export function formatMegabytes(value: number, locale: string) {
   const numberLocale = locale === "de" ? "de-DE" : locale === "tr" ? "tr-TR" : "en-US";
-  if (value >= 1024) return `${new Intl.NumberFormat(numberLocale, { maximumFractionDigits: 1 }).format(value / 1024)} GB`;
+  if (value >= 1024)
+    return `${new Intl.NumberFormat(numberLocale, { maximumFractionDigits: 1 }).format(value / 1024)} GB`;
   return `${new Intl.NumberFormat(numberLocale, { maximumFractionDigits: 0 }).format(value)} MB`;
 }

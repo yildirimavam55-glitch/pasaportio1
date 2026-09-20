@@ -177,7 +177,13 @@ export function PublicShell({
       queryClient.clear();
       await navigate({ to: "/", search: { service: "esim" }, replace: true });
     } catch {
-      toast.error(locale === "tr" ? "Çıkış yapılamadı. Lütfen tekrar deneyin." : locale === "de" ? "Abmeldung fehlgeschlagen. Bitte versuche es erneut." : "Unable to sign out. Please try again.");
+      toast.error(
+        locale === "tr"
+          ? "Çıkış yapılamadı. Lütfen tekrar deneyin."
+          : locale === "de"
+            ? "Abmeldung fehlgeschlagen. Bitte versuche es erneut."
+            : "Unable to sign out. Please try again.",
+      );
     }
   };
   return (
