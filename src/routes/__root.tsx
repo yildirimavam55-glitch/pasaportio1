@@ -15,6 +15,7 @@ import { I18nProvider } from "@/i18n";
 import { ServiceSwitchTransitionProvider } from "@/components/travel/ServiceSwitchTransition";
 import { PublishedTheme } from "@/components/PublishedTheme";
 import { Toaster } from "@/components/ui/sonner";
+import { ThemePreferenceProvider } from "@/components/ThemePreference";
 
 function NotFoundComponent() {
   return (
@@ -121,6 +122,11 @@ function RootShell({ children }: { children: ReactNode }) {
     <html lang="en">
       <head>
         <HeadContent />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){try{var t=localStorage.getItem('travely.theme')||'system';var d=t==='dark'||(t==='system'&&matchMedia('(prefers-color-scheme: dark)').matches);document.documentElement.classList.toggle('dark',d);document.documentElement.style.colorScheme=d?'dark':'light'}catch(e){}})();`,
+          }}
+        />
       </head>
       <body>
         {children}
@@ -135,14 +141,16 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <PublishedTheme />
-      <I18nProvider>
-        <ServiceSwitchTransitionProvider>
-          {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-          <Outlet />
-          <Toaster richColors position="top-center" />
-        </ServiceSwitchTransitionProvider>
-      </I18nProvider>
+      <ThemePreferenceProvider>
+        <PublishedTheme />
+        <I18nProvider>
+          <ServiceSwitchTransitionProvider>
+            {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
+            <Outlet />
+            <Toaster richColors position="top-center" />
+          </ServiceSwitchTransitionProvider>
+        </I18nProvider>
+      </ThemePreferenceProvider>
     </QueryClientProvider>
   );
 }

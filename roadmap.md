@@ -315,3 +315,12 @@
 - [x] Add owner-only QR/install actions and capability-gated top-up or buy-again actions without exposing sensitive payloads
 - [x] Add localized, visible sign-out with error handling, cache teardown, protected-route redirect, and back-navigation safety
 - [x] Validate zero-state, fixed/unlimited, expired/exhausted, capability states through tests, plus the live TR account at 360/390/430px; real one/multiple-instance provider states remain blocked by absent fulfillment rows
+
+## Final UX and commerce pass
+
+- [ ] Add persisted Light / Dark / System appearance controls and complete dark tokens
+- [ ] Preserve the compact header while adding the missing signed-out menu action
+- [ ] Remove the redundant homepage campaign banner without changing destination discovery
+- [ ] Unify eSIM and Lounge sticky purchase bars above mobile navigation
+- [ ] Refine the real-catalogue cart summary and remove fake payment-success output
+- [ ] Validate TR/DE/EN at 360/375/390/412/430px and report integration blockers honestly
