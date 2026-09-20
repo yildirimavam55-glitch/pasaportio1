@@ -766,6 +766,86 @@ function CoverageSheet({ isos, copy }: { isos: string[]; copy: (typeof COPY)["tr
 
 type RailVariant = "orb" | "unlimited" | "coverage";
 
+/** Provider fair-use wording, verbatim; never invented. */
+function fairUseText(pkg: EsimPackage): string | null {
+  return pkg.fairUseNote ?? pkg.highSpeedAllowance ?? pkg.fairUsePolicy ?? null;
+}
+
+function PackageDetailsSheet({
+  pkg,
+  copy,
+  destinationIso,
+  routeIsos,
+}: {
+  pkg: EsimPackage;
+  copy: (typeof COPY)["tr"];
+  destinationIso: string;
+  routeIsos: string[];
+}) {
+  const { locale } = useI18n();
+  const coverageLabel =
+    pkg.coverage.length === 1 && pkg.coverage[0]
+      ? (getCountryByIso(pkg.coverage[0])?.name[locale] ?? pkg.coverage[0])
+      : copy.countryCount(pkg.coverage.length);
+  const rows: Array<[string, string]> = [
+    [copy.fieldDataType, pkg.unlimited ? copy.unlimited : `${pkg.dataGb ?? "—"} GB`],
+    [copy.fieldPrice, formatSalePrice(pkg.salePrice ?? 0, pkg.currency, locale)],
+    [copy.fieldValidity, `${pkg.validityDays ?? "—"} ${copy.days}`],
+    [
+      copy.fieldCoverage,
+      `${customerPackageTitle({ locale, destinationIso, routeIsos, coverage: pkg.coverage })} · ${coverageLabel}`,
+    ],
+    [copy.fiveG, pkg.supports5g ? copy.yes : copy.no],
+    [copy.hotspot, pkg.supportsHotspot ? copy.yes : copy.no],
+    [copy.dataOnly, pkg.dataOnly ? copy.yes : copy.no],
+    [copy.topup, pkg.topupSupported ? copy.yes : copy.no],
+  ];
+  const activation = activationNote(pkg.activationPolicy, locale);
+  if (activation) rows.push([copy.fieldActivation, activation]);
+  const fairUse = fairUseText(pkg);
+  if (fairUse) rows.push([copy.fieldFairUse, fairUse]);
+  if (pkg.speedAfterFairUse) rows.push([copy.fieldFairUse, pkg.speedAfterFairUse]);
+
+  return (
+    <Sheet>
+      <SheetTrigger asChild>
+        <button
+          type="button"
+          aria-label={`${copy.detailsTitle} — ${pkg.name}`}
+          className="flex size-7 items-center justify-center rounded-full bg-background/85 text-primary shadow-card"
+        >
+          <Info className="size-4" />
+        </button>
+      </SheetTrigger>
+      <SheetContent
+        side="bottom"
+        className="max-h-[78svh] overflow-y-auto rounded-t-2xl pb-24 sm:bottom-auto sm:left-1/2 sm:top-1/2 sm:w-[min(32rem,calc(100vw-3rem))] sm:-translate-x-1/2 sm:-translate-y-1/2 sm:rounded-2xl sm:border"
+      >
+        <SheetHeader>
+          <SheetTitle>{copy.detailsTitle}</SheetTitle>
+          <SheetDescription>
+            {pkg.unlimited ? copy.unlimited : `${pkg.dataGb ?? "—"} GB`} ·{" "}
+            {pkg.validityDays ?? "—"} {copy.days}
+          </SheetDescription>
+        </SheetHeader>
+        <dl className="mt-4 grid gap-2 text-sm">
+          {rows.map(([label, value], index) => (
+            <div
+              key={`${label}-${index}`}
+              className="flex items-start justify-between gap-4 border-b border-border/60 pb-2"
+            >
+              <dt className="text-muted-foreground">{label}</dt>
+              <dd className="text-right font-semibold">{value}</dd>
+            </div>
+          ))}
+        </dl>
+        {pkg.coverage.length > 1 && <CoverageSheet isos={pkg.coverage} copy={copy} />}
+      </SheetContent>
+    </Sheet>
+  );
+}
+
+
 function SecondaryGroup({
   title,
   subtitle,
