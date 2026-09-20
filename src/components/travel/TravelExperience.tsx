@@ -312,10 +312,9 @@ function Experience({
 
   return (
     <PublicShell activeService={service} onServiceChange={requestServiceChange}>
-      {sharedHero && <Hero section={sharedHero} media={sharedMedia} onFind={scrollToFinder} />}
-      <div id="service-selector" className="mx-auto mt-5 max-w-finder px-3 sm:mt-7 sm:px-6">
+      <div id="service-selector" className="mx-auto max-w-finder px-3 pt-3 sm:pt-6 sm:px-6">
         <div
-          className="service-selector relative grid grid-cols-2 rounded-[1.15rem] border border-border/80 bg-card p-1.5 shadow-card"
+          className="service-selector relative grid grid-cols-2 rounded-xl border border-border/80 bg-secondary/70 p-1 shadow-soft"
           data-service={selectedService}
         >
           <span className="service-selector-pill" aria-hidden="true" />
@@ -335,6 +334,11 @@ function Experience({
           </ServiceButton>
         </div>
       </div>
+      {sharedHero && (
+        <div className="hidden sm:block">
+          <Hero section={sharedHero} media={sharedMedia} onFind={scrollToFinder} />
+        </div>
+      )}
       {config.sections.map(render)}
     </PublicShell>
   );
@@ -366,7 +370,7 @@ function ServiceButton({
       type="button"
       aria-pressed={active}
       onClick={onClick}
-      className={`service-selector-button relative z-10 flex min-h-12 items-center justify-center gap-2 rounded-[0.9rem] text-[15px] font-bold ${active ? "text-primary-foreground" : "text-foreground hover:text-primary"}`}
+      className={`service-selector-button relative z-10 flex min-h-11 items-center justify-center gap-2 rounded-lg text-[15px] font-bold ${active ? "text-primary-foreground" : "text-muted-foreground hover:text-primary"}`}
     >
       <span className={`service-selector-icon ${active ? "is-active" : ""}`}>{icon}</span>
       {children}

@@ -6,10 +6,8 @@ import {
   BriefcaseBusiness,
   CalendarDays,
   Check,
-  Crown,
   Gamepad2,
   Gauge,
-  Luggage,
   MapPin,
   MessageCircle,
   Minus,
@@ -21,7 +19,6 @@ import {
   Search,
   Share2,
   ShoppingCart,
-  Sofa,
   Trash2,
   Users,
   Video,
@@ -320,10 +317,10 @@ export function FinderShell({
   return (
     <section
       id="finder"
-      className="relative z-20 mx-auto mt-3 max-w-finder scroll-mt-24 px-3 sm:mt-5 sm:px-6"
+      className="relative z-20 mx-auto mt-2 max-w-finder scroll-mt-24 px-3 sm:mt-5 sm:px-6"
     >
-      <div className="rounded-[1.5rem] border border-border/70 bg-card p-4 shadow-panel sm:p-6">
-        <div className="mb-4">
+      <div className="rounded-2xl border border-border/70 bg-card p-3 shadow-card sm:p-6">
+        <div className="mb-4 hidden sm:block">
           <h2 className="font-display text-2xl font-bold leading-tight sm:text-3xl">{title}</h2>
           <p className="mt-1 text-sm leading-5 text-muted-foreground">{description}</p>
         </div>
@@ -356,7 +353,7 @@ export function FinderStep({
 
 export function FinderProgress({ labels, active }: { labels: string[]; active: number }) {
   return (
-    <ol className="mb-3 grid grid-cols-4 gap-1">
+    <ol className="mb-3 hidden grid-cols-4 gap-1 sm:grid">
       {labels.map((label, index) => (
         <li key={label} className="min-w-0">
           <span
@@ -1031,18 +1028,6 @@ export function EsimFinder({
   );
 }
 
-type LoungePreference = "COMFORT" | "PREMIUM" | "LONG_TRANSIT";
-
-const LOUNGE_PREFERENCE_OPTIONS: Array<{
-  key: LoungePreference;
-  icon: React.ReactNode;
-  tone: string;
-}> = [
-  { key: "COMFORT", icon: <Sofa />, tone: "" },
-  { key: "PREMIUM", icon: <Crown />, tone: "" },
-  { key: "LONG_TRANSIT", icon: <Luggage />, tone: "" },
-];
-
 export function LoungeFinder({
   state,
   onChange,
@@ -1051,55 +1036,23 @@ export function LoungeFinder({
   onChange: (state: LoungeFinderState) => void;
 }) {
   const { locale } = useI18n();
+  const navigate = useNavigate();
   const copy = COPY[locale];
   const airport = getAirport(state.airportId);
-  const [preference, setPreference] = useState<LoungePreference>("COMFORT");
-  const [showMockResult, setShowMockResult] = useState(false);
 
   const goToLoungeOptions = () => {
     if (!airport) return;
-    setShowMockResult(true);
+    void navigate({
+      to: "/lounge/secenekler",
+      search: {
+        airport: airport.airport[locale],
+        iata: airport.iata,
+        date: state.date,
+        situation: state.flightSituation,
+        travelers: state.travelers,
+      },
+    });
   };
-
-  const preferenceLabel = (key: LoungePreference) =>
-    key === "COMFORT"
-      ? copy.loungeComfort
-      : key === "PREMIUM"
-        ? copy.loungePremium
-        : copy.loungeLong;
-
-  // Data-driven mock lounge object. Provider-ready: replace with API response.
-  const mockLounge = airport
-    ? {
-        id: "mock-iga-ist",
-        providerId: "mock-provider",
-        airportCode: airport.iata,
-        airportName: airport.airport[locale],
-        city: airport.city[locale],
-        country: countryName(airport.countryIso, locale),
-        terminal:
-          locale === "tr"
-            ? "Dış hatlar · Terminal 1"
-            : locale === "de"
-              ? "International · Terminal 1"
-              : "International · Terminal 1",
-        name: "iGA Lounge",
-        description:
-          locale === "tr"
-            ? "Rahat koltuklar, ücretsiz Wi-Fi ve yiyecek/içecek seçenekleri"
-            : locale === "de"
-              ? "Bequeme Sitzplätze, kostenloses WLAN und Speisen/Getränke"
-              : "Comfortable seating, free Wi-Fi and food/drink options",
-        image: "",
-        amenities: ["WIFI", "FOOD", "DRINKS", "CHARGING", "QUIET"],
-        accessDuration: 180,
-        currency: "EUR",
-        price: 29.99,
-        rating: 4.8,
-        reviewCount: 1240,
-        availability: true,
-      }
-    : null;
 
   return (
     <>
@@ -1109,7 +1062,6 @@ export function LoungeFinder({
           valueId={state.airportId}
           onSelect={(next) => {
             onChange({ ...state, airportId: next.id });
-            setShowMockResult(false);
           }}
           trigger={
             <div>
@@ -1178,22 +1130,6 @@ export function LoungeFinder({
         </FinderStep>
       </div>
 
-      <div className="mt-3">
-        <FinderStep label={copy.loungeWhat} labelClassName="text-sm">
-          <div className="grid grid-cols-3 gap-2">
-            {LOUNGE_PREFERENCE_OPTIONS.map((option) => (
-              <CompactChip
-                key={option.key}
-                selected={preference === option.key}
-                icon={option.icon}
-                label={preferenceLabel(option.key)}
-                onClick={() => setPreference(option.key)}
-              />
-            ))}
-          </div>
-        </FinderStep>
-      </div>
-
       <Button
         type="button"
         variant="cta"
@@ -1204,57 +1140,6 @@ export function LoungeFinder({
       >
         <Search className="size-4" /> {copy.loungeCta}
       </Button>
-
-      {showMockResult && mockLounge && (
-        <Reveal className="recommendation-reveal mt-3">
-          <section className="overflow-hidden rounded-2xl border border-border bg-card shadow-card">
-            <div className="h-28 bg-petrol-soft" aria-hidden="true" />
-            <div className="p-4">
-              <div className="flex items-start justify-between gap-3">
-                <div>
-                  <span className="text-xs font-bold uppercase text-primary">
-                    {copy.loungeRecommended}
-                  </span>
-                  <h3 className="mt-1 font-display text-lg font-bold sm:text-xl">
-                    {mockLounge.name}
-                  </h3>
-                </div>
-                <span className="inline-flex items-center gap-1 rounded-full bg-primary-soft px-2 py-0.5 text-xs font-bold text-primary">
-                  ★ {mockLounge.rating}
-                </span>
-              </div>
-              <p className="mt-1 text-xs text-muted-foreground">
-                {mockLounge.airportName} ({mockLounge.airportCode})
-              </p>
-              <p className="text-xs text-muted-foreground">{mockLounge.terminal}</p>
-              <div className="mt-3 flex flex-wrap gap-1">
-                {mockLounge.amenities.slice(0, 5).map((amenity) => (
-                  <span
-                    key={amenity}
-                    className="rounded-full bg-secondary px-2 py-1 text-xs font-semibold text-muted-foreground"
-                  >
-                    {amenity}
-                  </span>
-                ))}
-              </div>
-              <div className="mt-4 flex items-center justify-between">
-                <div>
-                  <span className="text-xs text-muted-foreground">{copy.travelers}</span>
-                  <strong className="block font-display text-xl">
-                    €{mockLounge.price.toFixed(2)}
-                  </strong>
-                </div>
-                <Button variant="cta" size="sm">
-                  {copy.loungeBuy(mockLounge.name)}
-                </Button>
-              </div>
-              <Button variant="outline" size="sm" className="mt-2 w-full">
-                {copy.loungeDetails}
-              </Button>
-            </div>
-          </section>
-        </Reveal>
-      )}
     </>
   );
 }
