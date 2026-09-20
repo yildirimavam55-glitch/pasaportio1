@@ -417,7 +417,7 @@ function PackagesPage() {
 
   return (
     <PublicShell activeService="esim">
-      <section className="mx-auto max-w-site px-4 pb-[calc(11.5rem+env(safe-area-inset-bottom))] pt-5 sm:px-6 sm:pt-7 md:pb-7">
+      <section className="mx-auto max-w-site px-4 pb-[calc(11.5rem+env(safe-area-inset-bottom))] pt-5 sm:px-6 sm:pt-8 md:pb-8">
         <Button
           type="button"
           variant="ghost"
@@ -431,7 +431,7 @@ function PackagesPage() {
         </Button>
         <div className="mt-3 grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3">
           <div className="min-w-0">
-            <h1 className="flex min-w-0 items-center gap-2 font-display text-2xl font-bold sm:text-3xl">
+            <h1 className="flex min-w-0 items-center gap-2 font-display text-3xl font-bold leading-tight sm:text-4xl">
               {destination && <CountryFlag iso={destination} className="text-xl" />}
               <span className="truncate">{destinationCountry?.name[locale] ?? copy.title}</span>
             </h1>
@@ -483,7 +483,7 @@ function PackagesPage() {
           </div>
         ) : sections.all.length ? (
           <>
-            <div className="mt-5" role="radiogroup" aria-label={copy.title}>
+            <div className="mt-6" role="radiogroup" aria-label={copy.title}>
               {recommendedProduct && (
                 <RecommendedPackageCard
                   key={recommendedProduct.id}
@@ -498,8 +498,8 @@ function PackagesPage() {
                 />
               )}
               {selectedProduct && (
-                <div className="fixed inset-x-0 bottom-[4.7rem] z-40 border-t border-border bg-background/98 p-3 shadow-nav backdrop-blur md:static md:mt-5 md:border-0 md:bg-transparent md:p-0 md:shadow-none">
-                  <div className="mx-auto flex max-w-site items-center gap-3">
+                <div className="fixed inset-x-0 bottom-[4.7rem] z-40 border-t border-border/80 bg-card/98 p-3 shadow-nav backdrop-blur md:static md:mt-5 md:rounded-2xl md:border md:bg-card md:p-3 md:shadow-card">
+                  <div className="mx-auto grid max-w-site grid-cols-[minmax(0,1fr)_auto] items-center gap-3">
                     <div key={selectedProduct.id} className="esim-sticky-product min-w-0 flex-1">
                       <strong className="block truncate">
                         {selectedProduct.unlimited
@@ -518,7 +518,7 @@ function PackagesPage() {
                     <Button
                       variant="cta"
                       size="lg"
-                      className="shrink-0"
+                      className="h-12 shrink-0 px-4"
                       disabled={selectedInCart || selectedProduct.salePrice == null}
                       onClick={addSelectedToCart}
                     >
@@ -675,7 +675,7 @@ function RecommendedPackageCard({
   return (
     <article
       id={`esim-package-${pkg.id}`}
-      className={`relative min-h-52 cursor-pointer overflow-hidden rounded-card border shadow-card transition-[border-color,box-shadow,transform] duration-250 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring ${isSelected ? "border-primary ring-1 ring-primary" : "border-primary/40"}`}
+      className={`relative min-h-52 cursor-pointer overflow-hidden rounded-[1.5rem] border shadow-card transition-[border-color,box-shadow,transform] duration-250 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring ${isSelected ? "border-primary ring-1 ring-primary" : "border-primary/30"}`}
       role="radio"
       aria-checked={isSelected}
       tabIndex={0}
@@ -691,18 +691,18 @@ function RecommendedPackageCard({
         src={imageUrl}
         alt=""
         loading="lazy"
-        className="absolute inset-y-0 right-0 h-full w-[58%] object-cover"
+        className="absolute inset-y-0 right-0 h-full w-[52%] object-cover"
       />
-      <div className="absolute inset-0 bg-primary-soft/88" />
+      <div className="absolute inset-0 bg-primary-soft/92" />
       <div className="relative flex min-h-52 flex-col p-5 sm:p-6">
         <span className="w-fit rounded-full bg-primary px-3 py-1 text-xs font-bold text-primary-foreground">
           {copy.recommendedBadge}
         </span>
-        <strong className="mt-3 block font-display text-2xl">
+        <strong className="mt-3 block max-w-[75%] font-display text-2xl leading-tight">
           {pkg.unlimited ? copy.unlimited : `${pkg.dataGb ?? "—"} GB`} · {pkg.validityDays ?? "—"}{" "}
           {copy.days}
         </strong>
-        <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs font-semibold text-primary/80">
+        <div className="mt-2 flex max-w-[70%] flex-wrap gap-x-4 gap-y-1 text-xs font-semibold text-primary/80">
           <span className="flex items-center gap-1">
             <Signal className="size-4" />
             {customerPackageTitle({ locale, destinationIso, routeIsos, coverage: pkg.coverage })}
@@ -734,7 +734,7 @@ function RecommendedPackageCard({
         type="button"
         variant="ghost"
         size="sm"
-        className="absolute bottom-1 left-3 z-10 h-7 px-2 text-xs text-primary"
+        className="absolute right-3 top-3 z-10 h-8 bg-card/90 px-2.5 text-xs text-primary shadow-soft backdrop-blur"
         onClick={(event) => {
           event.stopPropagation();
           setShowWhy((open) => !open);
@@ -967,13 +967,7 @@ function SecondaryGroup({
   };
 
   return (
-    <section
-      className={
-        isSub
-          ? "mt-6 scroll-mt-28 pt-1"
-          : "mt-10 scroll-mt-28 pt-2 sm:mt-12"
-      }
-    >
+    <section className={isSub ? "mt-6 scroll-mt-28 pt-1" : "mt-10 scroll-mt-28 pt-2 sm:mt-12"}>
       <div className="flex min-w-0 items-start gap-3 px-1 py-1">
         <Icon
           className={`mt-0.5 shrink-0 text-primary ${isSub ? "size-4" : "size-6"}`}
@@ -989,7 +983,7 @@ function SecondaryGroup({
         </div>
       </div>
       <div
-        className={`esim-package-rail mt-3 ${variant === "orb" ? "is-orb" : ""} ${variant === "unlimited" ? "is-unlimited" : ""}`}
+        className={`esim-package-rail mt-3 ${variant === "orb" ? "is-standard" : ""} ${variant === "unlimited" ? "is-unlimited" : ""}`}
         role="radiogroup"
         aria-label={title}
       >
@@ -1019,11 +1013,9 @@ function SecondaryGroup({
                 />
               )}
               {variant === "coverage" && <div className="absolute inset-0 bg-image-scrim" />}
-              <div
-                className={`relative z-10 flex h-full flex-col items-center text-center ${variant === "unlimited" ? "justify-start" : "justify-center"}`}
-              >
+              <div className="relative z-10 flex h-full flex-col items-start text-left">
                 {variant === "unlimited" && (
-                  <div className="flex min-h-6 w-full items-start pr-8 text-left">
+                  <div className="flex min-h-6 w-full items-start pr-8">
                     {pkg.id === bestForTripId && (
                       <span className="inline-flex min-h-5 items-center rounded-full bg-primary px-2 py-0.5 text-[10px] font-bold leading-tight text-primary-foreground">
                         {copy.fitsTrip}
@@ -1032,7 +1024,7 @@ function SecondaryGroup({
                   </div>
                 )}
                 {variant === "unlimited" && (
-                  <InfinityIcon className="mt-1 mb-1 size-5 shrink-0 text-primary" />
+                  <InfinityIcon className="mb-1 mt-1 size-5 shrink-0 text-primary" />
                 )}
                 <strong className="max-w-full font-display text-base leading-snug sm:text-lg">
                   {pkg.unlimited ? copy.unlimited : `${pkg.dataGb ?? "—"} GB`}
@@ -1041,7 +1033,7 @@ function SecondaryGroup({
                 <span className="mt-1 text-sm font-semibold opacity-75">
                   {pkg.validityDays ?? "—"} {copy.days}
                 </span>
-                <span className="mt-2 flex max-w-full items-center justify-center gap-1 text-xs opacity-75">
+                <span className="mt-2 flex max-w-full items-center gap-1 text-xs opacity-75">
                   {pkg.coverage.length === 1 && pkg.coverage[0] ? (
                     <>
                       <CountryFlag iso={pkg.coverage[0]} />

@@ -1,4 +1,4 @@
-import { ArrowRight, Globe2, ShieldCheck, Zap } from "lucide-react";
+import { ArrowRight, Globe2, MapPin, Search, ShieldCheck, Zap } from "lucide-react";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { useQuery } from "@tanstack/react-query";
 import sharedHeroDesktop from "@/assets/shared-travel-hero-desktop.jpg";
@@ -313,9 +313,9 @@ function Experience({
   return (
     <PublicShell activeService={service} onServiceChange={requestServiceChange}>
       {sharedHero && <Hero section={sharedHero} media={sharedMedia} onFind={scrollToFinder} />}
-      <div id="service-selector" className="mx-auto mt-4 max-w-finder px-3 sm:mt-5 sm:px-6">
+      <div id="service-selector" className="mx-auto mt-5 max-w-finder px-3 sm:mt-7 sm:px-6">
         <div
-          className="service-selector relative grid grid-cols-2 rounded-2xl border border-border bg-card p-1.5 shadow-soft"
+          className="service-selector relative grid grid-cols-2 rounded-[1.15rem] border border-border/80 bg-card p-1.5 shadow-card"
           data-service={selectedService}
         >
           <span className="service-selector-pill" aria-hidden="true" />
@@ -366,7 +366,7 @@ function ServiceButton({
       type="button"
       aria-pressed={active}
       onClick={onClick}
-      className={`service-selector-button relative z-10 flex min-h-12 items-center justify-center gap-2 rounded-xl text-sm font-semibold ${active ? "text-primary-foreground" : "text-primary hover:text-foreground"}`}
+      className={`service-selector-button relative z-10 flex min-h-12 items-center justify-center gap-2 rounded-[0.9rem] text-[15px] font-bold ${active ? "text-primary-foreground" : "text-foreground hover:text-primary"}`}
     >
       <span className={`service-selector-icon ${active ? "is-active" : ""}`}>{icon}</span>
       {children}
@@ -398,7 +398,7 @@ function Hero({
   return (
     <section className={`mx-auto ${widthClass(section)} px-3 pt-3 sm:px-6 sm:pt-5`}>
       <div
-        className={`relative ${heightClass} overflow-hidden rounded-hero bg-primary sm:rounded-[1.75rem]`}
+        className={`relative ${heightClass} min-h-[31rem] overflow-hidden rounded-hero bg-primary sm:min-h-[34rem] sm:rounded-[1.75rem]`}
       >
         <picture>
           <source media="(max-width: 639px)" srcSet={mobileSrc} />
@@ -423,44 +423,47 @@ function Hero({
           style={{ opacity: section.overlay / 45 }}
         />
         <div
-          className={`relative flex ${heightClass} flex-col justify-between gap-5 p-5 text-hero-foreground sm:p-10 lg:p-14 ${centered ? "mx-auto items-center text-center" : ""}`}
+          className={`relative flex ${heightClass} min-h-[31rem] flex-col justify-between gap-5 p-5 text-hero-foreground sm:min-h-[34rem] sm:p-10 lg:p-14 ${centered ? "mx-auto items-center text-center" : ""}`}
         >
-          <div className="max-w-xl">
-            <p className="mb-2 text-xs font-bold uppercase text-hero-foreground/85 sm:mb-3 sm:text-sm">
+          <div className="max-w-2xl pt-2 sm:pt-4">
+            <p className="mb-3 text-sm font-bold uppercase text-hero-foreground/85 sm:mb-4">
               {tx(section, "eyebrow", locale, copy.eyebrow)}
             </p>
-            <h1 className="font-display text-[1.75rem] font-bold leading-[1.08] text-balance sm:text-5xl">
+            <h1 className="font-display text-[2.45rem] font-bold leading-[1.02] text-balance sm:text-6xl">
               {tx(section, "headline", locale, copy.headline)}
             </h1>
-            <p className="mt-2 max-w-md text-sm leading-6 text-hero-foreground/85 sm:mt-4 sm:text-lg">
+            <p className="mt-3 max-w-lg text-[15px] leading-6 text-hero-foreground/90 sm:mt-5 sm:text-lg">
               {tx(section, "description", locale, copy.description)}
             </p>
-            <div
-              className={`mt-4 flex flex-wrap gap-2 sm:mt-6 ${centered ? "justify-center" : ""}`}
-            >
+            <div className={`mt-5 sm:mt-7 ${centered ? "mx-auto" : ""}`}>
               <Button
                 onClick={onFind}
-                variant="cta"
+                variant="light"
                 size="lg"
-                className="h-12 px-5 text-sm sm:h-14 sm:px-7 sm:text-base"
+                className="grid h-14 w-full max-w-lg grid-cols-[auto_minmax(0,1fr)_auto] rounded-2xl px-3 text-left shadow-panel sm:h-16 sm:px-4"
               >
-                {tx(section, "ctaLabel", locale, copy.cta)}
-                <ArrowRight className="size-4 sm:size-5" />
+                <MapPin className="size-5 text-cta" />
+                <span className="min-w-0 text-[15px] font-bold text-foreground">
+                  {tx(section, "ctaLabel", locale, copy.cta)}
+                </span>
+                <span className="grid size-9 place-items-center rounded-xl bg-cta text-cta-foreground sm:size-10">
+                  <Search className="size-4 sm:size-5" />
+                </span>
               </Button>
             </div>
           </div>
-          <div className={`flex w-full gap-2 ${centered ? "justify-center" : ""}`}>
+          <div className={`grid w-full grid-cols-3 gap-2 ${centered ? "mx-auto" : ""}`}>
             {copy.trust.map((label, index) => {
               const TrustIcon = trustIcons[index] ?? ShieldCheck;
               return (
                 <div
                   key={label}
-                  className="flex flex-1 items-center gap-1.5 rounded-xl bg-card/90 px-2 py-2.5 text-card-foreground shadow-soft backdrop-blur sm:max-w-[10rem] sm:px-3 sm:py-2"
+                  className="flex min-w-0 items-center gap-1.5 rounded-xl bg-card/92 px-2 py-2.5 text-card-foreground shadow-soft backdrop-blur sm:max-w-[11rem] sm:px-3"
                 >
                   <span className="grid size-6 shrink-0 place-items-center rounded-full bg-primary-soft text-primary sm:size-7">
                     <TrustIcon className="size-3 sm:size-3.5" />
                   </span>
-                  <span className="min-w-0 text-[0.65rem] font-semibold leading-tight sm:text-xs">
+                  <span className="min-w-0 text-[11px] font-semibold leading-tight sm:text-xs">
                     {label}
                   </span>
                 </div>

@@ -320,12 +320,12 @@ export function FinderShell({
   return (
     <section
       id="finder"
-      className="relative z-20 mx-auto mt-4 max-w-finder scroll-mt-24 px-3 sm:mt-6 sm:px-6"
+      className="relative z-20 mx-auto mt-3 max-w-finder scroll-mt-24 px-3 sm:mt-5 sm:px-6"
     >
-      <div className="rounded-card border border-border/80 bg-card p-4 shadow-soft sm:p-6">
-        <div className="mb-3">
-          <h2 className="font-display text-lg font-bold sm:text-2xl">{title}</h2>
-          <p className="mt-0.5 text-sm text-muted-foreground">{description}</p>
+      <div className="rounded-[1.5rem] border border-border/70 bg-card p-4 shadow-panel sm:p-6">
+        <div className="mb-4">
+          <h2 className="font-display text-2xl font-bold leading-tight sm:text-3xl">{title}</h2>
+          <p className="mt-1 text-sm leading-5 text-muted-foreground">{description}</p>
         </div>
         {children}
       </div>
@@ -345,7 +345,7 @@ export function FinderStep({
   return (
     <div className="min-w-0">
       <span
-        className={`mb-1.5 block text-xs font-semibold text-muted-foreground sm:text-sm ${labelClassName}`}
+        className={`mb-1.5 block text-sm font-semibold text-muted-foreground ${labelClassName}`}
       >
         {label}
       </span>
@@ -362,7 +362,7 @@ export function FinderProgress({ labels, active }: { labels: string[]; active: n
           <span
             className={`block h-1 rounded-full ${index <= active ? "bg-primary" : "bg-muted"}`}
           />
-          <span className="mt-1 hidden truncate text-[0.65rem] text-muted-foreground sm:block sm:text-xs">
+          <span className="mt-1 hidden truncate text-xs text-muted-foreground sm:block">
             {label}
           </span>
         </li>
@@ -482,7 +482,7 @@ function Stepper({
   icon: React.ReactNode;
 }) {
   return (
-    <div className="grid h-[3.25rem] min-h-[3.25rem] grid-cols-[2.25rem_1fr_2.25rem] items-center rounded-xl border border-border bg-secondary/60 sm:h-14 sm:grid-cols-[2.75rem_1fr_2.75rem]">
+    <div className="grid h-[3.25rem] min-h-[3.25rem] grid-cols-[2.5rem_minmax(0,1fr)_2.5rem] items-center rounded-xl border border-border bg-background sm:h-14 sm:grid-cols-[2.75rem_1fr_2.75rem]">
       <Button
         type="button"
         variant="ghost"
@@ -493,7 +493,7 @@ function Stepper({
       >
         <Minus className="size-4" />
       </Button>
-      <strong className="flex min-w-0 items-center justify-center gap-1.5 truncate text-center text-xs sm:text-sm">
+      <strong className="flex min-w-0 items-center justify-center gap-1 text-center text-sm">
         {icon}
         {typeof suffix === "function" ? suffix(value) : `${value} ${suffix}`}
       </strong>
@@ -515,7 +515,7 @@ function PickerTrigger({ label, iso }: { label: string; iso?: string | undefined
   return (
     <button
       type="button"
-      className="flex h-[3.25rem] min-h-[3.25rem] w-full items-center gap-2 rounded-xl border border-border bg-secondary/60 px-3 text-left text-sm font-semibold sm:h-14"
+      className="flex h-[3.25rem] min-h-[3.25rem] w-full items-center gap-2 rounded-xl border border-border bg-background px-3 text-left text-[15px] font-semibold sm:h-14"
     >
       {iso && <CountryFlag iso={iso} className="text-lg" />}
       <span className="min-w-0 flex-1 truncate">{label}</span>
@@ -540,12 +540,12 @@ function CompactChip({
       type="button"
       aria-pressed={selected}
       onClick={onClick}
-      className={`flex h-[3.25rem] min-h-[3.25rem] min-w-0 items-center justify-center gap-1 rounded-2xl border px-0.5 text-sm font-semibold leading-none transition-colors sm:gap-2 sm:px-3 ${selected ? "border-primary bg-primary-soft text-primary" : "border-border bg-card text-foreground hover:border-primary/50"}`}
+      className={`flex min-h-[3.25rem] min-w-0 items-center justify-center gap-1 rounded-2xl border px-1 py-2 text-sm font-semibold leading-tight transition-colors sm:gap-2 sm:px-3 ${selected ? "border-primary bg-primary-soft text-primary" : "border-border bg-card text-foreground hover:border-primary/50"}`}
     >
       <span className="hidden shrink-0 text-primary min-[400px]:block [&>svg]:size-3.5 sm:[&>svg]:size-[1.125rem]">
         {icon}
       </span>
-      <span className="min-w-0 whitespace-nowrap text-center">{label}</span>
+      <span className="min-w-0 text-center text-balance">{label}</span>
     </button>
   );
 }
@@ -893,16 +893,14 @@ export function EsimFinder({
 
       <div
         key={recommendation.requiredGb}
-        className="finder-result-reveal mt-3 flex h-[7.5rem] items-center justify-between gap-4 rounded-3xl bg-primary px-4 py-3 text-primary-foreground sm:h-28"
+        className="finder-result-reveal mt-4 flex min-h-[6.5rem] items-center justify-between gap-4 rounded-2xl bg-primary px-4 py-3 text-primary-foreground sm:min-h-28"
       >
         <div className="flex min-w-0 items-center gap-3">
           <span className="grid size-10 shrink-0 place-items-center rounded-full bg-primary-foreground/12 sm:size-11">
             <Gauge className="size-5" aria-hidden="true" />
           </span>
           <div className="min-w-0">
-            <span className="block text-[0.65rem] font-bold uppercase tracking-wide opacity-85 sm:text-xs">
-              {copy.need}
-            </span>
+            <span className="block text-xs font-bold uppercase opacity-85">{copy.need}</span>
             <span className="mt-0.5 block text-xs opacity-80 sm:text-sm">{copy.needReason}</span>
           </div>
         </div>
@@ -914,7 +912,7 @@ export function EsimFinder({
 
       <Reveal className="recommendation-reveal mt-3">
         <section
-          className="rounded-2xl border border-primary/20 bg-primary-soft p-4 text-foreground"
+          className="rounded-2xl border border-primary/25 bg-primary-soft p-4 text-foreground shadow-soft"
           aria-label={copy.recommendedPackage}
         >
           {packagesPending && canSeePackages ? (
@@ -928,7 +926,7 @@ export function EsimFinder({
             <>
               <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0">
-                  <span className="text-[0.65rem] font-bold uppercase tracking-wide text-primary sm:text-xs">
+                  <span className="text-xs font-bold uppercase text-primary">
                     {match.status === "UNLIMITED_ALTERNATIVE"
                       ? copy.unlimitedAlternative
                       : copy.recommendedPackage}
@@ -1198,7 +1196,7 @@ export function LoungeFinder({
 
       <Button
         type="button"
-        variant="default"
+        variant="cta"
         size="lg"
         className="mt-4 h-14 w-full text-sm font-bold"
         disabled={!airport}
@@ -1209,48 +1207,51 @@ export function LoungeFinder({
 
       {showMockResult && mockLounge && (
         <Reveal className="recommendation-reveal mt-3">
-          <section className="rounded-2xl border border-border bg-card p-4 shadow-soft">
-            <div className="flex items-start justify-between gap-3">
-              <div>
-                <span className="text-[0.65rem] font-bold uppercase tracking-wide text-muted-foreground sm:text-xs">
-                  {copy.loungeRecommended}
+          <section className="overflow-hidden rounded-2xl border border-border bg-card shadow-card">
+            <div className="h-28 bg-petrol-soft" aria-hidden="true" />
+            <div className="p-4">
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <span className="text-xs font-bold uppercase text-primary">
+                    {copy.loungeRecommended}
+                  </span>
+                  <h3 className="mt-1 font-display text-lg font-bold sm:text-xl">
+                    {mockLounge.name}
+                  </h3>
+                </div>
+                <span className="inline-flex items-center gap-1 rounded-full bg-primary-soft px-2 py-0.5 text-xs font-bold text-primary">
+                  ★ {mockLounge.rating}
                 </span>
-                <h3 className="mt-1 font-display text-lg font-bold sm:text-xl">
-                  {mockLounge.name}
-                </h3>
               </div>
-              <span className="inline-flex items-center gap-1 rounded-full bg-primary-soft px-2 py-0.5 text-xs font-bold text-primary">
-                ★ {mockLounge.rating}
-              </span>
-            </div>
-            <p className="mt-1 text-xs text-muted-foreground">
-              {mockLounge.airportName} ({mockLounge.airportCode})
-            </p>
-            <p className="text-xs text-muted-foreground">{mockLounge.terminal}</p>
-            <div className="mt-3 flex flex-wrap gap-1">
-              {mockLounge.amenities.slice(0, 5).map((amenity) => (
-                <span
-                  key={amenity}
-                  className="rounded-full bg-secondary px-2 py-1 text-[0.65rem] font-semibold text-muted-foreground sm:text-xs"
-                >
-                  {amenity}
-                </span>
-              ))}
-            </div>
-            <div className="mt-4 flex items-center justify-between">
-              <div>
-                <span className="text-xs text-muted-foreground">{copy.travelers}</span>
-                <strong className="block font-display text-xl">
-                  €{mockLounge.price.toFixed(2)}
-                </strong>
+              <p className="mt-1 text-xs text-muted-foreground">
+                {mockLounge.airportName} ({mockLounge.airportCode})
+              </p>
+              <p className="text-xs text-muted-foreground">{mockLounge.terminal}</p>
+              <div className="mt-3 flex flex-wrap gap-1">
+                {mockLounge.amenities.slice(0, 5).map((amenity) => (
+                  <span
+                    key={amenity}
+                    className="rounded-full bg-secondary px-2 py-1 text-xs font-semibold text-muted-foreground"
+                  >
+                    {amenity}
+                  </span>
+                ))}
               </div>
-              <Button variant="cta" size="sm">
-                {copy.loungeBuy(mockLounge.name)}
+              <div className="mt-4 flex items-center justify-between">
+                <div>
+                  <span className="text-xs text-muted-foreground">{copy.travelers}</span>
+                  <strong className="block font-display text-xl">
+                    €{mockLounge.price.toFixed(2)}
+                  </strong>
+                </div>
+                <Button variant="cta" size="sm">
+                  {copy.loungeBuy(mockLounge.name)}
+                </Button>
+              </div>
+              <Button variant="outline" size="sm" className="mt-2 w-full">
+                {copy.loungeDetails}
               </Button>
             </div>
-            <Button variant="outline" size="sm" className="mt-2 w-full">
-              {copy.loungeDetails}
-            </Button>
           </section>
         </Reveal>
       )}
