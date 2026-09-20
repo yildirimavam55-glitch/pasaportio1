@@ -972,6 +972,11 @@ function SecondaryGroup({
                 />
               )}
               {variant === "coverage" && <div className="absolute inset-0 bg-image-scrim" />}
+              {pkg.id === bestForTripId && (
+                <span className="absolute left-1.5 top-1.5 z-20 rounded-full bg-primary px-2 py-0.5 text-[10px] font-bold text-primary-foreground">
+                  {copy.fitsTrip}
+                </span>
+              )}
               <div className="relative z-10 flex h-full flex-col items-center justify-center text-center">
                 {variant === "unlimited" && <InfinityIcon className="mb-1 size-5 text-primary" />}
                 <strong className="font-display text-lg leading-tight">
@@ -996,8 +1001,12 @@ function SecondaryGroup({
                       </span>
                     </>
                   ) : (
-                    <span className="truncate">{copy.countryCount(pkg.coverage.length)}</span>
+                    <>
+                      <Globe2 className="size-3 shrink-0" aria-hidden="true" />
+                      <span className="truncate">{copy.countryCount(pkg.coverage.length)}</span>
+                    </>
                   )}
+
                 </span>
                 <span className="mt-1 text-base font-bold">
                   {formatSalePrice(pkg.salePrice ?? 0, pkg.currency, locale)}
