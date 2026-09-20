@@ -34,12 +34,6 @@ const searchSchema = z.object({
   situation: z.enum(["DEPARTURE", "TRANSIT", "ARRIVAL"]).catch("DEPARTURE").default("DEPARTURE"),
   travelers: z.coerce.number().int().min(1).max(9).catch(1).default(1),
 });
-  useEffect(() => {
-    if (options.length > 0 && !selectedId) {
-      setSelectedId(options[0].id);
-    }
-  }, [options, selectedId]);
-  const selectedOption = options.find((o) => o.id === selectedId) || options[0];
 
 
 const COPY = {
@@ -142,20 +136,27 @@ export const Route = createFileRoute("/lounge/secenekler")({
 });
 
 function LoungeOptionsPage() {
-  const [selectedId, setSelectedId] = useState<string | null>(null);
-
   const { locale } = useI18n();
   const copy = COPY[locale];
   const search = Route.useSearch();
   const airport = getAirportByIata(search.iata);
   const availability = useServiceAvailability();
   const { lines, addLine } = useCart();
+
+  const [selectedId, setSelectedId] = useState<string | null>(null);
   const { data: options = [], isPending } = useQuery({
     queryKey: ["lounge-options", search.iata, search.situation],
     queryFn: () => listLoungeOptions({ data: { iata: search.iata, situation: search.situation } }),
   });
 
-  const situationIcon =
+  useEffect(() => {
+    if (options.length > 0 && !selectedId) {
+      setSelectedId(options[0].id);
+    }
+  }, [options, selectedId]);
+
+  const selectedOption = options.find((o) => o.id === selectedId) || options[0];
+const situationIcon =
     search.situation === "TRANSIT" ? (
       <ArrowRightLeft className="size-4 text-primary" />
     ) : search.situation === "ARRIVAL" ? (
@@ -248,7 +249,7 @@ function LoungeOptionsPage() {
         )}
       
         {selectedOption && (
-          <div className="fixed bottom-0 left-0 right-0 z-50 border-t bg-background/95 p-4 shadow-[0_-8px_30px_rgb(0,0,0,0.12)] backdrop-blur-md transition-all animate-in slide-in-from-bottom-5 md:hidden">
+          <div className="fixed bottom-0 left-0 right-0 z-50 border-t bg-background/95 p-4 shadow-[0_-8px_30px_rgb(0,0,0,0.12)] backdrop-blur-md transition-all animate-in slide-in-from-bottom-5 ">
             <div className="flex items-center justify-between gap-4">
               <div className="min-w-0">
                 <p className="truncate text-sm font-bold">{selectedOption.loungeName ?? selectedOption.name}</p>

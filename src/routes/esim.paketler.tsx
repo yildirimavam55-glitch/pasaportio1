@@ -17,6 +17,8 @@ import {
   Signal,
   Wifi,
   Zap,
+  Minus,
+  Plus,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { PublicShell } from "@/components/travel/PublicShell";
@@ -347,6 +349,11 @@ function PackagesPage() {
     : "";
   const [selectedProductId, setSelectedProductId] = useState("");
   const [hasScrolled, setHasScrolled] = useState(false);
+  const [activeSegment, setActiveSegment] = useState<"standard" | "unlimited">(
+    recommendedProduct?.unlimited ? "unlimited" : "standard"
+  );
+  const [localQuantity, setLocalQuantity] = useState(travelers);
+
   const { lines, addLine } = useCart();
   const availability = useServiceAvailability();
   // Every rendered product stays selectable, including the collapsed sections.
@@ -377,7 +384,7 @@ function PackagesPage() {
     // One eSIM per traveller: an eSIM is tied to a single device, so the data
     // requirement is per person and the cart quantity follows the party size.
     addLine({
-      quantity: travelers,
+      quantity: localQuantity,
       productId: selectedProduct.id,
       providerProductId: selectedProduct.providerProductId,
       serviceType: "ESIM",
@@ -473,6 +480,25 @@ function PackagesPage() {
 
         <div className="mt-3">
           <DeviceCompatibilityInline />
+        <div className="mt-6 flex sm:hidden">
+          <div className="flex w-full rounded-xl bg-secondary/50 p-1">
+            <button
+              type="button"
+              className={}
+              onClick={() => setActiveSegment("standard")}
+            >
+              {copy.standardPackages}
+            </button>
+            <button
+              type="button"
+              className={}
+              onClick={() => setActiveSegment("unlimited")}
+            >
+              {copy.unlimited}
+            </button>
+          </div>
+        </div>
+
         </div>
 
         {isPending ? (
@@ -500,7 +526,27 @@ function PackagesPage() {
               {selectedProduct && (
                 <div className="fixed inset-x-0 bottom-[4.7rem] z-40 border-t border-border/80 bg-card/98 p-3 shadow-nav backdrop-blur md:static md:mt-5 md:rounded-2xl md:border md:bg-card md:p-3 md:shadow-card">
                   <div className="mx-auto grid max-w-site grid-cols-[minmax(0,1fr)_auto] items-center gap-3">
-                    <div key={selectedProduct.id} className="esim-sticky-product min-w-0 flex-1">
+                    
+                    <div className="flex items-center gap-2 rounded-lg bg-secondary/50 p-1">
+                      <button
+                        type="button"
+                        onClick={() => setLocalQuantity(Math.max(1, localQuantity - 1))}
+                        className="flex size-7 items-center justify-center rounded-md bg-card text-primary shadow-sm disabled:opacity-50"
+                        disabled={localQuantity <= 1}
+                      >
+                        <Minus className="size-4" />
+                      </button>
+                      <span className="min-w-6 text-center text-sm font-bold">{localQuantity}</span>
+                      <button
+                        type="button"
+                        onClick={() => setLocalQuantity(Math.min(9, localQuantity + 1))}
+                        className="flex size-7 items-center justify-center rounded-md bg-card text-primary shadow-sm disabled:opacity-50"
+                        disabled={localQuantity >= 9}
+                      >
+                        <Plus className="size-4" />
+                      </button>
+                    </div>
+<div key={selectedProduct.id} className="esim-sticky-product min-w-0 flex-1">
                       <strong className="block truncate">
                         {selectedProduct.unlimited
                           ? copy.unlimited
@@ -541,7 +587,7 @@ function PackagesPage() {
                 </div>
               )}
             </div>
-            {sections.standard.length > 0 && (
+            {(activeSegment === "standard" || !activeSegment) && sections.standard.length > 0 && (
               <SecondaryGroup
                 title={copy.standardPackages}
                 subtitle={copy.standardLead}
