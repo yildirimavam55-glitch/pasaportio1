@@ -1,5 +1,5 @@
-import { Link, useRouterState } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
+import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { getPublishedStorefront } from "@/lib/storefront.functions";
 import { itemText } from "@/domain/storefront/registry";
 import {
@@ -7,6 +7,7 @@ import {
   Globe2,
   Headphones,
   Home,
+  LogOut,
   Menu,
   Plane,
   Search,
@@ -34,6 +35,12 @@ const localeMeta = {
   tr: { iso: "TR", short: "TR" },
   de: { iso: "DE", short: "DE" },
   en: { iso: "GB", short: "EN" },
+} as const;
+
+const ACCOUNT_COPY = {
+  tr: { trips: "Seyahatlerim", signOut: "Çıkış yap" },
+  de: { trips: "Meine Reisen", signOut: "Abmelden" },
+  en: { trips: "My trips", signOut: "Sign out" },
 } as const;
 
 function Brand() {
@@ -159,6 +166,14 @@ export function PublicShell({
   const selectAndFind = (service: ServiceSlug) => {
     onServiceChange?.(service, { scrollToFinder: true });
   };
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  const signOut = async () => {
+    await queryClient.cancelQueries();
+    queryClient.clear();
+    await supabase.auth.signOut();
+    void navigate({ to: "/auth", replace: true });
+  };
   return (
     <div className="min-h-screen bg-background text-foreground">
       <header className="sticky top-0 z-50 border-b border-border/60 bg-background/95 backdrop-blur-lg">
@@ -218,12 +233,33 @@ export function PublicShell({
           </nav>
           <div className="flex shrink-0 items-center gap-0.5 sm:gap-1">
             <LanguageMenu />
-            <Button asChild variant="ghost" size="icon" className="size-9 sm:size-10">
-              {signedIn ? (
-                <Link to="/hesabim/seyahatler" aria-label={copy.nav.account}>
-                  <UserRound className="size-[18px] sm:size-5" />
-                </Link>
-              ) : (
+            {signedIn ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="size-9 sm:size-10"
+                    aria-label={copy.nav.account}
+                  >
+                    <UserRound className="size-[18px] sm:size-5" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-52">
+                  <DropdownMenuItem asChild>
+                    <Link to="/hesabim">{copy.nav.account}</Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link to="/hesabim/seyahatler">{ACCOUNT_COPY[locale].trips}</Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onSelect={() => void signOut()}>
+                    <LogOut className="size-4" />
+                    {ACCOUNT_COPY[locale].signOut}
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : (
+              <Button asChild variant="ghost" size="icon" className="size-9 sm:size-10">
                 <Link
                   to="/auth"
                   search={{ redirect: "/hesabim/seyahatler" }}
@@ -231,8 +267,8 @@ export function PublicShell({
                 >
                   <UserRound className="size-[18px] sm:size-5" />
                 </Link>
-              )}
-            </Button>
+              </Button>
+            )}
             <Button asChild className="hidden lg:inline-flex">
               <Link to="/" search={{ service: activeService ?? "esim" }} hash="finder">
                 {copy.nav.plan}
@@ -321,6 +357,25 @@ export function PublicShell({
                       {copy.nav.support}
                     </Link>
                   </SheetClose>
+                  {signedIn ? (
+                    <>
+                      <SheetClose asChild>
+                        <Link to="/hesabim" className="mobile-menu-link">
+                          {copy.nav.account}
+                        </Link>
+                      </SheetClose>
+                      <SheetClose asChild>
+                        <button
+                          type="button"
+                          onClick={() => void signOut()}
+                          className="mobile-menu-link flex items-center gap-2 text-left text-destructive"
+                        >
+                          <LogOut className="size-4" />
+                          {ACCOUNT_COPY[locale].signOut}
+                        </button>
+                      </SheetClose>
+                    </>
+                  ) : null}
                 </nav>
               </SheetContent>
             </Sheet>
