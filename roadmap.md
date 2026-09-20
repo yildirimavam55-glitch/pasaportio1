@@ -254,4 +254,4 @@
 - [x] Replace product rails with compact two-column grids and no horizontal scrolling
 - [x] Keep whole-card selection, details sheet, subtle country motifs, and neutral broader coverage cards
 - [x] Show six Standard products first and expand remaining catalogue products in the same grid
-- [ ] Verify tabs, selection, quantity, cart consistency, TR/DE/EN, and 360/375/390/412/430px
+- [x] Verify tabs, selection, quantity, cart consistency, TR/DE/EN, and 360/375/390/412/430px
