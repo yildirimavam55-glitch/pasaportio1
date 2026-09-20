@@ -23,6 +23,7 @@ function Page() {
   return (
     <TravelExperience
       service="esim"
+      assistantRoute
       onServiceChange={(service) =>
         void navigate({
           to: service === "esim" ? "/esim" : "/lounge",

@@ -145,6 +145,8 @@ const COPY = {
       "Aşağıdaki gerçek katalog seçenekleri ihtiyacının altında kalıyor; süreyi ya da destinasyonu değiştirebilirsin.",
     scopeRegional: "Bu destinasyon bölgesel paket kapsamında.",
     scopeGlobal: "Bu destinasyon Global paket kapsamında.",
+    assistant: "Emin değil misin? Paket yardımcısını aç →",
+
     whyText: (need: number, size: string) =>
       `Yaklaşık ${need} GB ihtiyacın için mevcut paketler arasındaki en yakın uygun seçenek: ${size}.`,
   },
@@ -199,6 +201,7 @@ const COPY = {
     noRoaming: "Kein Roaming",
     showAllPackages: (count: number) => `Alle Standard-Pakete anzeigen (${count})`,
     showFewerPackages: "Weniger Pakete anzeigen",
+    assistant: "Unsicher? Paket-Assistent öffnen →",
 
     widerCoverage: "Pakete mit mehr Ländern",
     standardLead: "Beliebte Datenpakete für dieses Reiseziel",
@@ -282,6 +285,7 @@ const COPY = {
     noRoaming: "No roaming",
     showAllPackages: (count: number) => `View all standard packages (${count})`,
     showFewerPackages: "Show fewer packages",
+    assistant: "Not sure? Open the package assistant →",
 
     widerCoverage: "Packages covering more countries",
     standardLead: "Popular data packages for this destination",
@@ -390,9 +394,7 @@ function PackagesPage() {
       : `${recommendedProduct.dataGb} GB`
     : "";
   const [selectedProductId, setSelectedProductId] = useState("");
-  const [activeSegment, setActiveSegment] = useState<"standard" | "unlimited">(
-    recommendedProduct?.unlimited ? "unlimited" : "standard",
-  );
+  const [activeSegment, setActiveSegment] = useState<"standard" | "unlimited">("standard");
   const [localQuantity, setLocalQuantity] = useState(travelers);
 
   const { lines, addLine } = useCart();
@@ -529,8 +531,7 @@ function PackagesPage() {
         )}
 
         <div className="mt-3">
-          <DeviceCompatibilityInline />
-          <div className="mt-4">
+          <div className="mt-0">
             <span className="block text-xs font-bold uppercase text-primary">
               {destinationCountry ? `${destinationCountry.name[locale]} · ` : ""}
               {copy.choosePlan}
@@ -726,6 +727,19 @@ function PackagesPage() {
                 copy={copy}
               />
             )}
+
+            {directMode && (
+              <div className="mt-8 px-1 text-center">
+                <Link to="/esim" hash="finder">
+                  <Button type="button" variant="link" className="min-h-11 px-0 text-sm">
+                    {copy.assistant as string}
+                  </Button>
+                </Link>
+              </div>
+            )}
+            <div className="mt-10 border-t border-border/60 pt-6">
+              <DeviceCompatibilityInline />
+            </div>
           </>
         ) : (
           <div className="mt-5 rounded-card border border-dashed border-border bg-card p-6 text-center">
@@ -734,6 +748,15 @@ function PackagesPage() {
             </p>
             {sections.counters.covering > 0 && (
               <p className="mt-2 text-xs text-muted-foreground">{copy.gapDetail}</p>
+            )}
+            {directMode && (
+              <div className="mt-4 px-1 text-center">
+                <Link to="/esim" hash="finder">
+                  <Button type="button" variant="link" className="min-h-11 px-0 text-sm">
+                    {copy.assistant as string}
+                  </Button>
+                </Link>
+              </div>
             )}
 
             <div className="mt-4 flex flex-wrap justify-center gap-2">
