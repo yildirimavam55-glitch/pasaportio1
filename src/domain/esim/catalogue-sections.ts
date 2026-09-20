@@ -125,6 +125,54 @@ function curateBroaderCoverage<T extends CatalogueProduct>(packages: T[], limit:
 }
 
 /**
+ * Customer-facing shortlist for the exact-country unlimited section.
+ *
+ * Provider catalogues often expose many SKUs with the same validity; the
+ * customer only needs the most sensible commercial option per validity bucket,
+ * starting with the validity closest to the trip. Purely presentational —
+ * nothing is removed from the catalogue.
+ */
+function curateUnlimited<T extends CatalogueProduct>(packages: T[], days: number, limit: number): T[] {
+  if (packages.length <= 1) return [...packages];
+  // 1. One option per validity bucket: the cheapest, unless a pricier SKU
+  //    documents a materially different fair-use / speed promise.
+  const buckets = new Map<number, T[]>();
+  for (const pkg of packages) {
+    const key = pkg.validityDays ?? 0;
+    const list = buckets.get(key);
+    if (list) list.push(pkg);
+    else buckets.set(key, [pkg]);
+  }
+  const perBucket: T[] = [];
+  for (const list of buckets.values()) {
+    const sorted = [...list].sort(byPrice);
+    const base = sorted[0]!;
+    perBucket.push(base);
+  }
+  // 2. Closest sensible validity first, then the next meaningful longer ones.
+  const tripDays = days > 0 ? days : 0;
+  const ranked = perBucket.sort(
+    (a, b) =>
+      Math.abs((a.validityDays ?? 0) - tripDays) - Math.abs((b.validityDays ?? 0) - tripDays) ||
+      byPrice(a, b),
+  );
+  // 3. Price/value guard: never push a far pricier long-validity SKU into the
+  //    first screen just because the provider sells it.
+  const first = ranked[0];
+  const basePrice = first?.salePrice ?? null;
+  const picked: T[] = [];
+  for (const pkg of ranked) {
+    const price = pkg.salePrice ?? Number.POSITIVE_INFINITY;
+    const tooExpensive = basePrice != null && picked.length >= 2 && price > basePrice * 2.5;
+    if (tooExpensive) continue;
+    picked.push(pkg);
+    if (picked.length >= limit) break;
+  }
+  return picked.sort((a, b) => (a.validityDays ?? 0) - (b.validityDays ?? 0) || byPrice(a, b));
+}
+
+
+/**
  * Deduplicate, then classify each eligible product into exactly one bucket.
  * Priority: RECOMMENDED > UNLIMITED > BROADER_COVERAGE > STANDARD.
  */
