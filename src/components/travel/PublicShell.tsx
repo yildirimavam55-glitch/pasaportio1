@@ -1,5 +1,5 @@
-import { Link, useRouterState } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
+import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { getPublishedStorefront } from "@/lib/storefront.functions";
 import { itemText } from "@/domain/storefront/registry";
 import {
@@ -7,6 +7,7 @@ import {
   Globe2,
   Headphones,
   Home,
+  LogOut,
   Menu,
   Plane,
   Search,
@@ -34,6 +35,12 @@ const localeMeta = {
   tr: { iso: "TR", short: "TR" },
   de: { iso: "DE", short: "DE" },
   en: { iso: "GB", short: "EN" },
+} as const;
+
+const ACCOUNT_COPY = {
+  tr: { trips: "Seyahatlerim", signOut: "Çıkış yap" },
+  de: { trips: "Meine Reisen", signOut: "Abmelden" },
+  en: { trips: "My trips", signOut: "Sign out" },
 } as const;
 
 function Brand() {
