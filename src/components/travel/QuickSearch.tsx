@@ -161,7 +161,7 @@ export function QuickSearch({
       className={`quick-search-container ${embedded ? "relative w-full" : "relative mx-auto mt-3 max-w-finder px-3 sm:px-6"}`}
       data-open={open || undefined}
     >
-      <div className="flex items-center gap-2 rounded-2xl border border-border/80 bg-card p-2 shadow-panel">
+      <div className="quick-search-field flex items-center gap-1.5 rounded-2xl border border-border/80 bg-card/95 p-1.5 shadow-panel backdrop-blur-md sm:gap-2 sm:p-2">
         <Input
           ref={inputRef}
           value={query}
@@ -182,7 +182,7 @@ export function QuickSearch({
           }}
           placeholder={service === "esim" ? copy.esimPlaceholder : copy.loungePlaceholder}
           aria-label={service === "esim" ? copy.esimLabel : copy.loungeLabel}
-          className="h-12 border-0 bg-transparent text-base font-semibold shadow-none focus-visible:ring-0"
+          className="h-12 min-w-0 border-0 bg-transparent px-3 text-base font-semibold shadow-none focus-visible:ring-0"
         />
         {open && (
           <Button
@@ -200,7 +200,7 @@ export function QuickSearch({
           type="button"
           variant="cta"
           size="icon"
-          className="size-11 shrink-0 rounded-xl"
+          className="size-11 shrink-0 rounded-xl shadow-soft"
           aria-label={copy.search}
           onClick={submit}
         >

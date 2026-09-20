@@ -519,27 +519,25 @@
   background: var(--color-primary-soft);
 }
 .service-hero-image {
-  object-position: 58% center;
+  object-position: 58% 43%;
 }
 .service-hero[data-service="lounge"] .service-hero-image {
-  object-position: 57% center;
+  object-position: 53% 48%;
 }
 .service-hero-scrim {
   background: linear-gradient(
     180deg,
-    color-mix(in oklab, var(--lavender-soft) 96%, transparent) 0%,
-    color-mix(in oklab, var(--lavender-soft) 82%, transparent) 35%,
-    color-mix(in oklab, var(--lavender-soft) 18%, transparent) 63%,
-    color-mix(in oklab, var(--foreground) 18%, transparent) 100%
+    color-mix(in oklab, var(--foreground) 54%, transparent) 0%,
+    color-mix(in oklab, var(--foreground) 22%, transparent) 44%,
+    color-mix(in oklab, var(--foreground) 58%, transparent) 100%
   );
 }
 .service-hero[data-service="lounge"] .service-hero-scrim {
   background: linear-gradient(
     180deg,
-    color-mix(in oklab, var(--primary-soft) 96%, transparent) 0%,
-    color-mix(in oklab, var(--primary-soft) 82%, transparent) 35%,
-    color-mix(in oklab, var(--primary-soft) 16%, transparent) 63%,
-    color-mix(in oklab, var(--foreground) 18%, transparent) 100%
+    color-mix(in oklab, var(--foreground) 58%, transparent) 0%,
+    color-mix(in oklab, var(--foreground) 18%, transparent) 44%,
+    color-mix(in oklab, var(--foreground) 62%, transparent) 100%
   );
 }
 .service-hero-content[data-phase="outgoing"] {
@@ -554,6 +552,11 @@
 }
 .quick-search-container {
   z-index: 60;
+}
+.quick-search-field {
+  box-shadow:
+    0 14px 34px color-mix(in oklab, var(--foreground) 18%, transparent),
+    0 1px 0 color-mix(in oklab, var(--card) 72%, transparent) inset;
 }
 .quick-search-results {
   z-index: 70;
@@ -570,6 +573,7 @@
   .service-hero[data-search-mode="true"],
   .service-hero[data-search-mode="true"] .service-hero-content {
     min-height: 5.5rem;
+    height: 5.5rem;
   }
   .service-hero[data-search-mode="true"] .service-hero-content {
     padding: 0.75rem;
@@ -630,15 +634,15 @@
 @media (min-width: 640px) {
   .service-hero-image,
   .service-hero[data-service="lounge"] .service-hero-image {
-    object-position: 68% center;
+    object-position: center 44%;
   }
   .service-hero-scrim,
   .service-hero[data-service="lounge"] .service-hero-scrim {
     background: linear-gradient(
       90deg,
-      color-mix(in oklab, var(--background) 96%, transparent) 0%,
-      color-mix(in oklab, var(--background) 78%, transparent) 42%,
-      transparent 72%
+      color-mix(in oklab, var(--foreground) 58%, transparent) 0%,
+      color-mix(in oklab, var(--foreground) 22%, transparent) 52%,
+      color-mix(in oklab, var(--foreground) 12%, transparent) 100%
     );
   }
 }
