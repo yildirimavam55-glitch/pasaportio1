@@ -278,4 +278,4 @@
 - [x] Remove the eSIM package assistant and compatibility blocks from the homepage sales path
 - [x] Keep country search navigating directly to Standard / Unlimited and live catalogue prices
 - [x] Move compatibility and the secondary package-assistant link below the product grids
-- [ ] Verify the complete purchase path at 360/390/430 px
+- [x] Verify the complete purchase path at 360/390/430 px
