@@ -74,13 +74,13 @@ export function QuickSearch({
 
   useEffect(() => {
     onSearchModeChange?.(open);
-    if (open) document.documentElement.dataset.searchMode = "true";
-    else delete document.documentElement.dataset.searchMode;
+    if (open) document.documentElement.dataset["searchMode"] = "true";
+    else delete document.documentElement.dataset["searchMode"];
   }, [onSearchModeChange, open]);
 
   useEffect(
     () => () => {
-      delete document.documentElement.dataset.searchMode;
+      delete document.documentElement.dataset["searchMode"];
       onSearchModeChange?.(false);
     },
     [onSearchModeChange],
