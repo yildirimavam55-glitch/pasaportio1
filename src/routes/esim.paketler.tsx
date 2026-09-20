@@ -486,22 +486,20 @@ function PackagesPage() {
           <div className="flex w-full rounded-xl bg-secondary/50 p-1">
             <button
               type="button"
-              className={}
+              className={`flex-1 rounded-lg py-2 text-sm font-bold transition-colors ${activeSegment === "standard" ? "bg-card text-primary shadow-sm" : "text-muted-foreground"}`}
               onClick={() => setActiveSegment("standard")}
             >
               {copy.standardPackages}
             </button>
             <button
               type="button"
-              className={}
+              className={`flex-1 rounded-lg py-2 text-sm font-bold transition-colors ${activeSegment === "unlimited" ? "bg-card text-primary shadow-sm" : "text-muted-foreground"}`}
               onClick={() => setActiveSegment("unlimited")}
             >
               {copy.unlimited}
             </button>
           </div>
-        </div>
-
-        </div>
+        </div></div>
 
         {isPending ? (
           <div className="mt-5 grid gap-3 sm:grid-cols-3">
@@ -527,8 +525,24 @@ function PackagesPage() {
               )}
               {selectedProduct && (
                 <div className="fixed inset-x-0 bottom-[4.7rem] z-40 border-t border-border/80 bg-card/98 p-3 shadow-nav backdrop-blur md:static md:mt-5 md:rounded-2xl md:border md:bg-card md:p-3 md:shadow-card">
-                  <div className="mx-auto grid max-w-site grid-cols-[minmax(0,1fr)_auto] items-center gap-3">
-                    
+                  <div className="mx-auto flex max-w-site items-center gap-3">
+                    <div className="flex flex-1 flex-col min-w-0">
+                      <div key={selectedProduct.id} className="esim-sticky-product min-w-0 flex-1">
+                        <strong className="block truncate text-sm">
+                          {selectedProduct.unlimited
+                            ? copy.unlimited
+                            : `${selectedProduct.dataGb} GB`}{" "}
+                          · {selectedProduct.validityDays ?? "—"} {copy.days}
+                        </strong>
+                        <span className="text-xs font-semibold opacity-70">
+                          {formatSalePrice(
+                            selectedProduct.salePrice ?? 0,
+                            selectedProduct.currency,
+                            locale,
+                          )}
+                        </span>
+                      </div>
+                    </div>
                     <div className="flex items-center gap-2 rounded-lg bg-secondary/50 p-1">
                       <button
                         type="button"
@@ -548,29 +562,14 @@ function PackagesPage() {
                         <Plus className="size-4" />
                       </button>
                     </div>
-<div key={selectedProduct.id} className="esim-sticky-product min-w-0 flex-1">
-                      <strong className="block truncate">
-                        {selectedProduct.unlimited
-                          ? copy.unlimited
-                          : `${selectedProduct.dataGb} GB`}{" "}
-                        · {selectedProduct.validityDays ?? "—"} {copy.days}
-                      </strong>
-                      <span className="text-sm font-semibold">
-                        {formatSalePrice(
-                          selectedProduct.salePrice ?? 0,
-                          selectedProduct.currency,
-                          locale,
-                        )}
-                      </span>
-                    </div>
                     <Button
                       variant="cta"
                       size="lg"
-                      className="h-12 shrink-0 px-4"
+                      className="h-10 shrink-0 px-4 text-sm"
                       disabled={selectedInCart || selectedProduct.salePrice == null}
                       onClick={addSelectedToCart}
                     >
-                      <ShoppingCart /> {selectedInCart ? copy.inCart : copy.add}
+                      {selectedInCart ? copy.inCart : copy.add}
                     </Button>
                   </div>
                   {lines.length > 0 && (
