@@ -224,4 +224,4 @@
 - [x] Hide the service selector and secondary content while country/airport search is open
 - [x] Collapse the mobile hero to header, search input, and autocomplete results
 - [x] Preserve active service and restore the selector after close, blur, submit, or selection
-- [ ] Verify eSIM and Lounge flows at 360/390/430px
+- [x] Verify eSIM and Lounge flows at 360/390/430px
