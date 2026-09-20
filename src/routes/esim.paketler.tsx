@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { fallback, zodValidator } from "@tanstack/zod-adapter";
 import { z } from "zod";
 import {
@@ -315,8 +315,10 @@ function PackagesPage() {
   useEffect(() => {
     if (!selectableIds) return;
     const ids = selectableIds.split(",");
-    setSelectedProductId((current) => (ids.includes(current) ? current : (ids[0] ?? "")));
-  }, [selectableIds]);
+    setSelectedProductId((current) =>
+      ids.includes(current) ? current : (recommendedProduct?.id ?? ids[0] ?? ""),
+    );
+  }, [recommendedProduct?.id, selectableIds]);
 
   const addSelectedToCart = () => {
     if (!selectedProduct || selectedProduct.salePrice == null) return;
@@ -446,7 +448,7 @@ function PackagesPage() {
               {selectedProduct && (
                 <div className="fixed inset-x-0 bottom-[4.7rem] z-40 border-t border-border bg-background/98 p-3 shadow-nav backdrop-blur md:static md:mt-5 md:border-0 md:bg-transparent md:p-0 md:shadow-none">
                   <div className="mx-auto flex max-w-site items-center gap-3">
-                    <div className="min-w-0 flex-1">
+                    <div key={selectedProduct.id} className="esim-sticky-product min-w-0 flex-1">
                       <strong className="block truncate">
                         {selectedProduct.unlimited
                           ? copy.unlimited
@@ -594,7 +596,17 @@ function RecommendedPackageCard({
   return (
     <article
       id={`esim-package-${pkg.id}`}
-      className={`relative min-h-52 overflow-hidden rounded-card border shadow-card ${isSelected ? "border-primary ring-1 ring-primary" : "border-primary/40"}`}
+      className={`relative min-h-52 cursor-pointer overflow-hidden rounded-card border shadow-card transition-[border-color,box-shadow,transform] duration-250 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring ${isSelected ? "border-primary ring-1 ring-primary" : "border-primary/40"}`}
+      role="radio"
+      aria-checked={isSelected}
+      tabIndex={0}
+      onClick={onSelect}
+      onKeyDown={(event) => {
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          onSelect();
+        }
+      }}
     >
       <img
         src={imageUrl}
@@ -625,10 +637,12 @@ function RecommendedPackageCard({
           <strong className="text-2xl">{formatSalePrice(price, pkg.currency, locale)}</strong>
           <Button
             variant={isSelected ? "secondary" : "light"}
-            onClick={onSelect}
-            role="radio"
-            aria-checked={isSelected}
+            onClick={(event) => {
+              event.stopPropagation();
+              onSelect();
+            }}
             className="min-w-28 rounded-full"
+            tabIndex={-1}
           >
             {isSelected && <Check />} {isSelected ? copy.selected : copy.select}
           </Button>
@@ -642,7 +656,10 @@ function RecommendedPackageCard({
         variant="ghost"
         size="sm"
         className="absolute bottom-1 left-3 z-10 h-7 px-2 text-xs text-primary"
-        onClick={() => setShowWhy((open) => !open)}
+        onClick={(event) => {
+          event.stopPropagation();
+          setShowWhy((open) => !open);
+        }}
         aria-expanded={showWhy}
       >
         <HelpCircle />
@@ -737,7 +754,46 @@ function SecondaryGroup({
   imageUrl: string;
 }) {
   const { locale } = useI18n();
+  const pointerStart = useRef<{ x: number; y: number } | null>(null);
+  const suppressSelection = useRef(false);
   const Icon = variant === "unlimited" ? InfinityIcon : variant === "coverage" ? Globe2 : Signal;
+
+  const startPointer = (event: React.PointerEvent<HTMLElement>) => {
+    pointerStart.current = { x: event.clientX, y: event.clientY };
+    suppressSelection.current = false;
+  };
+
+  const trackPointer = (event: React.PointerEvent<HTMLElement>) => {
+    const start = pointerStart.current;
+    if (!start) return;
+    if (Math.hypot(event.clientX - start.x, event.clientY - start.y) > 8) {
+      suppressSelection.current = true;
+    }
+  };
+
+  const finishPointer = () => {
+    pointerStart.current = null;
+    if (suppressSelection.current) {
+      window.setTimeout(() => {
+        suppressSelection.current = false;
+      }, 0);
+    }
+  };
+
+  const selectFromCard = (event: React.MouseEvent<HTMLElement>, id: string) => {
+    if (suppressSelection.current) {
+      event.preventDefault();
+      return;
+    }
+    onSelect(id);
+  };
+
+  const selectFromKeyboard = (event: React.KeyboardEvent<HTMLElement>, id: string) => {
+    if (event.key !== "Enter" && event.key !== " ") return;
+    event.preventDefault();
+    onSelect(id);
+  };
+
   return (
     <section className="mt-8">
       <div className="flex min-w-0 items-start gap-3 px-1">
@@ -747,7 +803,11 @@ function SecondaryGroup({
           <p className="mt-0.5 text-xs text-muted-foreground">{subtitle}</p>
         </div>
       </div>
-      <div className={`esim-package-rail mt-3 ${variant === "orb" ? "is-orb" : ""}`}>
+      <div
+        className={`esim-package-rail mt-3 ${variant === "orb" ? "is-orb" : ""}`}
+        role="radiogroup"
+        aria-label={title}
+      >
         {packages.map((pkg) => {
           const selected = activeSelectedId === pkg.id;
           return (
@@ -755,6 +815,15 @@ function SecondaryGroup({
               key={pkg.id}
               id={`esim-package-${pkg.id}`}
               className={`esim-rail-card ${variant} ${selected ? "is-selected" : ""}`}
+              role="radio"
+              aria-checked={selected}
+              tabIndex={0}
+              onPointerDown={startPointer}
+              onPointerMove={trackPointer}
+              onPointerUp={finishPointer}
+              onPointerCancel={finishPointer}
+              onClick={(event) => selectFromCard(event, pkg.id)}
+              onKeyDown={(event) => selectFromKeyboard(event, pkg.id)}
             >
               {variant === "coverage" && (
                 <img
@@ -786,18 +855,13 @@ function SecondaryGroup({
                         coverage: pkg.coverage,
                       })}
                 </span>
-                <Button
-                  type="button"
-                  variant={selected ? "secondary" : "ghost"}
-                  size="sm"
-                  onClick={() => onSelect(pkg.id)}
-                  role="radio"
-                  aria-checked={selected}
-                  className="mt-2 h-8 rounded-full px-4"
+                <span
+                  className={`mt-2 inline-flex h-7 items-center justify-center gap-1 rounded-full px-3 text-xs font-bold ${selected ? "bg-primary text-primary-foreground" : variant === "coverage" ? "bg-background/90 text-primary" : "bg-secondary text-primary"}`}
+                  aria-hidden="true"
                 >
-                  {selected && <Check />}
+                  {selected && <Check className="size-3.5" />}
                   {selected ? copy.selected : copy.select}
-                </Button>
+                </span>
               </div>
             </article>
           );
