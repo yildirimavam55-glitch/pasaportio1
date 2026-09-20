@@ -316,7 +316,7 @@ export function PublicShell({
       <main>{children}</main>
       <PublicFooter fallback={copy.footer} supportLabel={copy.nav.support} />
       <nav
-        className="fixed inset-x-0 bottom-0 z-50 border-t border-border/80 bg-card/98 pb-safe shadow-nav backdrop-blur md:hidden"
+        className="mobile-bottom-navigation fixed inset-x-0 bottom-0 z-50 border-t border-border/80 bg-card/98 pb-safe shadow-nav backdrop-blur md:hidden"
         aria-label="Mobil menü"
       >
         <div className="grid grid-cols-4">

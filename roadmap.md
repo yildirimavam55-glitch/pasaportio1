@@ -203,6 +203,7 @@
 - [x] Verify TR/DE/EN at 360/375/390/412/430 px and resolve any visual/runtime regression
 
 ## Direct eSIM purchase flow (country → plan → cart)
+
 - [x] Service-aware quick search on the home screen (country for eSIM, airport for Lounge)
 - [x] Country selection goes straight to the package page
 - [x] Long eSIM assistant moved behind an optional link
@@ -217,3 +218,10 @@
 - [x] Place the existing country/airport quick search inside the hero
 - [x] Keep the service switch below the hero and preserve existing commerce behavior
 - [x] Verify both services at 360/375/390/412/430px
+
+## Mobile search focus mode
+
+- [x] Hide the service selector and secondary content while country/airport search is open
+- [x] Collapse the mobile hero to header, search input, and autocomplete results
+- [x] Preserve active service and restore the selector after close, blur, submit, or selection
+- [x] Verify eSIM and Lounge flows at 360/390/430px

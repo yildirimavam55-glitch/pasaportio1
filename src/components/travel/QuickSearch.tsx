@@ -1,4 +1,4 @@
-import { Search } from "lucide-react";
+import { Search, X } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { Input } from "@/components/ui/input";
@@ -16,6 +16,7 @@ const COPY = {
     esimLabel: "Ülke ara",
     loungeLabel: "Havalimanı ara",
     search: "Ara",
+    close: "Aramayı kapat",
     empty: "Sonuç bulunamadı.",
   },
   de: {
@@ -24,6 +25,7 @@ const COPY = {
     esimLabel: "Land suchen",
     loungeLabel: "Flughafen suchen",
     search: "Suchen",
+    close: "Suche schließen",
     empty: "Keine Treffer.",
   },
   en: {
@@ -32,6 +34,7 @@ const COPY = {
     esimLabel: "Search country",
     loungeLabel: "Search airport",
     search: "Search",
+    close: "Close search",
     empty: "No results.",
   },
 } as const;
@@ -43,10 +46,12 @@ const COPY = {
 export function QuickSearch({
   service,
   onAirportSelect,
+  onSearchModeChange,
   embedded = false,
 }: {
   service: ServiceSlug;
   onAirportSelect: (airportId: string) => void;
+  onSearchModeChange?: (active: boolean) => void;
   embedded?: boolean;
 }) {
   const { locale } = useI18n();
@@ -55,6 +60,12 @@ export function QuickSearch({
   const [query, setQuery] = useState("");
   const [open, setOpen] = useState(false);
   const boxRef = useRef<HTMLDivElement | null>(null);
+  const inputRef = useRef<HTMLInputElement | null>(null);
+
+  const closeSearch = (blur = false) => {
+    setOpen(false);
+    if (blur) inputRef.current?.blur();
+  };
 
   useEffect(() => {
     setQuery("");
@@ -62,11 +73,25 @@ export function QuickSearch({
   }, [service]);
 
   useEffect(() => {
-    const onDocClick = (event: MouseEvent) => {
-      if (!boxRef.current?.contains(event.target as Node)) setOpen(false);
+    onSearchModeChange?.(open);
+    if (open) document.documentElement.dataset["searchMode"] = "true";
+    else delete document.documentElement.dataset["searchMode"];
+  }, [onSearchModeChange, open]);
+
+  useEffect(
+    () => () => {
+      delete document.documentElement.dataset["searchMode"];
+      onSearchModeChange?.(false);
+    },
+    [onSearchModeChange],
+  );
+
+  useEffect(() => {
+    const onDocPointerDown = (event: PointerEvent) => {
+      if (!boxRef.current?.contains(event.target as Node)) closeSearch();
     };
-    document.addEventListener("mousedown", onDocClick);
-    return () => document.removeEventListener("mousedown", onDocClick);
+    document.addEventListener("pointerdown", onDocPointerDown);
+    return () => document.removeEventListener("pointerdown", onDocPointerDown);
   }, []);
 
   const countries: Country[] = useMemo(() => {
@@ -89,7 +114,7 @@ export function QuickSearch({
   );
 
   const goToCountry = (country: Country) => {
-    setOpen(false);
+    closeSearch(true);
     setQuery(country.name[locale]);
     void navigate({
       to: "/esim/paketler",
@@ -109,7 +134,7 @@ export function QuickSearch({
   };
 
   const pickAirport = (airport: Airport) => {
-    setOpen(false);
+    closeSearch(true);
     setQuery(`${airport.iata} — ${airport.city[locale]}`);
     onAirportSelect(airport.id);
   };
@@ -118,19 +143,27 @@ export function QuickSearch({
     if (service === "esim") {
       const first = countries[0];
       if (first) goToCountry(first);
+      else closeSearch(true);
       return;
     }
     const first = airports[0];
     if (first) pickAirport(first);
+    else closeSearch(true);
   };
 
   return (
     <div
       ref={boxRef}
-      className={embedded ? "relative w-full" : "relative mx-auto mt-3 max-w-finder px-3 sm:px-6"}
+      onBlurCapture={(event) => {
+        const nextTarget = event.relatedTarget;
+        if (!(nextTarget instanceof Node) || !boxRef.current?.contains(nextTarget)) closeSearch();
+      }}
+      className={`quick-search-container ${embedded ? "relative w-full" : "relative mx-auto mt-3 max-w-finder px-3 sm:px-6"}`}
+      data-open={open || undefined}
     >
       <div className="flex items-center gap-2 rounded-2xl border border-border/80 bg-card p-2 shadow-panel">
         <Input
+          ref={inputRef}
           value={query}
           onChange={(event) => {
             setQuery(event.target.value);
@@ -142,11 +175,27 @@ export function QuickSearch({
               event.preventDefault();
               submit();
             }
+            if (event.key === "Escape") {
+              event.preventDefault();
+              closeSearch(true);
+            }
           }}
           placeholder={service === "esim" ? copy.esimPlaceholder : copy.loungePlaceholder}
           aria-label={service === "esim" ? copy.esimLabel : copy.loungeLabel}
           className="h-12 border-0 bg-transparent text-base font-semibold shadow-none focus-visible:ring-0"
         />
+        {open && (
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            className="size-11 shrink-0 rounded-xl"
+            aria-label={copy.close}
+            onClick={() => closeSearch(true)}
+          >
+            <X className="size-5" />
+          </Button>
+        )}
         <Button
           type="button"
           variant="cta"
@@ -160,7 +209,7 @@ export function QuickSearch({
       </div>
       {open && (
         <div
-          className={`absolute top-full z-40 mt-1 overflow-hidden rounded-2xl border border-border bg-card shadow-panel ${embedded ? "inset-x-0" : "inset-x-3 sm:inset-x-6"}`}
+          className={`quick-search-results absolute top-full mt-1 overflow-y-auto rounded-2xl border border-border bg-card shadow-panel ${embedded ? "inset-x-0" : "inset-x-3 sm:inset-x-6"}`}
         >
           {service === "esim" ? (
             countries.length ? (

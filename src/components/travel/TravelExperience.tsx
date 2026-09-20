@@ -79,11 +79,7 @@ export function TravelExperience({
 
   return (
     <StorefrontProvider config={config} media={published.data?.media ?? {}}>
-      <Experience
-        service={service}
-        onServiceChange={onServiceChange}
-        config={config}
-      />
+      <Experience service={service} onServiceChange={onServiceChange} config={config} />
     </StorefrontProvider>
   );
 }
@@ -106,6 +102,7 @@ function Experience({
     restoreFinderState("travel-lounge-finder", LOUNGE_SERVICE_CONFIG.initialState),
   );
   const [assistantOpen, setAssistantOpen] = useState(false);
+  const [searchMode, setSearchMode] = useState(false);
   const { switchService, isSwitching, target, phase } = useServiceSwitchTransition();
   const selectedService = target ?? service;
   const pendingScrollRef = useRef<{
@@ -326,34 +323,41 @@ function Experience({
       <ServiceHero
         service={service}
         phase={phase}
+        searchMode={searchMode}
+        onSearchModeChange={setSearchMode}
         onAirportSelect={(airportId) => {
           setLoungeState((prev) => ({ ...prev, airportId }));
           smoothlyShowFinder();
         }}
       />
-      <div id="service-selector" className="mx-auto max-w-finder px-3 pt-3 sm:px-6 sm:pt-5">
+      <div className="experience-secondary" data-search-mode={searchMode || undefined}>
         <div
-          className="service-selector relative grid grid-cols-2 rounded-xl border border-border/80 bg-secondary/70 p-1 shadow-soft"
-          data-service={selectedService}
+          id="service-selector"
+          className="search-focus-selector mx-auto max-w-finder px-3 pt-3 sm:px-6 sm:pt-5"
         >
-          <span className="service-selector-pill" aria-hidden="true" />
-          <ServiceButton
-            active={selectedService === "esim"}
-            onClick={() => requestServiceChange("esim")}
-            icon={<EsimServiceIcon />}
+          <div
+            className="service-selector relative grid grid-cols-2 rounded-xl border border-border/80 bg-secondary/70 p-1 shadow-soft"
+            data-service={selectedService}
           >
-            {selectorSection ? tx(selectorSection, "esimLabel", locale, "eSIM") : "eSIM"}
-          </ServiceButton>
-          <ServiceButton
-            active={selectedService === "lounge"}
-            onClick={() => requestServiceChange("lounge")}
-            icon={<LoungeServiceIcon />}
-          >
-            {selectorSection ? tx(selectorSection, "loungeLabel", locale, "Lounge") : "Lounge"}
-          </ServiceButton>
+            <span className="service-selector-pill" aria-hidden="true" />
+            <ServiceButton
+              active={selectedService === "esim"}
+              onClick={() => requestServiceChange("esim")}
+              icon={<EsimServiceIcon />}
+            >
+              {selectorSection ? tx(selectorSection, "esimLabel", locale, "eSIM") : "eSIM"}
+            </ServiceButton>
+            <ServiceButton
+              active={selectedService === "lounge"}
+              onClick={() => requestServiceChange("lounge")}
+              icon={<LoungeServiceIcon />}
+            >
+              {selectorSection ? tx(selectorSection, "loungeLabel", locale, "Lounge") : "Lounge"}
+            </ServiceButton>
+          </div>
         </div>
+        {config.sections.map(render)}
       </div>
-      {config.sections.map(render)}
     </PublicShell>
   );
 }
@@ -441,19 +445,27 @@ function ServiceHero({
   service,
   phase,
   onAirportSelect,
+  searchMode,
+  onSearchModeChange,
 }: {
   service: ServiceSlug;
   phase: "outgoing" | "incoming" | null;
   onAirportSelect: (airportId: string) => void;
+  searchMode: boolean;
+  onSearchModeChange: (active: boolean) => void;
 }) {
   const { locale } = useI18n();
   const copy = SERVICE_HERO_COPY[locale][service];
   const image = service === "esim" ? esimHero : loungeHero;
 
   return (
-    <section className="mx-auto max-w-site px-3 pt-3 sm:px-6 sm:pt-5">
-      <div className="service-hero relative min-h-[31rem] rounded-hero sm:min-h-[34rem] sm:rounded-[1.75rem]" data-service={service}>
-        <div className="absolute inset-0 overflow-hidden rounded-[inherit] bg-lavender-soft">
+    <section className="service-hero-shell mx-auto max-w-site px-3 pt-3 sm:px-6 sm:pt-5">
+      <div
+        className="service-hero relative min-h-[31rem] rounded-hero sm:min-h-[34rem] sm:rounded-[1.75rem]"
+        data-service={service}
+        data-search-mode={searchMode || undefined}
+      >
+        <div className="service-hero-visual absolute inset-0 overflow-hidden rounded-[inherit] bg-lavender-soft">
           <img
             key={service}
             src={image}
@@ -466,8 +478,11 @@ function ServiceHero({
           />
           <div className="service-hero-scrim absolute inset-0" />
         </div>
-        <div className="service-hero-content relative z-10 flex min-h-[31rem] flex-col p-5 sm:min-h-[34rem] sm:p-10 lg:p-14" data-phase={phase ?? undefined}>
-          <div className="max-w-xl pt-1 sm:pt-3">
+        <div
+          className="service-hero-content relative z-10 flex min-h-[31rem] flex-col p-5 sm:min-h-[34rem] sm:p-10 lg:p-14"
+          data-phase={phase ?? undefined}
+        >
+          <div className="service-hero-copy max-w-xl pt-1 sm:pt-3">
             <p className="text-sm font-bold uppercase text-primary">{copy.eyebrow}</p>
             <h1 className="mt-3 max-w-[19rem] font-display text-[2.55rem] font-bold leading-[1.02] text-balance text-foreground sm:max-w-2xl sm:text-6xl">
               {copy.headline}
@@ -476,8 +491,13 @@ function ServiceHero({
               {copy.description}
             </p>
           </div>
-          <div className="relative z-20 mt-auto w-full max-w-xl pt-7">
-            <QuickSearch service={service} onAirportSelect={onAirportSelect} embedded />
+          <div className="service-hero-search relative z-20 mt-auto w-full max-w-xl pt-7">
+            <QuickSearch
+              service={service}
+              onAirportSelect={onAirportSelect}
+              onSearchModeChange={onSearchModeChange}
+              embedded
+            />
           </div>
         </div>
       </div>
