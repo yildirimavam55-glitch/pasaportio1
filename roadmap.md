@@ -247,3 +247,11 @@
 - [x] Keep plain homepage visits Home-active even when eSIM is the default service
 - [x] Use URL-backed eSIM/Lounge finder targets and clear the target on Home
 - [x] Verify Home, eSIM, Lounge, Account routing, and browser Back at 360/390/430px
+
+## Compact eSIM package page
+
+- [x] Apply the selected dense comparison direction with Travely tokens
+- [x] Replace product rails with compact two-column grids and no horizontal scrolling
+- [x] Keep whole-card selection, details sheet, subtle country motifs, and neutral broader coverage cards
+- [x] Show six Standard products first and expand remaining catalogue products in the same grid
+- [x] Verify tabs, selection, quantity, cart consistency, TR/DE/EN, and 360/375/390/412/430px

@@ -648,10 +648,10 @@
 
 .esim-package-rail {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 0.75rem;
   margin-inline: 0;
-  padding: 0.35rem 0 0.9rem;
+  padding: 0.25rem 0 0.5rem;
 }
 .esim-package-rail::-webkit-scrollbar {
   display: none;
@@ -664,31 +664,18 @@
 }
 @media (min-width: 640px) {
   .esim-package-rail {
-    grid-auto-flow: column;
-    grid-auto-columns: 14rem;
-    margin-inline: 0;
-    padding-inline: 0.15rem;
-    overflow-x: auto;
-    scroll-snap-type: inline mandatory;
-    scrollbar-width: none;
-  }
-  .esim-package-rail.is-standard {
-    grid-auto-columns: 12rem;
-  }
-  .esim-package-rail.is-unlimited {
-    grid-auto-columns: 12rem;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
 .esim-rail-card {
   position: relative;
   min-width: 0;
-  height: 10.5rem;
+  height: 7.5rem;
   overflow: hidden;
-  scroll-snap-align: center;
   border: 1px solid var(--color-border);
-  border-radius: var(--radius-card);
+  border-radius: 1rem;
   background: var(--color-card);
-  padding: 1rem;
+  padding: 0.85rem;
   box-shadow: 0 4px 14px color-mix(in oklab, var(--foreground) 5%, transparent);
   color: var(--color-foreground);
   cursor: pointer;
@@ -699,13 +686,13 @@
     transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
 .esim-rail-card.orb {
-  height: 10.5rem;
+  height: 7.5rem;
 }
 .esim-rail-card.unlimited {
-  height: 12rem;
+  height: 8rem;
 }
 .esim-rail-card.coverage {
-  height: 11.25rem;
+  height: 8rem;
   border-color: var(--color-border);
   color: var(--color-foreground);
   background: var(--color-card);
@@ -714,10 +701,10 @@
   position: absolute;
   right: -0.75rem;
   bottom: -0.8rem;
-  width: 6.75rem;
-  height: 6.75rem;
+  width: 5.25rem;
+  height: 5.25rem;
   color: var(--color-primary);
-  opacity: 0.075;
+  opacity: 0.055;
   pointer-events: none;
   user-select: none;
 }
@@ -745,8 +732,8 @@
   position: absolute;
   right: 0.75rem;
   bottom: 0.75rem;
-  width: 3.75rem;
-  height: 3.75rem;
+  width: 2.75rem;
+  height: 2.75rem;
   color: var(--color-muted-foreground);
   opacity: 0.09;
   pointer-events: none;
@@ -774,20 +761,9 @@
   animation: esim-sticky-product-in 0.225s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 @media (min-width: 640px) {
-  .esim-package-rail {
-    grid-auto-columns: 14rem;
-    margin-inline: 0;
-    padding-inline: 0.15rem;
-  }
-  .esim-package-rail.is-standard {
-    grid-auto-columns: 12rem;
-  }
-  .esim-package-rail.is-unlimited {
-    grid-auto-columns: 12rem;
-  }
   .esim-rail-card.orb {
     width: auto;
-    height: 11.25rem;
+    height: 7.5rem;
   }
 }
 
