@@ -357,6 +357,25 @@ export function PublicShell({
                       {copy.nav.support}
                     </Link>
                   </SheetClose>
+                  {signedIn ? (
+                    <>
+                      <SheetClose asChild>
+                        <Link to="/hesabim" className="mobile-menu-link">
+                          {copy.nav.account}
+                        </Link>
+                      </SheetClose>
+                      <SheetClose asChild>
+                        <button
+                          type="button"
+                          onClick={() => void signOut()}
+                          className="mobile-menu-link flex items-center gap-2 text-left text-destructive"
+                        >
+                          <LogOut className="size-4" />
+                          {ACCOUNT_COPY[locale].signOut}
+                        </button>
+                      </SheetClose>
+                    </>
+                  ) : null}
                 </nav>
               </SheetContent>
             </Sheet>
