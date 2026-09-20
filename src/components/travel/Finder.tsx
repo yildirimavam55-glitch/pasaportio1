@@ -900,9 +900,7 @@ export function EsimFinder({
             <Gauge className="size-5" aria-hidden="true" />
           </span>
           <div className="min-w-0">
-            <span className="block text-xs font-bold uppercase opacity-85">
-              {copy.need}
-            </span>
+            <span className="block text-xs font-bold uppercase opacity-85">{copy.need}</span>
             <span className="mt-0.5 block text-xs opacity-80 sm:text-sm">{copy.needReason}</span>
           </div>
         </div>
@@ -1212,47 +1210,47 @@ export function LoungeFinder({
           <section className="overflow-hidden rounded-2xl border border-border bg-card shadow-card">
             <div className="h-28 bg-petrol-soft" aria-hidden="true" />
             <div className="p-4">
-            <div className="flex items-start justify-between gap-3">
-              <div>
-                <span className="text-xs font-bold uppercase text-primary">
-                  {copy.loungeRecommended}
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <span className="text-xs font-bold uppercase text-primary">
+                    {copy.loungeRecommended}
+                  </span>
+                  <h3 className="mt-1 font-display text-lg font-bold sm:text-xl">
+                    {mockLounge.name}
+                  </h3>
+                </div>
+                <span className="inline-flex items-center gap-1 rounded-full bg-primary-soft px-2 py-0.5 text-xs font-bold text-primary">
+                  ★ {mockLounge.rating}
                 </span>
-                <h3 className="mt-1 font-display text-lg font-bold sm:text-xl">
-                  {mockLounge.name}
-                </h3>
               </div>
-              <span className="inline-flex items-center gap-1 rounded-full bg-primary-soft px-2 py-0.5 text-xs font-bold text-primary">
-                ★ {mockLounge.rating}
-              </span>
-            </div>
-            <p className="mt-1 text-xs text-muted-foreground">
-              {mockLounge.airportName} ({mockLounge.airportCode})
-            </p>
-            <p className="text-xs text-muted-foreground">{mockLounge.terminal}</p>
-            <div className="mt-3 flex flex-wrap gap-1">
-              {mockLounge.amenities.slice(0, 5).map((amenity) => (
-                <span
-                  key={amenity}
-                  className="rounded-full bg-secondary px-2 py-1 text-xs font-semibold text-muted-foreground"
-                >
-                  {amenity}
-                </span>
-              ))}
-            </div>
-            <div className="mt-4 flex items-center justify-between">
-              <div>
-                <span className="text-xs text-muted-foreground">{copy.travelers}</span>
-                <strong className="block font-display text-xl">
-                  €{mockLounge.price.toFixed(2)}
-                </strong>
+              <p className="mt-1 text-xs text-muted-foreground">
+                {mockLounge.airportName} ({mockLounge.airportCode})
+              </p>
+              <p className="text-xs text-muted-foreground">{mockLounge.terminal}</p>
+              <div className="mt-3 flex flex-wrap gap-1">
+                {mockLounge.amenities.slice(0, 5).map((amenity) => (
+                  <span
+                    key={amenity}
+                    className="rounded-full bg-secondary px-2 py-1 text-xs font-semibold text-muted-foreground"
+                  >
+                    {amenity}
+                  </span>
+                ))}
               </div>
-              <Button variant="cta" size="sm">
-                {copy.loungeBuy(mockLounge.name)}
+              <div className="mt-4 flex items-center justify-between">
+                <div>
+                  <span className="text-xs text-muted-foreground">{copy.travelers}</span>
+                  <strong className="block font-display text-xl">
+                    €{mockLounge.price.toFixed(2)}
+                  </strong>
+                </div>
+                <Button variant="cta" size="sm">
+                  {copy.loungeBuy(mockLounge.name)}
+                </Button>
+              </div>
+              <Button variant="outline" size="sm" className="mt-2 w-full">
+                {copy.loungeDetails}
               </Button>
-            </div>
-            <Button variant="outline" size="sm" className="mt-2 w-full">
-              {copy.loungeDetails}
-            </Button>
             </div>
           </section>
         </Reveal>

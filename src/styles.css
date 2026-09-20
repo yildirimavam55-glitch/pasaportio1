@@ -595,7 +595,9 @@
   transform: translateY(-2px) scale(1.02);
 }
 .esim-rail-card.orb.is-selected {
-  box-shadow: 0 0 0 2px var(--color-primary), 0 14px 34px color-mix(in oklab, var(--primary) 20%, transparent);
+  box-shadow:
+    0 0 0 2px var(--color-primary),
+    0 14px 34px color-mix(in oklab, var(--primary) 20%, transparent);
 }
 .esim-rail-card.coverage.is-selected {
   box-shadow:

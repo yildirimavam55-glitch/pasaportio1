@@ -967,13 +967,7 @@ function SecondaryGroup({
   };
 
   return (
-    <section
-      className={
-        isSub
-          ? "mt-6 scroll-mt-28 pt-1"
-          : "mt-10 scroll-mt-28 pt-2 sm:mt-12"
-      }
-    >
+    <section className={isSub ? "mt-6 scroll-mt-28 pt-1" : "mt-10 scroll-mt-28 pt-2 sm:mt-12"}>
       <div className="flex min-w-0 items-start gap-3 px-1 py-1">
         <Icon
           className={`mt-0.5 shrink-0 text-primary ${isSub ? "size-4" : "size-6"}`}
@@ -1019,9 +1013,7 @@ function SecondaryGroup({
                 />
               )}
               {variant === "coverage" && <div className="absolute inset-0 bg-image-scrim" />}
-              <div
-                className="relative z-10 flex h-full flex-col items-start text-left"
-              >
+              <div className="relative z-10 flex h-full flex-col items-start text-left">
                 {variant === "unlimited" && (
                   <div className="flex min-h-6 w-full items-start pr-8">
                     {pkg.id === bestForTripId && (
