@@ -262,4 +262,4 @@
 - [x] Keep mapped country motifs subtle and remove decorative fallback motifs for unmapped countries
 - [x] Retain localized flag and country name on every single-country Standard and Unlimited card
 - [x] Keep multi-country products image-free and landmark-free with neutral globe treatment
-- [ ] Verify mapped, unmapped, and multi-country cards at 360/375/390/412/430px
+- [x] Verify mapped, unmapped, and multi-country cards at 360/375/390/412/430px
