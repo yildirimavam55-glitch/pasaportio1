@@ -101,6 +101,11 @@ const COPY = {
     tierUnlimited: "Sınırsız",
     standardPackages: "Standart paketler",
     moreUnlimited: "Sınırsız seçenekler",
+    widerUnlimited: "Diğer bölgelerde sınırsız",
+    widerUnlimitedLead: "Daha geniş kapsamlı sınırsız alternatifler",
+    noLocalUnlimited: "Bu ülkeye özel sınırsız paket bulunamadı.",
+    fitsTrip: "Bu seyahate uygun",
+
     widerCoverage: "Daha fazla ülke kapsayan paketler",
     standardLead: "Bu destinasyon için popüler veri paketleri",
     unlimitedLead: "Kesintisiz bağlantı seçenekleri",
