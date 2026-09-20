@@ -475,31 +475,35 @@ function PackagesPage() {
           </Link>
         </div>
 
-        <div className="mt-3 flex flex-wrap items-center gap-2 text-sm font-semibold text-muted-foreground">
-          {routeIsos.length ? (
-            <span className="flex min-w-0 flex-wrap items-center gap-1">
-              <RouteIcon className="size-4 shrink-0 text-primary" aria-hidden="true" />
-              {routeIsos.map((iso) => (
-                <span key={iso} className="flex items-center gap-1">
-                  <CountryFlag iso={iso} />
+        {!directMode && (
+          <>
+            <div className="mt-3 flex flex-wrap items-center gap-2 text-sm font-semibold text-muted-foreground">
+              {routeIsos.length ? (
+                <span className="flex min-w-0 flex-wrap items-center gap-1">
+                  <RouteIcon className="size-4 shrink-0 text-primary" aria-hidden="true" />
+                  {routeIsos.map((iso) => (
+                    <span key={iso} className="flex items-center gap-1">
+                      <CountryFlag iso={iso} />
+                    </span>
+                  ))}
                 </span>
-              ))}
-            </span>
-          ) : (
-            <span className="flex items-center gap-2">
-              {destination && <CountryFlag iso={destination} />}
-              {destinationCountry?.name[locale] ?? "—"}
-            </span>
-          )}
-          <span className="text-muted-foreground">·</span>
-          <span>
-            {days} {copy.days}
-          </span>
-          <span className="text-muted-foreground">·</span>
-          <span>{copy.travelers(travelers)}</span>
-        </div>
-        {travelers > 1 && (
-          <p className="mt-2 text-xs text-muted-foreground">{copy.perTraveler(travelers)}</p>
+              ) : (
+                <span className="flex items-center gap-2">
+                  {destination && <CountryFlag iso={destination} />}
+                  {destinationCountry?.name[locale] ?? "—"}
+                </span>
+              )}
+              <span className="text-muted-foreground">·</span>
+              <span>
+                {days} {copy.days}
+              </span>
+              <span className="text-muted-foreground">·</span>
+              <span>{copy.travelers(travelers)}</span>
+            </div>
+            {travelers > 1 && (
+              <p className="mt-2 text-xs text-muted-foreground">{copy.perTraveler(travelers)}</p>
+            )}
+          </>
         )}
 
         <div className="mt-4">
