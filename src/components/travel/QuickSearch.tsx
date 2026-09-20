@@ -134,6 +134,7 @@ export function QuickSearch({
     if (service === "esim") {
       const first = countries[0];
       if (first) goToCountry(first);
+      else closeSearch(true);
       return;
     }
     const first = airports[0];
