@@ -39,7 +39,6 @@ export type SectionCounters = {
   broaderCoverageTotal: number;
 };
 
-
 export type CatalogueSections<T> = {
   recommended: T | null;
   standard: T[];
@@ -132,7 +131,11 @@ function curateBroaderCoverage<T extends CatalogueProduct>(packages: T[], limit:
  * starting with the validity closest to the trip. Purely presentational —
  * nothing is removed from the catalogue.
  */
-function curateUnlimited<T extends CatalogueProduct>(packages: T[], days: number, limit: number): T[] {
+function curateUnlimited<T extends CatalogueProduct>(
+  packages: T[],
+  days: number,
+  limit: number,
+): T[] {
   if (packages.length <= 1) return [...packages];
   // 1. One option per validity bucket: the cheapest, unless a pricier SKU
   //    documents a materially different fair-use / speed promise.
@@ -170,7 +173,6 @@ function curateUnlimited<T extends CatalogueProduct>(packages: T[], days: number
   }
   return picked.sort((a, b) => (a.validityDays ?? 0) - (b.validityDays ?? 0) || byPrice(a, b));
 }
-
 
 /**
  * Deduplicate, then classify each eligible product into exactly one bucket.
@@ -245,7 +247,6 @@ export function buildCatalogueSections<T extends CatalogueProduct>(
   const safeUnlimited = unlimitedCurated.filter(keep);
   const safeBroader = broaderCoverage.filter(keep);
 
-
   const counters: SectionCounters = {
     received: packages.length,
     covering: covering.length,
@@ -272,7 +273,6 @@ export function buildCatalogueSections<T extends CatalogueProduct>(
   if (classified !== counters.unique && import.meta.env?.DEV) {
     console.error("[esim] classification invariant broken", counters);
   }
-
 
   return {
     recommended: safeRecommended,

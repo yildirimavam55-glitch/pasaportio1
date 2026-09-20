@@ -29,7 +29,6 @@ const assertInvariant = (sections: ReturnType<typeof buildCatalogueSections>) =>
   expect(new Set(sections.all.map((p) => p.id)).size).toBe(sections.all.length);
 };
 
-
 describe("buildCatalogueSections", () => {
   it("TEST 1: the same provider product id is rendered once", () => {
     const sections = buildCatalogueSections(
@@ -213,8 +212,6 @@ describe("buildCatalogueSections", () => {
     assertInvariant(sections);
   });
 
-
-
   it("TEST 10: unlimited is curated to a few trip-relevant validity buckets", () => {
     const catalogue = [
       pkg({ id: "u7", unlimited: true, dataGb: null, validityDays: 7, salePrice: 12 }),
@@ -225,7 +222,11 @@ describe("buildCatalogueSections", () => {
       pkg({ id: "u60", unlimited: true, dataGb: null, validityDays: 60, salePrice: 114 }),
       pkg({ id: "u90", unlimited: true, dataGb: null, validityDays: 90, salePrice: 160 }),
     ];
-    const sections = buildCatalogueSections(catalogue, { ...input, days: 14, recommendedId: "u30" });
+    const sections = buildCatalogueSections(catalogue, {
+      ...input,
+      days: 14,
+      recommendedId: "u30",
+    });
     const ids = sections.unlimited.map((p) => p.id);
     expect(ids.length).toBeLessThanOrEqual(3);
     // One card per validity bucket, cheapest commercial option each.
@@ -241,4 +242,3 @@ describe("buildCatalogueSections", () => {
     assertInvariant(sections);
   });
 });
-

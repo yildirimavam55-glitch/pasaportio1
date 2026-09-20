@@ -10,7 +10,6 @@ import {
   HelpCircle,
   Info,
   Infinity as InfinityIcon,
-
   Leaf,
   Route as RouteIcon,
   Search,
@@ -826,8 +825,8 @@ function PackageDetailsSheet({
         <SheetHeader>
           <SheetTitle>{copy.detailsTitle}</SheetTitle>
           <SheetDescription>
-            {pkg.unlimited ? copy.unlimited : `${pkg.dataGb ?? "—"} GB`} ·{" "}
-            {pkg.validityDays ?? "—"} {copy.days}
+            {pkg.unlimited ? copy.unlimited : `${pkg.dataGb ?? "—"} GB`} · {pkg.validityDays ?? "—"}{" "}
+            {copy.days}
           </SheetDescription>
         </SheetHeader>
         <dl className="mt-4 grid gap-2 text-sm">
@@ -851,12 +850,10 @@ function PackageDetailsSheet({
             {pkg.coverage.length > 24 && <span>+{pkg.coverage.length - 24}</span>}
           </p>
         )}
-
       </SheetContent>
     </Sheet>
   );
 }
-
 
 function SecondaryGroup({
   title,
@@ -1012,7 +1009,6 @@ function SecondaryGroup({
                   routeIsos={routeIsos}
                 />
               </div>
-
             </article>
           );
         })}
