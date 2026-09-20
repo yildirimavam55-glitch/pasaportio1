@@ -1,10 +1,36 @@
 export type CountryMotifKey =
-  | "arch" | "aurora" | "baobab" | "balloons" | "bridge" | "cactus"
-  | "city" | "clover" | "columns" | "desert" | "fern" | "gate"
-  | "harbor" | "island" | "islands" | "landscape" | "leaf" | "mosque"
-  | "mountain" | "mountain-city" | "pagoda" | "palace" | "palm" | "pyramid"
-  | "savanna" | "skyline" | "steppe" | "tower" | "tram" | "tropical"
-  | "volcano" | "windmill";
+  | "arch"
+  | "aurora"
+  | "baobab"
+  | "balloons"
+  | "bridge"
+  | "cactus"
+  | "city"
+  | "clover"
+  | "columns"
+  | "desert"
+  | "fern"
+  | "gate"
+  | "harbor"
+  | "island"
+  | "islands"
+  | "landscape"
+  | "leaf"
+  | "mosque"
+  | "mountain"
+  | "mountain-city"
+  | "pagoda"
+  | "palace"
+  | "palm"
+  | "pyramid"
+  | "savanna"
+  | "skyline"
+  | "steppe"
+  | "tower"
+  | "tram"
+  | "tropical"
+  | "volcano"
+  | "windmill";
 
 export type CountryVisual = {
   motif: CountryMotifKey;
@@ -24,7 +50,12 @@ export const countryVisuals = {
   AN: { motif: "island", label: "AN travel motif", tone: "orange", position: "right-bottom" },
   AR: { motif: "mountain", label: "Andes city", tone: "petrol", position: "right-center" },
   AT: { motif: "mountain", label: "Alpine city", tone: "mint", position: "center-bottom" },
-  AU: { motif: "harbor", label: "Sydney-inspired harbor", tone: "lavender", position: "right-bottom" },
+  AU: {
+    motif: "harbor",
+    label: "Sydney-inspired harbor",
+    tone: "lavender",
+    position: "right-bottom",
+  },
   AW: { motif: "island", label: "AW travel motif", tone: "orange", position: "right-center" },
   AX: { motif: "island", label: "AX travel motif", tone: "petrol", position: "center-bottom" },
   AZ: { motif: "desert", label: "AZ travel motif", tone: "mint", position: "right-bottom" },
@@ -52,15 +83,30 @@ export const countryVisuals = {
   CI: { motif: "baobab", label: "CI travel motif", tone: "orange", position: "right-center" },
   CL: { motif: "mountain", label: "Andes peaks", tone: "petrol", position: "center-bottom" },
   CM: { motif: "palm", label: "CM travel motif", tone: "mint", position: "right-bottom" },
-  CN: { motif: "pagoda", label: "Great Wall-inspired ridge", tone: "lavender", position: "right-center" },
-  CO: { motif: "mountain-city", label: "Tropical mountain", tone: "orange", position: "center-bottom" },
+  CN: {
+    motif: "pagoda",
+    label: "Great Wall-inspired ridge",
+    tone: "lavender",
+    position: "right-center",
+  },
+  CO: {
+    motif: "mountain-city",
+    label: "Tropical mountain",
+    tone: "orange",
+    position: "center-bottom",
+  },
   CR: { motif: "tropical", label: "CR travel motif", tone: "petrol", position: "right-bottom" },
   CU: { motif: "city", label: "CU travel motif", tone: "mint", position: "right-center" },
   CV: { motif: "volcano", label: "CV travel motif", tone: "lavender", position: "center-bottom" },
   CW: { motif: "island", label: "CW travel motif", tone: "orange", position: "right-bottom" },
   CY: { motif: "island", label: "CY travel motif", tone: "petrol", position: "right-center" },
   CZ: { motif: "gate", label: "CZ travel motif", tone: "mint", position: "center-bottom" },
-  DE: { motif: "gate", label: "Brandenburg-inspired gate", tone: "lavender", position: "right-bottom" },
+  DE: {
+    motif: "gate",
+    label: "Brandenburg-inspired gate",
+    tone: "lavender",
+    position: "right-bottom",
+  },
   DK: { motif: "harbor", label: "Copenhagen harbor", tone: "orange", position: "right-center" },
   DM: { motif: "island", label: "DM travel motif", tone: "petrol", position: "center-bottom" },
   DO: { motif: "island", label: "DO travel motif", tone: "mint", position: "right-bottom" },
@@ -100,7 +146,12 @@ export const countryVisuals = {
   IE: { motif: "clover", label: "Clover and cliffs", tone: "orange", position: "right-center" },
   IL: { motif: "skyline", label: "IL travel motif", tone: "petrol", position: "center-bottom" },
   IM: { motif: "island", label: "IM travel motif", tone: "mint", position: "right-bottom" },
-  IN: { motif: "palace", label: "Mughal-inspired palace", tone: "lavender", position: "right-center" },
+  IN: {
+    motif: "palace",
+    label: "Mughal-inspired palace",
+    tone: "lavender",
+    position: "right-center",
+  },
   IQ: { motif: "desert", label: "IQ travel motif", tone: "orange", position: "center-bottom" },
   IR: { motif: "desert", label: "IR travel motif", tone: "petrol", position: "right-bottom" },
   IS: { motif: "aurora", label: "Aurora mountain", tone: "mint", position: "right-center" },
