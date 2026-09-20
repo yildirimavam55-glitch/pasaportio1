@@ -79,11 +79,7 @@ export function TravelExperience({
 
   return (
     <StorefrontProvider config={config} media={published.data?.media ?? {}}>
-      <Experience
-        service={service}
-        onServiceChange={onServiceChange}
-        config={config}
-      />
+      <Experience service={service} onServiceChange={onServiceChange} config={config} />
     </StorefrontProvider>
   );
 }
@@ -482,7 +478,10 @@ function ServiceHero({
           />
           <div className="service-hero-scrim absolute inset-0" />
         </div>
-        <div className="service-hero-content relative z-10 flex min-h-[31rem] flex-col p-5 sm:min-h-[34rem] sm:p-10 lg:p-14" data-phase={phase ?? undefined}>
+        <div
+          className="service-hero-content relative z-10 flex min-h-[31rem] flex-col p-5 sm:min-h-[34rem] sm:p-10 lg:p-14"
+          data-phase={phase ?? undefined}
+        >
           <div className="service-hero-copy max-w-xl pt-1 sm:pt-3">
             <p className="text-sm font-bold uppercase text-primary">{copy.eyebrow}</p>
             <h1 className="mt-3 max-w-[19rem] font-display text-[2.55rem] font-bold leading-[1.02] text-balance text-foreground sm:max-w-2xl sm:text-6xl">

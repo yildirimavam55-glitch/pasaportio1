@@ -203,6 +203,7 @@
 - [x] Verify TR/DE/EN at 360/375/390/412/430 px and resolve any visual/runtime regression
 
 ## Direct eSIM purchase flow (country → plan → cart)
+
 - [x] Service-aware quick search on the home screen (country for eSIM, airport for Lounge)
 - [x] Country selection goes straight to the package page
 - [x] Long eSIM assistant moved behind an optional link
