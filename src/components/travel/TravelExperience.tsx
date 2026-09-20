@@ -495,7 +495,7 @@ function ServiceHero({
             <h1 className="mt-2 max-w-[17rem] font-display text-[1.85rem] font-bold leading-[1.08] text-balance text-primary-foreground sm:max-w-xl sm:text-[2.65rem]">
               {copy.headline}
             </h1>
-            <p className="mt-2 max-w-[18rem] text-sm font-medium leading-5 text-primary-foreground/85 sm:max-w-lg sm:text-base sm:leading-6">
+            <p className="mt-2 hidden max-w-[18rem] text-sm sm:block font-medium leading-5 text-primary-foreground/85 sm:max-w-lg sm:text-base sm:leading-6">
               {copy.description}
             </p>
           </div>

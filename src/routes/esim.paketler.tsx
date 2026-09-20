@@ -145,6 +145,9 @@ const COPY = {
       "Aşağıdaki gerçek katalog seçenekleri ihtiyacının altında kalıyor; süreyi ya da destinasyonu değiştirebilirsin.",
     scopeRegional: "Bu destinasyon bölgesel paket kapsamında.",
     scopeGlobal: "Bu destinasyon Global paket kapsamında.",
+    assistant: "Hangi pakete ihtiyacın olduğunu bilmiyor musun? Paket yardımcısını kullan →",
+    assistant: "Du weißt nicht, welches Paket passt? Paket-Assistent öffnen →",
+    assistant: "Not sure which package you need? Use the package assistant →",
     whyText: (need: number, size: string) =>
       `Yaklaşık ${need} GB ihtiyacın için mevcut paketler arasındaki en yakın uygun seçenek: ${size}.`,
   },
@@ -390,9 +393,7 @@ function PackagesPage() {
       : `${recommendedProduct.dataGb} GB`
     : "";
   const [selectedProductId, setSelectedProductId] = useState("");
-  const [activeSegment, setActiveSegment] = useState<"standard" | "unlimited">(
-    recommendedProduct?.unlimited ? "unlimited" : "standard",
-  );
+  const [activeSegment, setActiveSegment] = useState<"standard" | "unlimited">("standard");
   const [localQuantity, setLocalQuantity] = useState(travelers);
 
   const { lines, addLine } = useCart();
@@ -529,8 +530,7 @@ function PackagesPage() {
         )}
 
         <div className="mt-3">
-          <DeviceCompatibilityInline />
-          <div className="mt-4">
+          <div className="mt-0">
             <span className="block text-xs font-bold uppercase text-primary">
               {destinationCountry ? `${destinationCountry.name[locale]} · ` : ""}
               {copy.choosePlan}
@@ -726,7 +726,24 @@ function PackagesPage() {
                 copy={copy}
               />
             )}
+          
+            {directMode && (
+              <div className="mt-8 px-1 text-center">
+                <Link to="/esim" hash="finder">
+                  <button
+                    type="button"
+                    className="text-sm font-semibold text-primary underline-offset-4 hover:underline"
+                  >
+                    {copy.assistant as string}
+                  </button>
+                </Link>
+              </div>
+            )}
+            <div className="mt-10 border-t border-border/60 pt-6">
+              <DeviceCompatibilityInline />
+            </div>
           </>
+        ) : (
         ) : (
           <div className="mt-5 rounded-card border border-dashed border-border bg-card p-6 text-center">
             <p className="text-sm font-semibold">
