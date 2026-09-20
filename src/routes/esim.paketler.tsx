@@ -19,6 +19,8 @@ import {
   Zap,
   Minus,
   Plus,
+  Minus,
+  Plus,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { PublicShell } from "@/components/travel/PublicShell";
@@ -587,7 +589,7 @@ function PackagesPage() {
                 </div>
               )}
             </div>
-            {(activeSegment === "standard" || !activeSegment) && sections.standard.length > 0 && (
+            {(activeSegment === "standard" || !activeSegment) && (activeSegment === "standard") && sections.standard.length > 0 && (
               <SecondaryGroup
                 title={copy.standardPackages}
                 subtitle={copy.standardLead}
@@ -601,7 +603,7 @@ function PackagesPage() {
                 imageUrl={destinationImage}
               />
             )}
-            {sections.unlimited.length > 0 && (
+            {(activeSegment === "unlimited") && sections.unlimited.length > 0 && (
               <SecondaryGroup
                 title={copy.moreUnlimited}
                 subtitle={copy.unlimitedLead}
@@ -616,14 +618,14 @@ function PackagesPage() {
                 bestForTripId={sections.bestForTripId}
               />
             )}
-            {sections.broaderUnlimited.length > 0 && (
+            {(activeSegment === "unlimited") && sections.broaderUnlimited.length > 0 && (
               <>
-                {sections.unlimited.length === 0 && (
+                {activeSegment === "unlimited" && sections.unlimited.length === 0 && (
                   <h2 className="mt-8 px-1 font-display text-xl font-bold leading-tight">
                     {copy.moreUnlimited}
                   </h2>
                 )}
-                {sections.unlimited.length === 0 && (
+                {activeSegment === "unlimited" && sections.unlimited.length === 0 && (
                   <p className="mt-1 px-1 text-xs text-muted-foreground">{copy.noLocalUnlimited}</p>
                 )}
                 <SecondaryGroup
@@ -642,7 +644,7 @@ function PackagesPage() {
               </>
             )}
 
-            {sections.broaderCoverage.length > 0 && (
+            {(activeSegment === "standard") && sections.broaderCoverage.length > 0 && (
               <SecondaryGroup
                 title={copy.widerCoverage}
                 subtitle={copy.widerLead}
