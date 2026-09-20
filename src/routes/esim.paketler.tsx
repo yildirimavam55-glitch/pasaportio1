@@ -567,8 +567,37 @@ function PackagesPage() {
                 routeIsos={routeIsos}
                 copy={copy}
                 imageUrl={destinationImage}
+                bestForTripId={sections.bestForTripId}
               />
             )}
+            {sections.broaderUnlimited.length > 0 && (
+              <>
+                {sections.unlimited.length === 0 && (
+                  <h2 className="mt-8 px-1 font-display text-xl font-bold leading-tight">
+                    {copy.moreUnlimited}
+                  </h2>
+                )}
+                {sections.unlimited.length === 0 && (
+                  <p className="mt-1 px-1 text-xs text-muted-foreground">
+                    {copy.noLocalUnlimited}
+                  </p>
+                )}
+                <SecondaryGroup
+                  title={copy.widerUnlimited}
+                  subtitle={copy.widerUnlimitedLead}
+                  packages={sections.broaderUnlimited}
+                  variant="unlimited"
+                  activeSelectedId={activeSelectedId}
+                  onSelect={setSelectedProductId}
+                  destinationIso={destination}
+                  routeIsos={routeIsos}
+                  copy={copy}
+                  imageUrl={destinationImage}
+                  level="sub"
+                />
+              </>
+            )}
+
             {sections.broaderCoverage.length > 0 && (
               <SecondaryGroup
                 title={copy.widerCoverage}
