@@ -152,8 +152,9 @@ function hasCapability(esim: CustomerEsimRecord, capability: string) {
   return esim.providerCapabilities.some((item) => item.toUpperCase() === capability);
 }
 
-function installString(info: Record<string, unknown>, key: string) {
-  const value = info[key];
+function installString(info: unknown, key: string) {
+  if (!info || typeof info !== "object" || Array.isArray(info)) return null;
+  const value = (info as Record<string, unknown>)[key];
   return typeof value === "string" && value.trim() ? value.trim() : null;
 }
 

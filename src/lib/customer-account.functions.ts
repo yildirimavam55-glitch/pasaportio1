@@ -2,8 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-
-type JsonObject = Record<string, unknown>;
+import type { Json } from "@/integrations/supabase/types";
 
 export type CustomerEsimRecord = {
   id: string;
@@ -16,7 +15,7 @@ export type CustomerEsimRecord = {
   remainingDataMb: number | null;
   expiresAt: string | null;
   topupSupported: boolean;
-  installInfo: JsonObject;
+  installInfo: Json;
   hasQr: boolean;
   hasInstallInfo: boolean;
   hasIccid: boolean;
@@ -25,18 +24,18 @@ export type CustomerEsimRecord = {
   updatedAt: string;
 };
 
-function objectValue(value: unknown): JsonObject {
-  return value && typeof value === "object" && !Array.isArray(value) ? (value as JsonObject) : {};
+function objectValue(value: Json): Json {
+  return value && typeof value === "object" && !Array.isArray(value) ? value : {};
 }
 
 function capabilitiesFromRow(row: Record<string, unknown>) {
-  const orderItem = Array.isArray(row.order_items) ? row.order_items[0] : row.order_items;
+  const orderItems = row["order_items"];
+  const orderItem = Array.isArray(orderItems) ? orderItems[0] : orderItems;
   if (!orderItem || typeof orderItem !== "object") return [];
-  const provider = Array.isArray((orderItem as JsonObject).providers)
-    ? ((orderItem as JsonObject).providers as unknown[])[0]
-    : (orderItem as JsonObject).providers;
+  const providers = (orderItem as Record<string, unknown>)["providers"];
+  const provider = Array.isArray(providers) ? providers[0] : providers;
   if (!provider || typeof provider !== "object") return [];
-  const capabilities = (provider as JsonObject).capabilities;
+  const capabilities = (provider as Record<string, unknown>)["capabilities"];
   return Array.isArray(capabilities)
     ? capabilities.filter((item): item is string => typeof item === "string")
     : [];
