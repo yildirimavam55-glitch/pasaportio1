@@ -11,6 +11,7 @@ import {
   UserRound,
 } from "lucide-react";
 import { useState } from "react";
+import type { ReactNode } from "react";
 import { toast } from "sonner";
 
 import { CustomerEsimCard } from "@/components/account/CustomerEsimCard";
@@ -211,10 +212,10 @@ function AccountPage() {
   );
 }
 
-function AccountSection({ icon: Icon, title, count, compact = false, children }: { icon: typeof UserRound; title: string; count: number; compact?: boolean; children: React.ReactNode }) {
+function AccountSection({ icon: Icon, title, count, compact = false, children }: { icon: typeof UserRound; title: string; count: number; compact?: boolean; children: ReactNode }) {
   return <section className={compact ? "min-w-0" : "mt-8"}><div className="mb-3 flex items-center gap-2"><Icon className="size-5 text-primary" /><h2 className="font-display text-xl font-bold">{title}</h2><span className="rounded-full bg-secondary px-2 py-0.5 text-xs font-bold text-muted-foreground">{count}</span></div>{children}</section>;
 }
 
-function EmptyState({ text, children }: { text: string; children?: React.ReactNode }) {
+function EmptyState({ text, children }: { text: string; children?: ReactNode }) {
   return <div className="rounded-xl border border-dashed border-border bg-secondary/45 px-5 py-6 text-center"><p className="text-sm text-muted-foreground">{text}</p>{children && <div className="mt-4">{children}</div>}</div>;
 }

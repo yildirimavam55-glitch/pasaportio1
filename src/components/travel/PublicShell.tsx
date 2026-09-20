@@ -16,6 +16,7 @@ import {
   X,
 } from "lucide-react";
 import { useEffect, useState, type ReactNode } from "react";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -169,10 +170,15 @@ export function PublicShell({
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const signOut = async () => {
-    await queryClient.cancelQueries();
-    queryClient.clear();
-    await supabase.auth.signOut();
-    void navigate({ to: "/auth", replace: true });
+    try {
+      await queryClient.cancelQueries();
+      const { error } = await supabase.auth.signOut();
+      if (error) throw error;
+      queryClient.clear();
+      await navigate({ to: "/", search: { service: "esim" }, replace: true });
+    } catch {
+      toast.error(locale === "tr" ? "Çıkış yapılamadı. Lütfen tekrar deneyin." : locale === "de" ? "Abmeldung fehlgeschlagen. Bitte versuche es erneut." : "Unable to sign out. Please try again.");
+    }
   };
   return (
     <div className="min-h-screen bg-background text-foreground">

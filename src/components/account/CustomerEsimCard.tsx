@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import {
@@ -176,12 +176,17 @@ export function CustomerEsimCard({ esim, locale }: { esim: CustomerEsimRecord; l
     staleTime: 60_000,
   });
 
-  async function openActivation() {
-    setActivationOpen(true);
-    if (!esim.hasQr) return;
-    const result = await getCustomerEsimActivation({ data: { esimId: esim.id } });
-    if (result.qrPayload) setQrImage(await QRCode.toDataURL(result.qrPayload, { width: 640, margin: 2 }));
-  }
+  useEffect(() => {
+    let current = true;
+    if (!activation.data?.qrPayload) {
+      setQrImage(null);
+      return () => { current = false; };
+    }
+    void QRCode.toDataURL(activation.data.qrPayload, { width: 640, margin: 2 }).then((image) => {
+      if (current) setQrImage(image);
+    });
+    return () => { current = false; };
+  }, [activation.data?.qrPayload]);
 
   return (
     <article className="customer-esim-card snap-start border border-border bg-card shadow-card">
@@ -214,7 +219,7 @@ export function CustomerEsimCard({ esim, locale }: { esim: CustomerEsimRecord; l
       </div>
 
       <div className="mt-4 grid grid-cols-2 gap-2">
-        {readyForActivation && esim.hasQr && <Button variant="outline" className="min-h-11" onClick={() => void openActivation()}><QrCode />{copy.qr}</Button>}
+        {readyForActivation && esim.hasQr && <Button variant="outline" className="min-h-11" onClick={() => setActivationOpen(true)}><QrCode />{copy.qr}</Button>}
         {readyForActivation && esim.hasInstallInfo && <Button variant="outline" className="min-h-11" onClick={() => setActivationOpen(true)}><Smartphone />{copy.install}</Button>}
         {canTopUp ? <Button className="min-h-11"><RefreshCcw />{copy.topup}</Button> : <Button asChild variant="cta" className="min-h-11"><Link to="/" search={{ service: "esim" }} hash="finder">{copy.buyAgain}</Link></Button>}
         {canExtend && <Button variant="secondary" className="min-h-11"><CalendarClock />{copy.extend}</Button>}
@@ -230,7 +235,7 @@ export function CustomerEsimCard({ esim, locale }: { esim: CustomerEsimRecord; l
             {activation.data?.iccid && <p className="text-sm"><span className="text-muted-foreground">{copy.iccid}</span><strong className="ml-2 break-all">{activation.data.iccid}</strong></p>}
             {activation.data && ["smdp_address", "activation_code", "apn", "manual_instructions"].map((key) => { const value=installString(activation.data.installInfo,key); return value ? <div key={key} className="rounded-xl bg-secondary p-3"><p className="text-xs font-bold uppercase text-muted-foreground">{key.replaceAll("_", " ")}</p><p className="mt-1 break-all text-sm font-semibold">{value}</p></div> : null; })}
             {qrImage && <Button asChild variant="outline"><a href={qrImage} download={`travely-esim-${esim.id}.png`}><Download />{copy.download}</a></Button>}
-            <p className="flex gap-2 text-xs leading-5 text-muted-foreground"><ShieldCheck className="size-4 shrink-0 text-primary" />Bu bilgiler yalnızca hesabınızda gösterilir.</p>
+            <p className="flex gap-2 text-xs leading-5 text-muted-foreground"><ShieldCheck className="size-4 shrink-0 text-primary" />{locale === "tr" ? "Bu bilgiler yalnızca hesabınızda gösterilir." : locale === "de" ? "Diese Daten werden nur in deinem Konto angezeigt." : "These details are shown only in your account."}</p>
           </div>
         </SheetContent>
       </Sheet>

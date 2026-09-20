@@ -14,6 +14,7 @@ import { reportLovableError } from "../lib/lovable-error-reporting";
 import { I18nProvider } from "@/i18n";
 import { ServiceSwitchTransitionProvider } from "@/components/travel/ServiceSwitchTransition";
 import { PublishedTheme } from "@/components/PublishedTheme";
+import { Toaster } from "@/components/ui/sonner";
 
 function NotFoundComponent() {
   return (
@@ -136,6 +137,7 @@ function RootComponent() {
         <ServiceSwitchTransitionProvider>
           {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
           <Outlet />
+          <Toaster richColors position="top-center" />
         </ServiceSwitchTransitionProvider>
       </I18nProvider>
     </QueryClientProvider>
