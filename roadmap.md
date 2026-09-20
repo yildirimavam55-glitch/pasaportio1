@@ -200,4 +200,4 @@
 - [x] Simplify the Lounge finder and connect its CTA directly to real published results
 - [x] Add Standard/Unlimited package segmentation, compact two-column product cards, quantity controls, and live sticky summary
 - [x] Add recommended/alternative Lounge selection with a sticky purchase summary
-- [ ] Verify TR/DE/EN at 360/375/390/412/430 px and resolve any visual/runtime regression
+- [x] Verify TR/DE/EN at 360/375/390/412/430 px and resolve any visual/runtime regression
