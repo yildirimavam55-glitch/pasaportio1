@@ -19,8 +19,10 @@ const sectionOf = (sections: ReturnType<typeof buildCatalogueSections>, id: stri
     sections.recommended?.id === id ? "RECOMMENDED" : null,
     sections.standard.some((p) => p.id === id) ? "STANDARD" : null,
     sections.unlimited.some((p) => p.id === id) ? "UNLIMITED" : null,
+    sections.broaderUnlimited.some((p) => p.id === id) ? "BROADER_UNLIMITED" : null,
     sections.broaderCoverage.some((p) => p.id === id) ? "BROADER" : null,
   ].filter(Boolean);
+
 
 const assertInvariant = (sections: ReturnType<typeof buildCatalogueSections>) => {
   const c = sections.counters;
