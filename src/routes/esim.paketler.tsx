@@ -871,25 +871,34 @@ function SecondaryGroup({
               )}
               {variant === "coverage" && <div className="absolute inset-0 bg-image-scrim" />}
               <div className="relative z-10 flex h-full flex-col items-center justify-center text-center">
-                {variant === "unlimited" && <InfinityIcon className="mb-1 size-6 text-primary" />}
-                <strong className="font-display text-xl">
+                {variant === "unlimited" && <InfinityIcon className="mb-1 size-5 text-primary" />}
+                <strong className="font-display text-lg leading-tight">
                   {pkg.unlimited ? copy.unlimited : `${pkg.dataGb ?? "—"} GB`}
+                  {pkg.unlimited && fairUseText(pkg) ? "*" : ""}
                 </strong>
                 <span className="mt-0.5 text-sm opacity-70">
                   {pkg.validityDays ?? "—"} {copy.days}
                 </span>
-                <span className="mt-2 text-base font-bold">
-                  {formatSalePrice(pkg.salePrice ?? 0, pkg.currency, locale)}
+                <span className="mt-1 flex max-w-full items-center justify-center gap-1 text-[11px] opacity-75">
+                  {pkg.coverage.length === 1 && pkg.coverage[0] ? (
+                    <>
+                      <CountryFlag iso={pkg.coverage[0]} />
+                      <span className="truncate">
+                        {getCountryByIso(pkg.coverage[0])?.name[locale] ??
+                          customerPackageTitle({
+                            locale,
+                            destinationIso,
+                            routeIsos,
+                            coverage: pkg.coverage,
+                          })}
+                      </span>
+                    </>
+                  ) : (
+                    <span className="truncate">{copy.countryCount(pkg.coverage.length)}</span>
+                  )}
                 </span>
-                <span className="mt-1 max-w-full truncate text-[11px] opacity-70">
-                  {variant === "coverage"
-                    ? `${pkg.coverage.length} ${copy.coverage}`
-                    : customerPackageTitle({
-                        locale,
-                        destinationIso,
-                        routeIsos,
-                        coverage: pkg.coverage,
-                      })}
+                <span className="mt-1 text-base font-bold">
+                  {formatSalePrice(pkg.salePrice ?? 0, pkg.currency, locale)}
                 </span>
                 <span
                   className={`mt-2 inline-flex h-7 items-center justify-center gap-1 rounded-full px-3 text-xs font-bold ${selected ? "bg-primary text-primary-foreground" : variant === "coverage" ? "bg-background/90 text-primary" : "bg-secondary text-primary"}`}
@@ -899,6 +908,19 @@ function SecondaryGroup({
                   {selected ? copy.selected : copy.select}
                 </span>
               </div>
+              <div
+                className="absolute right-1.5 top-1.5 z-20"
+                onClick={(event) => event.stopPropagation()}
+                onPointerDown={(event) => event.stopPropagation()}
+              >
+                <PackageDetailsSheet
+                  pkg={pkg}
+                  copy={copy}
+                  destinationIso={destinationIso}
+                  routeIsos={routeIsos}
+                />
+              </div>
+
             </article>
           );
         })}
