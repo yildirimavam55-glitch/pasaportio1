@@ -32,8 +32,9 @@ export type SectionCounters = {
   recommended: number;
   standard: number;
   unlimited: number;
+  broaderUnlimited: number;
   broaderCoverage: number;
-  /** All exact-country unlimited products before customer-facing curation. */
+  /** All exact-country unlimited products before per-validity curation. */
   unlimitedTotal: number;
   /** All broader-coverage products before customer-facing curation. */
   broaderCoverageTotal: number;
@@ -42,7 +43,12 @@ export type SectionCounters = {
 export type CatalogueSections<T> = {
   recommended: T | null;
   standard: T[];
+  /** Exact-country unlimited: one card per real provider validity. */
   unlimited: T[];
+  /** 1–2 wider (regional/global) unlimited alternatives, shown separately. */
+  broaderUnlimited: T[];
+  /** Local unlimited card that fits the trip length best, for highlighting. */
+  bestForTripId: string | null;
   broaderCoverage: T[];
   /** Every rendered product, in render order, guaranteed duplicate-free. */
   all: T[];
@@ -124,21 +130,15 @@ function curateBroaderCoverage<T extends CatalogueProduct>(packages: T[], limit:
 }
 
 /**
- * Customer-facing shortlist for the exact-country unlimited section.
+ * Customer-facing list for the exact-country unlimited section.
  *
- * Provider catalogues often expose many SKUs with the same validity; the
- * customer only needs the most sensible commercial option per validity bucket,
- * starting with the validity closest to the trip. Purely presentational —
- * nothing is removed from the catalogue.
+ * EVERY real validity the provider offers for the selected country is shown
+ * (1, 3, 7, 10, 15, 30 days ...), but only ONE card per validity: provider
+ * catalogues often expose several SKUs with the same duration, and the
+ * customer only needs the most sensible commercial option. Purely
+ * presentational — nothing is removed from the catalogue, nothing is invented.
  */
-function curateUnlimited<T extends CatalogueProduct>(
-  packages: T[],
-  days: number,
-  limit: number,
-): T[] {
-  if (packages.length <= 1) return [...packages];
-  // 1. One option per validity bucket: the cheapest, unless a pricier SKU
-  //    documents a materially different fair-use / speed promise.
+function curateLocalUnlimited<T extends CatalogueProduct>(packages: T[]): T[] {
   const buckets = new Map<number, T[]>();
   for (const pkg of packages) {
     const key = pkg.validityDays ?? 0;
@@ -149,29 +149,45 @@ function curateUnlimited<T extends CatalogueProduct>(
   const perBucket: T[] = [];
   for (const list of buckets.values()) {
     const sorted = [...list].sort(byPrice);
-    const base = sorted[0]!;
-    perBucket.push(base);
+    // Cheapest option of this duration, unless a pricier SKU documents a
+    // materially different fair-use / speed promise.
+    perBucket.push(sorted[0]!);
   }
-  // 2. Closest sensible validity first, then the next meaningful longer ones.
-  const tripDays = days > 0 ? days : 0;
-  const ranked = perBucket.sort(
-    (a, b) =>
-      Math.abs((a.validityDays ?? 0) - tripDays) - Math.abs((b.validityDays ?? 0) - tripDays) ||
-      byPrice(a, b),
+  return perBucket.sort((a, b) => (a.validityDays ?? 0) - (b.validityDays ?? 0) || byPrice(a, b));
+}
+
+/**
+ * 1–2 genuinely wider unlimited alternatives (best regional + best global),
+ * shown under their own sub-heading so they are never mistaken for local ones.
+ */
+function curateBroaderUnlimited<T extends CatalogueProduct>(packages: T[], limit: number): T[] {
+  const ranked = [...packages].sort(
+    (a, b) => byPrice(a, b) || (b.validityDays ?? 0) - (a.validityDays ?? 0),
   );
-  // 3. Price/value guard: never push a far pricier long-validity SKU into the
-  //    first screen just because the provider sells it.
-  const first = ranked[0];
-  const basePrice = first?.salePrice ?? null;
   const picked: T[] = [];
+  const usedScopes = new Set<string>();
   for (const pkg of ranked) {
-    const price = pkg.salePrice ?? Number.POSITIVE_INFINITY;
-    const tooExpensive = basePrice != null && picked.length >= 2 && price > basePrice * 2.5;
-    if (tooExpensive) continue;
+    const scope = coverageScopeOf(pkg) === "GLOBAL" ? "GLOBAL" : "REGION";
+    if (usedScopes.has(scope)) continue;
+    usedScopes.add(scope);
     picked.push(pkg);
     if (picked.length >= limit) break;
   }
-  return picked.sort((a, b) => (a.validityDays ?? 0) - (b.validityDays ?? 0) || byPrice(a, b));
+  return picked;
+}
+
+/** Local unlimited card that fits the trip best: shortest validity covering it. */
+function bestForTrip<T extends CatalogueProduct>(packages: T[], days: number): T | null {
+  if (!packages.length || days <= 0) return null;
+  const covering = packages.filter((pkg) => (pkg.validityDays ?? 0) >= days);
+  const pool = covering.length ? covering : packages;
+  return (
+    [...pool].sort(
+      (a, b) =>
+        Math.abs((a.validityDays ?? 0) - days) - Math.abs((b.validityDays ?? 0) - days) ||
+        byPrice(a, b),
+    )[0] ?? null
+  );
 }
 
 /**
@@ -225,11 +241,16 @@ export function buildCatalogueSections<T extends CatalogueProduct>(
   unlimited.sort((a, b) => byPrice(a, b) || (a.validityDays ?? 0) - (b.validityDays ?? 0));
   broaderAll.sort((a, b) => a.coverage.length - b.coverage.length || byPrice(a, b));
 
-  // Curated shortlists: a few meaningful alternatives, more when the trip has
-  // no local products at all. The catalogue itself keeps every product.
-  const unlimitedCurated = curateUnlimited(unlimited, input.days ?? 0, 3);
+  // Curated shortlists. The catalogue itself keeps every product.
+  //  - local unlimited: every real validity the provider offers, one card each
+  //  - broader unlimited: 1–2 wider alternatives, shown separately
+  //  - broader coverage: capped regional/global data plans only
+  const unlimitedCurated = curateLocalUnlimited(unlimited);
+  const broaderUnlimitedAll = broaderAll.filter((pkg) => pkg.unlimited);
+  const broaderCappedAll = broaderAll.filter((pkg) => !pkg.unlimited);
+  const broaderUnlimited = curateBroaderUnlimited(broaderUnlimitedAll, 2);
   const broaderLimit = standard.length + unlimited.length ? 6 : 12;
-  const broaderCoverage = curateBroaderCoverage(broaderAll, broaderLimit);
+  const broaderCoverage = curateBroaderCoverage(broaderCappedAll, broaderLimit);
 
   // 4. Safety pass: a product id may appear in one section only.
   const seenId = new Set<string>();
@@ -245,6 +266,7 @@ export function buildCatalogueSections<T extends CatalogueProduct>(
   const safeRecommended = recommended && keep(recommended) ? recommended : null;
   const safeStandard = standard.filter(keep);
   const safeUnlimited = unlimitedCurated.filter(keep);
+  const safeBroaderUnlimited = broaderUnlimited.filter(keep);
   const safeBroader = broaderCoverage.filter(keep);
 
   const counters: SectionCounters = {
@@ -255,6 +277,7 @@ export function buildCatalogueSections<T extends CatalogueProduct>(
     recommended: safeRecommended ? 1 : 0,
     standard: safeStandard.length,
     unlimited: safeUnlimited.length,
+    broaderUnlimited: safeBroaderUnlimited.length,
     broaderCoverage: safeBroader.length,
     unlimitedTotal: unlimited.length,
     broaderCoverageTotal: broaderAll.length,
@@ -278,11 +301,14 @@ export function buildCatalogueSections<T extends CatalogueProduct>(
     recommended: safeRecommended,
     standard: safeStandard,
     unlimited: safeUnlimited,
+    broaderUnlimited: safeBroaderUnlimited,
+    bestForTripId: bestForTrip(safeUnlimited, input.days ?? 0)?.id ?? null,
     broaderCoverage: safeBroader,
     all: [
       ...(safeRecommended ? [safeRecommended] : []),
       ...safeStandard,
       ...safeUnlimited,
+      ...safeBroaderUnlimited,
       ...safeBroader,
     ],
     counters,

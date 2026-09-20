@@ -101,6 +101,11 @@ const COPY = {
     tierUnlimited: "Sınırsız",
     standardPackages: "Standart paketler",
     moreUnlimited: "Sınırsız seçenekler",
+    widerUnlimited: "Diğer bölgelerde sınırsız",
+    widerUnlimitedLead: "Daha geniş kapsamlı sınırsız alternatifler",
+    noLocalUnlimited: "Bu ülkeye özel sınırsız paket bulunamadı.",
+    fitsTrip: "Bu seyahate uygun",
+
     widerCoverage: "Daha fazla ülke kapsayan paketler",
     standardLead: "Bu destinasyon için popüler veri paketleri",
     unlimitedLead: "Kesintisiz bağlantı seçenekleri",
@@ -171,6 +176,11 @@ const COPY = {
     tierUnlimited: "Unbegrenzt",
     standardPackages: "Standard-Pakete",
     moreUnlimited: "Unbegrenzt-Optionen",
+    widerUnlimited: "Unbegrenzt in weiteren Regionen",
+    widerUnlimitedLead: "Unbegrenzte Alternativen mit größerer Abdeckung",
+    noLocalUnlimited: "Für dieses Land gibt es kein eigenes Unbegrenzt-Paket.",
+    fitsTrip: "Passt zur Reise",
+
     widerCoverage: "Pakete mit mehr Ländern",
     standardLead: "Beliebte Datenpakete für dieses Reiseziel",
     unlimitedLead: "Optionen für durchgehende Verbindung",
@@ -241,6 +251,11 @@ const COPY = {
     tierUnlimited: "Unlimited",
     standardPackages: "Standard packages",
     moreUnlimited: "Unlimited options",
+    widerUnlimited: "Unlimited in more regions",
+    widerUnlimitedLead: "Unlimited alternatives with wider coverage",
+    noLocalUnlimited: "No unlimited package is available for this country.",
+    fitsTrip: "Fits this trip",
+
     widerCoverage: "Packages covering more countries",
     standardLead: "Popular data packages for this destination",
     unlimitedLead: "Options for continuous connectivity",
@@ -552,8 +567,35 @@ function PackagesPage() {
                 routeIsos={routeIsos}
                 copy={copy}
                 imageUrl={destinationImage}
+                bestForTripId={sections.bestForTripId}
               />
             )}
+            {sections.broaderUnlimited.length > 0 && (
+              <>
+                {sections.unlimited.length === 0 && (
+                  <h2 className="mt-8 px-1 font-display text-xl font-bold leading-tight">
+                    {copy.moreUnlimited}
+                  </h2>
+                )}
+                {sections.unlimited.length === 0 && (
+                  <p className="mt-1 px-1 text-xs text-muted-foreground">{copy.noLocalUnlimited}</p>
+                )}
+                <SecondaryGroup
+                  title={copy.widerUnlimited}
+                  subtitle={copy.widerUnlimitedLead}
+                  packages={sections.broaderUnlimited}
+                  variant="unlimited"
+                  activeSelectedId={activeSelectedId}
+                  onSelect={setSelectedProductId}
+                  destinationIso={destination}
+                  routeIsos={routeIsos}
+                  copy={copy}
+                  imageUrl={destinationImage}
+                  level="sub"
+                />
+              </>
+            )}
+
             {sections.broaderCoverage.length > 0 && (
               <SecondaryGroup
                 title={copy.widerCoverage}
@@ -866,6 +908,8 @@ function SecondaryGroup({
   routeIsos,
   copy,
   imageUrl,
+  level = "section",
+  bestForTripId = null,
 }: {
   title: string;
   subtitle: string;
@@ -877,11 +921,14 @@ function SecondaryGroup({
   routeIsos: string[];
   copy: (typeof COPY)["tr"];
   imageUrl: string;
+  level?: "section" | "sub";
+  bestForTripId?: string | null;
 }) {
   const { locale } = useI18n();
   const pointerStart = useRef<{ x: number; y: number } | null>(null);
   const suppressSelection = useRef(false);
   const Icon = variant === "unlimited" ? InfinityIcon : variant === "coverage" ? Globe2 : Signal;
+  const isSub = level === "sub";
 
   const startPointer = (event: React.PointerEvent<HTMLElement>) => {
     pointerStart.current = { x: event.clientX, y: event.clientY };
@@ -920,11 +967,18 @@ function SecondaryGroup({
   };
 
   return (
-    <section className="mt-8">
+    <section className={isSub ? "mt-4" : "mt-8"}>
       <div className="flex min-w-0 items-start gap-3 px-1">
-        <Icon className="mt-0.5 size-6 shrink-0 text-primary" aria-hidden="true" />
+        <Icon
+          className={`mt-0.5 shrink-0 text-primary ${isSub ? "size-4" : "size-6"}`}
+          aria-hidden="true"
+        />
         <div className="min-w-0">
-          <h2 className="font-display text-xl font-bold leading-tight">{title}</h2>
+          {isSub ? (
+            <h3 className="font-display text-base font-bold leading-tight">{title}</h3>
+          ) : (
+            <h2 className="font-display text-xl font-bold leading-tight">{title}</h2>
+          )}
           <p className="mt-0.5 text-xs text-muted-foreground">{subtitle}</p>
         </div>
       </div>
@@ -959,6 +1013,11 @@ function SecondaryGroup({
                 />
               )}
               {variant === "coverage" && <div className="absolute inset-0 bg-image-scrim" />}
+              {pkg.id === bestForTripId && (
+                <span className="absolute left-1.5 top-1.5 z-20 rounded-full bg-primary px-2 py-0.5 text-[10px] font-bold text-primary-foreground">
+                  {copy.fitsTrip}
+                </span>
+              )}
               <div className="relative z-10 flex h-full flex-col items-center justify-center text-center">
                 {variant === "unlimited" && <InfinityIcon className="mb-1 size-5 text-primary" />}
                 <strong className="font-display text-lg leading-tight">
@@ -983,7 +1042,10 @@ function SecondaryGroup({
                       </span>
                     </>
                   ) : (
-                    <span className="truncate">{copy.countryCount(pkg.coverage.length)}</span>
+                    <>
+                      <Globe2 className="size-3 shrink-0" aria-hidden="true" />
+                      <span className="truncate">{copy.countryCount(pkg.coverage.length)}</span>
+                    </>
                   )}
                 </span>
                 <span className="mt-1 text-base font-bold">

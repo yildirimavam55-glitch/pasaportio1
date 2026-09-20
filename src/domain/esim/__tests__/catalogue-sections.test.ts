@@ -19,6 +19,7 @@ const sectionOf = (sections: ReturnType<typeof buildCatalogueSections>, id: stri
     sections.recommended?.id === id ? "RECOMMENDED" : null,
     sections.standard.some((p) => p.id === id) ? "STANDARD" : null,
     sections.unlimited.some((p) => p.id === id) ? "UNLIMITED" : null,
+    sections.broaderUnlimited.some((p) => p.id === id) ? "BROADER_UNLIMITED" : null,
     sections.broaderCoverage.some((p) => p.id === id) ? "BROADER" : null,
   ].filter(Boolean);
 
@@ -48,7 +49,7 @@ describe("buildCatalogueSections", () => {
     assertInvariant(sections);
   });
 
-  it("TEST 2: unlimited global appears only under broader coverage, never unlimited", () => {
+  it("TEST 2: unlimited global appears only under broader unlimited, never local unlimited", () => {
     const sections = buildCatalogueSections(
       [
         pkg({ id: "local-2", dataGb: 2 }),
@@ -62,7 +63,8 @@ describe("buildCatalogueSections", () => {
       ],
       input,
     );
-    expect(sectionOf(sections, "uni-global")).toEqual(["BROADER"]);
+    expect(sectionOf(sections, "uni-global")).toEqual(["BROADER_UNLIMITED"]);
+
     assertInvariant(sections);
   });
 
@@ -151,7 +153,7 @@ describe("buildCatalogueSections", () => {
       const sections = buildCatalogueSections(catalogue, { ...input, coverageIsos: [iso] });
       assertInvariant(sections);
       expect(sections.counters.unique).toBe(5);
-      expect(sectionOf(sections, `${iso}-glob-u`)).toEqual(["BROADER"]);
+      expect(sectionOf(sections, `${iso}-glob-u`)).toEqual(["BROADER_UNLIMITED"]);
       expect(sectionOf(sections, `${iso}-glob`)).toEqual(["BROADER"]);
     }
   });
@@ -208,11 +210,13 @@ describe("buildCatalogueSections", () => {
     expect(sections.recommended?.id).toBe("tr10");
     expect(sections.standard.map((p) => p.id)).toEqual(["tr2", "tr5", "tr20"]);
     expect(sections.unlimited.map((p) => p.id)).toEqual(["tru7", "tru30"]);
-    expect(sections.broaderCoverage.map((p) => p.id)).toEqual(["glob50", "eu20", "globu"]);
+    expect(sections.broaderCoverage.map((p) => p.id)).toEqual(["glob50", "eu20"]);
+    expect(sections.broaderUnlimited.map((p) => p.id)).toEqual(["globu"]);
+
     assertInvariant(sections);
   });
 
-  it("TEST 10: unlimited is curated to a few trip-relevant validity buckets", () => {
+  it("TEST 10: every real validity is shown once, deduped per duration", () => {
     const catalogue = [
       pkg({ id: "u7", unlimited: true, dataGb: null, validityDays: 7, salePrice: 12 }),
       pkg({ id: "u15a", unlimited: true, dataGb: null, validityDays: 15, salePrice: 24 }),
@@ -228,16 +232,14 @@ describe("buildCatalogueSections", () => {
       recommendedId: "u30",
     });
     const ids = sections.unlimited.map((p) => p.id);
-    expect(ids.length).toBeLessThanOrEqual(3);
-    // One card per validity bucket, cheapest commercial option each.
-    expect(ids).toContain("u15a");
+    // One card per real provider validity, ascending, cheapest SKU each.
+    expect(ids).toEqual(["u15a", "u60", "u90"]);
     expect(ids).not.toContain("u15b");
     expect(ids).not.toContain("u15c");
-    // Trip is 14 days: the 7-day product no longer covers it, and the far
-    // pricier long-validity SKUs stay out of the first screen.
+    // 7 days does not cover a 14-day trip, so it is not eligible at all.
     expect(ids).not.toContain("u7");
-    expect(ids).not.toContain("u90");
-
+    // The trip-fitting card is highlighted, not the only one rendered.
+    expect(sections.bestForTripId).toBe("u15a");
     expect(sections.counters.unlimitedTotal).toBeGreaterThan(ids.length);
     assertInvariant(sections);
   });

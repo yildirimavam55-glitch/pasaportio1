@@ -172,3 +172,6 @@
 - [x] Her kartta kapsam satırı (bayrak + ülke / ülke sayısı) ve fair-use yıldızı
 - [x] Kart başına "Detaylar" alt sayfası (veri tipi, fiyat, süre, kapsam, 5G, hotspot, aktivasyon, fair-use)
 - [x] TR/DE/US/JP 390 px doğrulaması: tekrar yok, taşma yok, konsol hatası yok
+- [x] Sınırsız bölümünde sağlayıcının sunduğu her gerçek süre tek kart olarak listeleniyor
+- [x] Seyahat süresine uyan kart "Bu seyahate uygun" rozetiyle vurgulanıyor
+- [x] Ayrı "Diğer bölgelerde sınırsız" alt rafında en fazla 2 geniş kapsamlı alternatif
