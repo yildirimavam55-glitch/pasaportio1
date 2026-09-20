@@ -38,7 +38,6 @@ import { Reveal } from "./Reveal";
 import { useServiceSwitchTransition } from "./ServiceSwitchTransition";
 import { EsimServiceIcon, LoungeServiceIcon } from "./ServiceIcons";
 import {
-  CampaignBanner,
   DeliveryConfidence,
   HowItWorks,
   ImageTextSection,
@@ -273,11 +272,7 @@ function Experience({
           </Reveal>
         );
       case "CAMPAIGN_BANNER":
-        return (
-          <Reveal key={section.id} className="reveal-stagger">
-            <CampaignBanner section={section} />
-          </Reveal>
-        );
+        return null;
       case "IMAGE_TEXT":
         return (
           <Reveal key={section.id}>

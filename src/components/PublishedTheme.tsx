@@ -14,6 +14,6 @@ export function PublishedTheme() {
   if (pathname.startsWith("/admin") || !theme.data) return null;
 
   const variables = themeCssVariables(theme.data);
-  const css = `:root{${Object.entries(variables).map(([key, value]) => `${key}:${value};`).join("")}}`;
+  const css = `:root:not(.dark){${Object.entries(variables).map(([key, value]) => `${key}:${value};`).join("")}}`;
   return <style>{css}</style>;
 }

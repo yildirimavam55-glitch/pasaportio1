@@ -80,7 +80,11 @@ export function useCart() {
   }, []);
 
   const removeLine = useCallback((productId: string) => publish(lines.filter((item) => item.productId !== productId)), []);
+  const updateQuantity = useCallback((productId: string, quantity: number) => {
+    const safeQuantity = Math.max(1, Math.min(9, Math.round(quantity)));
+    publish(lines.map((item) => (item.productId === productId ? { ...item, quantity: safeQuantity } : item)));
+  }, []);
   const clear = useCallback(() => publish([]), []);
 
-  return { lines: state, addLine, removeLine, clear, count: state.reduce((total, line) => total + line.quantity, 0) };
+  return { lines: state, addLine, removeLine, updateQuantity, clear, count: state.reduce((total, line) => total + line.quantity, 0) };
 }

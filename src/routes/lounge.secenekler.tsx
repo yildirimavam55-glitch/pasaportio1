@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { useState } from "react";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { z } from "zod";
 import {
@@ -11,6 +11,8 @@ import {
   PlaneLanding,
   PlaneTakeoff,
   ArrowRightLeft,
+  Minus,
+  Plus,
   Users,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -56,6 +58,7 @@ const COPY = {
     recommended: "Önerilen Lounge",
     other: "Diğer Lounge’lar",
     buy: "Satın Al",
+    reserve: "Rezerve et",
   },
   de: {
     title: "Lounge-Optionen",
@@ -76,6 +79,7 @@ const COPY = {
     recommended: "Empfohlene Lounge",
     other: "Weitere Lounges",
     buy: "Kaufen",
+    reserve: "Reservieren",
   },
   en: {
     title: "Lounge options",
@@ -96,6 +100,7 @@ const COPY = {
     recommended: "Recommended Lounge",
     other: "Other Lounges",
     buy: "Buy",
+    reserve: "Reserve",
   },
 } satisfies Record<Locale, Record<string, string>>;
 
@@ -147,25 +152,20 @@ export const Route = createFileRoute("/lounge/secenekler")({
 function LoungeOptionsPage() {
   const { locale } = useI18n();
   const copy = COPY[locale];
+  const navigate = useNavigate();
   const search = Route.useSearch();
   const airport = getAirportByIata(search.iata);
   const availability = useServiceAvailability();
   const { lines, addLine } = useCart();
 
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [quantity, setQuantity] = useState(search.travelers);
   const { data: options = [], isPending } = useQuery({
     queryKey: ["lounge-options", search.iata, search.situation],
     queryFn: () => listLoungeOptions({ data: { iata: search.iata, situation: search.situation } }),
   });
 
-  useEffect(() => {
-    const firstOption = options[0];
-    if (firstOption && !selectedId) {
-      setSelectedId(firstOption.id);
-    }
-  }, [options, selectedId]);
-
-  const selectedOption = options.find((option) => option.id === selectedId) ?? options[0];
+  const selectedOption = options.find((option) => option.id === selectedId) ?? null;
   const selectedInCart = Boolean(
     selectedOption && lines.some((line) => line.productId === selectedOption.id),
   );
@@ -285,26 +285,38 @@ function LoungeOptionsPage() {
         )}
 
         {selectedOption && (
-          <div className="fixed inset-x-0 bottom-[4.7rem] z-40 border-t border-border/80 bg-card/98 p-3 shadow-nav backdrop-blur md:static md:mt-6 md:rounded-2xl md:border">
-            <div className="mx-auto flex max-w-site items-center justify-between gap-3">
+          <div className="mobile-purchase-bar fixed inset-x-0 z-40 border-t border-border/80 bg-card/98 p-3 shadow-nav backdrop-blur md:static md:mt-6 md:rounded-2xl md:border">
+            <div className="mx-auto flex max-w-site items-center gap-2 sm:gap-3">
               <div className="min-w-0">
                 <p className="truncate text-sm font-bold">
                   {selectedOption.loungeName ?? selectedOption.name}
                 </p>
                 <p className="text-sm font-semibold text-primary">
-                  {search.travelers} {copy.travelers} ·{" "}
+                  {quantity} {copy.travelers} ·{" "}
                   {new Intl.NumberFormat(undefined, {
                     style: "currency",
                     currency: selectedOption.currency,
-                  }).format((selectedOption.salePrice ?? 0) * search.travelers)}
+                  }).format((selectedOption.salePrice ?? 0) * quantity)}
                 </p>
+              </div>
+              <div className="ml-auto flex shrink-0 items-center gap-1 rounded-lg bg-secondary/60 p-1">
+                <Button type="button" variant="ghost" size="icon" className="size-8 bg-card" disabled={quantity <= 1} onClick={() => setQuantity((value) => Math.max(1, value - 1))} aria-label="−">
+                  <Minus className="size-4" />
+                </Button>
+                <span className="min-w-5 text-center text-sm font-bold">{quantity}</span>
+                <Button type="button" variant="ghost" size="icon" className="size-8 bg-card" disabled={quantity >= 9} onClick={() => setQuantity((value) => Math.min(9, value + 1))} aria-label="+">
+                  <Plus className="size-4" />
+                </Button>
               </div>
               <Button
                 variant="cta"
                 size="lg"
                 className="shrink-0"
                 onClick={() => {
-                  if (selectedInCart) return;
+                  if (selectedInCart) {
+                    void navigate({ to: "/sepet" });
+                    return;
+                  }
                   addLine({
                     productId: selectedOption.id,
                     serviceType: "LOUNGE",
@@ -312,16 +324,17 @@ function LoungeOptionsPage() {
                     meta: "",
                     price: selectedOption.salePrice || 0,
                     currency: selectedOption.currency,
-                    quantity: search.travelers,
+                    quantity,
                     isTest: selectedOption.isTest,
                     airport: selectedOption.iata,
                     terminal: selectedOption.terminal,
                     date: search.date || null,
                     situation: search.situation,
                   });
+                  void navigate({ to: "/sepet" });
                 }}
               >
-                {selectedInCart ? copy.goToCart : copy.buy}
+                {selectedInCart ? copy.goToCart : copy.reserve}
               </Button>
             </div>
           </div>

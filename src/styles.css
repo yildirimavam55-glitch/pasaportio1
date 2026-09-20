@@ -131,21 +131,25 @@
 }
 
 .dark {
-  --background: oklch(0.129 0.042 264.695);
-  --foreground: oklch(0.984 0.003 247.858);
-  --card: oklch(0.208 0.042 265.755);
-  --card-foreground: oklch(0.984 0.003 247.858);
-  --popover: oklch(0.208 0.042 265.755);
-  --popover-foreground: oklch(0.984 0.003 247.858);
-  --primary: oklch(0.929 0.013 255.508);
-  --primary-foreground: oklch(0.208 0.042 265.755);
-  --secondary: oklch(0.279 0.041 260.031);
-  --secondary-foreground: oklch(0.984 0.003 247.858);
-  --muted: oklch(0.279 0.041 260.031);
-  --muted-foreground: oklch(0.704 0.04 256.788);
-  --accent: oklch(0.279 0.041 260.031);
-  --accent-foreground: oklch(0.984 0.003 247.858);
-  --petrol-soft: oklch(0.27 0.035 180);
+  --background: oklch(0.17 0.025 181);
+  --foreground: oklch(0.94 0.012 88);
+  --card: oklch(0.225 0.028 181);
+  --card-foreground: oklch(0.96 0.01 88);
+  --popover: oklch(0.225 0.028 181);
+  --popover-foreground: oklch(0.96 0.01 88);
+  --primary: oklch(0.75 0.09 166);
+  --primary-foreground: oklch(0.18 0.035 181);
+  --secondary: oklch(0.27 0.025 181);
+  --secondary-foreground: oklch(0.94 0.012 88);
+  --muted: oklch(0.27 0.02 181);
+  --muted-foreground: oklch(0.75 0.025 172);
+  --accent: oklch(0.31 0.045 160);
+  --accent-foreground: oklch(0.96 0.01 88);
+  --cta: oklch(0.74 0.18 48);
+  --cta-foreground: oklch(0.16 0.025 181);
+  --primary-soft: oklch(0.29 0.045 165);
+  --accent-soft: oklch(0.3 0.05 70);
+  --petrol-soft: oklch(0.27 0.04 180);
   --sand-soft: oklch(0.28 0.03 75);
   --cta-soft: oklch(0.3 0.055 48);
   --lavender-soft: oklch(0.3 0.035 304);
@@ -167,10 +171,24 @@
   --sidebar-accent-foreground: oklch(0.984 0.003 247.858);
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.551 0.027 264.364);
-  --transition-surface: oklch(1 0 0);
+  --hero-foreground: oklch(0.99 0.004 90);
+  --transition-surface: oklch(0.17 0.025 181);
   --success: oklch(0.7 0.14 158);
   --warning: oklch(0.78 0.13 75);
   --info: oklch(0.7 0.11 225);
+}
+
+html {
+  background: var(--color-background);
+}
+
+html.dark .service-hero-visual,
+html.dark .destination-scene {
+  filter: brightness(0.82) saturate(0.9);
+}
+
+.mobile-purchase-bar {
+  bottom: calc(4.25rem + max(0.4rem, env(safe-area-inset-bottom)));
 }
 
 @layer base {

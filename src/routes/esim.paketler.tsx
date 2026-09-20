@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
 import { fallback, zodValidator } from "@tanstack/zod-adapter";
@@ -146,6 +146,7 @@ const COPY = {
     scopeRegional: "Bu destinasyon bölgesel paket kapsamında.",
     scopeGlobal: "Bu destinasyon Global paket kapsamında.",
     assistant: "Emin değil misin? Paket yardımcısını aç →",
+    buy: "Satın al",
 
     whyText: (need: number, size: string) =>
       `Yaklaşık ${need} GB ihtiyacın için mevcut paketler arasındaki en yakın uygun seçenek: ${size}.`,
@@ -202,6 +203,7 @@ const COPY = {
     showAllPackages: (count: number) => `Alle Standard-Pakete anzeigen (${count})`,
     showFewerPackages: "Weniger Pakete anzeigen",
     assistant: "Unsicher? Paket-Assistent öffnen →",
+    buy: "Kaufen",
 
     widerCoverage: "Pakete mit mehr Ländern",
     standardLead: "Beliebte Datenpakete für dieses Reiseziel",
@@ -286,6 +288,7 @@ const COPY = {
     showAllPackages: (count: number) => `View all standard packages (${count})`,
     showFewerPackages: "Show fewer packages",
     assistant: "Not sure? Open the package assistant →",
+    buy: "Buy now",
 
     widerCoverage: "Packages covering more countries",
     standardLead: "Popular data packages for this destination",
@@ -344,6 +347,7 @@ export const Route = createFileRoute("/esim/paketler")({
 
 function PackagesPage() {
   const { locale } = useI18n();
+  const navigate = useNavigate();
   const copy = COPY[locale];
   const search = Route.useSearch();
   const destination = search.destination.slice(0, 2).toUpperCase();
@@ -449,6 +453,7 @@ function PackagesPage() {
       coverage: selectedProduct.coverage,
       isTest: selectedProduct.isTest,
     });
+    void navigate({ to: "/sepet" });
   };
 
   if (!availability.isPending && !availability.esim.storefront) {
@@ -593,7 +598,7 @@ function PackagesPage() {
                   />
                 )}
               {selectedProduct && (
-                <div className="fixed inset-x-0 bottom-[4.7rem] z-40 border-t border-border/80 bg-card/98 p-3 shadow-nav backdrop-blur md:static md:mt-5 md:rounded-2xl md:border md:bg-card md:p-3 md:shadow-card">
+                <div className="mobile-purchase-bar fixed inset-x-0 z-40 border-t border-border/80 bg-card/98 p-3 shadow-nav backdrop-blur md:static md:mt-5 md:rounded-2xl md:border md:bg-card md:p-3 md:shadow-card">
                   <div className="mx-auto flex max-w-site items-center gap-3">
                     <div className="flex flex-1 flex-col min-w-0">
                       <div key={selectedProduct.id} className="esim-sticky-product min-w-0 flex-1">
@@ -603,9 +608,12 @@ function PackagesPage() {
                             : `${selectedProduct.dataGb} GB`}{" "}
                           · {selectedProduct.validityDays ?? "—"} {copy.days}
                         </strong>
-                        <span className="text-xs font-semibold opacity-70">
+                        <span className="block truncate text-xs text-muted-foreground">
+                          {destinationCountry?.name[locale] ?? customerPackageTitle({ locale, destinationIso: destination, routeIsos, coverage: selectedProduct.coverage })}
+                        </span>
+                        <span className="text-sm font-bold text-primary">
                           {formatSalePrice(
-                            selectedProduct.salePrice ?? 0,
+                            (selectedProduct.salePrice ?? 0) * localQuantity,
                             selectedProduct.currency,
                             locale,
                           )}
@@ -647,7 +655,7 @@ function PackagesPage() {
                       disabled={selectedInCart || selectedProduct.salePrice == null}
                       onClick={addSelectedToCart}
                     >
-                      {selectedInCart ? copy.inCart : copy.add}
+                       {selectedInCart ? copy.inCart : copy.buy as string}
                     </Button>
                   </div>
                   {lines.length > 0 && (

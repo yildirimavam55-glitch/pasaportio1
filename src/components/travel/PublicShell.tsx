@@ -7,11 +7,15 @@ import {
   Globe2,
   Headphones,
   Home,
+  LogIn,
   LogOut,
   Menu,
+  Monitor,
+  Moon,
   Plane,
   Search,
   Signal,
+  Sun,
   UserRound,
   X,
 } from "lucide-react";
@@ -31,6 +35,7 @@ import { GLOBAL_CONTENT, localized, type ServiceSlug } from "@/content/travel-co
 import { supabase } from "@/integrations/supabase/client";
 import { CountryFlag } from "./CountryFlag";
 import { EsimServiceIcon, LoungeServiceIcon } from "./ServiceIcons";
+import { useThemePreference, type ThemePreference } from "@/components/ThemePreference";
 
 const localeMeta = {
   tr: { iso: "TR", short: "TR" },
@@ -39,9 +44,15 @@ const localeMeta = {
 } as const;
 
 const ACCOUNT_COPY = {
-  tr: { trips: "Seyahatlerim", signOut: "Çıkış yap" },
-  de: { trips: "Meine Reisen", signOut: "Abmelden" },
-  en: { trips: "My trips", signOut: "Sign out" },
+  tr: { trips: "Seyahatlerim", signIn: "Giriş yap", signOut: "Çıkış yap" },
+  de: { trips: "Meine Reisen", signIn: "Anmelden", signOut: "Abmelden" },
+  en: { trips: "My trips", signIn: "Sign in", signOut: "Sign out" },
+} as const;
+
+const THEME_COPY = {
+  tr: { title: "Görünüm", light: "Açık", dark: "Koyu", system: "Sistem" },
+  de: { title: "Darstellung", light: "Hell", dark: "Dunkel", system: "System" },
+  en: { title: "Appearance", light: "Light", dark: "Dark", system: "System" },
 } as const;
 
 const MENU_CLOSE_LABEL = {
@@ -91,6 +102,39 @@ function LanguageMenu() {
         ))}
       </DropdownMenuContent>
     </DropdownMenu>
+  );
+}
+
+function ThemePreferenceMenu() {
+  const { locale } = useI18n();
+  const { preference, setPreference } = useThemePreference();
+  const copy = THEME_COPY[locale];
+  const options: Array<{ value: ThemePreference; label: string; icon: typeof Sun }> = [
+    { value: "light", label: copy.light, icon: Sun },
+    { value: "dark", label: copy.dark, icon: Moon },
+    { value: "system", label: copy.system, icon: Monitor },
+  ];
+  return (
+    <section className="mt-7 border-t border-border pt-5" aria-labelledby="appearance-label">
+      <h3 id="appearance-label" className="text-xs font-bold uppercase text-muted-foreground">
+        {copy.title}
+      </h3>
+      <div className="mt-3 grid grid-cols-3 gap-2">
+        {options.map(({ value, label, icon: Icon }) => (
+          <Button
+            key={value}
+            type="button"
+            variant={preference === value ? "default" : "outline"}
+            onClick={() => setPreference(value)}
+            aria-pressed={preference === value}
+            className="h-auto min-h-12 min-w-0 flex-col gap-1 px-1 py-2 text-xs"
+          >
+            <Icon className="size-4" />
+            <span className="max-w-full truncate">{label}</span>
+          </Button>
+        ))}
+      </div>
+    </section>
   );
 }
 /** Footer content is owned by the storefront editor; falls back to built-in copy. */
@@ -403,8 +447,20 @@ export function PublicShell({
                         </button>
                       </SheetClose>
                     </>
-                  ) : null}
+                  ) : (
+                    <SheetClose asChild>
+                      <Link
+                        to="/auth"
+                        search={{ redirect: "/hesabim" }}
+                        className="mobile-menu-link flex items-center gap-2"
+                      >
+                        <LogIn className="size-4" />
+                        {ACCOUNT_COPY[locale].signIn}
+                      </Link>
+                    </SheetClose>
+                  )}
                 </nav>
+                <ThemePreferenceMenu />
               </SheetContent>
             </Sheet>
           </div>
