@@ -337,9 +337,12 @@ function PackagesPage() {
     .map((iso: string) => iso.trim().toUpperCase().slice(0, 2))
     .filter(Boolean);
   const coverageIsos = routeIsos.length ? routeIsos : destination ? [destination] : [];
-  const days = Math.max(1, Math.min(365, search.days));
+  const days = Math.max(1, Math.min(365, search.days > 0 ? search.days : 10));
   const travelers = Math.max(1, Math.min(9, search.travelers));
   const required = Math.max(0, Math.min(1000, search.required));
+  // Direct catalogue mode: the customer arrived from the country search without
+  // answering the package assistant, so no usage summary and no recommendation.
+  const directMode = required <= 0 && !search.recommendedProductId;
   const { data: packages = [], isPending } = useQuery({
     queryKey: ["esim-packages", coverageIsos.join(",")],
     queryFn: () => listEsimPackages({ data: { coverageIsos } }),
