@@ -273,11 +273,7 @@ function Experience({
           </Reveal>
         );
       case "CAMPAIGN_BANNER":
-        return (
-          <Reveal key={section.id} className="reveal-stagger">
-            <CampaignBanner section={section} />
-          </Reveal>
-        );
+        return null;
       case "IMAGE_TEXT":
         return (
           <Reveal key={section.id}>
