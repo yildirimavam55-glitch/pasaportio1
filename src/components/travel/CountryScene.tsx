@@ -7,38 +7,51 @@
  */
 import type { ReactNode } from "react";
 
-import { MotifArt } from "./CountryMotif";
-import { getCountryVisual, type CountryMotifKey } from "./countryVisuals";
+import { getCountryPhoto, getCountryPhotoFallback } from "./countryPhotos";
+import { useI18n } from "@/i18n";
 import type { CoverageRegionKey } from "@/domain/geo/coverage-regions";
 
 const warned = new Set<string>();
 
-export function CountryScene({ iso, className = "" }: { iso: string; className?: string }) {
+export function CountryScene({
+  iso,
+  className = "",
+  eager = false,
+}: {
+  iso: string;
+  className?: string;
+  eager?: boolean;
+}) {
+  const { locale } = useI18n();
   const code = iso.toUpperCase();
-  const visual = getCountryVisual(code);
-  if (!visual && import.meta.env.DEV && !warned.has(code)) {
+  const photo = getCountryPhoto(code);
+  if (!photo && import.meta.env.DEV && !warned.has(code)) {
     warned.add(code);
-    console.warn(`Missing country visual mapping: ${code}`);
+    console.warn(`Missing country photo mapping: ${code}`);
   }
-  const motif: CountryMotifKey = visual?.motif ?? "landscape";
+  const fallback = getCountryPhotoFallback(code);
   return (
     <span
-      className={`country-scene ${className}`}
+      className={`country-scene ${photo ? "has-photo" : "is-fallback"} ${className}`}
       data-country={code}
-      data-tone={visual?.tone ?? "petrol"}
-      aria-hidden="true"
     >
-      <svg
-        viewBox="0 0 100 88"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="2.4"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        preserveAspectRatio="xMidYMax meet"
-      >
-        <MotifArt motif={motif} />
-      </svg>
+      {photo ? (
+        <img
+          src={photo.cardImage}
+          alt={photo.alt[locale]}
+          width={960}
+          height={540}
+          loading={eager ? "eager" : "lazy"}
+          fetchPriority={eager ? "high" : "auto"}
+          decoding="async"
+          style={{ objectPosition: `${photo.focalX}% ${photo.focalY}%` }}
+        />
+      ) : (
+        <span className="country-scene-fallback" role="img" aria-label={fallback.label}>
+          <span aria-hidden="true">{fallback.flag}</span>
+          <span>{fallback.label}</span>
+        </span>
+      )}
     </span>
   );
 }

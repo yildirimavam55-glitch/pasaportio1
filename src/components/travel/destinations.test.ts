@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { getCountryVisual } from "./countryVisuals";
+import { countryPhotoRegistry, getCountryPhoto } from "./countryPhotos";
 import { SUPPORTED_STOREFRONT_COUNTRY_ISOS } from "./supported-country-isos";
 import { getCountryByIso } from "@/domain/geo/countries";
 import { classifyCoverageRegion, regionOfCountry } from "@/domain/geo/coverage-regions";
@@ -15,6 +16,22 @@ describe("destination system coverage", () => {
 
   it.each(SUPPORTED_STOREFRONT_COUNTRY_ISOS)("country %s has one visual identity", (iso) => {
     expect(getCountryVisual(iso)).toBeDefined();
+  });
+
+  it("has exactly one real photo for every supported destination", () => {
+    const mapped = Object.keys(countryPhotoRegistry);
+    expect(mapped).toHaveLength(SUPPORTED_STOREFRONT_COUNTRY_ISOS.length);
+    expect(new Set(mapped).size).toBe(mapped.length);
+    expect(SUPPORTED_STOREFRONT_COUNTRY_ISOS.filter((iso) => !getCountryPhoto(iso))).toEqual([]);
+  });
+
+  it.each(SUPPORTED_STOREFRONT_COUNTRY_ISOS)("country %s resolves to a CDN photo", (iso) => {
+    const photo = getCountryPhoto(iso);
+    expect(photo?.cardImage).toMatch(/^\/__l5e\/assets-v1\/.+\.webp$/);
+    expect(photo?.heroImage).toBe(photo?.cardImage);
+    expect(photo?.alt.tr).toBeTruthy();
+    expect(photo?.alt.de).toBeTruthy();
+    expect(photo?.alt.en).toBeTruthy();
   });
 
   it.each(SUPPORTED_STOREFRONT_COUNTRY_ISOS)("country %s has a region bucket", (iso) => {

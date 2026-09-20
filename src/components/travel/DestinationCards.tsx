@@ -132,7 +132,7 @@ export function CountryDestinationCard({
       data-eager={eager ? "true" : "false"}
       onClick={() => open({ destination: destination.iso })}
     >
-      <CountryScene iso={destination.iso} />
+      <CountryScene iso={destination.iso} eager={eager} />
       <span className="destination-card-body">
         <span className="flex items-center gap-2">
           <CountryFlag iso={destination.iso} className="text-lg" />
