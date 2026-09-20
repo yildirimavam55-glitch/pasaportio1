@@ -37,7 +37,11 @@ export function isUnlimitedEsim(totalMb: number | null, installInfo: unknown) {
   if (totalMb != null) return false;
   if (!installInfo || typeof installInfo !== "object" || Array.isArray(installInfo)) return false;
   const info = installInfo as Record<string, unknown>;
-  return info["unlimited_data"] === true || info["unlimited"] === true || info["data_type"] === "UNLIMITED";
+  return (
+    info["unlimited_data"] === true ||
+    info["unlimited"] === true ||
+    info["data_type"] === "UNLIMITED"
+  );
 }
 
 export function fairUseText(installInfo: unknown) {
