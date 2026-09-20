@@ -211,5 +211,30 @@ describe("buildCatalogueSections", () => {
     expect(sections.unlimited.map((p) => p.id)).toEqual(["tru7", "tru30"]);
     expect(sections.broaderCoverage.map((p) => p.id)).toEqual(["glob50", "eu20", "globu"]);
     assertInvariant(sections);
+
+  it("TEST 10: unlimited is curated to a few trip-relevant validity buckets", () => {
+    const catalogue = [
+      pkg({ id: "u7", unlimited: true, dataGb: null, validityDays: 7, salePrice: 12 }),
+      pkg({ id: "u15a", unlimited: true, dataGb: null, validityDays: 15, salePrice: 24 }),
+      pkg({ id: "u15b", unlimited: true, dataGb: null, validityDays: 15, salePrice: 44 }),
+      pkg({ id: "u15c", unlimited: true, dataGb: null, validityDays: 15, salePrice: 59 }),
+      pkg({ id: "u30", unlimited: true, dataGb: null, validityDays: 30, salePrice: 35 }),
+      pkg({ id: "u60", unlimited: true, dataGb: null, validityDays: 60, salePrice: 114 }),
+      pkg({ id: "u90", unlimited: true, dataGb: null, validityDays: 90, salePrice: 160 }),
+    ];
+    const sections = buildCatalogueSections(catalogue, { ...input, days: 14 });
+    const ids = sections.unlimited.map((p) => p.id);
+    expect(ids.length).toBeLessThanOrEqual(3);
+    // One card per validity bucket, cheapest commercial option each.
+    expect(ids).toContain("u15a");
+    expect(ids).not.toContain("u15b");
+    expect(ids).not.toContain("u15c");
+    // Trip is 14 days: the 7-day product no longer covers it, and the far
+    // pricier long-validity SKUs stay out of the first screen.
+    expect(ids).not.toContain("u7");
+    expect(ids).not.toContain("u90");
+    expect(sections.counters.unlimitedTotal).toBeGreaterThan(ids.length);
+    assertInvariant(sections);
   });
 });
+
