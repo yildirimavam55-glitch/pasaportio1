@@ -251,6 +251,11 @@ const COPY = {
     tierUnlimited: "Unlimited",
     standardPackages: "Standard packages",
     moreUnlimited: "Unlimited options",
+    widerUnlimited: "Unlimited in more regions",
+    widerUnlimitedLead: "Unlimited alternatives with wider coverage",
+    noLocalUnlimited: "No unlimited package is available for this country.",
+    fitsTrip: "Fits this trip",
+
     widerCoverage: "Packages covering more countries",
     standardLead: "Popular data packages for this destination",
     unlimitedLead: "Options for continuous connectivity",
