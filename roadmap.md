@@ -148,3 +148,10 @@
 - Her ürün tek bir kategoriye girer: Önerilen > Sınırsız > Daha geniş kapsam > Standart.
 - Render sırası: Önerilen, Standart, Sınırsız, Daha fazla ülke kapsayan.
 - Güvenlik kontrolü + sayaç invariantı ve 10 otomatik test eklendi.
+
+## eSIM sonuç sayfası — premium swipe tasarımı
+- [ ] Referans görsele uygun mobil sonuç sayfası yönünü netleştir
+- [ ] Önerilen kartı ve üç açık swipe bölümünü mevcut katalog sınıflandırmasına bağla
+- [ ] Hafif ülke görsel eşlemesi ve generic fallback ekle
+- [ ] Sticky sepet çubuğunu bottom navigation üzerinde güvenli konumlandır
+- [ ] TR/DE/EN ve 360/375/390/412/430 px doğrulaması yap
