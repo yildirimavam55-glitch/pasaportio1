@@ -752,6 +752,18 @@ function PackagesPage() {
             {sections.counters.covering > 0 && (
               <p className="mt-2 text-xs text-muted-foreground">{copy.gapDetail}</p>
             )}
+            {directMode && (
+              <div className="mt-4 px-1 text-center">
+                <Link to="/esim" hash="finder">
+                  <button
+                    type="button"
+                    className="text-sm font-semibold text-primary underline-offset-4 hover:underline"
+                  >
+                    {copy.assistant as string}
+                  </button>
+                </Link>
+              </div>
+            )}
 
             <div className="mt-4 flex flex-wrap justify-center gap-2">
               <Link
