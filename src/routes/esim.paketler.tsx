@@ -176,6 +176,11 @@ const COPY = {
     tierUnlimited: "Unbegrenzt",
     standardPackages: "Standard-Pakete",
     moreUnlimited: "Unbegrenzt-Optionen",
+    widerUnlimited: "Unbegrenzt in weiteren Regionen",
+    widerUnlimitedLead: "Unbegrenzte Alternativen mit größerer Abdeckung",
+    noLocalUnlimited: "Für dieses Land gibt es kein eigenes Unbegrenzt-Paket.",
+    fitsTrip: "Passt zur Reise",
+
     widerCoverage: "Pakete mit mehr Ländern",
     standardLead: "Beliebte Datenpakete für dieses Reiseziel",
     unlimitedLead: "Optionen für durchgehende Verbindung",
