@@ -31,6 +31,7 @@ import { StorefrontIcon } from "@/domain/storefront/icons";
 import { useMediaUrl } from "@/components/storefront/StorefrontContext";
 import { CountryFlag } from "./CountryFlag";
 import { DestinationDiscovery } from "./DestinationDiscovery";
+import { useDestinationCatalogue } from "./DestinationCards";
 import { DeviceCompatibilityPrompt } from "./DeviceCompatibility";
 import airportFrankfurtAsset from "@/assets/airport-frankfurt.jpg.asset.json";
 import airportIstanbulAsset from "@/assets/airport-istanbul.jpg.asset.json";
@@ -203,8 +204,16 @@ export function TrustStrip({ section }: SectionProp) {
 }
 
 export function VisualPopular({ service, section }: { service: ServiceSlug } & SectionProp) {
-  // eSIM destinations come from the live catalogue, never from section items.
-  if (service === "esim") return <DestinationDiscovery section={section ?? null} />;
+  const { data: destinations, isPending } = useDestinationCatalogue();
+  if (service === "esim") {
+    if (destinations?.countries.length || destinations?.regions.length) {
+      return <DestinationDiscovery section={section ?? null} />;
+    }
+    // Keep the established homepage selection visible when the live catalogue
+    // is temporarily empty. It carries no invented price or product data.
+    if (isPending) return null;
+    return <LoungePopular service={service} section={section ?? null} />;
+  }
   return <LoungePopular service={service} section={section ?? null} />;
 }
 
