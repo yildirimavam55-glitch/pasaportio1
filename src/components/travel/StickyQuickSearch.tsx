@@ -15,6 +15,7 @@ export function StickyQuickSearch({ service }: { service: ServiceSlug }) {
   useEffect(() => {
     let frame = 0;
     const onScroll = () => {
+      console.log("[sticky] scroll event, frame=", frame);
       if (frame) return;
       frame = window.requestAnimationFrame(() => {
         frame = 0;
