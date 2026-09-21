@@ -30,7 +30,7 @@ export function StickyQuickSearch({ service }: { service: ServiceSlug }) {
           document.body?.scrollTop ||
           0;
         // Hysteresis so the bar cannot flicker around the threshold.
-        setVisible((current) => (current ? y > 90 : y > 140));
+        setScrolled((current) => (current ? y > 90 : y > 140));
       });
     };
     onScroll();
