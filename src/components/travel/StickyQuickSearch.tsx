@@ -62,15 +62,19 @@ export function StickyQuickSearch({
         }`}
       >
         <div className="mx-auto max-w-finder">
-          <QuickSearch
-            service={service}
-            onAirportSelect={() => {}}
-            onSearchModeChange={onSearchModeChange}
-            embedded
-            compact
-            lockScroll
-            portalResults
-          />
+          {/* Unmounted while the mobile menu is open so its scroll lock and
+              portal result layer cannot outlive the hidden bar. */}
+          {!suppressed && (
+            <QuickSearch
+              service={service}
+              onAirportSelect={() => {}}
+              onSearchModeChange={onSearchModeChange}
+              embedded
+              compact
+              lockScroll
+              portalResults
+            />
+          )}
         </div>
       </div>
     </div>
