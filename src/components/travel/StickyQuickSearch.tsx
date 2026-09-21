@@ -9,12 +9,19 @@ import type { ServiceSlug } from "@/content/travel-content";
  * search system. The zero-height sticky wrapper keeps the bar out of the
  * layout flow, so showing it never shifts the page content.
  */
-export function StickyQuickSearch({ service }: { service: ServiceSlug }) {
+export function StickyQuickSearch({
+  service,
+  suppressed = false,
+}: {
+  service: ServiceSlug;
+  /** True while the mobile menu overlay is open: the bar must fully disappear. */
+  suppressed?: boolean;
+}) {
   const [scrolled, setScrolled] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   // While the list is open the bar must stay put, even though locking the page
   // clamps its scroll offset back toward the top.
-  const visible = scrolled || searchOpen;
+  const visible = (scrolled || searchOpen) && !suppressed;
   const onSearchModeChange = useCallback((active: boolean) => setSearchOpen(active), []);
 
   useEffect(() => {
