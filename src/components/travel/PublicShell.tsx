@@ -33,6 +33,7 @@ import { useI18n } from "@/i18n";
 import { GLOBAL_CONTENT, localized, type ServiceSlug } from "@/content/travel-content";
 import { supabase } from "@/integrations/supabase/client";
 import { CountryFlag } from "./CountryFlag";
+import { StickyQuickSearch } from "./StickyQuickSearch";
 import { useThemePreference, type ThemePreference } from "@/components/ThemePreference";
 
 const localeMeta = {
@@ -446,6 +447,7 @@ export function PublicShell({
           </div>
         </div>
       </header>
+      {activeService !== "lounge" && <StickyQuickSearch service="esim" />}
       <main>{children}</main>
       <PublicFooter fallback={copy.footer} supportLabel={copy.nav.support} />
     </div>
