@@ -340,3 +340,10 @@
 - [x] Reuse the existing device compatibility checker and add a concise trust row
 - [x] Keep installation and activation wording accurate across TR/DE/EN
 - [x] Verify Light/Dark, swipe, compatibility CTA, and 360/375/390/412/430px layouts
+
+## Homepage eSIM — three-step visual polish
+
+- [x] Replace placeholder phone drawings with one consistent Travely product mockup system
+- [x] Show package selection, easy installation, and connected states with localized UI
+- [x] Compact the step cards and compatibility prompt without changing copy or behavior
+- [x] Verify Light/Dark, TR/DE/EN, swipe, next-card preview, and 360/375/390/412/430px layouts

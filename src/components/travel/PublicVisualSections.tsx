@@ -571,10 +571,12 @@ const ESIM_HOW_COPY = {
       },
     ],
     visuals: {
-      country: "Ülke",
-      plan: "Paket seç",
-      scan: "QR kodu tara",
-      installed: "Kuruluma hazır",
+      country: "Türkiye",
+      duration: "30 gün",
+      plan: "Paketi seç",
+      ready: "eSIM’in hazır",
+      scan: "QR kodunu tara",
+      installed: "Hızlı kurulum",
       active: "eSIM aktif",
       connected: "Bağlandı",
     },
@@ -600,10 +602,12 @@ const ESIM_HOW_COPY = {
       },
     ],
     visuals: {
-      country: "Reiseziel",
+      country: "Türkei",
+      duration: "30 Tage",
       plan: "Paket wählen",
+      ready: "Deine eSIM ist bereit",
       scan: "QR-Code scannen",
-      installed: "Bereit zur Installation",
+      installed: "Schnellinstallation",
       active: "eSIM aktiv",
       connected: "Verbunden",
     },
@@ -629,10 +633,12 @@ const ESIM_HOW_COPY = {
       },
     ],
     visuals: {
-      country: "Destination",
+      country: "Türkiye",
+      duration: "30 days",
       plan: "Choose plan",
+      ready: "Your eSIM is ready",
       scan: "Scan QR code",
-      installed: "Ready to install",
+      installed: "Quick install",
       active: "eSIM active",
       connected: "Connected",
     },
@@ -647,7 +653,9 @@ function StepPhoneVisual({
   step: number;
   labels: {
     country: string;
+    duration: string;
     plan: string;
+    ready: string;
     scan: string;
     installed: string;
     active: string;
@@ -656,39 +664,78 @@ function StepPhoneVisual({
 }) {
   return (
     <div className="esim-step-visual" aria-hidden="true">
+      <span className="esim-step-orbit esim-step-orbit-one" />
+      <span className="esim-step-orbit esim-step-orbit-two" />
       <div className="esim-step-phone">
+        <div className="esim-phone-status">
+          <span>9:41</span>
+          <span className="flex items-center gap-1">
+            <SignalHigh className="size-2.5" />
+            <span className="esim-phone-battery" />
+          </span>
+        </div>
         <span className="esim-step-speaker" />
+        <div className="esim-phone-brand">
+          <span className="esim-phone-mark">T</span>
+          <span>Travely</span>
+          <span className="esim-phone-badge">eSIM</span>
+        </div>
         {step === 0 ? (
-          <div className="space-y-2 p-3 pt-5">
-            <div className="flex items-center gap-2 rounded-lg bg-primary-soft p-2 text-primary">
-              <span className="text-base">🌍</span>
-              <span className="text-[10px] font-bold">{labels.country}</span>
+          <div className="esim-phone-content">
+            <div className="esim-plan-destination">
+              <span className="fi fi-tr shrink-0 rounded-sm" />
+              <span>{labels.country}</span>
+              <CheckCircle2 className="ml-auto size-3 text-success" />
             </div>
-            <div className="rounded-lg border border-primary bg-card p-2">
-              <span className="block text-[9px] font-bold">eSIM · 10 GB</span>
-              <span className="mt-1 block rounded-md bg-cta px-2 py-1 text-center text-[9px] font-bold text-cta-foreground">
-                {labels.plan}
-              </span>
+            <div className="esim-plan-card">
+              <div className="flex items-end justify-between gap-2">
+                <div>
+                  <strong className="block font-display text-base leading-none">10 GB</strong>
+                  <span className="mt-1 block text-[8px] font-semibold text-muted-foreground">
+                    {labels.duration}
+                  </span>
+                </div>
+                <strong className="text-[11px] text-primary">€7,99</strong>
+              </div>
+              <span className="esim-phone-cta">{labels.plan}</span>
             </div>
           </div>
         ) : step === 1 ? (
-          <div className="grid h-full place-content-center gap-2 px-4 pt-3 text-center">
-            <span className="mx-auto grid size-14 place-items-center rounded-xl bg-card shadow-soft">
-              <QrCode className="size-10 text-primary" />
+          <div className="esim-phone-content text-center">
+            <span className="esim-ready-icon">
+              <CheckCircle2 className="size-4" />
             </span>
-            <span className="flex items-center justify-center gap-1 text-[9px] font-bold text-primary">
-              <ScanLine className="size-3" /> {labels.scan}
+            <strong className="mt-1 block text-[10px] text-primary">{labels.ready}</strong>
+            <span className="esim-qr-tile">
+              <QrCode className="size-9 text-primary" />
             </span>
-            <span className="text-[8px] text-muted-foreground">{labels.installed}</span>
+            <span className="esim-phone-secondary">
+              <ScanLine className="size-2.5" /> {labels.scan}
+            </span>
+            <span className="mt-1 block text-[8px] font-bold text-primary">
+              {labels.installed} <ArrowRight className="inline size-2.5" />
+            </span>
           </div>
         ) : (
-          <div className="grid h-full place-content-center gap-2 px-3 pt-3 text-center">
-            <CheckCircle2 className="mx-auto size-8 text-primary" />
-            <span className="text-[10px] font-bold text-primary">{labels.active}</span>
-            <strong className="font-display text-2xl text-foreground">5G</strong>
-            <span className="inline-flex items-center justify-center gap-1 rounded-full bg-primary px-2 py-1 text-[9px] font-bold text-primary-foreground">
-              <SignalHigh className="size-3" /> {labels.connected}
+          <div className="esim-phone-content text-center">
+            <span className="esim-active-status">
+              <CheckCircle2 className="size-3" /> {labels.active}
             </span>
+            <div className="esim-signal-stage">
+              <SignalHigh className="esim-signal-pulse size-7 text-primary" />
+              <strong className="font-display text-xl leading-none text-foreground">5G</strong>
+              <span className="text-[8px] font-bold text-muted-foreground">Travely eSIM</span>
+            </div>
+            <div className="esim-connected-card">
+              <span className="fi fi-tr shrink-0 rounded-sm" />
+              <span className="min-w-0 text-left">
+                <strong className="block truncate text-[9px]">{labels.country}</strong>
+                <span className="block text-[8px] text-muted-foreground">10 GB</span>
+              </span>
+              <span className="ml-auto inline-flex items-center gap-1 text-[8px] font-bold text-success">
+                <span className="size-1.5 rounded-full bg-success" /> {labels.connected}
+              </span>
+            </div>
           </div>
         )}
       </div>
