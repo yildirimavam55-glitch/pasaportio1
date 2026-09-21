@@ -8,6 +8,13 @@
 - [x] QA at 360/375/390/412/430 px, TR/DE/EN, light/dark
 - [x] Critical sticky layer fix: search button never clips, results stay in the sticky overlay, and country routing still works
 
+## Homepage popular eSIM destinations
+
+- [x] Show real country destination cards first: TR, ES, IT, GR, EG, US, JP, TH when sellable
+- [x] Hide unavailable priority countries and fill from PT, MV, TN, AE, CA, MX
+- [x] Keep regional/global package cards in a separate regional package section
+- [x] Verify each visible country card routes to its real package page and report live counts/prices
+
 - [x] Preserve locked architecture and service state behavior
 - [x] Add image-led destination, Lounge, and contextual recommendation sections
 - [x] Upgrade compact usage, route, icon, and trust presentation
