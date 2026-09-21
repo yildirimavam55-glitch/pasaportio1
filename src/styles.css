@@ -880,11 +880,11 @@ html[data-quick-search-lock] {
       visibility 0s linear 0s;
   }
   .experience-secondary[data-search-mode="true"] {
-    visibility: visible;
-    opacity: 1;
-    transform: none;
-    pointer-events: auto;
-    transition-delay: 0s;
+    visibility: hidden;
+    opacity: 0;
+    transform: translate3d(0, 6px, 0);
+    pointer-events: none;
+    transition-delay: 0s, 0s, 0.2s;
   }
 }
 

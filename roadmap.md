@@ -354,3 +354,10 @@
 - [x] Show package selection, easy installation, and connected states with localized UI
 - [x] Compact the step cards and compatibility prompt without changing copy or behavior
 - [x] Verify Light/Dark, TR/DE/EN, swipe, next-card preview, and 360/375/390/412/430px layouts
+
+## Homepage destination regression
+
+- [x] Preserve live catalogue destination cards whenever sellable products exist
+- [x] Restore the existing three-card homepage selection when the live catalogue is empty
+- [x] Keep unverified prices hidden and preserve existing destination routing
+- [ ] Verify homepage cards, sticky search, and following sections on mobile and desktop
