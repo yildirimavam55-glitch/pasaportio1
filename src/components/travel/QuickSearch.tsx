@@ -128,6 +128,7 @@ export function QuickSearch({
     if (!open) return;
 
     let frame = 0;
+    const delayedUpdates: number[] = [];
     const updateResultsLayout = () => {
       window.cancelAnimationFrame(frame);
       frame = window.requestAnimationFrame(() => {
@@ -167,6 +168,8 @@ export function QuickSearch({
     };
 
     updateResultsLayout();
+    delayedUpdates.push(window.setTimeout(updateResultsLayout, 40));
+    delayedUpdates.push(window.setTimeout(updateResultsLayout, 120));
     window.addEventListener("resize", updateResultsLayout);
     window.addEventListener("orientationchange", updateResultsLayout);
     window.addEventListener("scroll", updateResultsLayout, { passive: true, capture: true });
@@ -175,6 +178,7 @@ export function QuickSearch({
 
     return () => {
       window.cancelAnimationFrame(frame);
+      delayedUpdates.forEach((timeout) => window.clearTimeout(timeout));
       window.removeEventListener("resize", updateResultsLayout);
       window.removeEventListener("orientationchange", updateResultsLayout);
       window.removeEventListener("scroll", updateResultsLayout, { capture: true });
