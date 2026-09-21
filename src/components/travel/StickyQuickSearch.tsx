@@ -10,7 +10,12 @@ import type { ServiceSlug } from "@/content/travel-content";
  * layout flow, so showing it never shifts the page content.
  */
 export function StickyQuickSearch({ service }: { service: ServiceSlug }) {
-  const [visible, setVisible] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
+  // While the list is open the bar must stay put, even though locking the page
+  // clamps its scroll offset back toward the top.
+  const visible = scrolled || searchOpen;
+  const onSearchModeChange = useCallback((active: boolean) => setSearchOpen(active), []);
 
   useEffect(() => {
     let frame = 0;
