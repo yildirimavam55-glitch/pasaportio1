@@ -807,9 +807,20 @@ html.dark .destination-scene {
 .quick-search-container {
   z-index: 60;
 }
-html[data-quick-search-lock] {
+.sticky-quick-search {
+  z-index: 64;
+}
+.sticky-quick-search[data-open="true"] {
+  z-index: 90;
+}
+html[data-quick-search-lock],
+html[data-quick-search-lock] body {
   overflow: hidden;
   overscroll-behavior: none;
+}
+.quick-search-field {
+  min-width: 0;
+  isolation: isolate;
 }
 .quick-search-field {
   box-shadow:
@@ -826,6 +837,14 @@ html[data-quick-search-lock] {
   scrollbar-color: color-mix(in oklab, var(--primary) 28%, transparent) transparent;
   -webkit-overflow-scrolling: touch;
   animation: quick-search-results-in 0.24s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+.quick-search-results[data-layer="sticky"] {
+  z-index: 95;
+  max-height: min(calc(100dvh - 4.5rem), var(--quick-search-available-height, calc(100dvh - 7rem)));
+}
+.quick-search-results[data-layer="sticky"]:not([data-positioned="true"]) {
+  opacity: 0;
+  pointer-events: none;
 }
 .quick-search-results::-webkit-scrollbar {
   width: 4px;
