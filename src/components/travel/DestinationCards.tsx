@@ -23,11 +23,11 @@ import {
 export const DESTINATION_COPY = {
   tr: {
     regionsTitle: "Bölgesel ve global paketler",
-    regionsLead: "Birden fazla ülkeyi kapsayan güncel paketler.",
+    regionsLead: "Birden fazla ülkeye mi gidiyorsun? Tek paketle birden fazla destinasyonda bağlan.",
     popularTitle: "Popüler ülkeler",
     popularLead: "En çok tercih edilen destinasyonlar.",
     allCountries: "Tüm ülkeleri gör",
-    allTitle: "Tüm ülkeler",
+    allTitle: "Tüm destinasyonlar",
     allLead: (count: number) => `${count} ülkede satışta olan eSIM paketleri.`,
     search: "Ülke ara",
     startingAt: "Başlangıç",
@@ -37,8 +37,8 @@ export const DESTINATION_COPY = {
     allRegions: "Tümü",
   },
   de: {
-    regionsTitle: "Regionale und globale Pakete",
-    regionsLead: "Aktuelle Pakete für mehrere Länder.",
+    regionsTitle: "Regionale eSIM-Pakete",
+    regionsLead: "Reist du in mehrere Länder? Verbinde dich mit einem Paket in mehreren Destinationen.",
     popularTitle: "Beliebte Länder",
     popularLead: "Die meistgewählten Reiseziele.",
     allCountries: "Alle Länder ansehen",
@@ -52,8 +52,8 @@ export const DESTINATION_COPY = {
     allRegions: "Alle",
   },
   en: {
-    regionsTitle: "Regional and global plans",
-    regionsLead: "Live packages that cover more than one country.",
+    regionsTitle: "Regional eSIM packages",
+    regionsLead: "Going to more than one country? Connect across multiple destinations with one plan.",
     popularTitle: "Popular countries",
     popularLead: "The most requested destinations.",
     allCountries: "See all countries",
