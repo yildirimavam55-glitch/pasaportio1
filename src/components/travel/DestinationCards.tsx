@@ -22,7 +22,7 @@ import {
 
 export const DESTINATION_COPY = {
   tr: {
-    regionsTitle: "Bölgesel ve global paketler",
+    regionsTitle: "Bölgesel eSIM paketleri",
     regionsLead: "Birden fazla ülkeye mi gidiyorsun? Tek paketle birden fazla destinasyonda bağlan.",
     popularTitle: "Popüler ülkeler",
     popularLead: "En çok tercih edilen destinasyonlar.",
