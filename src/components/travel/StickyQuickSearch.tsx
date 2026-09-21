@@ -44,7 +44,9 @@ export function StickyQuickSearch({ service }: { service: ServiceSlug }) {
 
   return (
     <div
-      className={`sticky top-14 z-30 h-0 sm:top-16 ${visible ? "" : "pointer-events-none"}`}
+      className={`sticky-quick-search sticky top-14 h-0 sm:top-16 ${visible ? "" : "pointer-events-none"}`}
+      data-open={searchOpen || undefined}
+      data-visible={visible || undefined}
     >
       <div
         aria-hidden={!visible}
@@ -60,6 +62,7 @@ export function StickyQuickSearch({ service }: { service: ServiceSlug }) {
             embedded
             compact
             lockScroll
+            portalResults
           />
         </div>
       </div>

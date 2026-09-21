@@ -1,5 +1,6 @@
 import { Search, X } from "lucide-react";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
+import { createPortal } from "react-dom";
 import { useNavigate } from "@tanstack/react-router";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -50,6 +51,7 @@ export function QuickSearch({
   embedded = false,
   compact = false,
   lockScroll = false,
+  portalResults = false,
 }: {
   service: ServiceSlug;
   onAirportSelect: (airportId: string) => void;
@@ -59,6 +61,8 @@ export function QuickSearch({
   compact?: boolean;
   /** Prevents the page behind the results from scrolling while open. */
   lockScroll?: boolean;
+  /** Renders the dropdown in the document layer so sticky/mobile parents cannot clip it. */
+  portalResults?: boolean;
 }) {
   const { locale } = useI18n();
   const copy = COPY[locale];
@@ -66,8 +70,12 @@ export function QuickSearch({
   const [query, setQuery] = useState("");
   const [open, setOpen] = useState(false);
   const boxRef = useRef<HTMLDivElement | null>(null);
+  const fieldRef = useRef<HTMLDivElement | null>(null);
   const inputRef = useRef<HTMLInputElement | null>(null);
   const resultsRef = useRef<HTMLDivElement | null>(null);
+  const [portalMetrics, setPortalMetrics] = useState<{ top: number; left: number; width: number } | null>(
+    null,
+  );
 
   const closeSearch = (blur = false) => {
     setOpen(false);
@@ -108,7 +116,9 @@ export function QuickSearch({
 
   useEffect(() => {
     const onDocPointerDown = (event: PointerEvent) => {
-      if (!boxRef.current?.contains(event.target as Node)) closeSearch();
+      const target = event.target as Node;
+      if (boxRef.current?.contains(target) || resultsRef.current?.contains(target)) return;
+      closeSearch();
     };
     document.addEventListener("pointerdown", onDocPointerDown);
     return () => document.removeEventListener("pointerdown", onDocPointerDown);
@@ -118,17 +128,37 @@ export function QuickSearch({
     if (!open) return;
 
     let frame = 0;
-    const updateResultsHeight = () => {
+    const delayedUpdates: number[] = [];
+    const updateResultsLayout = () => {
       window.cancelAnimationFrame(frame);
       frame = window.requestAnimationFrame(() => {
         const results = resultsRef.current;
         if (!results) return;
         const viewport = window.visualViewport;
+        const visibleTop = viewport ? viewport.offsetTop : 0;
         const visibleBottom = viewport
           ? viewport.offsetTop + viewport.height
           : window.innerHeight;
+        let resultsTop = results.getBoundingClientRect().top;
+
+        if (portalResults) {
+          const field = fieldRef.current;
+          if (!field) return;
+          const rect = field.getBoundingClientRect();
+          const safeInset = 12;
+          const top = Math.max(visibleTop + 8, Math.round(rect.bottom + 4));
+          const left = Math.max(safeInset, Math.round(rect.left));
+          const right = Math.min(window.innerWidth - safeInset, Math.round(rect.right));
+          const width = Math.max(280, right - left);
+          resultsTop = top;
+          setPortalMetrics((current) => {
+            if (current?.top === top && current.left === left && current.width === width) return current;
+            return { top, left, width };
+          });
+        }
+
         const availableHeight = Math.floor(
-          visibleBottom - results.getBoundingClientRect().top - 12,
+          visibleBottom - resultsTop - 12,
         );
         results.style.setProperty(
           "--quick-search-available-height",
@@ -137,20 +167,25 @@ export function QuickSearch({
       });
     };
 
-    updateResultsHeight();
-    window.addEventListener("resize", updateResultsHeight);
-    window.addEventListener("orientationchange", updateResultsHeight);
-    window.visualViewport?.addEventListener("resize", updateResultsHeight);
-    window.visualViewport?.addEventListener("scroll", updateResultsHeight);
+    updateResultsLayout();
+    delayedUpdates.push(window.setTimeout(updateResultsLayout, 40));
+    delayedUpdates.push(window.setTimeout(updateResultsLayout, 120));
+    window.addEventListener("resize", updateResultsLayout);
+    window.addEventListener("orientationchange", updateResultsLayout);
+    window.addEventListener("scroll", updateResultsLayout, { passive: true, capture: true });
+    window.visualViewport?.addEventListener("resize", updateResultsLayout);
+    window.visualViewport?.addEventListener("scroll", updateResultsLayout);
 
     return () => {
       window.cancelAnimationFrame(frame);
-      window.removeEventListener("resize", updateResultsHeight);
-      window.removeEventListener("orientationchange", updateResultsHeight);
-      window.visualViewport?.removeEventListener("resize", updateResultsHeight);
-      window.visualViewport?.removeEventListener("scroll", updateResultsHeight);
+      delayedUpdates.forEach((timeout) => window.clearTimeout(timeout));
+      window.removeEventListener("resize", updateResultsLayout);
+      window.removeEventListener("orientationchange", updateResultsLayout);
+      window.removeEventListener("scroll", updateResultsLayout, { capture: true });
+      window.visualViewport?.removeEventListener("resize", updateResultsLayout);
+      window.visualViewport?.removeEventListener("scroll", updateResultsLayout);
     };
-  }, [open]);
+  }, [open, portalResults]);
 
   const countries: Country[] = useMemo(() => {
     if (service !== "esim") return [];
@@ -207,17 +242,83 @@ export function QuickSearch({
     else closeSearch(true);
   };
 
+  const portalStyle: CSSProperties | undefined = portalResults && portalMetrics
+    ? { top: portalMetrics.top, left: portalMetrics.left, width: portalMetrics.width }
+    : undefined;
+
+  const results = open ? (
+    <div
+      ref={resultsRef}
+      role="listbox"
+      aria-label={service === "esim" ? copy.esimLabel : copy.loungeLabel}
+      data-layer={portalResults ? "sticky" : undefined}
+      data-positioned={portalResults && portalMetrics ? "true" : undefined}
+      style={portalStyle}
+      className={`quick-search-results ${portalResults ? "fixed" : "absolute top-full mt-1"} overflow-y-auto rounded-2xl border border-border bg-card shadow-panel ${
+        portalResults ? "" : embedded ? "inset-x-0" : "inset-x-3 sm:inset-x-6"
+      }`}
+    >
+      {service === "esim" ? (
+        countries.length ? (
+          countries.map((country) => (
+            <button
+              key={country.id}
+              type="button"
+              role="option"
+              aria-selected="false"
+              onClick={() => goToCountry(country)}
+              className="flex min-h-12 w-full touch-manipulation items-center gap-3 px-3 text-left hover:bg-secondary focus-visible:bg-secondary"
+            >
+              <CountryFlag iso={country.iso} className="text-xl" />
+              <span className="truncate text-sm font-semibold">{country.name[locale]}</span>
+            </button>
+          ))
+        ) : (
+          <p className="px-3 py-4 text-sm text-muted-foreground">{copy.empty}</p>
+        )
+      ) : airports.length ? (
+        airports.map((airport) => (
+          <button
+            key={airport.id}
+            type="button"
+            role="option"
+            aria-selected="false"
+            onClick={() => pickAirport(airport)}
+            className="flex min-h-12 w-full touch-manipulation items-center gap-3 px-3 text-left hover:bg-secondary focus-visible:bg-secondary"
+          >
+            <CountryFlag iso={airport.countryIso} className="text-xl" />
+            <span className="min-w-0 flex-1">
+              <span className="block truncate text-sm font-semibold">
+                {airport.iata} — {airport.city[locale]}
+              </span>
+              <span className="block truncate text-xs text-muted-foreground">
+                {airport.airport[locale]}
+              </span>
+            </span>
+          </button>
+        ))
+      ) : (
+        <p className="px-3 py-4 text-sm text-muted-foreground">{copy.empty}</p>
+      )}
+    </div>
+  ) : null;
+
   return (
     <div
       ref={boxRef}
       onBlurCapture={(event) => {
         const nextTarget = event.relatedTarget;
-        if (!(nextTarget instanceof Node) || !boxRef.current?.contains(nextTarget)) closeSearch();
+        if (
+          !(nextTarget instanceof Node) ||
+          (!boxRef.current?.contains(nextTarget) && !resultsRef.current?.contains(nextTarget))
+        )
+          closeSearch();
       }}
       className={`quick-search-container ${embedded ? "relative w-full" : "relative mx-auto mt-3 max-w-finder px-3 sm:px-6"}`}
       data-open={open || undefined}
     >
       <div
+        ref={fieldRef}
         className={`quick-search-field flex items-center border border-border/80 bg-card/95 shadow-panel backdrop-blur-md ${
           compact ? "gap-1 rounded-2xl p-1" : "gap-1.5 rounded-2xl p-1.5 sm:gap-2 sm:p-2"
         }`}
@@ -242,14 +343,14 @@ export function QuickSearch({
           }}
           placeholder={service === "esim" ? copy.esimPlaceholder : copy.loungePlaceholder}
           aria-label={service === "esim" ? copy.esimLabel : copy.loungeLabel}
-          className={`${compact ? "h-11" : "h-12"} min-w-0 border-0 bg-transparent px-3 text-base font-semibold shadow-none focus-visible:ring-0`}
+          className={`${compact ? "h-11" : "h-12"} min-w-0 flex-1 border-0 bg-transparent px-3 text-base font-semibold shadow-none focus-visible:ring-0`}
         />
         {open && (
           <Button
             type="button"
             variant="ghost"
             size="icon"
-            className={`${compact ? "size-10" : "size-11"} shrink-0 rounded-xl`}
+            className={`${compact ? "size-10 min-w-10" : "size-11 min-w-11"} shrink-0 rounded-xl`}
             aria-label={copy.close}
             onClick={() => closeSearch(true)}
           >
@@ -260,64 +361,16 @@ export function QuickSearch({
           type="button"
           variant="cta"
           size="icon"
-          className={`${compact ? "size-10" : "size-11"} shrink-0 rounded-xl shadow-soft`}
+          className={`${compact ? "size-10 min-w-10" : "size-11 min-w-11"} shrink-0 rounded-xl shadow-soft`}
           aria-label={copy.search}
           onClick={submit}
         >
           <Search className={compact ? "size-4" : "size-5"} />
         </Button>
       </div>
-      {open && (
-        <div
-          ref={resultsRef}
-          role="listbox"
-          aria-label={service === "esim" ? copy.esimLabel : copy.loungeLabel}
-          className={`quick-search-results absolute top-full mt-1 overflow-y-auto rounded-2xl border border-border bg-card shadow-panel ${embedded ? "inset-x-0" : "inset-x-3 sm:inset-x-6"}`}
-        >
-          {service === "esim" ? (
-            countries.length ? (
-              countries.map((country) => (
-                <button
-                  key={country.id}
-                  type="button"
-                  role="option"
-                  aria-selected="false"
-                  onClick={() => goToCountry(country)}
-                  className="flex min-h-12 w-full touch-manipulation items-center gap-3 px-3 text-left hover:bg-secondary focus-visible:bg-secondary"
-                >
-                  <CountryFlag iso={country.iso} className="text-xl" />
-                  <span className="truncate text-sm font-semibold">{country.name[locale]}</span>
-                </button>
-              ))
-            ) : (
-              <p className="px-3 py-4 text-sm text-muted-foreground">{copy.empty}</p>
-            )
-          ) : airports.length ? (
-            airports.map((airport) => (
-              <button
-                key={airport.id}
-                type="button"
-                role="option"
-                aria-selected="false"
-                onClick={() => pickAirport(airport)}
-                className="flex min-h-12 w-full touch-manipulation items-center gap-3 px-3 text-left hover:bg-secondary focus-visible:bg-secondary"
-              >
-                <CountryFlag iso={airport.countryIso} className="text-xl" />
-                <span className="min-w-0 flex-1">
-                  <span className="block truncate text-sm font-semibold">
-                    {airport.iata} — {airport.city[locale]}
-                  </span>
-                  <span className="block truncate text-xs text-muted-foreground">
-                    {airport.airport[locale]}
-                  </span>
-                </span>
-              </button>
-            ))
-          ) : (
-            <p className="px-3 py-4 text-sm text-muted-foreground">{copy.empty}</p>
-          )}
-        </div>
-      )}
+      {portalResults && results && typeof document !== "undefined"
+        ? createPortal(results, document.body)
+        : results}
     </div>
   );
 }
