@@ -811,6 +811,10 @@ html.dark .destination-scene {
   z-index: 64;
 }
 .sticky-quick-search[data-open="true"] {
+  position: fixed;
+  right: 0;
+  left: 0;
+  height: auto;
   z-index: 90;
 }
 html[data-quick-search-lock],
