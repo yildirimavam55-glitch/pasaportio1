@@ -445,6 +445,32 @@ export function DeviceCompatibilitySection() {
   );
 }
 
+/** Reuses the existing device checker in compact educational surfaces. */
+export function DeviceCompatibilityPrompt() {
+  const { locale } = useI18n();
+  const copy = COPY[locale];
+
+  return (
+    <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 rounded-xl border border-border bg-card px-3 py-3 shadow-soft sm:flex sm:justify-between sm:px-4">
+      <div className="flex min-w-0 items-center gap-2.5">
+        <span className="grid size-9 shrink-0 place-items-center rounded-lg bg-primary-soft text-primary">
+          <Smartphone className="size-4.5" aria-hidden="true" />
+        </span>
+        <span className="min-w-0 text-sm font-semibold leading-5">{copy.productPrompt}</span>
+      </div>
+      <DeviceCheckSheet
+        surface="how-it-works"
+        trigger={
+          <Button variant="ghost" size="sm" className="shrink-0 px-2 text-primary sm:px-3">
+            {copy.recheck}
+            <ChevronRight />
+          </Button>
+        }
+      />
+    </div>
+  );
+}
+
 /** Compact product-page version shown next to the purchase CTA. */
 export function DeviceCompatibilityInline() {
   const { locale } = useI18n();
