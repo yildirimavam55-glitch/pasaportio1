@@ -369,3 +369,10 @@
 - [x] Restore the existing three-card homepage selection when the live catalogue is empty
 - [x] Keep unverified prices hidden and preserve existing destination routing
 - [x] Verify homepage cards, sticky search, and following sections on mobile and desktop
+
+## Mobile menu overlay layering
+
+- [x] Mobile menu backdrop/panel sit above header and sticky search
+- [x] Sticky destination search hides (and unmounts) while the menu is open, returns on close
+- [x] No background scroll while menu is open; scroll position preserved
+- [x] QA at 360/375/390/412/430 px
