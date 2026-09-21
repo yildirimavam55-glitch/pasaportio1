@@ -645,7 +645,14 @@ function StepPhoneVisual({
   labels,
 }: {
   step: number;
-  labels: (typeof ESIM_HOW_COPY)["tr"]["visuals"];
+  labels: {
+    country: string;
+    plan: string;
+    scan: string;
+    installed: string;
+    active: string;
+    connected: string;
+  };
 }) {
   return (
     <div className="esim-step-visual" aria-hidden="true">
