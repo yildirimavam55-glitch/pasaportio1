@@ -9,12 +9,19 @@ import type { ServiceSlug } from "@/content/travel-content";
  * search system. The zero-height sticky wrapper keeps the bar out of the
  * layout flow, so showing it never shifts the page content.
  */
-export function StickyQuickSearch({ service }: { service: ServiceSlug }) {
+export function StickyQuickSearch({
+  service,
+  suppressed = false,
+}: {
+  service: ServiceSlug;
+  /** True while the mobile menu overlay is open: the bar must fully disappear. */
+  suppressed?: boolean;
+}) {
   const [scrolled, setScrolled] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   // While the list is open the bar must stay put, even though locking the page
   // clamps its scroll offset back toward the top.
-  const visible = scrolled || searchOpen;
+  const visible = (scrolled || searchOpen) && !suppressed;
   const onSearchModeChange = useCallback((active: boolean) => setSearchOpen(active), []);
 
   useEffect(() => {
@@ -45,7 +52,7 @@ export function StickyQuickSearch({ service }: { service: ServiceSlug }) {
   return (
     <div
       className={`sticky-quick-search sticky top-14 h-0 sm:top-16 ${visible ? "" : "pointer-events-none"}`}
-      data-open={searchOpen || undefined}
+      data-open={(searchOpen && !suppressed) || undefined}
       data-visible={visible || undefined}
     >
       <div
@@ -55,15 +62,19 @@ export function StickyQuickSearch({ service }: { service: ServiceSlug }) {
         }`}
       >
         <div className="mx-auto max-w-finder">
-          <QuickSearch
-            service={service}
-            onAirportSelect={() => {}}
-            onSearchModeChange={onSearchModeChange}
-            embedded
-            compact
-            lockScroll
-            portalResults
-          />
+          {/* Unmounted while the mobile menu is open so its scroll lock and
+              portal result layer cannot outlive the hidden bar. */}
+          {!suppressed && (
+            <QuickSearch
+              service={service}
+              onAirportSelect={() => {}}
+              onSearchModeChange={onSearchModeChange}
+              embedded
+              compact
+              lockScroll
+              portalResults
+            />
+          )}
         </div>
       </div>
     </div>
