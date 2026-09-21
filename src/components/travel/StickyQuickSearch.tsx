@@ -52,7 +52,7 @@ export function StickyQuickSearch({
   return (
     <div
       className={`sticky-quick-search sticky top-14 h-0 sm:top-16 ${visible ? "" : "pointer-events-none"}`}
-      data-open={searchOpen || undefined}
+      data-open={(searchOpen && !suppressed) || undefined}
       data-visible={visible || undefined}
     >
       <div

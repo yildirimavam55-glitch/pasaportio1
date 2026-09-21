@@ -190,6 +190,7 @@ export function PublicShell({
 }) {
   const { locale } = useI18n();
   const copy = localized(GLOBAL_CONTENT, locale);
+  const [menuOpen, setMenuOpen] = useState(false);
   const [signedIn, setSignedIn] = useState(false);
   useEffect(() => {
     void supabase.auth.getSession().then(({ data }) => setSignedIn(Boolean(data.session)));
@@ -318,7 +319,7 @@ export function PublicShell({
                 {copy.nav.plan}
               </Link>
             </Button>
-            <Sheet>
+            <Sheet open={menuOpen} onOpenChange={setMenuOpen}>
               <SheetTrigger asChild>
                 <Button variant="ghost" size="icon" className="size-9 sm:size-10" aria-label="Menü">
                   <Menu className="size-[18px] sm:size-5" />
@@ -447,7 +448,7 @@ export function PublicShell({
           </div>
         </div>
       </header>
-      {activeService !== "lounge" && <StickyQuickSearch service="esim" />}
+      {activeService !== "lounge" && <StickyQuickSearch service="esim" suppressed={menuOpen} />}
       <main>{children}</main>
       <PublicFooter fallback={copy.footer} supportLabel={copy.nav.support} />
     </div>
