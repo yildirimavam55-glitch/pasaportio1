@@ -10,10 +10,10 @@
 
 ## Homepage popular eSIM destinations
 
-- [ ] Show real country destination cards first: TR, ES, IT, GR, EG, US, JP, TH when sellable
-- [ ] Hide unavailable priority countries and fill from PT, MV, TN, AE, CA, MX
-- [ ] Keep regional/global package cards in a separate regional package section
-- [ ] Verify each visible country card routes to its real package page and report live counts/prices
+- [x] Show real country destination cards first: TR, ES, IT, GR, EG, US, JP, TH when sellable
+- [x] Hide unavailable priority countries and fill from PT, MV, TN, AE, CA, MX
+- [x] Keep regional/global package cards in a separate regional package section
+- [x] Verify each visible country card routes to its real package page and report live counts/prices
 
 - [x] Preserve locked architecture and service state behavior
 - [x] Add image-led destination, Lounge, and contextual recommendation sections
