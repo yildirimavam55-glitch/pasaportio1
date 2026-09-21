@@ -332,3 +332,11 @@
 - [x] Convert eSIM and Lounge purchase summaries into compact floating cards above the safe area
 - [x] Keep product, quantity, and total synchronized without advertising unverified payment brands
 - [x] Verify theme persistence, navigation, selection, totals, overflow, and safe areas at 360/375/390/412/430px
+
+## Homepage eSIM — three-step guide
+
+- [x] Add a compact three-step eSIM explanation after destination discovery
+- [x] Add touch scroll-snap cards and a synchronized mobile progress indicator
+- [x] Reuse the existing device compatibility checker and add a concise trust row
+- [x] Keep installation and activation wording accurate across TR/DE/EN
+- [x] Verify Light/Dark, swipe, compatibility CTA, and 360/375/390/412/430px layouts

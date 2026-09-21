@@ -5,7 +5,9 @@ import {
   Mail,
   QrCode,
   Route,
+  ScanLine,
   ShowerHead,
+  SignalHigh,
   Smartphone,
   TicketCheck,
   Utensils,
@@ -13,7 +15,7 @@ import {
 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
-import { useState, type ReactNode } from "react";
+import { useRef, useState, type ReactNode, type UIEvent } from "react";
 import { Button } from "@/components/ui/button";
 import {
   ESIM_CONTENT,
@@ -29,6 +31,7 @@ import { StorefrontIcon } from "@/domain/storefront/icons";
 import { useMediaUrl } from "@/components/storefront/StorefrontContext";
 import { CountryFlag } from "./CountryFlag";
 import { DestinationDiscovery } from "./DestinationDiscovery";
+import { DeviceCompatibilityPrompt } from "./DeviceCompatibility";
 import airportFrankfurtAsset from "@/assets/airport-frankfurt.jpg.asset.json";
 import airportIstanbulAsset from "@/assets/airport-istanbul.jpg.asset.json";
 import destinationEuropeAsset from "@/assets/destination-europe.jpg.asset.json";
@@ -417,8 +420,100 @@ export function ProductSolutions({ section }: SectionProp) {
 
 export function HowItWorks({ service, section }: { service: ServiceSlug } & SectionProp) {
   const { locale } = useI18n();
+  const [activeStep, setActiveStep] = useState(0);
+  const railRef = useRef<HTMLOListElement>(null);
   const steps = (section?.items ?? []).filter((item) => item.visible);
   if (!steps.length) return null;
+
+  if (service === "esim") {
+    const copy = ESIM_HOW_COPY[locale];
+    const updateActiveStep = (event: UIEvent<HTMLOListElement>) => {
+      const rail = event.currentTarget;
+      const firstCard = rail.firstElementChild;
+      if (!(firstCard instanceof HTMLElement)) return;
+      const stepWidth = firstCard.offsetWidth + 12;
+      setActiveStep(Math.max(0, Math.min(2, Math.round(rail.scrollLeft / stepWidth))));
+    };
+
+    return (
+      <section id="how" className="bg-accent-soft py-9 sm:py-12">
+        <div className={`mx-auto ${widthClass(section)} px-4 sm:px-6`}>
+          <span className="text-xs font-bold uppercase text-primary">{copy.eyebrow}</span>
+          <h2 className="mt-2 max-w-xl font-display text-2xl font-bold sm:text-3xl">
+            {copy.headline}
+          </h2>
+          <p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">
+            {copy.description}
+          </p>
+
+          <ol
+            ref={railRef}
+            className="esim-how-rail mt-6"
+            onScroll={updateActiveStep}
+            aria-label={copy.headline}
+          >
+            {copy.steps.map((step, index) => (
+              <li key={step.title} className="esim-how-card" data-step={index + 1}>
+                <div className="flex items-start justify-between gap-3">
+                  <span className="text-sm font-extrabold text-cta">0{index + 1}</span>
+                  <span className="rounded-full bg-primary-soft px-2 py-1 text-[11px] font-bold text-primary">
+                    eSIM
+                  </span>
+                </div>
+                <StepPhoneVisual step={index} labels={copy.visuals} />
+                <h3 className="mt-4 font-display text-lg font-bold">{step.title}</h3>
+                <p className="mt-1 text-sm leading-5 text-muted-foreground">{step.description}</p>
+              </li>
+            ))}
+          </ol>
+
+          <div className="mt-3 flex justify-center gap-2 md:hidden" aria-label={copy.progressLabel}>
+            {copy.steps.map((step, index) => (
+              <button
+                key={step.title}
+                type="button"
+                className="grid size-6 place-items-center"
+                aria-label={`${index + 1}. ${step.title}`}
+                aria-current={activeStep === index ? "step" : undefined}
+                onClick={() =>
+                  railRef.current?.children[index]?.scrollIntoView({
+                    behavior: "smooth",
+                    block: "nearest",
+                    inline: "center",
+                  })
+                }
+              >
+                <span
+                  className={`block rounded-full transition-all ${activeStep === index ? "size-2.5 bg-primary" : "size-2 border border-primary/50"}`}
+                />
+              </button>
+            ))}
+          </div>
+
+          <div className="mt-5">
+            <DeviceCompatibilityPrompt />
+          </div>
+          <div className="mt-4 grid gap-2 text-xs font-semibold text-primary sm:grid-cols-3 sm:text-sm">
+            {copy.trust.map((item, index) => (
+              <div key={item} className="flex items-center gap-2">
+                <span className="grid size-7 shrink-0 place-items-center rounded-lg bg-primary-soft">
+                  {index === 0 ? (
+                    <SignalHigh className="size-3.5" aria-hidden="true" />
+                  ) : index === 1 ? (
+                    <Smartphone className="size-3.5" aria-hidden="true" />
+                  ) : (
+                    <CheckCircle2 className="size-3.5" aria-hidden="true" />
+                  )}
+                </span>
+                {item}
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+    );
+  }
+
   return (
     <section id="how" className={surfaceClasses(section, "bg-petrol-soft py-12")}>
       <div className={`mx-auto ${widthClass(section)} px-4 sm:px-6`}>
@@ -452,6 +547,152 @@ export function HowItWorks({ service, section }: { service: ServiceSlug } & Sect
         </ol>
       </div>
     </section>
+  );
+}
+
+const ESIM_HOW_COPY = {
+  tr: {
+    eyebrow: "eSIM nasıl çalışır?",
+    headline: "3 adımda internete bağlan",
+    description: "Fiziksel SIM kart yok. Mağaza aramak yok. eSIM’ini birkaç dakikada hazırla.",
+    progressLabel: "Adım göstergesi",
+    steps: [
+      {
+        title: "Paketini seç",
+        description: "Gideceğin ülkeyi seç ve ihtiyacına uygun eSIM paketini satın al.",
+      },
+      {
+        title: "eSIM’ini kur",
+        description: "Satın aldıktan sonra QR kodunu tara veya hızlı kurulum bağlantısını kullan.",
+      },
+      {
+        title: "Varınca bağlan",
+        description: "Destinasyona ulaştığında eSIM hattını aç. İnternetin kullanıma hazır.",
+      },
+    ],
+    visuals: {
+      country: "Ülke",
+      plan: "Paket seç",
+      scan: "QR kodu tara",
+      installed: "Kuruluma hazır",
+      active: "eSIM aktif",
+      connected: "Bağlandı",
+    },
+    trust: ["Dakikalar içinde kurulum", "Fiziksel SIM gerekmez", "Varınca bağlan"],
+  },
+  de: {
+    eyebrow: "Wie funktioniert eSIM?",
+    headline: "In 3 Schritten online",
+    description: "Keine physische SIM. Keine Shopsuche. Bereite deine eSIM in wenigen Minuten vor.",
+    progressLabel: "Schrittanzeige",
+    steps: [
+      {
+        title: "Paket wählen",
+        description: "Wähle dein Reiseziel und kaufe das passende eSIM-Paket.",
+      },
+      {
+        title: "eSIM installieren",
+        description: "Scanne nach dem Kauf den QR-Code oder nutze den Schnellinstallationslink.",
+      },
+      {
+        title: "Vor Ort verbinden",
+        description: "Aktiviere die eSIM am Reiseziel. Deine Verbindung ist bereit.",
+      },
+    ],
+    visuals: {
+      country: "Reiseziel",
+      plan: "Paket wählen",
+      scan: "QR-Code scannen",
+      installed: "Bereit zur Installation",
+      active: "eSIM aktiv",
+      connected: "Verbunden",
+    },
+    trust: ["In wenigen Minuten installiert", "Keine physische SIM", "Vor Ort verbinden"],
+  },
+  en: {
+    eyebrow: "How does eSIM work?",
+    headline: "Get online in 3 steps",
+    description: "No physical SIM. No searching for a store. Prepare your eSIM in a few minutes.",
+    progressLabel: "Step indicator",
+    steps: [
+      {
+        title: "Choose your plan",
+        description: "Choose your destination and buy the eSIM plan that fits your needs.",
+      },
+      {
+        title: "Install your eSIM",
+        description: "After purchase, scan the QR code or use the quick-install link.",
+      },
+      {
+        title: "Connect on arrival",
+        description: "Turn on your eSIM at your destination. Your connection is ready.",
+      },
+    ],
+    visuals: {
+      country: "Destination",
+      plan: "Choose plan",
+      scan: "Scan QR code",
+      installed: "Ready to install",
+      active: "eSIM active",
+      connected: "Connected",
+    },
+    trust: ["Install in minutes", "No physical SIM needed", "Connect on arrival"],
+  },
+} as const;
+
+function StepPhoneVisual({
+  step,
+  labels,
+}: {
+  step: number;
+  labels: {
+    country: string;
+    plan: string;
+    scan: string;
+    installed: string;
+    active: string;
+    connected: string;
+  };
+}) {
+  return (
+    <div className="esim-step-visual" aria-hidden="true">
+      <div className="esim-step-phone">
+        <span className="esim-step-speaker" />
+        {step === 0 ? (
+          <div className="space-y-2 p-3 pt-5">
+            <div className="flex items-center gap-2 rounded-lg bg-primary-soft p-2 text-primary">
+              <span className="text-base">🌍</span>
+              <span className="text-[10px] font-bold">{labels.country}</span>
+            </div>
+            <div className="rounded-lg border border-primary bg-card p-2">
+              <span className="block text-[9px] font-bold">eSIM · 10 GB</span>
+              <span className="mt-1 block rounded-md bg-cta px-2 py-1 text-center text-[9px] font-bold text-cta-foreground">
+                {labels.plan}
+              </span>
+            </div>
+          </div>
+        ) : step === 1 ? (
+          <div className="grid h-full place-content-center gap-2 px-4 pt-3 text-center">
+            <span className="mx-auto grid size-14 place-items-center rounded-xl bg-card shadow-soft">
+              <QrCode className="size-10 text-primary" />
+            </span>
+            <span className="flex items-center justify-center gap-1 text-[9px] font-bold text-primary">
+              <ScanLine className="size-3" /> {labels.scan}
+            </span>
+            <span className="text-[8px] text-muted-foreground">{labels.installed}</span>
+          </div>
+        ) : (
+          <div className="grid h-full place-content-center gap-2 px-3 pt-3 text-center">
+            <CheckCircle2 className="mx-auto size-8 text-primary" />
+            <span className="text-[10px] font-bold text-primary">{labels.active}</span>
+            <strong className="font-display text-2xl text-foreground">5G</strong>
+            <span className="inline-flex items-center justify-center gap-1 rounded-full bg-primary px-2 py-1 text-[9px] font-bold text-primary-foreground">
+              <SignalHigh className="size-3" /> {labels.connected}
+            </span>
+          </div>
+        )}
+      </div>
+    </div>
   );
 }
 

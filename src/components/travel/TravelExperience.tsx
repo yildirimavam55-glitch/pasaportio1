@@ -219,6 +219,19 @@ function Experience({
   const scrollToFinder = () => smoothlyShowFinder();
 
   const selectorSection = config.sections.find((s) => s.type === "SERVICE_SELECTOR");
+  const visibleSections =
+    service === "esim"
+      ? [...config.sections].sort((a, b) => {
+          const popularIndex = config.sections.findIndex(
+            (section) => section.type === "POPULAR_DESTINATIONS",
+          );
+          const rank = (section: StorefrontSection, index: number) => {
+            if (section.type === "HOW_IT_WORKS") return popularIndex + 0.5;
+            return index;
+          };
+          return rank(a, config.sections.indexOf(a)) - rank(b, config.sections.indexOf(b));
+        })
+      : config.sections;
   const render = (section: StorefrontSection): ReactNode => {
     if (!section.visible) return null;
     if (section.type === "HERO" || section.type === "SERVICE_SELECTOR") return null; // rendered explicitly
@@ -356,7 +369,7 @@ function Experience({
             </ServiceButton>
           </div>
         </div>
-        {config.sections.map(render)}
+        {visibleSections.map(render)}
         {service === "esim" && assistantRoute && !assistantOpen && (
           <div className="mx-auto mt-6 max-w-finder px-3 text-center sm:px-6">
             <button
