@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { QuickSearch } from "./QuickSearch";
 import type { ServiceSlug } from "@/content/travel-content";
 
