@@ -371,7 +371,7 @@ html.dark .destination-scene {
   font-size: 0.36rem;
 }
 .esim-phone-content {
-  padding: 0.48rem 0.55rem;
+  padding: 0.36rem 0.55rem;
 }
 .esim-plan-destination,
 .esim-connected-card {
@@ -381,23 +381,23 @@ html.dark .destination-scene {
   border: 1px solid var(--color-border);
   border-radius: 0.55rem;
   background: var(--color-card);
-  padding: 0.38rem 0.42rem;
+  padding: 0.3rem 0.4rem;
   font-size: 0.48rem;
   font-weight: 800;
 }
 .esim-plan-card {
-  margin-top: 0.38rem;
+  margin-top: 0.26rem;
   border: 1px solid color-mix(in oklab, var(--color-primary) 38%, var(--color-border));
   border-radius: 0.6rem;
   background: var(--color-primary-soft);
-  padding: 0.42rem;
+  padding: 0.32rem 0.38rem;
 }
 .esim-phone-cta {
   display: block;
-  margin-top: 0.38rem;
+  margin-top: 0.25rem;
   border-radius: 0.42rem;
   background: var(--color-cta);
-  padding: 0.28rem 0.35rem;
+  padding: 0.2rem 0.35rem;
   color: var(--color-cta-foreground);
   font-size: 0.45rem;
   font-weight: 800;

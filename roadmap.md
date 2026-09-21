@@ -346,4 +346,4 @@
 - [x] Replace placeholder phone drawings with one consistent Travely product mockup system
 - [x] Show package selection, easy installation, and connected states with localized UI
 - [x] Compact the step cards and compatibility prompt without changing copy or behavior
-- [ ] Verify Light/Dark, TR/DE/EN, swipe, next-card preview, and 360/375/390/412/430px layouts
+- [x] Verify Light/Dark, TR/DE/EN, swipe, next-card preview, and 360/375/390/412/430px layouts
