@@ -87,9 +87,14 @@ export function QuickSearch({
 
   useEffect(() => {
     if (!open || !lockScroll) return;
+    // Locking the document collapses its scroll range, so remember the offset
+    // and put the reader back exactly where they were when the list closes.
+    const scroller = document.scrollingElement ?? document.documentElement;
+    const previousTop = scroller.scrollTop;
     document.documentElement.dataset["quickSearchLock"] = "true";
     return () => {
       delete document.documentElement.dataset["quickSearchLock"];
+      scroller.scrollTop = previousTop;
     };
   }, [lockScroll, open]);
 

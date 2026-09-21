@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { QuickSearch } from "./QuickSearch";
 import type { ServiceSlug } from "@/content/travel-content";
 
@@ -10,7 +10,12 @@ import type { ServiceSlug } from "@/content/travel-content";
  * layout flow, so showing it never shifts the page content.
  */
 export function StickyQuickSearch({ service }: { service: ServiceSlug }) {
-  const [visible, setVisible] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
+  // While the list is open the bar must stay put, even though locking the page
+  // clamps its scroll offset back toward the top.
+  const visible = scrolled || searchOpen;
+  const onSearchModeChange = useCallback((active: boolean) => setSearchOpen(active), []);
 
   useEffect(() => {
     let frame = 0;
@@ -25,7 +30,7 @@ export function StickyQuickSearch({ service }: { service: ServiceSlug }) {
           document.body?.scrollTop ||
           0;
         // Hysteresis so the bar cannot flicker around the threshold.
-        setVisible((current) => (current ? y > 180 : y > 280));
+        setScrolled((current) => (current ? y > 90 : y > 140));
       });
     };
     onScroll();
@@ -51,6 +56,7 @@ export function StickyQuickSearch({ service }: { service: ServiceSlug }) {
           <QuickSearch
             service={service}
             onAirportSelect={() => {}}
+            onSearchModeChange={onSearchModeChange}
             embedded
             compact
             lockScroll
