@@ -88,8 +88,10 @@ export function countryLabel(iso: string, locale: Locale) {
     AN: { tr: "Hollanda Antilleri", de: "Niederländische Antillen", en: "Netherlands Antilles" },
     GL: { tr: "Grönland", de: "Grönland", en: "Greenland" },
     IC: { tr: "Kanarya Adaları", de: "Kanarische Inseln", en: "Canary Islands" },
+    US: { tr: "ABD", de: "USA", en: "USA" },
   };
-  return getCountryByIso(iso)?.name[locale] ?? territoryNames[iso.toUpperCase()]?.[locale] ?? iso;
+  const code = iso.toUpperCase();
+  return territoryNames[code]?.[locale] ?? getCountryByIso(code)?.name[locale] ?? code;
 }
 
 /** Country name for the active locale, plus ISO and every known alias. */
