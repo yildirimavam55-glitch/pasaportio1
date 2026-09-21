@@ -360,4 +360,4 @@
 - [x] Preserve live catalogue destination cards whenever sellable products exist
 - [x] Restore the existing three-card homepage selection when the live catalogue is empty
 - [x] Keep unverified prices hidden and preserve existing destination routing
-- [ ] Verify homepage cards, sticky search, and following sections on mobile and desktop
+- [x] Verify homepage cards, sticky search, and following sections on mobile and desktop
