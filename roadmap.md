@@ -339,4 +339,4 @@
 - [x] Add touch scroll-snap cards and a synchronized mobile progress indicator
 - [x] Reuse the existing device compatibility checker and add a concise trust row
 - [x] Keep installation and activation wording accurate across TR/DE/EN
-- [ ] Verify Light/Dark, swipe, compatibility CTA, and 360/375/390/412/430px layouts
+- [x] Verify Light/Dark, swipe, compatibility CTA, and 360/375/390/412/430px layouts
