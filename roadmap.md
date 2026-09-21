@@ -6,7 +6,7 @@
 - [x] Reuses existing QuickSearch data/routing — no second search system
 - [x] Results scroll under open mobile keyboard; no layout jump; no overlap with floating purchase card
 - [x] QA at 360/375/390/412/430 px, TR/DE/EN, light/dark
-- [ ] Critical sticky layer fix: search button never clips, results stay in the sticky overlay, and country routing still works
+- [x] Critical sticky layer fix: search button never clips, results stay in the sticky overlay, and country routing still works
 
 - [x] Preserve locked architecture and service state behavior
 - [x] Add image-led destination, Lounge, and contextual recommendation sections
