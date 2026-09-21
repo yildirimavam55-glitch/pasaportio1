@@ -1,5 +1,12 @@
 # Phase 1.3 Roadmap
 
+## Sticky destination search — mobile UX
+
+- [ ] Compact sticky search bar appears under header after scrolling down (home + country/package pages)
+- [ ] Reuses existing QuickSearch data/routing — no second search system
+- [ ] Results scroll under open mobile keyboard; no layout jump; no overlap with floating purchase card
+- [ ] QA at 360/375/390/412/430 px, TR/DE/EN, light/dark
+
 - [x] Preserve locked architecture and service state behavior
 - [x] Add image-led destination, Lounge, and contextual recommendation sections
 - [x] Upgrade compact usage, route, icon, and trust presentation

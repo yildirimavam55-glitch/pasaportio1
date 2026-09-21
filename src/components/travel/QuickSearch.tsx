@@ -48,11 +48,17 @@ export function QuickSearch({
   onAirportSelect,
   onSearchModeChange,
   embedded = false,
+  compact = false,
+  lockScroll = false,
 }: {
   service: ServiceSlug;
   onAirportSelect: (airportId: string) => void;
   onSearchModeChange?: (active: boolean) => void;
   embedded?: boolean;
+  /** Compact sizing for the sticky bar variant (~52px tall). */
+  compact?: boolean;
+  /** Prevents the page behind the results from scrolling while open. */
+  lockScroll?: boolean;
 }) {
   const { locale } = useI18n();
   const copy = COPY[locale];
@@ -78,6 +84,14 @@ export function QuickSearch({
     if (open) document.documentElement.dataset["searchMode"] = "true";
     else delete document.documentElement.dataset["searchMode"];
   }, [onSearchModeChange, open]);
+
+  useEffect(() => {
+    if (!open || !lockScroll) return;
+    document.documentElement.dataset["quickSearchLock"] = "true";
+    return () => {
+      delete document.documentElement.dataset["quickSearchLock"];
+    };
+  }, [lockScroll, open]);
 
   useEffect(
     () => () => {
@@ -198,7 +212,11 @@ export function QuickSearch({
       className={`quick-search-container ${embedded ? "relative w-full" : "relative mx-auto mt-3 max-w-finder px-3 sm:px-6"}`}
       data-open={open || undefined}
     >
-      <div className="quick-search-field flex items-center gap-1.5 rounded-2xl border border-border/80 bg-card/95 p-1.5 shadow-panel backdrop-blur-md sm:gap-2 sm:p-2">
+      <div
+        className={`quick-search-field flex items-center border border-border/80 bg-card/95 shadow-panel backdrop-blur-md ${
+          compact ? "gap-1 rounded-2xl p-1" : "gap-1.5 rounded-2xl p-1.5 sm:gap-2 sm:p-2"
+        }`}
+      >
         <Input
           ref={inputRef}
           value={query}
@@ -219,14 +237,14 @@ export function QuickSearch({
           }}
           placeholder={service === "esim" ? copy.esimPlaceholder : copy.loungePlaceholder}
           aria-label={service === "esim" ? copy.esimLabel : copy.loungeLabel}
-          className="h-12 min-w-0 border-0 bg-transparent px-3 text-base font-semibold shadow-none focus-visible:ring-0"
+          className={`${compact ? "h-11" : "h-12"} min-w-0 border-0 bg-transparent px-3 text-base font-semibold shadow-none focus-visible:ring-0`}
         />
         {open && (
           <Button
             type="button"
             variant="ghost"
             size="icon"
-            className="size-11 shrink-0 rounded-xl"
+            className={`${compact ? "size-10" : "size-11"} shrink-0 rounded-xl`}
             aria-label={copy.close}
             onClick={() => closeSearch(true)}
           >
@@ -237,11 +255,11 @@ export function QuickSearch({
           type="button"
           variant="cta"
           size="icon"
-          className="size-11 shrink-0 rounded-xl shadow-soft"
+          className={`${compact ? "size-10" : "size-11"} shrink-0 rounded-xl shadow-soft`}
           aria-label={copy.search}
           onClick={submit}
         >
-          <Search className="size-5" />
+          <Search className={compact ? "size-4" : "size-5"} />
         </Button>
       </div>
       {open && (

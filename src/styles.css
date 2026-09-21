@@ -807,6 +807,10 @@ html.dark .destination-scene {
 .quick-search-container {
   z-index: 60;
 }
+html[data-quick-search-lock] {
+  overflow: hidden;
+  overscroll-behavior: none;
+}
 .quick-search-field {
   box-shadow:
     0 14px 34px color-mix(in oklab, var(--foreground) 18%, transparent),
