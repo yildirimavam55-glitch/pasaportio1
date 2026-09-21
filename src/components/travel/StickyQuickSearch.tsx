@@ -56,6 +56,7 @@ export function StickyQuickSearch({ service }: { service: ServiceSlug }) {
           <QuickSearch
             service={service}
             onAirportSelect={() => {}}
+            onSearchModeChange={onSearchModeChange}
             embedded
             compact
             lockScroll
