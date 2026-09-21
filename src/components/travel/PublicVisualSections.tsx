@@ -570,7 +570,14 @@ const ESIM_HOW_COPY = {
         description: "Destinasyona ulaştığında eSIM hattını aç. İnternetin kullanıma hazır.",
       },
     ],
-    visuals: { country: "Ülke", plan: "Paket seç", scan: "QR kodu tara", installed: "Kuruluma hazır", active: "eSIM aktif", connected: "Bağlandı" },
+    visuals: {
+      country: "Ülke",
+      plan: "Paket seç",
+      scan: "QR kodu tara",
+      installed: "Kuruluma hazır",
+      active: "eSIM aktif",
+      connected: "Bağlandı",
+    },
     trust: ["Dakikalar içinde kurulum", "Fiziksel SIM gerekmez", "Varınca bağlan"],
   },
   de: {
@@ -579,11 +586,27 @@ const ESIM_HOW_COPY = {
     description: "Keine physische SIM. Keine Shopsuche. Bereite deine eSIM in wenigen Minuten vor.",
     progressLabel: "Schrittanzeige",
     steps: [
-      { title: "Paket wählen", description: "Wähle dein Reiseziel und kaufe das passende eSIM-Paket." },
-      { title: "eSIM installieren", description: "Scanne nach dem Kauf den QR-Code oder nutze den Schnellinstallationslink." },
-      { title: "Vor Ort verbinden", description: "Aktiviere die eSIM am Reiseziel. Deine Verbindung ist bereit." },
+      {
+        title: "Paket wählen",
+        description: "Wähle dein Reiseziel und kaufe das passende eSIM-Paket.",
+      },
+      {
+        title: "eSIM installieren",
+        description: "Scanne nach dem Kauf den QR-Code oder nutze den Schnellinstallationslink.",
+      },
+      {
+        title: "Vor Ort verbinden",
+        description: "Aktiviere die eSIM am Reiseziel. Deine Verbindung ist bereit.",
+      },
     ],
-    visuals: { country: "Reiseziel", plan: "Paket wählen", scan: "QR-Code scannen", installed: "Bereit zur Installation", active: "eSIM aktiv", connected: "Verbunden" },
+    visuals: {
+      country: "Reiseziel",
+      plan: "Paket wählen",
+      scan: "QR-Code scannen",
+      installed: "Bereit zur Installation",
+      active: "eSIM aktiv",
+      connected: "Verbunden",
+    },
     trust: ["In wenigen Minuten installiert", "Keine physische SIM", "Vor Ort verbinden"],
   },
   en: {
@@ -592,11 +615,27 @@ const ESIM_HOW_COPY = {
     description: "No physical SIM. No searching for a store. Prepare your eSIM in a few minutes.",
     progressLabel: "Step indicator",
     steps: [
-      { title: "Choose your plan", description: "Choose your destination and buy the eSIM plan that fits your needs." },
-      { title: "Install your eSIM", description: "After purchase, scan the QR code or use the quick-install link." },
-      { title: "Connect on arrival", description: "Turn on your eSIM at your destination. Your connection is ready." },
+      {
+        title: "Choose your plan",
+        description: "Choose your destination and buy the eSIM plan that fits your needs.",
+      },
+      {
+        title: "Install your eSIM",
+        description: "After purchase, scan the QR code or use the quick-install link.",
+      },
+      {
+        title: "Connect on arrival",
+        description: "Turn on your eSIM at your destination. Your connection is ready.",
+      },
     ],
-    visuals: { country: "Destination", plan: "Choose plan", scan: "Scan QR code", installed: "Ready to install", active: "eSIM active", connected: "Connected" },
+    visuals: {
+      country: "Destination",
+      plan: "Choose plan",
+      scan: "Scan QR code",
+      installed: "Ready to install",
+      active: "eSIM active",
+      connected: "Connected",
+    },
     trust: ["Install in minutes", "No physical SIM needed", "Connect on arrival"],
   },
 } as const;

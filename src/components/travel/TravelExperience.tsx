@@ -222,7 +222,9 @@ function Experience({
   const visibleSections =
     service === "esim"
       ? [...config.sections].sort((a, b) => {
-          const popularIndex = config.sections.findIndex((section) => section.type === "POPULAR_DESTINATIONS");
+          const popularIndex = config.sections.findIndex(
+            (section) => section.type === "POPULAR_DESTINATIONS",
+          );
           const rank = (section: StorefrontSection, index: number) => {
             if (section.type === "HOW_IT_WORKS") return popularIndex + 0.5;
             return index;
