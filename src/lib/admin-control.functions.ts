@@ -395,6 +395,7 @@ export const FLAG_DEFINITIONS = [
   { key: "checkout.lounge", label: "Lounge satın alma", detail: "Lounge ödeme akışı.", critical: true },
   { key: "showTestCatalogue", label: "Test kataloğu", detail: "INTERNAL_TEST ürünlerini mağazada gösterir. Yayın öncesi kapatılmalı.", critical: true },
   { key: "provider.sync", label: "Provider senkronu", detail: "Katalog senkronizasyonunun çalışmasına izin verir.", critical: false },
+  { key: "esim_auto_publish", label: "Yeni eSIM paketlerini otomatik yayınla", detail: "Kapalıyken senkron yeni paketleri tedarikçi kataloğuna alır ama mağazada yayınlamaz; mevcut yayında olan paketler etkilenmez.", critical: true },
   { key: "guest_checkout", label: "Üye olmadan satın alma", detail: "Misafir kullanıcı satın alması.", critical: false },
 ] as const;
 
