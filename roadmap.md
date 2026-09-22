@@ -400,3 +400,12 @@
 - [x] XML sitemap endpoint (/sitemap/xml; literal /sitemap.xml path not generatable by the file router)
 - [x] Typecheck + build OK; Playwright: hub, country hub, not-found, sitemap, homepage
 - [ ] Publish first real guides (intentional, high-quality content only — no auto-generated thin content)
+
+## Admin Phase 1 — Catalog safety + pricing + storefront governance (done)
+- [x] Explicit `esim_auto_publish` flag (default FALSE), absence no longer means publish-all
+- [x] Default pricing rule in DB (ESIM, 35%, NEAREST_99, priority 1000), hardcoded fallback removed
+- [x] Safe pricing failure: `pricing_review_required`, no auto price/publish, never sells at cost
+- [x] Price traceability via `pricing_snapshot` + `priced_at` + existing price history
+- [x] Abnormal catalogue drop guard (configurable %, default 20) + CATALOGUE_DROP_BLOCKED alert
+- [x] Low-balance threshold field + de-duplicated LOW_PROVIDER_BALANCE alert + safe balance read
+- [ ] Set a real low-balance threshold value (business decision, pending)
