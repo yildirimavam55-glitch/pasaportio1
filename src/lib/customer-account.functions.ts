@@ -4,6 +4,16 @@ import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import type { Json } from "@/integrations/supabase/types";
 
+export type CustomerEsimProductInfo = {
+  dataGb: number | null;
+  unlimitedData: boolean;
+  validityDays: number | null;
+  coverageCount: number | null;
+  destinationIso: string | null;
+  activationPolicy: string | null;
+  packageKind: string | null;
+};
+
 export type CustomerEsimRecord = {
   id: string;
   orderItemId: string | null;
@@ -20,6 +30,7 @@ export type CustomerEsimRecord = {
   hasInstallInfo: boolean;
   hasIccid: boolean;
   providerCapabilities: string[];
+  productInfo: CustomerEsimProductInfo | null;
   createdAt: string;
   updatedAt: string;
 };
@@ -42,9 +53,25 @@ function capabilitiesFromRow(row: Record<string, unknown>) {
 }
 
 const ESIM_LIST_COLUMNS =
-  "id, order_item_id, traveler_label, destination_label, package_label, status, total_data_mb, remaining_data_mb, expires_at, iccid, qr_payload, install_info, topup_supported, created_at, updated_at, order_items(provider_id, providers(capabilities))";
+  "id, order_item_id, traveler_label, destination_label, package_label, status, total_data_mb, remaining_data_mb, expires_at, iccid, qr_payload, install_info, topup_supported, created_at, updated_at, order_items(product_id, providers(capabilities))";
 
-function toEsimRecord(row: Record<string, any>): CustomerEsimRecord {
+function productInfoFromRow(
+  row: Record<string, any>,
+  detailsById: Map<string, CustomerEsimProductInfo>,
+): CustomerEsimProductInfo | null {
+  const orderItems = row["order_items"];
+  const orderItem = Array.isArray(orderItems) ? orderItems[0] : orderItems;
+  const productId =
+    orderItem && typeof orderItem === "object"
+      ? (orderItem as Record<string, unknown>)["product_id"]
+      : null;
+  return typeof productId === "string" && productId ? detailsById.get(productId) ?? null : null;
+}
+
+function toEsimRecord(
+  row: Record<string, any>,
+  detailsById: Map<string, CustomerEsimProductInfo>,
+): CustomerEsimRecord {
   const installInfo = objectValue(row["install_info"] as Json);
   return {
     id: row["id"],
@@ -66,9 +93,55 @@ function toEsimRecord(row: Record<string, any>): CustomerEsimRecord {
       Object.keys(installInfo).length > 0,
     hasIccid: Boolean(row["iccid"]),
     providerCapabilities: capabilitiesFromRow(row),
+    productInfo: productInfoFromRow(row, detailsById),
     createdAt: row["created_at"],
     updatedAt: row["updated_at"],
   };
+}
+
+/** Structured catalogue facts for the customer-facing card — read-only lookup. */
+async function loadProductInfo(
+  supabase: { from: (table: string) => any },
+  rows: Record<string, any>[],
+): Promise<Map<string, CustomerEsimProductInfo>> {
+  const productIds = [
+    ...new Set(
+      rows
+        .map((row) => {
+          const orderItems = row["order_items"];
+          const item = Array.isArray(orderItems) ? orderItems[0] : orderItems;
+          const productId =
+            item && typeof item === "object"
+              ? (item as Record<string, unknown>)["product_id"]
+              : null;
+          return typeof productId === "string" && productId ? productId : null;
+        })
+        .filter((value): value is string => value != null),
+    ),
+  ];
+  if (!productIds.length) return new Map<string, CustomerEsimProductInfo>();
+  const { data } = await supabase
+    .from("esim_product_details")
+    .select(
+      "product_id, data_gb, unlimited_data, validity_days, coverage_country_isos, country_iso, activation_policy, package_kind",
+    )
+    .in("product_id", productIds);
+  return new Map<string, CustomerEsimProductInfo>(
+    (data ?? []).map((item: Record<string, any>) => [
+      item["product_id"],
+      {
+        dataGb: item["data_gb"] == null ? null : Number(item["data_gb"]),
+        unlimitedData: Boolean(item["unlimited_data"]),
+        validityDays: item["validity_days"] == null ? null : Number(item["validity_days"]),
+        coverageCount: Array.isArray(item["coverage_country_isos"])
+          ? (item["coverage_country_isos"] as string[]).filter(Boolean).length
+          : null,
+        destinationIso: item["country_iso"] ?? null,
+        activationPolicy: item["activation_policy"] ?? null,
+        packageKind: item["package_kind"] ?? null,
+      },
+    ]),
+  );
 }
 
 export const getCustomerAccount = createServerFn({ method: "GET" })
@@ -108,9 +181,9 @@ export const getCustomerAccount = createServerFn({ method: "GET" })
       profileResult.error ?? esimsResult.error ?? loungesResult.error ?? ordersResult.error;
     if (error) throw new Error("Hesap bilgileri yüklenemedi.");
 
-    const esims: CustomerEsimRecord[] = (esimsResult.data ?? []).map((row) =>
-      toEsimRecord(row as unknown as Record<string, any>),
-    );
+    const esimRows = (esimsResult.data ?? []) as unknown as Record<string, any>[];
+    const detailsById = await loadProductInfo(context.supabase, esimRows);
+    const esims: CustomerEsimRecord[] = esimRows.map((row) => toEsimRecord(row, detailsById));
 
     return {
       profile: profileResult.data
@@ -169,7 +242,9 @@ export const getCustomerEsimDetail = createServerFn({ method: "GET" })
     if (error) throw new Error("eSIM bilgisi yüklenemedi.");
     if (!row) return null;
 
-    const esim = toEsimRecord(row as unknown as Record<string, any>);
+    const esimRow = row as unknown as Record<string, any>;
+    const detailsById = await loadProductInfo(context.supabase, [esimRow]);
+    const esim = toEsimRecord(esimRow, detailsById);
 
     let orderRef: { id: string; orderNumber: string; createdAt: string } | null = null;
     let purchase: {

@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { ChevronRight, Clock3, PackageCheck, RefreshCcw, Signal } from "lucide-react";
 
 import { CustomerEsimCard } from "@/components/account/CustomerEsimCard";
+import { EsimCarousel } from "@/components/account/EsimCarousel";
 import { AccountLayout } from "@/components/account/AccountLayout";
 import { ACCOUNT_COPY, formatDate, formatMoney, numberLocale } from "@/components/account/copy";
 import { Button } from "@/components/ui/button";
@@ -103,11 +104,11 @@ function AccountOverview() {
           <h2 className="font-display text-xl font-bold">{copy.activeEsims}</h2>
         </div>
         {active.length ? (
-          <div className="customer-esim-track">
+          <EsimCarousel label={copy.activeEsims}>
             {active.map((esim) => (
               <CustomerEsimCard key={esim.id} esim={esim} locale={locale} />
             ))}
-          </div>
+          </EsimCarousel>
         ) : (
           <div className="rounded-2xl border border-dashed border-border bg-secondary/45 px-5 py-8 text-center">
             <p className="text-sm text-muted-foreground">{copy.emptyEsims}</p>
@@ -126,11 +127,11 @@ function AccountOverview() {
             <Clock3 className="size-5 text-primary" />
             <h2 className="font-display text-xl font-bold">{copy.pendingEsims}</h2>
           </div>
-          <div className="customer-esim-track">
+          <EsimCarousel label={copy.pendingEsims}>
             {pending.map((esim) => (
               <CustomerEsimCard key={esim.id} esim={esim} locale={locale} />
             ))}
-          </div>
+          </EsimCarousel>
         </section>
       )}
 

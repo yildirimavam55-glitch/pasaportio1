@@ -384,3 +384,9 @@
 - [x] Ownership-scoped server functions (no IDOR), real data only
 - [x] Reference screenshot: UX inspiration only — no demo data, no bottom nav
 - [x] QA 360/375/390/412/430 + tablet/desktop, TR/DE/EN
+
+## Customer Portal UI refinement (cards)
+- [x] Active/pending eSIMs as swipeable carousel with dots + next-card peek (mobile), 2-col grid (desktop)
+- [x] Past eSIMs as compact history rows instead of full cards
+- [x] Track width fix (grid-auto-columns calc, not minmax) verified at 360–430 px, TR/DE/EN
+- [x] Multi-card scenarios tested (1/2/5 active, 2 ready) with temporary test rows, then cleaned up
