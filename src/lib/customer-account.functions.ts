@@ -395,18 +395,19 @@ export const updateCustomerProfile = createServerFn({ method: "POST" })
   )
   .middleware([requireSupabaseAuth])
   .handler(async ({ context, data }) => {
+    // The profile row may not exist yet (older accounts), so upsert on the owner id.
     const patch: {
+      id: string;
+      email?: string | null;
       full_name?: string | null;
       preferred_locale?: "tr" | "de" | "en";
       country_iso?: string | null;
-    } = {};
+    } = { id: context.userId };
+    if (typeof context.claims.email === "string") patch.email = context.claims.email;
     if (data.fullName !== undefined) patch.full_name = data.fullName || null;
     if (data.preferredLocale !== undefined) patch.preferred_locale = data.preferredLocale;
     if (data.countryIso !== undefined) patch.country_iso = data.countryIso || null;
-    const { error } = await context.supabase
-      .from("profiles")
-      .update(patch)
-      .eq("id", context.userId);
+    const { error } = await context.supabase.from("profiles").upsert(patch, { onConflict: "id" });
     if (error) throw new Error("Profil kaydedilemedi.");
     return { ok: true };
   });
