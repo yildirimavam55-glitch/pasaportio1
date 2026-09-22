@@ -79,7 +79,7 @@ export function AdminGate({ title, children }: { title: string; children: ReactN
   const pathname = useRouterState({ select: (state) => state.location.pathname });
 
   if (isPending) return <main className="grid min-h-screen place-items-center bg-secondary"><p className="flex items-center gap-2 text-sm text-muted-foreground"><LoaderCircle className="size-4 animate-spin" /> Yetki kontrol ediliyor…</p></main>;
-  if (!data?.isAdmin) return <main className="grid min-h-screen place-items-center bg-secondary p-4"><div className="max-w-md rounded-lg border border-border bg-card p-8 text-center shadow-card"><AlertTriangle className="mx-auto size-10 text-destructive"/><h1 className="mt-4 font-display text-2xl font-bold">Yönetici yetkisi gerekiyor</h1><p className="mt-2 text-sm text-muted-foreground">Bu alan yalnızca açıkça yönetici rolü atanmış hesaplara açıktır.</p><div className="mt-5 flex justify-center gap-4 text-sm font-bold text-primary"><Link to="/hesabim">Hesabıma dön</Link><Link to="/" search={{service:"esim"}}>Ana sayfa</Link></div></div></main>;
+  if (!data?.isAdmin) return <main className="grid min-h-screen place-items-center bg-secondary p-4"><div className="max-w-md rounded-lg border border-border bg-card p-8 text-center shadow-card"><AlertTriangle className="mx-auto size-10 text-destructive"/><h1 className="mt-4 font-display text-2xl font-bold">Yönetici yetkisi gerekiyor</h1><p className="mt-2 text-sm text-muted-foreground">Bu alan yalnızca açıkça yönetici rolü atanmış hesaplara açıktır.</p><div className="mt-5 flex justify-center gap-4 text-sm font-bold text-primary"><Link to="/account">Hesabıma dön</Link><Link to="/" search={{service:"esim"}}>Ana sayfa</Link></div></div></main>;
 
   return <div className="admin-shell min-h-screen bg-secondary/55 lg:grid lg:grid-cols-[16rem_minmax(0,1fr)]">
     {mobileOpen && <button type="button" aria-label="Menüyü kapat" className="fixed inset-0 z-40 bg-primary/45 backdrop-blur-sm lg:hidden" onClick={() => setMobileOpen(false)} />}
@@ -157,7 +157,7 @@ function AdminAccount() {
       <button type="button" aria-label="Menüyü kapat" className="fixed inset-0 z-40" onClick={() => setOpen(false)} />
       <div role="menu" className="absolute right-0 z-50 mt-1 w-56 overflow-hidden rounded-md border border-border bg-card p-1 shadow-panel">
         <div className="px-3 py-2"><p className="truncate text-xs font-semibold">{name}</p>{data?.email && <p className="truncate text-[10px] text-muted-foreground">{data.email}</p>}<p className="text-[10px] font-bold uppercase text-muted-foreground">Admin</p></div>
-        <Link to="/hesabim" onClick={() => setOpen(false)} className="flex min-h-10 items-center gap-2 rounded-md px-3 text-xs font-semibold hover:bg-secondary/60">Hesabım</Link>
+        <Link to="/account" onClick={() => setOpen(false)} className="flex min-h-10 items-center gap-2 rounded-md px-3 text-xs font-semibold hover:bg-secondary/60">Hesabım</Link>
         <Link to="/admin/settings" onClick={() => setOpen(false)} className="flex min-h-10 items-center gap-2 rounded-md px-3 text-xs font-semibold hover:bg-secondary/60">Admin Ayarları</Link>
         <button type="button" role="menuitem" disabled={busy} onClick={signOut} className="flex min-h-10 w-full items-center gap-2 rounded-md px-3 text-left text-xs font-bold text-destructive hover:bg-destructive/10 disabled:opacity-60"><LogOut className="size-4" />{busy ? "Çıkış yapılıyor…" : "Çıkış Yap"}</button>
       </div>

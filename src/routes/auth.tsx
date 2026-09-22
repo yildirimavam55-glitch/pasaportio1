@@ -23,7 +23,7 @@ export const Route = createFileRoute("/auth")({
   component: AuthPage,
 });
 function safePath(value: string | undefined) {
-  return value && value.startsWith("/") && !value.startsWith("//") ? value : "/hesabim/seyahatler";
+  return value && value.startsWith("/") && !value.startsWith("//") ? value : "/account";
 }
 function AuthPage() {
   const navigate = useNavigate();
@@ -44,7 +44,7 @@ function AuthPage() {
     try {
       if (mode === "reset") {
         const { error } = await supabase.auth.resetPasswordForEmail(email, {
-          redirectTo: `${window.location.origin}/hesabim`,
+          redirectTo: `${window.location.origin}/account`,
         });
         if (error) throw error;
         setMessage("Şifre yenileme bağlantısını e-posta adresine gönderdik.");
