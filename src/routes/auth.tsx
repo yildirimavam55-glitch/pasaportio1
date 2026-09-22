@@ -25,6 +25,16 @@ export const Route = createFileRoute("/auth")({
 function safePath(value: string | undefined) {
   return value && value.startsWith("/") && !value.startsWith("//") ? value : "/account";
 }
+function friendlyAuthError(raw: string | null) {
+  const key = (raw ?? "").toLowerCase();
+  if (key.includes("invalid login credentials")) return "E-posta veya şifre hatalı. Tekrar dene.";
+  if (key.includes("email not confirmed")) return "Önce e-postandaki doğrulama bağlantısına tıkla.";
+  if (key.includes("rate limit") || key.includes("too many"))
+    return "Çok fazla deneme yaptın. Kısa bir süre sonra tekrar dene.";
+  if (key.includes("user already registered"))
+    return "Bu e-posta ile zaten bir hesap var. Giriş yapmayı dene.";
+  return raw ?? "Bir hata oluştu.";
+}
 function AuthPage() {
   const navigate = useNavigate();
   const search = useSearch({ from: "/auth" });
