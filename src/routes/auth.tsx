@@ -66,7 +66,7 @@ function AuthPage() {
       }
     } catch (error) {
       setTone("error");
-      setMessage(error instanceof Error ? error.message : "Bir hata oluştu.");
+      setMessage(friendlyAuthError(error instanceof Error ? error.message : null));
     } finally {
       setBusy(false);
     }
