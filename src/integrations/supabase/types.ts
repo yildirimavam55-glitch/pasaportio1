@@ -543,6 +543,7 @@ export type Database = {
           install_info: Json
           order_item_id: string | null
           package_label: string | null
+          provider_reference: string | null
           qr_payload: string | null
           remaining_data_mb: number | null
           status: string
@@ -561,6 +562,7 @@ export type Database = {
           install_info?: Json
           order_item_id?: string | null
           package_label?: string | null
+          provider_reference?: string | null
           qr_payload?: string | null
           remaining_data_mb?: number | null
           status?: string
@@ -579,6 +581,7 @@ export type Database = {
           install_info?: Json
           order_item_id?: string | null
           package_label?: string | null
+          provider_reference?: string | null
           qr_payload?: string | null
           remaining_data_mb?: number | null
           status?: string
@@ -2527,6 +2530,95 @@ export type Database = {
         }
         Relationships: []
       }
+      provisioning_units: {
+        Row: {
+          attempt_count: number
+          created_at: string
+          customer_esim_id: string | null
+          error_category: string | null
+          error_message: string | null
+          id: string
+          idempotency_key: string
+          last_attempt_at: string | null
+          order_id: string
+          order_item_id: string
+          provider_id: string | null
+          provider_order_status: string | null
+          provider_reference: string | null
+          service_type: Database["public"]["Enums"]["service_type"]
+          status: Database["public"]["Enums"]["provisioning_status"]
+          unit_index: number
+          updated_at: string
+        }
+        Insert: {
+          attempt_count?: number
+          created_at?: string
+          customer_esim_id?: string | null
+          error_category?: string | null
+          error_message?: string | null
+          id?: string
+          idempotency_key: string
+          last_attempt_at?: string | null
+          order_id: string
+          order_item_id: string
+          provider_id?: string | null
+          provider_order_status?: string | null
+          provider_reference?: string | null
+          service_type?: Database["public"]["Enums"]["service_type"]
+          status?: Database["public"]["Enums"]["provisioning_status"]
+          unit_index: number
+          updated_at?: string
+        }
+        Update: {
+          attempt_count?: number
+          created_at?: string
+          customer_esim_id?: string | null
+          error_category?: string | null
+          error_message?: string | null
+          id?: string
+          idempotency_key?: string
+          last_attempt_at?: string | null
+          order_id?: string
+          order_item_id?: string
+          provider_id?: string | null
+          provider_order_status?: string | null
+          provider_reference?: string | null
+          service_type?: Database["public"]["Enums"]["service_type"]
+          status?: Database["public"]["Enums"]["provisioning_status"]
+          unit_index?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "provisioning_units_customer_esim_id_fkey"
+            columns: ["customer_esim_id"]
+            isOneToOne: false
+            referencedRelation: "customer_esims"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "provisioning_units_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "provisioning_units_order_item_id_fkey"
+            columns: ["order_item_id"]
+            isOneToOne: false
+            referencedRelation: "order_items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "provisioning_units_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "providers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       refund_requests: {
         Row: {
           amount: number | null
@@ -3028,6 +3120,7 @@ export type Database = {
         | "MARGIN_BELOW_MINIMUM"
         | "REFUND_REQUEST"
         | "CATALOGUE_DROP_BLOCKED"
+        | "SUPPLIER_RESULT_UNKNOWN"
       app_role: "admin" | "customer"
       attribution_source:
         | "GOOGLE_ADS"
@@ -3088,6 +3181,13 @@ export type Database = {
         | "TOPUP"
         | "WEBHOOKS"
         | "BALANCE"
+      provisioning_status:
+        | "PENDING"
+        | "IN_PROGRESS"
+        | "PROVISIONED"
+        | "FAILED"
+        | "RESULT_UNKNOWN"
+        | "CANCELLED"
       refund_status: "REQUESTED" | "APPROVED" | "REJECTED" | "PROCESSED"
       service_type: "ESIM" | "LOUNGE" | "CAR_RENTAL" | "TRANSFER"
       sync_status:
@@ -3241,6 +3341,7 @@ export const Constants = {
         "MARGIN_BELOW_MINIMUM",
         "REFUND_REQUEST",
         "CATALOGUE_DROP_BLOCKED",
+        "SUPPLIER_RESULT_UNKNOWN",
       ],
       app_role: ["admin", "customer"],
       attribution_source: [
@@ -3308,6 +3409,14 @@ export const Constants = {
         "TOPUP",
         "WEBHOOKS",
         "BALANCE",
+      ],
+      provisioning_status: [
+        "PENDING",
+        "IN_PROGRESS",
+        "PROVISIONED",
+        "FAILED",
+        "RESULT_UNKNOWN",
+        "CANCELLED",
       ],
       refund_status: ["REQUESTED", "APPROVED", "REJECTED", "PROCESSED"],
       service_type: ["ESIM", "LOUNGE", "CAR_RENTAL", "TRANSFER"],
