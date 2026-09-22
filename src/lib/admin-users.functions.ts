@@ -84,9 +84,9 @@ export const inviteAdminUser = createServerFn({ method: "POST" })
       _token_hash: await newToken(),
     });
     if (error) throw new Error(error.message);
-    const result = result as { result: "GRANTED" | "PENDING" | "ALREADY_ADMIN" };
-    await audit(db, "ADMIN_ROLE_CHANGE", "auth_user", email, null, { outcome: result.result ?? result });
-    return result;
+    const outcome = result as { result: "GRANTED" | "PENDING" | "ALREADY_ADMIN" };
+    await audit(db, "ADMIN_ROLE_CHANGE", "auth_user", email, null, { outcome: outcome.result ?? outcome });
+    return outcome;
   });
 
 export const cancelAdminInvite = createServerFn({ method: "POST" })
@@ -96,6 +96,7 @@ export const cancelAdminInvite = createServerFn({ method: "POST" })
     const db = await adminDb(context as AdminCtx);
     const { error } = await db.rpc("cancel_admin_invitation", { _id: data.id });
     if (error) throw new Error(error.message);
+    await audit(db, "ADMIN_ROLE_CHANGE", "admin_invitation", data.id, { status: "PENDING" }, { status: "CANCELLED" });
     return { ok: true };
   });
 
