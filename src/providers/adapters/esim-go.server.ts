@@ -6,8 +6,8 @@
  */
 import type { CatalogueFetch } from "@/domain/providers/sync-engine";
 import { extractItemArray } from "@/domain/providers/esim-import";
-import { readSecret, requestJson } from "./http.server";
-import type { AdapterContext, CatalogueAdapter } from "./types";
+import { postJsonOnce, readSecret, requestJson } from "./http.server";
+import type { AdapterContext, CatalogueAdapter, EsimOrderLookup, EsimOrderRequest, EsimOrderResult } from "./types";
 
 export const ESIM_GO_DEFAULT_BASE_URL = "https://api.esim-go.com/v2.4";
 export const ESIM_GO_SECRET_NAME = "ESIM_GO_API_KEY";
