@@ -735,7 +735,14 @@ export const saveGuide = createServerFn({ method: "POST" })
       if (error) throw new Error(error.message);
     }
 
-    await audit(db, data.id ? "guide.update" : "guide.create", "guide", guideId, null, { slug });
+    await audit(
+      db,
+      data.id ? (payload.status === "PUBLISHED" ? "GUIDE_PUBLISH" : "GUIDE_UNPUBLISH") : payload.status === "PUBLISHED" ? "GUIDE_PUBLISH" : "guide.create",
+      "guide",
+      guideId,
+      null,
+      { slug, status: payload.status },
+    );
     return { id: guideId! };
   });
 

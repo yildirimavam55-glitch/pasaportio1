@@ -107,5 +107,7 @@ export const saveDeviceCompatibility = createServerFn({ method: "POST" })
       : context.supabase.from("esim_device_compatibility").upsert(payload, { onConflict: "brand,model" }).select("*").single();
     const { data: row, error } = await query;
     if (error) throw new Error(error.message);
+    const { audit } = await import("@/lib/admin-guard");
+    await audit(context.supabase, data.id ? "device.update" : "device.create", "esim_device_compatibility", (row as any).id, null, { brand, model, status: payload.status });
     return toRecord(row as Row);
   });

@@ -91,11 +91,25 @@ export const setProductEnabled = createServerFn({ method: "POST" })
   }))
   .handler(async ({ data, context }) => {
     await assertAdmin(context as never);
+    const { data: before } = await context.supabase
+      .from("service_products")
+      .select("customer_visible, name")
+      .eq("id", data.productId)
+      .maybeSingle();
     const { error } = await context.supabase
       .from("service_products")
       .update({ customer_visible: data.enabled })
       .eq("id", data.productId);
     if (error) throw new Error(error.message);
+    const { audit } = await import("@/lib/admin-guard");
+    await audit(
+      context.supabase,
+      data.enabled ? "PRODUCT_PUBLISH" : "PRODUCT_UNPUBLISH",
+      "service_product",
+      data.productId,
+      before ?? null,
+      { customer_visible: data.enabled },
+    );
     return { ok: true };
   });
 

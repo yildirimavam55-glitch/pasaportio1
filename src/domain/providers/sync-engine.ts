@@ -329,6 +329,18 @@ export function balanceHealth(amount: number | null | undefined, threshold: numb
   return amount <= threshold ? "LOW" : "HEALTHY";
 }
 
+/**
+ * A low balance opens exactly one operational alert per provider: repeated
+ * balance reads never create duplicate OPEN alerts.
+ */
+export function needsLowBalanceAlert(
+  amount: number | null | undefined,
+  threshold: number | null | undefined,
+  hasOpenAlert: boolean,
+): boolean {
+  return !hasOpenAlert && balanceHealth(amount, threshold) === "LOW";
+}
+
 /** Retry policy for 429/5xx/timeout. Retries stay idempotent (same external ids). */
 export function retryDelayMs(attempt: number, baseMs = 500, maxMs = 15_000): number {
   return Math.min(maxMs, baseMs * 2 ** attempt);

@@ -1,7 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-import { adminDb, type AdminCtx } from "@/lib/admin-guard";
+import { adminDb, audit, type AdminCtx } from "@/lib/admin-guard";
 
 export type AdminUserRow = {
   userId: string;
@@ -84,7 +84,9 @@ export const inviteAdminUser = createServerFn({ method: "POST" })
       _token_hash: await newToken(),
     });
     if (error) throw new Error(error.message);
-    return result as { result: "GRANTED" | "PENDING" | "ALREADY_ADMIN" };
+    const outcome = result as { result: "GRANTED" | "PENDING" | "ALREADY_ADMIN" };
+    await audit(db, "ADMIN_ROLE_CHANGE", "auth_user", email, null, { outcome: outcome.result ?? outcome });
+    return outcome;
   });
 
 export const cancelAdminInvite = createServerFn({ method: "POST" })
@@ -94,6 +96,7 @@ export const cancelAdminInvite = createServerFn({ method: "POST" })
     const db = await adminDb(context as AdminCtx);
     const { error } = await db.rpc("cancel_admin_invitation", { _id: data.id });
     if (error) throw new Error(error.message);
+    await audit(db, "ADMIN_ROLE_CHANGE", "admin_invitation", data.id, { status: "PENDING" }, { status: "CANCELLED" });
     return { ok: true };
   });
 
@@ -115,5 +118,6 @@ export const revokeAdminUser = createServerFn({ method: "POST" })
     const db = await adminDb(ctx);
     const { error } = await db.rpc("revoke_admin", { _user_id: data.userId });
     if (error) throw new Error(error.message);
+    await audit(db, "ADMIN_ROLE_CHANGE", "auth_user", data.userId, { role: "admin" }, { role: null });
     return { ok: true, selfRemoved: data.userId === ctx.userId };
   });
