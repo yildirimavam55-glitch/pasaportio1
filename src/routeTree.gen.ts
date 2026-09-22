@@ -20,6 +20,7 @@ import { Route as GuidesIndexRouteImport } from './routes/guides.index'
 import { Route as GuidesSlugRouteImport } from './routes/guides.$slug'
 import { Route as LoungeIndexRouteImport } from './routes/lounge.index'
 import { Route as LoungeSeceneklerRouteImport } from './routes/lounge.secenekler'
+import { Route as SitemapXmlRouteImport } from './routes/sitemap.xml'
 import { Route as AuthenticatedAccountIndexRouteImport } from './routes/_authenticated/account.index'
 import { Route as AuthenticatedAccountNotificationsRouteImport } from './routes/_authenticated/account.notifications'
 import { Route as AuthenticatedAccountProfileRouteImport } from './routes/_authenticated/account.profile'
@@ -117,6 +118,11 @@ const LoungeIndexRoute = LoungeIndexRouteImport.update({
 const LoungeSeceneklerRoute = LoungeSeceneklerRouteImport.update({
   id: '/lounge/secenekler',
   path: '/lounge/secenekler',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SitemapXmlRoute = SitemapXmlRouteImport.update({
+  id: '/sitemap/xml',
+  path: '/sitemap/xml',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedAccountIndexRoute =
@@ -385,6 +391,7 @@ export interface FileRoutesByFullPath {
   '/esim/ulkeler': typeof EsimUlkelerRoute
   '/guides/$slug': typeof GuidesSlugRoute
   '/lounge/secenekler': typeof LoungeSeceneklerRoute
+  '/sitemap/xml': typeof SitemapXmlRoute
   '/esim/': typeof EsimIndexRoute
   '/guides/': typeof GuidesIndexRoute
   '/lounge/': typeof LoungeIndexRoute
@@ -441,6 +448,7 @@ export interface FileRoutesByTo {
   '/esim/ulkeler': typeof EsimUlkelerRoute
   '/guides/$slug': typeof GuidesSlugRoute
   '/lounge/secenekler': typeof LoungeSeceneklerRoute
+  '/sitemap/xml': typeof SitemapXmlRoute
   '/esim': typeof EsimIndexRoute
   '/guides': typeof GuidesIndexRoute
   '/lounge': typeof LoungeIndexRoute
@@ -499,6 +507,7 @@ export interface FileRoutesById {
   '/esim/ulkeler': typeof EsimUlkelerRoute
   '/guides/$slug': typeof GuidesSlugRoute
   '/lounge/secenekler': typeof LoungeSeceneklerRoute
+  '/sitemap/xml': typeof SitemapXmlRoute
   '/esim/': typeof EsimIndexRoute
   '/guides/': typeof GuidesIndexRoute
   '/lounge/': typeof LoungeIndexRoute
@@ -557,6 +566,7 @@ export interface FileRouteTypes {
     | '/esim/ulkeler'
     | '/guides/$slug'
     | '/lounge/secenekler'
+    | '/sitemap/xml'
     | '/esim/'
     | '/guides/'
     | '/lounge/'
@@ -613,6 +623,7 @@ export interface FileRouteTypes {
     | '/esim/ulkeler'
     | '/guides/$slug'
     | '/lounge/secenekler'
+    | '/sitemap/xml'
     | '/esim'
     | '/guides'
     | '/lounge'
@@ -670,6 +681,7 @@ export interface FileRouteTypes {
     | '/esim/ulkeler'
     | '/guides/$slug'
     | '/lounge/secenekler'
+    | '/sitemap/xml'
     | '/esim/'
     | '/guides/'
     | '/lounge/'
@@ -728,6 +740,7 @@ export interface RootRouteChildren {
   EsimUlkelerRoute: typeof EsimUlkelerRoute
   GuidesSlugRoute: typeof GuidesSlugRoute
   LoungeSeceneklerRoute: typeof LoungeSeceneklerRoute
+  SitemapXmlRoute: typeof SitemapXmlRoute
   EsimIndexRoute: typeof EsimIndexRoute
   GuidesIndexRoute: typeof GuidesIndexRoute
   LoungeIndexRoute: typeof LoungeIndexRoute
@@ -811,6 +824,13 @@ declare module '@tanstack/react-router' {
       path: '/lounge/secenekler'
       fullPath: '/lounge/secenekler'
       preLoaderRoute: typeof LoungeSeceneklerRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sitemap/xml': {
+      id: '/sitemap/xml'
+      path: '/sitemap/xml'
+      fullPath: '/sitemap/xml'
+      preLoaderRoute: typeof SitemapXmlRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated/account/': {
@@ -1236,6 +1256,7 @@ const rootRouteChildren: RootRouteChildren = {
   EsimUlkelerRoute: EsimUlkelerRoute,
   GuidesSlugRoute: GuidesSlugRoute,
   LoungeSeceneklerRoute: LoungeSeceneklerRoute,
+  SitemapXmlRoute: SitemapXmlRoute,
   EsimIndexRoute: EsimIndexRoute,
   GuidesIndexRoute: GuidesIndexRoute,
   LoungeIndexRoute: LoungeIndexRoute,
