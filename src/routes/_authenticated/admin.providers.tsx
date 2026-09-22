@@ -130,6 +130,16 @@ function Providers() {
     },
     onError: (error: any) => toast.error(error?.message ?? "Senkron çalıştırılamadı."),
   });
+  /** Safe read-only balance check: never places an order. */
+  const checkBalance = useMutation({
+    mutationFn: (providerId: string) => refreshProviderBalance({ data: { providerId } }),
+    onSuccess: (result: any) => {
+      if (result.error) toast.error(result.error);
+      else toast.success(`Bakiye: ${result.amount} ${result.currency}`);
+      invalidate();
+    },
+    onError: (error: any) => toast.error(error?.message ?? "Bakiye okunamadı."),
+  });
   const cancelSync = useMutation({
     mutationFn: (providerId: string) => cancelProviderSync({ data: { providerId } }),
     onSuccess: (result: any) => {
@@ -154,6 +164,7 @@ function Providers() {
       autoSync: provider.autoSync,
       syncIntervalHours: provider.syncIntervalHours,
       lowBalanceThreshold: provider.lowBalanceThreshold ?? "",
+      maxCatalogueDropPercent: provider.maxCatalogueDropPercent ?? 20,
       baseUrl: provider.connection?.baseUrl ?? "",
       credentialSecretName: provider.credentialSecretName ?? "",
       environment: provider.connection?.environment ?? "production",
