@@ -65,6 +65,7 @@ function AuthPage() {
         void navigate({ to: target });
       }
     } catch (error) {
+      setTone("error");
       setMessage(error instanceof Error ? error.message : "Bir hata oluştu.");
     } finally {
       setBusy(false);
