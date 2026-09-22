@@ -12,7 +12,8 @@ import {
 import { GUIDES_COPY, countryIsoFromSlug } from "@/components/guides/copy";
 import { getGuideBySlug, getGuideDestinationHub } from "@/lib/guides.functions";
 import { useI18n } from "@/i18n";
-import { COUNTRIES, flagOf } from "@/domain/geo/countries";
+import { COUNTRIES } from "@/domain/geo/countries";
+import { CountryFlag } from "@/components/travel/CountryFlag";
 import type { Locale } from "@/domain/enums";
 
 /** A slug resolves either to a published guide or to a country guide hub. */
@@ -143,8 +144,10 @@ function CountryHub({
       <main className="mx-auto w-full max-w-5xl px-4 py-8 sm:px-6 sm:py-12">
         <Breadcrumbs current={name} />
         <h1 className="mt-4 font-display text-3xl font-bold sm:text-4xl">
-          <span aria-hidden="true">{flagOf(hub.countryIso)} </span>
-          {copy.countryHubTitle(name)}
+          <span className="inline-flex items-center gap-2 align-middle">
+            <CountryFlag iso={hub.countryIso} className="h-5 w-7" />
+            {copy.countryHubTitle(name)}
+          </span>
         </h1>
         <p className="mt-3 max-w-2xl text-sm leading-relaxed text-muted-foreground">
           {copy.countryHubLead(name)}
@@ -266,7 +269,7 @@ function GuideArticle({
                     key={`${stop.countryIso}-${index}`}
                     className="flex items-center gap-3 rounded-xl border border-border bg-card px-4 py-3 text-sm font-semibold"
                   >
-                    <span aria-hidden="true">{flagOf(stop.countryIso)}</span>
+                    <CountryFlag iso={stop.countryIso} className="h-3.5 w-5" />
                     {country?.name[locale] ?? stop.countryIso}
                   </li>
                 );
