@@ -154,5 +154,58 @@ export function createEsimGoAdapter(ctx: AdapterContext): CatalogueAdapter {
         currency: String(bundle["currency"] ?? "EUR").toUpperCase().slice(0, 3),
       };
     },
+    /**
+     * REAL supplier purchase — chargeable. Sent exactly once (no auto-retry) so
+     * a timeout can never turn into a second paid order.
+     */
+    async placeEsimOrder(input: EsimOrderRequest): Promise<EsimOrderResult> {
+      if (!secret()) return { ok: false, status: 0, timeout: false, error: "CREDENTIAL_REQUIRED" };
+      const result = await postJsonOnce(`${baseUrl}/orders`, {
+        headers: headers(),
+        body: {
+          type: "transaction",
+          assign: true,
+          // Provider-side idempotency/traceability reference.
+          referenceId: input.reference,
+          order: [{ type: "bundle", item: input.externalId, quantity: input.quantity }],
+        },
+      });
+      if (!result.ok) {
+        return { ok: false, status: result.status, timeout: result.timeout, error: result.error ?? `HTTP ${result.status}` };
+      }
+      if (!result.body || typeof result.body !== "object") {
+        return { ok: false, status: result.status, timeout: false, malformed: true, error: "MALFORMED_RESPONSE" };
+      }
+      const order = result.body as Record<string, unknown>;
+      const inline = assignmentsOf(order);
+      if (inline.length) return { ok: true, body: orderShape(order, inline) };
+      const reference = String(order["orderReference"] ?? order["reference"] ?? order["id"] ?? "");
+      if (!reference) return { ok: false, status: result.status, timeout: false, malformed: true, error: "MALFORMED_RESPONSE" };
+      const assignments = await requestJson(
+        `${baseUrl}/esims/assignments?reference=${encodeURIComponent(reference)}`,
+        { headers: headers(), retries: 2 },
+      );
+      return { ok: true, body: orderShape(order, assignmentsOf(assignments.body)) };
+    },
+    /** Read-only reconciliation. Never charges; resolves an unknown result. */
+    async fetchEsimOrder(reference: string): Promise<EsimOrderLookup> {
+      if (!secret()) return { found: false, conclusive: false, status: 0 };
+      const order = await requestJson(`${baseUrl}/orders/${encodeURIComponent(reference)}`, {
+        headers: headers(),
+        retries: 2,
+      });
+      if (!order.ok) {
+        // 404 is a conclusive "no such supplier order"; anything else is not.
+        return { found: false, conclusive: order.status === 404, status: order.status };
+      }
+      const row = (order.body && typeof order.body === "object" ? order.body : {}) as Record<string, unknown>;
+      const inline = assignmentsOf(row);
+      if (inline.length) return { found: true, body: orderShape(row, inline) };
+      const assignments = await requestJson(
+        `${baseUrl}/esims/assignments?reference=${encodeURIComponent(reference)}`,
+        { headers: headers(), retries: 2 },
+      );
+      return { found: true, body: orderShape(row, assignmentsOf(assignments.body)) };
+    },
   };
 }
