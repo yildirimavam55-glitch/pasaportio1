@@ -188,9 +188,10 @@ export function evaluateCatalogueDrop(input: {
   receivedCount: number;
   thresholdPercent?: number | null;
 }): DropGuardVerdict {
-  const threshold = Number.isFinite(Number(input.thresholdPercent))
-    ? Math.max(0, Number(input.thresholdPercent))
-    : DEFAULT_CATALOGUE_DROP_THRESHOLD_PERCENT;
+  const threshold =
+    input.thresholdPercent != null && Number.isFinite(Number(input.thresholdPercent))
+      ? Math.max(0, Number(input.thresholdPercent))
+      : DEFAULT_CATALOGUE_DROP_THRESHOLD_PERCENT;
   const previous =
     input.previousCount == null || !Number.isFinite(Number(input.previousCount)) || Number(input.previousCount) <= 0
       ? null
