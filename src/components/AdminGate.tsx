@@ -51,6 +51,7 @@ const groups: AdminGroup[] = [
     { to: "/admin/storefront/home", label: "Ana sayfa düzenleyici", icon: LayoutTemplate },
     { to: "/admin/storefront/navigation", label: "Menü & alt bilgi", icon: Menu },
     { to: "/admin/cms", label: "Sayfalar / CMS", icon: MonitorCog },
+    { to: "/admin/guides", label: "Rehberler", icon: BookOpen },
     { to: "/admin/media", label: "Medya", icon: Image },
     { to: "/admin/theme", label: "Tema", icon: Sparkles },
     { to: "/admin/destinations", label: "Destinasyonlar", icon: MapPin },
