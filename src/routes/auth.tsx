@@ -33,6 +33,7 @@ function AuthPage() {
   const [mode, setMode] = useState<"signin" | "signup" | "reset">("signin");
   const [showPassword, setShowPassword] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
+  const [tone, setTone] = useState<"error" | "info">("error");
   const [busy, setBusy] = useState(false);
   const [signedUp, setSignedUp] = useState(false);
   const [oauthBusy, setOauthBusy] = useState<"google" | "apple" | null>(null);
