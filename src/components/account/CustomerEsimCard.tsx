@@ -97,11 +97,12 @@ function displayInfo(esim: CustomerEsimRecord, locale: Locale) {
   const name = (country?.name[locale] ?? esim.destinationLabel ?? "").trim() || "eSIM";
   const flag = country ? `${flagOf(country.iso)} ` : "";
 
+  const structuredGb = info?.dataGb != null ? commercialDataGb(info.dataGb) : null;
   const dataMb =
     info?.unlimitedData || isUnlimitedEsim(esim.totalDataMb, esim.installInfo)
       ? null
-      : info?.dataGb != null
-        ? Math.round(commercialDataGb(info.dataGb) * 1024)
+      : structuredGb != null
+        ? Math.round(structuredGb * 1024)
         : esim.totalDataMb;
   const validityDays =
     info?.validityDays ??
