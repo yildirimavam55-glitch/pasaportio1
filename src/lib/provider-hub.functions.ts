@@ -25,7 +25,7 @@ async function audit(db: any, userId: string, action: string, entityId: string |
     action,
     entity_type: "providers",
     entity_id: entityId,
-    after_data: after as any,
+    after_data: redactSensitive(after) as any,
   });
 }
 

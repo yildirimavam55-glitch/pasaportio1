@@ -1,7 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-import { adminDb, type AdminCtx } from "@/lib/admin-guard";
+import { adminDb, audit, type AdminCtx } from "@/lib/admin-guard";
 
 export type AdminUserRow = {
   userId: string;
