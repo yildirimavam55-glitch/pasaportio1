@@ -409,3 +409,11 @@
 - [x] Abnormal catalogue drop guard (configurable %, default 20) + CATALOGUE_DROP_BLOCKED alert
 - [x] Low-balance threshold field + de-duplicated LOW_PROVIDER_BALANCE alert + safe balance read
 - [ ] Set a real low-balance threshold value (business decision, pending)
+
+## Admin Phase 2 — Security + audit log (done)
+- `esim_auto_publish` / Phase 1 architecture untouched. eSIM Go `low_balance_threshold` = 100 EUR (provider config, admin-editable).
+- Low-balance alerts deduped across manual balance refresh + sync (shared `needsLowBalanceAlert` rule).
+- Existing `log_admin_action` audit path wired into: admin role invite/revoke/cancel, provider create/import/test-catalogue hide, usage settings, device compatibility, test product publish/unpublish; guide publish/unpublish; provider balance/sync/cancel (pre-existing direct inserts fixed — they were silently blocked by RLS).
+- Secret redaction (`redactSensitive`) applied to every audit payload.
+- `getBusinessDashboard` enforces admin server-side (`assertAdmin`), as do provider hub + import functions (defense in depth with RLS).
+- Verified live: 2 balance checks → 2 audit rows, exactly 1 OPEN LOW_PROVIDER_BALANCE alert; non-admin calls rejected server-side.
