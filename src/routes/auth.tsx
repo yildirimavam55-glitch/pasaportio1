@@ -80,6 +80,7 @@ function AuthPage() {
         redirect_uri: `${window.location.origin}${target}`,
       });
       if (result.error) {
+        setTone("error");
         setMessage(
           provider === "google"
             ? "Google ile giriş şu anda yapılamadı."
