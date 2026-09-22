@@ -72,6 +72,14 @@ function emptyGuide(): AdminGuide {
 }
 
 function GuidesAdmin() {
+  return (
+    <AdminGate title="Rehberler">
+      <GuidesAdminContent />
+    </AdminGate>
+  );
+}
+
+function GuidesAdminContent() {
   const [editing, setEditing] = useState<AdminGuide | null>(null);
   const list = useQuery({ queryKey: ["admin-guides"], queryFn: () => listAdminGuides() });
 
@@ -85,7 +93,7 @@ function GuidesAdmin() {
   });
 
   return (
-    <AdminGate title="Rehberler">
+    <>
       <AdminPanel title="Travely Guides">
         <div className="flex items-center justify-between">
           <p className="text-[11px] text-muted-foreground">
@@ -146,7 +154,7 @@ function GuidesAdmin() {
           onClose={() => setEditing(null)}
         />
       ) : null}
-    </AdminGate>
+    </>
   );
 }
 
