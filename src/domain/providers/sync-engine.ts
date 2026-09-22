@@ -163,6 +163,92 @@ export function mapCoverageToCanonical(isos: string[]): { canonical: string[]; u
   return { canonical, unknown };
 }
 
+export const DEFAULT_CATALOGUE_DROP_THRESHOLD_PERCENT = 20;
+
+export type DropGuardVerdict = {
+  /** Previous known complete catalogue size, null when there is no baseline yet. */
+  previousCount: number | null;
+  receivedCount: number;
+  /** Positive percentage = shrink. Null when no baseline exists. */
+  dropPercent: number | null;
+  thresholdPercent: number;
+  /** True when the bulk missing-item deactivation pass must NOT run. */
+  blocked: boolean;
+};
+
+/**
+ * ABNORMAL CATALOGUE DROP CIRCUIT BREAKER.
+ *
+ * A *successful, complete* supplier response that is dramatically smaller than
+ * the last known good catalogue must never mass-deactivate the storefront.
+ * Small legitimate removals stay on the normal unavailable path.
+ */
+export function evaluateCatalogueDrop(input: {
+  previousCount: number | null | undefined;
+  receivedCount: number;
+  thresholdPercent?: number | null;
+}): DropGuardVerdict {
+  const threshold = Number.isFinite(Number(input.thresholdPercent))
+    ? Math.max(0, Number(input.thresholdPercent))
+    : DEFAULT_CATALOGUE_DROP_THRESHOLD_PERCENT;
+  const previous =
+    input.previousCount == null || !Number.isFinite(Number(input.previousCount)) || Number(input.previousCount) <= 0
+      ? null
+      : Number(input.previousCount);
+  const received = Math.max(0, Number(input.receivedCount) || 0);
+
+  if (previous == null) {
+    return { previousCount: null, receivedCount: received, dropPercent: null, thresholdPercent: threshold, blocked: false };
+  }
+  const dropPercent = Math.round(((previous - received) / previous) * 10000) / 100;
+  return {
+    previousCount: previous,
+    receivedCount: received,
+    dropPercent,
+    thresholdPercent: threshold,
+    blocked: dropPercent > threshold,
+  };
+}
+
+export type PricingRuleRow = {
+  id: string;
+  provider_id?: string | null;
+  service_type?: string | null;
+  priority?: number | null;
+  active?: boolean | null;
+  strategy?: string | null;
+  markup_percent?: number | string | null;
+  fixed_markup?: number | string | null;
+  minimum_margin_percent?: number | string | null;
+  rounding_mode?: string | null;
+  currency?: string | null;
+};
+
+/**
+ * Deterministic rule precedence (most specific wins):
+ * provider+service > provider > service > global default.
+ * Within the same specificity the lowest `priority` number wins.
+ */
+export function selectPricingRule<T extends PricingRuleRow>(
+  rules: T[],
+  scope: { providerId: string; serviceType: string },
+): T | null {
+  const specificity = (rule: T) => {
+    const providerMatch = rule.provider_id === scope.providerId;
+    const serviceMatch = rule.service_type === scope.serviceType;
+    if (rule.provider_id && !providerMatch) return -1;
+    if (rule.service_type && !serviceMatch) return -1;
+    if (providerMatch && serviceMatch) return 4;
+    if (providerMatch) return 3;
+    if (serviceMatch) return 2;
+    return 1;
+  };
+  const candidates = rules
+    .filter((rule) => rule.active !== false && specificity(rule) > 0)
+    .sort((a, b) => specificity(b) - specificity(a) || (Number(a.priority ?? 0) - Number(b.priority ?? 0)));
+  return candidates[0] ?? null;
+}
+
 export type SyncOutcome = "SUCCESS" | "SUCCESS_WITH_WARNINGS" | "PARTIAL" | "FAILED";
 
 export type SyncAccounting = {
