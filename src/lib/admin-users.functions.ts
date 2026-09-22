@@ -84,7 +84,9 @@ export const inviteAdminUser = createServerFn({ method: "POST" })
       _token_hash: await newToken(),
     });
     if (error) throw new Error(error.message);
-    return result as { result: "GRANTED" | "PENDING" | "ALREADY_ADMIN" };
+    const result = result as { result: "GRANTED" | "PENDING" | "ALREADY_ADMIN" };
+    await audit(db, "ADMIN_ROLE_CHANGE", "auth_user", email, null, { outcome: result.result ?? result });
+    return result;
   });
 
 export const cancelAdminInvite = createServerFn({ method: "POST" })
