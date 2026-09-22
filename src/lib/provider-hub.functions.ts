@@ -7,7 +7,8 @@ import { createServerFn } from "@tanstack/react-start";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { ADAPTER_TYPES } from "@/providers/adapters/types";
-import { balanceHealth, isCatalogueStale, normalizeInterval } from "@/domain/providers/sync-engine";
+import { balanceHealth, isCatalogueStale, needsLowBalanceAlert, normalizeInterval } from "@/domain/providers/sync-engine";
+import { redactSensitive } from "@/lib/admin-guard";
 import { sanitizeAuthType, sanitizeEndpoints, sanitizeFieldMap } from "@/domain/providers/field-mapping";
 
 type Ctx = { supabase: any; userId: string };
