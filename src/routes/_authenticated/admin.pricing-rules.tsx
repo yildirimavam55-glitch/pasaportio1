@@ -9,6 +9,7 @@ import { adminHead } from "@/components/admin/AdminSectionPage";
 import { Button } from "@/components/ui/button";
 import { archivePricingRule, listPricingRules, savePricingRule } from "@/lib/admin-catalog.functions";
 import { itemMargin } from "@/domain/finance/formulas";
+import { applyRounding, type RoundingMode } from "@/domain/pricing";
 
 export const Route = createFileRoute("/_authenticated/admin/pricing-rules")({
   head: () => adminHead("Fiyatlandırma kuralları", "Kâr marjı ve fiyat kuralları."),
@@ -28,7 +29,15 @@ type Draft = {
   priority: number;
 };
 
-const emptyDraft = (): Draft => ({ id: null, name: "", serviceType: "", strategy: "MARKUP_PERCENT", markupPercent: "30", fixedMarkup: "", minimumMarginPercent: "15", roundingMode: "NONE", active: true, priority: 0 });
+const emptyDraft = (): Draft => ({ id: null, name: "", serviceType: "ESIM", strategy: "MARKUP_PERCENT", markupPercent: "35", fixedMarkup: "", minimumMarginPercent: "", roundingMode: "NEAREST_99", active: true, priority: 100 });
+
+const ROUNDING_LABELS: Record<string, string> = {
+  NONE: "Yuvarlama yok",
+  TWO_DECIMALS: "2 ondalık",
+  INTEGER: "Tam sayıya yukarı",
+  NEAREST_99: "… ,99 ile bitir",
+  NEAREST_95: "… ,95 ile bitir",
+};
 
 function PricingRules() {
   const queryClient = useQueryClient();
@@ -61,12 +70,14 @@ function PricingRules() {
     onError: (error: Error) => toast.error(error.message),
   });
 
-  const rows = (list.data ?? []) as any[];
+  const rows = ((list.data as any)?.rules ?? []) as any[];
+  const reviewCount = Number((list.data as any)?.pricingReviewRequired ?? 0);
   const cost = Number(sampleCost) || 0;
-  const previewPrice = !draft ? 0
+  const rawPreview = !draft ? 0
     : draft.strategy === "FIXED_MARKUP" ? cost + (Number(draft.fixedMarkup) || 0)
     : draft.strategy === "MARKUP_PERCENT" ? cost * (1 + (Number(draft.markupPercent) || 0) / 100)
     : cost;
+  const previewPrice = applyRounding(rawPreview, (draft?.roundingMode ?? "TWO_DECIMALS") as RoundingMode);
   const preview = itemMargin(previewPrice, cost);
   const minimum = draft?.minimumMarginPercent === "" ? null : Number(draft?.minimumMarginPercent);
 
@@ -96,7 +107,12 @@ function PricingRules() {
                   })}
                 >
                   <strong>{row.name}</strong>
-                  <span className="ml-2 text-muted-foreground">{row.service_type ?? "Tüm servisler"} · {row.strategy}</span>
+                  <span className="ml-2 text-muted-foreground">
+                    {row.service_type ?? "Tüm servisler"} · {row.strategy === "MARKUP_PERCENT" ? `%${row.markup_percent ?? "—"} kâr` : row.strategy === "FIXED_MARKUP" ? `+${money(Number(row.fixed_markup ?? 0))}` : row.strategy}
+                    {" · "}{ROUNDING_LABELS[row.rounding_mode] ?? row.rounding_mode}
+                    {" · "}öncelik {row.priority ?? 0}
+                    {" · "}{row.productCount ?? 0} ürün
+                  </span>
                 </button>
                 <StatusBadge value={row.active ? "ACTIVE" : "PAUSED"} />
                 <button type="button" className="size-7 rounded hover:bg-secondary" aria-label="Arşivle" onClick={() => { if (confirm("Kural arşivlensin mi?")) archive.mutate(row.id); }}><Archive className="mx-auto size-3.5" /></button>
@@ -104,7 +120,15 @@ function PricingRules() {
             ))}
           </div>
         )}
-        <p className="mt-3 text-[11px] text-muted-foreground">Bir üründe elle girilmiş fiyat varsa kural onu sessizce değiştirmez; manuel fiyat her zaman korunur.</p>
+        <p className="mt-3 text-[11px] text-muted-foreground">
+          Öncelik sırası: ürün bazlı manuel fiyat → provider + servis kuralı → provider kuralı → servis kuralı → varsayılan kural. Aynı seviyede en küçük öncelik numarası kazanır.
+          Bir üründe elle girilmiş fiyat varsa kural onu sessizce değiştirmez; manuel fiyat her zaman korunur.
+        </p>
+        {reviewCount > 0 && (
+          <p className="mt-2 rounded-md border border-warning/50 bg-sand-soft/60 p-2 text-[11px] font-semibold">
+            {reviewCount} ürün fiyat incelemesi bekliyor: geçerli bir kural bulunamadığı için fiyatları değiştirilmedi ve yayınlanmadı.
+          </p>
+        )}
       </AdminPanel>
 
       <AdminDrawer open={Boolean(draft)} title={draft?.id ? "Kuralı düzenle" : "Yeni kural"} onClose={() => setDraft(null)}>
@@ -130,10 +154,11 @@ function PricingRules() {
             <Field label="Minimum marj (%)"><input type="number" step="0.1" className="admin-field mt-1 w-full" value={draft.minimumMarginPercent} onChange={(event) => setDraft({ ...draft, minimumMarginPercent: event.target.value })} /></Field>
             <Field label="Yuvarlama">
               <select className="admin-field mt-1 w-full" value={draft.roundingMode} onChange={(event) => setDraft({ ...draft, roundingMode: event.target.value })}>
+                <option value="NEAREST_99">… ,99 ile bitir</option>
+                <option value="NEAREST_95">… ,95 ile bitir</option>
+                <option value="TWO_DECIMALS">2 ondalık</option>
+                <option value="INTEGER">Tam sayıya yukarı</option>
                 <option value="NONE">Yuvarlama yok</option>
-                <option value="NEAREST">En yakın tam sayı</option>
-                <option value="UP">Yukarı yuvarla</option>
-                <option value="DOWN">Aşağı yuvarla</option>
               </select>
             </Field>
             <Field label="Öncelik"><input type="number" className="admin-field mt-1 w-full" value={draft.priority} onChange={(event) => setDraft({ ...draft, priority: Number(event.target.value) || 0 })} /></Field>

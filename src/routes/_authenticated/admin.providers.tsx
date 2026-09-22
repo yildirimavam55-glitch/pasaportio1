@@ -18,6 +18,7 @@ import {
   getProviderPriceHistory,
   getProviderSyncErrors,
   cancelProviderSync,
+  refreshProviderBalance,
   saveProvider,
   syncProviderNow,
   testProviderConnection,
@@ -41,6 +42,7 @@ const emptyDraft = {
   autoSync: true,
   syncIntervalHours: 24,
   lowBalanceThreshold: "" as string | number,
+  maxCatalogueDropPercent: 20 as string | number,
   baseUrl: "",
   credentialSecretName: "",
   environment: "production" as "production" | "sandbox",
@@ -128,6 +130,16 @@ function Providers() {
     },
     onError: (error: any) => toast.error(error?.message ?? "Senkron çalıştırılamadı."),
   });
+  /** Safe read-only balance check: never places an order. */
+  const checkBalance = useMutation({
+    mutationFn: (providerId: string) => refreshProviderBalance({ data: { providerId } }),
+    onSuccess: (result: any) => {
+      if (result.error) toast.error(result.error);
+      else toast.success(`Bakiye: ${result.amount} ${result.currency}`);
+      invalidate();
+    },
+    onError: (error: any) => toast.error(error?.message ?? "Bakiye okunamadı."),
+  });
   const cancelSync = useMutation({
     mutationFn: (providerId: string) => cancelProviderSync({ data: { providerId } }),
     onSuccess: (result: any) => {
@@ -152,6 +164,7 @@ function Providers() {
       autoSync: provider.autoSync,
       syncIntervalHours: provider.syncIntervalHours,
       lowBalanceThreshold: provider.lowBalanceThreshold ?? "",
+      maxCatalogueDropPercent: provider.maxCatalogueDropPercent ?? 20,
       baseUrl: provider.connection?.baseUrl ?? "",
       credentialSecretName: provider.credentialSecretName ?? "",
       environment: provider.connection?.environment ?? "production",
@@ -193,7 +206,10 @@ function Providers() {
                       Son başarılı: {dt(provider.connection?.lastSuccessAt)} · Son deneme: {dt(provider.connection?.lastAttemptAt)} · Sıradaki: {dt(provider.connection?.nextSyncAt)}
                     </p>
                     <p className="mt-1 text-xs text-muted-foreground">
-                      Bakiye: {provider.balance ? `${money(provider.balance.amount, provider.balance.currency)} (${provider.balance.health === "LOW" ? "Düşük" : "Sağlıklı"})` : "Bilinmiyor"}
+                      Bakiye: {provider.balance ? `${money(provider.balance.amount, provider.balance.currency)} (${provider.balance.health === "LOW" ? "Düşük" : provider.lowBalanceThreshold == null ? "Eşik tanımsız" : "Sağlıklı"})` : "Bilinmiyor"}
+                      {provider.balance?.checkedAt ? ` · Son kontrol: ${dt(provider.balance.checkedAt)}` : ""}
+                      {` · Düşük bakiye eşiği: ${provider.lowBalanceThreshold == null ? "tanımlı değil" : money(Number(provider.lowBalanceThreshold), provider.currency)}`}
+                      {` · Kabul edilen katalog küçülme sınırı: %${provider.maxCatalogueDropPercent ?? 20}`}
                     </p>
                     <p className="mt-1 text-xs text-muted-foreground">
                       Yeni {provider.changeSummary.newProducts} · Fiyat ↑{provider.changeSummary.priceIncreases} ↓{provider.changeSummary.priceDecreases} · Kapanan {provider.changeSummary.removed} · Dönen {provider.changeSummary.returnedProducts} · İnceleme {provider.changeSummary.needsReview}
@@ -213,6 +229,7 @@ function Providers() {
                         </Button>
                       )}
                       <Button size="sm" variant="outline" disabled={test.isPending} onClick={() => test.mutate(provider.id)}>Bağlantıyı test et</Button>
+                      <Button size="sm" variant="outline" disabled={checkBalance.isPending} onClick={() => checkBalance.mutate(provider.id)}>Bakiyeyi kontrol et</Button>
                       <Button size="sm" variant="outline" onClick={() => openEdit(provider)}>Ayarlar</Button>
                       <Button size="sm" variant="outline" onClick={() => { setDetailId(provider.id); setDetailTab("runs"); }}>Değişiklikler ve hatalar</Button>
                     </div>
@@ -251,7 +268,8 @@ function Providers() {
             </div>
             <div className="grid grid-cols-2 gap-3">
               <Field label="Minimum marj (%)"><Input type="number" value={draft.minimumMarginPercent} onChange={(event) => setDraft({ ...draft, minimumMarginPercent: event.target.value })} /></Field>
-              <Field label="Düşük bakiye eşiği"><Input type="number" value={draft.lowBalanceThreshold} onChange={(event) => setDraft({ ...draft, lowBalanceThreshold: event.target.value })} /></Field>
+              <Field label="Düşük bakiye eşiği" hint="Bakiye bu tutarın altına düştüğünde tek bir operasyon uyarısı açılır."><Input type="number" value={draft.lowBalanceThreshold} onChange={(event) => setDraft({ ...draft, lowBalanceThreshold: event.target.value })} /></Field>
+              <Field label="Kabul edilen katalog küçülme sınırı (%)" hint="Tedarikçi kataloğu bu orandan fazla küçülürse toplu pasife alma durdurulur."><Input type="number" value={draft.maxCatalogueDropPercent} onChange={(event) => setDraft({ ...draft, maxCatalogueDropPercent: event.target.value })} /></Field>
             </div>
             <Field label="API adresi" hint="https:// ile başlamalı."><Input value={draft.baseUrl} onChange={(event) => setDraft({ ...draft, baseUrl: event.target.value })} placeholder="https://api.saglayici.com/v1" /></Field>
             <Field label="API anahtarı referansı" hint="Yalnızca ad. Değer sunucudaki güvenli ayarlara girilir.">
@@ -338,6 +356,11 @@ function Providers() {
                     {run.items_received} alındı · {run.items_created} yeni · {run.items_updated} güncellendi · {run.items_unchanged} değişmedi · {run.items_unavailable} kapandı · {run.items_returned} döndü · {run.price_changes} fiyat · {run.coverage_changes} kapsama · {run.items_failed} hata
                   </p>
                   <p className="mt-1 text-muted-foreground">Tam katalog: {run.complete ? "evet" : "hayır"} · Tetikleyici: {run.trigger}</p>
+                  {run.deactivation_blocked && (
+                    <p className="mt-2 rounded-md border border-destructive/50 bg-destructive/10 p-2 font-semibold text-destructive">
+                      ⚠️ Tedarikçi katalog boyutu beklenmedik şekilde değişti · Önceki: {run.previous_item_count ?? "—"} · Alınan: {run.items_received} · Fark: {run.previous_item_count == null ? "—" : `-${run.previous_item_count - run.items_received} / -%${run.drop_percent}`} · Katalog pasifleştirme inceleme bekliyor, mevcut ürünler korundu.
+                    </p>
+                  )}
                   {run.error_summary && <p className="mt-1 text-destructive">{run.error_summary}</p>}
                 </div>
               ))}</div>

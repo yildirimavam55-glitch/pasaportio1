@@ -17,6 +17,7 @@ import {
   balanceHealth,
   classifyItem,
   computeCostChange,
+  evaluateCatalogueDrop,
   isCatalogueStale,
   isSyncDue,
   mapCoverageToCanonical,
@@ -24,6 +25,7 @@ import {
   normalizeInterval,
   resolveMissingItems,
   resolveSyncStatus,
+  selectPricingRule,
   type CatalogueChange,
   type CatalogueSnapshotItem,
 } from "@/domain/providers/sync-engine";
@@ -71,16 +73,25 @@ async function adminDb(): Promise<Db> {
   return (mod as any).supabaseAdmin;
 }
 
-function pricingFromRule(rule: any, providerCurrency: string, providerMinMargin: number | null): PricingInput {
-  if (!rule) {
-    return {
-      strategy: "MARKUP_PERCENT",
-      markupPercent: 35,
-      minimumMarginPercent: providerMinMargin,
-      roundingMode: "NEAREST_99",
-      currency: providerCurrency,
-    };
-  }
+/**
+ * Pricing is ADMIN-OWNED configuration held in `pricing_rules`. There is no
+ * hidden business fallback: when no valid rule resolves, pricing is UNRESOLVED
+ * and the caller must neither reprice nor publish the affected products.
+ */
+export function pricingFromRule(
+  rule: any,
+  providerCurrency: string,
+  providerMinMargin: number | null,
+): PricingInput | null {
+  if (!rule) return null;
+  const markupPercent = rule.markup_percent == null ? null : Number(rule.markup_percent);
+  const fixedMarkup = rule.fixed_markup == null ? null : Number(rule.fixed_markup);
+  const minMargin = rule.minimum_margin_percent == null ? null : Number(rule.minimum_margin_percent);
+  const usable =
+    (rule.strategy === "MARKUP_PERCENT" && markupPercent != null && Number.isFinite(markupPercent) && markupPercent >= 0) ||
+    (rule.strategy === "FIXED_MARKUP" && fixedMarkup != null && Number.isFinite(fixedMarkup) && fixedMarkup >= 0) ||
+    (rule.strategy === "MINIMUM_MARGIN" && minMargin != null && minMargin > 0 && minMargin < 100);
+  if (!usable) return null;
   return {
     strategy: rule.strategy,
     markupPercent: rule.markup_percent == null ? null : Number(rule.markup_percent),
@@ -133,7 +144,7 @@ export async function runProviderSync(
 
   const { data: provider } = await db
     .from("providers")
-    .select("id, code, name, service_type, adapter_type, currency, minimum_margin_percent, sync_interval_hours, low_balance_threshold, active")
+    .select("id, code, name, service_type, adapter_type, currency, minimum_margin_percent, sync_interval_hours, low_balance_threshold, max_catalogue_drop_percent, active")
     .eq("id", providerId)
     .maybeSingle();
   if (!provider) throw new Error("Provider bulunamadı.");
@@ -327,31 +338,75 @@ export async function runProviderSync(
 
   };
 
-  // Pricing rule + previous valid snapshot are loaded once per invocation.
-  const { data: rule } = await db
+  // Pricing rules + previous valid snapshot are loaded once per invocation.
+  // Precedence is deterministic: provider+service > provider > service > default.
+  const { data: ruleRows } = await db
     .from("pricing_rules")
-    .select("id, strategy, markup_percent, fixed_markup, minimum_margin_percent, rounding_mode, currency, priority")
-    .eq("active", true)
-    .or(`provider_id.eq.${providerId},service_type.eq.${provider.service_type}`)
-    .order("priority")
-    .limit(1)
-    .maybeSingle();
+    .select("id, name, provider_id, service_type, strategy, markup_percent, fixed_markup, minimum_margin_percent, rounding_mode, currency, priority, active")
+    .eq("active", true);
   const providerMinMargin = provider.minimum_margin_percent == null ? null : Number(provider.minimum_margin_percent);
-  const pricing = pricingFromRule(rule, provider.currency ?? "EUR", providerMinMargin);
+  const rule = selectPricingRule((ruleRows ?? []) as any[], {
+    providerId,
+    serviceType: String(provider.service_type),
+  }) as any;
+  const resolvedPricing = pricingFromRule(rule, provider.currency ?? "EUR", providerMinMargin);
+  /**
+   * SAFE FAILURE MODE. With no valid pricing rule the supplier catalogue is
+   * still imported (supplier layer must stay complete), but no customer price
+   * is derived from supplier cost: sale prices are left untouched, products are
+   * flagged for pricing review, and nothing is published.
+   */
+  const pricingUnresolved = resolvedPricing == null;
+  const pricing: PricingInput = resolvedPricing ?? {
+    strategy: "MARKUP_PERCENT",
+    markupPercent: 0,
+    minimumMarginPercent: providerMinMargin,
+    roundingMode: "NEAREST_99",
+    currency: (provider.currency ?? "EUR") as string,
+  };
+  if (pricingUnresolved) {
+    await db.from("ops_alerts").insert({
+      type: "PROVIDER_ERROR",
+      severity: "ERROR",
+      message: `${provider.name}: geçerli bir fiyat kuralı bulunamadı. Ürünler fiyat incelemesine alındı, fiyat ve yayın durumu değiştirilmedi.`,
+      entity_type: "providers",
+      entity_id: providerId,
+      context: { reason: "PRICING_REVIEW_REQUIRED", trigger },
+    });
+  }
+
+  /** Full price traceability for every calculation, stored on the product. */
+  const pricingSnapshot = (item: PricedItem) => ({
+    providerCost: item.providerCost,
+    providerCurrency: item.providerCurrency,
+    pricingRuleId: rule?.id ?? null,
+    pricingRuleName: rule?.name ?? null,
+    strategy: pricing.strategy,
+    markupPercent: pricing.markupPercent ?? null,
+    fixedMarkup: pricing.fixedMarkup ?? null,
+    minimumMarginPercent: pricing.minimumMarginPercent ?? null,
+    roundingMode: pricing.roundingMode,
+    currency: pricing.currency,
+    salePrice: item.salePrice,
+    marginPercent: item.marginPercent,
+    calculatedAt: new Date().toISOString(),
+    syncRunId: runId,
+  });
 
   /**
-   * Admin-controlled publishing rule. When enabled, a synced product that meets
-   * every quality gate becomes customer visible; a DRAFT is never promoted while
-   * the flag is off, and nothing published by an Admin is ever un-published here.
+   * Admin-controlled publishing rule. The flag must be EXPLICITLY enabled — a
+   * missing flag never means "publish the whole supplier catalogue". A DRAFT is
+   * never promoted while the flag is off, and nothing published by an Admin is
+   * ever un-published here.
    */
   const { data: publishFlag } = await db
     .from("feature_flags")
     .select("enabled")
     .eq("key", "esim_auto_publish")
     .maybeSingle();
-  const autoPublish = publishFlag?.enabled !== false;
+  const autoPublish = publishFlag?.enabled === true;
   const publishable = (item: PricedItem, coverage: string[]) =>
-    autoPublish && coverage.length > 0 && item.salePrice > 0 && !item.belowMinimumMargin;
+    autoPublish && !pricingUnresolved && coverage.length > 0 && item.salePrice > 0 && !item.belowMinimumMargin;
 
   const [{ data: rawRows }, { data: mappingRows }] = await Promise.all([
     db.from("provider_raw_items").select("external_id, payload_hash, available").eq("provider_id", providerId),
@@ -530,8 +585,12 @@ export async function runProviderSync(
               ...providerOwned,
               name: item.name,
               currency: pricing.currency,
-              sale_price: item.salePrice,
+              // No valid pricing rule -> no price is invented from supplier cost.
+              sale_price: pricingUnresolved ? null : item.salePrice,
               pricing_rule_id: rule?.id ?? null,
+              pricing_review_required: pricingUnresolved,
+              priced_at: pricingUnresolved ? null : new Date().toISOString(),
+              pricing_snapshot: pricingUnresolved ? null : (pricingSnapshot(item) as any),
               lifecycle: publishable(item, storedCoverage) ? "PUBLISHED" : "DRAFT",
               customer_visible: publishable(item, storedCoverage),
               margin_flagged: item.belowMinimumMargin,
@@ -559,9 +618,17 @@ export async function runProviderSync(
 
           const patch: Record<string, unknown> = { ...providerOwned, margin_flagged: item.belowMinimumMargin };
           // Admin-owned fields are never touched by a sync.
-          if (!current?.price_overridden) {
+          // Unresolved pricing keeps the last known valid sale price and only
+          // raises the review flag — it never reprices and never sells at cost.
+          if (pricingUnresolved) {
+            patch["pricing_review_required"] = true;
+          } else if (!current?.price_overridden) {
             patch["sale_price"] = item.salePrice;
             patch["currency"] = pricing.currency;
+            patch["pricing_rule_id"] = rule?.id ?? null;
+            patch["pricing_review_required"] = false;
+            patch["priced_at"] = new Date().toISOString();
+            patch["pricing_snapshot"] = pricingSnapshot(item) as any;
           }
           // Publishing rule: only an eligible DRAFT is promoted. PAUSED, ARCHIVED
           // and Admin-published states are left exactly as the Admin set them.
@@ -829,6 +896,73 @@ export async function runProviderSync(
     });
   }
 
+  /**
+   * ABNORMAL CATALOGUE DROP CIRCUIT BREAKER.
+   *
+   * A complete, successful response that is dramatically smaller than the last
+   * known good catalogue must never mass-deactivate the storefront. Imported
+   * new/changed data stays; only the bulk missing-item pass is blocked, and the
+   * run is reported for review with an operational alert.
+   */
+  let dropVerdict = evaluateCatalogueDrop({ previousCount: null, receivedCount: receivedTotal });
+  if (complete && missing.length) {
+    const { data: lastGood } = await db
+      .from("provider_sync_runs")
+      .select("items_received")
+      .eq("provider_id", providerId)
+      .eq("complete", true)
+      .eq("deactivation_blocked", false)
+      .in("status", ["SUCCESS", "SUCCESS_WITH_WARNINGS"])
+      .neq("id", runId)
+      .order("started_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    dropVerdict = evaluateCatalogueDrop({
+      previousCount: lastGood?.items_received ?? null,
+      receivedCount: receivedTotal,
+      thresholdPercent: provider.max_catalogue_drop_percent,
+    });
+
+    if (dropVerdict.blocked) {
+      const detail = `Önceki ${dropVerdict.previousCount} · alınan ${receivedTotal} · fark -${(dropVerdict.previousCount ?? 0) - receivedTotal} / -%${dropVerdict.dropPercent}`;
+      await db.from("provider_sync_errors").insert({
+        provider_id: providerId,
+        sync_run_id: runId,
+        code: "CATALOGUE_DROP_BLOCKED",
+        message: `Tedarikçi katalog boyutu beklenmedik şekilde küçüldü. ${detail}. Toplu pasife alma engellendi.`,
+      });
+      await db.from("ops_alerts").insert({
+        type: "CATALOGUE_DROP_BLOCKED",
+        severity: "ERROR",
+        message: `${provider.name}: tedarikçi katalog boyutu beklenmedik şekilde küçüldü. ${detail}. Katalog pasifleştirme inceleme bekliyor.`,
+        entity_type: "providers",
+        entity_id: providerId,
+        context: {
+          previousCount: dropVerdict.previousCount,
+          receivedCount: receivedTotal,
+          dropPercent: dropVerdict.dropPercent,
+          thresholdPercent: dropVerdict.thresholdPercent,
+          wouldDeactivate: missing.length,
+          trigger,
+        },
+      });
+      // Previous storefront availability stays exactly as it is.
+      missing = [];
+    }
+  }
+
+  if (runId) {
+    await db
+      .from("provider_sync_runs")
+      .update({
+        previous_item_count: dropVerdict.previousCount,
+        drop_percent: dropVerdict.dropPercent,
+        deactivation_blocked: dropVerdict.blocked,
+      })
+      .eq("id", runId);
+  }
+
   if (missing.length) {
     for (let i = 0; i < missing.length; i += 200) {
       const slice = missing.slice(i, i + 200);
@@ -866,14 +1000,25 @@ export async function runProviderSync(
           })
           .eq("id", providerId);
         if (balanceHealth(balance.amount, provider.low_balance_threshold == null ? null : Number(provider.low_balance_threshold)) === "LOW") {
-          await db.from("ops_alerts").insert({
-            type: "LOW_PROVIDER_BALANCE",
-            severity: "WARNING",
-            message: `${provider.name}: provider bakiyesi eşiğin altında (${balance.amount} ${balance.currency}).`,
-            entity_type: "providers",
-            entity_id: providerId,
-            context: { amount: balance.amount, currency: balance.currency },
-          });
+          // Deduped: one open low-balance alert per provider, never one per sync.
+          const { data: openAlert } = await db
+            .from("ops_alerts")
+            .select("id")
+            .eq("type", "LOW_PROVIDER_BALANCE")
+            .eq("entity_id", providerId)
+            .eq("status", "OPEN")
+            .limit(1)
+            .maybeSingle();
+          if (!openAlert) {
+            await db.from("ops_alerts").insert({
+              type: "LOW_PROVIDER_BALANCE",
+              severity: "WARNING",
+              message: `${provider.name}: provider bakiyesi eşiğin altında (${balance.amount} ${balance.currency}).`,
+              entity_type: "providers",
+              entity_id: providerId,
+              context: { amount: balance.amount, currency: balance.currency, threshold: provider.low_balance_threshold },
+            });
+          }
         }
       }
     } catch {

@@ -2351,6 +2351,8 @@ export type Database = {
           completed_at: string | null
           connection_id: string | null
           coverage_changes: number
+          deactivation_blocked: boolean
+          drop_percent: number | null
           error_summary: string | null
           id: string
           idempotency_key: string | null
@@ -2367,6 +2369,7 @@ export type Database = {
           items_unchanged: number
           items_updated: number
           last_checkpoint_at: string | null
+          previous_item_count: number | null
           price_changes: number
           provider_id: string
           started_at: string
@@ -2380,6 +2383,8 @@ export type Database = {
           completed_at?: string | null
           connection_id?: string | null
           coverage_changes?: number
+          deactivation_blocked?: boolean
+          drop_percent?: number | null
           error_summary?: string | null
           id?: string
           idempotency_key?: string | null
@@ -2396,6 +2401,7 @@ export type Database = {
           items_unchanged?: number
           items_updated?: number
           last_checkpoint_at?: string | null
+          previous_item_count?: number | null
           price_changes?: number
           provider_id: string
           started_at?: string
@@ -2409,6 +2415,8 @@ export type Database = {
           completed_at?: string | null
           connection_id?: string | null
           coverage_changes?: number
+          deactivation_blocked?: boolean
+          drop_percent?: number | null
           error_summary?: string | null
           id?: string
           idempotency_key?: string | null
@@ -2425,6 +2433,7 @@ export type Database = {
           items_unchanged?: number
           items_updated?: number
           last_checkpoint_at?: string | null
+          previous_item_count?: number | null
           price_changes?: number
           provider_id?: string
           started_at?: string
@@ -2463,6 +2472,7 @@ export type Database = {
           currency: string
           id: string
           low_balance_threshold: number | null
+          max_catalogue_drop_percent: number
           minimum_margin_percent: number | null
           name: string
           notes: string | null
@@ -2484,6 +2494,7 @@ export type Database = {
           currency?: string
           id?: string
           low_balance_threshold?: number | null
+          max_catalogue_drop_percent?: number
           minimum_margin_percent?: number | null
           name: string
           notes?: string | null
@@ -2505,6 +2516,7 @@ export type Database = {
           currency?: string
           id?: string
           low_balance_threshold?: number | null
+          max_catalogue_drop_percent?: number
           minimum_margin_percent?: number | null
           name?: string
           notes?: string | null
@@ -2674,7 +2686,10 @@ export type Database = {
           margin_flagged: boolean
           name: string
           price_overridden: boolean
+          priced_at: string | null
+          pricing_review_required: boolean
           pricing_rule_id: string | null
+          pricing_snapshot: Json | null
           primary_provider_id: string | null
           provider_available: boolean
           provider_cost: number | null
@@ -2702,7 +2717,10 @@ export type Database = {
           margin_flagged?: boolean
           name: string
           price_overridden?: boolean
+          priced_at?: string | null
+          pricing_review_required?: boolean
           pricing_rule_id?: string | null
+          pricing_snapshot?: Json | null
           primary_provider_id?: string | null
           provider_available?: boolean
           provider_cost?: number | null
@@ -2730,7 +2748,10 @@ export type Database = {
           margin_flagged?: boolean
           name?: string
           price_overridden?: boolean
+          priced_at?: string | null
+          pricing_review_required?: boolean
           pricing_rule_id?: string | null
+          pricing_snapshot?: Json | null
           primary_provider_id?: string | null
           provider_available?: boolean
           provider_cost?: number | null
@@ -3006,6 +3027,7 @@ export type Database = {
         | "LOW_PROVIDER_BALANCE"
         | "MARGIN_BELOW_MINIMUM"
         | "REFUND_REQUEST"
+        | "CATALOGUE_DROP_BLOCKED"
       app_role: "admin" | "customer"
       attribution_source:
         | "GOOGLE_ADS"
@@ -3218,6 +3240,7 @@ export const Constants = {
         "LOW_PROVIDER_BALANCE",
         "MARGIN_BELOW_MINIMUM",
         "REFUND_REQUEST",
+        "CATALOGUE_DROP_BLOCKED",
       ],
       app_role: ["admin", "customer"],
       attribution_source: [

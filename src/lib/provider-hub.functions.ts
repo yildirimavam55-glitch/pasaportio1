@@ -40,7 +40,7 @@ export const getProviderHub = createServerFn({ method: "GET" })
       db.from("provider_connections").select("*"),
       db
         .from("provider_sync_runs")
-        .select("id, provider_id, status, trigger, started_at, completed_at, items_received, items_created, items_updated, items_unchanged, items_unavailable, items_returned, items_failed, price_changes, coverage_changes, complete, error_summary, checkpoint_page, items_processed, last_checkpoint_at")
+        .select("id, provider_id, status, trigger, started_at, completed_at, items_received, items_created, items_updated, items_unchanged, items_unavailable, items_returned, items_failed, price_changes, coverage_changes, complete, error_summary, checkpoint_page, items_processed, last_checkpoint_at, previous_item_count, drop_percent, deactivation_blocked")
         .order("started_at", { ascending: false })
         .limit(100),
       db.from("provider_catalogue_changes").select("provider_id, change_type, needs_review, created_at").order("created_at", { ascending: false }).limit(1000),
@@ -74,6 +74,7 @@ export const getProviderHub = createServerFn({ method: "GET" })
         autoSync: provider.auto_sync,
         syncIntervalHours: normalizeInterval(provider.sync_interval_hours),
         lowBalanceThreshold: provider.low_balance_threshold,
+        maxCatalogueDropPercent: provider.max_catalogue_drop_percent == null ? null : Number(provider.max_catalogue_drop_percent),
         balance:
           provider.balance_amount == null
             ? null
@@ -212,6 +213,10 @@ function parseProviderInput(input: any) {
     autoSync: input?.autoSync !== false,
     syncIntervalHours: normalizeInterval(input?.syncIntervalHours),
     lowBalanceThreshold: input?.lowBalanceThreshold == null || input.lowBalanceThreshold === "" ? null : Number(input.lowBalanceThreshold),
+    maxCatalogueDropPercent:
+      input?.maxCatalogueDropPercent == null || input.maxCatalogueDropPercent === ""
+        ? 20
+        : Math.min(100, Math.max(0, Number(input.maxCatalogueDropPercent))),
     baseUrl: input?.baseUrl ? String(input.baseUrl).trim().slice(0, 300) : null,
     credentialSecretName: String(input?.credentialSecretName ?? "").trim().toUpperCase().replace(/[^A-Z0-9_]/g, "").slice(0, 80),
     environment: input?.environment === "production" ? "production" : "sandbox",
@@ -247,6 +252,7 @@ export const saveProvider = createServerFn({ method: "POST" })
       auto_sync: data.autoSync,
       sync_interval_hours: data.syncIntervalHours,
       low_balance_threshold: data.lowBalanceThreshold,
+      max_catalogue_drop_percent: data.maxCatalogueDropPercent,
       capabilities: data.adapterType === "NATIVE_ESIM_GO" ? ["CATALOGUE", "REAL_TIME_AVAILABILITY", "BALANCE"] : ["CATALOGUE"],
     };
 
@@ -312,6 +318,51 @@ export const testProviderConnection = createServerFn({ method: "POST" })
         .eq("id", connection.id);
     }
     return result;
+  });
+
+/**
+ * SAFE balance read. Calls the provider's balance endpoint only — it never
+ * places an order, never provisions, and never touches the catalogue.
+ */
+export const refreshProviderBalance = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: { providerId: string }) => ({ providerId: String(input?.providerId ?? "") }))
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context as Ctx);
+    const db = (context as Ctx).supabase;
+    const { data: provider } = await db
+      .from("providers")
+      .select("id, code, name, adapter_type, currency, low_balance_threshold")
+      .eq("id", data.providerId)
+      .maybeSingle();
+    if (!provider) throw new Error("Provider bulunamadı.");
+    const { data: connection } = await db
+      .from("provider_connections")
+      .select("id, base_url, credential_secret_names, config, environment")
+      .eq("provider_id", provider.id)
+      .order("created_at")
+      .limit(1)
+      .maybeSingle();
+
+    const { buildAdapter } = await import("@/providers/adapters/factory.server");
+    const adapter = buildAdapter(provider, connection ?? null);
+    if (!adapter.fetchBalance) return { supported: false as const, amount: null, currency: null, checkedAt: null, error: "Bu provider bakiye sorgusunu desteklemiyor." };
+    try {
+      const balance = await adapter.fetchBalance();
+      if (!balance) return { supported: true as const, amount: null, currency: null, checkedAt: null, error: "Bakiye okunamadı." };
+      const checkedAt = new Date().toISOString();
+      await db
+        .from("providers")
+        .update({ balance_amount: balance.amount, balance_currency: balance.currency, balance_checked_at: checkedAt })
+        .eq("id", provider.id);
+      await audit(db, (context as Ctx).userId, "provider.balance_checked", provider.id, {
+        amount: balance.amount,
+        currency: balance.currency,
+      });
+      return { supported: true as const, amount: balance.amount, currency: balance.currency, checkedAt, error: null };
+    } catch (error) {
+      return { supported: true as const, amount: null, currency: null, checkedAt: null, error: (error as Error).message };
+    }
   });
 
 /**
