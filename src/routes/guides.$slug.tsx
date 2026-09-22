@@ -36,7 +36,7 @@ export const Route = createFileRoute("/guides/$slug")({
     return entry;
   },
   head: ({ loaderData }) => {
-    if (!loaderData || loaderData.kind === "MISSING") {
+    if (!loaderData) {
       return {
         meta: [{ title: "Rehber bulunamadı — Travely" }, { name: "robots", content: "noindex" }],
       };

@@ -12,8 +12,8 @@ const escape = (value: string) =>
 
 async function buildSitemap(): Promise<string> {
   const { createClient } = await import("@supabase/supabase-js");
-  const url = process.env.VITE_SUPABASE_URL;
-  const key = process.env.VITE_SUPABASE_PUBLISHABLE_KEY ?? process.env.VITE_SUPABASE_ANON_KEY;
+  const url = process.env["VITE_SUPABASE_URL"];
+  const key = process.env["VITE_SUPABASE_PUBLISHABLE_KEY"] ?? process.env["VITE_SUPABASE_ANON_KEY"];
   const urls: Array<{ loc: string; lastmod?: string }> = [
     { loc: `${BASE}/guides` },
   ];

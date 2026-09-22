@@ -117,7 +117,10 @@ function OfferCard({ offer }: { offer: GuideServiceOffer }) {
             {copy.esimCta}
           </Link>
         ) : (
-          <Link to="/lounge/secenekler" search={{ iata: offer.code }}>
+          <Link
+            to="/lounge/secenekler"
+            search={{ airport: "", iata: offer.code, date: "", situation: "DEPARTURE", travelers: 1 }}
+          >
             {copy.loungeCta}
           </Link>
         )}
