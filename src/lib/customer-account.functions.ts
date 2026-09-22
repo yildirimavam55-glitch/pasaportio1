@@ -242,7 +242,9 @@ export const getCustomerEsimDetail = createServerFn({ method: "GET" })
     if (error) throw new Error("eSIM bilgisi yüklenemedi.");
     if (!row) return null;
 
-    const esim = toEsimRecord(row as unknown as Record<string, any>);
+    const esimRow = row as unknown as Record<string, any>;
+    const detailsById = await loadProductInfo(context.supabase, [esimRow]);
+    const esim = toEsimRecord(esimRow, detailsById);
 
     let orderRef: { id: string; orderNumber: string; createdAt: string } | null = null;
     let purchase: {
