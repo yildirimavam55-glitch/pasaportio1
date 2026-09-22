@@ -61,6 +61,25 @@ function normalizeBundle(row: Record<string, unknown>): Record<string, unknown> 
 }
 
 
+/** Provider payload → the shape the provisioning engine normalizes. */
+function orderShape(order: Record<string, unknown>, assignments: unknown[]): Record<string, unknown> {
+  return {
+    orderReference: order["orderReference"] ?? order["reference"] ?? order["id"],
+    status: order["status"],
+    esims: assignments,
+  };
+}
+
+function assignmentsOf(body: unknown): unknown[] {
+  if (!body || typeof body !== "object") return [];
+  const root = body as Record<string, unknown>;
+  for (const key of ["esims", "assignments", "items"]) {
+    const value = root[key];
+    if (Array.isArray(value)) return value;
+  }
+  return [];
+}
+
 export function createEsimGoAdapter(ctx: AdapterContext): CatalogueAdapter {
   const baseUrl = ctx.baseUrl || ESIM_GO_DEFAULT_BASE_URL;
   const secretName = ctx.credentialSecretName || ESIM_GO_SECRET_NAME;
@@ -69,7 +88,7 @@ export function createEsimGoAdapter(ctx: AdapterContext): CatalogueAdapter {
 
   return {
     type: "NATIVE_ESIM_GO",
-    capabilities: ["CATALOGUE", "REAL_TIME_AVAILABILITY", "VALIDATE", "BALANCE"],
+    capabilities: ["CATALOGUE", "REAL_TIME_AVAILABILITY", "VALIDATE", "BALANCE", "ORDER", "QR_OR_VOUCHER"],
     hasCredential: () => Boolean(secret()),
     async testConnection() {
       if (!secret()) {
