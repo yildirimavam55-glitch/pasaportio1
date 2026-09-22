@@ -16,6 +16,8 @@ import { Route as SepetRouteImport } from './routes/sepet'
 import { Route as EsimIndexRouteImport } from './routes/esim.index'
 import { Route as EsimPaketlerRouteImport } from './routes/esim.paketler'
 import { Route as EsimUlkelerRouteImport } from './routes/esim.ulkeler'
+import { Route as GuidesIndexRouteImport } from './routes/guides.index'
+import { Route as GuidesSlugRouteImport } from './routes/guides.$slug'
 import { Route as LoungeIndexRouteImport } from './routes/lounge.index'
 import { Route as LoungeSeceneklerRouteImport } from './routes/lounge.secenekler'
 import { Route as AuthenticatedAccountIndexRouteImport } from './routes/_authenticated/account.index'
@@ -94,6 +96,16 @@ const EsimPaketlerRoute = EsimPaketlerRouteImport.update({
 const EsimUlkelerRoute = EsimUlkelerRouteImport.update({
   id: '/esim/ulkeler',
   path: '/esim/ulkeler',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GuidesIndexRoute = GuidesIndexRouteImport.update({
+  id: '/guides/',
+  path: '/guides/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GuidesSlugRoute = GuidesSlugRouteImport.update({
+  id: '/guides/$slug',
+  path: '/guides/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LoungeIndexRoute = LoungeIndexRouteImport.update({
@@ -364,8 +376,10 @@ export interface FileRoutesByFullPath {
   '/sepet': typeof SepetRoute
   '/esim/paketler': typeof EsimPaketlerRoute
   '/esim/ulkeler': typeof EsimUlkelerRoute
+  '/guides/$slug': typeof GuidesSlugRoute
   '/lounge/secenekler': typeof LoungeSeceneklerRoute
   '/esim/': typeof EsimIndexRoute
+  '/guides/': typeof GuidesIndexRoute
   '/lounge/': typeof LoungeIndexRoute
   '/account/notifications': typeof AuthenticatedAccountNotificationsRoute
   '/account/profile': typeof AuthenticatedAccountProfileRoute
@@ -417,8 +431,10 @@ export interface FileRoutesByTo {
   '/sepet': typeof SepetRoute
   '/esim/paketler': typeof EsimPaketlerRoute
   '/esim/ulkeler': typeof EsimUlkelerRoute
+  '/guides/$slug': typeof GuidesSlugRoute
   '/lounge/secenekler': typeof LoungeSeceneklerRoute
   '/esim': typeof EsimIndexRoute
+  '/guides': typeof GuidesIndexRoute
   '/lounge': typeof LoungeIndexRoute
   '/account/notifications': typeof AuthenticatedAccountNotificationsRoute
   '/account/profile': typeof AuthenticatedAccountProfileRoute
@@ -472,8 +488,10 @@ export interface FileRoutesById {
   '/sepet': typeof SepetRoute
   '/esim/paketler': typeof EsimPaketlerRoute
   '/esim/ulkeler': typeof EsimUlkelerRoute
+  '/guides/$slug': typeof GuidesSlugRoute
   '/lounge/secenekler': typeof LoungeSeceneklerRoute
   '/esim/': typeof EsimIndexRoute
+  '/guides/': typeof GuidesIndexRoute
   '/lounge/': typeof LoungeIndexRoute
   '/_authenticated/account/notifications': typeof AuthenticatedAccountNotificationsRoute
   '/_authenticated/account/profile': typeof AuthenticatedAccountProfileRoute
@@ -527,8 +545,10 @@ export interface FileRouteTypes {
     | '/sepet'
     | '/esim/paketler'
     | '/esim/ulkeler'
+    | '/guides/$slug'
     | '/lounge/secenekler'
     | '/esim/'
+    | '/guides/'
     | '/lounge/'
     | '/account/notifications'
     | '/account/profile'
@@ -580,8 +600,10 @@ export interface FileRouteTypes {
     | '/sepet'
     | '/esim/paketler'
     | '/esim/ulkeler'
+    | '/guides/$slug'
     | '/lounge/secenekler'
     | '/esim'
+    | '/guides'
     | '/lounge'
     | '/account/notifications'
     | '/account/profile'
@@ -634,8 +656,10 @@ export interface FileRouteTypes {
     | '/sepet'
     | '/esim/paketler'
     | '/esim/ulkeler'
+    | '/guides/$slug'
     | '/lounge/secenekler'
     | '/esim/'
+    | '/guides/'
     | '/lounge/'
     | '/_authenticated/account/notifications'
     | '/_authenticated/account/profile'
@@ -689,8 +713,10 @@ export interface RootRouteChildren {
   SepetRoute: typeof SepetRoute
   EsimPaketlerRoute: typeof EsimPaketlerRoute
   EsimUlkelerRoute: typeof EsimUlkelerRoute
+  GuidesSlugRoute: typeof GuidesSlugRoute
   LoungeSeceneklerRoute: typeof LoungeSeceneklerRoute
   EsimIndexRoute: typeof EsimIndexRoute
+  GuidesIndexRoute: typeof GuidesIndexRoute
   LoungeIndexRoute: typeof LoungeIndexRoute
   ApiPublicProviderSyncRoute: typeof ApiPublicProviderSyncRoute
 }
@@ -744,6 +770,20 @@ declare module '@tanstack/react-router' {
       path: '/esim/ulkeler'
       fullPath: '/esim/ulkeler'
       preLoaderRoute: typeof EsimUlkelerRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/guides/': {
+      id: '/guides/'
+      path: '/guides'
+      fullPath: '/guides/'
+      preLoaderRoute: typeof GuidesIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/guides/$slug': {
+      id: '/guides/$slug'
+      path: '/guides/$slug'
+      fullPath: '/guides/$slug'
+      preLoaderRoute: typeof GuidesSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/lounge/': {
@@ -1172,8 +1212,10 @@ const rootRouteChildren: RootRouteChildren = {
   SepetRoute: SepetRoute,
   EsimPaketlerRoute: EsimPaketlerRoute,
   EsimUlkelerRoute: EsimUlkelerRoute,
+  GuidesSlugRoute: GuidesSlugRoute,
   LoungeSeceneklerRoute: LoungeSeceneklerRoute,
   EsimIndexRoute: EsimIndexRoute,
+  GuidesIndexRoute: GuidesIndexRoute,
   LoungeIndexRoute: LoungeIndexRoute,
   ApiPublicProviderSyncRoute: ApiPublicProviderSyncRoute,
 }

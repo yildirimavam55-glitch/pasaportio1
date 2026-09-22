@@ -1104,6 +1104,283 @@ export type Database = {
         }
         Relationships: []
       }
+      guide_categories: {
+        Row: {
+          active: boolean
+          created_at: string
+          icon: string
+          id: string
+          labels: Json
+          slug: string
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          icon?: string
+          id?: string
+          labels?: Json
+          slug: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          icon?: string
+          id?: string
+          labels?: Json
+          slug?: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      guide_relations: {
+        Row: {
+          airport_iata: string | null
+          city_name: string | null
+          country_iso: string | null
+          created_at: string
+          cta_enabled: boolean
+          guide_id: string
+          id: string
+          meta: Json
+          product_id: string | null
+          region_id: string | null
+          relation_type: string
+          route_id: string | null
+          service_type: Database["public"]["Enums"]["service_type"] | null
+          sort_order: number
+        }
+        Insert: {
+          airport_iata?: string | null
+          city_name?: string | null
+          country_iso?: string | null
+          created_at?: string
+          cta_enabled?: boolean
+          guide_id: string
+          id?: string
+          meta?: Json
+          product_id?: string | null
+          region_id?: string | null
+          relation_type: string
+          route_id?: string | null
+          service_type?: Database["public"]["Enums"]["service_type"] | null
+          sort_order?: number
+        }
+        Update: {
+          airport_iata?: string | null
+          city_name?: string | null
+          country_iso?: string | null
+          created_at?: string
+          cta_enabled?: boolean
+          guide_id?: string
+          id?: string
+          meta?: Json
+          product_id?: string | null
+          region_id?: string | null
+          relation_type?: string
+          route_id?: string | null
+          service_type?: Database["public"]["Enums"]["service_type"] | null
+          sort_order?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "guide_relations_guide_id_fkey"
+            columns: ["guide_id"]
+            isOneToOne: false
+            referencedRelation: "guides"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "guide_relations_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "service_products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "guide_relations_region_id_fkey"
+            columns: ["region_id"]
+            isOneToOne: false
+            referencedRelation: "regions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "guide_relations_route_id_fkey"
+            columns: ["route_id"]
+            isOneToOne: false
+            referencedRelation: "guide_routes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      guide_routes: {
+        Row: {
+          active: boolean
+          country_isos: string[]
+          created_at: string
+          id: string
+          labels: Json
+          slug: string
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          country_isos?: string[]
+          created_at?: string
+          id?: string
+          labels?: Json
+          slug: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          country_isos?: string[]
+          created_at?: string
+          id?: string
+          labels?: Json
+          slug?: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      guide_translations: {
+        Row: {
+          created_at: string
+          excerpt: string | null
+          faq: Json
+          guide_id: string
+          id: string
+          intro: string | null
+          locale: Database["public"]["Enums"]["locale_code"]
+          sections: Json
+          seo_description: string | null
+          seo_title: string | null
+          slug: string
+          title: string
+          translation_status: Database["public"]["Enums"]["content_status"]
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          excerpt?: string | null
+          faq?: Json
+          guide_id: string
+          id?: string
+          intro?: string | null
+          locale: Database["public"]["Enums"]["locale_code"]
+          sections?: Json
+          seo_description?: string | null
+          seo_title?: string | null
+          slug: string
+          title: string
+          translation_status?: Database["public"]["Enums"]["content_status"]
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          excerpt?: string | null
+          faq?: Json
+          guide_id?: string
+          id?: string
+          intro?: string | null
+          locale?: Database["public"]["Enums"]["locale_code"]
+          sections?: Json
+          seo_description?: string | null
+          seo_title?: string | null
+          slug?: string
+          title?: string
+          translation_status?: Database["public"]["Enums"]["content_status"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "guide_translations_guide_id_fkey"
+            columns: ["guide_id"]
+            isOneToOne: false
+            referencedRelation: "guides"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      guides: {
+        Row: {
+          category_id: string | null
+          content_type: string
+          created_at: string
+          created_by: string | null
+          featured: boolean
+          hero_alt: string | null
+          hero_image_url: string | null
+          hero_media_id: string | null
+          id: string
+          published_at: string | null
+          reading_minutes: number | null
+          slug: string
+          sort_order: number
+          status: Database["public"]["Enums"]["content_status"]
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          category_id?: string | null
+          content_type?: string
+          created_at?: string
+          created_by?: string | null
+          featured?: boolean
+          hero_alt?: string | null
+          hero_image_url?: string | null
+          hero_media_id?: string | null
+          id?: string
+          published_at?: string | null
+          reading_minutes?: number | null
+          slug: string
+          sort_order?: number
+          status?: Database["public"]["Enums"]["content_status"]
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          category_id?: string | null
+          content_type?: string
+          created_at?: string
+          created_by?: string | null
+          featured?: boolean
+          hero_alt?: string | null
+          hero_image_url?: string | null
+          hero_media_id?: string | null
+          id?: string
+          published_at?: string | null
+          reading_minutes?: number | null
+          slug?: string
+          sort_order?: number
+          status?: Database["public"]["Enums"]["content_status"]
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "guides_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "guide_categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "guides_hero_media_id_fkey"
+            columns: ["hero_media_id"]
+            isOneToOne: false
+            referencedRelation: "media_assets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       idempotency_keys: {
         Row: {
           created_at: string
