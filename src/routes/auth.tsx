@@ -181,6 +181,18 @@ function AuthPage() {
               ? "Bağlantıyı gönderebilmemiz için e-posta adresini yaz."
               : "Seyahatlerine ve hizmetlerine tek yerden ulaş."}
           </p>
+          {message && (
+            <p
+              role="status"
+              className={
+                tone === "error"
+                  ? "mt-4 rounded-xl border border-destructive/25 bg-destructive/10 p-3 text-sm font-medium text-destructive"
+                  : "mt-4 rounded-xl bg-secondary p-3 text-sm text-muted-foreground"
+              }
+            >
+              {message}
+            </p>
+          )}
           <form onSubmit={handleSubmit} className="mt-7 space-y-4">
             <label className="block text-sm font-semibold">
               E-posta
