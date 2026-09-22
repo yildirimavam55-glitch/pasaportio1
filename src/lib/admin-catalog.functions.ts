@@ -28,10 +28,29 @@ export const listPricingRules = createServerFn({ method: "GET" })
     const db = await adminDb(context as AdminCtx);
     const { data, error } = await db
       .from("pricing_rules")
-      .select("id, name, service_type, strategy, markup_percent, fixed_markup, minimum_margin_percent, rounding_mode, currency, active, priority")
+      .select("id, name, service_type, provider_id, strategy, markup_percent, fixed_markup, minimum_margin_percent, rounding_mode, currency, active, priority")
       .order("priority");
     if (error) throw new Error(error.message);
-    return data ?? [];
+    const rules = data ?? [];
+
+    // Affected product count per rule + how many products still await pricing review.
+    const counts = new Map<string, number>();
+    for (const rule of rules) {
+      const { count } = await db
+        .from("service_products")
+        .select("id", { count: "exact", head: true })
+        .eq("pricing_rule_id", rule.id);
+      counts.set(rule.id, count ?? 0);
+    }
+    const { count: reviewCount } = await db
+      .from("service_products")
+      .select("id", { count: "exact", head: true })
+      .eq("pricing_review_required", true);
+
+    return {
+      rules: rules.map((rule: any) => ({ ...rule, productCount: counts.get(rule.id) ?? 0 })),
+      pricingReviewRequired: reviewCount ?? 0,
+    };
   });
 
 export const updateProduct = createServerFn({ method: "POST" })
@@ -176,7 +195,10 @@ export const savePricingRule = createServerFn({ method: "POST" })
       markup_percent: data.markupPercent == null || data.markupPercent === ("" as any) ? null : Number(data.markupPercent),
       fixed_markup: data.fixedMarkup == null || data.fixedMarkup === ("" as any) ? null : Number(data.fixedMarkup),
       minimum_margin_percent: data.minimumMarginPercent == null || data.minimumMarginPercent === ("" as any) ? null : Number(data.minimumMarginPercent),
-      rounding_mode: data.roundingMode || "NONE",
+      // Only rounding modes the pricing engine actually implements are accepted.
+      rounding_mode: ["NONE", "NEAREST_99", "NEAREST_95", "INTEGER", "TWO_DECIMALS"].includes(String(data.roundingMode))
+        ? String(data.roundingMode)
+        : "TWO_DECIMALS",
       active: data.active !== false,
       priority: Number(data.priority) || 0,
     };

@@ -321,6 +321,51 @@ export const testProviderConnection = createServerFn({ method: "POST" })
   });
 
 /**
+ * SAFE balance read. Calls the provider's balance endpoint only — it never
+ * places an order, never provisions, and never touches the catalogue.
+ */
+export const refreshProviderBalance = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: { providerId: string }) => ({ providerId: String(input?.providerId ?? "") }))
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context as Ctx);
+    const db = (context as Ctx).supabase;
+    const { data: provider } = await db
+      .from("providers")
+      .select("id, code, name, adapter_type, currency, low_balance_threshold")
+      .eq("id", data.providerId)
+      .maybeSingle();
+    if (!provider) throw new Error("Provider bulunamadı.");
+    const { data: connection } = await db
+      .from("provider_connections")
+      .select("id, base_url, credential_secret_names, config, environment")
+      .eq("provider_id", provider.id)
+      .order("created_at")
+      .limit(1)
+      .maybeSingle();
+
+    const { buildAdapter } = await import("@/providers/adapters/factory.server");
+    const adapter = buildAdapter(provider, connection ?? null);
+    if (!adapter.fetchBalance) return { supported: false as const, amount: null, currency: null, checkedAt: null, error: "Bu provider bakiye sorgusunu desteklemiyor." };
+    try {
+      const balance = await adapter.fetchBalance();
+      if (!balance) return { supported: true as const, amount: null, currency: null, checkedAt: null, error: "Bakiye okunamadı." };
+      const checkedAt = new Date().toISOString();
+      await db
+        .from("providers")
+        .update({ balance_amount: balance.amount, balance_currency: balance.currency, balance_checked_at: checkedAt })
+        .eq("id", provider.id);
+      await audit(db, (context as Ctx).userId, "provider.balance_checked", provider.id, {
+        amount: balance.amount,
+        currency: balance.currency,
+      });
+      return { supported: true as const, amount: balance.amount, currency: balance.currency, checkedAt, error: null };
+    } catch (error) {
+      return { supported: true as const, amount: null, currency: null, checkedAt: null, error: (error as Error).message };
+    }
+  });
+
+/**
  * Manual "Sync Now". Catalogue only — no orders, no provisioning.
  *
  * Kill switch behaviour (documented, single rule): when the `provider.sync`
