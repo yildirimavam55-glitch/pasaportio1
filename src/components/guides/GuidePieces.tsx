@@ -10,7 +10,8 @@ import { ArrowRight, Clock3, Signal, Armchair } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { useI18n } from "@/i18n";
-import { COUNTRIES, flagOf, getCountryByIso } from "@/domain/geo/countries";
+import { COUNTRIES, getCountryByIso } from "@/domain/geo/countries";
+import { CountryFlag } from "@/components/travel/CountryFlag";
 import type { GuideListItem, GuideServiceOffer } from "@/lib/guides.functions";
 import { GUIDES_COPY, countrySlug } from "./copy";
 
@@ -61,9 +62,7 @@ export function GuideCard({ guide }: { guide: GuideListItem }) {
             </span>
           ) : null}
           {guide.countryIsos.slice(0, 4).map((iso) => (
-            <span key={iso} aria-hidden="true">
-              {flagOf(iso)}
-            </span>
+            <CountryFlag key={iso} iso={iso} className="h-3 w-4" />
           ))}
           <ArrowRight className="ml-auto size-4 text-primary transition group-hover:translate-x-0.5" />
         </div>
