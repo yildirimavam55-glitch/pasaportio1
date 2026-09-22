@@ -1,8 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
 
 /**
- * XML sitemap for Travely Guides. Serves at /sitemap.xml (filename keeps the
- * literal dot) — only published, customer-visible URLs, no drafts.
+ * XML sitemap for Travely Guides — served at /sitemap/xml (the route generator
+ * reads the filename dot as a segment, so the literal /sitemap.xml path is not
+ * available). Only published, customer-visible URLs, no drafts.
  */
 const BASE = "https://wanderlust-core.lovable.app";
 
