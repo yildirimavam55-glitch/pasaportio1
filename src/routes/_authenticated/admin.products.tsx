@@ -226,7 +226,8 @@ function ProductDrawer({ product, onClose }: { product: any; onClose: () => void
 
   if (!product || !form) return <AdminDrawer open={false} title="Ürün" onClose={onClose}><span /></AdminDrawer>;
 
-  const rule = (rules.data ?? []).find((row: any) => row.id === form.pricingRuleId);
+  const ruleRows = (((rules.data as any)?.rules ?? []) as any[]);
+  const rule = ruleRows.find((row: any) => row.id === form.pricingRuleId);
   const minimumMargin = rule?.minimum_margin_percent == null ? null : Number(rule.minimum_margin_percent);
   const margin = itemMargin(form.salePrice === "" ? 0 : Number(form.salePrice), Number(product.provider_cost ?? 0));
   const belowMinimum = minimumMargin != null && margin.percent != null && margin.percent < minimumMargin;
@@ -262,7 +263,7 @@ function ProductDrawer({ product, onClose }: { product: any; onClose: () => void
           <Field label="Fiyatlandırma kuralı">
             <select className="admin-field mt-1 w-full" value={form.pricingRuleId} onChange={(event) => set({ pricingRuleId: event.target.value })}>
               <option value="">Kural yok</option>
-              {(rules.data ?? []).map((row: any) => <option key={row.id} value={row.id}>{row.name} · {row.strategy}</option>)}
+              {ruleRows.map((row: any) => <option key={row.id} value={row.id}>{row.name} · {row.strategy}</option>)}
             </select>
           </Field>
           <div className="rounded-md border border-border p-3 text-xs">

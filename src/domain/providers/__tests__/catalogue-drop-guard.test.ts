@@ -6,7 +6,7 @@ import {
   selectPricingRule,
 } from "../sync-engine";
 
-const guard = (received: number, previous: number | null = 5434, threshold?: number) =>
+const guard = (received: number, previous: number | null = 5434, threshold: number | null = null) =>
   evaluateCatalogueDrop({ previousCount: previous, receivedCount: received, thresholdPercent: threshold });
 
 describe("abnormal catalogue drop guard", () => {
