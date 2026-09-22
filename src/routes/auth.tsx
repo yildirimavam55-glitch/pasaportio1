@@ -295,11 +295,6 @@ function AuthPage() {
           >
             {mode === "signin" ? "Hesabın yok mu? Kayıt ol" : "Giriş ekranına dön"}
           </button>
-          {message && (
-            <p role="status" className="mt-4 rounded-xl bg-secondary p-3 text-sm text-muted-foreground">
-              {message}
-            </p>
-          )}
         </div>
       </section>
     </main>
