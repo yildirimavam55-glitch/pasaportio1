@@ -295,10 +295,10 @@ export function PublicShell({
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-52">
                   <DropdownMenuItem asChild>
-                    <Link to="/hesabim">{copy.nav.account}</Link>
+                    <Link to="/account">{copy.nav.account}</Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem asChild>
-                    <Link to="/hesabim/seyahatler">{ACCOUNT_COPY[locale].trips}</Link>
+                    <Link to="/account/esims">{ACCOUNT_COPY[locale].trips}</Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem onSelect={() => void signOut()}>
                     <LogOut className="size-4" />
@@ -310,7 +310,7 @@ export function PublicShell({
               <Button asChild variant="ghost" size="icon" className="size-9 sm:size-10">
                 <Link
                   to="/auth"
-                  search={{ redirect: "/hesabim/seyahatler" }}
+                  search={{ redirect: "/account" }}
                   aria-label={copy.nav.account}
                 >
                   <UserRound className="size-[18px] sm:size-5" />
@@ -417,7 +417,7 @@ export function PublicShell({
                   {signedIn ? (
                     <>
                       <SheetClose asChild>
-                        <Link to="/hesabim" className="mobile-menu-link">
+                        <Link to="/account" className="mobile-menu-link">
                           {copy.nav.account}
                         </Link>
                       </SheetClose>
@@ -436,7 +436,7 @@ export function PublicShell({
                     <SheetClose asChild>
                       <Link
                         to="/auth"
-                        search={{ redirect: "/hesabim" }}
+                        search={{ redirect: "/account" }}
                         className="mobile-menu-link flex items-center gap-2"
                       >
                         <LogIn className="size-4" />

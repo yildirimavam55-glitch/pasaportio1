@@ -19,6 +19,10 @@ import { Route as EsimUlkelerRouteImport } from './routes/esim.ulkeler'
 import { Route as LoungeIndexRouteImport } from './routes/lounge.index'
 import { Route as LoungeSeceneklerRouteImport } from './routes/lounge.secenekler'
 import { Route as AuthenticatedAccountIndexRouteImport } from './routes/_authenticated/account.index'
+import { Route as AuthenticatedAccountNotificationsRouteImport } from './routes/_authenticated/account.notifications'
+import { Route as AuthenticatedAccountProfileRouteImport } from './routes/_authenticated/account.profile'
+import { Route as AuthenticatedAccountSecurityRouteImport } from './routes/_authenticated/account.security'
+import { Route as AuthenticatedAccountSupportRouteImport } from './routes/_authenticated/account.support'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin.index'
 import { Route as AuthenticatedAdminAirportsRouteImport } from './routes/_authenticated/admin.airports'
 import { Route as AuthenticatedAdminAlertsRouteImport } from './routes/_authenticated/admin.alerts'
@@ -106,6 +110,30 @@ const AuthenticatedAccountIndexRoute =
   AuthenticatedAccountIndexRouteImport.update({
     id: '/account/',
     path: '/account/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedAccountNotificationsRoute =
+  AuthenticatedAccountNotificationsRouteImport.update({
+    id: '/account/notifications',
+    path: '/account/notifications',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedAccountProfileRoute =
+  AuthenticatedAccountProfileRouteImport.update({
+    id: '/account/profile',
+    path: '/account/profile',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedAccountSecurityRoute =
+  AuthenticatedAccountSecurityRouteImport.update({
+    id: '/account/security',
+    path: '/account/security',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedAccountSupportRoute =
+  AuthenticatedAccountSupportRouteImport.update({
+    id: '/account/support',
+    path: '/account/support',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedAdminIndexRoute = AuthenticatedAdminIndexRouteImport.update({
@@ -339,6 +367,10 @@ export interface FileRoutesByFullPath {
   '/lounge/secenekler': typeof LoungeSeceneklerRoute
   '/esim/': typeof EsimIndexRoute
   '/lounge/': typeof LoungeIndexRoute
+  '/account/notifications': typeof AuthenticatedAccountNotificationsRoute
+  '/account/profile': typeof AuthenticatedAccountProfileRoute
+  '/account/security': typeof AuthenticatedAccountSecurityRoute
+  '/account/support': typeof AuthenticatedAccountSupportRoute
   '/admin/airports': typeof AuthenticatedAdminAirportsRoute
   '/admin/alerts': typeof AuthenticatedAdminAlertsRoute
   '/admin/analytics': typeof AuthenticatedAdminAnalyticsRoute
@@ -388,6 +420,10 @@ export interface FileRoutesByTo {
   '/lounge/secenekler': typeof LoungeSeceneklerRoute
   '/esim': typeof EsimIndexRoute
   '/lounge': typeof LoungeIndexRoute
+  '/account/notifications': typeof AuthenticatedAccountNotificationsRoute
+  '/account/profile': typeof AuthenticatedAccountProfileRoute
+  '/account/security': typeof AuthenticatedAccountSecurityRoute
+  '/account/support': typeof AuthenticatedAccountSupportRoute
   '/admin/airports': typeof AuthenticatedAdminAirportsRoute
   '/admin/alerts': typeof AuthenticatedAdminAlertsRoute
   '/admin/analytics': typeof AuthenticatedAdminAnalyticsRoute
@@ -439,6 +475,10 @@ export interface FileRoutesById {
   '/lounge/secenekler': typeof LoungeSeceneklerRoute
   '/esim/': typeof EsimIndexRoute
   '/lounge/': typeof LoungeIndexRoute
+  '/_authenticated/account/notifications': typeof AuthenticatedAccountNotificationsRoute
+  '/_authenticated/account/profile': typeof AuthenticatedAccountProfileRoute
+  '/_authenticated/account/security': typeof AuthenticatedAccountSecurityRoute
+  '/_authenticated/account/support': typeof AuthenticatedAccountSupportRoute
   '/_authenticated/admin/airports': typeof AuthenticatedAdminAirportsRoute
   '/_authenticated/admin/alerts': typeof AuthenticatedAdminAlertsRoute
   '/_authenticated/admin/analytics': typeof AuthenticatedAdminAnalyticsRoute
@@ -490,6 +530,10 @@ export interface FileRouteTypes {
     | '/lounge/secenekler'
     | '/esim/'
     | '/lounge/'
+    | '/account/notifications'
+    | '/account/profile'
+    | '/account/security'
+    | '/account/support'
     | '/admin/airports'
     | '/admin/alerts'
     | '/admin/analytics'
@@ -539,6 +583,10 @@ export interface FileRouteTypes {
     | '/lounge/secenekler'
     | '/esim'
     | '/lounge'
+    | '/account/notifications'
+    | '/account/profile'
+    | '/account/security'
+    | '/account/support'
     | '/admin/airports'
     | '/admin/alerts'
     | '/admin/analytics'
@@ -589,6 +637,10 @@ export interface FileRouteTypes {
     | '/lounge/secenekler'
     | '/esim/'
     | '/lounge/'
+    | '/_authenticated/account/notifications'
+    | '/_authenticated/account/profile'
+    | '/_authenticated/account/security'
+    | '/_authenticated/account/support'
     | '/_authenticated/admin/airports'
     | '/_authenticated/admin/alerts'
     | '/_authenticated/admin/analytics'
@@ -713,6 +765,34 @@ declare module '@tanstack/react-router' {
       path: '/account'
       fullPath: '/account/'
       preLoaderRoute: typeof AuthenticatedAccountIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/account/notifications': {
+      id: '/_authenticated/account/notifications'
+      path: '/account/notifications'
+      fullPath: '/account/notifications'
+      preLoaderRoute: typeof AuthenticatedAccountNotificationsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/account/profile': {
+      id: '/_authenticated/account/profile'
+      path: '/account/profile'
+      fullPath: '/account/profile'
+      preLoaderRoute: typeof AuthenticatedAccountProfileRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/account/security': {
+      id: '/_authenticated/account/security'
+      path: '/account/security'
+      fullPath: '/account/security'
+      preLoaderRoute: typeof AuthenticatedAccountSecurityRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/account/support': {
+      id: '/_authenticated/account/support'
+      path: '/account/support'
+      fullPath: '/account/support'
+      preLoaderRoute: typeof AuthenticatedAccountSupportRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/admin/': {
@@ -985,6 +1065,10 @@ declare module '@tanstack/react-router' {
 }
 
 interface AuthenticatedRouteRouteChildren {
+  AuthenticatedAccountNotificationsRoute: typeof AuthenticatedAccountNotificationsRoute
+  AuthenticatedAccountProfileRoute: typeof AuthenticatedAccountProfileRoute
+  AuthenticatedAccountSecurityRoute: typeof AuthenticatedAccountSecurityRoute
+  AuthenticatedAccountSupportRoute: typeof AuthenticatedAccountSupportRoute
   AuthenticatedAdminAirportsRoute: typeof AuthenticatedAdminAirportsRoute
   AuthenticatedAdminAlertsRoute: typeof AuthenticatedAdminAlertsRoute
   AuthenticatedAdminAnalyticsRoute: typeof AuthenticatedAdminAnalyticsRoute
@@ -1026,6 +1110,11 @@ interface AuthenticatedRouteRouteChildren {
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedAccountNotificationsRoute:
+    AuthenticatedAccountNotificationsRoute,
+  AuthenticatedAccountProfileRoute: AuthenticatedAccountProfileRoute,
+  AuthenticatedAccountSecurityRoute: AuthenticatedAccountSecurityRoute,
+  AuthenticatedAccountSupportRoute: AuthenticatedAccountSupportRoute,
   AuthenticatedAdminAirportsRoute: AuthenticatedAdminAirportsRoute,
   AuthenticatedAdminAlertsRoute: AuthenticatedAdminAlertsRoute,
   AuthenticatedAdminAnalyticsRoute: AuthenticatedAdminAnalyticsRoute,
