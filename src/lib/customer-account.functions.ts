@@ -177,9 +177,9 @@ export const getCustomerAccount = createServerFn({ method: "GET" })
       profileResult.error ?? esimsResult.error ?? loungesResult.error ?? ordersResult.error;
     if (error) throw new Error("Hesap bilgileri yüklenemedi.");
 
-    const esims: CustomerEsimRecord[] = (esimsResult.data ?? []).map((row) =>
-      toEsimRecord(row as unknown as Record<string, any>),
-    );
+    const esimRows = (esimsResult.data ?? []) as unknown as Record<string, any>[];
+    detailsById = await loadProductInfo(context.supabase, esimRows);
+    const esims: CustomerEsimRecord[] = esimRows.map((row) => toEsimRecord(row));
 
     return {
       profile: profileResult.data
