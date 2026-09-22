@@ -28,7 +28,15 @@ type Draft = {
   priority: number;
 };
 
-const emptyDraft = (): Draft => ({ id: null, name: "", serviceType: "", strategy: "MARKUP_PERCENT", markupPercent: "30", fixedMarkup: "", minimumMarginPercent: "15", roundingMode: "NONE", active: true, priority: 0 });
+const emptyDraft = (): Draft => ({ id: null, name: "", serviceType: "ESIM", strategy: "MARKUP_PERCENT", markupPercent: "35", fixedMarkup: "", minimumMarginPercent: "", roundingMode: "NEAREST_99", active: true, priority: 100 });
+
+const ROUNDING_LABELS: Record<string, string> = {
+  NONE: "Yuvarlama yok",
+  TWO_DECIMALS: "2 ondalık",
+  INTEGER: "Tam sayıya yukarı",
+  NEAREST_99: "… ,99 ile bitir",
+  NEAREST_95: "… ,95 ile bitir",
+};
 
 function PricingRules() {
   const queryClient = useQueryClient();
