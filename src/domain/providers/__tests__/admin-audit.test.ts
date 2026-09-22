@@ -32,18 +32,18 @@ describe("redactSensitive", () => {
       config: { api_key: "sk-123", base_url: "https://api", nested: { credentialSecretNames: ["ESIM_GO_API_KEY"] } },
     };
     const output = redactSensitive(input) as Record<string, any>;
-    expect(output.name).toBe("eSIM Go");
-    expect(output.config.base_url).toBe("https://api");
-    expect(output.config.api_key).toBe("[redacted]");
-    expect(output.config.nested.credentialSecretNames).toBe("[redacted]");
+    expect(output["name"]).toBe("eSIM Go");
+    expect(output["config"].base_url).toBe("https://api");
+    expect(output["config"].api_key).toBe("[redacted]");
+    expect(output["config"].nested.credentialSecretNames).toBe("[redacted]");
   });
 
   it("redacts activation credentials and bearer tokens", () => {
     const output = redactSensitive({ qrPayload: "LPA:1$...", authorization: "Bearer x", password: "p", note: "ok" }) as Record<string, any>;
-    expect(output.qrPayload).toBe("[redacted]");
-    expect(output.authorization).toBe("[redacted]");
-    expect(output.password).toBe("[redacted]");
-    expect(output.note).toBe("ok");
+    expect(output["qrPayload"]).toBe("[redacted]");
+    expect(output["authorization"]).toBe("[redacted]");
+    expect(output["password"]).toBe("[redacted]");
+    expect(output["note"]).toBe("ok");
   });
 
   it("passes through plain values and nulls", () => {
