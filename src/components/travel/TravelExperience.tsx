@@ -32,6 +32,7 @@ const ASSISTANT_COPY = {
   en: { open: "Not sure which package you need? Use the package assistant →" },
 } as const;
 import { DeviceCompatibilitySection } from "./DeviceCompatibility";
+import { GuidesStrip } from "@/components/guides/GuidesStrip";
 import { PublicShell } from "./PublicShell";
 import { ServicePausedState, useServiceAvailability } from "./ServiceAvailability";
 import { Reveal } from "./Reveal";
@@ -370,6 +371,7 @@ function Experience({
           </div>
         </div>
         {visibleSections.map(render)}
+        <GuidesStrip />
         {service === "esim" && assistantRoute && !assistantOpen && (
           <div className="mx-auto mt-6 max-w-finder px-3 text-center sm:px-6">
             <button
