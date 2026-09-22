@@ -35,6 +35,7 @@ function AuthPage() {
   const [message, setMessage] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [signedUp, setSignedUp] = useState(false);
+  const [oauthBusy, setOauthBusy] = useState<"google" | "apple" | null>(null);
   const target = safePath(search.redirect);
 
   async function handleSubmit(event: React.FormEvent) {
