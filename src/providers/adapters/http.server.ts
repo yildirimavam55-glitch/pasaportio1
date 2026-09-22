@@ -55,6 +55,44 @@ export async function requestJson(
   return last;
 }
 
+export type PostResult = { ok: boolean; status: number; body: unknown; timeout: boolean; error?: string };
+
+/**
+ * Money-path POST: executed EXACTLY once, never auto-retried. A timeout leaves
+ * the supplier result unknown, and only the provisioning engine (after
+ * reconciliation) may decide what happens next.
+ */
+export async function postJsonOnce(
+  url: string,
+  options: { headers?: Record<string, string>; body: unknown; timeoutMs?: number },
+): Promise<PostResult> {
+  const { headers = {}, body, timeoutMs = 45_000 } = options;
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    const response = await fetch(url, {
+      method: "POST",
+      headers: { Accept: "application/json", "Content-Type": "application/json", ...headers },
+      body: JSON.stringify(body),
+      signal: controller.signal,
+    });
+    const text = await response.text();
+    let parsed: unknown = null;
+    try {
+      parsed = text ? JSON.parse(text) : null;
+    } catch {
+      parsed = text;
+    }
+    if (response.ok) return { ok: true, status: response.status, body: parsed, timeout: false };
+    return { ok: false, status: response.status, body: parsed, timeout: false, error: `HTTP ${response.status}` };
+  } catch (error) {
+    const timeout = (error as Error).name === "AbortError";
+    return { ok: false, status: 0, body: null, timeout: true, error: timeout ? "Zaman aşımı" : "Ağ hatası" };
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
 /** Never log or return the value — only whether it exists. */
 export function readSecret(name: string | null | undefined): string | null {
   if (!name) return null;
