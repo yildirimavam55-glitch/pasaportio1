@@ -53,4 +53,27 @@ export interface CatalogueAdapter {
   fetchBalance?(): Promise<{ amount: number; currency: string } | null>;
   /** Real-time pre-purchase validation. Never places an order. */
   validateItem?(externalId: string): Promise<{ available: boolean; providerCost: number | null; currency: string | null }>;
+  /**
+   * Places ONE supplier purchase. Executed once, never auto-retried: on a
+   * timeout the caller must reconcile instead of re-sending.
+   */
+  placeEsimOrder?(input: EsimOrderRequest): Promise<EsimOrderResult>;
+  /** Reconciliation lookup — determines whether a purchase actually exists. */
+  fetchEsimOrder?(reference: string): Promise<EsimOrderLookup>;
 }
+
+export type EsimOrderRequest = {
+  /** Supplier bundle identifier taken from the mapped catalogue row. */
+  externalId: string;
+  quantity: number;
+  /** Stable provisioning identity, sent to the provider when supported. */
+  reference: string;
+};
+
+export type EsimOrderResult =
+  | { ok: true; body: unknown }
+  | { ok: false; status: number; timeout: boolean; malformed?: boolean; error: string };
+
+export type EsimOrderLookup =
+  | { found: true; body: unknown }
+  | { found: false; conclusive: boolean; status: number };
