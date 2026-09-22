@@ -49,6 +49,7 @@ function AuthPage() {
           redirectTo: `${window.location.origin}/account`,
         });
         if (error) throw error;
+        setTone("info");
         setMessage("Şifre yenileme bağlantısını e-posta adresine gönderdik.");
       } else if (mode === "signup") {
         const { error } = await supabase.auth.signUp({
