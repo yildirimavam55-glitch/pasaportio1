@@ -417,3 +417,12 @@
 - Secret redaction (`redactSensitive`) applied to every audit payload.
 - `getBusinessDashboard` enforces admin server-side (`assertAdmin`), as do provider hub + import functions (defense in depth with RLS).
 - Verified live: 2 balance checks → 2 audit rows, exactly 1 OPEN LOW_PROVIDER_BALANCE alert; non-admin calls rejected server-side.
+
+## Admin Phase 3 — eSIM commerce + provisioning engine (done, no live supplier order)
+- Additive migration: `provisioning_status` enum, `provisioning_units` table (UNIQUE order_item_id+unit_index, UNIQUE idempotency_key, admin-only RLS read), `customer_esims.provider_reference`, `alert_type` SUPPLIER_RESULT_UNKNOWN, flag `commerce.test_payments` (false), UNIQUE index on `orders.idempotency_key`.
+- Domain: `src/domain/commerce/provisioning.ts` (validation, state machine, unit planning, failure classification, eSIM Go normalisation, audit redaction) + `engine.ts` (store/supplier ports, provisionUnit/provisionOrder/reconcileUnit).
+- Server: `commerce.server.ts` (authoritative order creation + snapshots, SQL store, adapter-backed supplier port), `commerce.functions.ts` (customer order request; admin-only test payment confirm, run, retry, reconcile, list).
+- Adapter: existing eSIM Go adapter gained `placeEsimOrder` (single POST, never auto-retried) + `fetchEsimOrder` (read-only reconciliation); new `postJsonOnce` money-path helper.
+- Admin UI: `ProvisioningPanel` added below the existing eSIM fulfillment operations view (no redesign); no QR/ICCID/credential shown.
+- Live supplier purchases gated on server switch `COMMERCE_LIVE_PROVISIONING` (unset = off). Real eSIM Go orders placed: 0.
+- [ ] First live € supplier test — needs eSIM Go balance top-up (currently 0 EUR), payment integration, and explicit approval.
