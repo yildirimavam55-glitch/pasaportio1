@@ -25,6 +25,16 @@ export const Route = createFileRoute("/auth")({
 function safePath(value: string | undefined) {
   return value && value.startsWith("/") && !value.startsWith("//") ? value : "/account";
 }
+function friendlyAuthError(raw: string | null) {
+  const key = (raw ?? "").toLowerCase();
+  if (key.includes("invalid login credentials")) return "E-posta veya şifre hatalı. Tekrar dene.";
+  if (key.includes("email not confirmed")) return "Önce e-postandaki doğrulama bağlantısına tıkla.";
+  if (key.includes("rate limit") || key.includes("too many"))
+    return "Çok fazla deneme yaptın. Kısa bir süre sonra tekrar dene.";
+  if (key.includes("user already registered"))
+    return "Bu e-posta ile zaten bir hesap var. Giriş yapmayı dene.";
+  return raw ?? "Bir hata oluştu.";
+}
 function AuthPage() {
   const navigate = useNavigate();
   const search = useSearch({ from: "/auth" });
@@ -33,6 +43,7 @@ function AuthPage() {
   const [mode, setMode] = useState<"signin" | "signup" | "reset">("signin");
   const [showPassword, setShowPassword] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
+  const [tone, setTone] = useState<"error" | "info">("error");
   const [busy, setBusy] = useState(false);
   const [signedUp, setSignedUp] = useState(false);
   const [oauthBusy, setOauthBusy] = useState<"google" | "apple" | null>(null);
@@ -48,6 +59,7 @@ function AuthPage() {
           redirectTo: `${window.location.origin}/account`,
         });
         if (error) throw error;
+        setTone("info");
         setMessage("Şifre yenileme bağlantısını e-posta adresine gönderdik.");
       } else if (mode === "signup") {
         const { error } = await supabase.auth.signUp({
@@ -63,7 +75,8 @@ function AuthPage() {
         void navigate({ to: target });
       }
     } catch (error) {
-      setMessage(error instanceof Error ? error.message : "Bir hata oluştu.");
+      setTone("error");
+      setMessage(friendlyAuthError(error instanceof Error ? error.message : null));
     } finally {
       setBusy(false);
     }
@@ -77,6 +90,7 @@ function AuthPage() {
         redirect_uri: `${window.location.origin}${target}`,
       });
       if (result.error) {
+        setTone("error");
         setMessage(
           provider === "google"
             ? "Google ile giriş şu anda yapılamadı."
@@ -177,6 +191,18 @@ function AuthPage() {
               ? "Bağlantıyı gönderebilmemiz için e-posta adresini yaz."
               : "Seyahatlerine ve hizmetlerine tek yerden ulaş."}
           </p>
+          {message && (
+            <p
+              role="status"
+              className={
+                tone === "error"
+                  ? "mt-4 rounded-xl border border-destructive/25 bg-destructive/10 p-3 text-sm font-medium text-destructive"
+                  : "mt-4 rounded-xl bg-secondary p-3 text-sm text-muted-foreground"
+              }
+            >
+              {message}
+            </p>
+          )}
           <form onSubmit={handleSubmit} className="mt-7 space-y-4">
             <label className="block text-sm font-semibold">
               E-posta
@@ -291,11 +317,6 @@ function AuthPage() {
           >
             {mode === "signin" ? "Hesabın yok mu? Kayıt ol" : "Giriş ekranına dön"}
           </button>
-          {message && (
-            <p role="status" className="mt-4 rounded-xl bg-secondary p-3 text-sm text-muted-foreground">
-              {message}
-            </p>
-          )}
         </div>
       </section>
     </main>
