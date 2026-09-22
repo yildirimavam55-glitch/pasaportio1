@@ -268,7 +268,8 @@ function Providers() {
             </div>
             <div className="grid grid-cols-2 gap-3">
               <Field label="Minimum marj (%)"><Input type="number" value={draft.minimumMarginPercent} onChange={(event) => setDraft({ ...draft, minimumMarginPercent: event.target.value })} /></Field>
-              <Field label="Düşük bakiye eşiği"><Input type="number" value={draft.lowBalanceThreshold} onChange={(event) => setDraft({ ...draft, lowBalanceThreshold: event.target.value })} /></Field>
+              <Field label="Düşük bakiye eşiği" hint="Bakiye bu tutarın altına düştüğünde tek bir operasyon uyarısı açılır."><Input type="number" value={draft.lowBalanceThreshold} onChange={(event) => setDraft({ ...draft, lowBalanceThreshold: event.target.value })} /></Field>
+              <Field label="Kabul edilen katalog küçülme sınırı (%)" hint="Tedarikçi kataloğu bu orandan fazla küçülürse toplu pasife alma durdurulur."><Input type="number" value={draft.maxCatalogueDropPercent} onChange={(event) => setDraft({ ...draft, maxCatalogueDropPercent: event.target.value })} /></Field>
             </div>
             <Field label="API adresi" hint="https:// ile başlamalı."><Input value={draft.baseUrl} onChange={(event) => setDraft({ ...draft, baseUrl: event.target.value })} placeholder="https://api.saglayici.com/v1" /></Field>
             <Field label="API anahtarı referansı" hint="Yalnızca ad. Değer sunucudaki güvenli ayarlara girilir.">
