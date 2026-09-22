@@ -69,12 +69,14 @@ function PricingRules() {
     onError: (error: Error) => toast.error(error.message),
   });
 
-  const rows = (list.data ?? []) as any[];
+  const rows = ((list.data as any)?.rules ?? []) as any[];
+  const reviewCount = Number((list.data as any)?.pricingReviewRequired ?? 0);
   const cost = Number(sampleCost) || 0;
-  const previewPrice = !draft ? 0
+  const rawPreview = !draft ? 0
     : draft.strategy === "FIXED_MARKUP" ? cost + (Number(draft.fixedMarkup) || 0)
     : draft.strategy === "MARKUP_PERCENT" ? cost * (1 + (Number(draft.markupPercent) || 0) / 100)
     : cost;
+  const previewPrice = applyRounding(rawPreview, (draft?.roundingMode ?? "TWO_DECIMALS") as RoundingMode);
   const preview = itemMargin(previewPrice, cost);
   const minimum = draft?.minimumMarginPercent === "" ? null : Number(draft?.minimumMarginPercent);
 
@@ -104,7 +106,12 @@ function PricingRules() {
                   })}
                 >
                   <strong>{row.name}</strong>
-                  <span className="ml-2 text-muted-foreground">{row.service_type ?? "Tüm servisler"} · {row.strategy}</span>
+                  <span className="ml-2 text-muted-foreground">
+                    {row.service_type ?? "Tüm servisler"} · {row.strategy === "MARKUP_PERCENT" ? `%${row.markup_percent ?? "—"} kâr` : row.strategy === "FIXED_MARKUP" ? `+${money(Number(row.fixed_markup ?? 0))}` : row.strategy}
+                    {" · "}{ROUNDING_LABELS[row.rounding_mode] ?? row.rounding_mode}
+                    {" · "}öncelik {row.priority ?? 0}
+                    {" · "}{row.productCount ?? 0} ürün
+                  </span>
                 </button>
                 <StatusBadge value={row.active ? "ACTIVE" : "PAUSED"} />
                 <button type="button" className="size-7 rounded hover:bg-secondary" aria-label="Arşivle" onClick={() => { if (confirm("Kural arşivlensin mi?")) archive.mutate(row.id); }}><Archive className="mx-auto size-3.5" /></button>
@@ -112,7 +119,15 @@ function PricingRules() {
             ))}
           </div>
         )}
-        <p className="mt-3 text-[11px] text-muted-foreground">Bir üründe elle girilmiş fiyat varsa kural onu sessizce değiştirmez; manuel fiyat her zaman korunur.</p>
+        <p className="mt-3 text-[11px] text-muted-foreground">
+          Öncelik sırası: ürün bazlı manuel fiyat → provider + servis kuralı → provider kuralı → servis kuralı → varsayılan kural. Aynı seviyede en küçük öncelik numarası kazanır.
+          Bir üründe elle girilmiş fiyat varsa kural onu sessizce değiştirmez; manuel fiyat her zaman korunur.
+        </p>
+        {reviewCount > 0 && (
+          <p className="mt-2 rounded-md border border-warning/50 bg-sand-soft/60 p-2 text-[11px] font-semibold">
+            {reviewCount} ürün fiyat incelemesi bekliyor: geçerli bir kural bulunamadığı için fiyatları değiştirilmedi ve yayınlanmadı.
+          </p>
+        )}
       </AdminPanel>
 
       <AdminDrawer open={Boolean(draft)} title={draft?.id ? "Kuralı düzenle" : "Yeni kural"} onClose={() => setDraft(null)}>
