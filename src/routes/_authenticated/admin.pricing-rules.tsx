@@ -9,6 +9,7 @@ import { adminHead } from "@/components/admin/AdminSectionPage";
 import { Button } from "@/components/ui/button";
 import { archivePricingRule, listPricingRules, savePricingRule } from "@/lib/admin-catalog.functions";
 import { itemMargin } from "@/domain/finance/formulas";
+import { applyRounding, type RoundingMode } from "@/domain/pricing";
 
 export const Route = createFileRoute("/_authenticated/admin/pricing-rules")({
   head: () => adminHead("Fiyatlandırma kuralları", "Kâr marjı ve fiyat kuralları."),
@@ -153,10 +154,11 @@ function PricingRules() {
             <Field label="Minimum marj (%)"><input type="number" step="0.1" className="admin-field mt-1 w-full" value={draft.minimumMarginPercent} onChange={(event) => setDraft({ ...draft, minimumMarginPercent: event.target.value })} /></Field>
             <Field label="Yuvarlama">
               <select className="admin-field mt-1 w-full" value={draft.roundingMode} onChange={(event) => setDraft({ ...draft, roundingMode: event.target.value })}>
+                <option value="NEAREST_99">… ,99 ile bitir</option>
+                <option value="NEAREST_95">… ,95 ile bitir</option>
+                <option value="TWO_DECIMALS">2 ondalık</option>
+                <option value="INTEGER">Tam sayıya yukarı</option>
                 <option value="NONE">Yuvarlama yok</option>
-                <option value="NEAREST">En yakın tam sayı</option>
-                <option value="UP">Yukarı yuvarla</option>
-                <option value="DOWN">Aşağı yuvarla</option>
               </select>
             </Field>
             <Field label="Öncelik"><input type="number" className="admin-field mt-1 w-full" value={draft.priority} onChange={(event) => setDraft({ ...draft, priority: Number(event.target.value) || 0 })} /></Field>
