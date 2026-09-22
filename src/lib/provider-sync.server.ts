@@ -585,8 +585,12 @@ export async function runProviderSync(
               ...providerOwned,
               name: item.name,
               currency: pricing.currency,
-              sale_price: item.salePrice,
+              // No valid pricing rule -> no price is invented from supplier cost.
+              sale_price: pricingUnresolved ? null : item.salePrice,
               pricing_rule_id: rule?.id ?? null,
+              pricing_review_required: pricingUnresolved,
+              priced_at: pricingUnresolved ? null : new Date().toISOString(),
+              pricing_snapshot: pricingUnresolved ? null : (pricingSnapshot(item) as any),
               lifecycle: publishable(item, storedCoverage) ? "PUBLISHED" : "DRAFT",
               customer_visible: publishable(item, storedCoverage),
               margin_flagged: item.belowMinimumMargin,
@@ -614,9 +618,17 @@ export async function runProviderSync(
 
           const patch: Record<string, unknown> = { ...providerOwned, margin_flagged: item.belowMinimumMargin };
           // Admin-owned fields are never touched by a sync.
-          if (!current?.price_overridden) {
+          // Unresolved pricing keeps the last known valid sale price and only
+          // raises the review flag — it never reprices and never sells at cost.
+          if (pricingUnresolved) {
+            patch["pricing_review_required"] = true;
+          } else if (!current?.price_overridden) {
             patch["sale_price"] = item.salePrice;
             patch["currency"] = pricing.currency;
+            patch["pricing_rule_id"] = rule?.id ?? null;
+            patch["pricing_review_required"] = false;
+            patch["priced_at"] = new Date().toISOString();
+            patch["pricing_snapshot"] = pricingSnapshot(item) as any;
           }
           // Publishing rule: only an eligible DRAFT is promoted. PAUSED, ARCHIVED
           // and Admin-published states are left exactly as the Admin set them.
