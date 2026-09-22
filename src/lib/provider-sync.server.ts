@@ -896,6 +896,73 @@ export async function runProviderSync(
     });
   }
 
+  /**
+   * ABNORMAL CATALOGUE DROP CIRCUIT BREAKER.
+   *
+   * A complete, successful response that is dramatically smaller than the last
+   * known good catalogue must never mass-deactivate the storefront. Imported
+   * new/changed data stays; only the bulk missing-item pass is blocked, and the
+   * run is reported for review with an operational alert.
+   */
+  let dropVerdict = evaluateCatalogueDrop({ previousCount: null, receivedCount: receivedTotal });
+  if (complete && missing.length) {
+    const { data: lastGood } = await db
+      .from("provider_sync_runs")
+      .select("items_received")
+      .eq("provider_id", providerId)
+      .eq("complete", true)
+      .eq("deactivation_blocked", false)
+      .in("status", ["SUCCESS", "SUCCESS_WITH_WARNINGS"])
+      .neq("id", runId)
+      .order("started_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    dropVerdict = evaluateCatalogueDrop({
+      previousCount: lastGood?.items_received ?? null,
+      receivedCount: receivedTotal,
+      thresholdPercent: provider.max_catalogue_drop_percent,
+    });
+
+    if (dropVerdict.blocked) {
+      const detail = `Önceki ${dropVerdict.previousCount} · alınan ${receivedTotal} · fark -${(dropVerdict.previousCount ?? 0) - receivedTotal} / -%${dropVerdict.dropPercent}`;
+      await db.from("provider_sync_errors").insert({
+        provider_id: providerId,
+        sync_run_id: runId,
+        code: "CATALOGUE_DROP_BLOCKED",
+        message: `Tedarikçi katalog boyutu beklenmedik şekilde küçüldü. ${detail}. Toplu pasife alma engellendi.`,
+      });
+      await db.from("ops_alerts").insert({
+        type: "CATALOGUE_DROP_BLOCKED",
+        severity: "ERROR",
+        message: `${provider.name}: tedarikçi katalog boyutu beklenmedik şekilde küçüldü. ${detail}. Katalog pasifleştirme inceleme bekliyor.`,
+        entity_type: "providers",
+        entity_id: providerId,
+        context: {
+          previousCount: dropVerdict.previousCount,
+          receivedCount: receivedTotal,
+          dropPercent: dropVerdict.dropPercent,
+          thresholdPercent: dropVerdict.thresholdPercent,
+          wouldDeactivate: missing.length,
+          trigger,
+        },
+      });
+      // Previous storefront availability stays exactly as it is.
+      missing = [];
+    }
+  }
+
+  if (runId) {
+    await db
+      .from("provider_sync_runs")
+      .update({
+        previous_item_count: dropVerdict.previousCount,
+        drop_percent: dropVerdict.dropPercent,
+        deactivation_blocked: dropVerdict.blocked,
+      })
+      .eq("id", runId);
+  }
+
   if (missing.length) {
     for (let i = 0; i < missing.length; i += 200) {
       const slice = missing.slice(i, i + 200);
@@ -933,14 +1000,25 @@ export async function runProviderSync(
           })
           .eq("id", providerId);
         if (balanceHealth(balance.amount, provider.low_balance_threshold == null ? null : Number(provider.low_balance_threshold)) === "LOW") {
-          await db.from("ops_alerts").insert({
-            type: "LOW_PROVIDER_BALANCE",
-            severity: "WARNING",
-            message: `${provider.name}: provider bakiyesi eşiğin altında (${balance.amount} ${balance.currency}).`,
-            entity_type: "providers",
-            entity_id: providerId,
-            context: { amount: balance.amount, currency: balance.currency },
-          });
+          // Deduped: one open low-balance alert per provider, never one per sync.
+          const { data: openAlert } = await db
+            .from("ops_alerts")
+            .select("id")
+            .eq("type", "LOW_PROVIDER_BALANCE")
+            .eq("entity_id", providerId)
+            .eq("status", "OPEN")
+            .limit(1)
+            .maybeSingle();
+          if (!openAlert) {
+            await db.from("ops_alerts").insert({
+              type: "LOW_PROVIDER_BALANCE",
+              severity: "WARNING",
+              message: `${provider.name}: provider bakiyesi eşiğin altında (${balance.amount} ${balance.currency}).`,
+              entity_type: "providers",
+              entity_id: providerId,
+              context: { amount: balance.amount, currency: balance.currency, threshold: provider.low_balance_threshold },
+            });
+          }
         }
       }
     } catch {
