@@ -2,7 +2,11 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 
 import { AccountLayout } from "@/components/account/AccountLayout";
-import { CustomerEsimCard } from "@/components/account/CustomerEsimCard";
+import {
+  CustomerEsimCard,
+  CustomerEsimHistoryRow,
+} from "@/components/account/CustomerEsimCard";
+import { EsimCarousel } from "@/components/account/EsimCarousel";
 import { ACCOUNT_COPY } from "@/components/account/copy";
 import { Button } from "@/components/ui/button";
 import { isHistoryEsim, normalizeCustomerEsimStatus } from "@/domain/esim/customer-esim";
@@ -58,9 +62,9 @@ function EsimsPage() {
           </Button>
         </div>
       )}
-      <Group title={copy.activeEsims} items={active} locale={locale} />
-      <Group title={copy.pendingEsims} items={pending} locale={locale} />
-      <Group title={copy.pastEsims} items={past} locale={locale} />
+      <Group title={copy.activeEsims} items={active} locale={locale} kind="carousel" />
+      <Group title={copy.pendingEsims} items={pending} locale={locale} kind="carousel" />
+      <Group title={copy.pastEsims} items={past} locale={locale} kind="list" />
     </AccountLayout>
   );
 }
@@ -78,10 +82,12 @@ function Group({
   title,
   items,
   locale,
+  kind,
 }: {
   title: string;
   items: CustomerEsimRecord[];
   locale: ReturnType<typeof useI18n>["locale"];
+  kind: "carousel" | "list";
 }) {
   if (!items.length) return null;
   return (
@@ -89,11 +95,19 @@ function Group({
       <h2 className="mb-3 font-display text-xl font-bold">
         {title} <span className="text-sm font-semibold text-muted-foreground">({items.length})</span>
       </h2>
-      <div className="grid gap-4 md:grid-cols-2">
-        {items.map((esim) => (
-          <CustomerEsimCard key={esim.id} esim={esim} locale={locale} />
-        ))}
-      </div>
+      {kind === "carousel" ? (
+        <EsimCarousel label={title}>
+          {items.map((esim) => (
+            <CustomerEsimCard key={esim.id} esim={esim} locale={locale} />
+          ))}
+        </EsimCarousel>
+      ) : (
+        <div className="grid gap-2">
+          {items.map((esim) => (
+            <CustomerEsimHistoryRow key={esim.id} esim={esim} locale={locale} />
+          ))}
+        </div>
+      )}
     </section>
   );
 }

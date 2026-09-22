@@ -294,21 +294,16 @@ export function CustomerEsimCard({
             {copy.esim.qr}
           </Button>
         )}
-        {expired || status === "PREPARING" || status === "SUPPORT" ? (
-          <Button asChild variant={expired ? "cta" : "outline"} className="min-h-10 text-xs">
-            <Link to="/" search={{ service: "esim" }} hash="finder">
-              <RefreshCcw className="size-4" />
-              {copy.esim.buyAgain}
-            </Link>
-          </Button>
-        ) : (
-          <Button asChild variant="outline" className="min-h-10 text-xs">
-            <Link to="/" search={{ service: "esim" }} hash="finder">
-              <RefreshCcw className="size-4" />
-              {copy.esim.buyAgain}
-            </Link>
-          </Button>
-        )}
+        <Button
+          asChild
+          variant={expired ? "cta" : "outline"}
+          className="min-h-10 text-xs"
+        >
+          <Link to="/" search={{ service: "esim" }} hash="finder">
+            <RefreshCcw className="size-4" />
+            {copy.esim.buyAgain}
+          </Link>
+        </Button>
         <Button asChild variant="outline" className="min-h-10 text-xs">
           <Link to="/account/esims/$id" params={{ id: esim.id }}>
             {copy.detail}
