@@ -141,9 +141,10 @@ export function GuideDestinationChips({ isos }: { isos: string[] }) {
             key={iso}
             to="/guides/$slug"
             params={{ slug: countrySlug(iso, locale) }}
-            className="rounded-full border border-border bg-card px-3 py-1.5 text-xs font-semibold hover:border-primary/40"
+            className="flex items-center gap-1.5 rounded-full border border-border bg-card px-3 py-1.5 text-xs font-semibold hover:border-primary/40"
           >
-            {flagOf(iso)} {country?.name[locale] ?? iso}
+            <CountryFlag iso={iso} className="h-3 w-4" />
+            {country?.name[locale] ?? iso}
           </Link>
         );
       })}
