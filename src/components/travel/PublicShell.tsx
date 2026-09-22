@@ -183,10 +183,13 @@ export function PublicShell({
   children,
   activeService,
   onServiceChange,
+  hideStickySearch = false,
 }: {
   children: ReactNode;
   activeService?: ServiceSlug;
   onServiceChange?: (service: ServiceSlug, options?: { scrollToFinder?: boolean }) => void;
+  /** Customer portal pages never show the homepage destination search. */
+  hideStickySearch?: boolean;
 }) {
   const { locale } = useI18n();
   const copy = localized(GLOBAL_CONTENT, locale);
@@ -448,7 +451,9 @@ export function PublicShell({
           </div>
         </div>
       </header>
-      {activeService !== "lounge" && <StickyQuickSearch service="esim" suppressed={menuOpen} />}
+      {!hideStickySearch && activeService !== "lounge" && (
+        <StickyQuickSearch service="esim" suppressed={menuOpen} />
+      )}
       <main>{children}</main>
       <PublicFooter fallback={copy.footer} supportLabel={copy.nav.support} />
     </div>
