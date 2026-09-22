@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { audit } from "@/lib/admin-guard";
 import {
   buildDiff,
   hashItem,
@@ -102,13 +103,7 @@ export const createEsimProvider = createServerFn({ method: "POST" })
       .select("id")
       .single();
     if (error) throw new Error(error.message);
-    await db.from("admin_audit_log").insert({
-      admin_user_id: (context as Ctx).userId,
-      action: "provider.created",
-      entity_type: "providers",
-      entity_id: row.id,
-      after_data: { code: data.code, name: data.name, service_type: "ESIM" },
-    });
+    await audit(db, "provider.created", "providers", row.id, null, { code: data.code, name: data.name, service_type: "ESIM" });
     return { id: row.id };
   });
 
@@ -381,12 +376,14 @@ export const applyEsimImport = createServerFn({ method: "POST" })
         .eq("id", run.id);
     }
 
-    await db.from("admin_audit_log").insert({
-      admin_user_id: userId,
-      action: "catalogue.import.esim",
-      entity_type: "providers",
-      entity_id: provider.id,
-      after_data: { created, updated, unchanged, unavailable: missing.length, failed, publish: data.publish, pricing: data.pricing },
+    await audit(db, "catalogue.import.esim", "providers", provider.id, null, {
+      created,
+      updated,
+      unchanged,
+      unavailable: missing.length,
+      failed,
+      publish: data.publish,
+      pricing: data.pricing,
     });
 
     return { created, updated, unchanged, failed, unavailable: missing.length, invalid: parsed.issues.length, errors: errors.slice(0, 5) };
@@ -410,12 +407,6 @@ export const hideTestEsimCatalogue = createServerFn({ method: "POST" })
     const { error } = await query;
     if (error) throw new Error(error.message);
 
-    await db.from("admin_audit_log").insert({
-      admin_user_id: (context as Ctx).userId,
-      action: "catalogue.test.hidden",
-      entity_type: "service_products",
-      entity_id: data.serviceType,
-      after_data: { showTestCatalogue: false, lifecycle: "PAUSED" },
-    });
+    await audit(db, "catalogue.test.hidden", "service_products", data.serviceType, null, { showTestCatalogue: false, lifecycle: "PAUSED" });
     return { ok: true };
   });

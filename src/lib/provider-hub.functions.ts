@@ -8,7 +8,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { ADAPTER_TYPES } from "@/providers/adapters/types";
 import { balanceHealth, isCatalogueStale, needsLowBalanceAlert, normalizeInterval } from "@/domain/providers/sync-engine";
-import { redactSensitive } from "@/lib/admin-guard";
+import { audit as auditLog } from "@/lib/admin-guard";
 import { sanitizeAuthType, sanitizeEndpoints, sanitizeFieldMap } from "@/domain/providers/field-mapping";
 
 type Ctx = { supabase: any; userId: string };
@@ -19,14 +19,9 @@ async function assertAdmin(context: Ctx) {
   if (!data) throw new Error("Yönetici yetkisi gerekiyor.");
 }
 
-async function audit(db: any, userId: string, action: string, entityId: string | null, after: unknown) {
-  await db.from("admin_audit_log").insert({
-    admin_user_id: userId,
-    action,
-    entity_type: "providers",
-    entity_id: entityId,
-    after_data: redactSensitive(after) as any,
-  });
+/** Audit through the security-definer function; direct table inserts are blocked by RLS. */
+async function audit(db: any, _userId: string, action: string, entityId: string | null, after: unknown) {
+  await auditLog(db, action, "providers", entityId, null, after);
 }
 
 /** Full hub state: providers, connections, sync health, balance, change counts. */
