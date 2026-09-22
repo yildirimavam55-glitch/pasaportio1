@@ -376,3 +376,11 @@
 - [x] Sticky destination search hides (and unmounts) while the menu is open, returns on close
 - [x] No background scroll while menu is open; scroll position preserved
 - [x] QA at 360/375/390/412/430 px
+
+## Customer Portal V1 (/account)
+- [ ] Account shell + navigation (mobile cards, desktop sidebar), sticky search hidden
+- [ ] Overview, eSIM'lerim (+ detail), Siparişlerim (+ detail)
+- [ ] Profil, Güvenlik, Bildirimler, Destek
+- [ ] Ownership-scoped server functions (no IDOR), real data only
+- [ ] Reference screenshot: UX inspiration only — no demo data, no bottom nav
+- [ ] QA 360/375/390/412/430 + tablet/desktop, TR/DE/EN
