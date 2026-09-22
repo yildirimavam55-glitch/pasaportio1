@@ -83,7 +83,8 @@ export async function postJsonOnce(
     } catch {
       parsed = text;
     }
-    return { ok: response.ok, status: response.status, body: parsed, timeout: false, error: response.ok ? undefined : `HTTP ${response.status}` };
+    if (response.ok) return { ok: true, status: response.status, body: parsed, timeout: false };
+    return { ok: false, status: response.status, body: parsed, timeout: false, error: `HTTP ${response.status}` };
   } catch (error) {
     const timeout = (error as Error).name === "AbortError";
     return { ok: false, status: 0, body: null, timeout: true, error: timeout ? "Zaman aşımı" : "Ağ hatası" };

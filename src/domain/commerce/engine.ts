@@ -131,7 +131,7 @@ export async function provisionUnit(
     const { category, disposition } = classifySupplierFailure({
       status: response.status,
       timeout: response.timeout,
-      malformed: response.malformed,
+      malformed: response.malformed === true,
     });
     await store.failUnit(unit.id, statusForDisposition(disposition), category, response.error);
     await store.raiseAlert(alertTypeForFailure(disposition), unit.id, `Sağlama başarısız: ${category}`);
