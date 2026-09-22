@@ -55,7 +55,10 @@ function capabilitiesFromRow(row: Record<string, unknown>) {
 const ESIM_LIST_COLUMNS =
   "id, order_item_id, traveler_label, destination_label, package_label, status, total_data_mb, remaining_data_mb, expires_at, iccid, qr_payload, install_info, topup_supported, created_at, updated_at, order_items(product_id, providers(capabilities))";
 
-function productInfoFromRow(row: Record<string, any>): CustomerEsimProductInfo | null {
+function productInfoFromRow(
+  row: Record<string, any>,
+  detailsById: Map<string, CustomerEsimProductInfo>,
+): CustomerEsimProductInfo | null {
   const orderItems = row["order_items"];
   const orderItem = Array.isArray(orderItems) ? orderItems[0] : orderItems;
   const productId =
@@ -65,7 +68,10 @@ function productInfoFromRow(row: Record<string, any>): CustomerEsimProductInfo |
   return typeof productId === "string" && productId ? detailsById.get(productId) ?? null : null;
 }
 
-function toEsimRecord(row: Record<string, any>): CustomerEsimRecord {
+function toEsimRecord(
+  row: Record<string, any>,
+  detailsById: Map<string, CustomerEsimProductInfo>,
+): CustomerEsimRecord {
   const installInfo = objectValue(row["install_info"] as Json);
   return {
     id: row["id"],
@@ -87,19 +93,17 @@ function toEsimRecord(row: Record<string, any>): CustomerEsimRecord {
       Object.keys(installInfo).length > 0,
     hasIccid: Boolean(row["iccid"]),
     providerCapabilities: capabilitiesFromRow(row),
-    productInfo: productInfoFromRow(row),
+    productInfo: productInfoFromRow(row, detailsById),
     createdAt: row["created_at"],
     updatedAt: row["updated_at"],
   };
 }
 
 /** Structured catalogue facts for the customer-facing card — read-only lookup. */
-let detailsById = new Map<string, CustomerEsimProductInfo>();
-
 async function loadProductInfo(
   supabase: { from: (table: string) => any },
   rows: Record<string, any>[],
-) {
+): Promise<Map<string, CustomerEsimProductInfo>> {
   const productIds = [
     ...new Set(
       rows
@@ -178,8 +182,8 @@ export const getCustomerAccount = createServerFn({ method: "GET" })
     if (error) throw new Error("Hesap bilgileri yüklenemedi.");
 
     const esimRows = (esimsResult.data ?? []) as unknown as Record<string, any>[];
-    detailsById = await loadProductInfo(context.supabase, esimRows);
-    const esims: CustomerEsimRecord[] = esimRows.map((row) => toEsimRecord(row));
+    const detailsById = await loadProductInfo(context.supabase, esimRows);
+    const esims: CustomerEsimRecord[] = esimRows.map((row) => toEsimRecord(row, detailsById));
 
     return {
       profile: profileResult.data
