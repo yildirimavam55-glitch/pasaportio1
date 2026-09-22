@@ -356,6 +356,28 @@ export const refreshProviderBalance = createServerFn({ method: "POST" })
         .from("providers")
         .update({ balance_amount: balance.amount, balance_currency: balance.currency, balance_checked_at: checkedAt })
         .eq("id", provider.id);
+      const threshold = provider.low_balance_threshold == null ? null : Number(provider.low_balance_threshold);
+      // Deduped: one OPEN low-balance alert per provider, never one per refresh.
+      if (needsLowBalanceAlert(balance.amount, threshold, false)) {
+        const { data: openAlert } = await db
+          .from("ops_alerts")
+          .select("id")
+          .eq("type", "LOW_PROVIDER_BALANCE")
+          .eq("entity_id", provider.id)
+          .eq("status", "OPEN")
+          .limit(1)
+          .maybeSingle();
+        if (!openAlert) {
+          await db.from("ops_alerts").insert({
+            type: "LOW_PROVIDER_BALANCE",
+            severity: "WARNING",
+            message: `${provider.name}: provider bakiyesi eşiğin altında (${balance.amount} ${balance.currency}).`,
+            entity_type: "providers",
+            entity_id: provider.id,
+            context: { amount: balance.amount, currency: balance.currency, threshold },
+          });
+        }
+      }
       await audit(db, (context as Ctx).userId, "provider.balance_checked", provider.id, {
         amount: balance.amount,
         currency: balance.currency,
