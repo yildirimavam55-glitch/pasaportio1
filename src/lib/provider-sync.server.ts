@@ -17,6 +17,7 @@ import {
   balanceHealth,
   classifyItem,
   computeCostChange,
+  evaluateCatalogueDrop,
   isCatalogueStale,
   isSyncDue,
   mapCoverageToCanonical,
@@ -24,6 +25,7 @@ import {
   normalizeInterval,
   resolveMissingItems,
   resolveSyncStatus,
+  selectPricingRule,
   type CatalogueChange,
   type CatalogueSnapshotItem,
 } from "@/domain/providers/sync-engine";
@@ -71,16 +73,25 @@ async function adminDb(): Promise<Db> {
   return (mod as any).supabaseAdmin;
 }
 
-function pricingFromRule(rule: any, providerCurrency: string, providerMinMargin: number | null): PricingInput {
-  if (!rule) {
-    return {
-      strategy: "MARKUP_PERCENT",
-      markupPercent: 35,
-      minimumMarginPercent: providerMinMargin,
-      roundingMode: "NEAREST_99",
-      currency: providerCurrency,
-    };
-  }
+/**
+ * Pricing is ADMIN-OWNED configuration held in `pricing_rules`. There is no
+ * hidden business fallback: when no valid rule resolves, pricing is UNRESOLVED
+ * and the caller must neither reprice nor publish the affected products.
+ */
+export function pricingFromRule(
+  rule: any,
+  providerCurrency: string,
+  providerMinMargin: number | null,
+): PricingInput | null {
+  if (!rule) return null;
+  const markupPercent = rule.markup_percent == null ? null : Number(rule.markup_percent);
+  const fixedMarkup = rule.fixed_markup == null ? null : Number(rule.fixed_markup);
+  const minMargin = rule.minimum_margin_percent == null ? null : Number(rule.minimum_margin_percent);
+  const usable =
+    (rule.strategy === "MARKUP_PERCENT" && markupPercent != null && Number.isFinite(markupPercent) && markupPercent >= 0) ||
+    (rule.strategy === "FIXED_MARKUP" && fixedMarkup != null && Number.isFinite(fixedMarkup) && fixedMarkup >= 0) ||
+    (rule.strategy === "MINIMUM_MARGIN" && minMargin != null && minMargin > 0 && minMargin < 100);
+  if (!usable) return null;
   return {
     strategy: rule.strategy,
     markupPercent: rule.markup_percent == null ? null : Number(rule.markup_percent),
@@ -327,31 +338,75 @@ export async function runProviderSync(
 
   };
 
-  // Pricing rule + previous valid snapshot are loaded once per invocation.
-  const { data: rule } = await db
+  // Pricing rules + previous valid snapshot are loaded once per invocation.
+  // Precedence is deterministic: provider+service > provider > service > default.
+  const { data: ruleRows } = await db
     .from("pricing_rules")
-    .select("id, strategy, markup_percent, fixed_markup, minimum_margin_percent, rounding_mode, currency, priority")
-    .eq("active", true)
-    .or(`provider_id.eq.${providerId},service_type.eq.${provider.service_type}`)
-    .order("priority")
-    .limit(1)
-    .maybeSingle();
+    .select("id, name, provider_id, service_type, strategy, markup_percent, fixed_markup, minimum_margin_percent, rounding_mode, currency, priority, active")
+    .eq("active", true);
   const providerMinMargin = provider.minimum_margin_percent == null ? null : Number(provider.minimum_margin_percent);
-  const pricing = pricingFromRule(rule, provider.currency ?? "EUR", providerMinMargin);
+  const rule = selectPricingRule((ruleRows ?? []) as any[], {
+    providerId,
+    serviceType: String(provider.service_type),
+  }) as any;
+  const resolvedPricing = pricingFromRule(rule, provider.currency ?? "EUR", providerMinMargin);
+  /**
+   * SAFE FAILURE MODE. With no valid pricing rule the supplier catalogue is
+   * still imported (supplier layer must stay complete), but no customer price
+   * is derived from supplier cost: sale prices are left untouched, products are
+   * flagged for pricing review, and nothing is published.
+   */
+  const pricingUnresolved = resolvedPricing == null;
+  const pricing: PricingInput = resolvedPricing ?? {
+    strategy: "MARKUP_PERCENT",
+    markupPercent: 0,
+    minimumMarginPercent: providerMinMargin,
+    roundingMode: "NEAREST_99",
+    currency: (provider.currency ?? "EUR") as string,
+  };
+  if (pricingUnresolved) {
+    await db.from("ops_alerts").insert({
+      type: "PROVIDER_ERROR",
+      severity: "ERROR",
+      message: `${provider.name}: geçerli bir fiyat kuralı bulunamadı. Ürünler fiyat incelemesine alındı, fiyat ve yayın durumu değiştirilmedi.`,
+      entity_type: "providers",
+      entity_id: providerId,
+      context: { reason: "PRICING_REVIEW_REQUIRED", trigger },
+    });
+  }
+
+  /** Full price traceability for every calculation, stored on the product. */
+  const pricingSnapshot = (item: PricedItem) => ({
+    providerCost: item.providerCost,
+    providerCurrency: item.providerCurrency,
+    pricingRuleId: rule?.id ?? null,
+    pricingRuleName: rule?.name ?? null,
+    strategy: pricing.strategy,
+    markupPercent: pricing.markupPercent ?? null,
+    fixedMarkup: pricing.fixedMarkup ?? null,
+    minimumMarginPercent: pricing.minimumMarginPercent ?? null,
+    roundingMode: pricing.roundingMode,
+    currency: pricing.currency,
+    salePrice: item.salePrice,
+    marginPercent: item.marginPercent,
+    calculatedAt: new Date().toISOString(),
+    syncRunId: runId,
+  });
 
   /**
-   * Admin-controlled publishing rule. When enabled, a synced product that meets
-   * every quality gate becomes customer visible; a DRAFT is never promoted while
-   * the flag is off, and nothing published by an Admin is ever un-published here.
+   * Admin-controlled publishing rule. The flag must be EXPLICITLY enabled — a
+   * missing flag never means "publish the whole supplier catalogue". A DRAFT is
+   * never promoted while the flag is off, and nothing published by an Admin is
+   * ever un-published here.
    */
   const { data: publishFlag } = await db
     .from("feature_flags")
     .select("enabled")
     .eq("key", "esim_auto_publish")
     .maybeSingle();
-  const autoPublish = publishFlag?.enabled !== false;
+  const autoPublish = publishFlag?.enabled === true;
   const publishable = (item: PricedItem, coverage: string[]) =>
-    autoPublish && coverage.length > 0 && item.salePrice > 0 && !item.belowMinimumMargin;
+    autoPublish && !pricingUnresolved && coverage.length > 0 && item.salePrice > 0 && !item.belowMinimumMargin;
 
   const [{ data: rawRows }, { data: mappingRows }] = await Promise.all([
     db.from("provider_raw_items").select("external_id, payload_hash, available").eq("provider_id", providerId),
