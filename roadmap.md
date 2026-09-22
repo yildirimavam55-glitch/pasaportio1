@@ -142,20 +142,20 @@
 
 - [x] Verify current source and published eSIM/Lounge journeys
 - [x] Fix only confirmed package presentation and purchase-flow failures
-- [ ] Re-test TR/DE/EN and 360/390/430 mobile layouts
-- [ ] Publish and verify the production URL
+- [x] Re-test TR/DE/EN and 360/390/430 mobile layouts
+- [x] Publish and verify the production URL
 
 ## Mobile-first eSIM/Lounge homepage redesign
 
-- [ ] Warm cream/petrol/mint/orange tokens verified; compact spacing utilities
-- [ ] Compact mobile header + service-aware 4-item bottom navigation
+- [x] Warm cream/petrol/mint/orange tokens verified; compact spacing utilities
+- [x] Compact mobile header + service-aware 4-item bottom navigation
 - [x] Compact shared eSIM + Lounge hero with service-neutral trust chips and orange CTA
-- [ ] eSIM/Lounge segmented selector directly under hero
-- [ ] eSIM finder: dynamic country title, compact trip/days/travelers/usage layout
-- [ ] eSIM: dark petrol estimated-usage bar + mint recommended package card
-- [ ] Lounge finder: compact airport/date/situation/travelers + dark petrol summary CTA
-- [ ] Lounge result card mock data interface and UI render (data-driven, no hard-code)
-- [ ] Playwright QA at 360/390/430: no overflow, correct service switching, backend logic intact
+- [x] eSIM/Lounge segmented selector directly under hero
+- [x] eSIM finder: dynamic country title, compact trip/days/travelers/usage layout
+- [x] eSIM: dark petrol estimated-usage bar + mint recommended package card
+- [x] Lounge finder: compact airport/date/situation/travelers + dark petrol summary CTA
+- [x] Lounge result card mock data interface and UI render (data-driven, no hard-code)
+- [x] Playwright QA at 360/390/430: no overflow, correct service switching, backend logic intact
 
 ## eSIM katalog bölümleri (tamamlandı)
 
@@ -378,9 +378,9 @@
 - [x] QA at 360/375/390/412/430 px
 
 ## Customer Portal V1 (/account)
-- [ ] Account shell + navigation (mobile cards, desktop sidebar), sticky search hidden
-- [ ] Overview, eSIM'lerim (+ detail), Siparişlerim (+ detail)
-- [ ] Profil, Güvenlik, Bildirimler, Destek
-- [ ] Ownership-scoped server functions (no IDOR), real data only
-- [ ] Reference screenshot: UX inspiration only — no demo data, no bottom nav
-- [ ] QA 360/375/390/412/430 + tablet/desktop, TR/DE/EN
+- [x] Account shell + navigation (mobile cards, desktop sidebar), sticky search hidden
+- [x] Overview, eSIM'lerim (+ detail), Siparişlerim (+ detail)
+- [x] Profil, Güvenlik, Bildirimler, Destek
+- [x] Ownership-scoped server functions (no IDOR), real data only
+- [x] Reference screenshot: UX inspiration only — no demo data, no bottom nav
+- [x] QA 360/375/390/412/430 + tablet/desktop, TR/DE/EN
