@@ -144,7 +144,7 @@ export async function runProviderSync(
 
   const { data: provider } = await db
     .from("providers")
-    .select("id, code, name, service_type, adapter_type, currency, minimum_margin_percent, sync_interval_hours, low_balance_threshold, active")
+    .select("id, code, name, service_type, adapter_type, currency, minimum_margin_percent, sync_interval_hours, low_balance_threshold, max_catalogue_drop_percent, active")
     .eq("id", providerId)
     .maybeSingle();
   if (!provider) throw new Error("Provider bulunamadı.");
