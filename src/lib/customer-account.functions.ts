@@ -395,10 +395,14 @@ export const updateCustomerProfile = createServerFn({ method: "POST" })
   )
   .middleware([requireSupabaseAuth])
   .handler(async ({ context, data }) => {
-    const patch: Record<string, unknown> = { id: context.userId };
-    if (data.fullName !== undefined) patch["full_name"] = data.fullName || null;
-    if (data.preferredLocale !== undefined) patch["preferred_locale"] = data.preferredLocale;
-    if (data.countryIso !== undefined) patch["country_iso"] = data.countryIso || null;
+    const patch: {
+      full_name?: string | null;
+      preferred_locale?: "tr" | "de" | "en";
+      country_iso?: string | null;
+    } = {};
+    if (data.fullName !== undefined) patch.full_name = data.fullName || null;
+    if (data.preferredLocale !== undefined) patch.preferred_locale = data.preferredLocale;
+    if (data.countryIso !== undefined) patch.country_iso = data.countryIso || null;
     const { error } = await context.supabase
       .from("profiles")
       .update(patch)
