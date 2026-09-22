@@ -390,3 +390,13 @@
 - [x] Past eSIMs as compact history rows instead of full cards
 - [x] Track width fix (grid-auto-columns calc, not minmax) verified at 360–430 px, TR/DE/EN
 - [x] Multi-card scenarios tested (1/2/5 active, 2 ready) with temporary test rows, then cleaned up
+
+## Travely Guides V1 (public surface)
+- [x] /guides hub: categories, quick filters, published guides, TR/DE/EN copy
+- [x] /guides/$slug article page: breadcrumbs, meta, TOC, sections, FAQ + FAQ structured data, contextual service offers
+- [x] Country guide hubs by localized country slug (e.g. /guides/turkiye) with real catalogue-backed offers
+- [x] Homepage strip "Seyahatini kolaylaştıran rehberler" below the primary flow (hidden until featured guides exist)
+- [x] Admin Guides management (/admin/guides) + navigation link
+- [x] XML sitemap endpoint (/sitemap/xml; literal /sitemap.xml path not generatable by the file router)
+- [x] Typecheck + build OK; Playwright: hub, country hub, not-found, sitemap, homepage
+- [ ] Publish first real guides (intentional, high-quality content only — no auto-generated thin content)

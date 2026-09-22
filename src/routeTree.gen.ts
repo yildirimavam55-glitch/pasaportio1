@@ -16,8 +16,11 @@ import { Route as SepetRouteImport } from './routes/sepet'
 import { Route as EsimIndexRouteImport } from './routes/esim.index'
 import { Route as EsimPaketlerRouteImport } from './routes/esim.paketler'
 import { Route as EsimUlkelerRouteImport } from './routes/esim.ulkeler'
+import { Route as GuidesIndexRouteImport } from './routes/guides.index'
+import { Route as GuidesSlugRouteImport } from './routes/guides.$slug'
 import { Route as LoungeIndexRouteImport } from './routes/lounge.index'
 import { Route as LoungeSeceneklerRouteImport } from './routes/lounge.secenekler'
+import { Route as SitemapXmlRouteImport } from './routes/sitemap.xml'
 import { Route as AuthenticatedAccountIndexRouteImport } from './routes/_authenticated/account.index'
 import { Route as AuthenticatedAccountNotificationsRouteImport } from './routes/_authenticated/account.notifications'
 import { Route as AuthenticatedAccountProfileRouteImport } from './routes/_authenticated/account.profile'
@@ -33,6 +36,7 @@ import { Route as AuthenticatedAdminCustomersRouteImport } from './routes/_authe
 import { Route as AuthenticatedAdminDestinationsRouteImport } from './routes/_authenticated/admin.destinations'
 import { Route as AuthenticatedAdminFinanceRouteImport } from './routes/_authenticated/admin.finance'
 import { Route as AuthenticatedAdminFlagsRouteImport } from './routes/_authenticated/admin.flags'
+import { Route as AuthenticatedAdminGuidesRouteImport } from './routes/_authenticated/admin.guides'
 import { Route as AuthenticatedAdminMediaRouteImport } from './routes/_authenticated/admin.media'
 import { Route as AuthenticatedAdminOrdersRouteImport } from './routes/_authenticated/admin.orders'
 import { Route as AuthenticatedAdminPricingRulesRouteImport } from './routes/_authenticated/admin.pricing-rules'
@@ -96,6 +100,16 @@ const EsimUlkelerRoute = EsimUlkelerRouteImport.update({
   path: '/esim/ulkeler',
   getParentRoute: () => rootRouteImport,
 } as any)
+const GuidesIndexRoute = GuidesIndexRouteImport.update({
+  id: '/guides/',
+  path: '/guides/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GuidesSlugRoute = GuidesSlugRouteImport.update({
+  id: '/guides/$slug',
+  path: '/guides/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const LoungeIndexRoute = LoungeIndexRouteImport.update({
   id: '/lounge/',
   path: '/lounge/',
@@ -104,6 +118,11 @@ const LoungeIndexRoute = LoungeIndexRouteImport.update({
 const LoungeSeceneklerRoute = LoungeSeceneklerRouteImport.update({
   id: '/lounge/secenekler',
   path: '/lounge/secenekler',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SitemapXmlRoute = SitemapXmlRouteImport.update({
+  id: '/sitemap/xml',
+  path: '/sitemap/xml',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedAccountIndexRoute =
@@ -192,6 +211,12 @@ const AuthenticatedAdminFlagsRoute = AuthenticatedAdminFlagsRouteImport.update({
   path: '/admin/flags',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedAdminGuidesRoute =
+  AuthenticatedAdminGuidesRouteImport.update({
+    id: '/admin/guides',
+    path: '/admin/guides',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedAdminMediaRoute = AuthenticatedAdminMediaRouteImport.update({
   id: '/admin/media',
   path: '/admin/media',
@@ -364,8 +389,11 @@ export interface FileRoutesByFullPath {
   '/sepet': typeof SepetRoute
   '/esim/paketler': typeof EsimPaketlerRoute
   '/esim/ulkeler': typeof EsimUlkelerRoute
+  '/guides/$slug': typeof GuidesSlugRoute
   '/lounge/secenekler': typeof LoungeSeceneklerRoute
+  '/sitemap/xml': typeof SitemapXmlRoute
   '/esim/': typeof EsimIndexRoute
+  '/guides/': typeof GuidesIndexRoute
   '/lounge/': typeof LoungeIndexRoute
   '/account/notifications': typeof AuthenticatedAccountNotificationsRoute
   '/account/profile': typeof AuthenticatedAccountProfileRoute
@@ -380,6 +408,7 @@ export interface FileRoutesByFullPath {
   '/admin/destinations': typeof AuthenticatedAdminDestinationsRoute
   '/admin/finance': typeof AuthenticatedAdminFinanceRoute
   '/admin/flags': typeof AuthenticatedAdminFlagsRoute
+  '/admin/guides': typeof AuthenticatedAdminGuidesRoute
   '/admin/media': typeof AuthenticatedAdminMediaRoute
   '/admin/orders': typeof AuthenticatedAdminOrdersRoute
   '/admin/pricing-rules': typeof AuthenticatedAdminPricingRulesRoute
@@ -417,8 +446,11 @@ export interface FileRoutesByTo {
   '/sepet': typeof SepetRoute
   '/esim/paketler': typeof EsimPaketlerRoute
   '/esim/ulkeler': typeof EsimUlkelerRoute
+  '/guides/$slug': typeof GuidesSlugRoute
   '/lounge/secenekler': typeof LoungeSeceneklerRoute
+  '/sitemap/xml': typeof SitemapXmlRoute
   '/esim': typeof EsimIndexRoute
+  '/guides': typeof GuidesIndexRoute
   '/lounge': typeof LoungeIndexRoute
   '/account/notifications': typeof AuthenticatedAccountNotificationsRoute
   '/account/profile': typeof AuthenticatedAccountProfileRoute
@@ -433,6 +465,7 @@ export interface FileRoutesByTo {
   '/admin/destinations': typeof AuthenticatedAdminDestinationsRoute
   '/admin/finance': typeof AuthenticatedAdminFinanceRoute
   '/admin/flags': typeof AuthenticatedAdminFlagsRoute
+  '/admin/guides': typeof AuthenticatedAdminGuidesRoute
   '/admin/media': typeof AuthenticatedAdminMediaRoute
   '/admin/orders': typeof AuthenticatedAdminOrdersRoute
   '/admin/pricing-rules': typeof AuthenticatedAdminPricingRulesRoute
@@ -472,8 +505,11 @@ export interface FileRoutesById {
   '/sepet': typeof SepetRoute
   '/esim/paketler': typeof EsimPaketlerRoute
   '/esim/ulkeler': typeof EsimUlkelerRoute
+  '/guides/$slug': typeof GuidesSlugRoute
   '/lounge/secenekler': typeof LoungeSeceneklerRoute
+  '/sitemap/xml': typeof SitemapXmlRoute
   '/esim/': typeof EsimIndexRoute
+  '/guides/': typeof GuidesIndexRoute
   '/lounge/': typeof LoungeIndexRoute
   '/_authenticated/account/notifications': typeof AuthenticatedAccountNotificationsRoute
   '/_authenticated/account/profile': typeof AuthenticatedAccountProfileRoute
@@ -488,6 +524,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/destinations': typeof AuthenticatedAdminDestinationsRoute
   '/_authenticated/admin/finance': typeof AuthenticatedAdminFinanceRoute
   '/_authenticated/admin/flags': typeof AuthenticatedAdminFlagsRoute
+  '/_authenticated/admin/guides': typeof AuthenticatedAdminGuidesRoute
   '/_authenticated/admin/media': typeof AuthenticatedAdminMediaRoute
   '/_authenticated/admin/orders': typeof AuthenticatedAdminOrdersRoute
   '/_authenticated/admin/pricing-rules': typeof AuthenticatedAdminPricingRulesRoute
@@ -527,8 +564,11 @@ export interface FileRouteTypes {
     | '/sepet'
     | '/esim/paketler'
     | '/esim/ulkeler'
+    | '/guides/$slug'
     | '/lounge/secenekler'
+    | '/sitemap/xml'
     | '/esim/'
+    | '/guides/'
     | '/lounge/'
     | '/account/notifications'
     | '/account/profile'
@@ -543,6 +583,7 @@ export interface FileRouteTypes {
     | '/admin/destinations'
     | '/admin/finance'
     | '/admin/flags'
+    | '/admin/guides'
     | '/admin/media'
     | '/admin/orders'
     | '/admin/pricing-rules'
@@ -580,8 +621,11 @@ export interface FileRouteTypes {
     | '/sepet'
     | '/esim/paketler'
     | '/esim/ulkeler'
+    | '/guides/$slug'
     | '/lounge/secenekler'
+    | '/sitemap/xml'
     | '/esim'
+    | '/guides'
     | '/lounge'
     | '/account/notifications'
     | '/account/profile'
@@ -596,6 +640,7 @@ export interface FileRouteTypes {
     | '/admin/destinations'
     | '/admin/finance'
     | '/admin/flags'
+    | '/admin/guides'
     | '/admin/media'
     | '/admin/orders'
     | '/admin/pricing-rules'
@@ -634,8 +679,11 @@ export interface FileRouteTypes {
     | '/sepet'
     | '/esim/paketler'
     | '/esim/ulkeler'
+    | '/guides/$slug'
     | '/lounge/secenekler'
+    | '/sitemap/xml'
     | '/esim/'
+    | '/guides/'
     | '/lounge/'
     | '/_authenticated/account/notifications'
     | '/_authenticated/account/profile'
@@ -650,6 +698,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/destinations'
     | '/_authenticated/admin/finance'
     | '/_authenticated/admin/flags'
+    | '/_authenticated/admin/guides'
     | '/_authenticated/admin/media'
     | '/_authenticated/admin/orders'
     | '/_authenticated/admin/pricing-rules'
@@ -689,8 +738,11 @@ export interface RootRouteChildren {
   SepetRoute: typeof SepetRoute
   EsimPaketlerRoute: typeof EsimPaketlerRoute
   EsimUlkelerRoute: typeof EsimUlkelerRoute
+  GuidesSlugRoute: typeof GuidesSlugRoute
   LoungeSeceneklerRoute: typeof LoungeSeceneklerRoute
+  SitemapXmlRoute: typeof SitemapXmlRoute
   EsimIndexRoute: typeof EsimIndexRoute
+  GuidesIndexRoute: typeof GuidesIndexRoute
   LoungeIndexRoute: typeof LoungeIndexRoute
   ApiPublicProviderSyncRoute: typeof ApiPublicProviderSyncRoute
 }
@@ -746,6 +798,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof EsimUlkelerRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/guides/': {
+      id: '/guides/'
+      path: '/guides'
+      fullPath: '/guides/'
+      preLoaderRoute: typeof GuidesIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/guides/$slug': {
+      id: '/guides/$slug'
+      path: '/guides/$slug'
+      fullPath: '/guides/$slug'
+      preLoaderRoute: typeof GuidesSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/lounge/': {
       id: '/lounge/'
       path: '/lounge'
@@ -758,6 +824,13 @@ declare module '@tanstack/react-router' {
       path: '/lounge/secenekler'
       fullPath: '/lounge/secenekler'
       preLoaderRoute: typeof LoungeSeceneklerRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sitemap/xml': {
+      id: '/sitemap/xml'
+      path: '/sitemap/xml'
+      fullPath: '/sitemap/xml'
+      preLoaderRoute: typeof SitemapXmlRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated/account/': {
@@ -863,6 +936,13 @@ declare module '@tanstack/react-router' {
       path: '/admin/flags'
       fullPath: '/admin/flags'
       preLoaderRoute: typeof AuthenticatedAdminFlagsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/admin/guides': {
+      id: '/_authenticated/admin/guides'
+      path: '/admin/guides'
+      fullPath: '/admin/guides'
+      preLoaderRoute: typeof AuthenticatedAdminGuidesRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/admin/media': {
@@ -1078,6 +1158,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminDestinationsRoute: typeof AuthenticatedAdminDestinationsRoute
   AuthenticatedAdminFinanceRoute: typeof AuthenticatedAdminFinanceRoute
   AuthenticatedAdminFlagsRoute: typeof AuthenticatedAdminFlagsRoute
+  AuthenticatedAdminGuidesRoute: typeof AuthenticatedAdminGuidesRoute
   AuthenticatedAdminMediaRoute: typeof AuthenticatedAdminMediaRoute
   AuthenticatedAdminOrdersRoute: typeof AuthenticatedAdminOrdersRoute
   AuthenticatedAdminPricingRulesRoute: typeof AuthenticatedAdminPricingRulesRoute
@@ -1124,6 +1205,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminDestinationsRoute: AuthenticatedAdminDestinationsRoute,
   AuthenticatedAdminFinanceRoute: AuthenticatedAdminFinanceRoute,
   AuthenticatedAdminFlagsRoute: AuthenticatedAdminFlagsRoute,
+  AuthenticatedAdminGuidesRoute: AuthenticatedAdminGuidesRoute,
   AuthenticatedAdminMediaRoute: AuthenticatedAdminMediaRoute,
   AuthenticatedAdminOrdersRoute: AuthenticatedAdminOrdersRoute,
   AuthenticatedAdminPricingRulesRoute: AuthenticatedAdminPricingRulesRoute,
@@ -1172,8 +1254,11 @@ const rootRouteChildren: RootRouteChildren = {
   SepetRoute: SepetRoute,
   EsimPaketlerRoute: EsimPaketlerRoute,
   EsimUlkelerRoute: EsimUlkelerRoute,
+  GuidesSlugRoute: GuidesSlugRoute,
   LoungeSeceneklerRoute: LoungeSeceneklerRoute,
+  SitemapXmlRoute: SitemapXmlRoute,
   EsimIndexRoute: EsimIndexRoute,
+  GuidesIndexRoute: GuidesIndexRoute,
   LoungeIndexRoute: LoungeIndexRoute,
   ApiPublicProviderSyncRoute: ApiPublicProviderSyncRoute,
 }
