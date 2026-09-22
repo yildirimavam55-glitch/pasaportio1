@@ -68,16 +68,25 @@ function AuthPage() {
     }
   }
 
-  async function handleGoogle() {
+  async function handleOAuth(provider: "google" | "apple") {
     setMessage(null);
-    const result = await lovable.auth.signInWithOAuth("google", {
-      redirect_uri: `${window.location.origin}${target}`,
-    });
-    if (result.error) {
-      setMessage("Google ile giriş şu anda yapılamadı.");
-      return;
+    setOauthBusy(provider);
+    try {
+      const result = await lovable.auth.signInWithOAuth(provider, {
+        redirect_uri: `${window.location.origin}${target}`,
+      });
+      if (result.error) {
+        setMessage(
+          provider === "google"
+            ? "Google ile giriş şu anda yapılamadı."
+            : "Apple ile giriş şu anda yapılamadı.",
+        );
+        return;
+      }
+      if (!result.redirected) void navigate({ to: target });
+    } finally {
+      setOauthBusy(null);
     }
-    if (!result.redirected) void navigate({ to: target });
   }
 
   if (signedUp) {
