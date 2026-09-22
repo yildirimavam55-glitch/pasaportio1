@@ -737,7 +737,7 @@ export const saveGuide = createServerFn({ method: "POST" })
 
     await audit(
       db,
-      data.id ? (payload.status === "PUBLISHED" ? "GUIDE_PUBLISH" : "guide.update") : payload.status === "PUBLISHED" ? "GUIDE_PUBLISH" : "guide.create",
+      data.id ? (payload.status === "PUBLISHED" ? "GUIDE_PUBLISH" : "GUIDE_UNPUBLISH") : payload.status === "PUBLISHED" ? "GUIDE_PUBLISH" : "guide.create",
       "guide",
       guideId,
       null,
