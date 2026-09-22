@@ -43,5 +43,7 @@ export const saveEsimUsageSettings = createServerFn({ method: "POST" })
       .from("esim_usage_settings")
       .upsert({ id: SETTINGS_ID, config: settings, updated_by: context.userId, updated_at: new Date().toISOString() });
     if (error) throw new Error(error.message);
+    const { audit } = await import("@/lib/admin-guard");
+    await audit(context.supabase, "esim_usage_settings.update", "esim_usage_settings", SETTINGS_ID, null, settings);
     return settings;
   });

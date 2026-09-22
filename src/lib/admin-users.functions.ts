@@ -118,5 +118,6 @@ export const revokeAdminUser = createServerFn({ method: "POST" })
     const db = await adminDb(ctx);
     const { error } = await db.rpc("revoke_admin", { _user_id: data.userId });
     if (error) throw new Error(error.message);
+    await audit(db, "ADMIN_ROLE_CHANGE", "auth_user", data.userId, { role: "admin" }, { role: null });
     return { ok: true, selfRemoved: data.userId === ctx.userId };
   });
