@@ -11,6 +11,28 @@ export async function adminDb(context: AdminCtx) {
   return context.supabase;
 }
 
+/** Keys whose values must never reach the audit log. */
+const SENSITIVE_KEY = /(api[-_]?key|secret|token|password|passwd|credential|authorization|bearer|qr|activation_code|matching_id|smdp|iccid|cvv|card)/i;
+
+/**
+ * Removes secret-bearing fields before an audit payload is stored.
+ * Applied recursively; long opaque values are dropped rather than truncated.
+ */
+export function redactSensitive(value: unknown, depth = 0): unknown {
+  if (value == null || depth > 6) return value ?? null;
+  if (Array.isArray(value)) return value.slice(0, 50).map((entry) => redactSensitive(entry, depth + 1));
+  if (typeof value !== "object") return value;
+  const output: Record<string, unknown> = {};
+  for (const [key, entry] of Object.entries(value as Record<string, unknown>)) {
+    if (SENSITIVE_KEY.test(key)) {
+      output[key] = "[redacted]";
+      continue;
+    }
+    output[key] = redactSensitive(entry, depth + 1);
+  }
+  return output;
+}
+
 /** Writes an audit record through the security-definer function. Never stores secrets. */
 export async function audit(
   db: any,
@@ -24,8 +46,8 @@ export async function audit(
     _action: action,
     _entity_type: entityType,
     _entity_id: entityId ? String(entityId) : null,
-    _before: before ?? null,
-    _after: after ?? null,
+    _before: redactSensitive(before) ?? null,
+    _after: redactSensitive(after) ?? null,
   });
   if (error) throw new Error(error.message);
 }
