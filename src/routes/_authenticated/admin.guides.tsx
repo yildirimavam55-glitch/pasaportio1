@@ -154,7 +154,7 @@ function GuidesAdminContent() {
           onClose={() => setEditing(null)}
         />
       ) : null}
-    </AdminGate>
+    </>
   );
 }
 
