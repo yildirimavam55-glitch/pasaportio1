@@ -14,6 +14,39 @@ export type Database = {
   }
   public: {
     Tables: {
+      account_deletion_requests: {
+        Row: {
+          created_at: string
+          id: string
+          processed_at: string | null
+          reason: string | null
+          requested_at: string
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          processed_at?: string | null
+          reason?: string | null
+          requested_at?: string
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          processed_at?: string | null
+          reason?: string | null
+          requested_at?: string
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       admin_audit_log: {
         Row: {
           action: string
@@ -619,6 +652,36 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      customer_notification_preferences: {
+        Row: {
+          consent_source: string | null
+          consent_updated_at: string | null
+          created_at: string
+          marketing_email: boolean
+          product_tips_email: boolean
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          consent_source?: string | null
+          consent_updated_at?: string | null
+          created_at?: string
+          marketing_email?: boolean
+          product_tips_email?: boolean
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          consent_source?: string | null
+          consent_updated_at?: string | null
+          created_at?: string
+          marketing_email?: boolean
+          product_tips_email?: boolean
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       customer_trip_services: {
         Row: {
