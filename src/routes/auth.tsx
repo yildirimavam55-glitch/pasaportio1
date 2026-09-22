@@ -35,6 +35,7 @@ function AuthPage() {
   const [message, setMessage] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [signedUp, setSignedUp] = useState(false);
+  const [oauthBusy, setOauthBusy] = useState<"google" | "apple" | null>(null);
   const target = safePath(search.redirect);
 
   async function handleSubmit(event: React.FormEvent) {
@@ -68,16 +69,25 @@ function AuthPage() {
     }
   }
 
-  async function handleGoogle() {
+  async function handleOAuth(provider: "google" | "apple") {
     setMessage(null);
-    const result = await lovable.auth.signInWithOAuth("google", {
-      redirect_uri: `${window.location.origin}${target}`,
-    });
-    if (result.error) {
-      setMessage("Google ile giriş şu anda yapılamadı.");
-      return;
+    setOauthBusy(provider);
+    try {
+      const result = await lovable.auth.signInWithOAuth(provider, {
+        redirect_uri: `${window.location.origin}${target}`,
+      });
+      if (result.error) {
+        setMessage(
+          provider === "google"
+            ? "Google ile giriş şu anda yapılamadı."
+            : "Apple ile giriş şu anda yapılamadı.",
+        );
+        return;
+      }
+      if (!result.redirected) void navigate({ to: target });
+    } finally {
+      setOauthBusy(null);
     }
-    if (!result.redirected) void navigate({ to: target });
   }
 
   if (signedUp) {
@@ -233,9 +243,45 @@ function AuthPage() {
                 veya
                 <span className="h-px flex-1 bg-border" />
               </div>
-              <Button type="button" variant="outline" onClick={handleGoogle} className="w-full" size="lg">
-                Google ile devam et
-              </Button>
+              <div className="grid gap-3">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => void handleOAuth("google")}
+                  disabled={oauthBusy !== null}
+                  className="w-full gap-2"
+                  size="lg"
+                >
+                  <svg viewBox="0 0 24 24" aria-hidden="true" className="size-5">
+                    <path
+                      fill="#4285F4"
+                      d="M23.5 12.3c0-.8-.1-1.6-.2-2.3H12v4.5h6.4a5.5 5.5 0 0 1-2.4 3.6v3h3.9c2.3-2.1 3.6-5.2 3.6-8.8Z"
+                    />
+                    <path
+                      fill="#34A853"
+                      d="M12 24c3.2 0 5.9-1.1 7.9-2.9l-3.9-3c-1.1.7-2.4 1.1-4 1.1a7 7 0 0 1-6.6-4.8H1.4v3.1A12 12 0 0 0 12 24Z"
+                    />
+                    <path fill="#FBBC05" d="M5.4 14.4a7.2 7.2 0 0 1 0-4.6V6.7H1.4a12 12 0 0 0 0 10.6l4-2.9Z" />
+                    <path
+                      fill="#EA4335"
+                      d="M12 4.8c1.8 0 3.3.6 4.6 1.8l3.4-3.4A12 12 0 0 0 1.4 6.7l4 3.1A7 7 0 0 1 12 4.8Z"
+                    />
+                  </svg>
+                  Google ile devam et
+                </Button>
+                <Button
+                  type="button"
+                  onClick={() => void handleOAuth("apple")}
+                  disabled={oauthBusy !== null}
+                  className="w-full gap-2 bg-foreground text-background hover:bg-foreground/90"
+                  size="lg"
+                >
+                  <svg viewBox="0 0 24 24" aria-hidden="true" className="size-5" fill="currentColor">
+                    <path d="M16.4 12.8c0-2.2 1.8-3.3 1.9-3.4-1-1.5-2.6-1.7-3.2-1.7-1.4-.1-2.6.8-3.3.8-.7 0-1.7-.8-2.8-.8-1.5 0-2.8.9-3.6 2.2-1.5 2.6-.4 6.5 1.1 8.6.7 1 1.6 2.2 2.7 2.2 1.1 0 1.5-.7 2.8-.7 1.3 0 1.6.7 2.7.7 1.1 0 1.9-1.1 2.6-2.1.5-.8.8-1.5 1-2-2.3-.9-2.9-3-2.9-3.8ZM14.6 5.6c.6-.7 1-1.7.9-2.7-.9 0-2 .6-2.6 1.3-.6.7-1 1.7-.9 2.6 1 .1 2-.5 2.6-1.2Z" />
+                  </svg>
+                  Apple ile devam et
+                </Button>
+              </div>
             </>
           )}
           <button
