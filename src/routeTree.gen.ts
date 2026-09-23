@@ -20,6 +20,7 @@ import { Route as GuidesIndexRouteImport } from './routes/guides.index'
 import { Route as GuidesSlugRouteImport } from './routes/guides.$slug'
 import { Route as LoungeIndexRouteImport } from './routes/lounge.index'
 import { Route as LoungeSeceneklerRouteImport } from './routes/lounge.secenekler'
+import { Route as RehberlerIndexRouteImport } from './routes/rehberler.index'
 import { Route as SitemapXmlRouteImport } from './routes/sitemap.xml'
 import { Route as AuthenticatedAccountIndexRouteImport } from './routes/_authenticated/account.index'
 import { Route as AuthenticatedAccountNotificationsRouteImport } from './routes/_authenticated/account.notifications'
@@ -118,6 +119,11 @@ const LoungeIndexRoute = LoungeIndexRouteImport.update({
 const LoungeSeceneklerRoute = LoungeSeceneklerRouteImport.update({
   id: '/lounge/secenekler',
   path: '/lounge/secenekler',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RehberlerIndexRoute = RehberlerIndexRouteImport.update({
+  id: '/rehberler/',
+  path: '/rehberler/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SitemapXmlRoute = SitemapXmlRouteImport.update({
@@ -395,6 +401,7 @@ export interface FileRoutesByFullPath {
   '/esim/': typeof EsimIndexRoute
   '/guides/': typeof GuidesIndexRoute
   '/lounge/': typeof LoungeIndexRoute
+  '/rehberler/': typeof RehberlerIndexRoute
   '/account/notifications': typeof AuthenticatedAccountNotificationsRoute
   '/account/profile': typeof AuthenticatedAccountProfileRoute
   '/account/security': typeof AuthenticatedAccountSecurityRoute
@@ -452,6 +459,7 @@ export interface FileRoutesByTo {
   '/esim': typeof EsimIndexRoute
   '/guides': typeof GuidesIndexRoute
   '/lounge': typeof LoungeIndexRoute
+  '/rehberler': typeof RehberlerIndexRoute
   '/account/notifications': typeof AuthenticatedAccountNotificationsRoute
   '/account/profile': typeof AuthenticatedAccountProfileRoute
   '/account/security': typeof AuthenticatedAccountSecurityRoute
@@ -511,6 +519,7 @@ export interface FileRoutesById {
   '/esim/': typeof EsimIndexRoute
   '/guides/': typeof GuidesIndexRoute
   '/lounge/': typeof LoungeIndexRoute
+  '/rehberler/': typeof RehberlerIndexRoute
   '/_authenticated/account/notifications': typeof AuthenticatedAccountNotificationsRoute
   '/_authenticated/account/profile': typeof AuthenticatedAccountProfileRoute
   '/_authenticated/account/security': typeof AuthenticatedAccountSecurityRoute
@@ -570,6 +579,7 @@ export interface FileRouteTypes {
     | '/esim/'
     | '/guides/'
     | '/lounge/'
+    | '/rehberler/'
     | '/account/notifications'
     | '/account/profile'
     | '/account/security'
@@ -627,6 +637,7 @@ export interface FileRouteTypes {
     | '/esim'
     | '/guides'
     | '/lounge'
+    | '/rehberler'
     | '/account/notifications'
     | '/account/profile'
     | '/account/security'
@@ -685,6 +696,7 @@ export interface FileRouteTypes {
     | '/esim/'
     | '/guides/'
     | '/lounge/'
+    | '/rehberler/'
     | '/_authenticated/account/notifications'
     | '/_authenticated/account/profile'
     | '/_authenticated/account/security'
@@ -744,6 +756,7 @@ export interface RootRouteChildren {
   EsimIndexRoute: typeof EsimIndexRoute
   GuidesIndexRoute: typeof GuidesIndexRoute
   LoungeIndexRoute: typeof LoungeIndexRoute
+  RehberlerIndexRoute: typeof RehberlerIndexRoute
   ApiPublicProviderSyncRoute: typeof ApiPublicProviderSyncRoute
 }
 
@@ -824,6 +837,13 @@ declare module '@tanstack/react-router' {
       path: '/lounge/secenekler'
       fullPath: '/lounge/secenekler'
       preLoaderRoute: typeof LoungeSeceneklerRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/rehberler/': {
+      id: '/rehberler/'
+      path: '/rehberler'
+      fullPath: '/rehberler/'
+      preLoaderRoute: typeof RehberlerIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/sitemap/xml': {
@@ -1260,6 +1280,7 @@ const rootRouteChildren: RootRouteChildren = {
   EsimIndexRoute: EsimIndexRoute,
   GuidesIndexRoute: GuidesIndexRoute,
   LoungeIndexRoute: LoungeIndexRoute,
+  RehberlerIndexRoute: RehberlerIndexRoute,
   ApiPublicProviderSyncRoute: ApiPublicProviderSyncRoute,
 }
 export const routeTree = rootRouteImport
