@@ -138,6 +138,7 @@ export function CountryDestinationCard({
       className="destination-card"
       data-eager={eager ? "true" : "false"}
       onClick={() => open({ destination: destination.iso })}
+      aria-label={`${countryLabel(destination.iso, locale)} ${copy.startingAt} ${formatFrom(destination.amount, destination.currency, locale)}`}
     >
       <CountryScene iso={destination.iso} eager={eager} />
       <span className="destination-card-body">

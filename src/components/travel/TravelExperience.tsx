@@ -1,8 +1,10 @@
 import { ArrowRight } from "lucide-react";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { useQuery } from "@tanstack/react-query";
-import esimHero from "@/assets/travely-esim-hero-compact.jpg";
-import loungeHero from "@/assets/travely-lounge-hero-compact.jpg";
+import esimHeroDesktop from "@/assets/travely-esim-hero.jpg";
+import esimHeroMobile from "@/assets/travely-esim-hero-compact.jpg";
+import loungeHeroDesktop from "@/assets/travely-lounge-hero.jpg";
+import loungeHeroMobile from "@/assets/travely-lounge-hero-compact.jpg";
 import { Button } from "@/components/ui/button";
 import { useI18n } from "@/i18n";
 import {
@@ -485,7 +487,8 @@ function ServiceHero({
 }) {
   const { locale } = useI18n();
   const copy = SERVICE_HERO_COPY[locale][service];
-  const image = service === "esim" ? esimHero : loungeHero;
+  const mobileImage = service === "esim" ? esimHeroMobile : loungeHeroMobile;
+  const desktopImage = service === "esim" ? esimHeroDesktop : loungeHeroDesktop;
 
   return (
     <section className="service-hero-shell mx-auto max-w-site px-3 pt-3 sm:px-6 sm:pt-5">
@@ -495,16 +498,18 @@ function ServiceHero({
         data-search-mode={searchMode || undefined}
       >
         <div className="service-hero-visual absolute inset-0 overflow-hidden rounded-[inherit] bg-lavender-soft">
-          <img
-            key={service}
-            src={image}
-            alt={copy.alt}
-            width={1200}
-            height={1504}
-            fetchPriority="high"
-            decoding="async"
-            className="service-hero-image absolute inset-0 size-full object-cover"
-          />
+          <picture key={service}>
+            <source media="(min-width: 640px)" srcSet={desktopImage} />
+            <img
+              src={mobileImage}
+              alt={copy.alt}
+              width={1200}
+              height={1504}
+              fetchPriority="high"
+              decoding="async"
+              className="service-hero-image absolute inset-0 size-full object-cover"
+            />
+          </picture>
           <div className="service-hero-scrim absolute inset-0" />
         </div>
         <div
