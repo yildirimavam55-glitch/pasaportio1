@@ -20,6 +20,8 @@ const hubQuery = (locale: Locale) => ({
   queryFn: () => getGuideHub({ data: { locale } }),
 });
 
+const GUIDES_BASE_URL = "https://wanderlust-core.lovable.app/guides";
+
 export const Route = createFileRoute("/guides/")({
   validateSearch: zodValidator(searchSchema),
   loader: ({ context }) => context.queryClient.ensureQueryData(hubQuery("tr")),
@@ -39,6 +41,7 @@ export const Route = createFileRoute("/guides/")({
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
+    links: [{ rel: "canonical", href: GUIDES_BASE_URL }],
   }),
   component: GuidesHubPage,
 });

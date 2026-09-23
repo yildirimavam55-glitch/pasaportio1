@@ -9,12 +9,21 @@ import {
   GuideDestinationChips,
   GuideServiceOffers,
 } from "@/components/guides/GuidePieces";
-import { GUIDES_COPY, countryIsoFromSlug } from "@/components/guides/copy";
+import { GUIDES_COPY, countryIsoFromSlug, countrySlug } from "@/components/guides/copy";
 import { getGuideBySlug, getGuideDestinationHub } from "@/lib/guides.functions";
 import { useI18n } from "@/i18n";
 import { COUNTRIES } from "@/domain/geo/countries";
 import { CountryFlag } from "@/components/travel/CountryFlag";
 import type { Locale } from "@/domain/enums";
+
+const GUIDES_BASE_URL = "https://wanderlust-core.lovable.app/guides";
+
+function absoluteGuideImage(url: string | null) {
+  if (!url) return null;
+  if (url.startsWith("https://")) return url;
+  if (url.startsWith("/__l5e/")) return `https://wanderlust-core.lovable.app${url}`;
+  return null;
+}
 
 /** A slug resolves either to a published guide or to a country guide hub. */
 const entryQuery = (slug: string, locale: Locale) => ({
@@ -56,6 +65,7 @@ export const Route = createFileRoute("/guides/$slug")({
           { property: "og:type", content: "website" },
           { name: "twitter:card", content: "summary_large_image" },
         ],
+        links: [{ rel: "canonical", href: `${GUIDES_BASE_URL}/${countrySlug(loaderData.hub.countryIso, "tr")}` }],
       };
     }
     const guide = loaderData.guide;
@@ -69,11 +79,12 @@ export const Route = createFileRoute("/guides/$slug")({
       { property: "og:type", content: "article" },
       { name: "twitter:card", content: "summary_large_image" },
     ];
-    if (guide.heroImageUrl?.startsWith("https://")) {
-      meta.push({ property: "og:image", content: guide.heroImageUrl });
-      meta.push({ name: "twitter:image", content: guide.heroImageUrl });
+    const imageUrl = absoluteGuideImage(guide.heroImageUrl);
+    if (imageUrl) {
+      meta.push({ property: "og:image", content: imageUrl });
+      meta.push({ name: "twitter:image", content: imageUrl });
     }
-    return { meta };
+    return { meta, links: [{ rel: "canonical", href: `${GUIDES_BASE_URL}/${guide.slug}` }] };
   },
   errorComponent: () => <GuideMissing />,
   notFoundComponent: () => <GuideMissing />,
