@@ -94,9 +94,12 @@ function OfferCard({ offer }: { offer: GuideServiceOffer }) {
   const copy = GUIDES_COPY[locale];
   const country = getCountryByIso(offer.code);
   const label =
-    offer.serviceType === "ESIM"
+    offer.scope === "ROUTE"
+      ? `${offer.label ?? offer.code} eSIM`
+      : offer.serviceType === "ESIM"
       ? `${country ? `${country.flag} ${country.name[locale]}` : offer.code} eSIM`
       : `${offer.code} Lounge`;
+  const routeSearch = offer.scope === "ROUTE" ? offer.routeIsos.join(",") : offer.code;
   return (
     <div className="flex flex-col gap-3 rounded-xl border border-border bg-card p-4">
       <div className="flex items-center gap-2">
@@ -112,7 +115,7 @@ function OfferCard({ offer }: { offer: GuideServiceOffer }) {
       </p>
       <Button asChild size="sm" className="w-full">
         {offer.serviceType === "ESIM" ? (
-          <Link to="/esim/paketler" search={{ route: offer.code }}>
+          <Link to="/esim/paketler" search={{ route: routeSearch }}>
             {copy.esimCta}
           </Link>
         ) : (
