@@ -32,7 +32,6 @@ import { useMediaUrl } from "@/components/storefront/StorefrontContext";
 import { CountryFlag } from "./CountryFlag";
 import { DestinationDiscovery } from "./DestinationDiscovery";
 import { useDestinationCatalogue } from "./DestinationCards";
-import { DeviceCompatibilityPrompt } from "./DeviceCompatibility";
 import airportFrankfurtAsset from "@/assets/airport-frankfurt.jpg.asset.json";
 import airportIstanbulAsset from "@/assets/airport-istanbul.jpg.asset.json";
 import destinationEuropeAsset from "@/assets/destination-europe.jpg.asset.json";
@@ -506,9 +505,6 @@ export function HowItWorks({ service, section }: { service: ServiceSlug } & Sect
             ))}
           </div>
 
-          <div className="mt-5">
-            <DeviceCompatibilityPrompt />
-          </div>
           <div className="mt-4 grid gap-2 text-xs font-semibold text-primary sm:grid-cols-3 sm:text-sm">
             {copy.trust.map((item, index) => (
               <div key={item} className="flex items-center gap-2">

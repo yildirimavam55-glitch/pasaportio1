@@ -8,9 +8,9 @@
 
 ## Controlled homepage conversion correction
 
-- [ ] Keep the hero search primary and the shared sticky search compact and secondary
-- [ ] Reorder the eSIM homepage to trust → real-price destinations → existing Finder → education
-- [ ] Verify real catalogue pricing, Finder behavior, TR/DE/EN, and mobile/desktop layouts
+- [x] Keep the hero search primary and the shared sticky search compact and secondary
+- [x] Reorder the eSIM homepage to trust → real-price destinations → existing Finder → education
+- [x] Verify real catalogue pricing, Finder behavior, TR/DE/EN, and mobile/desktop layouts
 
 ## Travely Guides V1 small test
 
