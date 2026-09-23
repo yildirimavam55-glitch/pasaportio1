@@ -190,8 +190,8 @@ export function TrustStrip({ section }: SectionProp) {
     ? items.map((item) => ({ id: item.id, icon: item.icon, label: itemText(item.title, locale) }))
     : fallback;
   return (
-    <section className={`mx-auto ${widthClass(section)} px-4 py-7 sm:px-6`}>
-      <div className="grid grid-cols-2 gap-x-3 gap-y-4 border-y border-border py-5 md:grid-cols-4">
+    <section className={`mx-auto ${widthClass(section)} px-4 py-5 sm:px-6 sm:py-7`}>
+      <div className="grid grid-cols-2 gap-x-3 gap-y-3 border-y border-border py-4 md:grid-cols-4 md:py-5">
         {rows.map((row, index) => (
           <div
             key={row.id}
@@ -452,7 +452,7 @@ export function HowItWorks({ service, section }: { service: ServiceSlug } & Sect
     };
 
     return (
-      <section id="how" className="bg-accent-soft py-9 sm:py-12">
+      <section id="how" className="bg-accent-soft py-8 sm:py-12">
         <div className={`mx-auto ${widthClass(section)} px-4 sm:px-6`}>
           <span className="text-xs font-bold uppercase text-primary">{copy.eyebrow}</span>
           <h2 className="mt-2 max-w-xl font-display text-2xl font-bold sm:text-3xl">
@@ -464,7 +464,7 @@ export function HowItWorks({ service, section }: { service: ServiceSlug } & Sect
 
           <ol
             ref={railRef}
-            className="esim-how-rail mt-6"
+            className="esim-how-rail mt-5 sm:mt-6"
             onScroll={updateActiveStep}
             aria-label={copy.headline}
           >

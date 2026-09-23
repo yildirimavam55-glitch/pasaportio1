@@ -222,17 +222,20 @@ function Experience({
   const scrollToFinder = () => smoothlyShowFinder();
 
   const selectorSection = config.sections.find((s) => s.type === "SERVICE_SELECTOR");
+  const homepageEsimOrder: Partial<Record<StorefrontSection["type"], number>> = {
+    TRUST: 10,
+    POPULAR_DESTINATIONS: 20,
+    FINDER: 30,
+    PRODUCT_SOLUTIONS: 40,
+    HOW_IT_WORKS: 50,
+    COMPATIBILITY: 60,
+  };
   const visibleSections =
-    service === "esim"
+    service === "esim" && !assistantRoute
       ? [...config.sections].sort((a, b) => {
-          const popularIndex = config.sections.findIndex(
-            (section) => section.type === "POPULAR_DESTINATIONS",
-          );
-          const rank = (section: StorefrontSection, index: number) => {
-            if (section.type === "HOW_IT_WORKS") return popularIndex + 0.5;
-            return index;
-          };
-          return rank(a, config.sections.indexOf(a)) - rank(b, config.sections.indexOf(b));
+          const rank = (section: StorefrontSection) =>
+            homepageEsimOrder[section.type] ?? 100 + config.sections.indexOf(section);
+          return rank(a) - rank(b);
         })
       : config.sections;
   const render = (section: StorefrontSection): ReactNode => {
@@ -240,7 +243,7 @@ function Experience({
     if (section.type === "HERO" || section.type === "SERVICE_SELECTOR") return null; // rendered explicitly
     switch (section.type) {
       case "FINDER":
-        if (service === "esim" && (!assistantRoute || !assistantOpen)) {
+        if (service === "esim" && assistantRoute && !assistantOpen) {
           return null;
         }
         return (
@@ -493,7 +496,7 @@ function ServiceHero({
   return (
     <section className="service-hero-shell mx-auto max-w-site px-3 pt-3 sm:px-6 sm:pt-5">
       <div
-        className="service-hero relative h-[18.5rem] rounded-hero sm:h-[26rem] sm:rounded-[1.75rem]"
+        className="service-hero relative h-[17.5rem] rounded-hero sm:h-[26rem] sm:rounded-[1.75rem]"
         data-service={service}
         data-search-mode={searchMode || undefined}
       >
