@@ -32,7 +32,6 @@ import { useMediaUrl } from "@/components/storefront/StorefrontContext";
 import { CountryFlag } from "./CountryFlag";
 import { DestinationDiscovery } from "./DestinationDiscovery";
 import { useDestinationCatalogue } from "./DestinationCards";
-import { DeviceCompatibilityPrompt } from "./DeviceCompatibility";
 import airportFrankfurtAsset from "@/assets/airport-frankfurt.jpg.asset.json";
 import airportIstanbulAsset from "@/assets/airport-istanbul.jpg.asset.json";
 import destinationEuropeAsset from "@/assets/destination-europe.jpg.asset.json";
@@ -190,8 +189,8 @@ export function TrustStrip({ section }: SectionProp) {
     ? items.map((item) => ({ id: item.id, icon: item.icon, label: itemText(item.title, locale) }))
     : fallback;
   return (
-    <section className={`mx-auto ${widthClass(section)} px-4 py-7 sm:px-6`}>
-      <div className="grid grid-cols-2 gap-x-3 gap-y-4 border-y border-border py-5 md:grid-cols-4">
+    <section className={`mx-auto ${widthClass(section)} px-4 py-5 sm:px-6 sm:py-7`}>
+      <div className="grid grid-cols-2 gap-x-3 gap-y-3 border-y border-border py-4 md:grid-cols-4 md:py-5">
         {rows.map((row, index) => (
           <div
             key={row.id}
@@ -213,7 +212,7 @@ export function VisualPopular({ service, section }: { service: ServiceSlug } & S
   const { data: destinations, isPending } = useDestinationCatalogue();
   if (service === "esim") {
     if (destinations?.countries.length || destinations?.regions.length) {
-      return <DestinationDiscovery section={section ?? null} />;
+      return <DestinationDiscovery section={section ?? null} mode="popular" />;
     }
     // Keep the established homepage selection visible when the live catalogue
     // is temporarily empty. It carries no invented price or product data.
@@ -452,7 +451,7 @@ export function HowItWorks({ service, section }: { service: ServiceSlug } & Sect
     };
 
     return (
-      <section id="how" className="bg-accent-soft py-9 sm:py-12">
+      <section id="how" className="bg-accent-soft py-8 sm:py-12">
         <div className={`mx-auto ${widthClass(section)} px-4 sm:px-6`}>
           <span className="text-xs font-bold uppercase text-primary">{copy.eyebrow}</span>
           <h2 className="mt-2 max-w-xl font-display text-2xl font-bold sm:text-3xl">
@@ -464,7 +463,7 @@ export function HowItWorks({ service, section }: { service: ServiceSlug } & Sect
 
           <ol
             ref={railRef}
-            className="esim-how-rail mt-6"
+            className="esim-how-rail mt-5 sm:mt-6"
             onScroll={updateActiveStep}
             aria-label={copy.headline}
           >
@@ -506,9 +505,6 @@ export function HowItWorks({ service, section }: { service: ServiceSlug } & Sect
             ))}
           </div>
 
-          <div className="mt-5">
-            <DeviceCompatibilityPrompt />
-          </div>
           <div className="mt-4 grid gap-2 text-xs font-semibold text-primary sm:grid-cols-3 sm:text-sm">
             {copy.trust.map((item, index) => (
               <div key={item} className="flex items-center gap-2">

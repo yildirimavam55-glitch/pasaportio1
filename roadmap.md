@@ -6,6 +6,12 @@
 - [x] Correct verified homepage, package, cart, auth, navigation, image, and accessibility issues
 - [x] Verify TR/DE/EN across mobile and desktop customer journeys
 
+## Controlled homepage conversion correction
+
+- [x] Keep the hero search primary and the shared sticky search compact and secondary
+- [x] Reorder the eSIM homepage to trust → real-price destinations → existing Finder → education
+- [x] Verify real catalogue pricing, Finder behavior, TR/DE/EN, and mobile/desktop layouts
+
 ## Travely Guides V1 small test
 
 - [x] Add localized public `/rehberler` entry without replacing existing `/guides`

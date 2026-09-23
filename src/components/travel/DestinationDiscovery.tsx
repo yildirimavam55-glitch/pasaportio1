@@ -25,7 +25,13 @@ const POPULAR_LIMIT = 8;
 const POPULAR_COUNTRY_PRIORITY = ["TR", "ES", "IT", "GR", "EG", "US", "JP", "TH"] as const;
 const POPULAR_COUNTRY_FALLBACKS = ["PT", "MV", "TN", "AE", "CA", "MX"] as const;
 
-export function DestinationDiscovery({ section }: { section: StorefrontSection | null }) {
+export function DestinationDiscovery({
+  section,
+  mode = "full",
+}: {
+  section: StorefrontSection | null;
+  mode?: "full" | "popular" | "secondary";
+}) {
   const { locale } = useI18n();
   const copy = DESTINATION_COPY[locale];
   const { data } = useDestinationCatalogue();
@@ -45,7 +51,7 @@ export function DestinationDiscovery({ section }: { section: StorefrontSection |
 
   return (
     <>
-      {popular.length > 0 && (
+      {mode !== "secondary" && popular.length > 0 && (
         <section id="popular" className={surfaceClasses(section)}>
           <div className={`mx-auto ${widthClass(section)} px-4 sm:px-6`}>
             <h2 className="font-display text-2xl font-bold sm:text-3xl">
@@ -63,24 +69,26 @@ export function DestinationDiscovery({ section }: { section: StorefrontSection |
         </section>
       )}
 
-      <section className="bg-background py-8 sm:py-10">
-        <div className={`mx-auto ${widthClass(section)} px-4 sm:px-6`}>
-          <div className="flex flex-col gap-3 border-y border-border py-5 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-              <h2 className="font-display text-xl font-bold sm:text-2xl">{copy.allTitle}</h2>
-              <p className="mt-1 text-sm text-muted-foreground">{copy.allLead(countries.length)}</p>
+      {mode !== "popular" && (
+        <section className="bg-background py-8 sm:py-10">
+          <div className={`mx-auto ${widthClass(section)} px-4 sm:px-6`}>
+            <div className="flex flex-col gap-3 border-y border-border py-5 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <h2 className="font-display text-xl font-bold sm:text-2xl">{copy.allTitle}</h2>
+                <p className="mt-1 text-sm text-muted-foreground">{copy.allLead(countries.length)}</p>
+              </div>
+              <Link to="/esim/ulkeler" search={{ q: "", region: "" }}>
+                <Button type="button" variant="outline" className="min-h-11 w-full sm:w-auto">
+                  {copy.allCountries}
+                  <ArrowRight className="size-4" />
+                </Button>
+              </Link>
             </div>
-            <Link to="/esim/ulkeler" search={{ q: "", region: "" }}>
-              <Button type="button" variant="outline" className="min-h-11 w-full sm:w-auto">
-                {copy.allCountries}
-                <ArrowRight className="size-4" />
-              </Button>
-            </Link>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
-      {regions.length > 0 && (
+      {mode !== "popular" && regions.length > 0 && (
         <section id="regional-esim" className="bg-accent-soft py-10 sm:py-12">
           <div className={`mx-auto ${widthClass(section)} px-4 sm:px-6`}>
             <h2 className="font-display text-2xl font-bold sm:text-3xl">
