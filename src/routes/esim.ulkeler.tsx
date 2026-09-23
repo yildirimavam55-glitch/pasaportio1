@@ -119,6 +119,7 @@ function AllCountriesPage() {
             size="sm"
             variant={search.region ? "outline" : "light"}
             onClick={() => setSearch({ region: "" })}
+            aria-pressed={!search.region}
           >
             {copy.allRegions}
           </Button>
@@ -129,6 +130,7 @@ function AllCountriesPage() {
               size="sm"
               variant={search.region === key ? "light" : "outline"}
               onClick={() => setSearch({ region: key })}
+              aria-pressed={search.region === key}
             >
               {COVERAGE_REGION_LABELS[key][locale]}
             </Button>
@@ -138,7 +140,7 @@ function AllCountriesPage() {
         {isPending ? (
           <div className="destination-grid mt-5">
             {Array.from({ length: 8 }).map((_, index) => (
-              <div key={index} className="destination-card-skeleton" />
+              <div key={index} className="destination-card-skeleton" aria-hidden="true" />
             ))}
           </div>
         ) : shown.length ? (

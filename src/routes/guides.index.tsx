@@ -78,6 +78,7 @@ function GuidesHubPage() {
             className={`shrink-0 rounded-full border px-3.5 py-2 text-xs font-bold ${
               search.category ? "border-border bg-card" : "border-primary bg-primary text-primary-foreground"
             }`}
+            aria-current={!search.category ? "page" : undefined}
           >
             {copy.all}
           </Link>
@@ -91,6 +92,7 @@ function GuidesHubPage() {
                   ? "border-primary bg-primary text-primary-foreground"
                   : "border-border bg-card"
               }`}
+              aria-current={search.category === category.slug ? "page" : undefined}
             >
               {category.name}
             </Link>

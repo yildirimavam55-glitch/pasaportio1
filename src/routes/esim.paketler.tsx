@@ -570,6 +570,8 @@ function PackagesPage() {
               onClick={() => setActiveSegment("standard")}
               role="tab"
               aria-selected={activeSegment === "standard"}
+              aria-controls="esim-package-panel"
+              id="esim-standard-tab"
             >
               {activeSegment === "standard" && (
                 <Check className="size-4 shrink-0" strokeWidth={3} />
@@ -585,6 +587,8 @@ function PackagesPage() {
               onClick={() => setActiveSegment("unlimited")}
               role="tab"
               aria-selected={activeSegment === "unlimited"}
+              aria-controls="esim-package-panel"
+              id="esim-unlimited-tab"
             >
               {activeSegment === "unlimited" && (
                 <Check className="size-4 shrink-0" strokeWidth={3} />
@@ -604,7 +608,8 @@ function PackagesPage() {
           </div>
         ) : sections.all.length ? (
           <>
-            <div className="mt-4" role="radiogroup" aria-label={copy.title}>
+            <div className="mt-4" id="esim-package-panel" role="tabpanel" aria-labelledby={activeSegment === "standard" ? "esim-standard-tab" : "esim-unlimited-tab"}>
+              <div role="radiogroup" aria-label={copy.title}>
               {recommendedProduct &&
                 ((activeSegment === "unlimited" && recommendedProduct.unlimited) ||
                   (activeSegment === "standard" && !recommendedProduct.unlimited)) && (
@@ -620,6 +625,11 @@ function PackagesPage() {
                     imageUrl={destinationImage}
                   />
                 )}
+              {!selectedProduct && (
+                <p className="mb-4 rounded-xl border border-primary/20 bg-primary-soft px-4 py-3 text-center text-sm font-semibold text-primary" role="status">
+                  {copy.choosePlan}
+                </p>
+              )}
               {selectedProduct && (
                 <div className="mobile-purchase-bar fixed z-40 rounded-[1.375rem] border border-border/80 bg-card/98 px-3.5 py-3 shadow-panel backdrop-blur md:static md:mt-5 md:rounded-2xl md:p-3 md:shadow-card">
                   <div
@@ -706,6 +716,7 @@ function PackagesPage() {
                   )}
                 </div>
               )}
+              </div>
             </div>
             {activeSegment === "standard" && standardList.length > 0 && (
               <SecondaryGroup

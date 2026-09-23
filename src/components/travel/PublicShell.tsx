@@ -170,9 +170,9 @@ function PublicFooter({ fallback, supportLabel }: { fallback: string; supportLab
               ))}
             </nav>
           )}
-          <span className="inline-flex items-center gap-2 text-sm font-semibold text-primary">
+          <Link to="/account/support" className="inline-flex items-center gap-2 text-sm font-semibold text-primary">
             <Headphones className="size-4" /> {supportLabel}
-          </span>
+          </Link>
           {copyright && <span className="text-xs text-muted-foreground">{copyright}</span>}
         </div>
       </div>
@@ -279,7 +279,7 @@ export function PublicShell({
               {copy.nav.support}
             </Link>
           </nav>
-          <div className="flex shrink-0 items-center gap-0.5 sm:gap-1">
+          <div className="flex shrink-0 items-center gap-1 sm:gap-1.5">
             <LanguageMenu />
             {signedIn ? (
               <DropdownMenu>
@@ -287,7 +287,7 @@ export function PublicShell({
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="size-9 sm:size-10"
+                    className="size-11"
                     aria-label={copy.nav.account}
                   >
                     <UserRound className="size-[18px] sm:size-5" />
@@ -307,7 +307,7 @@ export function PublicShell({
                 </DropdownMenuContent>
               </DropdownMenu>
             ) : (
-              <Button asChild variant="ghost" size="icon" className="size-9 sm:size-10">
+              <Button asChild variant="ghost" size="icon" className="size-11">
                 <Link
                   to="/auth"
                   search={{ redirect: "/account" }}
@@ -324,7 +324,7 @@ export function PublicShell({
             </Button>
             <Sheet open={menuOpen} onOpenChange={setMenuOpen}>
               <SheetTrigger asChild>
-                <Button variant="ghost" size="icon" className="size-9 sm:size-10" aria-label="Menü">
+                <Button variant="ghost" size="icon" className="size-11" aria-label="Menü">
                   <Menu className="size-[18px] sm:size-5" />
                 </Button>
               </SheetTrigger>

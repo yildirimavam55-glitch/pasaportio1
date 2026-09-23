@@ -320,8 +320,8 @@ export function FinderShell({
       className="relative z-20 mx-auto mt-2 max-w-finder scroll-mt-24 px-3 sm:mt-5 sm:px-6"
     >
       <div className="rounded-2xl border border-border/70 bg-card p-3 shadow-card sm:p-6">
-        <div className="mb-4 hidden sm:block">
-          <h2 className="font-display text-2xl font-bold leading-tight sm:text-3xl">{title}</h2>
+        <div className="mb-4">
+          <h2 className="font-display text-xl font-bold leading-tight sm:text-3xl">{title}</h2>
           <p className="mt-1 text-sm leading-5 text-muted-foreground">{description}</p>
         </div>
         {children}

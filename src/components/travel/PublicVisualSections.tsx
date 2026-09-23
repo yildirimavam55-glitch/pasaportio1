@@ -97,12 +97,14 @@ function SafeImage({
   alt,
   className,
   position,
+  eager = false,
 }: {
   src: string;
   fallback: string;
   alt: string;
   className: string;
   position?: string | undefined;
+  eager?: boolean;
 }) {
   const [failed, setFailed] = useState(false);
   return (
@@ -110,7 +112,8 @@ function SafeImage({
       src={failed ? fallback : src}
       onError={() => setFailed(true)}
       alt={alt}
-      loading="lazy"
+      loading={eager ? "eager" : "lazy"}
+      fetchPriority={eager ? "high" : "auto"}
       decoding="async"
       width={1200}
       height={800}
@@ -125,11 +128,13 @@ function CardImage({
   fallback,
   alt,
   className,
+  eager = false,
 }: {
   mediaId: string | null | undefined;
   fallback: string;
   alt: string;
   className: string;
+  eager?: boolean;
 }) {
   const media = useMediaUrl(mediaId);
   return (
@@ -139,6 +144,7 @@ function CardImage({
       alt={media?.alt || alt}
       className={className}
       position={media?.position}
+      eager={eager}
     />
   );
 }
@@ -186,11 +192,11 @@ export function TrustStrip({ section }: SectionProp) {
   return (
     <section className={`mx-auto ${widthClass(section)} px-4 py-7 sm:px-6`}>
       <div className="grid grid-cols-2 gap-x-3 gap-y-4 border-y border-border py-5 md:grid-cols-4">
-        {rows.map((row) => (
+        {rows.map((row, index) => (
           <div
             key={row.id}
             data-reveal-card
-            className="flex items-center gap-2 text-xs font-semibold sm:text-sm"
+            className={`flex items-center gap-2 text-xs font-semibold sm:text-sm ${rows.length % 2 === 1 && index === rows.length - 1 ? "col-span-2 justify-center md:col-span-1 md:justify-start" : ""}`}
           >
             <span className="icon-box-sm rounded-lg bg-primary-soft text-primary">
               <StorefrontIcon name={row.icon} />
@@ -295,7 +301,7 @@ function LoungePopular({ service, section }: { service: ServiceSlug } & SectionP
           </span>
         </div>
         <div className="editorial-card-rail mt-6 grid gap-3 md:grid-cols-3">
-          {cards.map((card) => {
+          {cards.map((card, index) => {
             const price = card.showPrice ? priceById.get(card.id) : undefined;
             const multi = card.coverageIsos.length > 1;
             return (
@@ -309,6 +315,7 @@ function LoungePopular({ service, section }: { service: ServiceSlug } & SectionP
                   fallback={card.image}
                   alt={card.title}
                   className="absolute inset-0 size-full object-cover transition duration-500 group-hover:scale-105"
+                  eager={index < 3}
                 />
                 <div className="absolute inset-0 bg-image-scrim" />
                 <div className="absolute inset-x-0 bottom-0 p-4 text-hero-foreground">

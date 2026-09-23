@@ -1,5 +1,11 @@
 # Phase 1.3 Roadmap
 
+## Controlled storefront UI/UX refinement
+
+- [ ] Apply the selected refined mobile travel-commerce direction without changing business logic
+- [ ] Correct verified homepage, package, cart, auth, navigation, image, and accessibility issues
+- [ ] Verify TR/DE/EN across mobile and desktop customer journeys
+
 ## Travely Guides V1 small test
 
 - [x] Add localized public `/rehberler` entry without replacing existing `/guides`

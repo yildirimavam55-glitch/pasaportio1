@@ -11,21 +11,21 @@ const COPY = {
   tr: {
     title: "Sipariş özeti", lead: "Seçtiğin gerçek katalog ürünlerini kontrol et.",
     empty: "Sepetin şu anda boş.", browse: "eSIM paketlerine bak", lounge: "Lounge seçeneklerine bak",
-    remove: "Kaldır", total: "Toplam", quantity: "Adet", checkout: "Ödeme entegrasyonu bekleniyor",
+    remove: "Kaldır", decrease: "Adedi azalt", increase: "Adedi artır", total: "Toplam", quantity: "Adet", checkout: "Ödeme entegrasyonu bekleniyor",
     testBadge: "TEST", testNote: "Bu ürün test kataloğundandır. Gerçek sağlayıcı ürünü değildir.",
     paymentNote: "Henüz gerçek ödeme alınmıyor. Ödeme yöntemi bağlandığında burada güvenli checkout açılacak.", secure: "Güvenli ödeme", instant: "Anında dijital teslimat", noFees: "Gizli ücret yok", unit: "Birim fiyat",
   },
   de: {
     title: "Bestellübersicht", lead: "Prüfe deine Auswahl aus dem echten Katalog.",
     empty: "Dein Warenkorb ist leer.", browse: "eSIM-Pakete ansehen", lounge: "Lounges ansehen",
-    remove: "Entfernen", total: "Gesamt", quantity: "Anzahl", checkout: "Zahlungsintegration ausstehend",
+    remove: "Entfernen", decrease: "Anzahl verringern", increase: "Anzahl erhöhen", total: "Gesamt", quantity: "Anzahl", checkout: "Zahlungsintegration ausstehend",
     testBadge: "TEST", testNote: "Testkatalog-Produkt. Kein echtes Anbieterprodukt.",
     paymentNote: "Es wird noch keine echte Zahlung eingezogen. Der sichere Checkout erscheint nach Anbindung des Zahlungsanbieters.", secure: "Sichere Zahlung", instant: "Sofortige digitale Lieferung", noFees: "Keine versteckten Gebühren", unit: "Stückpreis",
   },
   en: {
     title: "Order summary", lead: "Review your selected live catalogue products.",
     empty: "Your cart is empty.", browse: "Browse eSIM packages", lounge: "Browse lounges",
-    remove: "Remove", total: "Total", quantity: "Quantity", checkout: "Payment integration pending",
+    remove: "Remove", decrease: "Decrease quantity", increase: "Increase quantity", total: "Total", quantity: "Quantity", checkout: "Payment integration pending",
     testBadge: "TEST", testNote: "Test catalogue product. Not real provider inventory.",
     paymentNote: "No real payment is taken yet. Secure checkout will open here after a payment provider is connected.", secure: "Secure payment", instant: "Instant digital delivery", noFees: "No hidden fees", unit: "Unit price",
   },
@@ -85,13 +85,13 @@ function CartPage() {
                     </span>
                     <span className="mt-1 block text-xs text-muted-foreground">{copy.unit}: {money(line.price ?? 0)}</span>
                     <div className="mt-3 flex items-center gap-1" aria-label={copy.quantity}>
-                      <Button type="button" variant="outline" size="icon" className="size-8" disabled={line.quantity <= 1} onClick={() => updateQuantity(line.productId, line.quantity - 1)}><Minus className="size-3.5" /></Button>
+                      <Button type="button" variant="outline" size="icon" className="size-10" disabled={line.quantity <= 1} onClick={() => updateQuantity(line.productId, line.quantity - 1)} aria-label={`${copy.decrease}: ${line.name}`}><Minus className="size-3.5" /></Button>
                       <span className="min-w-7 text-center text-sm font-bold">{line.quantity}</span>
-                      <Button type="button" variant="outline" size="icon" className="size-8" disabled={line.quantity >= 9} onClick={() => updateQuantity(line.productId, line.quantity + 1)}><Plus className="size-3.5" /></Button>
+                      <Button type="button" variant="outline" size="icon" className="size-10" disabled={line.quantity >= 9} onClick={() => updateQuantity(line.productId, line.quantity + 1)} aria-label={`${copy.increase}: ${line.name}`}><Plus className="size-3.5" /></Button>
                     </div>
                     {line.isTest && <span className="mt-1 block text-xs text-muted-foreground">{copy.testNote}</span>}
                   </div>
-                  <Button type="button" variant="ghost" size="icon" className="shrink-0 text-muted-foreground hover:text-destructive" onClick={() => removeLine(line.productId)} aria-label={copy.remove}>
+                  <Button type="button" variant="ghost" size="icon" className="size-11 shrink-0 text-muted-foreground hover:text-destructive" onClick={() => removeLine(line.productId)} aria-label={`${copy.remove}: ${line.name}`}>
                     <Trash2 className="size-5" />
                   </Button>
                 </li>
@@ -108,10 +108,10 @@ function CartPage() {
               <span className="flex flex-col items-center gap-1"><Zap className="size-4 text-primary" />{copy.instant}</span>
               <span className="flex flex-col items-center gap-1"><Check className="size-4 text-primary" />{copy.noFees}</span>
             </div>
-            <Button variant="cta" size="lg" className="mt-4 w-full scroll-mb-24" disabled>
+            <Button variant="cta" size="lg" className="mt-4 w-full scroll-mb-24" aria-disabled="true" aria-describedby="payment-note">
               <ShoppingCart /> {copy.checkout}
             </Button>
-            <p className="mt-3 rounded-xl border border-warning/35 bg-sand-soft/60 px-3 py-2 text-center text-xs font-semibold text-muted-foreground">{copy.paymentNote}</p>
+            <p id="payment-note" className="mt-3 rounded-xl border border-warning/35 bg-sand-soft/60 px-3 py-2 text-center text-xs font-semibold text-muted-foreground">{copy.paymentNote}</p>
           </>
         )}
       </section>
