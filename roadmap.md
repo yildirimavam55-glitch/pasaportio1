@@ -1,5 +1,12 @@
 # Phase 1.3 Roadmap
 
+## Travely Guides V1 small test
+
+- [x] Add localized public `/rehberler` entry without replacing existing `/guides`
+- [x] Publish exactly 3 Turkish test guides through the existing Guides tables
+- [x] Keep guide CTAs catalogue-backed and avoid fake availability/prices
+- [x] Verify mobile listing, article pages, homepage strip, SEO basics, and build status
+
 ## Sticky destination search — mobile UX
 
 - [x] Compact sticky search bar appears under header after scrolling down (home + country/package pages)
