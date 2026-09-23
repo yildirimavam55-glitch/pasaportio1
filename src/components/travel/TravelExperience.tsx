@@ -27,6 +27,7 @@ import { getPublishedStorefront } from "@/lib/storefront.functions";
 import { StorefrontProvider } from "@/components/storefront/StorefrontContext";
 import { FinderShell, EsimFinder, LoungeFinder } from "./Finder";
 import { QuickSearch } from "./QuickSearch";
+import { DestinationDiscovery } from "./DestinationDiscovery";
 
 const ASSISTANT_COPY = {
   tr: { open: "Hangi pakete ihtiyacın olduğunu bilmiyor musun? Paket yardımcısını kullan →" },
@@ -376,6 +377,12 @@ function Experience({
           </div>
         </div>
         {visibleSections.map(render)}
+        {service === "esim" && !assistantRoute && (
+          <DestinationDiscovery
+            section={config.sections.find((section) => section.type === "POPULAR_DESTINATIONS") ?? null}
+            mode="secondary"
+          />
+        )}
         <GuidesStrip />
         {service === "esim" && assistantRoute && !assistantOpen && (
           <div className="mx-auto mt-6 max-w-finder px-3 text-center sm:px-6">

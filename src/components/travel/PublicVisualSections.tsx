@@ -213,7 +213,7 @@ export function VisualPopular({ service, section }: { service: ServiceSlug } & S
   const { data: destinations, isPending } = useDestinationCatalogue();
   if (service === "esim") {
     if (destinations?.countries.length || destinations?.regions.length) {
-      return <DestinationDiscovery section={section ?? null} />;
+      return <DestinationDiscovery section={section ?? null} mode="popular" />;
     }
     // Keep the established homepage selection visible when the live catalogue
     // is temporarily empty. It carries no invented price or product data.
