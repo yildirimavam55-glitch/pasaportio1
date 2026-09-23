@@ -269,7 +269,7 @@ function Experience({
           </div>
         );
       case "COMPATIBILITY":
-        return service === "esim" && assistantRoute && assistantOpen ? (
+        return service === "esim" && (!assistantRoute || assistantOpen) ? (
           <DeviceCompatibilitySection key={section.id} />
         ) : null;
       case "TRUST":
