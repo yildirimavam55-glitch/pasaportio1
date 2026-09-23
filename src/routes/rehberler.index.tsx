@@ -38,9 +38,8 @@ export const Route = createFileRoute("/rehberler/")({
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
-      { name: "robots", content: "noindex, follow" },
     ],
-    links: [{ rel: "canonical", href: "https://wanderlust-core.lovable.app/guides" }],
+    links: [{ rel: "canonical", href: "https://wanderlust-core.lovable.app/rehberler" }],
   }),
   component: RehberlerPage,
 });
