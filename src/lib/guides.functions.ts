@@ -47,6 +47,8 @@ export type GuideRelation = {
   cityName: string | null;
   airportIata: string | null;
   routeSlug: string | null;
+  routeLabel: string | null;
+  routeIsos: string[];
   serviceType: string | null;
   productId: string | null;
   ctaEnabled: boolean;
@@ -77,8 +79,10 @@ export type GuideListItem = {
 /** A commerce card offered only when a real published product backs it. */
 export type GuideServiceOffer = {
   serviceType: "ESIM" | "LOUNGE";
-  scope: "COUNTRY" | "AIRPORT";
+  scope: "COUNTRY" | "AIRPORT" | "ROUTE";
   code: string;
+  label: string | null;
+  routeIsos: string[];
   productCount: number;
   amount: number;
   currency: string;
@@ -141,6 +145,11 @@ function labelOf(labels: any, locale: Locale, fallback: string) {
   );
 }
 
+function routeLabelOf(labels: any, fallback: string) {
+  const dict = labels && typeof labels === "object" ? labels : {};
+  return dict?.tr?.name ?? dict?.en?.name ?? dict?.de?.name ?? fallback;
+}
+
 function sectionsOf(value: unknown): GuideSection[] {
   if (!Array.isArray(value)) return [];
   return value
@@ -162,6 +171,10 @@ function relationsOf(rows: any[]): GuideRelation[] {
     cityName: row.city_name ?? null,
     airportIata: row.airport_iata ? String(row.airport_iata).toUpperCase() : null,
     routeSlug: row.guide_routes?.slug ?? null,
+    routeLabel: row.guide_routes?.slug ? routeLabelOf(row.guide_routes?.labels, row.guide_routes.slug) : null,
+    routeIsos: Array.isArray(row.guide_routes?.country_isos)
+      ? row.guide_routes.country_isos.map((iso: string) => String(iso).toUpperCase()).filter(Boolean)
+      : [],
     serviceType: row.service_type ?? null,
     productId: row.product_id ?? null,
     ctaEnabled: row.cta_enabled !== false,
@@ -172,7 +185,7 @@ const GUIDE_SELECT =
   "id, slug, content_type, status, published_at, updated_at, featured, sort_order, hero_image_url, hero_alt, reading_minutes, " +
   "guide_categories(slug, labels), " +
   "guide_translations(locale, slug, title, excerpt, intro, sections, faq, seo_title, seo_description, translation_status), " +
-  "guide_relations(relation_type, country_iso, city_name, airport_iata, service_type, product_id, cta_enabled, sort_order, guide_routes(slug))";
+  "guide_relations(relation_type, country_iso, city_name, airport_iata, service_type, product_id, cta_enabled, sort_order, guide_routes(slug, labels, country_isos))";
 
 function pickTranslation(row: any, locale: Locale) {
   const published = (row.guide_translations ?? []).filter(
@@ -262,6 +275,8 @@ async function esimOffers(
           serviceType: "ESIM",
           scope: "COUNTRY",
           code: iso,
+          label: null,
+          routeIsos: [],
           productCount: 1,
           amount,
           currency: row.currency ?? "EUR",
@@ -276,6 +291,56 @@ async function esimOffers(
     }
   }
   return [...offers.values()];
+}
+
+async function routeEsimOffers(
+  client: ReturnType<typeof publicClient>,
+  routes: Array<{ slug: string; label: string | null; countryIsos: string[] }>,
+  showTest: boolean,
+): Promise<GuideServiceOffer[]> {
+  if (!routes.length) return [];
+  const offers: GuideServiceOffer[] = [];
+  for (const route of routes) {
+    if (!route.countryIsos.length) continue;
+    const { data, error } = await client
+      .from("service_products")
+      .select("currency, sale_price, is_test, esim_product_details!inner(coverage_country_isos)")
+      .eq("service_type", "ESIM")
+      .eq("lifecycle", "PUBLISHED")
+      .eq("customer_visible", true)
+      .eq("provider_available", true)
+      .eq("margin_flagged", false)
+      .gt("sale_price", 0)
+      .contains("esim_product_details.coverage_country_isos", route.countryIsos)
+      .limit(400);
+    if (error) throw new Error(error.message);
+    let productCount = 0;
+    let amount = Number.POSITIVE_INFINITY;
+    let currency = "EUR";
+    for (const row of (data ?? []) as any[]) {
+      if (row.is_test && !showTest) continue;
+      const salePrice = Number(row.sale_price);
+      if (!Number.isFinite(salePrice)) continue;
+      productCount += 1;
+      if (salePrice < amount) {
+        amount = salePrice;
+        currency = row.currency ?? currency;
+      }
+    }
+    if (productCount > 0 && Number.isFinite(amount)) {
+      offers.push({
+        serviceType: "ESIM",
+        scope: "ROUTE",
+        code: route.slug,
+        label: route.label,
+        routeIsos: route.countryIsos,
+        productCount,
+        amount,
+        currency,
+      });
+    }
+  }
+  return offers;
 }
 
 /** Real minimum sellable lounge price per requested airport IATA. */
@@ -312,6 +377,8 @@ async function loungeOffers(
         serviceType: "LOUNGE",
         scope: "AIRPORT",
         code: iata,
+        label: null,
+        routeIsos: [],
         productCount: 1,
         amount,
         currency: row.currency ?? "EUR",
@@ -335,13 +402,17 @@ async function resolveOffers(
   client: ReturnType<typeof publicClient>,
   countryIsos: string[],
   airportIatas: string[],
+  routeTargets: Array<{ slug: string; label: string | null; countryIsos: string[] }> = [],
 ): Promise<GuideServiceOffer[]> {
   const [services, showTest] = await Promise.all([
     enabledServices(client),
     isTestCatalogueVisible(),
   ]);
   const result: GuideServiceOffer[] = [];
-  if (services.has("ESIM")) result.push(...(await esimOffers(client, countryIsos, showTest)));
+  if (services.has("ESIM")) {
+    result.push(...(await routeEsimOffers(client, routeTargets, showTest)));
+    result.push(...(await esimOffers(client, countryIsos, showTest)));
+  }
   if (services.has("LOUNGE")) result.push(...(await loungeOffers(client, airportIatas, showTest)));
   return result;
 }
@@ -441,7 +512,10 @@ export const getGuideBySlug = createServerFn({ method: "GET" })
     const ctaAirports = [
       ...new Set(relations.filter((r) => r.airportIata && r.ctaEnabled).map((r) => r.airportIata!)),
     ];
-    const offers = await resolveOffers(client, ctaCountries, ctaAirports);
+    const routeTargets = relations
+      .filter((r) => r.type === "ROUTE" && r.routeSlug && r.routeIsos.length && r.ctaEnabled)
+      .map((r) => ({ slug: r.routeSlug!, label: r.routeLabel, countryIsos: r.routeIsos }));
+    const offers = await resolveOffers(client, ctaCountries, ctaAirports, routeTargets);
 
     const localeSlugs: Partial<Record<Locale, string>> = {};
     for (const t of ((row as any).guide_translations ?? []) as any[]) {
