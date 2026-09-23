@@ -875,8 +875,8 @@ function RecommendedPackageCard({
     <article
       id={`esim-package-${pkg.id}`}
       className={`relative min-h-52 cursor-pointer overflow-hidden rounded-[1.5rem] border shadow-card transition-[border-color,box-shadow,transform] duration-250 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring ${isSelected ? "border-primary ring-1 ring-primary" : "border-primary/30"}`}
-      role="radio"
-      aria-checked={isSelected}
+      role="button"
+      aria-pressed={isSelected}
       tabIndex={0}
       onClick={onSelect}
       onKeyDown={(event) => {
@@ -1197,7 +1197,7 @@ function SecondaryGroup({
         role="radiogroup"
         aria-label={title}
       >
-        {visiblePackages.map((pkg) => {
+        {visiblePackages.map((pkg, index) => {
           const selected = activeSelectedId === pkg.id;
           return (
             <article
@@ -1206,13 +1206,25 @@ function SecondaryGroup({
               className={`esim-rail-card ${variant} ${selected ? "is-selected" : ""}`}
               role="radio"
               aria-checked={selected}
-              tabIndex={0}
+              tabIndex={selected || (!activeSelectedId && index === 0) ? 0 : -1}
               onPointerDown={startPointer}
               onPointerMove={trackPointer}
               onPointerUp={finishPointer}
               onPointerCancel={finishPointer}
               onClick={(event) => selectFromCard(event, pkg.id)}
-              onKeyDown={(event) => selectFromKeyboard(event, pkg.id)}
+              onKeyDown={(event) => {
+                if (event.key === "ArrowRight" || event.key === "ArrowDown" || event.key === "ArrowLeft" || event.key === "ArrowUp") {
+                  event.preventDefault();
+                  const direction = event.key === "ArrowRight" || event.key === "ArrowDown" ? 1 : -1;
+                  const nextIndex = (index + direction + visiblePackages.length) % visiblePackages.length;
+                  const next = visiblePackages[nextIndex];
+                  if (!next) return;
+                  onSelect(next.id);
+                  requestAnimationFrame(() => document.getElementById(`esim-package-${next.id}`)?.focus());
+                  return;
+                }
+                selectFromKeyboard(event, pkg.id);
+              }}
             >
               <div className="relative z-10 flex h-full min-w-0 flex-col items-start text-left">
                 {variant === "unlimited" && (

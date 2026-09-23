@@ -108,7 +108,7 @@ function CartPage() {
               <span className="flex flex-col items-center gap-1"><Zap className="size-4 text-primary" />{copy.instant}</span>
               <span className="flex flex-col items-center gap-1"><Check className="size-4 text-primary" />{copy.noFees}</span>
             </div>
-            <Button variant="cta" size="lg" className="mt-4 w-full scroll-mb-24" aria-disabled="true" aria-describedby="payment-note">
+            <Button variant="cta" size="lg" className="mt-4 w-full scroll-mb-24" disabled aria-describedby="payment-note">
               <ShoppingCart /> {copy.checkout}
             </Button>
             <p id="payment-note" className="mt-3 rounded-xl border border-warning/35 bg-sand-soft/60 px-3 py-2 text-center text-xs font-semibold text-muted-foreground">{copy.paymentNote}</p>

@@ -32,15 +32,21 @@ export const Route = createFileRoute("/auth")({
 function safePath(value: string | undefined) {
   return value && value.startsWith("/") && !value.startsWith("//") ? value : "/account";
 }
-function friendlyAuthError(raw: string | null) {
+function friendlyAuthError(raw: string | null, locale: "tr" | "de" | "en") {
   const key = (raw ?? "").toLowerCase();
-  if (key.includes("invalid login credentials")) return "E-posta veya şifre hatalı. Tekrar dene.";
-  if (key.includes("email not confirmed")) return "Önce e-postandaki doğrulama bağlantısına tıkla.";
+  const messages = {
+    tr: { invalid: "E-posta veya şifre hatalı. Tekrar dene.", confirm: "Önce e-postandaki doğrulama bağlantısına tıkla.", limit: "Çok fazla deneme yaptın. Kısa bir süre sonra tekrar dene.", exists: "Bu e-posta ile zaten bir hesap var. Giriş yapmayı dene.", fallback: "Bir hata oluştu." },
+    de: { invalid: "E-Mail oder Passwort ist falsch. Versuche es erneut.", confirm: "Bestätige zuerst deine E-Mail-Adresse.", limit: "Zu viele Versuche. Bitte versuche es später erneut.", exists: "Für diese E-Mail besteht bereits ein Konto. Versuche dich anzumelden.", fallback: "Ein Fehler ist aufgetreten." },
+    en: { invalid: "Incorrect email or password. Try again.", confirm: "Confirm your email address first.", limit: "Too many attempts. Please try again shortly.", exists: "An account already exists for this email. Try signing in.", fallback: "Something went wrong." },
+  } as const;
+  const message = messages[locale];
+  if (key.includes("invalid login credentials")) return message.invalid;
+  if (key.includes("email not confirmed")) return message.confirm;
   if (key.includes("rate limit") || key.includes("too many"))
-    return "Çok fazla deneme yaptın. Kısa bir süre sonra tekrar dene.";
+    return message.limit;
   if (key.includes("user already registered"))
-    return "Bu e-posta ile zaten bir hesap var. Giriş yapmayı dene.";
-  return raw ?? "Bir hata oluştu.";
+    return message.exists;
+  return raw ?? message.fallback;
 }
 function AuthPage() {
   const { locale } = useI18n();
@@ -85,7 +91,7 @@ function AuthPage() {
       }
     } catch (error) {
       setTone("error");
-      setMessage(friendlyAuthError(error instanceof Error ? error.message : null));
+      setMessage(friendlyAuthError(error instanceof Error ? error.message : null, locale));
     } finally {
       setBusy(false);
     }
