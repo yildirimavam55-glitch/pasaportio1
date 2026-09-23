@@ -2,9 +2,9 @@
 
 ## Optional homepage Finder entry
 
-- [ ] Replace the prominent homepage Finder with one compact optional assistant entry
-- [ ] Reuse the existing Finder unchanged when the assistant is opened
-- [ ] Verify direct Turkey package shopping and optional recommendation journeys at 360–1440 px in TR/DE/EN
+- [x] Replace the prominent homepage Finder with one compact optional assistant entry
+- [x] Reuse the existing Finder unchanged when the assistant is opened
+- [x] Verify direct Turkey package shopping and optional recommendation journeys at 360–1440 px in TR/DE/EN
 
 ## Controlled storefront UI/UX refinement
 
