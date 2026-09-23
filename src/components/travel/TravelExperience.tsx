@@ -1,4 +1,4 @@
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Calculator } from "lucide-react";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { useQuery } from "@tanstack/react-query";
 import esimHeroDesktop from "@/assets/travely-esim-hero.jpg";
@@ -30,9 +30,24 @@ import { QuickSearch } from "./QuickSearch";
 import { DestinationDiscovery } from "./DestinationDiscovery";
 
 const ASSISTANT_COPY = {
-  tr: { open: "Hangi pakete ihtiyacın olduğunu bilmiyor musun? Paket yardımcısını kullan →" },
-  de: { open: "Du weißt nicht, welches Paket passt? Paket-Assistent öffnen →" },
-  en: { open: "Not sure which package you need? Use the package assistant →" },
+  tr: {
+    title: "Kaç GB lazım?",
+    description: "Seyahat süren ve kullanımına göre sana uygun internet miktarını bulalım.",
+    open: "Bana paket öner",
+    close: "Paket yardımcısını kapat",
+  },
+  de: {
+    title: "Wie viel GB brauchst du?",
+    description: "Finde das passende Datenvolumen anhand deiner Reisedauer und Nutzung.",
+    open: "Paket empfehlen",
+    close: "Paket-Assistent schließen",
+  },
+  en: {
+    title: "How many GB do you need?",
+    description: "Find the right data amount based on your trip length and usage.",
+    open: "Recommend a plan",
+    close: "Close plan assistant",
+  },
 } as const;
 import { DeviceCompatibilitySection } from "./DeviceCompatibility";
 import { GuidesStrip } from "@/components/guides/GuidesStrip";
@@ -222,6 +237,18 @@ function Experience({
   };
   const scrollToFinder = () => smoothlyShowFinder();
 
+  const openHomepageAssistant = () => {
+    setAssistantOpen(true);
+    window.requestAnimationFrame(() => {
+      document.getElementById("finder")?.scrollIntoView({
+        behavior: window.matchMedia?.("(prefers-reduced-motion: reduce)").matches
+          ? "auto"
+          : "smooth",
+        block: "start",
+      });
+    });
+  };
+
   const selectorSection = config.sections.find((s) => s.type === "SERVICE_SELECTOR");
   const homepageEsimOrder: Partial<Record<StorefrontSection["type"], number>> = {
     TRUST: 10,
@@ -244,8 +271,14 @@ function Experience({
     if (section.type === "HERO" || section.type === "SERVICE_SELECTOR") return null; // rendered explicitly
     switch (section.type) {
       case "FINDER":
-        if (service === "esim" && assistantRoute && !assistantOpen) {
-          return null;
+        if (service === "esim" && !assistantOpen) {
+          return (
+            <FinderAssistantEntry
+              key={section.id}
+              locale={locale}
+              onOpen={openHomepageAssistant}
+            />
+          );
         }
         return (
           <div
@@ -267,6 +300,18 @@ function Experience({
                 <LoungeFinder state={loungeState} onChange={setLoungeState} />
               )}
             </FinderShell>
+            {service === "esim" && (
+              <div className="mx-auto mt-2 max-w-finder px-3 text-right sm:px-6">
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setAssistantOpen(false)}
+                >
+                  {ASSISTANT_COPY[locale].close}
+                </Button>
+              </div>
+            )}
           </div>
         );
       case "COMPATIBILITY":
@@ -384,22 +429,39 @@ function Experience({
           />
         )}
         <GuidesStrip />
-        {service === "esim" && assistantRoute && !assistantOpen && (
-          <div className="mx-auto mt-6 max-w-finder px-3 text-center sm:px-6">
-            <button
-              type="button"
-              onClick={() => {
-                setAssistantOpen(true);
-                scrollToFinder();
-              }}
-              className="text-sm font-semibold text-primary underline-offset-4 hover:underline"
-            >
-              {ASSISTANT_COPY[locale].open}
-            </button>
-          </div>
-        )}
       </div>
     </PublicShell>
+  );
+}
+
+function FinderAssistantEntry({
+  locale,
+  onOpen,
+}: {
+  locale: "tr" | "de" | "en";
+  onOpen: () => void;
+}) {
+  const copy = ASSISTANT_COPY[locale];
+  return (
+    <section id="finder" className="mx-auto max-w-finder scroll-mt-24 px-3 py-5 sm:px-6 sm:py-7">
+      <div className="flex flex-col gap-4 rounded-2xl border border-border bg-card p-4 shadow-soft sm:flex-row sm:items-center sm:justify-between sm:p-5">
+        <div className="flex min-w-0 items-start gap-3">
+          <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-primary-soft text-primary">
+            <Calculator className="size-5" aria-hidden="true" />
+          </span>
+          <div className="min-w-0">
+            <h2 className="font-display text-lg font-bold sm:text-xl">{copy.title}</h2>
+            <p className="mt-1 max-w-xl text-sm leading-5 text-muted-foreground">
+              {copy.description}
+            </p>
+          </div>
+        </div>
+        <Button type="button" variant="outline" className="min-h-11 w-full shrink-0 sm:w-auto" onClick={onOpen}>
+          {copy.open}
+          <ArrowRight className="size-4" aria-hidden="true" />
+        </Button>
+      </div>
+    </section>
   );
 }
 
