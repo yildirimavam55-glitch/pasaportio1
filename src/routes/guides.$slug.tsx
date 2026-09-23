@@ -45,7 +45,7 @@ export const Route = createFileRoute("/guides/$slug")({
     if (entry.kind === "MISSING") throw notFound();
     return entry;
   },
-  head: ({ loaderData }) => {
+  head: ({ loaderData, params }) => {
     if (!loaderData) {
       return {
         meta: [{ title: "Rehber bulunamadı — Travely" }, { name: "robots", content: "noindex" }],
@@ -84,7 +84,48 @@ export const Route = createFileRoute("/guides/$slug")({
       meta.push({ property: "og:image", content: imageUrl });
       meta.push({ name: "twitter:image", content: imageUrl });
     }
-    return { meta, links: [{ rel: "canonical", href: `${GUIDES_BASE_URL}/${guide.slug}` }] };
+    const canonicalSlug = params.slug;
+    const canonical = `${GUIDES_BASE_URL}/${canonicalSlug}`;
+    meta.push({ property: "og:url", content: canonical });
+    const links: Array<Record<string, string>> = [{ rel: "canonical", href: canonical }];
+    const hreflangOf: Record<string, string> = { tr: "tr", de: "de", en: "en" };
+    for (const [loc, slug] of Object.entries(guide.localeSlugs ?? {})) {
+      if (!slug || !hreflangOf[loc]) continue;
+      links.push({
+        rel: "alternate",
+        hrefLang: hreflangOf[loc],
+        href: `${GUIDES_BASE_URL}/${slug}`,
+      });
+    }
+    const scripts = [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "Article",
+          headline: guide.title,
+          description,
+          mainEntityOfPage: canonical,
+          datePublished: guide.publishedAt ?? guide.updatedAt,
+          dateModified: guide.updatedAt,
+          ...(imageUrl ? { image: imageUrl } : {}),
+          publisher: { "@type": "Organization", name: "Travely" },
+        }),
+      },
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "BreadcrumbList",
+          itemListElement: [
+            { "@type": "ListItem", position: 1, name: "Travely", item: "https://wanderlust-core.lovable.app/" },
+            { "@type": "ListItem", position: 2, name: "Rehberler", item: GUIDES_BASE_URL },
+            { "@type": "ListItem", position: 3, name: guide.title, item: canonical },
+          ],
+        }),
+      },
+    ];
+    return { meta, links, scripts };
   },
   errorComponent: () => <GuideMissing />,
   notFoundComponent: () => <GuideMissing />,
