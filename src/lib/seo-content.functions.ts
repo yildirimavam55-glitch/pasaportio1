@@ -19,10 +19,31 @@ import { familyOf, seoPath, type SeoFamily } from "@/domain/seo/paths";
 
 export type SeoLink = { id: string; title: string; path: string; contentType: string; countryIso: string | null };
 
+export type SeoHubCopy = { title: string; description: string; h1: string };
+
 export type SeoSettings = {
   organizationName: string;
   defaultOgImage: string;
   twitterHandle: string;
+  hubs: Record<Locale, SeoHubCopy>;
+};
+
+export const DEFAULT_HUB_COPY: Record<Locale, SeoHubCopy> = {
+  tr: {
+    title: "eSIM ve Seyahat Rehberleri — Travely",
+    description: "Destinasyon, şehir, eSIM ve seyahat interneti rehberleriyle yolculuğunu planla.",
+    h1: "eSIM ve Seyahat Rehberleri",
+  },
+  de: {
+    title: "eSIM & Reiseratgeber — Travely",
+    description: "Ratgeber zu Reisezielen, Städten, eSIM und mobilem Internet auf Reisen.",
+    h1: "eSIM & Reiseratgeber",
+  },
+  en: {
+    title: "eSIM & Travel Guides — Travely",
+    description: "Destination, city, eSIM and travel internet guides to plan your trip.",
+    h1: "eSIM & Travel Guides",
+  },
 };
 
 export type SeoPage = {
@@ -44,7 +65,27 @@ export type SeoPage = {
 };
 
 const LOCALES: Locale[] = ["tr", "de", "en"];
-const DEFAULT_SETTINGS: SeoSettings = { organizationName: "Travely", defaultOgImage: "", twitterHandle: "" };
+const DEFAULT_SETTINGS: SeoSettings = {
+  organizationName: "Travely",
+  defaultOgImage: "",
+  twitterHandle: "",
+  hubs: DEFAULT_HUB_COPY,
+};
+
+function hubsOf(value: any): Record<Locale, SeoHubCopy> {
+  const clean = (v: unknown, max: number) => String(v ?? "").trim().slice(0, max);
+  const out = {} as Record<Locale, SeoHubCopy>;
+  for (const loc of ["tr", "de", "en"] as Locale[]) {
+    const src = value?.[loc] ?? {};
+    const def = DEFAULT_HUB_COPY[loc];
+    out[loc] = {
+      title: clean(src.title, 120) || def.title,
+      description: clean(src.description, 300) || def.description,
+      h1: clean(src.h1, 120) || def.h1,
+    };
+  }
+  return out;
+}
 
 function settingsOf(value: any): SeoSettings {
   return {
@@ -53,6 +94,7 @@ function settingsOf(value: any): SeoSettings {
       ? String(value.defaultOgImage).trim().slice(0, 500)
       : "",
     twitterHandle: String(value?.twitterHandle ?? "").trim().replace(/[^@\w]/g, "").slice(0, 30),
+    hubs: hubsOf(value?.hubs),
   };
 }
 
@@ -241,4 +283,78 @@ export const saveSeoSettings = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     await audit(db, "seo.settings.save", "platform_settings", "seo", null, data);
     return data;
+  });
+
+/* ------------------------------ Guide hubs ------------------------------- */
+
+export type SeoHubItem = SeoLink & {
+  excerpt: string | null;
+  heroImageUrl: string | null;
+  heroAlt: string | null;
+  categorySlug: string | null;
+  featured: boolean;
+  publishedAt: string | null;
+  updatedAt: string;
+};
+
+export type SeoHubData = {
+  locale: Locale;
+  copy: SeoHubCopy;
+  organizationName: string;
+  items: SeoHubItem[];
+  /** Locales that have at least one published + indexable item (for hreflang). */
+  publishedLocales: Locale[];
+};
+
+/** Localized hub: only PUBLISHED guides with a PUBLISHED translation in this exact language. */
+export const getSeoHub = createServerFn({ method: "GET" })
+  .inputValidator((d: { locale: string }) => ({
+    locale: (LOCALES.includes(d?.locale as Locale) ? d.locale : "tr") as Locale,
+  }))
+  .handler(async ({ data }): Promise<SeoHubData> => {
+    const client = publicClient();
+    const [rowsResult, settingsRow] = await Promise.all([
+      client
+        .from("guides")
+        .select(
+          "id, content_type, country_iso, indexable, featured, published_at, updated_at, hero_image_url, hero_alt, guide_categories(slug), guide_translations(locale, slug, title, excerpt, translation_status)",
+        )
+        .eq("status", "PUBLISHED")
+        .limit(500),
+      client.from("platform_settings").select("data").eq("id", "seo").maybeSingle(),
+    ]);
+    if (rowsResult.error) throw new Error(rowsResult.error.message);
+    const settings = (settingsRow as any)?.data?.data ? settingsOf((settingsRow as any).data.data) : DEFAULT_SETTINGS;
+    const published = new Set<Locale>();
+    const items: SeoHubItem[] = [];
+    for (const row of (rowsResult.data ?? []) as any[]) {
+      for (const t of row.guide_translations ?? []) {
+        if (t.translation_status === "PUBLISHED" && row.indexable) published.add(t.locale);
+      }
+      const t = (row.guide_translations ?? []).find(
+        (x: any) => x.locale === data.locale && x.translation_status === "PUBLISHED" && x.slug,
+      );
+      if (!t) continue;
+      items.push({
+        id: row.id,
+        title: t.title,
+        path: seoPath(data.locale, row.content_type, t.slug),
+        contentType: row.content_type,
+        countryIso: row.country_iso ?? null,
+        excerpt: t.excerpt ?? null,
+        heroImageUrl: row.hero_image_url ?? null,
+        heroAlt: row.hero_alt ?? null,
+        categorySlug: row.guide_categories?.slug ?? null,
+        featured: Boolean(row.featured),
+        publishedAt: row.published_at ?? null,
+        updatedAt: row.updated_at,
+      });
+    }
+    return {
+      locale: data.locale,
+      copy: settings.hubs[data.locale],
+      organizationName: settings.organizationName,
+      items,
+      publishedLocales: LOCALES.filter((l) => published.has(l)),
+    };
   });

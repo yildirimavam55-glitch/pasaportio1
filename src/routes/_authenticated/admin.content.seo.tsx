@@ -293,7 +293,12 @@ function AuthorsTab() {
 
 function SettingsTab() {
   const settings = useQuery({ queryKey: ["seo-settings"], queryFn: () => getSeoSettings() });
-  const [form, setForm] = useState<SeoSettings>({ organizationName: "Travely", defaultOgImage: "", twitterHandle: "" });
+  const [form, setForm] = useState<SeoSettings>({
+    organizationName: "Travely",
+    defaultOgImage: "",
+    twitterHandle: "",
+    hubs: DEFAULT_HUB_COPY,
+  });
   useEffect(() => {
     if (settings.data) setForm(settings.data);
   }, [settings.data]);
@@ -316,6 +321,22 @@ function SettingsTab() {
         <Field label="X / Twitter hesabı (@...)">
           <input className="admin-field mt-1 w-full" value={form.twitterHandle} onChange={(e) => setForm({ ...form, twitterHandle: e.target.value })} />
         </Field>
+        {(["tr", "de", "en"] as const).map((loc) => (
+          <fieldset key={loc} className="grid gap-2 rounded-lg border border-border p-3">
+            <legend className="px-1 text-xs font-bold uppercase">Rehber merkezi — {loc}</legend>
+            {(["title", "description", "h1"] as const).map((key) => (
+              <Field key={key} label={key === "title" ? "SEO başlığı" : key === "description" ? "Meta açıklama" : "H1"}>
+                <input
+                  className="admin-field mt-1 w-full"
+                  value={form.hubs[loc][key]}
+                  onChange={(e) =>
+                    setForm({ ...form, hubs: { ...form.hubs, [loc]: { ...form.hubs[loc], [key]: e.target.value } } })
+                  }
+                />
+              </Field>
+            ))}
+          </fieldset>
+        ))}
         <Button onClick={() => save.mutate()} disabled={save.isPending}>
           Kaydet
         </Button>
