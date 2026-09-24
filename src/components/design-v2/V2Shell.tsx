@@ -2,6 +2,9 @@ import type { ReactNode } from "react";
 import { Link } from "@tanstack/react-router";
 import { ArrowRight, Car, Home, Plane, ShoppingBag, Smartphone, UserRound } from "lucide-react";
 import { PublicShell } from "@/components/travel/PublicShell";
+import { WhatsAppLogo } from "@/components/travel/WhatsAppLogo";
+import { waLink } from "@/lib/whatsapp";
+import { useCart } from "@/domain/cart/store";
 import { useI18n } from "@/i18n";
 import type { Locale } from "@/domain/enums";
 
@@ -25,11 +28,12 @@ export function pick<T>(locale: Locale, value: Record<Locale, T>): T {
 /** Same public shell (header, account, footer) + compact service switcher + V2 bottom nav. */
 export function V2Shell({ service, children }: { service: V2Service; children: ReactNode }) {
   return (
-    <PublicShell hideStickySearch>
-      <div className="mx-auto w-full max-w-xl overflow-x-clip px-4 pb-40 pt-3">
+    <PublicShell hideStickySearch hideFloatingWhatsApp>
+      <div className="mx-auto w-full max-w-xl overflow-x-clip px-4 pb-44 pt-3">
         <ServiceSwitcher active={service} />
         {children}
       </div>
+      <ActionDock />
       <BottomNav active={service} />
     </PublicShell>
   );
@@ -195,17 +199,48 @@ export function HowItWorks({ title, steps }: { title: string; steps: Array<{ t: 
   );
 }
 
-/** Existing cart, surfaced above the bottom nav (leaves room for the WhatsApp button). */
-export function CartBar({ count, label }: { count: number; label: string }) {
-  if (!count) return null;
+const DOCK = {
+  tr: { cart: "Sepete git", wa: "WhatsApp destek" },
+  de: { cart: "Zum Warenkorb", wa: "WhatsApp-Support" },
+  en: { cart: "Go to cart", wa: "WhatsApp support" },
+};
+
+/**
+ * One docked row above the bottom nav: existing cart CTA (when it has items) + WhatsApp.
+ * Both share a single row so neither stacks over the other; page bottom padding keeps
+ * the last cards/rows scrollable clear of it.
+ */
+function ActionDock() {
+  const { locale } = useI18n();
+  const l = pick(locale, DOCK);
+  const { count } = useCart();
   return (
-    <div className="fixed inset-x-0 bottom-[4.5rem] z-30 px-4 pr-20 sm:bottom-4 sm:pr-4">
-      <Link to="/sepet" className="mx-auto flex min-h-12 max-w-xl items-center justify-between rounded-full bg-primary px-5 text-sm font-semibold text-primary-foreground shadow-lg">
-        <span className="flex items-center gap-2"><ShoppingBag className="size-4" />{label}</span>
-        <span className="rounded-full bg-primary-foreground/15 px-2.5 py-0.5">{count}</span>
-      </Link>
+    <div className="pointer-events-none fixed inset-x-0 bottom-[calc(3.75rem+env(safe-area-inset-bottom))] z-30 px-4 pb-2 sm:bottom-4">
+      <div className="mx-auto flex max-w-xl items-center justify-end gap-2">
+        {count > 0 && (
+          <Link to="/sepet" className="pointer-events-auto flex h-11 flex-1 items-center justify-between rounded-full bg-primary px-4 text-sm font-semibold text-primary-foreground shadow-lg">
+            <span className="flex items-center gap-2"><ShoppingBag className="size-4" />{l.cart}</span>
+            <span className="rounded-full bg-primary-foreground/15 px-2.5 py-0.5">{count}</span>
+          </Link>
+        )}
+        <a
+          href={waLink()}
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label={l.wa}
+          className="pointer-events-auto grid size-11 shrink-0 place-items-center rounded-full shadow-lg hover:brightness-95"
+          style={{ backgroundColor: "#25D366", color: "#fff" }}
+        >
+          <WhatsAppLogo className="size-6" />
+        </a>
+      </div>
     </div>
   );
+}
+
+/** Kept for page imports; the docked row now renders the cart CTA. */
+export function CartBar(_props: { count: number; label: string }) {
+  return null;
 }
 
 export function money(value: number, currency: string) {

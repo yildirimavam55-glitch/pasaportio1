@@ -33,9 +33,9 @@ export const Route = createFileRoute("/design-v2/esim")({
 });
 
 const T = {
-  tr: { h: "Yurt dışında bağlantıda kal.", q: "Hangi ülke için eSIM arıyorsun?", ph: "Ülke ara (örn. Türkiye, İtalya, ABD)", setup: "Hızlı kurulum", net: "4G / 5G", pay: "Güvenli ödeme", support: "7/24 destek", popular: "Popüler eSIM ülkeleri", from: "başlayan", all: "Tüm paketler", unl: "Sınırsız", days: "gün", select: "Seç", added: "Eklendi", cart: "Sepete git", none: "Bu ülke için şu anda yayınlanmış paket yok.", noPrices: "Fiyatlar yakında burada.", back: "Başka ülke", unlimited: "Sınırsız", promo: "Havalimanında beklerken rahat et.", promoSub: "Lounge seçeneklerine göz at.", how: "Nasıl çalışır?", steps: [{ t: "Ülkeni seç", s: "Sana uygun paketi bul." }, { t: "Satın al", s: "Güvenli ödeme." }, { t: "QR ile kur", s: "Telefonuna ekle, bağlan." }] },
-  de: { h: "Im Ausland verbunden bleiben.", q: "Für welches Land suchst du eine eSIM?", ph: "Land suchen (z. B. Türkei, Italien, USA)", setup: "Schnelle Einrichtung", net: "4G / 5G", pay: "Sichere Zahlung", support: "24/7 Support", popular: "Beliebte eSIM-Länder", from: "ab", all: "Alle Pakete", unl: "Unbegrenzt", days: "Tage", select: "Wählen", added: "Hinzugefügt", cart: "Zum Warenkorb", none: "Für dieses Land gibt es aktuell keine Pakete.", noPrices: "Preise folgen in Kürze.", back: "Anderes Land", unlimited: "Unbegrenzt", promo: "Entspannt warten am Flughafen.", promoSub: "Lounges ansehen.", how: "So funktioniert’s", steps: [{ t: "Land wählen", s: "Passendes Paket finden." }, { t: "Kaufen", s: "Sichere Zahlung." }, { t: "Per QR einrichten", s: "Aufs Handy laden, verbinden." }] },
-  en: { h: "Stay connected abroad.", q: "Which country do you need an eSIM for?", ph: "Search country (e.g. Türkiye, Italy, USA)", setup: "Fast setup", net: "4G / 5G", pay: "Secure payment", support: "24/7 support", popular: "Popular eSIM destinations", from: "from", all: "All plans", unl: "Unlimited", days: "days", select: "Select", added: "Added", cart: "Go to cart", none: "No published plans for this country right now.", noPrices: "Prices coming soon.", back: "Other country", unlimited: "Unlimited", promo: "Relax while you wait.", promoSub: "Browse airport lounges.", how: "How it works", steps: [{ t: "Pick a country", s: "Find the right plan." }, { t: "Buy", s: "Secure payment." }, { t: "Install via QR", s: "Add to your phone, connect." }] },
+  tr: { h: "Yurt dışında bağlantıda kal.", q: "Hangi ülke için eSIM arıyorsun?", ph: "Ülke ara, örn. İtalya", setup: "Hızlı kurulum", net: "4G / 5G", pay: "Kolay paket seçimi", support: "WhatsApp destek", popular: "Popüler eSIM ülkeleri", from: "başlayan", all: "Tüm paketler", unl: "Sınırsız", days: "gün", select: "Seç", added: "Eklendi", cart: "Sepete git", none: "Bu ülke için şu anda yayınlanmış paket yok.", noPrices: "Fiyatlar yakında burada.", back: "Başka ülke", unlimited: "Sınırsız", countries: "ülke", promo: "Havalimanında beklerken rahat et.", promoSub: "Lounge seçeneklerine göz at.", how: "Nasıl çalışır?", steps: [{ t: "Ülkeni seç", s: "Sana uygun paketi bul." }, { t: "Sepete ekle", s: "Paketini seç, sepete ekle." }, { t: "Kur ve bağlan", s: "Kurulum bilgilerini hesabından takip et." }] },
+  de: { h: "Im Ausland verbunden bleiben.", q: "Für welches Land suchst du eine eSIM?", ph: "Land suchen, z. B. Türkei", setup: "Schnelle Einrichtung", net: "4G / 5G", pay: "Einfache Paketwahl", support: "WhatsApp-Support", popular: "Beliebte eSIM-Länder", from: "ab", all: "Alle Pakete", unl: "Unbegrenzt", days: "Tage", select: "Wählen", added: "Hinzugefügt", cart: "Zum Warenkorb", none: "Für dieses Land gibt es aktuell keine Pakete.", noPrices: "Preise folgen in Kürze.", back: "Anderes Land", unlimited: "Unbegrenzt", countries: "Länder", promo: "Entspannt warten am Flughafen.", promoSub: "Lounges ansehen.", how: "So funktioniert’s", steps: [{ t: "Land wählen", s: "Passendes Paket finden." }, { t: "In den Warenkorb", s: "Paket wählen und hinzufügen." }, { t: "Einrichten & verbinden", s: "Einrichtungsinfos findest du in deinem Konto." }] },
+  en: { h: "Stay connected abroad.", q: "Which country do you need an eSIM for?", ph: "Search country, e.g. Italy", setup: "Fast setup", net: "4G / 5G", pay: "Easy plan choice", support: "WhatsApp support", popular: "Popular eSIM destinations", from: "from", all: "All plans", unl: "Unlimited", days: "days", select: "Select", added: "Added", cart: "Go to cart", none: "No published plans for this country right now.", noPrices: "Prices coming soon.", back: "Other country", unlimited: "Unlimited", countries: "countries", promo: "Relax while you wait.", promoSub: "Browse airport lounges.", how: "How it works", steps: [{ t: "Pick a country", s: "Find the right plan." }, { t: "Add to cart", s: "Pick your plan and add it." }, { t: "Set up & connect", s: "Find setup details in your account." }] },
 };
 
 function EsimV2() {
@@ -140,7 +140,15 @@ function Packages({ iso, name, c, onBack }: { iso: string; name: string; c: (typ
     queryFn: () => listEsimPackages({ data: { coverageIsos: [iso] } }),
   });
   const hasUnlimited = data.some((p) => p.unlimited);
-  const rows = (tab === "unl" ? data.filter((p) => p.unlimited) : data).slice().sort((a, b) => (a.salePrice ?? 0) - (b.salePrice ?? 0));
+  // Presentation-only dedupe: rows identical on every customer-visible attribute
+  // (data, validity, price, 5G, number of covered countries) collapse to the first real product.
+  const rows = (tab === "unl" ? data.filter((p) => p.unlimited) : data)
+    .slice()
+    .sort((a, b) => (a.salePrice ?? 0) - (b.salePrice ?? 0) || a.coverage.length - b.coverage.length)
+    .filter((p, i, all) => {
+      const key = (x: EsimPackage) => [x.unlimited, x.dataGb, x.validityDays, x.salePrice, x.supports5g, x.coverage.length].join("|");
+      return all.findIndex((x) => key(x) === key(p)) === i;
+    });
   const add = (p: EsimPackage) =>
     addLine({
       productId: p.id,
@@ -191,6 +199,7 @@ function Packages({ iso, name, c, onBack }: { iso: string; name: string; c: (typ
                   <p className="text-xs text-muted-foreground">
                     {p.validityDays ? `${p.validityDays} ${c.days}` : ""}
                     {p.supports5g ? " · 5G" : ""}
+                    {p.coverage.length > 1 ? ` · ${p.coverage.length} ${c.countries}` : ""}
                   </p>
                 </div>
                 <span className="text-base font-bold text-foreground">{p.salePrice != null ? money(p.salePrice, p.currency) : ""}</span>

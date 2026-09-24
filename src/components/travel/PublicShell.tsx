@@ -204,12 +204,15 @@ export function PublicShell({
   activeService,
   onServiceChange,
   hideStickySearch = false,
+  hideFloatingWhatsApp = false,
 }: {
   children: ReactNode;
   activeService?: ServiceSlug;
   onServiceChange?: (service: ServiceSlug, options?: { scrollToFinder?: boolean }) => void;
   /** Customer portal pages never show the homepage destination search. */
   hideStickySearch?: boolean;
+  /** Design-preview pages dock their own WhatsApp button; production keeps the default. */
+  hideFloatingWhatsApp?: boolean;
 }) {
   const { locale } = useI18n();
   const copy = localized(GLOBAL_CONTENT, locale);
@@ -502,7 +505,7 @@ export function PublicShell({
       )}
       <main>{children}</main>
       <PublicFooter fallback={copy.footer} supportLabel={copy.nav.support} />
-      <Button
+      {!hideFloatingWhatsApp && <Button
         asChild
         size="lg"
         className="fixed bottom-20 right-4 z-40 size-12 rounded-full p-0 shadow-lg sm:bottom-6 sm:right-6"
@@ -517,7 +520,7 @@ export function PublicShell({
         >
           <WhatsAppLogo className="size-6" />
         </a>
-      </Button>
+      </Button>}
 
     </div>
   );
