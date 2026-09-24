@@ -273,48 +273,48 @@ function Experience({
     if (section.type === "HERO" || section.type === "SERVICE_SELECTOR") return null; // rendered explicitly
     switch (section.type) {
       case "FINDER":
-        if (service === "esim" && !assistantOpen) {
-          return (
-            <FinderAssistantEntry
-              key={section.id}
-              locale={locale}
-              onOpen={openHomepageAssistant}
-            />
-            <DestinationDiscovery section={config.sections.find((candidate) => candidate.type === "POPULAR_DESTINATIONS") ?? null} mode="regional" />
-            <SilaYoluPromo locale={locale} />
-          );
-        }
         return (
-          <div
-            key={section.id}
-            className="service-finder-transition"
-            data-phase={phase ?? undefined}
-          >
-            <FinderShell
-              title={
-                service === "esim"
-                  ? tx(section, "headline", locale, copy.finderTitle)
-                  : tx(section, "headline", locale, copy.finderTitle)
-              }
-              description={tx(section, "description", locale, copy.finderDescription)}
-            >
-              {service === "esim" ? (
-                <EsimFinder state={esimState} onChange={setEsimState} />
-              ) : (
-                <LoungeFinder state={loungeState} onChange={setLoungeState} />
-              )}
-            </FinderShell>
-            {service === "esim" && (
-              <div className="mx-auto mt-2 max-w-finder px-3 text-right sm:px-6">
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setAssistantOpen(false)}
+          <div key={section.id}>
+            {service === "esim" && !assistantOpen ? (
+              <FinderAssistantEntry locale={locale} onOpen={openHomepageAssistant} />
+            ) : (
+              <div className="service-finder-transition" data-phase={phase ?? undefined}>
+                <FinderShell
+                  title={tx(section, "headline", locale, copy.finderTitle)}
+                  description={tx(section, "description", locale, copy.finderDescription)}
                 >
-                  {ASSISTANT_COPY[locale].close}
-                </Button>
+                  {service === "esim" ? (
+                    <EsimFinder state={esimState} onChange={setEsimState} />
+                  ) : (
+                    <LoungeFinder state={loungeState} onChange={setLoungeState} />
+                  )}
+                </FinderShell>
+                {service === "esim" && (
+                  <div className="mx-auto mt-2 max-w-finder px-3 text-right sm:px-6">
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setAssistantOpen(false)}
+                    >
+                      {ASSISTANT_COPY[locale].close}
+                    </Button>
+                  </div>
+                )}
               </div>
+            )}
+            {service === "esim" && (
+              <>
+                <DestinationDiscovery
+                  section={
+                    config.sections.find(
+                      (candidate) => candidate.type === "POPULAR_DESTINATIONS",
+                    ) ?? null
+                  }
+                  mode="regional"
+                />
+                <SilaYoluPromo locale={locale} />
+              </>
             )}
           </div>
         );
