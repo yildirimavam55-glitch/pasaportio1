@@ -2,6 +2,24 @@ import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { adminDb, audit, type AdminCtx } from "@/lib/admin-guard";
 import { itemMargin } from "@/domain/finance/formulas";
+import { explainPrice, pricingFromRule, validateRuleInput, SUPPORTED_CURRENCIES } from "@/domain/pricing-rule";
+import { selectPricingRule } from "@/domain/providers/sync-engine";
+
+const RULE_COLUMNS = "id, name, service_type, provider_id, strategy, markup_percent, fixed_markup, minimum_margin_percent, rounding_mode, currency, active, priority";
+
+/** Resolves the rule the sync would use for a product, with the same precedence. */
+async function resolveAutoPricing(db: any, product: { primary_provider_id: string | null; service_type: string }) {
+  const { data: rules } = await db.from("pricing_rules").select(RULE_COLUMNS).eq("active", true);
+  let providerMin: number | null = null;
+  let providerCurrency = "EUR";
+  if (product.primary_provider_id) {
+    const { data: provider } = await db.from("providers").select("minimum_margin_percent, currency").eq("id", product.primary_provider_id).maybeSingle();
+    providerMin = provider?.minimum_margin_percent == null ? null : Number(provider.minimum_margin_percent);
+    providerCurrency = provider?.currency ?? "EUR";
+  }
+  const rule = selectPricingRule((rules ?? []) as any[], { providerId: product.primary_provider_id ?? "", serviceType: product.service_type }) as any;
+  return { rule, pricing: pricingFromRule(rule, providerCurrency, providerMin) };
+}
 
 /**
  * Product management. Provider-owned fields (provider_cost, provider_currency,
@@ -61,6 +79,8 @@ export const updateProduct = createServerFn({ method: "POST" })
       salePrice?: number | null;
       pricingRuleId?: string | null;
       priceOverridden?: boolean;
+      /** AUTO = follow the pricing rule; MANUAL = fixed customer price. Omit to leave price untouched. */
+      pricingMode?: "AUTO" | "MANUAL";
       badge?: string | null;
       featured?: boolean;
       customerVisible?: boolean;
@@ -74,7 +94,7 @@ export const updateProduct = createServerFn({ method: "POST" })
     const db = await adminDb(context as AdminCtx);
     const { data: before, error: readError } = await db
       .from("service_products")
-      .select("id, name, sale_price, provider_cost, currency, badge, featured, customer_visible, sort_order, lifecycle, pricing_rule_id, price_overridden, margin_flagged")
+      .select("id, name, sale_price, provider_cost, currency, badge, featured, customer_visible, sort_order, lifecycle, pricing_rule_id, price_overridden, margin_flagged, primary_provider_id, service_type")
       .eq("id", data.id)
       .maybeSingle();
     if (readError) throw new Error(readError.message);
@@ -82,15 +102,40 @@ export const updateProduct = createServerFn({ method: "POST" })
 
     const patch: Record<string, unknown> = {};
     if (data.name != null) patch["name"] = String(data.name).slice(0, 180);
-    if (data.salePrice !== undefined) {
-      const price = data.salePrice == null ? null : Number(data.salePrice);
-      if (price != null && (!Number.isFinite(price) || price < 0)) throw new Error("Satış fiyatı geçersiz.");
-      patch["sale_price"] = price;
-      patch["price_overridden"] = data.priceOverridden ?? true;
-    } else if (data.priceOverridden !== undefined) {
-      patch["price_overridden"] = data.priceOverridden;
+    // Pricing source. Supplier cost is never written here.
+    let pricingAction: string | null = null;
+    if (data.pricingMode === "MANUAL") {
+      const price = Number(data.salePrice);
+      if (data.salePrice == null || !Number.isFinite(price) || price <= 0) throw new Error("Manuel satış fiyatı 0'dan büyük olmalı.");
+      const rounded = Math.round(price * 100) / 100;
+      patch["sale_price"] = rounded;
+      patch["price_overridden"] = true;
+      pricingAction = before.price_overridden
+        ? (Number(before.sale_price) !== rounded ? "pricing.override.changed" : null)
+        : "pricing.override.created";
+    } else if (data.pricingMode === "AUTO") {
+      const { rule, pricing } = await resolveAutoPricing(db, before as any);
+      if (!pricing || before.provider_cost == null) {
+        throw new Error("Otomatik fiyat hesaplanamadı (geçerli kural veya maliyet yok). Mevcut fiyat korundu.");
+      }
+      const result = explainPrice(Number(before.provider_cost), pricing);
+      if (!Number.isFinite(result.salePrice) || result.salePrice <= 0) throw new Error("Hesaplanan fiyat geçersiz. Mevcut fiyat korundu.");
+      patch["sale_price"] = result.salePrice;
+      patch["currency"] = pricing.currency;
+      patch["price_overridden"] = false;
+      patch["pricing_rule_id"] = rule?.id ?? null;
+      patch["pricing_review_required"] = false;
+      patch["priced_at"] = new Date().toISOString();
+      patch["pricing_snapshot"] = {
+        providerCost: Number(before.provider_cost), pricingRuleId: rule?.id ?? null, pricingRuleName: rule?.name ?? null,
+        strategy: pricing.strategy, markupPercent: pricing.markupPercent ?? null, fixedMarkup: pricing.fixedMarkup ?? null,
+        minimumMarginPercent: pricing.minimumMarginPercent ?? null, roundingMode: pricing.roundingMode, currency: pricing.currency,
+        rawPrice: result.rawPrice, salePrice: result.salePrice, marginPercent: result.marginPercent,
+        calculatedAt: new Date().toISOString(), source: "ADMIN_AUTO",
+      };
+      pricingAction = before.price_overridden ? "pricing.override.removed" : null;
     }
-    if (data.pricingRuleId !== undefined) patch["pricing_rule_id"] = data.pricingRuleId || null;
+    if (data.pricingRuleId !== undefined && data.pricingMode !== "AUTO") patch["pricing_rule_id"] = data.pricingRuleId || null;
     if (data.badge !== undefined) patch["badge"] = data.badge ? String(data.badge).slice(0, 40) : null;
     if (data.featured !== undefined) patch["featured"] = Boolean(data.featured);
     if (data.customerVisible !== undefined) patch["customer_visible"] = Boolean(data.customerVisible);
@@ -126,6 +171,11 @@ export const updateProduct = createServerFn({ method: "POST" })
     }
 
     await audit(db, "product.update", "service_product", data.id, before, patch);
+    if (pricingAction) {
+      await audit(db, pricingAction, "service_product", data.id,
+        { salePrice: before.sale_price, manual: before.price_overridden, providerCost: before.provider_cost },
+        { salePrice: patch["sale_price"], manual: patch["price_overridden"] });
+    }
     return { product: after, margin, minimumMargin };
   });
 
@@ -181,6 +231,7 @@ export const savePricingRule = createServerFn({ method: "POST" })
       fixedMarkup?: number | null;
       minimumMarginPercent?: number | null;
       roundingMode?: string | null;
+      currency?: string | null;
       active?: boolean;
       priority?: number;
     }) => input,
@@ -188,6 +239,10 @@ export const savePricingRule = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context, data }) => {
     const db = await adminDb(context as AdminCtx);
+    const currency = String(data.currency ?? "EUR").toUpperCase();
+    const invalid = validateRuleInput({ ...data, currency });
+    if (invalid) throw new Error(invalid);
+    if (!Number.isFinite(Number(data.priority ?? 0))) throw new Error("Öncelik geçersiz.");
     const patch: Record<string, unknown> = {
       name: String(data.name ?? "").slice(0, 120) || "Kural",
       service_type: data.serviceType === "ESIM" || data.serviceType === "LOUNGE" ? data.serviceType : null,
@@ -199,13 +254,19 @@ export const savePricingRule = createServerFn({ method: "POST" })
       rounding_mode: ["NONE", "NEAREST_99", "NEAREST_95", "INTEGER", "TWO_DECIMALS"].includes(String(data.roundingMode))
         ? String(data.roundingMode)
         : "TWO_DECIMALS",
+      currency: (SUPPORTED_CURRENCIES as readonly string[]).includes(currency) ? currency : "EUR",
       active: data.active !== false,
       priority: Number(data.priority) || 0,
     };
     if (data.id) {
+      const { data: previous } = await db.from("pricing_rules").select(RULE_COLUMNS).eq("id", data.id).maybeSingle();
       const { error } = await db.from("pricing_rules").update(patch).eq("id", data.id);
       if (error) throw new Error(error.message);
-      await audit(db, "pricing_rule.update", "pricing_rule", data.id, null, patch);
+      await audit(db, "pricing_rule.update", "pricing_rule", data.id, previous, patch);
+      if (previous && Number(previous.markup_percent) !== Number(patch["markup_percent"])) {
+        await audit(db, "pricing_rule.markup_changed", "pricing_rule", data.id,
+          { markupPercent: previous.markup_percent }, { markupPercent: patch["markup_percent"] });
+      }
       return { ok: true, id: data.id };
     }
     const { data: inserted, error } = await db.from("pricing_rules").insert(patch).select("id").single();
@@ -224,4 +285,66 @@ export const archivePricingRule = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     await audit(db, "pricing_rule.archive", "pricing_rule", data.id, null, { active: false });
     return { ok: true };
+  });
+
+/**
+ * READ-ONLY impact preview for a (draft) rule. Uses the same rule→pricing
+ * conversion and pricing engine as the sync. Nothing is written.
+ * Affected = non-overridden, priced products in the rule's scope.
+ */
+export const previewPricingRuleImpact = createServerFn({ method: "POST" })
+  .inputValidator(
+    (input: {
+      serviceType?: "ESIM" | "LOUNGE" | null;
+      providerId?: string | null;
+      strategy: "MANUAL" | "MARKUP_PERCENT" | "FIXED_MARKUP";
+      markupPercent?: number | null;
+      fixedMarkup?: number | null;
+      minimumMarginPercent?: number | null;
+      roundingMode?: string | null;
+      currency?: string | null;
+    }) => input,
+  )
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context, data }) => {
+    const db = await adminDb(context as AdminCtx);
+    const invalid = validateRuleInput({ ...data, currency: data.currency ?? "EUR" });
+    if (invalid) return { error: invalid, affected: 0, overridden: 0, samples: [] as any[] };
+    const pricing = pricingFromRule({
+      strategy: data.strategy, markup_percent: data.markupPercent ?? null, fixed_markup: data.fixedMarkup ?? null,
+      minimum_margin_percent: data.minimumMarginPercent ?? null, rounding_mode: data.roundingMode, currency: data.currency ?? "EUR",
+    }, "EUR", null);
+    if (!pricing) return { error: "Bu ayarla otomatik fiyat hesaplanamaz (elle fiyatlamada ürün fiyatları değişmez).", affected: 0, overridden: 0, samples: [] as any[] };
+
+    const scoped = () => {
+      let q = db.from("service_products").select("id", { count: "exact", head: true }).not("provider_cost", "is", null);
+      if (data.serviceType) q = q.eq("service_type", data.serviceType);
+      if (data.providerId) q = q.eq("primary_provider_id", data.providerId);
+      return q;
+    };
+    const [{ count: affected }, { count: overridden }] = await Promise.all([
+      scoped().eq("price_overridden", false),
+      scoped().eq("price_overridden", true),
+    ]);
+
+    const patterns = ["%, Turkey, V2", "%, Germany, V2", "%Europe+%", "%Unlimited%Turkey%", "%Unlimited%"];
+    const samples: any[] = [];
+    for (const pattern of patterns) {
+      let q = db.from("service_products").select("id, name, provider_cost, sale_price, currency")
+        .eq("price_overridden", false).not("provider_cost", "is", null).ilike("name", pattern).order("provider_cost").limit(2);
+      if (data.serviceType) q = q.eq("service_type", data.serviceType);
+      if (data.providerId) q = q.eq("primary_provider_id", data.providerId);
+      const { data: rows } = await q;
+      for (const row of rows ?? []) if (!samples.some((s) => s.id === row.id)) samples.push(row);
+      if (samples.length >= 8) break;
+    }
+    return {
+      error: null,
+      affected: affected ?? 0,
+      overridden: overridden ?? 0,
+      samples: samples.slice(0, 8).map((row) => {
+        const next = explainPrice(Number(row.provider_cost), pricing);
+        return { id: row.id, name: row.name, providerCost: Number(row.provider_cost), currentPrice: row.sale_price == null ? null : Number(row.sale_price), newPrice: next.salePrice, rawPrice: next.rawPrice, currency: pricing.currency };
+      }),
+    };
   });

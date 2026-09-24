@@ -20,6 +20,8 @@ export type PricingRule = {
 
 export type PriceComputation = {
   salePrice: number;
+  /** Price after markup, before rounding (for admin transparency). */
+  rawPrice: number;
   providerCost: number;
   currency: string;
   marginAbsolute: number;
@@ -71,6 +73,7 @@ export function computePrice(providerCost: number, rule: PricingRule): PriceComp
 
   return {
     salePrice,
+    rawPrice: raw,
     providerCost: cost,
     currency: rule.currency,
     marginAbsolute,

@@ -200,7 +200,7 @@ export const getAdminOperations = createServerFn({ method: "GET" })
   });
 
 const CATALOGUE_SELECT =
-  "id, name, slug, service_type, lifecycle, customer_visible, provider_available, sale_price, provider_cost, provider_currency, currency, badge, featured, sort_order, margin_flagged, price_overridden, pricing_rule_id, is_test, primary_provider_id, destinations(name, slug), airports(iata, name), providers(name), product_translations(locale, short_description), esim_product_details(country_iso, package_kind, coverage_country_isos, coverage_subdivision_codes, data_gb, unlimited_data, validity_days, regions(name)), lounge_product_details(iata, terminal, lounge_name)";
+  "id, name, slug, service_type, lifecycle, customer_visible, provider_available, sale_price, provider_cost, provider_currency, currency, badge, featured, sort_order, margin_flagged, price_overridden, pricing_rule_id, pricing_snapshot, pricing_review_required, priced_at, provider_external_id, is_test, primary_provider_id, destinations(name, slug), airports(iata, name), providers(name), product_translations(locale, short_description), esim_product_details(country_iso, package_kind, coverage_country_isos, coverage_subdivision_codes, data_gb, unlimited_data, validity_days, regions(name)), lounge_product_details(iata, terminal, lounge_name)";
 
 export type AdminCatalogueQuery = {
   page: number;

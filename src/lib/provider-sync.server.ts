@@ -12,6 +12,7 @@
  *  - new provider products default to DRAFT
  *  - provider cost changes are always written to history
  */
+import { pricingFromRule } from "@/domain/pricing-rule";
 import { parseEsimCatalogue, priceItems, hashItem, type PricedItem, type PricingInput } from "@/domain/providers/esim-import";
 import {
   balanceHealth,
@@ -78,32 +79,7 @@ async function adminDb(): Promise<Db> {
  * hidden business fallback: when no valid rule resolves, pricing is UNRESOLVED
  * and the caller must neither reprice nor publish the affected products.
  */
-export function pricingFromRule(
-  rule: any,
-  providerCurrency: string,
-  providerMinMargin: number | null,
-): PricingInput | null {
-  if (!rule) return null;
-  const markupPercent = rule.markup_percent == null ? null : Number(rule.markup_percent);
-  const fixedMarkup = rule.fixed_markup == null ? null : Number(rule.fixed_markup);
-  const minMargin = rule.minimum_margin_percent == null ? null : Number(rule.minimum_margin_percent);
-  const usable =
-    (rule.strategy === "MARKUP_PERCENT" && markupPercent != null && Number.isFinite(markupPercent) && markupPercent >= 0) ||
-    (rule.strategy === "FIXED_MARKUP" && fixedMarkup != null && Number.isFinite(fixedMarkup) && fixedMarkup >= 0) ||
-    (rule.strategy === "MINIMUM_MARGIN" && minMargin != null && minMargin > 0 && minMargin < 100);
-  if (!usable) return null;
-  return {
-    strategy: rule.strategy,
-    markupPercent: rule.markup_percent == null ? null : Number(rule.markup_percent),
-    fixedMarkup: rule.fixed_markup == null ? null : Number(rule.fixed_markup),
-    minimumMarginPercent:
-      rule.minimum_margin_percent == null ? providerMinMargin : Number(rule.minimum_margin_percent),
-    roundingMode: ["NONE", "NEAREST_99", "NEAREST_95", "INTEGER", "TWO_DECIMALS"].includes(rule.rounding_mode)
-      ? rule.rounding_mode
-      : "NEAREST_99",
-    currency: String(rule.currency ?? providerCurrency).toUpperCase().slice(0, 3),
-  };
-}
+export { pricingFromRule };
 
 function snapshotOf(item: PricedItem): CatalogueSnapshotItem {
   return {

@@ -9,6 +9,17 @@ import { Button } from "@/components/ui/button";
 import { getAdminCatalogue, getAdminCatalogueFacets } from "@/lib/admin-control.functions";
 import { bulkUpdateProducts, listPricingRules, updateProduct } from "@/lib/admin-catalog.functions";
 import { itemMargin } from "@/domain/finance/formulas";
+import { explainPrice, pricingFromRule } from "@/domain/pricing-rule";
+import { selectPricingRule } from "@/domain/providers/sync-engine";
+
+const ROUNDING_LABELS: Record<string, string> = { NONE: "Yuvarlama yok", TWO_DECIMALS: "2 ondalık", INTEGER: "Tam sayıya yukarı", NEAREST_99: "… ,99 ile bitir", NEAREST_95: "… ,95 ile bitir" };
+
+function PriceSourceBadge({ product }: { product: any }) {
+  if (product.pricing_review_required) return <span className="inline-flex rounded-full bg-destructive/10 px-2 py-0.5 text-[10px] font-bold text-destructive">Fiyat incelemesi</span>;
+  return product.price_overridden
+    ? <span className="inline-flex rounded-full bg-warning/15 px-2 py-0.5 text-[10px] font-bold text-foreground">Manuel fiyat</span>
+    : <span className="inline-flex rounded-full bg-success/10 px-2 py-0.5 text-[10px] font-bold text-success">Otomatik fiyat</span>;
+}
 
 export const Route = createFileRoute("/_authenticated/admin/products")({
   head: () => adminHead("Katalog", "eSIM paketleri ve Lounge ürün grupları."),
@@ -121,7 +132,7 @@ function Products() {
               <Button size="sm" variant="outline" disabled={bulk.isPending} onClick={() => bulk.mutate("UNFEATURE")}>Öne çıkarmayı kaldır</Button>
               <select className="admin-field h-9" value={bulkRule} onChange={(event) => setBulkRule(event.target.value)}>
                 <option value="">Fiyat kuralı seç</option>
-                {((rules.data ?? []) as any[]).map((row) => <option key={row.id} value={row.id}>{row.name}</option>)}
+                {(((rules.data as any)?.rules ?? []) as any[]).map((row: any) => <option key={row.id} value={row.id}>{row.name}</option>)}
               </select>
               <Button size="sm" variant="secondary" disabled={bulk.isPending || !bulkRule} onClick={() => bulk.mutate("ASSIGN_RULE")}>Kuralı ata</Button>
               <Button size="sm" variant="ghost" onClick={() => setSelectedIds([])}>Seçimi temizle</Button>
@@ -148,9 +159,10 @@ function Products() {
                         return (
                           <div key={product.id} className="flex items-start gap-2 border-b border-border px-2 py-2.5 text-xs last:border-0">
                             <input type="checkbox" className="mt-1" aria-label="Ürünü seç" checked={selectedIds.includes(product.id)} onChange={() => toggle(product.id)} />
-                            <button type="button" onClick={() => setOpenId(product.id)} className="grid w-full gap-2 text-left hover:opacity-80 sm:grid-cols-[minmax(0,1fr)_auto_auto_auto_auto]">
+                            <button type="button" onClick={() => setOpenId(product.id)} className="grid w-full gap-2 text-left hover:opacity-80 sm:grid-cols-[minmax(0,1fr)_auto_auto_auto_auto_auto]">
                               <span><strong>{product.name}</strong><span className="ml-2 text-muted-foreground">{service === "ESIM" ? (product.esim_product_details?.unlimited_data ? "Sınırsız" : `${product.esim_product_details?.data_gb ?? "—"} GB · ${product.esim_product_details?.validity_days ?? "—"} gün`) : (product.lounge_product_details?.lounge_name ?? "Lounge")}</span></span>
-                              <span>{product.sale_price == null ? "Fiyat yok" : money(product.sale_price, product.currency)}</span>
+                              <span className="text-muted-foreground">maliyet {product.provider_cost == null ? "—" : money(product.provider_cost, product.provider_currency ?? product.currency)}</span>
+                              <span className="font-semibold">{product.sale_price == null ? "Fiyat yok" : money(product.sale_price, product.currency)} <PriceSourceBadge product={product} /></span>
                               <span className={product.margin_flagged ? "font-semibold text-destructive" : ""}>{margin.percent == null ? "—" : `%${margin.percent.toFixed(1)} marj`}</span>
                               <span className="text-muted-foreground">{product.providers?.name ?? "Provider yok"}</span>
                               <StatusBadge value={product.lifecycle} />
@@ -192,6 +204,7 @@ function ProductDrawer({ product, onClose }: { product: any; onClose: () => void
     setForm({
       name: product.name ?? "",
       salePrice: product.sale_price == null ? "" : String(product.sale_price),
+      pricingMode: product.price_overridden ? "MANUAL" : "AUTO",
       pricingRuleId: product.pricing_rule_id ?? "",
       badge: product.badge ?? "",
       featured: Boolean(product.featured),
@@ -207,8 +220,11 @@ function ProductDrawer({ product, onClose }: { product: any; onClose: () => void
       data: {
         id: product.id,
         name: form.name,
-        salePrice: form.salePrice === "" ? null : Number(form.salePrice),
-        pricingRuleId: form.pricingRuleId || null,
+        // Price is only sent when the pricing source or manual value actually changed,
+        // so editing a badge never turns a product into a manual override.
+        ...(form.pricingMode === "MANUAL" && (!product.price_overridden || Number(form.salePrice) !== Number(product.sale_price))
+          ? { pricingMode: "MANUAL" as const, salePrice: form.salePrice === "" ? null : Number(String(form.salePrice).replace(",", ".")) }
+          : form.pricingMode === "AUTO" && product.price_overridden ? { pricingMode: "AUTO" as const } : {}),
         badge: form.badge || null,
         featured: form.featured,
         customerVisible: form.customerVisible,
@@ -227,9 +243,18 @@ function ProductDrawer({ product, onClose }: { product: any; onClose: () => void
   if (!product || !form) return <AdminDrawer open={false} title="Ürün" onClose={onClose}><span /></AdminDrawer>;
 
   const ruleRows = (((rules.data as any)?.rules ?? []) as any[]);
-  const rule = ruleRows.find((row: any) => row.id === form.pricingRuleId);
-  const minimumMargin = rule?.minimum_margin_percent == null ? null : Number(rule.minimum_margin_percent);
-  const margin = itemMargin(form.salePrice === "" ? 0 : Number(form.salePrice), Number(product.provider_cost ?? 0));
+  const rule = ruleRows.find((row: any) => row.id === form.pricingRuleId) ?? null;
+  const cost = product.provider_cost == null ? null : Number(product.provider_cost);
+  const snapshot = (product.pricing_snapshot ?? null) as any;
+  // What the sync would compute today: same rule precedence + same engine.
+  const activeRule = selectPricingRule(ruleRows as any[], { providerId: product.primary_provider_id ?? "", serviceType: product.service_type }) as any;
+  const activePricing = pricingFromRule(activeRule, product.currency ?? "EUR", null);
+  const auto = activePricing && cost != null ? explainPrice(cost, activePricing) : null;
+  const manualValue = Number(String(form.salePrice).replace(",", "."));
+  const manualInvalid = form.pricingMode === "MANUAL" && (form.salePrice === "" || !Number.isFinite(manualValue) || manualValue <= 0);
+  const effectivePrice = form.pricingMode === "MANUAL" ? (manualInvalid ? 0 : manualValue) : Number(product.sale_price ?? 0);
+  const margin = itemMargin(effectivePrice, Number(cost ?? 0));
+  const minimumMargin = (rule ?? activeRule)?.minimum_margin_percent == null ? null : Number((rule ?? activeRule).minimum_margin_percent);
   const belowMinimum = minimumMargin != null && margin.percent != null && margin.percent < minimumMargin;
   const set = (patch: Record<string, unknown>) => setForm((current: any) => ({ ...current, ...patch }));
 
@@ -259,18 +284,57 @@ function ProductDrawer({ product, onClose }: { product: any; onClose: () => void
         <section className="grid gap-3">
           <h3 className="admin-panel-title">Ticari alanlar</h3>
           <Field label="Müşteriye görünen ad"><input className="admin-field mt-1 w-full" value={form.name} onChange={(event) => set({ name: event.target.value })} /></Field>
-          <Field label="Satış fiyatı" hint="Elle girilen fiyat, manuel geçersiz kılma olarak işaretlenir."><input type="number" step="0.01" min="0" className="admin-field mt-1 w-full" value={form.salePrice} onChange={(event) => set({ salePrice: event.target.value })} /></Field>
-          <Field label="Fiyatlandırma kuralı">
-            <select className="admin-field mt-1 w-full" value={form.pricingRuleId} onChange={(event) => set({ pricingRuleId: event.target.value })}>
-              <option value="">Kural yok</option>
-              {ruleRows.map((row: any) => <option key={row.id} value={row.id}>{row.name} · {row.strategy}</option>)}
-            </select>
-          </Field>
-          <div className="rounded-md border border-border p-3 text-xs">
-            <DataRow label="Brüt marj" value={`${money(margin.absolute, product.currency)}${margin.percent == null ? "" : ` · %${margin.percent.toFixed(1)}`}`} />
-            <DataRow label="Minimum marj" value={minimumMargin == null ? "Tanımlı değil" : `%${minimumMargin.toFixed(1)}`} />
-            {belowMinimum && <p className="mt-2 flex items-center gap-2 font-semibold text-destructive"><AlertTriangle className="size-4" />Bu fiyat minimum marjın altında.</p>}
-          </div>
+          <section className="rounded-md border border-border p-3" aria-label="Fiyat dökümü">
+            <div className="flex items-center justify-between gap-2"><h3 className="admin-panel-title">Fiyat dökümü</h3><PriceSourceBadge product={product} /></div>
+            <DataRow label="Tedarikçi" value={product.providers?.name ?? "—"} />
+            <DataRow label="Tedarikçi paketi" value={product.provider_external_id ?? "—"} />
+            <DataRow label="Tedarikçi maliyeti" value={cost == null ? "—" : money(cost, product.provider_currency ?? product.currency)} />
+            {snapshot ? (
+              <>
+                <DataRow label="Uygulanan kural" value={snapshot.pricingRuleName ?? "—"} />
+                <DataRow label="Kâr" value={snapshot.markupPercent != null ? `%${Number(snapshot.markupPercent)}` : snapshot.fixedMarkup != null ? `+${money(snapshot.fixedMarkup, snapshot.currency)}` : "—"} />
+                {snapshot.rawPrice != null && <DataRow label="Hesaplanan (yuvarlama öncesi)" value={money(snapshot.rawPrice, snapshot.currency)} />}
+                <DataRow label="Yuvarlama" value={ROUNDING_LABELS[snapshot.roundingMode] ?? snapshot.roundingMode ?? "—"} />
+                <DataRow label="Kuralla bulunan fiyat" value={money(snapshot.salePrice, snapshot.currency)} />
+              </>
+            ) : (
+              <p className="py-2 text-[11px] text-muted-foreground">Bu ürünün fiyatı henüz bir kuralla hesaplanmadı (önceki içe aktarımdan geliyor).</p>
+            )}
+            <DataRow label="Mağazadaki fiyat" value={<strong className="text-sm">{product.sale_price == null ? "Fiyat yok" : money(product.sale_price, product.currency)}</strong>} />
+            <DataRow label="Son fiyat güncellemesi" value={product.priced_at ? new Date(product.priced_at).toLocaleString("tr-TR") : "—"} />
+            {auto && (
+              <p className="mt-2 rounded bg-secondary/40 p-2 text-[11px]">
+                Geçerli kural <strong>{activeRule?.name}</strong> ile bugün: {money(cost, product.currency)} × %{activePricing?.markupPercent ?? "—"} = {money(auto.rawPrice, activePricing!.currency)} → {ROUNDING_LABELS[auto.roundingMode] ?? auto.roundingMode} → <strong>{money(auto.salePrice, activePricing!.currency)}</strong>
+                {!product.price_overridden && Number(product.sale_price) !== auto.salePrice && <span className="block text-muted-foreground">Mağaza fiyatı bir sonraki katalog senkronunda bu değere güncellenir.</span>}
+              </p>
+            )}
+          </section>
+
+          <fieldset className="rounded-md border border-border p-3">
+            <legend className="px-1 text-xs font-semibold">Fiyat kaynağı</legend>
+            <p className="text-[11px] text-muted-foreground">Genel fiyat kuralı {activePricing?.markupPercent != null ? `(%${activePricing.markupPercent})` : ""} → ürün manuel fiyatı yoksa geçerlidir.</p>
+            <label className="mt-2 flex items-center gap-2 text-xs font-semibold"><input type="radio" name="pricing-mode" checked={form.pricingMode === "AUTO"} onChange={() => set({ pricingMode: "AUTO" })} />Otomatik fiyat (kural)</label>
+            <label className="mt-1 flex items-center gap-2 text-xs font-semibold"><input type="radio" name="pricing-mode" checked={form.pricingMode === "MANUAL"} onChange={() => set({ pricingMode: "MANUAL" })} />Manuel satış fiyatı</label>
+            {form.pricingMode === "AUTO" && product.price_overridden && (
+              <p className="mt-2 text-[11px]">Kaydedince manuel fiyat kaldırılır ve fiyat {auto ? <strong>{money(auto.salePrice, activePricing!.currency)}</strong> : "kurala göre"} olur.{!auto && <span className="block font-semibold text-destructive">Geçerli kural bulunamadı; mevcut fiyat korunur.</span>}</p>
+            )}
+            {form.pricingMode === "MANUAL" && (
+              <div className="mt-2">
+                <Field label={`Satış fiyatı (${product.currency ?? "EUR"})`} hint="Yalnızca müşteri fiyatını değiştirir; tedarikçi maliyeti değişmez.">
+                  <input type="number" inputMode="decimal" step="0.01" min="0.01" className="admin-field mt-1 w-full" value={form.salePrice} onChange={(event) => set({ salePrice: event.target.value })} />
+                </Field>
+                {manualInvalid && <p role="alert" className="mt-1 text-xs font-semibold text-destructive">Satış fiyatı 0'dan büyük bir sayı olmalı.</p>}
+              </div>
+            )}
+            <div className="mt-2 text-xs">
+              <DataRow label="Tedarikçi maliyeti" value={cost == null ? "—" : money(cost, product.provider_currency ?? product.currency)} />
+              <DataRow label={form.pricingMode === "MANUAL" ? "Manuel satış fiyatı" : "Satış fiyatı"} value={money(effectivePrice, product.currency)} />
+              <DataRow label="Brüt marj (€)" value={money(margin.absolute, product.currency)} />
+              <DataRow label="Brüt marj (%)" value={margin.percent == null ? "—" : `%${margin.percent.toFixed(1)}`} />
+              <DataRow label="Minimum marj" value={minimumMargin == null ? "Tanımlı değil" : `%${minimumMargin.toFixed(1)}`} />
+              {belowMinimum && <p className="mt-2 flex items-center gap-2 font-semibold text-destructive"><AlertTriangle className="size-4" />Bu fiyat minimum marjın altında.</p>}
+            </div>
+          </fieldset>
           <Field label="Rozet"><input className="admin-field mt-1 w-full" value={form.badge} onChange={(event) => set({ badge: event.target.value })} placeholder="örn. En çok tercih edilen" /></Field>
           <Field label="Pazarlama açıklaması (TR)"><textarea rows={3} className="admin-field mt-1 w-full" value={form.marketingDescription} onChange={(event) => set({ marketingDescription: event.target.value })} /></Field>
           <Field label="Sıralama"><input type="number" className="admin-field mt-1 w-full" value={form.sortOrder} onChange={(event) => set({ sortOrder: event.target.value })} /></Field>
@@ -285,7 +349,7 @@ function ProductDrawer({ product, onClose }: { product: any; onClose: () => void
 
         {message && <p className="text-xs font-semibold text-primary">{message}</p>}
         <div className="flex gap-2">
-          <Button onClick={() => save.mutate()} disabled={save.isPending}>{save.isPending ? "Kaydediliyor…" : "Kaydet"}</Button>
+          <Button onClick={() => save.mutate()} disabled={save.isPending || manualInvalid}>{save.isPending ? "Kaydediliyor…" : "Kaydet"}</Button>
           <Button variant="outline" onClick={onClose}>Kapat</Button>
         </div>
       </div>
