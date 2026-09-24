@@ -426,7 +426,7 @@ export function HowItWorks({ service, section }: { service: ServiceSlug } & Sect
     };
 
     return (
-      <section id="how" className="bg-accent-soft py-8 sm:py-12">
+      <section id="how" className="bg-background py-8 sm:py-12">
         <div className={`mx-auto ${widthClass(section)} px-4 sm:px-6`}>
           <span className="text-xs font-bold uppercase text-primary">{copy.eyebrow}</span>
           <h2 className="mt-2 max-w-xl font-display text-2xl font-bold sm:text-3xl">
