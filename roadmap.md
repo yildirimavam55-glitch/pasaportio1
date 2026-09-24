@@ -4,7 +4,7 @@
 
 - [x] Reuse one shared header-overlay state for profile, language, and hamburger menus
 - [x] Suppress the existing sticky search while any header overlay is open
-- [ ] Verify overlay priority and sticky-search restoration at 360/390/430 px and desktop
+- [x] Verify overlay priority and sticky-search restoration at 360/390/430 px and desktop
 
 ## Mobile customer journey final UX fixes
 
