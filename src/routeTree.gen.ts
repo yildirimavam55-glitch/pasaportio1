@@ -326,14 +326,14 @@ const EnGuidesSlugRoute = EnGuidesSlugRouteImport.update({
   getParentRoute: () => rootRouteImport,
 } as any)
 const TrEsimSlugRoute = TrEsimSlugRouteImport.update({
-  id: '/tr/esim/$slug',
-  path: '/tr/esim/$slug',
-  getParentRoute: () => rootRouteImport,
+  id: '/esim/$slug',
+  path: '/esim/$slug',
+  getParentRoute: () => TrRoute,
 } as any)
 const TrRehberSlugRoute = TrRehberSlugRouteImport.update({
-  id: '/tr/rehber/$slug',
-  path: '/tr/rehber/$slug',
-  getParentRoute: () => rootRouteImport,
+  id: '/rehber/$slug',
+  path: '/rehber/$slug',
+  getParentRoute: () => TrRoute,
 } as any)
 const AuthenticatedAccountEsimsIndexRoute =
   AuthenticatedAccountEsimsIndexRouteImport.update({
@@ -860,8 +860,6 @@ export interface RootRouteChildren {
   DeRatgeberSlugRoute: typeof DeRatgeberSlugRoute
   EnEsimSlugRoute: typeof EnEsimSlugRoute
   EnGuidesSlugRoute: typeof EnGuidesSlugRoute
-  TrEsimSlugRoute: typeof TrEsimSlugRoute
-  TrRehberSlugRoute: typeof TrRehberSlugRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -1190,17 +1188,17 @@ declare module '@tanstack/react-router' {
     }
     '/tr/esim/$slug': {
       id: '/tr/esim/$slug'
-      path: '/tr/esim/$slug'
+      path: '/esim/$slug'
       fullPath: '/tr/esim/$slug'
       preLoaderRoute: typeof TrEsimSlugRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof TrRoute
     }
     '/tr/rehber/$slug': {
       id: '/tr/rehber/$slug'
-      path: '/tr/rehber/$slug'
+      path: '/rehber/$slug'
       fullPath: '/tr/rehber/$slug'
       preLoaderRoute: typeof TrRehberSlugRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof TrRoute
     }
     '/_authenticated/account/esims/': {
       id: '/_authenticated/account/esims/'
@@ -1449,8 +1447,6 @@ const rootRouteChildren: RootRouteChildren = {
   DeRatgeberSlugRoute: DeRatgeberSlugRoute,
   EnEsimSlugRoute: EnEsimSlugRoute,
   EnGuidesSlugRoute: EnGuidesSlugRoute,
-  TrEsimSlugRoute: TrEsimSlugRoute,
-  TrRehberSlugRoute: TrRehberSlugRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
