@@ -1,5 +1,12 @@
 # Phase 1.3 Roadmap
 
+## Mobile homepage conversion UI update
+
+- [x] Make the mobile eSIM hero destination-first without changing its search flow
+- [x] Add the compact three-item trust strip and catalogue-backed swipe destinations
+- [x] Place optional Finder, regional discovery, and Sıla Yolu promotion before supporting content
+- [x] Verify TR/DE/EN customer journeys at 360/375/390/412/430 and desktop
+
 ## Optional homepage Finder entry
 
 - [x] Replace the prominent homepage Finder with one compact optional assistant entry
