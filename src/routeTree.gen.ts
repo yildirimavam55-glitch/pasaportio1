@@ -18,6 +18,8 @@ import { Route as SepetRouteImport } from './routes/sepet'
 import { Route as DeIndexRouteImport } from './routes/de.index'
 import { Route as DesignV2IndexRouteImport } from './routes/design-v2.index'
 import { Route as DesignV2AccountRouteImport } from './routes/design-v2.account'
+import { Route as DesignV2CartRouteImport } from './routes/design-v2.cart'
+import { Route as DesignV2CheckoutRouteImport } from './routes/design-v2.checkout'
 import { Route as DesignV2EsimRouteImport } from './routes/design-v2.esim'
 import { Route as DesignV2LoungeRouteImport } from './routes/design-v2.lounge'
 import { Route as DesignV2SupportRouteImport } from './routes/design-v2.support'
@@ -141,6 +143,16 @@ const DesignV2IndexRoute = DesignV2IndexRouteImport.update({
 const DesignV2AccountRoute = DesignV2AccountRouteImport.update({
   id: '/account',
   path: '/account',
+  getParentRoute: () => DesignV2Route,
+} as any)
+const DesignV2CartRoute = DesignV2CartRouteImport.update({
+  id: '/cart',
+  path: '/cart',
+  getParentRoute: () => DesignV2Route,
+} as any)
+const DesignV2CheckoutRoute = DesignV2CheckoutRouteImport.update({
+  id: '/checkout',
+  path: '/checkout',
   getParentRoute: () => DesignV2Route,
 } as any)
 const DesignV2EsimRoute = DesignV2EsimRouteImport.update({
@@ -592,6 +604,8 @@ export interface FileRoutesByFullPath {
   '/destek': typeof DestekRoute
   '/sepet': typeof SepetRoute
   '/design-v2/account': typeof DesignV2AccountRouteWithChildren
+  '/design-v2/cart': typeof DesignV2CartRoute
+  '/design-v2/checkout': typeof DesignV2CheckoutRoute
   '/design-v2/esim': typeof DesignV2EsimRoute
   '/design-v2/lounge': typeof DesignV2LoungeRoute
   '/design-v2/support': typeof DesignV2SupportRoute
@@ -680,6 +694,8 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/destek': typeof DestekRoute
   '/sepet': typeof SepetRoute
+  '/design-v2/cart': typeof DesignV2CartRoute
+  '/design-v2/checkout': typeof DesignV2CheckoutRoute
   '/design-v2/esim': typeof DesignV2EsimRoute
   '/design-v2/lounge': typeof DesignV2LoungeRoute
   '/design-v2/support': typeof DesignV2SupportRoute
@@ -772,6 +788,8 @@ export interface FileRoutesById {
   '/destek': typeof DestekRoute
   '/sepet': typeof SepetRoute
   '/design-v2/account': typeof DesignV2AccountRouteWithChildren
+  '/design-v2/cart': typeof DesignV2CartRoute
+  '/design-v2/checkout': typeof DesignV2CheckoutRoute
   '/design-v2/esim': typeof DesignV2EsimRoute
   '/design-v2/lounge': typeof DesignV2LoungeRoute
   '/design-v2/support': typeof DesignV2SupportRoute
@@ -864,6 +882,8 @@ export interface FileRouteTypes {
     | '/destek'
     | '/sepet'
     | '/design-v2/account'
+    | '/design-v2/cart'
+    | '/design-v2/checkout'
     | '/design-v2/esim'
     | '/design-v2/lounge'
     | '/design-v2/support'
@@ -952,6 +972,8 @@ export interface FileRouteTypes {
     | '/auth'
     | '/destek'
     | '/sepet'
+    | '/design-v2/cart'
+    | '/design-v2/checkout'
     | '/design-v2/esim'
     | '/design-v2/lounge'
     | '/design-v2/support'
@@ -1043,6 +1065,8 @@ export interface FileRouteTypes {
     | '/destek'
     | '/sepet'
     | '/design-v2/account'
+    | '/design-v2/cart'
+    | '/design-v2/checkout'
     | '/design-v2/esim'
     | '/design-v2/lounge'
     | '/design-v2/support'
@@ -1221,6 +1245,20 @@ declare module '@tanstack/react-router' {
       path: '/account'
       fullPath: '/design-v2/account'
       preLoaderRoute: typeof DesignV2AccountRouteImport
+      parentRoute: typeof DesignV2Route
+    }
+    '/design-v2/cart': {
+      id: '/design-v2/cart'
+      path: '/cart'
+      fullPath: '/design-v2/cart'
+      preLoaderRoute: typeof DesignV2CartRouteImport
+      parentRoute: typeof DesignV2Route
+    }
+    '/design-v2/checkout': {
+      id: '/design-v2/checkout'
+      path: '/checkout'
+      fullPath: '/design-v2/checkout'
+      preLoaderRoute: typeof DesignV2CheckoutRouteImport
       parentRoute: typeof DesignV2Route
     }
     '/design-v2/esim': {
@@ -1921,6 +1959,8 @@ const DesignV2AccountRouteWithChildren = DesignV2AccountRoute._addFileChildren(
 
 interface DesignV2RouteChildren {
   DesignV2AccountRoute: typeof DesignV2AccountRouteWithChildren
+  DesignV2CartRoute: typeof DesignV2CartRoute
+  DesignV2CheckoutRoute: typeof DesignV2CheckoutRoute
   DesignV2EsimRoute: typeof DesignV2EsimRoute
   DesignV2LoungeRoute: typeof DesignV2LoungeRoute
   DesignV2SupportRoute: typeof DesignV2SupportRoute
@@ -1932,6 +1972,8 @@ interface DesignV2RouteChildren {
 
 const DesignV2RouteChildren: DesignV2RouteChildren = {
   DesignV2AccountRoute: DesignV2AccountRouteWithChildren,
+  DesignV2CartRoute: DesignV2CartRoute,
+  DesignV2CheckoutRoute: DesignV2CheckoutRoute,
   DesignV2EsimRoute: DesignV2EsimRoute,
   DesignV2LoungeRoute: DesignV2LoungeRoute,
   DesignV2SupportRoute: DesignV2SupportRoute,

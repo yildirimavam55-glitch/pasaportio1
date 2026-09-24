@@ -6,7 +6,7 @@ import { V2Shell, V2_NOINDEX, money, pick } from "@/components/design-v2/V2Shell
 import { V2Card, V2PageTitle, V2State } from "@/components/design-v2/V2States";
 import { useCart } from "@/domain/cart/store";
 import { useI18n } from "@/i18n";
-import { CART_COPY, lineFacts } from "./design-v2.cart";
+import { CART_COPY, lineFacts } from "@/components/design-v2/cart-copy";
 
 const COPY = {
   tr: { title: "Ödeme", back: "Sepete dön", summary: "Sipariş özeti", account: "Hesap", signedAs: "Giriş yapıldı", signIn: "Siparişi hesabına bağlamak için giriş yap", signInCta: "Giriş yap", payment: "Ödeme", notLive: "Ödeme henüz aktif değil", notLiveText: "Şu anda gerçek ödeme alınmıyor. Ödeme yöntemi bağlandığında siparişini buradan tamamlayabilirsin.", cta: "Ödeme entegrasyonu bekleniyor", empty: "Sepetin boş", browse: "eSIM paketlerine bak" },
