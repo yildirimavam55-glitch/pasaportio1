@@ -211,7 +211,7 @@ function Packages({ iso, name, c, onBack }: { iso: string; name: string; c: (typ
           })}
         </ul>
       )}
-      <Link to="/sepet" className="sr-only">{c.cart}</Link>
+      <Link to="/design-v2/cart" className="sr-only">{c.cart}</Link>
     </>
   );
 }

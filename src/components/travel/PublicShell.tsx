@@ -1,4 +1,5 @@
-import { Link, useNavigate } from "@tanstack/react-router";
+import { useNavigate } from "@tanstack/react-router";
+import { CLink as Link } from "@/components/design-v2/v2-context";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { getPublishedStorefront } from "@/lib/storefront.functions";
 import { itemText } from "@/domain/storefront/registry";

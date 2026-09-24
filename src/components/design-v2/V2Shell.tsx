@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { Link } from "@tanstack/react-router";
-import { ArrowRight, Car, Home, Plane, ShoppingBag, Smartphone, UserRound } from "lucide-react";
+import { ArrowRight, Car, Plane, ShoppingBag, Smartphone, UserRound } from "lucide-react";
+import { V2Context } from "./v2-context";
 import { PublicShell } from "@/components/travel/PublicShell";
 import { WhatsAppLogo } from "@/components/travel/WhatsAppLogo";
 import { waLink } from "@/lib/whatsapp";
@@ -25,17 +26,41 @@ export function pick<T>(locale: Locale, value: Record<Locale, T>): T {
   return value[locale] ?? value.tr;
 }
 
-/** Same public shell (header, account, footer) + compact service switcher + V2 bottom nav. */
-export function V2Shell({ service, children }: { service: V2Service; children: ReactNode }) {
+export type V2Nav = V2Service | "cart" | "account";
+/** A = discovery (photos, search), B = transaction (cart/checkout), C = account (compact). */
+export type V2Level = "discovery" | "transaction" | "account";
+
+/**
+ * THE single V2 customer shell. Every /design-v2 screen renders through it, so header,
+ * brand, language, background, width, bottom nav, safe-area, docked actions and WhatsApp
+ * placement are controlled here — never per page. It also switches shared customer
+ * components (account pages, header links) into V2 mode via V2Context.
+ */
+export function V2Shell({
+  service,
+  nav,
+  level = "discovery",
+  children,
+}: {
+  service?: V2Service;
+  nav?: V2Nav;
+  level?: V2Level;
+  children: ReactNode;
+}) {
+  const active: V2Nav | undefined = nav ?? service;
+  const width = level === "discovery" ? "max-w-xl" : "max-w-xl md:max-w-2xl";
   return (
-    <PublicShell hideStickySearch hideFloatingWhatsApp>
-      <div className="mx-auto w-full max-w-xl overflow-x-clip px-4 pb-44 pt-3">
-        <ServiceSwitcher active={service} />
-        {children}
-      </div>
-      <ActionDock />
-      <BottomNav active={service} />
-    </PublicShell>
+    <V2Context.Provider value={true}>
+      <PublicShell hideStickySearch hideFloatingWhatsApp>
+        <div className={`mx-auto w-full ${width} overflow-x-clip px-4 pb-40 pt-3 sm:pb-24`}>
+          <DesktopNav active={active} />
+          {level === "discovery" && service && <ServiceSwitcher active={service} />}
+          {children}
+        </div>
+        <ActionDock showCart={level === "discovery"} />
+        <BottomNav active={active} />
+      </PublicShell>
+    </V2Context.Provider>
   );
 }
 
@@ -62,26 +87,64 @@ function ServiceSwitcher({ active }: { active: V2Service }) {
   );
 }
 
-const NAV_LABELS = {
-  tr: { home: "Ana sayfa", account: "Hesabım" },
-  de: { home: "Start", account: "Konto" },
-  en: { home: "Home", account: "Account" },
+export const NAV_LABELS = {
+  tr: { cart: "Sepet", account: "Hesabım" },
+  de: { cart: "Warenkorb", account: "Konto" },
+  en: { cart: "Cart", account: "Account" },
 };
 
-function BottomNav({ active }: { active: V2Service }) {
+function useNavItems() {
   const { locale } = useI18n();
   const l = pick(locale, NAV_LABELS);
-  const item = "flex min-h-14 flex-1 flex-col items-center justify-center gap-0.5 text-[11px] font-semibold";
-  const cls = (on: boolean) => `${item} ${on ? "text-primary" : "text-muted-foreground"}`;
+  return [
+    { id: "esim" as const, to: "/design-v2/esim", search: { country: "" }, icon: Smartphone, label: "eSIM" },
+    { id: "lounge" as const, to: "/design-v2/lounge", search: { iata: "" }, icon: Plane, label: "Lounge" },
+    { id: "vignette" as const, to: "/design-v2/vignette", search: undefined, icon: Car, label: "Vignette" },
+    { id: "cart" as const, to: "/design-v2/cart", search: undefined, icon: ShoppingBag, label: l.cart },
+    { id: "account" as const, to: "/design-v2/account", search: undefined, icon: UserRound, label: l.account },
+  ];
+}
+
+function CountBadge() {
+  const { count } = useCart();
+  if (!count) return null;
+  return <span className="absolute -right-2 -top-1 grid h-4 min-w-4 place-items-center rounded-full bg-accent px-1 text-[10px] font-bold text-accent-foreground">{count}</span>;
+}
+
+function BottomNav({ active }: { active?: V2Nav | undefined }) {
+  const items = useNavItems();
   return (
     <nav aria-label="V2" className="fixed inset-x-0 bottom-0 z-30 border-t border-border bg-card/95 pb-[env(safe-area-inset-bottom)] backdrop-blur sm:hidden">
       <div className="mx-auto flex max-w-xl">
-        <Link to="/design-v2" className={cls(false)}><Home className="size-5" />{l.home}</Link>
-        <Link to="/design-v2/esim" search={{ country: "" }} className={cls(active === "esim")}><Smartphone className="size-5" />eSIM</Link>
-        <Link to="/design-v2/lounge" search={{ iata: "" }} className={cls(active === "lounge")}><Plane className="size-5" />Lounge</Link>
-        <Link to="/design-v2/vignette" className={cls(active === "vignette")}><Car className="size-5" />Vignette</Link>
-        <Link to="/account" className={cls(false)}><UserRound className="size-5" />{l.account}</Link>
+        {items.map(({ id, to, search, icon: Icon, label }) => {
+          const on = id === active;
+          return (
+            <Link key={id} to={to as never} search={search as never} aria-current={on ? "page" : undefined}
+              className={`flex min-h-14 min-w-0 flex-1 flex-col items-center justify-center gap-0.5 text-[11px] font-semibold ${on ? "text-primary" : "text-muted-foreground"}`}>
+              <span className="relative"><Icon className="size-5" />{id === "cart" && <CountBadge />}</span>
+              <span className="max-w-full truncate px-0.5">{label}</span>
+            </Link>
+          );
+        })}
       </div>
+    </nav>
+  );
+}
+
+/** Tablet/desktop: same five destinations as a compact top bar (bottom nav is mobile only). */
+function DesktopNav({ active }: { active?: V2Nav | undefined }) {
+  const items = useNavItems();
+  return (
+    <nav aria-label="V2" className="mb-4 hidden items-center gap-1 rounded-full border border-border bg-card p-1 shadow-sm sm:flex">
+      {items.map(({ id, to, search, icon: Icon, label }) => {
+        const on = id === active;
+        return (
+          <Link key={id} to={to as never} search={search as never} aria-current={on ? "page" : undefined}
+            className={`flex min-h-10 flex-1 items-center justify-center gap-1.5 rounded-full text-sm font-semibold ${on ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"}`}>
+            <span className="relative"><Icon className="size-4" />{id === "cart" && <CountBadge />}</span>{label}
+          </Link>
+        );
+      })}
     </nav>
   );
 }
@@ -210,15 +273,15 @@ const DOCK = {
  * Both share a single row so neither stacks over the other; page bottom padding keeps
  * the last cards/rows scrollable clear of it.
  */
-function ActionDock() {
+function ActionDock({ showCart }: { showCart: boolean }) {
   const { locale } = useI18n();
   const l = pick(locale, DOCK);
   const { count } = useCart();
   return (
     <div className="pointer-events-none fixed inset-x-0 bottom-[calc(3.75rem+env(safe-area-inset-bottom))] z-30 px-4 pb-2 sm:bottom-4">
       <div className="mx-auto flex max-w-xl items-center justify-end gap-2">
-        {count > 0 && (
-          <Link to="/sepet" className="pointer-events-auto flex h-11 flex-1 items-center justify-between rounded-full bg-primary px-4 text-sm font-semibold text-primary-foreground shadow-lg">
+        {showCart && count > 0 && (
+          <Link to="/design-v2/cart" className="pointer-events-auto flex h-11 flex-1 items-center justify-between rounded-full bg-primary px-4 text-sm font-semibold text-primary-foreground shadow-lg">
             <span className="flex items-center gap-2"><ShoppingBag className="size-4" />{l.cart}</span>
             <span className="rounded-full bg-primary-foreground/15 px-2.5 py-0.5">{count}</span>
           </Link>
