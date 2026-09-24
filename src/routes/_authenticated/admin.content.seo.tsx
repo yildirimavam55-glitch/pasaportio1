@@ -14,6 +14,7 @@ import {
   listSeoAuthors,
   saveSeoAuthor,
   saveSeoSettings,
+  DEFAULT_HUB_COPY,
   type SeoSettings,
 } from "@/lib/seo-content.functions";
 import { SEO_CHECK_LABELS, seoChecklist, type SeoCheckKey } from "@/domain/seo/checklist";
