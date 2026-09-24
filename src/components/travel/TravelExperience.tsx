@@ -464,7 +464,7 @@ function FinderAssistantEntry({
             </p>
           </div>
         </div>
-        <Button type="button" variant="cta" className="min-h-11 w-full shrink-0 sm:w-auto" onClick={onOpen}>
+        <Button type="button" className="min-h-11 w-full shrink-0 sm:w-auto" onClick={onOpen}>
           {copy.open}
           <ArrowRight className="size-4" aria-hidden="true" />
         </Button>

@@ -57,7 +57,7 @@ export function StickyQuickSearch({
     >
       <div
         aria-hidden={!visible}
-        className={`mx-auto max-w-site px-3 pt-1.5 transition-[opacity,transform] duration-300 ease-out sm:px-6 ${
+        className={`mx-auto max-w-site px-3 pt-1 transition-[opacity,transform] duration-300 ease-out sm:px-6 ${
           visible ? "translate-y-0 opacity-100" : "invisible -translate-y-2 opacity-0"
         }`}
       >

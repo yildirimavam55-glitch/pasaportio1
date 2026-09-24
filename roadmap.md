@@ -5,6 +5,7 @@
 - [x] Audit the actual homepage render, theme, catalogue, Finder, region, and campaign paths
 - [x] Consolidate the eSIM homepage into one destination-first commercial sequence
 - [x] Verify theme persistence, customer journeys, TR/DE/EN, mobile/desktop, tests, and build
+- [ ] Verify the locked light homepage correction from real 390 px top, middle, and bottom renders
 
 ## Mobile homepage conversion UI update
 

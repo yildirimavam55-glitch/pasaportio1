@@ -58,7 +58,7 @@ export function QuickSearch({
   onAirportSelect: (airportId: string) => void;
   onSearchModeChange?: (active: boolean) => void;
   embedded?: boolean;
-  /** Compact sizing for the sticky bar variant (~52px tall). */
+  /** Compact sizing for the sticky bar variant. */
   compact?: boolean;
   /** Prevents the page behind the results from scrolling while open. */
   lockScroll?: boolean;
@@ -323,7 +323,7 @@ export function QuickSearch({
       <div
         ref={fieldRef}
         className={`quick-search-field flex items-center border border-border/80 bg-card/95 shadow-panel backdrop-blur-md ${
-          compact ? "gap-1 rounded-2xl p-1" : "gap-1.5 rounded-2xl p-1.5 sm:gap-2 sm:p-2"
+          compact ? "gap-1 rounded-xl p-0.5" : "gap-1.5 rounded-2xl p-1.5 sm:gap-2 sm:p-2"
         }`}
       >
         <Input
@@ -346,14 +346,14 @@ export function QuickSearch({
           }}
           placeholder={placeholder ?? (service === "esim" ? copy.esimPlaceholder : copy.loungePlaceholder)}
           aria-label={service === "esim" ? copy.esimLabel : copy.loungeLabel}
-          className={`${compact ? "h-11" : "h-12"} min-w-0 flex-1 border-0 bg-transparent px-3 text-base font-semibold shadow-none focus-visible:ring-0`}
+          className={`${compact ? "h-10" : "h-12"} min-w-0 flex-1 border-0 bg-transparent px-3 text-base font-semibold shadow-none focus-visible:ring-0`}
         />
         {open && (
           <Button
             type="button"
             variant="ghost"
             size="icon"
-            className={`${compact ? "size-10 min-w-10" : "size-11 min-w-11"} shrink-0 rounded-xl`}
+            className={`${compact ? "size-9 min-w-9" : "size-11 min-w-11"} shrink-0 rounded-lg`}
             aria-label={copy.close}
             onClick={() => closeSearch(true)}
           >
@@ -362,9 +362,9 @@ export function QuickSearch({
         )}
         <Button
           type="button"
-          variant="cta"
+          variant="default"
           size="icon"
-          className={`${compact ? "size-10 min-w-10" : "size-11 min-w-11"} shrink-0 rounded-xl shadow-soft`}
+          className={`${compact ? "size-9 min-w-9" : "size-11 min-w-11"} shrink-0 rounded-lg shadow-soft`}
           aria-label={copy.search}
           onClick={submit}
         >
