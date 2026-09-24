@@ -1,5 +1,11 @@
 # Phase 1.3 Roadmap
 
+## Homepage finalization
+
+- [x] Audit the actual homepage render, theme, catalogue, Finder, region, and campaign paths
+- [x] Consolidate the eSIM homepage into one destination-first commercial sequence
+- [x] Verify theme persistence, customer journeys, TR/DE/EN, mobile/desktop, tests, and build
+
 ## Mobile homepage conversion UI update
 
 - [x] Make the mobile eSIM hero destination-first without changing its search flow

@@ -57,7 +57,7 @@ export function DestinationDiscovery({
   return (
     <>
       {mode !== "secondary" && mode !== "regional" && mode !== "all" && popular.length > 0 && (
-        <section id="popular" className={surfaceClasses(section)}>
+        <section id="popular" className={`${surfaceClasses(section)} homepage-destination-section`}>
           <div className={`mx-auto ${widthClass(section)} px-4 sm:px-6`}>
             <div className="grid grid-cols-[minmax(0,1fr)_auto] items-end gap-3">
               <div className="min-w-0">
@@ -110,7 +110,7 @@ export function DestinationDiscovery({
       )}
 
       {(mode === "full" || mode === "regional" || mode === "secondary") && homepageRegions.length > 0 && (
-        <section id="regional-esim" className="bg-accent-soft py-7 sm:py-10">
+        <section id="regional-esim" className="homepage-region-section bg-accent-soft py-7 sm:py-10">
           <div className={`mx-auto ${widthClass(section)} px-4 sm:px-6`}>
             <h2 className="font-display text-2xl font-bold sm:text-3xl">
               {mode === "regional"

@@ -30,6 +30,7 @@ import { StorefrontProvider } from "@/components/storefront/StorefrontContext";
 import { FinderShell, EsimFinder, LoungeFinder } from "./Finder";
 import { QuickSearch } from "./QuickSearch";
 import { DestinationDiscovery } from "./DestinationDiscovery";
+import { useDestinationCatalogue } from "./DestinationCards";
 
 const ASSISTANT_COPY = {
   tr: {
@@ -139,6 +140,7 @@ function Experience({
     () => assistantRoute && window.location.hash === "#finder",
   );
   const [searchMode, setSearchMode] = useState(false);
+  const destinationCatalogue = useDestinationCatalogue();
   const { switchService, isSwitching, target, phase } = useServiceSwitchTransition();
   const selectedService = target ?? service;
   const pendingScrollRef = useRef<{
@@ -252,6 +254,7 @@ function Experience({
   };
 
   const selectorSection = config.sections.find((s) => s.type === "SERVICE_SELECTOR");
+  const isHomepageEsim = service === "esim" && !assistantRoute;
   const homepageEsimOrder: Partial<Record<StorefrontSection["type"], number>> = {
     TRUST: 10,
     POPULAR_DESTINATIONS: 20,
@@ -261,12 +264,18 @@ function Experience({
     COMPATIBILITY: 60,
   };
   const visibleSections =
-    service === "esim" && !assistantRoute
-      ? [...config.sections].sort((a, b) => {
+    isHomepageEsim
+      ? config.sections
+          .filter((section) =>
+            ["TRUST", "POPULAR_DESTINATIONS", "FINDER", "HOW_IT_WORKS", "COMPATIBILITY"].includes(
+              section.type,
+            ),
+          )
+          .sort((a, b) => {
           const rank = (section: StorefrontSection) =>
             homepageEsimOrder[section.type] ?? 100 + config.sections.indexOf(section);
           return rank(a) - rank(b);
-        })
+          })
       : config.sections;
   const render = (section: StorefrontSection): ReactNode => {
     if (!section.visible) return null;
@@ -303,7 +312,7 @@ function Experience({
                 )}
               </div>
             )}
-            {service === "esim" && (
+            {isHomepageEsim && (
               <>
                 <DestinationDiscovery
                   section={
@@ -391,6 +400,7 @@ function Experience({
     <PublicShell activeService={service} onServiceChange={requestServiceChange}>
       <ServiceHero
         service={service}
+        countryCount={destinationCatalogue.data?.countries.length}
         phase={phase}
         searchMode={searchMode}
         onSearchModeChange={setSearchMode}
@@ -426,12 +436,6 @@ function Experience({
           </div>
         </div>
         {visibleSections.map(render)}
-        {service === "esim" && !assistantRoute && (
-          <DestinationDiscovery
-            section={config.sections.find((section) => section.type === "POPULAR_DESTINATIONS") ?? null}
-            mode="all"
-          />
-        )}
         <GuidesStrip />
       </div>
     </PublicShell>
@@ -582,14 +586,17 @@ const SERVICE_HERO_COPY = {
     esim: {
       eyebrow: "Seyahat eSIM’i",
       headline: "Nereye gidiyorsun?",
-      description: "180+ ülkede uygun eSIM paketini saniyeler içinde bul.",
+      description: (countryCount?: number) =>
+        countryCount
+          ? `${countryCount} ülkede uygun eSIM paketini saniyeler içinde bul.`
+          : "Seyahatin için uygun eSIM paketini saniyeler içinde bul.",
       searchPlaceholder: "Ülke veya bölge ara...",
       alt: "Havalimanında telefonunda aktif eSIM bağlantısını gösteren yolcu",
     },
     lounge: {
       eyebrow: "Havalimanı Lounge",
       headline: "Yolculuğuna konfor kat.",
-      description: "Havalimanını seç, uygun lounge seçeneklerini hızlıca keşfet.",
+      description: () => "Havalimanını seç, uygun lounge seçeneklerini hızlıca keşfet.",
       searchPlaceholder: "Hangi havalimanı?",
       alt: "Uçak manzaralı premium havalimanı lounge alanında dinlenen yolcu",
     },
@@ -598,14 +605,17 @@ const SERVICE_HERO_COPY = {
     esim: {
       eyebrow: "Reise-eSIM",
       headline: "Wohin reist du?",
-      description: "Finde in Sekunden passende eSIM-Pakete für mehr als 180 Länder.",
+      description: (countryCount?: number) =>
+        countryCount
+          ? `Finde in Sekunden passende eSIM-Pakete für ${countryCount} Länder.`
+          : "Finde in Sekunden das passende eSIM-Paket für deine Reise.",
       searchPlaceholder: "Land oder Region suchen...",
       alt: "Reisende zeigt am Flughafen ihre aktive eSIM-Verbindung",
     },
     lounge: {
       eyebrow: "Airport Lounge",
       headline: "Mehr Komfort für deine Reise.",
-      description: "Wähle deinen Flughafen und entdecke schnell passende Lounges.",
+      description: () => "Wähle deinen Flughafen und entdecke schnell passende Lounges.",
       searchPlaceholder: "Welcher Flughafen?",
       alt: "Reisende entspannt in einer Premium-Flughafenlounge mit Blick aufs Rollfeld",
     },
@@ -614,14 +624,17 @@ const SERVICE_HERO_COPY = {
     esim: {
       eyebrow: "Travel eSIM",
       headline: "Where are you going?",
-      description: "Find the right eSIM plan for 180+ countries in seconds.",
+      description: (countryCount?: number) =>
+        countryCount
+          ? `Find the right eSIM plan across ${countryCount} countries in seconds.`
+          : "Find the right eSIM plan for your trip in seconds.",
       searchPlaceholder: "Search country or region...",
       alt: "Traveler showing an active eSIM connection at the airport",
     },
     lounge: {
       eyebrow: "Airport Lounge",
       headline: "Add comfort to your journey.",
-      description: "Choose your airport and quickly discover available lounge options.",
+      description: () => "Choose your airport and quickly discover available lounge options.",
       searchPlaceholder: "Which airport?",
       alt: "Traveler relaxing in a premium airport lounge overlooking the apron",
     },
@@ -630,12 +643,14 @@ const SERVICE_HERO_COPY = {
 
 function ServiceHero({
   service,
+  countryCount,
   phase,
   onAirportSelect,
   searchMode,
   onSearchModeChange,
 }: {
   service: ServiceSlug;
+  countryCount: number | undefined;
   phase: "outgoing" | "incoming" | null;
   onAirportSelect: (airportId: string) => void;
   searchMode: boolean;
@@ -680,7 +695,9 @@ function ServiceHero({
               {copy.headline}
             </h1>
             <p className="mt-2 max-w-[18rem] text-sm font-medium leading-5 text-primary-foreground/85 sm:max-w-lg sm:text-base sm:leading-6">
-              {copy.description}
+              {service === "esim" && countryCount
+                ? copy.description(countryCount)
+                : copy.description()}
             </p>
           </div>
           <div className="service-hero-search relative z-20 mt-auto w-full max-w-xl pt-3 sm:pt-4">
