@@ -10,7 +10,7 @@ const searchSchema = z.object({
   service: z.enum(["esim", "lounge"]).catch("esim").default("esim"),
 });
 
-export const Route = createFileRoute("/tr")({
+export const Route = createFileRoute("/tr/")({
   validateSearch: (search) => searchSchema.parse(search),
   head: () => ({
     meta: [

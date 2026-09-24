@@ -13,7 +13,6 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as SepetRouteImport } from './routes/sepet'
-import { Route as TrRouteImport } from './routes/tr'
 import { Route as EsimIndexRouteImport } from './routes/esim.index'
 import { Route as EsimPaketlerRouteImport } from './routes/esim.paketler'
 import { Route as EsimUlkelerRouteImport } from './routes/esim.ulkeler'
@@ -23,6 +22,7 @@ import { Route as LoungeIndexRouteImport } from './routes/lounge.index'
 import { Route as LoungeSeceneklerRouteImport } from './routes/lounge.secenekler'
 import { Route as RehberlerIndexRouteImport } from './routes/rehberler.index'
 import { Route as SitemapXmlRouteImport } from './routes/sitemap.xml'
+import { Route as TrIndexRouteImport } from './routes/tr.index'
 import { Route as AuthenticatedAccountIndexRouteImport } from './routes/_authenticated/account.index'
 import { Route as AuthenticatedAccountNotificationsRouteImport } from './routes/_authenticated/account.notifications'
 import { Route as AuthenticatedAccountProfileRouteImport } from './routes/_authenticated/account.profile'
@@ -94,11 +94,6 @@ const SepetRoute = SepetRouteImport.update({
   path: '/sepet',
   getParentRoute: () => rootRouteImport,
 } as any)
-const TrRoute = TrRouteImport.update({
-  id: '/tr',
-  path: '/tr',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const EsimIndexRoute = EsimIndexRouteImport.update({
   id: '/esim/',
   path: '/esim/',
@@ -142,6 +137,11 @@ const RehberlerIndexRoute = RehberlerIndexRouteImport.update({
 const SitemapXmlRoute = SitemapXmlRouteImport.update({
   id: '/sitemap/xml',
   path: '/sitemap/xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TrIndexRoute = TrIndexRouteImport.update({
+  id: '/tr/',
+  path: '/tr/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedAccountIndexRoute =
@@ -326,14 +326,14 @@ const EnGuidesSlugRoute = EnGuidesSlugRouteImport.update({
   getParentRoute: () => rootRouteImport,
 } as any)
 const TrEsimSlugRoute = TrEsimSlugRouteImport.update({
-  id: '/esim/$slug',
-  path: '/esim/$slug',
-  getParentRoute: () => TrRoute,
+  id: '/tr/esim/$slug',
+  path: '/tr/esim/$slug',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const TrRehberSlugRoute = TrRehberSlugRouteImport.update({
-  id: '/rehber/$slug',
-  path: '/rehber/$slug',
-  getParentRoute: () => TrRoute,
+  id: '/tr/rehber/$slug',
+  path: '/tr/rehber/$slug',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedAccountEsimsIndexRoute =
   AuthenticatedAccountEsimsIndexRouteImport.update({
@@ -442,7 +442,6 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/sepet': typeof SepetRoute
-  '/tr': typeof TrRouteWithChildren
   '/esim/paketler': typeof EsimPaketlerRoute
   '/esim/ulkeler': typeof EsimUlkelerRoute
   '/guides/$slug': typeof GuidesSlugRoute
@@ -452,6 +451,7 @@ export interface FileRoutesByFullPath {
   '/guides/': typeof GuidesIndexRoute
   '/lounge/': typeof LoungeIndexRoute
   '/rehberler/': typeof RehberlerIndexRoute
+  '/tr/': typeof TrIndexRoute
   '/account/notifications': typeof AuthenticatedAccountNotificationsRoute
   '/account/profile': typeof AuthenticatedAccountProfileRoute
   '/account/security': typeof AuthenticatedAccountSecurityRoute
@@ -508,7 +508,6 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/sepet': typeof SepetRoute
-  '/tr': typeof TrRouteWithChildren
   '/esim/paketler': typeof EsimPaketlerRoute
   '/esim/ulkeler': typeof EsimUlkelerRoute
   '/guides/$slug': typeof GuidesSlugRoute
@@ -518,6 +517,7 @@ export interface FileRoutesByTo {
   '/guides': typeof GuidesIndexRoute
   '/lounge': typeof LoungeIndexRoute
   '/rehberler': typeof RehberlerIndexRoute
+  '/tr': typeof TrIndexRoute
   '/account/notifications': typeof AuthenticatedAccountNotificationsRoute
   '/account/profile': typeof AuthenticatedAccountProfileRoute
   '/account/security': typeof AuthenticatedAccountSecurityRoute
@@ -576,7 +576,6 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
   '/sepet': typeof SepetRoute
-  '/tr': typeof TrRouteWithChildren
   '/esim/paketler': typeof EsimPaketlerRoute
   '/esim/ulkeler': typeof EsimUlkelerRoute
   '/guides/$slug': typeof GuidesSlugRoute
@@ -586,6 +585,7 @@ export interface FileRoutesById {
   '/guides/': typeof GuidesIndexRoute
   '/lounge/': typeof LoungeIndexRoute
   '/rehberler/': typeof RehberlerIndexRoute
+  '/tr/': typeof TrIndexRoute
   '/_authenticated/account/notifications': typeof AuthenticatedAccountNotificationsRoute
   '/_authenticated/account/profile': typeof AuthenticatedAccountProfileRoute
   '/_authenticated/account/security': typeof AuthenticatedAccountSecurityRoute
@@ -644,7 +644,6 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/sepet'
-    | '/tr'
     | '/esim/paketler'
     | '/esim/ulkeler'
     | '/guides/$slug'
@@ -654,6 +653,7 @@ export interface FileRouteTypes {
     | '/guides/'
     | '/lounge/'
     | '/rehberler/'
+    | '/tr/'
     | '/account/notifications'
     | '/account/profile'
     | '/account/security'
@@ -710,7 +710,6 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/sepet'
-    | '/tr'
     | '/esim/paketler'
     | '/esim/ulkeler'
     | '/guides/$slug'
@@ -720,6 +719,7 @@ export interface FileRouteTypes {
     | '/guides'
     | '/lounge'
     | '/rehberler'
+    | '/tr'
     | '/account/notifications'
     | '/account/profile'
     | '/account/security'
@@ -777,7 +777,6 @@ export interface FileRouteTypes {
     | '/_authenticated'
     | '/auth'
     | '/sepet'
-    | '/tr'
     | '/esim/paketler'
     | '/esim/ulkeler'
     | '/guides/$slug'
@@ -787,6 +786,7 @@ export interface FileRouteTypes {
     | '/guides/'
     | '/lounge/'
     | '/rehberler/'
+    | '/tr/'
     | '/_authenticated/account/notifications'
     | '/_authenticated/account/profile'
     | '/_authenticated/account/security'
@@ -845,7 +845,6 @@ export interface RootRouteChildren {
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
   SepetRoute: typeof SepetRoute
-  TrRoute: typeof TrRouteWithChildren
   EsimPaketlerRoute: typeof EsimPaketlerRoute
   EsimUlkelerRoute: typeof EsimUlkelerRoute
   GuidesSlugRoute: typeof GuidesSlugRoute
@@ -855,11 +854,14 @@ export interface RootRouteChildren {
   GuidesIndexRoute: typeof GuidesIndexRoute
   LoungeIndexRoute: typeof LoungeIndexRoute
   RehberlerIndexRoute: typeof RehberlerIndexRoute
+  TrIndexRoute: typeof TrIndexRoute
   ApiPublicProviderSyncRoute: typeof ApiPublicProviderSyncRoute
   DeEsimSlugRoute: typeof DeEsimSlugRoute
   DeRatgeberSlugRoute: typeof DeRatgeberSlugRoute
   EnEsimSlugRoute: typeof EnEsimSlugRoute
   EnGuidesSlugRoute: typeof EnGuidesSlugRoute
+  TrEsimSlugRoute: typeof TrEsimSlugRoute
+  TrRehberSlugRoute: typeof TrRehberSlugRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -890,13 +892,6 @@ declare module '@tanstack/react-router' {
       path: '/sepet'
       fullPath: '/sepet'
       preLoaderRoute: typeof SepetRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/tr': {
-      id: '/tr'
-      path: '/tr'
-      fullPath: '/tr'
-      preLoaderRoute: typeof TrRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/esim/': {
@@ -960,6 +955,13 @@ declare module '@tanstack/react-router' {
       path: '/sitemap/xml'
       fullPath: '/sitemap/xml'
       preLoaderRoute: typeof SitemapXmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/tr/': {
+      id: '/tr/'
+      path: '/tr'
+      fullPath: '/tr/'
+      preLoaderRoute: typeof TrIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated/account/': {
@@ -1188,17 +1190,17 @@ declare module '@tanstack/react-router' {
     }
     '/tr/esim/$slug': {
       id: '/tr/esim/$slug'
-      path: '/esim/$slug'
+      path: '/tr/esim/$slug'
       fullPath: '/tr/esim/$slug'
       preLoaderRoute: typeof TrEsimSlugRouteImport
-      parentRoute: typeof TrRoute
+      parentRoute: typeof rootRouteImport
     }
     '/tr/rehber/$slug': {
       id: '/tr/rehber/$slug'
-      path: '/rehber/$slug'
+      path: '/tr/rehber/$slug'
       fullPath: '/tr/rehber/$slug'
       preLoaderRoute: typeof TrRehberSlugRouteImport
-      parentRoute: typeof TrRoute
+      parentRoute: typeof rootRouteImport
     }
     '/_authenticated/account/esims/': {
       id: '/_authenticated/account/esims/'
@@ -1427,24 +1429,11 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
 const AuthenticatedRouteRouteWithChildren =
   AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
 
-interface TrRouteChildren {
-  TrEsimSlugRoute: typeof TrEsimSlugRoute
-  TrRehberSlugRoute: typeof TrRehberSlugRoute
-}
-
-const TrRouteChildren: TrRouteChildren = {
-  TrEsimSlugRoute: TrEsimSlugRoute,
-  TrRehberSlugRoute: TrRehberSlugRoute,
-}
-
-const TrRouteWithChildren = TrRoute._addFileChildren(TrRouteChildren)
-
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
   SepetRoute: SepetRoute,
-  TrRoute: TrRouteWithChildren,
   EsimPaketlerRoute: EsimPaketlerRoute,
   EsimUlkelerRoute: EsimUlkelerRoute,
   GuidesSlugRoute: GuidesSlugRoute,
@@ -1454,11 +1443,14 @@ const rootRouteChildren: RootRouteChildren = {
   GuidesIndexRoute: GuidesIndexRoute,
   LoungeIndexRoute: LoungeIndexRoute,
   RehberlerIndexRoute: RehberlerIndexRoute,
+  TrIndexRoute: TrIndexRoute,
   ApiPublicProviderSyncRoute: ApiPublicProviderSyncRoute,
   DeEsimSlugRoute: DeEsimSlugRoute,
   DeRatgeberSlugRoute: DeRatgeberSlugRoute,
   EnEsimSlugRoute: EnEsimSlugRoute,
   EnGuidesSlugRoute: EnGuidesSlugRoute,
+  TrEsimSlugRoute: TrEsimSlugRoute,
+  TrRehberSlugRoute: TrRehberSlugRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
