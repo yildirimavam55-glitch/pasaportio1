@@ -47,6 +47,7 @@ export const Route = createFileRoute("/guides/$slug")({
     const alias = resolveSlugAlias("tr", "esim", params.slug);
     if (alias) throw redirect({ href: seoPath("tr", "DESTINATION", alias), statusCode: 301 });
     const entry = await context.queryClient.ensureQueryData(entryQuery(params.slug, "tr"));
+    const loaded = entry;
     if (entry.kind === "MISSING") throw notFound();
     if (entry.kind === "GUIDE") {
       const slugs = entry.guide.localeSlugs ?? {};
@@ -57,7 +58,7 @@ export const Route = createFileRoute("/guides/$slug")({
     // Country hub: redirect only when a published final destination page exists for this slug.
     const destination = await getSeoPage({ data: { locale: "tr", family: "esim", slug: params.slug } });
     if (destination) throw redirect({ href: seoPath("tr", "DESTINATION", params.slug), statusCode: 301 });
-    return entry;
+    return loaded as Exclude<typeof loaded, { kind: "MISSING" }>;
   },
   head: ({ loaderData, params }) => {
     if (!loaderData) {
