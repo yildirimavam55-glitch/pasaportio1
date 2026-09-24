@@ -33,7 +33,6 @@ import { StorefrontIcon } from "@/domain/storefront/icons";
 import { useMediaUrl } from "@/components/storefront/StorefrontContext";
 import { CountryFlag } from "./CountryFlag";
 import { DestinationDiscovery } from "./DestinationDiscovery";
-import { useDestinationCatalogue } from "./DestinationCards";
 import airportFrankfurtAsset from "@/assets/airport-frankfurt.jpg.asset.json";
 import airportIstanbulAsset from "@/assets/airport-istanbul.jpg.asset.json";
 import destinationEuropeAsset from "@/assets/destination-europe.jpg.asset.json";
@@ -197,20 +196,20 @@ export function TrustStrip({ section }: SectionProp) {
           {
             id: "qr",
             icon: <QrCode className="size-4" aria-hidden="true" />,
-            title: locale === "tr" ? "Anında teslim" : locale === "de" ? "Sofort geliefert" : "Instant delivery",
-            detail: locale === "tr" ? "QR ile kurulum" : locale === "de" ? "QR-Installation" : "Install by QR",
+            title: locale === "tr" ? "QR ile kurulum" : locale === "de" ? "QR-Installation" : "Install by QR",
+            detail: locale === "tr" ? "Uyumlu cihazlarda" : locale === "de" ? "Auf kompatiblen Geräten" : "On compatible devices",
           },
           {
             id: "secure",
             icon: <ShieldCheck className="size-4" aria-hidden="true" />,
-            title: locale === "tr" ? "Güvenli ödeme" : locale === "de" ? "Sichere Zahlung" : "Secure payment",
-            detail: locale === "tr" ? "SSL korumalı" : locale === "de" ? "SSL-geschützt" : "SSL protected",
+            title: locale === "tr" ? "Güvenli işlem" : locale === "de" ? "Sicherer Vorgang" : "Secure process",
+            detail: locale === "tr" ? "Verilerin korunur" : locale === "de" ? "Daten geschützt" : "Data protected",
           },
           {
             id: "support",
             icon: <Headphones className="size-4" aria-hidden="true" />,
-            title: locale === "tr" ? "7/24 destek" : locale === "de" ? "24/7 Support" : "24/7 support",
-            detail: locale === "tr" ? "Her zaman yanında" : locale === "de" ? "Immer für dich da" : "Always with you",
+            title: locale === "tr" ? "Destek merkezi" : locale === "de" ? "Hilfe-Center" : "Help centre",
+            detail: locale === "tr" ? "Yardım yanında" : locale === "de" ? "Hilfe für unterwegs" : "Help while travelling",
           },
         ].map((row) => (
           <div key={row.id} className="min-w-0 text-center">
@@ -241,15 +240,8 @@ export function TrustStrip({ section }: SectionProp) {
 }
 
 export function VisualPopular({ service, section }: { service: ServiceSlug } & SectionProp) {
-  const { data: destinations, isPending } = useDestinationCatalogue();
   if (service === "esim") {
-    if (destinations?.countries.length || destinations?.regions.length) {
-      return <DestinationDiscovery section={section ?? null} mode="popular" />;
-    }
-    // Keep the established homepage selection visible when the live catalogue
-    // is temporarily empty. It carries no invented price or product data.
-    if (isPending) return null;
-    return <LoungePopular service={service} section={section ?? null} />;
+    return <DestinationDiscovery section={section ?? null} mode="popular" />;
   }
   return <LoungePopular service={service} section={section ?? null} />;
 }

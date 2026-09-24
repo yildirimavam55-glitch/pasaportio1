@@ -1331,6 +1331,7 @@ html[data-quick-search-lock] body {
 }
 .destination-card:hover {
   border-color: color-mix(in oklab, var(--color-primary) 45%, var(--color-border));
+  transform: translateY(-2px);
 }
 .destination-card:focus-visible {
   outline: 2px solid var(--color-primary);
@@ -1353,6 +1354,19 @@ html[data-quick-search-lock] body {
 #popular .destination-card-body strong,
 #regional-esim .destination-card-body strong {
   color: var(--color-primary);
+}
+@media (max-width: 639px) {
+  .homepage-destination-section {
+    padding-block: 1.75rem;
+  }
+  .homepage-region-section {
+    padding-block: 1.75rem;
+  }
+  .homepage-destination-section h2,
+  .homepage-region-section h2 {
+    font-size: 1.35rem;
+    line-height: 1.2;
+  }
 }
 .destination-card-skeleton {
   height: 10.5rem;
