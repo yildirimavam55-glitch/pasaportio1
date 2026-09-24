@@ -1,0 +1,211 @@
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { useQuery } from "@tanstack/react-query";
+import { useMemo, useState } from "react";
+import { z } from "zod";
+import { Headphones, Infinity as InfinityIcon, LockKeyhole, Search, Signal, Zap } from "lucide-react";
+import { CartBar, money, pick, SectionTitle, TrustRow, V2Hero, V2Shell, V2_NOINDEX } from "@/components/design-v2/V2Shell";
+import { CountryFlag } from "@/components/travel/CountryFlag";
+import { useI18n } from "@/i18n";
+import { useCart } from "@/domain/cart/store";
+import { getCountryByIso, POPULAR_COUNTRIES, searchCountries } from "@/domain/geo/countries";
+import { listEsimPackages, listEsimStartingPrices, type EsimPackage } from "@/lib/esim-catalogue.functions";
+import { customerPackageTitle } from "@/domain/esim/customer-presentation";
+import heroImage from "@/assets/esim-hero-mobile.jpg";
+
+const searchSchema = z.object({ country: z.string().max(2).catch("").default("") });
+
+export const Route = createFileRoute("/design-v2/esim")({
+  validateSearch: (s) => searchSchema.parse(s),
+  head: () => ({
+    meta: [
+      { title: "eSIM — Design V2 preview" },
+      { name: "description", content: "Internal eSIM design preview." },
+      { property: "og:title", content: "eSIM — Design V2 preview" },
+      { property: "og:description", content: "Internal eSIM design preview." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
+      ...V2_NOINDEX,
+    ],
+  }),
+  component: EsimV2,
+});
+
+const T = {
+  tr: { h: "Yurt dışında bağlantıda kal.", q: "Hangi ülke için eSIM arıyorsun?", ph: "Ülke ara (örn. Türkiye, İtalya, ABD)", setup: "Hızlı kurulum", net: "4G / 5G", pay: "Güvenli ödeme", support: "7/24 destek", popular: "Popüler eSIM ülkeleri", from: "başlayan", all: "Tüm paketler", unl: "Sınırsız", days: "gün", select: "Seç", added: "Eklendi", cart: "Sepete git", none: "Bu ülke için şu anda yayınlanmış paket yok.", noPrices: "Fiyatlar yakında burada.", back: "Başka ülke", unlimited: "Sınırsız" },
+  de: { h: "Im Ausland verbunden bleiben.", q: "Für welches Land suchst du eine eSIM?", ph: "Land suchen (z. B. Türkei, Italien, USA)", setup: "Schnelle Einrichtung", net: "4G / 5G", pay: "Sichere Zahlung", support: "24/7 Support", popular: "Beliebte eSIM-Länder", from: "ab", all: "Alle Pakete", unl: "Unbegrenzt", days: "Tage", select: "Wählen", added: "Hinzugefügt", cart: "Zum Warenkorb", none: "Für dieses Land gibt es aktuell keine Pakete.", noPrices: "Preise folgen in Kürze.", back: "Anderes Land", unlimited: "Unbegrenzt" },
+  en: { h: "Stay connected abroad.", q: "Which country do you need an eSIM for?", ph: "Search country (e.g. Türkiye, Italy, USA)", setup: "Fast setup", net: "4G / 5G", pay: "Secure payment", support: "24/7 support", popular: "Popular eSIM destinations", from: "from", all: "All plans", unl: "Unlimited", days: "days", select: "Select", added: "Added", cart: "Go to cart", none: "No published plans for this country right now.", noPrices: "Prices coming soon.", back: "Other country", unlimited: "Unlimited" },
+};
+
+function EsimV2() {
+  const { locale } = useI18n();
+  const c = pick(locale, T);
+  const { country } = Route.useSearch();
+  const navigate = Route.useNavigate();
+  const [query, setQuery] = useState("");
+  const { count } = useCart();
+  const matches = useMemo(() => (query.trim() ? searchCountries(query, 6) : []), [query]);
+  const selected = country ? getCountryByIso(country.toUpperCase()) : undefined;
+  const choose = (iso: string) => {
+    setQuery("");
+    void navigate({ search: { country: iso } });
+  };
+
+  return (
+    <V2Shell service="esim">
+      <V2Hero image={heroImage} title={c.h} subtitle={c.q}>
+        <div className="relative">
+          <Search className="pointer-events-none absolute left-4 top-1/2 size-5 -translate-y-1/2 text-muted-foreground" />
+          <input
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder={c.ph}
+            aria-label={c.ph}
+            className="h-14 w-full rounded-2xl bg-card pl-12 pr-4 text-base text-foreground outline-none ring-2 ring-transparent focus:ring-accent"
+          />
+          {matches.length > 0 && (
+            <ul className="absolute inset-x-0 top-full z-20 mt-2 overflow-hidden rounded-2xl bg-card text-foreground shadow-lg ring-1 ring-border">
+              {matches.map((m) => (
+                <li key={m.iso}>
+                  <button type="button" onClick={() => choose(m.iso)} className="flex min-h-12 w-full items-center gap-3 px-4 text-left text-sm font-medium hover:bg-muted">
+                    <CountryFlag iso={m.iso} className="h-4 w-6 rounded-sm" />
+                    {m.name[locale]}
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      </V2Hero>
+
+      {selected ? (
+        <Packages iso={selected.iso} name={selected.name[locale]} c={c} onBack={() => void navigate({ search: { country: "" } })} />
+      ) : (
+        <>
+          <TrustRow
+            items={[
+              { icon: <Zap className="size-4" />, label: c.setup },
+              { icon: <Signal className="size-4" />, label: c.net },
+              { icon: <LockKeyhole className="size-4" />, label: c.pay },
+              { icon: <Headphones className="size-4" />, label: c.support },
+            ]}
+          />
+          <Popular c={c} onPick={choose} />
+        </>
+      )}
+      <CartBar count={count} label={c.cart} />
+    </V2Shell>
+  );
+}
+
+function Popular({ c, onPick }: { c: (typeof T)["tr"]; onPick: (iso: string) => void }) {
+  const { locale } = useI18n();
+  const list = POPULAR_COUNTRIES.slice(0, 8);
+  const { data, isLoading } = useQuery({
+    queryKey: ["v2-esim-starting", list.map((x) => x.iso)],
+    queryFn: () => listEsimStartingPrices({ data: { targets: list.map((x) => ({ id: x.iso, coverageIsos: [x.iso] })) } }),
+  });
+  // Only countries with a real published price are shown.
+  const priced = list.flatMap((country) => {
+    const p = data?.find((d) => d.targetId === country.iso);
+    return p ? [{ country, p }] : [];
+  });
+  return (
+    <>
+      <SectionTitle>{c.popular}</SectionTitle>
+      {isLoading ? (
+        <div className="h-40 animate-pulse rounded-2xl bg-muted" />
+      ) : priced.length === 0 ? (
+        <p className="rounded-2xl bg-card p-4 text-sm text-muted-foreground ring-1 ring-border">{c.noPrices}</p>
+      ) : (
+        <ul className="divide-y divide-border overflow-hidden rounded-2xl bg-card ring-1 ring-border">
+          {priced.map(({ country, p }) => (
+            <li key={country.iso}>
+              <button type="button" onClick={() => onPick(country.iso)} className="flex min-h-14 w-full items-center gap-3 px-4 text-left hover:bg-muted">
+                <CountryFlag iso={country.iso} className="h-5 w-7 rounded-sm" />
+                <span className="flex-1 text-sm font-semibold text-foreground">{country.name[locale]}</span>
+                <span className="text-xs text-muted-foreground">{c.from}</span>
+                <span className="text-sm font-bold text-primary">{money(p.amount, p.currency)}</span>
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
+    </>
+  );
+}
+
+function Packages({ iso, name, c, onBack }: { iso: string; name: string; c: (typeof T)["tr"]; onBack: () => void }) {
+  const { locale } = useI18n();
+  const { lines, addLine } = useCart();
+  const [tab, setTab] = useState<"all" | "unl">("all");
+  const { data = [], isLoading } = useQuery({
+    queryKey: ["v2-esim-packages", iso],
+    queryFn: () => listEsimPackages({ data: { coverageIsos: [iso] } }),
+  });
+  const hasUnlimited = data.some((p) => p.unlimited);
+  const rows = (tab === "unl" ? data.filter((p) => p.unlimited) : data).slice().sort((a, b) => (a.salePrice ?? 0) - (b.salePrice ?? 0));
+  const add = (p: EsimPackage) =>
+    addLine({
+      productId: p.id,
+      providerProductId: p.providerProductId,
+      serviceType: "ESIM",
+      name: customerPackageTitle({ locale, destinationIso: iso, routeIsos: [], coverage: p.coverage }),
+      meta: p.unlimited ? c.unlimited : `${p.dataGb ?? "—"} GB`,
+      price: p.salePrice,
+      currency: p.currency,
+      dataGb: p.dataGb,
+      validityDays: p.validityDays,
+      coverage: p.coverage,
+      isTest: p.isTest,
+    });
+
+  return (
+    <>
+      <div className="mt-5 flex items-center justify-between">
+        <h2 className="flex items-center gap-2 font-display text-lg font-semibold text-foreground">
+          <CountryFlag iso={iso} className="h-5 w-7 rounded-sm" />
+          {name}
+        </h2>
+        <button type="button" onClick={onBack} className="min-h-11 px-2 text-sm font-semibold text-primary">{c.back}</button>
+      </div>
+      {hasUnlimited && (
+        <div className="mt-2 flex gap-2">
+          {(["all", "unl"] as const).map((t) => (
+            <button key={t} type="button" onClick={() => setTab(t)} className={`min-h-10 rounded-full px-4 text-sm font-semibold ${tab === t ? "bg-primary text-primary-foreground" : "bg-card text-foreground ring-1 ring-border"}`}>
+              {t === "all" ? c.all : c.unl}
+            </button>
+          ))}
+        </div>
+      )}
+      {isLoading ? (
+        <div className="mt-3 h-48 animate-pulse rounded-2xl bg-muted" />
+      ) : rows.length === 0 ? (
+        <p className="mt-3 rounded-2xl bg-card p-4 text-sm text-muted-foreground ring-1 ring-border">{c.none}</p>
+      ) : (
+        <ul className="mt-3 divide-y divide-border overflow-hidden rounded-2xl bg-card ring-1 ring-border">
+          {rows.map((p) => {
+            const inCart = lines.some((l) => l.productId === p.id);
+            return (
+              <li key={p.id} className="flex min-h-16 items-center gap-3 px-4 py-2">
+                <div className="flex-1">
+                  <p className="flex items-center gap-1 font-display text-base font-semibold text-foreground">
+                    {p.unlimited ? (<><InfinityIcon className="size-4" />{c.unlimited}</>) : `${p.dataGb ?? "—"} GB`}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    {p.validityDays ? `${p.validityDays} ${c.days}` : ""}
+                    {p.supports5g ? " · 5G" : ""}
+                  </p>
+                </div>
+                <span className="text-base font-bold text-foreground">{p.salePrice != null ? money(p.salePrice, p.currency) : ""}</span>
+                <button type="button" onClick={() => add(p)} className={`min-h-11 min-w-20 rounded-full px-4 text-sm font-semibold ${inCart ? "bg-accent-soft text-primary" : "bg-primary text-primary-foreground"}`}>
+                  {inCart ? c.added : c.select}
+                </button>
+              </li>
+            );
+          })}
+        </ul>
+      )}
+      <Link to="/sepet" className="sr-only">{c.cart}</Link>
+    </>
+  );
+}
