@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { useI18n } from "@/i18n";
 
 /** WhatsApp support number in international format, digits only. */
-export const WHATSAPP_NUMBER = "4900000000000";
+export const WHATSAPP_NUMBER = "4915203555596";
 const SUPPORT_EMAIL = "destek@travely.app";
 
 const COPY = {
