@@ -1,5 +1,12 @@
 # Phase 1.3 Roadmap
 
+## Mobile customer journey final UX fixes
+
+- [x] Reuse the selected-package mobile purchase bar with authoritative price and existing cart navigation
+- [x] Show supplier-backed activation wording or a neutral localized fallback in package details
+- [x] Keep the homepage search action petrol and confirm editor chrome is not application-owned
+- [ ] Verify TR/DE/EN at 360/390/430 px, Guides visibility, tests, and build
+
 ## Homepage finalization
 
 - [x] Audit the actual homepage render, theme, catalogue, Finder, region, and campaign paths

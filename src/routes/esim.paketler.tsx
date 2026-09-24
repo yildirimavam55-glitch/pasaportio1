@@ -151,6 +151,8 @@ const COPY = {
     continue: "Devam et",
     securePayment: "Güvenli ödeme",
     methodsAtCheckout: "Ödeme yöntemleri henüz aktif değil",
+    selectedPackage: "Seçili paket",
+    activationFallback: "Aktivasyon detayları satın alma öncesinde gösterilir.",
 
     whyText: (need: number, size: string) =>
       `Yaklaşık ${need} GB ihtiyacın için mevcut paketler arasındaki en yakın uygun seçenek: ${size}.`,
@@ -211,6 +213,8 @@ const COPY = {
     continue: "Weiter",
     securePayment: "Sichere Zahlung",
     methodsAtCheckout: "Zahlungsarten noch nicht aktiv",
+    selectedPackage: "Ausgewähltes Paket",
+    activationFallback: "Aktivierungsdetails werden vor dem Kauf angezeigt.",
 
     widerCoverage: "Pakete mit mehr Ländern",
     standardLead: "Beliebte Datenpakete für dieses Reiseziel",
@@ -299,6 +303,8 @@ const COPY = {
     continue: "Continue",
     securePayment: "Secure payment",
     methodsAtCheckout: "Payment methods are not active yet",
+    selectedPackage: "Selected package",
+    activationFallback: "Activation details are shown before purchase.",
 
     widerCoverage: "Packages covering more countries",
     standardLead: "Popular data packages for this destination",
@@ -476,7 +482,7 @@ function PackagesPage() {
 
   return (
     <PublicShell activeService="esim">
-      <section className="mx-auto max-w-site px-4 pb-[calc(10.5rem+env(safe-area-inset-bottom))] pt-5 sm:px-6 sm:pt-8 md:pb-8">
+      <section className={`mx-auto max-w-site px-4 pt-5 sm:px-6 sm:pt-8 md:pb-8 ${selectedProduct ? "pb-[calc(10.5rem+env(safe-area-inset-bottom))]" : "pb-12"}`}>
         <Button
           type="button"
           variant="ghost"
@@ -631,17 +637,17 @@ function PackagesPage() {
                 </p>
               )}
               {selectedProduct && (
-                <div className="mobile-purchase-bar fixed z-40 rounded-[1.375rem] border border-border/80 bg-card/98 px-3.5 py-3 shadow-panel backdrop-blur md:static md:mt-5 md:rounded-2xl md:p-3 md:shadow-card">
+                <div className="mobile-purchase-bar fixed z-40 rounded-[1.375rem] border border-border/80 bg-card/98 px-3.5 py-3 shadow-panel backdrop-blur md:static md:mt-5 md:rounded-2xl md:p-3 md:shadow-card" data-selected-package="true">
                   <div
                     key={selectedProduct.id}
                     className="esim-sticky-product mx-auto grid max-w-site grid-cols-[minmax(0,1fr)_auto] items-center gap-x-3 gap-y-1.5"
                   >
                     <div className="min-w-0">
-                      <strong className="block truncate text-sm leading-tight">
-                        {selectedProduct.unlimited
-                          ? copy.unlimited
-                          : `${selectedProduct.dataGb} GB`}{" "}
-                        · {selectedProduct.validityDays ?? "—"} {copy.days}
+                      <span className="block truncate text-[11px] font-semibold leading-tight text-muted-foreground">
+                        {copy.selectedPackage}
+                      </span>
+                      <strong className="mt-0.5 block truncate text-sm leading-tight">
+                        {selectedProduct.unlimited ? copy.unlimited : `${selectedProduct.dataGb} GB`} · {selectedProduct.validityDays ?? "—"} {copy.days}
                       </strong>
                       <span className="mt-1 flex min-w-0 items-center gap-1.5 text-xs text-muted-foreground">
                         {destination && <CountryFlag iso={destination} />}
@@ -692,7 +698,7 @@ function PackagesPage() {
                       )}
                     </span>
                     <Button
-                      variant="cta"
+                      variant="default"
                       size="lg"
                       className="h-10 shrink-0 rounded-xl px-5 text-sm"
                       disabled={selectedProduct.salePrice == null}
@@ -1042,8 +1048,8 @@ function PackageDetailsSheet({
     [copy.dataOnly, pkg.dataOnly ? copy.yes : copy.no],
     [copy.topup, pkg.topupSupported ? copy.yes : copy.no],
   ];
-  const activation = activationNote(pkg.activationPolicy, locale);
-  if (activation) rows.push([copy.fieldActivation, activation]);
+  const activation = activationNote(pkg.activationPolicy, locale) ?? copy.activationFallback;
+  rows.push([copy.fieldActivation, activation]);
   const fairUse = fairUseText(pkg);
   if (fairUse) rows.push([copy.fieldFairUse, fairUse]);
   if (pkg.speedAfterFairUse) rows.push([copy.fieldFairUse, pkg.speedAfterFairUse]);
