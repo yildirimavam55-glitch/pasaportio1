@@ -135,15 +135,6 @@ function SupportPage() {
         </section>
       </div>
 
-      <a
-        href={waHref}
-        target="_blank"
-        rel="noopener noreferrer"
-        aria-label={c.wa}
-        className="fixed bottom-5 right-5 z-40 grid size-14 place-items-center rounded-full bg-primary text-primary-foreground shadow-lg"
-      >
-        <MessageCircle className="size-6" />
-      </a>
     </PublicShell>
   );
 }
