@@ -650,7 +650,7 @@ function ServiceHero({
   onSearchModeChange,
 }: {
   service: ServiceSlug;
-  countryCount?: number;
+  countryCount: number | undefined;
   phase: "outgoing" | "incoming" | null;
   onAirportSelect: (airportId: string) => void;
   searchMode: boolean;
