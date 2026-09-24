@@ -4,7 +4,7 @@
 
 - [x] Audit the actual homepage render, theme, catalogue, Finder, region, and campaign paths
 - [x] Consolidate the eSIM homepage into one destination-first commercial sequence
-- [ ] Verify theme persistence, customer journeys, TR/DE/EN, mobile/desktop, tests, and build
+- [x] Verify theme persistence, customer journeys, TR/DE/EN, mobile/desktop, tests, and build
 
 ## Mobile homepage conversion UI update
 

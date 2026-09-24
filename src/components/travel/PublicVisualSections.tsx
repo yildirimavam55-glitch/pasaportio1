@@ -151,87 +151,38 @@ function CardImage({
 
 export function TrustStrip({ section }: SectionProp) {
   const { locale } = useI18n();
-  const items = section?.items.filter((item) => item.visible) ?? [];
-  const fallback = [
+  const rows = [
     {
-      id: "t1",
-      icon: "ShieldCheck",
-      label:
-        locale === "tr" ? "Güvenli ödeme" : locale === "de" ? "Sichere Zahlung" : "Secure payment",
+      id: "qr",
+      icon: <QrCode className="size-4 sm:size-[18px]" aria-hidden="true" />,
+      title: locale === "tr" ? "QR ile kurulum" : locale === "de" ? "QR-Installation" : "Install by QR",
+      detail: locale === "tr" ? "Uyumlu cihazlarda" : locale === "de" ? "Auf kompatiblen Geräten" : "On compatible devices",
     },
     {
-      id: "t2",
-      icon: "QrCode",
-      label:
-        locale === "tr"
-          ? "Hızlı dijital teslimat"
-          : locale === "de"
-            ? "Schnelle digitale Zustellung"
-            : "Fast digital delivery",
+      id: "secure",
+      icon: <ShieldCheck className="size-4 sm:size-[18px]" aria-hidden="true" />,
+      title: locale === "tr" ? "Güvenli işlem" : locale === "de" ? "Sicherer Vorgang" : "Secure process",
+      detail: locale === "tr" ? "Verilerin korunur" : locale === "de" ? "Daten geschützt" : "Data protected",
     },
     {
-      id: "t3",
-      icon: "Smartphone",
-      label:
-        locale === "tr"
-          ? "Hesabında erişim"
-          : locale === "de"
-            ? "Zugriff im Konto"
-            : "Account access",
-    },
-    {
-      id: "t4",
-      icon: "Headphones",
-      label:
-        locale === "tr" ? "Seyahat desteği" : locale === "de" ? "Reise-Support" : "Travel support",
+      id: "support",
+      icon: <Headphones className="size-4 sm:size-[18px]" aria-hidden="true" />,
+      title: locale === "tr" ? "Destek merkezi" : locale === "de" ? "Hilfe-Center" : "Help centre",
+      detail: locale === "tr" ? "Yardım yanında" : locale === "de" ? "Hilfe für unterwegs" : "Help while travelling",
     },
   ];
-  const rows = items.length
-    ? items.map((item) => ({ id: item.id, icon: item.icon, label: itemText(item.title, locale) }))
-    : fallback;
   return (
     <section className={`mx-auto ${widthClass(section)} px-4 py-5 sm:px-6 sm:py-7`}>
-      <div className="grid grid-cols-3 gap-2 border-y border-border py-3 sm:hidden">
-        {[
-          {
-            id: "qr",
-            icon: <QrCode className="size-4" aria-hidden="true" />,
-            title: locale === "tr" ? "QR ile kurulum" : locale === "de" ? "QR-Installation" : "Install by QR",
-            detail: locale === "tr" ? "Uyumlu cihazlarda" : locale === "de" ? "Auf kompatiblen Geräten" : "On compatible devices",
-          },
-          {
-            id: "secure",
-            icon: <ShieldCheck className="size-4" aria-hidden="true" />,
-            title: locale === "tr" ? "Güvenli işlem" : locale === "de" ? "Sicherer Vorgang" : "Secure process",
-            detail: locale === "tr" ? "Verilerin korunur" : locale === "de" ? "Daten geschützt" : "Data protected",
-          },
-          {
-            id: "support",
-            icon: <Headphones className="size-4" aria-hidden="true" />,
-            title: locale === "tr" ? "Destek merkezi" : locale === "de" ? "Hilfe-Center" : "Help centre",
-            detail: locale === "tr" ? "Yardım yanında" : locale === "de" ? "Hilfe für unterwegs" : "Help while travelling",
-          },
-        ].map((row) => (
-          <div key={row.id} className="min-w-0 text-center">
-            <span className="mx-auto grid size-8 place-items-center rounded-lg bg-primary-soft text-primary">
+      <div className="grid grid-cols-3 gap-2 border-y border-border py-3 sm:gap-5 sm:py-4">
+        {rows.map((row) => (
+          <div key={row.id} data-reveal-card className="min-w-0 text-center sm:flex sm:items-center sm:justify-center sm:gap-3 sm:text-left">
+            <span className="mx-auto grid size-8 shrink-0 place-items-center rounded-lg bg-primary-soft text-primary sm:mx-0 sm:size-10">
               {row.icon}
             </span>
-            <strong className="mt-1.5 block text-[11px] leading-tight text-primary">{row.title}</strong>
-            <span className="mt-0.5 block text-[9px] leading-tight text-muted-foreground">{row.detail}</span>
-          </div>
-        ))}
-      </div>
-      <div className="hidden grid-cols-2 gap-x-3 gap-y-3 border-y border-border py-4 sm:grid md:grid-cols-4 md:py-5">
-        {rows.map((row, index) => (
-          <div
-            key={row.id}
-            data-reveal-card
-            className={`flex items-center gap-2 text-xs font-semibold sm:text-sm ${rows.length % 2 === 1 && index === rows.length - 1 ? "col-span-2 justify-center md:col-span-1 md:justify-start" : ""}`}
-          >
-            <span className="icon-box-sm rounded-lg bg-primary-soft text-primary">
-              <StorefrontIcon name={row.icon} />
+            <span className="min-w-0">
+              <strong className="mt-1.5 block text-[11px] leading-tight text-primary sm:mt-0 sm:text-sm">{row.title}</strong>
+              <span className="mt-0.5 block text-[9px] leading-tight text-muted-foreground sm:text-xs">{row.detail}</span>
             </span>
-            <span className="leading-snug">{row.label}</span>
           </div>
         ))}
       </div>
