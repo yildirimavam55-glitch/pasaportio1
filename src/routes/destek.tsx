@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ChevronDown, Mail, MessageCircle, Package, Smartphone, UserRound } from "lucide-react";
+import { ChevronDown, Mail, Package, Smartphone, UserRound } from "lucide-react";
+import { WhatsAppLogo } from "@/components/travel/WhatsAppLogo";
 
 import { PublicShell } from "@/components/travel/PublicShell";
 import { Button } from "@/components/ui/button";
@@ -96,8 +97,14 @@ function SupportPage() {
 
         <section className="grid gap-3 rounded-2xl border border-border bg-card p-5 shadow-card">
           <Button asChild size="lg" className="h-14 text-base">
-            <a href={waHref} target="_blank" rel="noopener noreferrer">
-              <MessageCircle className="size-5" /> {c.wa}
+            <a
+              href={waHref}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 text-white"
+              style={{ backgroundColor: "#25D366" }}
+            >
+              <WhatsAppLogo className="size-5" /> {c.wa}
             </a>
           </Button>
           <p className="text-center text-xs text-muted-foreground">{c.waNote}</p>

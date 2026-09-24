@@ -16,7 +16,6 @@ import {
   Signal,
   Sun,
   UserRound,
-  MessageCircle,
   X,
 } from "lucide-react";
 import { useEffect, useState, type ReactNode } from "react";
@@ -31,6 +30,7 @@ import {
 import { Sheet, SheetClose, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { BRAND } from "@/domain/experience/config";
 import { waLink } from "@/lib/whatsapp";
+import { WhatsAppLogo } from "./WhatsAppLogo";
 
 import { useI18n } from "@/i18n";
 import { GLOBAL_CONTENT, localized, type ServiceSlug } from "@/content/travel-content";
@@ -506,14 +506,16 @@ export function PublicShell({
         asChild
         size="lg"
         className="fixed bottom-20 right-4 z-40 size-12 rounded-full p-0 shadow-lg sm:bottom-6 sm:right-6"
+        style={{ backgroundColor: "#25D366" }}
       >
         <a
           href={waLink()}
           target="_blank"
           rel="noopener noreferrer"
           aria-label={WHATSAPP_LABEL[locale]}
+          className="text-white hover:brightness-95"
         >
-          <MessageCircle className="size-5" aria-hidden="true" />
+          <WhatsAppLogo className="size-6" />
         </a>
       </Button>
 
