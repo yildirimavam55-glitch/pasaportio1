@@ -5,14 +5,11 @@ import { SeoPathLink } from "@/components/seo/SeoPathLink";
 import { useI18n } from "@/i18n";
 import type { Locale } from "@/domain/enums";
 import { SEO_BASE_URL, guideHubPath, localeHomePath } from "@/domain/seo/paths";
-import type { SeoHubData, SeoHubItem } from "@/lib/seo-content.functions";
+import { getSeoHub, type SeoHubData, type SeoHubItem } from "@/lib/seo-content.functions";
 
 export const seoHubQuery = (locale: Locale) => ({
   queryKey: ["seo-hub", locale] as const,
-  queryFn: async () => {
-    const { getSeoHub } = await import("@/lib/seo-content.functions");
-    return getSeoHub({ data: { locale } });
-  },
+  queryFn: () => getSeoHub({ data: { locale } }),
   staleTime: 60_000,
 });
 
