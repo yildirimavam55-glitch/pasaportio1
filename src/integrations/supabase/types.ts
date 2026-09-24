@@ -1255,10 +1255,13 @@ export type Database = {
       }
       guide_translations: {
         Row: {
+          city_facts: Json
           created_at: string
           excerpt: string | null
           faq: Json
           guide_id: string
+          h1: string | null
+          hero_alt: string | null
           id: string
           intro: string | null
           locale: Database["public"]["Enums"]["locale_code"]
@@ -1271,10 +1274,13 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          city_facts?: Json
           created_at?: string
           excerpt?: string | null
           faq?: Json
           guide_id: string
+          h1?: string | null
+          hero_alt?: string | null
           id?: string
           intro?: string | null
           locale: Database["public"]["Enums"]["locale_code"]
@@ -1287,10 +1293,13 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          city_facts?: Json
           created_at?: string
           excerpt?: string | null
           faq?: Json
           guide_id?: string
+          h1?: string | null
+          hero_alt?: string | null
           id?: string
           intro?: string | null
           locale?: Database["public"]["Enums"]["locale_code"]
@@ -1314,8 +1323,12 @@ export type Database = {
       }
       guides: {
         Row: {
+          author_id: string | null
+          canonical_override: string | null
           category_id: string | null
+          city_name: string | null
           content_type: string
+          country_iso: string | null
           created_at: string
           created_by: string | null
           featured: boolean
@@ -1323,8 +1336,11 @@ export type Database = {
           hero_image_url: string | null
           hero_media_id: string | null
           id: string
+          indexable: boolean
           published_at: string | null
           reading_minutes: number | null
+          related_guide_ids: string[]
+          related_product_ids: string[]
           slug: string
           sort_order: number
           status: Database["public"]["Enums"]["content_status"]
@@ -1332,8 +1348,12 @@ export type Database = {
           updated_by: string | null
         }
         Insert: {
+          author_id?: string | null
+          canonical_override?: string | null
           category_id?: string | null
+          city_name?: string | null
           content_type?: string
+          country_iso?: string | null
           created_at?: string
           created_by?: string | null
           featured?: boolean
@@ -1341,8 +1361,11 @@ export type Database = {
           hero_image_url?: string | null
           hero_media_id?: string | null
           id?: string
+          indexable?: boolean
           published_at?: string | null
           reading_minutes?: number | null
+          related_guide_ids?: string[]
+          related_product_ids?: string[]
           slug: string
           sort_order?: number
           status?: Database["public"]["Enums"]["content_status"]
@@ -1350,8 +1373,12 @@ export type Database = {
           updated_by?: string | null
         }
         Update: {
+          author_id?: string | null
+          canonical_override?: string | null
           category_id?: string | null
+          city_name?: string | null
           content_type?: string
+          country_iso?: string | null
           created_at?: string
           created_by?: string | null
           featured?: boolean
@@ -1359,8 +1386,11 @@ export type Database = {
           hero_image_url?: string | null
           hero_media_id?: string | null
           id?: string
+          indexable?: boolean
           published_at?: string | null
           reading_minutes?: number | null
+          related_guide_ids?: string[]
+          related_product_ids?: string[]
           slug?: string
           sort_order?: number
           status?: Database["public"]["Enums"]["content_status"]
@@ -1368,6 +1398,13 @@ export type Database = {
           updated_by?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "guides_author_id_fkey"
+            columns: ["author_id"]
+            isOneToOne: false
+            referencedRelation: "seo_authors"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "guides_category_id_fkey"
             columns: ["category_id"]
@@ -2763,6 +2800,36 @@ export type Database = {
           },
         ]
       }
+      seo_authors: {
+        Row: {
+          avatar_url: string | null
+          bio: Json
+          created_at: string
+          id: string
+          name: string
+          slug: string
+          updated_at: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          bio?: Json
+          created_at?: string
+          id?: string
+          name: string
+          slug: string
+          updated_at?: string
+        }
+        Update: {
+          avatar_url?: string | null
+          bio?: Json
+          created_at?: string
+          id?: string
+          name?: string
+          slug?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       service_products: {
         Row: {
           airport_id: string | null
@@ -3134,7 +3201,7 @@ export type Database = {
         | "AFFILIATE"
         | "PARTNER"
         | "UNKNOWN"
-      content_status: "DRAFT" | "PUBLISHED"
+      content_status: "DRAFT" | "PUBLISHED" | "REVIEW" | "ARCHIVED"
       fulfillment_status:
         | "PENDING"
         | "PROCESSING"
@@ -3357,7 +3424,7 @@ export const Constants = {
         "PARTNER",
         "UNKNOWN",
       ],
-      content_status: ["DRAFT", "PUBLISHED"],
+      content_status: ["DRAFT", "PUBLISHED", "REVIEW", "ARCHIVED"],
       fulfillment_status: [
         "PENDING",
         "PROCESSING",
