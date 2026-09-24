@@ -98,6 +98,8 @@ export type GuideFaq = { question: string; answer: string };
 export type GuideListItem = {
   id: string;
   slug: string;
+  /** Language of the translation actually served (may differ from the requested locale). */
+  translationLocale: Locale;
   categorySlug: string | null;
   categoryName: string | null;
   contentType: GuideContentType;
@@ -244,6 +246,7 @@ function toListItem(row: any, locale: Locale): GuideListItem | null {
   return {
     id: row.id,
     slug: translation.slug,
+    translationLocale: translation.locale as Locale,
     categorySlug: row.guide_categories?.slug ?? null,
     categoryName: row.guide_categories
       ? labelOf(row.guide_categories.labels, locale, row.guide_categories.slug)

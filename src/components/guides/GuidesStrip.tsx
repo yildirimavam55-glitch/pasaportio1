@@ -1,5 +1,6 @@
 /** Homepage strip: sits below the primary destination/eSIM flow, never above it. */
-import { Link } from "@tanstack/react-router";
+import { SeoPathLink } from "@/components/seo/SeoPathLink";
+import { guideHubPath } from "@/domain/seo/paths";
 import { useQuery } from "@tanstack/react-query";
 import { ArrowRight } from "lucide-react";
 
@@ -25,10 +26,10 @@ export function GuidesStrip() {
       <div className="flex flex-wrap items-end justify-between gap-3">
         <h2 className="font-display text-2xl font-bold sm:text-3xl">{copy.homeTitle}</h2>
         <Button asChild variant="outline" size="sm">
-          <Link to="/guides" search={{ category: "" }}>
+          <SeoPathLink path={guideHubPath(locale)}>
             {copy.allGuides}
             <ArrowRight />
-          </Link>
+          </SeoPathLink>
         </Button>
       </div>
       <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">

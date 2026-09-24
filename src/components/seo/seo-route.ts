@@ -61,7 +61,7 @@ export function seoHead(page: SeoPage | null | undefined) {
 
   const isDestination = guide.contentType === "DESTINATION";
   const sectionName = isDestination ? copy.esim : copy.guides;
-  const sectionUrl = isDestination ? `${SEO_BASE_URL}/esim` : `${SEO_BASE_URL}/${locale}/${GUIDE_FOLDER[locale]}`;
+  const sectionUrl = isDestination ? `${SEO_BASE_URL}/esim/ulkeler` : `${SEO_BASE_URL}/${locale}/${GUIDE_FOLDER[locale]}`;
   const articleType = guide.contentType === "ARTICLE" || guide.contentType === "HOW_TO" ? "BlogPosting" : "Article";
 
   const scripts = [
@@ -87,7 +87,7 @@ export function seoHead(page: SeoPage | null | undefined) {
         "@context": "https://schema.org",
         "@type": "BreadcrumbList",
         itemListElement: [
-          { "@type": "ListItem", position: 1, name: copy.home, item: `${SEO_BASE_URL}/` },
+          { "@type": "ListItem", position: 1, name: copy.home, item: `${SEO_BASE_URL}/${locale}` },
           { "@type": "ListItem", position: 2, name: sectionName, item: sectionUrl },
           { "@type": "ListItem", position: 3, name: page.h1, item: canonical },
         ],

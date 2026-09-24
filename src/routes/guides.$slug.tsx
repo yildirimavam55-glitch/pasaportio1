@@ -1,4 +1,5 @@
-import { createFileRoute, Link, notFound } from "@tanstack/react-router";
+import { createFileRoute, Link, notFound, redirect } from "@tanstack/react-router";
+import { getSeoPage } from "@/lib/seo-content.functions";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { ArrowLeft, CalendarDays, Clock3 } from "lucide-react";
 
@@ -15,7 +16,7 @@ import { useI18n } from "@/i18n";
 import { COUNTRIES } from "@/domain/geo/countries";
 import { CountryFlag } from "@/components/travel/CountryFlag";
 import type { Locale } from "@/domain/enums";
-import { seoUrl } from "@/domain/seo/paths";
+import { resolveSlugAlias, seoPath, seoUrl } from "@/domain/seo/paths";
 
 const GUIDES_BASE_URL = "https://wanderlust-core.lovable.app/guides";
 
@@ -42,8 +43,20 @@ const entryQuery = (slug: string, locale: Locale) => ({
 
 export const Route = createFileRoute("/guides/$slug")({
   loader: async ({ context, params }) => {
+    // Legacy URL: every resolvable slug permanently redirects straight to its final localized URL.
+    const alias = resolveSlugAlias("tr", "esim", params.slug);
+    if (alias) throw redirect({ href: seoPath("tr", "DESTINATION", alias), statusCode: 301 });
     const entry = await context.queryClient.ensureQueryData(entryQuery(params.slug, "tr"));
     if (entry.kind === "MISSING") throw notFound();
+    if (entry.kind === "GUIDE") {
+      const slugs = entry.guide.localeSlugs ?? {};
+      const loc = ((Object.entries(slugs).find(([, s]) => s === params.slug)?.[0]) ?? "tr") as Locale;
+      const finalSlug = slugs[loc] ?? params.slug;
+      throw redirect({ href: seoPath(loc, entry.guide.contentType, finalSlug), statusCode: 301 });
+    }
+    // Country hub: redirect only when a published final destination page exists for this slug.
+    const destination = await getSeoPage({ data: { locale: "tr", family: "esim", slug: params.slug } });
+    if (destination) throw redirect({ href: seoPath("tr", "DESTINATION", params.slug), statusCode: 301 });
     return entry;
   },
   head: ({ loaderData, params }) => {
@@ -147,7 +160,7 @@ function GuideMissing() {
       <main className="mx-auto w-full max-w-3xl px-4 py-16 text-center">
         <h1 className="font-display text-2xl font-bold">{copy.notFound}</h1>
         <Button asChild className="mt-6">
-          <Link to="/guides" search={{ category: "" }}>
+          <Link to="/tr/rehber">
             {copy.backToGuides}
           </Link>
         </Button>
@@ -174,7 +187,7 @@ function Breadcrumbs({ current, category }: { current: string; category?: string
         {copy.breadcrumbHome}
       </Link>
       <span className="px-1.5">/</span>
-      <Link to="/guides" search={{ category: "" }} className="hover:text-foreground">
+      <Link to="/tr/rehber" className="hover:text-foreground">
         {copy.hubName}
       </Link>
       {category ? (
@@ -229,7 +242,7 @@ function CountryHub({
         )}
 
         <Button asChild variant="outline" className="mt-8">
-          <Link to="/guides" search={{ category: "" }}>
+          <Link to="/tr/rehber">
             <ArrowLeft /> {copy.allGuides}
           </Link>
         </Button>
@@ -385,7 +398,7 @@ function GuideArticle({
         )}
 
         <Button asChild variant="outline" className="mt-10">
-          <Link to="/guides" search={{ category: "" }}>
+          <Link to="/tr/rehber">
             <ArrowLeft /> {copy.allGuides}
           </Link>
         </Button>

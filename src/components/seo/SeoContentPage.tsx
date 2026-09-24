@@ -1,3 +1,5 @@
+import { SeoPathLink } from "@/components/seo/SeoPathLink";
+import { guideHubPath, localeHomePath } from "@/domain/seo/paths";
 import { Link } from "@tanstack/react-router";
 import { ArrowRight, CalendarDays, Clock3, Sparkles } from "lucide-react";
 
@@ -95,11 +97,19 @@ export function SeoContentPage({ page }: { page: SeoPage }) {
     <PublicShell hideStickySearch>
       <main lang={locale} className="mx-auto w-full max-w-3xl px-4 py-8 sm:px-6 sm:py-12">
         <nav aria-label="breadcrumb" className="text-xs text-muted-foreground">
-          <Link to="/" search={{ service: "esim" } as never} className="hover:text-foreground">
+          <SeoPathLink path={localeHomePath(locale)} className="hover:text-foreground">
             {copy.home}
-          </Link>
+          </SeoPathLink>
           <span className="px-1.5">/</span>
-          <span>{isDestination ? copy.esim : copy.guides}</span>
+          {isDestination ? (
+            <Link to="/esim/ulkeler" className="hover:text-foreground">
+              {copy.esim}
+            </Link>
+          ) : (
+            <SeoPathLink path={guideHubPath(locale)} className="hover:text-foreground">
+              {copy.guides}
+            </SeoPathLink>
+          )}
           <span className="px-1.5">/</span>
           <span className="font-semibold text-foreground">{page.h1}</span>
         </nav>

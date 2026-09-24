@@ -13,6 +13,8 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as SepetRouteImport } from './routes/sepet'
+import { Route as DeIndexRouteImport } from './routes/de.index'
+import { Route as EnIndexRouteImport } from './routes/en.index'
 import { Route as EsimIndexRouteImport } from './routes/esim.index'
 import { Route as EsimPaketlerRouteImport } from './routes/esim.paketler'
 import { Route as EsimUlkelerRouteImport } from './routes/esim.ulkeler'
@@ -52,10 +54,13 @@ import { Route as AuthenticatedHesabimIndexRouteImport } from './routes/_authent
 import { Route as AuthenticatedHesabimSeyahatlerRouteImport } from './routes/_authenticated/hesabim.seyahatler'
 import { Route as ApiPublicProviderSyncRouteImport } from './routes/api/public/provider-sync'
 import { Route as DeEsimSlugRouteImport } from './routes/de.esim.$slug'
+import { Route as DeRatgeberIndexRouteImport } from './routes/de.ratgeber.index'
 import { Route as DeRatgeberSlugRouteImport } from './routes/de.ratgeber.$slug'
 import { Route as EnEsimSlugRouteImport } from './routes/en.esim.$slug'
+import { Route as EnGuidesIndexRouteImport } from './routes/en.guides.index'
 import { Route as EnGuidesSlugRouteImport } from './routes/en.guides.$slug'
 import { Route as TrEsimSlugRouteImport } from './routes/tr.esim.$slug'
+import { Route as TrRehberIndexRouteImport } from './routes/tr.rehber.index'
 import { Route as TrRehberSlugRouteImport } from './routes/tr.rehber.$slug'
 import { Route as AuthenticatedAccountEsimsIndexRouteImport } from './routes/_authenticated/account.esims.index'
 import { Route as AuthenticatedAccountEsimsIdRouteImport } from './routes/_authenticated/account.esims.$id'
@@ -92,6 +97,16 @@ const AuthRoute = AuthRouteImport.update({
 const SepetRoute = SepetRouteImport.update({
   id: '/sepet',
   path: '/sepet',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DeIndexRoute = DeIndexRouteImport.update({
+  id: '/de/',
+  path: '/de/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EnIndexRoute = EnIndexRouteImport.update({
+  id: '/en/',
+  path: '/en/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const EsimIndexRoute = EsimIndexRouteImport.update({
@@ -310,6 +325,11 @@ const DeEsimSlugRoute = DeEsimSlugRouteImport.update({
   path: '/de/esim/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DeRatgeberIndexRoute = DeRatgeberIndexRouteImport.update({
+  id: '/de/ratgeber/',
+  path: '/de/ratgeber/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const DeRatgeberSlugRoute = DeRatgeberSlugRouteImport.update({
   id: '/de/ratgeber/$slug',
   path: '/de/ratgeber/$slug',
@@ -320,6 +340,11 @@ const EnEsimSlugRoute = EnEsimSlugRouteImport.update({
   path: '/en/esim/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
+const EnGuidesIndexRoute = EnGuidesIndexRouteImport.update({
+  id: '/en/guides/',
+  path: '/en/guides/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const EnGuidesSlugRoute = EnGuidesSlugRouteImport.update({
   id: '/en/guides/$slug',
   path: '/en/guides/$slug',
@@ -328,6 +353,11 @@ const EnGuidesSlugRoute = EnGuidesSlugRouteImport.update({
 const TrEsimSlugRoute = TrEsimSlugRouteImport.update({
   id: '/tr/esim/$slug',
   path: '/tr/esim/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TrRehberIndexRoute = TrRehberIndexRouteImport.update({
+  id: '/tr/rehber/',
+  path: '/tr/rehber/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const TrRehberSlugRoute = TrRehberSlugRouteImport.update({
@@ -447,6 +477,8 @@ export interface FileRoutesByFullPath {
   '/guides/$slug': typeof GuidesSlugRoute
   '/lounge/secenekler': typeof LoungeSeceneklerRoute
   '/sitemap/xml': typeof SitemapXmlRoute
+  '/de/': typeof DeIndexRoute
+  '/en/': typeof EnIndexRoute
   '/esim/': typeof EsimIndexRoute
   '/guides/': typeof GuidesIndexRoute
   '/lounge/': typeof LoungeIndexRoute
@@ -486,6 +518,9 @@ export interface FileRoutesByFullPath {
   '/account/': typeof AuthenticatedAccountIndexRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
   '/hesabim/': typeof AuthenticatedHesabimIndexRoute
+  '/de/ratgeber/': typeof DeRatgeberIndexRoute
+  '/en/guides/': typeof EnGuidesIndexRoute
+  '/tr/rehber/': typeof TrRehberIndexRoute
   '/account/esims/$id': typeof AuthenticatedAccountEsimsIdRoute
   '/account/orders/$id': typeof AuthenticatedAccountOrdersIdRoute
   '/admin/content/seo': typeof AuthenticatedAdminContentSeoRoute
@@ -513,6 +548,8 @@ export interface FileRoutesByTo {
   '/guides/$slug': typeof GuidesSlugRoute
   '/lounge/secenekler': typeof LoungeSeceneklerRoute
   '/sitemap/xml': typeof SitemapXmlRoute
+  '/de': typeof DeIndexRoute
+  '/en': typeof EnIndexRoute
   '/esim': typeof EsimIndexRoute
   '/guides': typeof GuidesIndexRoute
   '/lounge': typeof LoungeIndexRoute
@@ -552,6 +589,9 @@ export interface FileRoutesByTo {
   '/account': typeof AuthenticatedAccountIndexRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
   '/hesabim': typeof AuthenticatedHesabimIndexRoute
+  '/de/ratgeber': typeof DeRatgeberIndexRoute
+  '/en/guides': typeof EnGuidesIndexRoute
+  '/tr/rehber': typeof TrRehberIndexRoute
   '/account/esims/$id': typeof AuthenticatedAccountEsimsIdRoute
   '/account/orders/$id': typeof AuthenticatedAccountOrdersIdRoute
   '/admin/content/seo': typeof AuthenticatedAdminContentSeoRoute
@@ -581,6 +621,8 @@ export interface FileRoutesById {
   '/guides/$slug': typeof GuidesSlugRoute
   '/lounge/secenekler': typeof LoungeSeceneklerRoute
   '/sitemap/xml': typeof SitemapXmlRoute
+  '/de/': typeof DeIndexRoute
+  '/en/': typeof EnIndexRoute
   '/esim/': typeof EsimIndexRoute
   '/guides/': typeof GuidesIndexRoute
   '/lounge/': typeof LoungeIndexRoute
@@ -620,6 +662,9 @@ export interface FileRoutesById {
   '/_authenticated/account/': typeof AuthenticatedAccountIndexRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
   '/_authenticated/hesabim/': typeof AuthenticatedHesabimIndexRoute
+  '/de/ratgeber/': typeof DeRatgeberIndexRoute
+  '/en/guides/': typeof EnGuidesIndexRoute
+  '/tr/rehber/': typeof TrRehberIndexRoute
   '/_authenticated/account/esims/$id': typeof AuthenticatedAccountEsimsIdRoute
   '/_authenticated/account/orders/$id': typeof AuthenticatedAccountOrdersIdRoute
   '/_authenticated/admin/content/seo': typeof AuthenticatedAdminContentSeoRoute
@@ -649,6 +694,8 @@ export interface FileRouteTypes {
     | '/guides/$slug'
     | '/lounge/secenekler'
     | '/sitemap/xml'
+    | '/de/'
+    | '/en/'
     | '/esim/'
     | '/guides/'
     | '/lounge/'
@@ -688,6 +735,9 @@ export interface FileRouteTypes {
     | '/account/'
     | '/admin/'
     | '/hesabim/'
+    | '/de/ratgeber/'
+    | '/en/guides/'
+    | '/tr/rehber/'
     | '/account/esims/$id'
     | '/account/orders/$id'
     | '/admin/content/seo'
@@ -715,6 +765,8 @@ export interface FileRouteTypes {
     | '/guides/$slug'
     | '/lounge/secenekler'
     | '/sitemap/xml'
+    | '/de'
+    | '/en'
     | '/esim'
     | '/guides'
     | '/lounge'
@@ -754,6 +806,9 @@ export interface FileRouteTypes {
     | '/account'
     | '/admin'
     | '/hesabim'
+    | '/de/ratgeber'
+    | '/en/guides'
+    | '/tr/rehber'
     | '/account/esims/$id'
     | '/account/orders/$id'
     | '/admin/content/seo'
@@ -782,6 +837,8 @@ export interface FileRouteTypes {
     | '/guides/$slug'
     | '/lounge/secenekler'
     | '/sitemap/xml'
+    | '/de/'
+    | '/en/'
     | '/esim/'
     | '/guides/'
     | '/lounge/'
@@ -821,6 +878,9 @@ export interface FileRouteTypes {
     | '/_authenticated/account/'
     | '/_authenticated/admin/'
     | '/_authenticated/hesabim/'
+    | '/de/ratgeber/'
+    | '/en/guides/'
+    | '/tr/rehber/'
     | '/_authenticated/account/esims/$id'
     | '/_authenticated/account/orders/$id'
     | '/_authenticated/admin/content/seo'
@@ -850,6 +910,8 @@ export interface RootRouteChildren {
   GuidesSlugRoute: typeof GuidesSlugRoute
   LoungeSeceneklerRoute: typeof LoungeSeceneklerRoute
   SitemapXmlRoute: typeof SitemapXmlRoute
+  DeIndexRoute: typeof DeIndexRoute
+  EnIndexRoute: typeof EnIndexRoute
   EsimIndexRoute: typeof EsimIndexRoute
   GuidesIndexRoute: typeof GuidesIndexRoute
   LoungeIndexRoute: typeof LoungeIndexRoute
@@ -862,6 +924,9 @@ export interface RootRouteChildren {
   EnGuidesSlugRoute: typeof EnGuidesSlugRoute
   TrEsimSlugRoute: typeof TrEsimSlugRoute
   TrRehberSlugRoute: typeof TrRehberSlugRoute
+  DeRatgeberIndexRoute: typeof DeRatgeberIndexRoute
+  EnGuidesIndexRoute: typeof EnGuidesIndexRoute
+  TrRehberIndexRoute: typeof TrRehberIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -892,6 +957,20 @@ declare module '@tanstack/react-router' {
       path: '/sepet'
       fullPath: '/sepet'
       preLoaderRoute: typeof SepetRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/de/': {
+      id: '/de/'
+      path: '/de'
+      fullPath: '/de/'
+      preLoaderRoute: typeof DeIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/en/': {
+      id: '/en/'
+      path: '/en'
+      fullPath: '/en/'
+      preLoaderRoute: typeof EnIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/esim/': {
@@ -1167,6 +1246,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DeEsimSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/de/ratgeber/': {
+      id: '/de/ratgeber/'
+      path: '/de/ratgeber'
+      fullPath: '/de/ratgeber/'
+      preLoaderRoute: typeof DeRatgeberIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/de/ratgeber/$slug': {
       id: '/de/ratgeber/$slug'
       path: '/de/ratgeber/$slug'
@@ -1181,6 +1267,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof EnEsimSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/en/guides/': {
+      id: '/en/guides/'
+      path: '/en/guides'
+      fullPath: '/en/guides/'
+      preLoaderRoute: typeof EnGuidesIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/en/guides/$slug': {
       id: '/en/guides/$slug'
       path: '/en/guides/$slug'
@@ -1193,6 +1286,13 @@ declare module '@tanstack/react-router' {
       path: '/tr/esim/$slug'
       fullPath: '/tr/esim/$slug'
       preLoaderRoute: typeof TrEsimSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/tr/rehber/': {
+      id: '/tr/rehber/'
+      path: '/tr/rehber'
+      fullPath: '/tr/rehber/'
+      preLoaderRoute: typeof TrRehberIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/tr/rehber/$slug': {
@@ -1439,6 +1539,8 @@ const rootRouteChildren: RootRouteChildren = {
   GuidesSlugRoute: GuidesSlugRoute,
   LoungeSeceneklerRoute: LoungeSeceneklerRoute,
   SitemapXmlRoute: SitemapXmlRoute,
+  DeIndexRoute: DeIndexRoute,
+  EnIndexRoute: EnIndexRoute,
   EsimIndexRoute: EsimIndexRoute,
   GuidesIndexRoute: GuidesIndexRoute,
   LoungeIndexRoute: LoungeIndexRoute,
@@ -1451,6 +1553,9 @@ const rootRouteChildren: RootRouteChildren = {
   EnGuidesSlugRoute: EnGuidesSlugRoute,
   TrEsimSlugRoute: TrEsimSlugRoute,
   TrRehberSlugRoute: TrRehberSlugRoute,
+  DeRatgeberIndexRoute: DeRatgeberIndexRoute,
+  EnGuidesIndexRoute: EnGuidesIndexRoute,
+  TrRehberIndexRoute: TrRehberIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
