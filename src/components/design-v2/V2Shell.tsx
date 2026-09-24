@@ -141,7 +141,7 @@ export function SectionTitle({ children, action }: { children: ReactNode; action
 
 /** Horizontal rail of photo cards. */
 export function PhotoRail({ children }: { children: ReactNode }) {
-  return <ul className="-mx-4 flex snap-x gap-3 overflow-x-auto px-4 pb-1 [scrollbar-width:none]">{children}</ul>;
+  return <ul className="-mx-4 flex snap-x scroll-px-4 gap-3 overflow-x-auto px-4 pb-1 [scrollbar-width:none]">{children}</ul>;
 }
 
 export function PhotoCard({ image, badge, title, sub, price, onClick }: { image?: string | undefined; badge?: ReactNode; title: string; sub?: string | undefined; price?: string | undefined; onClick: () => void }) {
