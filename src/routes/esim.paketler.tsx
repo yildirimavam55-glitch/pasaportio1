@@ -649,7 +649,7 @@ function PackagesPage() {
                       <strong className="mt-0.5 block truncate text-sm leading-tight">
                         {selectedProduct.unlimited ? copy.unlimited : `${selectedProduct.dataGb} GB`} · {selectedProduct.validityDays ?? "—"} {copy.days}
                       </strong>
-                      <span className="mt-1 flex min-w-0 items-center gap-1.5 text-xs text-muted-foreground">
+                      <span className="mt-1 hidden min-w-0 items-center gap-1.5 text-xs text-muted-foreground md:flex">
                         {destination && <CountryFlag iso={destination} />}
                         <span className="truncate">
                           {destinationCountry?.name[locale] ??
@@ -708,7 +708,7 @@ function PackagesPage() {
                     >
                       {selectedInCart ? copy.goToCart : copy.continue}
                     </Button>
-                    <div className="col-span-2 flex min-w-0 items-center gap-1.5 border-t border-border/60 pt-2 text-[11px] leading-tight text-muted-foreground">
+                    <div className="col-span-2 hidden min-w-0 items-center gap-1.5 border-t border-border/60 pt-2 text-[11px] leading-tight text-muted-foreground md:flex">
                       <LockKeyhole className="size-3.5 shrink-0 text-primary" aria-hidden="true" />
                       <strong className="shrink-0 text-foreground">{copy.securePayment}</strong>
                       <span aria-hidden="true">·</span>
