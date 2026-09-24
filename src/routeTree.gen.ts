@@ -12,9 +12,14 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as DesignV2RouteImport } from './routes/design-v2'
 import { Route as DestekRouteImport } from './routes/destek'
 import { Route as SepetRouteImport } from './routes/sepet'
 import { Route as DeIndexRouteImport } from './routes/de.index'
+import { Route as DesignV2IndexRouteImport } from './routes/design-v2.index'
+import { Route as DesignV2EsimRouteImport } from './routes/design-v2.esim'
+import { Route as DesignV2LoungeRouteImport } from './routes/design-v2.lounge'
+import { Route as DesignV2VignetteRouteImport } from './routes/design-v2.vignette'
 import { Route as EnIndexRouteImport } from './routes/en.index'
 import { Route as EsimIndexRouteImport } from './routes/esim.index'
 import { Route as EsimPaketlerRouteImport } from './routes/esim.paketler'
@@ -95,6 +100,11 @@ const AuthRoute = AuthRouteImport.update({
   path: '/auth',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DesignV2Route = DesignV2RouteImport.update({
+  id: '/design-v2',
+  path: '/design-v2',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const DestekRoute = DestekRouteImport.update({
   id: '/destek',
   path: '/destek',
@@ -109,6 +119,26 @@ const DeIndexRoute = DeIndexRouteImport.update({
   id: '/de/',
   path: '/de/',
   getParentRoute: () => rootRouteImport,
+} as any)
+const DesignV2IndexRoute = DesignV2IndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => DesignV2Route,
+} as any)
+const DesignV2EsimRoute = DesignV2EsimRouteImport.update({
+  id: '/esim',
+  path: '/esim',
+  getParentRoute: () => DesignV2Route,
+} as any)
+const DesignV2LoungeRoute = DesignV2LoungeRouteImport.update({
+  id: '/lounge',
+  path: '/lounge',
+  getParentRoute: () => DesignV2Route,
+} as any)
+const DesignV2VignetteRoute = DesignV2VignetteRouteImport.update({
+  id: '/vignette',
+  path: '/vignette',
+  getParentRoute: () => DesignV2Route,
 } as any)
 const EnIndexRoute = EnIndexRouteImport.update({
   id: '/en/',
@@ -477,14 +507,19 @@ const AuthenticatedAdminStorefrontNavigationRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/design-v2': typeof DesignV2RouteWithChildren
   '/destek': typeof DestekRoute
   '/sepet': typeof SepetRoute
+  '/design-v2/esim': typeof DesignV2EsimRoute
+  '/design-v2/lounge': typeof DesignV2LoungeRoute
+  '/design-v2/vignette': typeof DesignV2VignetteRoute
   '/esim/paketler': typeof EsimPaketlerRoute
   '/esim/ulkeler': typeof EsimUlkelerRoute
   '/guides/$slug': typeof GuidesSlugRoute
   '/lounge/secenekler': typeof LoungeSeceneklerRoute
   '/sitemap/xml': typeof SitemapXmlRoute
   '/de/': typeof DeIndexRoute
+  '/design-v2/': typeof DesignV2IndexRoute
   '/en/': typeof EnIndexRoute
   '/esim/': typeof EsimIndexRoute
   '/guides/': typeof GuidesIndexRoute
@@ -551,12 +586,16 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/destek': typeof DestekRoute
   '/sepet': typeof SepetRoute
+  '/design-v2/esim': typeof DesignV2EsimRoute
+  '/design-v2/lounge': typeof DesignV2LoungeRoute
+  '/design-v2/vignette': typeof DesignV2VignetteRoute
   '/esim/paketler': typeof EsimPaketlerRoute
   '/esim/ulkeler': typeof EsimUlkelerRoute
   '/guides/$slug': typeof GuidesSlugRoute
   '/lounge/secenekler': typeof LoungeSeceneklerRoute
   '/sitemap/xml': typeof SitemapXmlRoute
   '/de': typeof DeIndexRoute
+  '/design-v2': typeof DesignV2IndexRoute
   '/en': typeof EnIndexRoute
   '/esim': typeof EsimIndexRoute
   '/guides': typeof GuidesIndexRoute
@@ -623,14 +662,19 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
+  '/design-v2': typeof DesignV2RouteWithChildren
   '/destek': typeof DestekRoute
   '/sepet': typeof SepetRoute
+  '/design-v2/esim': typeof DesignV2EsimRoute
+  '/design-v2/lounge': typeof DesignV2LoungeRoute
+  '/design-v2/vignette': typeof DesignV2VignetteRoute
   '/esim/paketler': typeof EsimPaketlerRoute
   '/esim/ulkeler': typeof EsimUlkelerRoute
   '/guides/$slug': typeof GuidesSlugRoute
   '/lounge/secenekler': typeof LoungeSeceneklerRoute
   '/sitemap/xml': typeof SitemapXmlRoute
   '/de/': typeof DeIndexRoute
+  '/design-v2/': typeof DesignV2IndexRoute
   '/en/': typeof EnIndexRoute
   '/esim/': typeof EsimIndexRoute
   '/guides/': typeof GuidesIndexRoute
@@ -697,14 +741,19 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/auth'
+    | '/design-v2'
     | '/destek'
     | '/sepet'
+    | '/design-v2/esim'
+    | '/design-v2/lounge'
+    | '/design-v2/vignette'
     | '/esim/paketler'
     | '/esim/ulkeler'
     | '/guides/$slug'
     | '/lounge/secenekler'
     | '/sitemap/xml'
     | '/de/'
+    | '/design-v2/'
     | '/en/'
     | '/esim/'
     | '/guides/'
@@ -771,12 +820,16 @@ export interface FileRouteTypes {
     | '/auth'
     | '/destek'
     | '/sepet'
+    | '/design-v2/esim'
+    | '/design-v2/lounge'
+    | '/design-v2/vignette'
     | '/esim/paketler'
     | '/esim/ulkeler'
     | '/guides/$slug'
     | '/lounge/secenekler'
     | '/sitemap/xml'
     | '/de'
+    | '/design-v2'
     | '/en'
     | '/esim'
     | '/guides'
@@ -842,14 +895,19 @@ export interface FileRouteTypes {
     | '/'
     | '/_authenticated'
     | '/auth'
+    | '/design-v2'
     | '/destek'
     | '/sepet'
+    | '/design-v2/esim'
+    | '/design-v2/lounge'
+    | '/design-v2/vignette'
     | '/esim/paketler'
     | '/esim/ulkeler'
     | '/guides/$slug'
     | '/lounge/secenekler'
     | '/sitemap/xml'
     | '/de/'
+    | '/design-v2/'
     | '/en/'
     | '/esim/'
     | '/guides/'
@@ -916,6 +974,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
+  DesignV2Route: typeof DesignV2RouteWithChildren
   DestekRoute: typeof DestekRoute
   SepetRoute: typeof SepetRoute
   EsimPaketlerRoute: typeof EsimPaketlerRoute
@@ -965,6 +1024,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/design-v2': {
+      id: '/design-v2'
+      path: '/design-v2'
+      fullPath: '/design-v2'
+      preLoaderRoute: typeof DesignV2RouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/destek': {
       id: '/destek'
       path: '/destek'
@@ -985,6 +1051,34 @@ declare module '@tanstack/react-router' {
       fullPath: '/de/'
       preLoaderRoute: typeof DeIndexRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/design-v2/': {
+      id: '/design-v2/'
+      path: '/'
+      fullPath: '/design-v2/'
+      preLoaderRoute: typeof DesignV2IndexRouteImport
+      parentRoute: typeof DesignV2Route
+    }
+    '/design-v2/esim': {
+      id: '/design-v2/esim'
+      path: '/esim'
+      fullPath: '/design-v2/esim'
+      preLoaderRoute: typeof DesignV2EsimRouteImport
+      parentRoute: typeof DesignV2Route
+    }
+    '/design-v2/lounge': {
+      id: '/design-v2/lounge'
+      path: '/lounge'
+      fullPath: '/design-v2/lounge'
+      preLoaderRoute: typeof DesignV2LoungeRouteImport
+      parentRoute: typeof DesignV2Route
+    }
+    '/design-v2/vignette': {
+      id: '/design-v2/vignette'
+      path: '/vignette'
+      fullPath: '/design-v2/vignette'
+      preLoaderRoute: typeof DesignV2VignetteRouteImport
+      parentRoute: typeof DesignV2Route
     }
     '/en/': {
       id: '/en/'
@@ -1549,10 +1643,29 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
 const AuthenticatedRouteRouteWithChildren =
   AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
 
+interface DesignV2RouteChildren {
+  DesignV2EsimRoute: typeof DesignV2EsimRoute
+  DesignV2LoungeRoute: typeof DesignV2LoungeRoute
+  DesignV2VignetteRoute: typeof DesignV2VignetteRoute
+  DesignV2IndexRoute: typeof DesignV2IndexRoute
+}
+
+const DesignV2RouteChildren: DesignV2RouteChildren = {
+  DesignV2EsimRoute: DesignV2EsimRoute,
+  DesignV2LoungeRoute: DesignV2LoungeRoute,
+  DesignV2VignetteRoute: DesignV2VignetteRoute,
+  DesignV2IndexRoute: DesignV2IndexRoute,
+}
+
+const DesignV2RouteWithChildren = DesignV2Route._addFileChildren(
+  DesignV2RouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
+  DesignV2Route: DesignV2RouteWithChildren,
   DestekRoute: DestekRoute,
   SepetRoute: SepetRoute,
   EsimPaketlerRoute: EsimPaketlerRoute,
