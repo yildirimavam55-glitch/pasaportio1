@@ -73,8 +73,8 @@ function BottomNav({ active }: { active: V2Service }) {
     <nav aria-label="V2" className="fixed inset-x-0 bottom-0 z-30 border-t border-border bg-card/95 pb-[env(safe-area-inset-bottom)] backdrop-blur sm:hidden">
       <div className="mx-auto flex max-w-xl">
         <Link to="/design-v2" className={cls(false)}><Home className="size-5" />{l.home}</Link>
-        <Link to="/design-v2/esim" className={cls(active === "esim")}><Smartphone className="size-5" />eSIM</Link>
-        <Link to="/design-v2/lounge" className={cls(active === "lounge")}><Plane className="size-5" />Lounge</Link>
+        <Link to="/design-v2/esim" search={{ country: "" }} className={cls(active === "esim")}><Smartphone className="size-5" />eSIM</Link>
+        <Link to="/design-v2/lounge" search={{ iata: "" }} className={cls(active === "lounge")}><Plane className="size-5" />Lounge</Link>
         <Link to="/design-v2/vignette" className={cls(active === "vignette")}><Car className="size-5" />Vignette</Link>
         <Link to="/account" className={cls(false)}><UserRound className="size-5" />{l.account}</Link>
       </div>
@@ -144,7 +144,7 @@ export function PhotoRail({ children }: { children: ReactNode }) {
   return <ul className="-mx-4 flex snap-x gap-3 overflow-x-auto px-4 pb-1 [scrollbar-width:none]">{children}</ul>;
 }
 
-export function PhotoCard({ image, badge, title, sub, price, onClick }: { image?: string; badge?: ReactNode; title: string; sub?: string; price?: string; onClick: () => void }) {
+export function PhotoCard({ image, badge, title, sub, price, onClick }: { image?: string | undefined; badge?: ReactNode; title: string; sub?: string | undefined; price?: string | undefined; onClick: () => void }) {
   return (
     <li className="w-32 shrink-0 snap-start">
       <button type="button" onClick={onClick} className="w-full overflow-hidden rounded-2xl bg-card text-left shadow-sm ring-1 ring-border">
@@ -164,7 +164,7 @@ export function PhotoCard({ image, badge, title, sub, price, onClick }: { image?
 
 export function PromoCard({ image, title, sub, to }: { image: string; title: string; sub?: string; to: "/design-v2/esim" | "/design-v2/lounge" }) {
   return (
-    <Link to={to} className="relative mt-7 block h-32 overflow-hidden rounded-3xl text-primary-foreground">
+    <Link to={to} search={(to === "/design-v2/esim" ? { country: "" } : { iata: "" }) as never} className="relative mt-7 block h-32 overflow-hidden rounded-3xl text-primary-foreground">
       <img src={image} alt="" loading="lazy" decoding="async" className="absolute inset-0 size-full object-cover" />
       <div className="absolute inset-0 bg-gradient-to-r from-primary/95 via-primary/70 to-transparent" />
       <div className="relative flex h-full items-center justify-between gap-3 p-5">
