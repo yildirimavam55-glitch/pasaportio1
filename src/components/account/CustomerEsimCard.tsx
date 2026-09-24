@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Link } from "@tanstack/react-router";
+import {  } from "@tanstack/react-router";
+import { CLink as Link } from "@/components/design-v2/v2-context";
 import {
   AlertTriangle,
   BookOpen,

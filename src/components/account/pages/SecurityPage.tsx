@@ -1,4 +1,4 @@
-import { useNavigate } from "@tanstack/react-router";
+import { useCustomerNavigate } from "@/components/design-v2/v2-context";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { Info, KeyRound, LogOut, Mail } from "lucide-react";
@@ -16,7 +16,7 @@ import { supabase } from "@/integrations/supabase/client";
 export function SecurityPage() {
   const { locale } = useI18n();
   const copy = ACCOUNT_COPY[locale];
-  const navigate = useNavigate();
+  const navigate = useCustomerNavigate();
   const queryClient = useQueryClient();
   const [current, setCurrent] = useState("");
   const [next, setNext] = useState("");
