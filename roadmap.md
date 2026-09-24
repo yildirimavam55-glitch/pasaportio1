@@ -1,5 +1,11 @@
 # Phase 1.3 Roadmap
 
+## Mobile header overlay and sticky search fix
+
+- [x] Reuse one shared header-overlay state for profile, language, and hamburger menus
+- [x] Suppress the existing sticky search while any header overlay is open
+- [x] Verify overlay priority and sticky-search restoration at 360/390/430 px and desktop
+
 ## Mobile customer journey final UX fixes
 
 - [x] Reuse the selected-package mobile purchase bar with authoritative price and existing cart navigation

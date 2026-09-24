@@ -75,11 +75,17 @@ function Brand() {
     </Link>
   );
 }
-function LanguageMenu() {
+function LanguageMenu({
+  open,
+  onOpenChange,
+}: {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+}) {
   const { locale, setLocale } = useI18n();
   const copy = localized(GLOBAL_CONTENT, locale);
   return (
-    <DropdownMenu>
+    <DropdownMenu open={open} onOpenChange={onOpenChange}>
       <DropdownMenuTrigger asChild>
         <Button
           variant="ghost"
@@ -194,7 +200,10 @@ export function PublicShell({
   const { locale } = useI18n();
   const copy = localized(GLOBAL_CONTENT, locale);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [languageOpen, setLanguageOpen] = useState(false);
+  const [accountOpen, setAccountOpen] = useState(false);
   const [signedIn, setSignedIn] = useState(false);
+  const isHeaderOverlayOpen = menuOpen || languageOpen || accountOpen;
   useEffect(() => {
     void supabase.auth.getSession().then(({ data }) => setSignedIn(Boolean(data.session)));
     const { data } = supabase.auth.onAuthStateChange((_event, session) =>
@@ -280,9 +289,27 @@ export function PublicShell({
             </Link>
           </nav>
           <div className="flex shrink-0 items-center gap-1 sm:gap-1.5">
-            <LanguageMenu />
+            <LanguageMenu
+              open={languageOpen}
+              onOpenChange={(open) => {
+                setLanguageOpen(open);
+                if (open) {
+                  setAccountOpen(false);
+                  setMenuOpen(false);
+                }
+              }}
+            />
             {signedIn ? (
-              <DropdownMenu>
+              <DropdownMenu
+                open={accountOpen}
+                onOpenChange={(open) => {
+                  setAccountOpen(open);
+                  if (open) {
+                    setLanguageOpen(false);
+                    setMenuOpen(false);
+                  }
+                }}
+              >
                 <DropdownMenuTrigger asChild>
                   <Button
                     variant="ghost"
@@ -322,7 +349,16 @@ export function PublicShell({
                 {copy.nav.plan}
               </Link>
             </Button>
-            <Sheet open={menuOpen} onOpenChange={setMenuOpen}>
+            <Sheet
+              open={menuOpen}
+              onOpenChange={(open) => {
+                setMenuOpen(open);
+                if (open) {
+                  setLanguageOpen(false);
+                  setAccountOpen(false);
+                }
+              }}
+            >
               <SheetTrigger asChild>
                 <Button variant="ghost" size="icon" className="size-11" aria-label="Menü">
                   <Menu className="size-[18px] sm:size-5" />
@@ -452,7 +488,7 @@ export function PublicShell({
         </div>
       </header>
       {!hideStickySearch && activeService !== "lounge" && (
-        <StickyQuickSearch service="esim" suppressed={menuOpen} />
+        <StickyQuickSearch service="esim" suppressed={isHeaderOverlayOpen} />
       )}
       <main>{children}</main>
       <PublicFooter fallback={copy.footer} supportLabel={copy.nav.support} />
