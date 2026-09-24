@@ -56,17 +56,7 @@ export function AccountLayout({
   const pathname = useRouterState({ select: (state) => state.location.pathname });
 
   const v2 = useIsV2();
-  const Frame = ({ children: inner }: { children: ReactNode }) =>
-    v2 ? (
-      <V2Shell level="account" nav="account">{inner}</V2Shell>
-    ) : (
-      <PublicShell hideStickySearch>
-        <div className="mx-auto max-w-site px-4 pb-14 pt-5 sm:px-6 sm:pt-8">{inner}</div>
-      </PublicShell>
-    );
-
-  return (
-    <Frame>
+  const inner = (
         <div className={v2 ? "grid gap-4" : "grid gap-6 lg:grid-cols-[15rem_minmax(0,1fr)]"}>
           <aside className={v2 ? "hidden" : "hidden lg:block"}>
             <p className="px-3 text-xs font-bold uppercase text-primary">{copy.eyebrow}</p>
@@ -131,6 +121,12 @@ export function AccountLayout({
             <p className="sr-only">{pathname}</p>
           </div>
         </div>
-    </Frame>
+  );
+  return v2 ? (
+    <V2Shell level="account" nav="account">{inner}</V2Shell>
+  ) : (
+    <PublicShell hideStickySearch>
+      <div className="mx-auto max-w-site px-4 pb-14 pt-5 sm:px-6 sm:pt-8">{inner}</div>
+    </PublicShell>
   );
 }
