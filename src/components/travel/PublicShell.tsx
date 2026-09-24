@@ -503,13 +503,18 @@ export function PublicShell({
       <Button
         asChild
         size="lg"
-        className="fixed bottom-20 right-4 z-40 h-12 gap-2 rounded-full px-4 shadow-lg sm:bottom-6 sm:right-6"
+        className="fixed bottom-20 right-4 z-40 size-12 rounded-full p-0 shadow-lg sm:bottom-6 sm:right-6"
       >
-        <Link to="/destek" aria-label={WHATSAPP_LABEL[locale]}>
+        <a
+          href={waLink()}
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label={WHATSAPP_LABEL[locale]}
+        >
           <MessageCircle className="size-5" aria-hidden="true" />
-          <span>{WHATSAPP_LABEL[locale]}</span>
-        </Link>
+        </a>
       </Button>
+
     </div>
   );
 }
