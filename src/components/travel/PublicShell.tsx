@@ -153,7 +153,10 @@ function PublicFooter({ fallback, supportLabel }: { fallback: string; supportLab
   const data = config.data?.config;
   const text = itemText(data?.footerText, locale, fallback) || fallback;
   const links = (data?.footerLinks ?? []).filter(
-    (link) => link.visible && !/support|destek|#support/i.test(link.href),
+    (link) =>
+      link.visible &&
+      !/support|destek/i.test(link.href) &&
+      !/destek|support|hilfe/i.test(itemText(link.label, locale)),
   );
   const copyright = itemText(data?.copyright, locale, "");
   return (
