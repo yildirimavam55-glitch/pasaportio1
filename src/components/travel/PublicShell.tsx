@@ -30,6 +30,8 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Sheet, SheetClose, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { BRAND } from "@/domain/experience/config";
+import { waLink } from "@/lib/whatsapp";
+
 import { useI18n } from "@/i18n";
 import { GLOBAL_CONTENT, localized, type ServiceSlug } from "@/content/travel-content";
 import { supabase } from "@/integrations/supabase/client";
