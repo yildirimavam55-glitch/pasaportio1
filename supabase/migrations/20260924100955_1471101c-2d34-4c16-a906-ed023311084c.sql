@@ -1,2 +1,0 @@
-ALTER TABLE public.guides DROP CONSTRAINT guides_content_type_check;
-ALTER TABLE public.guides ADD CONSTRAINT guides_content_type_check CHECK (content_type = ANY (ARRAY['GUIDE','DESTINATION','HOW_TO','COMPARISON','ROAD_TRIP','AIRPORT_GUIDE','VIGNETTE_GUIDE','CITY','ARTICLE']));

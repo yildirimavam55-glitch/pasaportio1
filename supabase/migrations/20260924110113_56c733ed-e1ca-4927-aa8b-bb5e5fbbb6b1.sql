@@ -1,2 +1,0 @@
-UPDATE public.guide_translations SET slug='turkiye' WHERE locale='tr' AND slug='turkiye-seyahat-rehberi';
-UPDATE public.guides SET country_iso='TR' WHERE content_type='DESTINATION' AND country_iso IS NULL AND id IN (SELECT guide_id FROM public.guide_translations WHERE slug='turkiye' AND locale='tr');
