@@ -3,7 +3,9 @@ import { useQuery } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 import { z } from "zod";
 import { Headphones, Infinity as InfinityIcon, LockKeyhole, Search, Signal, Zap } from "lucide-react";
-import { CartBar, money, pick, SectionTitle, TrustRow, V2Hero, V2Shell, V2_NOINDEX } from "@/components/design-v2/V2Shell";
+import { CartBar, HeroField, heroInputClass, HowItWorks, money, PhotoCard, PhotoRail, pick, PromoCard, SectionTitle, TrustRow, V2Hero, V2Shell, V2_NOINDEX } from "@/components/design-v2/V2Shell";
+import { countryPhotoRegistry } from "@/components/travel/countryPhotos";
+import loungePromo from "@/assets/lounge-card.jpg.asset.json";
 import { CountryFlag } from "@/components/travel/CountryFlag";
 import { useI18n } from "@/i18n";
 import { useCart } from "@/domain/cart/store";
@@ -31,9 +33,9 @@ export const Route = createFileRoute("/design-v2/esim")({
 });
 
 const T = {
-  tr: { h: "Yurt dışında bağlantıda kal.", q: "Hangi ülke için eSIM arıyorsun?", ph: "Ülke ara (örn. Türkiye, İtalya, ABD)", setup: "Hızlı kurulum", net: "4G / 5G", pay: "Güvenli ödeme", support: "7/24 destek", popular: "Popüler eSIM ülkeleri", from: "başlayan", all: "Tüm paketler", unl: "Sınırsız", days: "gün", select: "Seç", added: "Eklendi", cart: "Sepete git", none: "Bu ülke için şu anda yayınlanmış paket yok.", noPrices: "Fiyatlar yakında burada.", back: "Başka ülke", unlimited: "Sınırsız" },
-  de: { h: "Im Ausland verbunden bleiben.", q: "Für welches Land suchst du eine eSIM?", ph: "Land suchen (z. B. Türkei, Italien, USA)", setup: "Schnelle Einrichtung", net: "4G / 5G", pay: "Sichere Zahlung", support: "24/7 Support", popular: "Beliebte eSIM-Länder", from: "ab", all: "Alle Pakete", unl: "Unbegrenzt", days: "Tage", select: "Wählen", added: "Hinzugefügt", cart: "Zum Warenkorb", none: "Für dieses Land gibt es aktuell keine Pakete.", noPrices: "Preise folgen in Kürze.", back: "Anderes Land", unlimited: "Unbegrenzt" },
-  en: { h: "Stay connected abroad.", q: "Which country do you need an eSIM for?", ph: "Search country (e.g. Türkiye, Italy, USA)", setup: "Fast setup", net: "4G / 5G", pay: "Secure payment", support: "24/7 support", popular: "Popular eSIM destinations", from: "from", all: "All plans", unl: "Unlimited", days: "days", select: "Select", added: "Added", cart: "Go to cart", none: "No published plans for this country right now.", noPrices: "Prices coming soon.", back: "Other country", unlimited: "Unlimited" },
+  tr: { h: "Yurt dışında bağlantıda kal.", q: "Hangi ülke için eSIM arıyorsun?", ph: "Ülke ara (örn. Türkiye, İtalya, ABD)", setup: "Hızlı kurulum", net: "4G / 5G", pay: "Güvenli ödeme", support: "7/24 destek", popular: "Popüler eSIM ülkeleri", from: "başlayan", all: "Tüm paketler", unl: "Sınırsız", days: "gün", select: "Seç", added: "Eklendi", cart: "Sepete git", none: "Bu ülke için şu anda yayınlanmış paket yok.", noPrices: "Fiyatlar yakında burada.", back: "Başka ülke", unlimited: "Sınırsız", promo: "Havalimanında beklerken rahat et.", promoSub: "Lounge seçeneklerine göz at.", how: "Nasıl çalışır?", steps: [{ t: "Ülkeni seç", s: "Sana uygun paketi bul." }, { t: "Satın al", s: "Güvenli ödeme." }, { t: "QR ile kur", s: "Telefonuna ekle, bağlan." }] },
+  de: { h: "Im Ausland verbunden bleiben.", q: "Für welches Land suchst du eine eSIM?", ph: "Land suchen (z. B. Türkei, Italien, USA)", setup: "Schnelle Einrichtung", net: "4G / 5G", pay: "Sichere Zahlung", support: "24/7 Support", popular: "Beliebte eSIM-Länder", from: "ab", all: "Alle Pakete", unl: "Unbegrenzt", days: "Tage", select: "Wählen", added: "Hinzugefügt", cart: "Zum Warenkorb", none: "Für dieses Land gibt es aktuell keine Pakete.", noPrices: "Preise folgen in Kürze.", back: "Anderes Land", unlimited: "Unbegrenzt", promo: "Entspannt warten am Flughafen.", promoSub: "Lounges ansehen.", how: "So funktioniert’s", steps: [{ t: "Land wählen", s: "Passendes Paket finden." }, { t: "Kaufen", s: "Sichere Zahlung." }, { t: "Per QR einrichten", s: "Aufs Handy laden, verbinden." }] },
+  en: { h: "Stay connected abroad.", q: "Which country do you need an eSIM for?", ph: "Search country (e.g. Türkiye, Italy, USA)", setup: "Fast setup", net: "4G / 5G", pay: "Secure payment", support: "24/7 support", popular: "Popular eSIM destinations", from: "from", all: "All plans", unl: "Unlimited", days: "days", select: "Select", added: "Added", cart: "Go to cart", none: "No published plans for this country right now.", noPrices: "Prices coming soon.", back: "Other country", unlimited: "Unlimited", promo: "Relax while you wait.", promoSub: "Browse airport lounges.", how: "How it works", steps: [{ t: "Pick a country", s: "Find the right plan." }, { t: "Buy", s: "Secure payment." }, { t: "Install via QR", s: "Add to your phone, connect." }] },
 };
 
 function EsimV2() {
@@ -52,29 +54,22 @@ function EsimV2() {
 
   return (
     <V2Shell service="esim">
-      <V2Hero image={heroImage} title={c.h} subtitle={c.q}>
-        <div className="relative">
-          <Search className="pointer-events-none absolute left-4 top-1/2 size-5 -translate-y-1/2 text-muted-foreground" />
-          <input
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder={c.ph}
-            aria-label={c.ph}
-            className="h-14 w-full rounded-2xl bg-card pl-12 pr-4 text-base text-foreground outline-none ring-2 ring-transparent focus:ring-accent"
-          />
-          {matches.length > 0 && (
-            <ul className="absolute inset-x-0 top-full z-20 mt-2 overflow-hidden rounded-2xl bg-card text-foreground shadow-lg ring-1 ring-border">
-              {matches.map((m) => (
-                <li key={m.iso}>
-                  <button type="button" onClick={() => choose(m.iso)} className="flex min-h-12 w-full items-center gap-3 px-4 text-left text-sm font-medium hover:bg-muted">
-                    <CountryFlag iso={m.iso} className="h-4 w-6 rounded-sm" />
-                    {m.name[locale]}
-                  </button>
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
+      <V2Hero image={heroImage} eyebrow="eSIM" title={c.h} subtitle={c.q}>
+        <HeroField icon={<Search className="size-5" />}>
+          <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder={c.ph} aria-label={c.ph} className={heroInputClass} />
+        </HeroField>
+        {matches.length > 0 && (
+          <ul className="absolute inset-x-4 top-full z-20 mt-2 overflow-hidden rounded-2xl bg-card text-foreground shadow-lg ring-1 ring-border">
+            {matches.map((m) => (
+              <li key={m.iso}>
+                <button type="button" onClick={() => choose(m.iso)} className="flex min-h-12 w-full items-center gap-3 px-4 text-left text-sm font-medium hover:bg-muted">
+                  <CountryFlag iso={m.iso} className="h-4 w-6 rounded-sm" />
+                  {m.name[locale]}
+                </button>
+              </li>
+            ))}
+          </ul>
+        )}
       </V2Hero>
 
       {selected ? (
@@ -83,13 +78,15 @@ function EsimV2() {
         <>
           <TrustRow
             items={[
-              { icon: <Zap className="size-4" />, label: c.setup },
-              { icon: <Signal className="size-4" />, label: c.net },
-              { icon: <LockKeyhole className="size-4" />, label: c.pay },
-              { icon: <Headphones className="size-4" />, label: c.support },
+              { icon: <Zap className="size-6" />, label: c.setup },
+              { icon: <Signal className="size-6" />, label: c.net },
+              { icon: <LockKeyhole className="size-6" />, label: c.pay },
+              { icon: <Headphones className="size-6" />, label: c.support },
             ]}
           />
           <Popular c={c} onPick={choose} />
+          <PromoCard image={loungePromo.url} title={c.promo} sub={c.promoSub} to="/design-v2/lounge" />
+          <HowItWorks title={c.how} steps={c.steps} />
         </>
       )}
       <CartBar count={count} label={c.cart} />
@@ -99,7 +96,7 @@ function EsimV2() {
 
 function Popular({ c, onPick }: { c: (typeof T)["tr"]; onPick: (iso: string) => void }) {
   const { locale } = useI18n();
-  const list = POPULAR_COUNTRIES.slice(0, 8);
+  const list = POPULAR_COUNTRIES.slice(0, 10);
   const { data, isLoading } = useQuery({
     queryKey: ["v2-esim-starting", list.map((x) => x.iso)],
     queryFn: () => listEsimStartingPrices({ data: { targets: list.map((x) => ({ id: x.iso, coverageIsos: [x.iso] })) } }),
@@ -117,18 +114,18 @@ function Popular({ c, onPick }: { c: (typeof T)["tr"]; onPick: (iso: string) => 
       ) : priced.length === 0 ? (
         <p className="rounded-2xl bg-card p-4 text-sm text-muted-foreground ring-1 ring-border">{c.noPrices}</p>
       ) : (
-        <ul className="divide-y divide-border overflow-hidden rounded-2xl bg-card ring-1 ring-border">
+        <PhotoRail>
           {priced.map(({ country, p }) => (
-            <li key={country.iso}>
-              <button type="button" onClick={() => onPick(country.iso)} className="flex min-h-14 w-full items-center gap-3 px-4 text-left hover:bg-muted">
-                <CountryFlag iso={country.iso} className="h-5 w-7 rounded-sm" />
-                <span className="flex-1 text-sm font-semibold text-foreground">{country.name[locale]}</span>
-                <span className="text-xs text-muted-foreground">{c.from}</span>
-                <span className="text-sm font-bold text-primary">{money(p.amount, p.currency)}</span>
-              </button>
-            </li>
+            <PhotoCard
+              key={country.iso}
+              image={countryPhotoRegistry[country.iso]?.cardImage}
+              badge={<CountryFlag iso={country.iso} className="h-4 w-6 rounded-sm shadow" />}
+              title={country.name[locale]}
+              price={`${c.from} ${money(p.amount, p.currency)}`}
+              onClick={() => onPick(country.iso)}
+            />
           ))}
-        </ul>
+        </PhotoRail>
       )}
     </>
   );
