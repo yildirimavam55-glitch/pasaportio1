@@ -14,11 +14,19 @@ import { selectPricingRule } from "@/domain/providers/sync-engine";
 
 const ROUNDING_LABELS: Record<string, string> = { NONE: "Yuvarlama yok", TWO_DECIMALS: "2 ondalık", INTEGER: "Tam sayıya yukarı", NEAREST_99: "… ,99 ile bitir", NEAREST_95: "… ,95 ile bitir" };
 
+/** Truthful price source: stored data only, never inferred from the current rule. */
+function priceSource(product: any): "REVIEW" | "MANUAL" | "APPLIED" | "LEGACY" {
+  if (product.pricing_review_required) return "REVIEW";
+  if (product.price_overridden) return "MANUAL";
+  return product.pricing_snapshot ? "APPLIED" : "LEGACY";
+}
+
 function PriceSourceBadge({ product }: { product: any }) {
-  if (product.pricing_review_required) return <span className="inline-flex rounded-full bg-destructive/10 px-2 py-0.5 text-[10px] font-bold text-destructive">Fiyat incelemesi</span>;
-  return product.price_overridden
-    ? <span className="inline-flex rounded-full bg-warning/15 px-2 py-0.5 text-[10px] font-bold text-foreground">Manuel fiyat</span>
-    : <span className="inline-flex rounded-full bg-success/10 px-2 py-0.5 text-[10px] font-bold text-success">Otomatik fiyat</span>;
+  const source = priceSource(product);
+  if (source === "REVIEW") return <span className="inline-flex rounded-full bg-destructive/10 px-2 py-0.5 text-[10px] font-bold text-destructive">Fiyat incelemesi gerekli</span>;
+  if (source === "MANUAL") return <span className="inline-flex rounded-full bg-warning/15 px-2 py-0.5 text-[10px] font-bold text-foreground">Manuel fiyat</span>;
+  if (source === "LEGACY") return <span className="inline-flex rounded-full bg-secondary px-2 py-0.5 text-[10px] font-bold text-muted-foreground">Önceki katalog fiyatı</span>;
+  return <span className="inline-flex rounded-full bg-success/10 px-2 py-0.5 text-[10px] font-bold text-success">Kural uygulandı</span>;
 }
 
 export const Route = createFileRoute("/_authenticated/admin/products")({
