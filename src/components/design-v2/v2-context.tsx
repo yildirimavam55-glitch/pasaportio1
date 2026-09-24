@@ -21,15 +21,21 @@ export function toV2Path(path: string): string {
 }
 
 type LinkProps = ComponentProps<typeof Link>;
+type CLinkProps = Omit<LinkProps, "to" | "params" | "search" | "hash"> & {
+  to?: string;
+  params?: Record<string, string>;
+  search?: Record<string, unknown>;
+  hash?: string;
+};
 
 /**
  * Drop-in replacement for TanStack `Link`. Outside V2 it renders the original link untouched.
  * Inside V2 it rewrites customer paths to the preview twins so the journey never leaves V2.
  */
-export const CLink = forwardRef<HTMLAnchorElement, LinkProps>(function CLink(props, ref) {
+export const CLink = forwardRef<HTMLAnchorElement, CLinkProps>(function CLink(props, ref) {
   const v2 = useIsV2();
-  if (!v2) return <Link ref={ref} {...props} />;
-  const { to, search, hash, ...rest } = props as LinkProps & { to?: string };
+  if (!v2) return <Link ref={ref} {...(props as LinkProps)} />;
+  const { to, search, hash, ...rest } = props;
   const mapped = typeof to === "string" ? toV2Path(to) : to;
   const changed = mapped !== to;
   const dropQuery = changed && (to === "/" || to === "/esim" || to === "/lounge");
@@ -38,8 +44,7 @@ export const CLink = forwardRef<HTMLAnchorElement, LinkProps>(function CLink(pro
       ref={ref}
       {...(rest as LinkProps)}
       to={mapped as never}
-      search={(dropQuery ? undefined : search) as never}
-      hash={dropQuery ? undefined : (hash as never)}
+      {...((dropQuery ? {} : { search, hash }) as object)}
     />
   );
 });
