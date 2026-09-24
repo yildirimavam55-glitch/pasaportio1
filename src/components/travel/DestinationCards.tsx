@@ -153,7 +153,7 @@ export function CountryDestinationCard({
             <span className="block text-[11px] font-semibold text-muted-foreground">
               {copy.startingAt}
             </span>
-            <strong className="block text-sm font-bold leading-tight text-primary">
+            <strong className="block text-sm font-bold leading-tight">
               {formatFrom(destination.amount, destination.currency, locale)}
             </strong>
           </span>
@@ -187,7 +187,7 @@ export function RegionDestinationCard({ region }: { region: EsimRegionDestinatio
             <span className="block text-[11px] font-semibold text-muted-foreground">
               {copy.startingAt}
             </span>
-            <strong className="block text-sm font-bold leading-tight text-primary">
+            <strong className="block text-sm font-bold leading-tight">
               {formatFrom(region.amount, region.currency, locale)}
             </strong>
           </span>

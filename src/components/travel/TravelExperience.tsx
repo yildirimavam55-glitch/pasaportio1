@@ -583,12 +583,14 @@ const SERVICE_HERO_COPY = {
       eyebrow: "Seyahat eSIM’i",
       headline: "Nereye gidiyorsun?",
       description: "180+ ülkede uygun eSIM paketini saniyeler içinde bul.",
+      searchPlaceholder: "Ülke veya bölge ara...",
       alt: "Havalimanında telefonunda aktif eSIM bağlantısını gösteren yolcu",
     },
     lounge: {
       eyebrow: "Havalimanı Lounge",
       headline: "Yolculuğuna konfor kat.",
       description: "Havalimanını seç, uygun lounge seçeneklerini hızlıca keşfet.",
+      searchPlaceholder: "Hangi havalimanı?",
       alt: "Uçak manzaralı premium havalimanı lounge alanında dinlenen yolcu",
     },
   },
@@ -597,12 +599,14 @@ const SERVICE_HERO_COPY = {
       eyebrow: "Reise-eSIM",
       headline: "Wohin reist du?",
       description: "Finde in Sekunden passende eSIM-Pakete für mehr als 180 Länder.",
+      searchPlaceholder: "Land oder Region suchen...",
       alt: "Reisende zeigt am Flughafen ihre aktive eSIM-Verbindung",
     },
     lounge: {
       eyebrow: "Airport Lounge",
       headline: "Mehr Komfort für deine Reise.",
       description: "Wähle deinen Flughafen und entdecke schnell passende Lounges.",
+      searchPlaceholder: "Welcher Flughafen?",
       alt: "Reisende entspannt in einer Premium-Flughafenlounge mit Blick aufs Rollfeld",
     },
   },
@@ -611,12 +615,14 @@ const SERVICE_HERO_COPY = {
       eyebrow: "Travel eSIM",
       headline: "Where are you going?",
       description: "Find the right eSIM plan for 180+ countries in seconds.",
+      searchPlaceholder: "Search country or region...",
       alt: "Traveler showing an active eSIM connection at the airport",
     },
     lounge: {
       eyebrow: "Airport Lounge",
       headline: "Add comfort to your journey.",
       description: "Choose your airport and quickly discover available lounge options.",
+      searchPlaceholder: "Which airport?",
       alt: "Traveler relaxing in a premium airport lounge overlooking the apron",
     },
   },
@@ -683,6 +689,7 @@ function ServiceHero({
               onAirportSelect={onAirportSelect}
               onSearchModeChange={onSearchModeChange}
               embedded
+              placeholder={copy.searchPlaceholder}
             />
           </div>
         </div>

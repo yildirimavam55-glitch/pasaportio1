@@ -52,6 +52,7 @@ export function QuickSearch({
   compact = false,
   lockScroll = false,
   portalResults = false,
+  placeholder,
 }: {
   service: ServiceSlug;
   onAirportSelect: (airportId: string) => void;
@@ -63,6 +64,8 @@ export function QuickSearch({
   lockScroll?: boolean;
   /** Renders the dropdown in the document layer so sticky/mobile parents cannot clip it. */
   portalResults?: boolean;
+  /** Optional presentation copy for this instance; shared search behavior stays unchanged. */
+  placeholder?: string;
 }) {
   const { locale } = useI18n();
   const copy = COPY[locale];
@@ -341,7 +344,7 @@ export function QuickSearch({
               closeSearch(true);
             }
           }}
-          placeholder={service === "esim" ? copy.esimPlaceholder : copy.loungePlaceholder}
+          placeholder={placeholder ?? (service === "esim" ? copy.esimPlaceholder : copy.loungePlaceholder)}
           aria-label={service === "esim" ? copy.esimLabel : copy.loungeLabel}
           className={`${compact ? "h-11" : "h-12"} min-w-0 flex-1 border-0 bg-transparent px-3 text-base font-semibold shadow-none focus-visible:ring-0`}
         />

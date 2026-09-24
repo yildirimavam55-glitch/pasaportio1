@@ -1350,6 +1350,10 @@ html[data-quick-search-lock] body {
   gap: 0.2rem;
   padding: 0.6rem 0.7rem 0.7rem;
 }
+#popular .destination-card-body strong,
+#regional-esim .destination-card-body strong {
+  color: var(--color-primary);
+}
 .destination-card-skeleton {
   height: 10.5rem;
   border-radius: var(--radius-card, 1rem);
