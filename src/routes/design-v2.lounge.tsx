@@ -1,9 +1,11 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
+import { useQueries, useQuery } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 import { z } from "zod";
-import { Plane, Search } from "lucide-react";
-import { CartBar, money, pick, SectionTitle, V2Hero, V2Shell, V2_NOINDEX } from "@/components/design-v2/V2Shell";
+import { CalendarCheck, Headphones, LockKeyhole, Search, Sofa } from "lucide-react";
+import { CartBar, HeroField, heroInputClass, HowItWorks, money, PhotoCard, PhotoRail, pick, PromoCard, SectionTitle, TrustRow, V2Hero, V2Shell, V2_NOINDEX } from "@/components/design-v2/V2Shell";
+import { countryPhotoRegistry } from "@/components/travel/countryPhotos";
+import esimPromo from "@/assets/esim-cross-sell.jpg.asset.json";
 import { useI18n } from "@/i18n";
 import { useCart } from "@/domain/cart/store";
 import { getAirport, getAirportByIata, POPULAR_AIRPORT_IDS, searchAirports } from "@/domain/geo/airports";
@@ -29,9 +31,9 @@ export const Route = createFileRoute("/design-v2/lounge")({
 });
 
 const T = {
-  tr: { h: "Havalimanında daha fazla konfor.", q: "Hangi havalimanından uçuyorsun?", ph: "Havalimanı ara (örn. IST, FRA, DXB)", popular: "Popüler havalimanları", select: "Seç", added: "Eklendi", cart: "Sepete git", none: "Bu havalimanı için şu anda yayınlanmış Lounge yok.", back: "Başka havalimanı", terminal: "Terminal", stay: "dk kalış" },
-  de: { h: "Mehr Komfort am Flughafen.", q: "Von welchem Flughafen fliegst du?", ph: "Flughafen suchen (z. B. IST, FRA, DXB)", popular: "Beliebte Flughäfen", select: "Wählen", added: "Hinzugefügt", cart: "Zum Warenkorb", none: "Für diesen Flughafen gibt es aktuell keine Lounge.", back: "Anderer Flughafen", terminal: "Terminal", stay: "Min. Aufenthalt" },
-  en: { h: "More comfort at the airport.", q: "Which airport are you flying from?", ph: "Search airport (e.g. IST, FRA, DXB)", popular: "Popular airports", select: "Select", added: "Added", cart: "Go to cart", none: "No published lounges at this airport right now.", back: "Other airport", terminal: "Terminal", stay: "min stay" },
+  tr: { h: "Havalimanında daha fazla konfor.", q: "Hangi havalimanından uçuyorsun?", ph: "Havalimanı ara (örn. IST, FRA, DXB)", popular: "Popüler havalimanları", select: "Seç", added: "Eklendi", cart: "Sepete git", none: "Bu havalimanı için şu anda yayınlanmış Lounge yok.", back: "Başka havalimanı", terminal: "Terminal", stay: "dk kalış", access: "Lounge erişimi", online: "Online rezervasyon", pay: "Güvenli ödeme", support: "7/24 destek", from: "başlayan", promo: "Yurt dışında bağlantıda kal.", promoSub: "Seyahatin için eSIM al.", how: "Nasıl çalışır?", steps: [{ t: "Havalimanı seç", s: "Lounge seçeneklerini gör." }, { t: "Online al", s: "Güvenli ödeme." }, { t: "Onayını göster", s: "Girişte rezervasyonunu göster." }] },
+  de: { h: "Mehr Komfort am Flughafen.", q: "Von welchem Flughafen fliegst du?", ph: "Flughafen suchen (z. B. IST, FRA, DXB)", popular: "Beliebte Flughäfen", select: "Wählen", added: "Hinzugefügt", cart: "Zum Warenkorb", none: "Für diesen Flughafen gibt es aktuell keine Lounge.", back: "Anderer Flughafen", terminal: "Terminal", stay: "Min. Aufenthalt", access: "Lounge-Zugang", online: "Online buchen", pay: "Sichere Zahlung", support: "24/7 Support", from: "ab", promo: "Im Ausland verbunden bleiben.", promoSub: "eSIM für deine Reise.", how: "So funktioniert’s", steps: [{ t: "Flughafen wählen", s: "Lounges ansehen." }, { t: "Online kaufen", s: "Sichere Zahlung." }, { t: "Bestätigung zeigen", s: "Am Eingang vorzeigen." }] },
+  en: { h: "More comfort at the airport.", q: "Which airport are you flying from?", ph: "Search airport (e.g. IST, FRA, DXB)", popular: "Popular airports", select: "Select", added: "Added", cart: "Go to cart", none: "No published lounges at this airport right now.", back: "Other airport", terminal: "Terminal", stay: "min stay", access: "Lounge access", online: "Book online", pay: "Secure payment", support: "24/7 support", from: "from", promo: "Stay connected abroad.", promoSub: "Get an eSIM for your trip.", how: "How it works", steps: [{ t: "Pick an airport", s: "See lounge options." }, { t: "Buy online", s: "Secure payment." }, { t: "Show confirmation", s: "Show it at the entrance." }] },
 };
 
 function LoungeV2() {
@@ -50,50 +52,79 @@ function LoungeV2() {
 
   return (
     <V2Shell service="lounge">
-      <V2Hero image={heroImage} title={c.h} subtitle={c.q}>
-        <div className="relative">
-          <Search className="pointer-events-none absolute left-4 top-1/2 size-5 -translate-y-1/2 text-muted-foreground" />
-          <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder={c.ph} aria-label={c.ph} className="h-14 w-full rounded-2xl bg-card pl-12 pr-4 text-base text-foreground outline-none ring-2 ring-transparent focus:ring-accent" />
-          {matches.length > 0 && (
-            <ul className="absolute inset-x-0 top-full z-20 mt-2 overflow-hidden rounded-2xl bg-card text-foreground shadow-lg ring-1 ring-border">
-              {matches.map((a) => (
-                <li key={a.iata}>
-                  <button type="button" onClick={() => choose(a.iata)} className="flex min-h-12 w-full items-center gap-3 px-4 text-left text-sm font-medium hover:bg-muted">
-                    <span className="w-10 font-bold text-primary">{a.iata}</span>
-                    {a.airport[locale]}
-                  </button>
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
+      <V2Hero image={heroImage} eyebrow="Lounge" title={c.h} subtitle={c.q}>
+        <HeroField icon={<Search className="size-5" />}>
+          <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder={c.ph} aria-label={c.ph} className={heroInputClass} />
+        </HeroField>
+        {matches.length > 0 && (
+          <ul className="absolute inset-x-4 top-full z-20 mt-2 overflow-hidden rounded-2xl bg-card text-foreground shadow-lg ring-1 ring-border">
+            {matches.map((a) => (
+              <li key={a.iata}>
+                <button type="button" onClick={() => choose(a.iata)} className="flex min-h-12 w-full items-center gap-3 px-4 text-left text-sm font-medium hover:bg-muted">
+                  <span className="w-10 font-bold text-primary">{a.iata}</span>
+                  {a.airport[locale]}
+                </button>
+              </li>
+            ))}
+          </ul>
+        )}
       </V2Hero>
 
       {airport ? (
         <Lounges iata={airport.iata} title={`${airport.iata} · ${airport.airport[locale]}`} c={c} onBack={() => void navigate({ search: { iata: "" } })} />
       ) : (
         <>
-          <SectionTitle>{c.popular}</SectionTitle>
-          <ul className="grid grid-cols-2 gap-2">
-            {POPULAR_AIRPORT_IDS.flatMap((id) => {
-              const a = getAirport(id);
-              return a ? [a] : [];
-            }).map((a) => (
-              <li key={a.iata}>
-                <button type="button" onClick={() => choose(a.iata)} className="flex min-h-16 w-full items-center gap-3 rounded-2xl bg-card px-3 text-left ring-1 ring-border hover:bg-muted">
-                  <Plane className="size-4 text-primary" />
-                  <span>
-                    <span className="block text-sm font-bold text-foreground">{a.iata}</span>
-                    <span className="block text-xs text-muted-foreground">{a.city[locale]}</span>
-                  </span>
-                </button>
-              </li>
-            ))}
-          </ul>
+          <TrustRow
+            items={[
+              { icon: <Sofa className="size-6" />, label: c.access },
+              { icon: <CalendarCheck className="size-6" />, label: c.online },
+              { icon: <LockKeyhole className="size-6" />, label: c.pay },
+              { icon: <Headphones className="size-6" />, label: c.support },
+            ]}
+          />
+          <PopularAirports c={c} onPick={choose} />
+          <PromoCard image={esimPromo.url} title={c.promo} sub={c.promoSub} to="/design-v2/esim" />
+          <HowItWorks title={c.how} steps={c.steps} />
         </>
       )}
       <CartBar count={count} label={c.cart} />
     </V2Shell>
+  );
+}
+
+function PopularAirports({ c, onPick }: { c: (typeof T)["tr"]; onPick: (iata: string) => void }) {
+  const { locale } = useI18n();
+  const airports = POPULAR_AIRPORT_IDS.flatMap((id) => {
+    const a = getAirport(id);
+    return a ? [a] : [];
+  }).slice(0, 8);
+  const results = useQueries({
+    queries: airports.map((a) => ({
+      queryKey: ["v2-lounges", a.iata],
+      queryFn: () => listLoungeOptions({ data: { iata: a.iata, situation: "DEPARTURE" as const } }),
+      staleTime: 5 * 60_000,
+    })),
+  });
+  return (
+    <>
+      <SectionTitle>{c.popular}</SectionTitle>
+      <PhotoRail>
+        {airports.map((a, i) => {
+          const prices = (results[i]?.data ?? []).flatMap((o) => (o.salePrice != null ? [{ v: o.salePrice, cur: o.currency }] : []));
+          const min = prices.sort((x, y) => x.v - y.v)[0];
+          return (
+            <PhotoCard
+              key={a.iata}
+              image={countryPhotoRegistry[a.countryIso]?.cardImage}
+              title={a.city[locale]}
+              sub={`(${a.iata})`}
+              price={min ? `${c.from} ${money(min.v, min.cur)}` : undefined}
+              onClick={() => onPick(a.iata)}
+            />
+          );
+        })}
+      </PhotoRail>
+    </>
   );
 }
 
