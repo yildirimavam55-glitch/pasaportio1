@@ -15,6 +15,7 @@ import { useI18n } from "@/i18n";
 import { COUNTRIES } from "@/domain/geo/countries";
 import { CountryFlag } from "@/components/travel/CountryFlag";
 import type { Locale } from "@/domain/enums";
+import { seoUrl } from "@/domain/seo/paths";
 
 const GUIDES_BASE_URL = "https://wanderlust-core.lovable.app/guides";
 
@@ -84,17 +85,23 @@ export const Route = createFileRoute("/guides/$slug")({
       meta.push({ property: "og:image", content: imageUrl });
       meta.push({ name: "twitter:image", content: imageUrl });
     }
-    const canonicalSlug = params.slug;
-    const canonical = `${GUIDES_BASE_URL}/${canonicalSlug}`;
+    // Legacy URL: canonical + hreflang point at the localized SEO URLs.
+    const slugs = guide.localeSlugs ?? {};
+    const matchLocale = (Object.entries(slugs).find(([, s]) => s === params.slug)?.[0] ?? "tr") as Locale;
+    const canonicalSlug = slugs[matchLocale] ?? params.slug;
+    const canonical = seoUrl(matchLocale, guide.contentType, canonicalSlug);
     meta.push({ property: "og:url", content: canonical });
     const links: Array<Record<string, string>> = [{ rel: "canonical", href: canonical }];
-    const hreflangOf: Record<string, string> = { tr: "tr", de: "de", en: "en" };
-    for (const [loc, slug] of Object.entries(guide.localeSlugs ?? {})) {
-      if (!slug || !hreflangOf[loc]) continue;
+    for (const [loc, slug] of Object.entries(slugs)) {
+      if (!slug) continue;
+      links.push({ rel: "alternate", hrefLang: loc, href: seoUrl(loc as Locale, guide.contentType, slug) });
+    }
+    const xDefaultSlug = slugs.en ?? slugs.tr;
+    if (xDefaultSlug) {
       links.push({
         rel: "alternate",
-        hrefLang: hreflangOf[loc],
-        href: `${GUIDES_BASE_URL}/${slug}`,
+        hrefLang: "x-default",
+        href: seoUrl(slugs.en ? "en" : "tr", guide.contentType, xDefaultSlug),
       });
     }
     const scripts = [

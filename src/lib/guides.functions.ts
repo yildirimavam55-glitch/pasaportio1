@@ -22,7 +22,45 @@ export type GuideContentType =
   | "COMPARISON"
   | "ROAD_TRIP"
   | "AIRPORT_GUIDE"
-  | "VIGNETTE_GUIDE";
+  | "VIGNETTE_GUIDE"
+  | "CITY"
+  | "ARTICLE";
+
+/** Structured, city-specific facts — each city page must differ in substance. */
+export type CityFacts = {
+  shortAnswer: string;
+  airports: string;
+  touristAreas: string;
+  travelStyle: string;
+  typicalStay: string;
+  usageExamples: string;
+  transport: string;
+  connectivity: string;
+  networks: string;
+  coverage: string;
+  dataEstimate: string;
+};
+
+export const CITY_FACT_KEYS: Array<keyof CityFacts> = [
+  "shortAnswer",
+  "airports",
+  "touristAreas",
+  "travelStyle",
+  "typicalStay",
+  "usageExamples",
+  "transport",
+  "connectivity",
+  "networks",
+  "coverage",
+  "dataEstimate",
+];
+
+export function cityFactsOf(value: unknown): CityFacts {
+  const src = value && typeof value === "object" ? (value as Record<string, unknown>) : {};
+  return Object.fromEntries(
+    CITY_FACT_KEYS.map((key) => [key, String(src[key] ?? "").slice(0, 3000)]),
+  ) as CityFacts;
+}
 
 export type GuideRelationType =
   | "COUNTRY"
@@ -116,7 +154,7 @@ export type GuideDestinationHub = {
   offers: GuideServiceOffer[];
 };
 
-function publicClient() {
+export function publicClient() {
   const key = process.env["SUPABASE_PUBLISHABLE_KEY"]!;
   return createClient<Database>(process.env["SUPABASE_URL"]!, key, {
     auth: { persistSession: false, autoRefreshToken: false },
@@ -597,9 +635,21 @@ export type AdminGuideTranslation = {
   seoTitle: string;
   seoDescription: string;
   published: boolean;
+  h1: string;
+  heroAlt: string;
+  cityFacts: CityFacts;
 };
 
+export type GuideStatus = "DRAFT" | "REVIEW" | "PUBLISHED" | "ARCHIVED";
+
 export type AdminGuide = {
+  status: GuideStatus;
+  countryIso: string;
+  cityName: string;
+  authorId: string | null;
+  indexable: boolean;
+  canonicalOverride: string;
+  relatedGuideIds: string[];
   id: string;
   slug: string;
   categoryId: string | null;
@@ -629,6 +679,9 @@ const emptyTranslation = (locale: Locale): AdminGuideTranslation => ({
   seoTitle: "",
   seoDescription: "",
   published: false,
+  h1: "",
+  heroAlt: "",
+  cityFacts: cityFactsOf({}),
 });
 
 function toAdminGuide(row: any): AdminGuide {
@@ -647,6 +700,9 @@ function toAdminGuide(row: any): AdminGuide {
       seoTitle: found.seo_title ?? "",
       seoDescription: found.seo_description ?? "",
       published: found.translation_status === "PUBLISHED",
+      h1: found.h1 ?? "",
+      heroAlt: found.hero_alt ?? "",
+      cityFacts: cityFactsOf(found.city_facts),
     };
   });
   return {
@@ -655,6 +711,13 @@ function toAdminGuide(row: any): AdminGuide {
     categoryId: row.category_id ?? null,
     contentType: row.content_type as GuideContentType,
     published: row.status === "PUBLISHED",
+    status: (row.status ?? "DRAFT") as GuideStatus,
+    countryIso: row.country_iso ?? "",
+    cityName: row.city_name ?? "",
+    authorId: row.author_id ?? null,
+    indexable: row.indexable !== false,
+    canonicalOverride: row.canonical_override ?? "",
+    relatedGuideIds: Array.isArray(row.related_guide_ids) ? row.related_guide_ids : [],
     featured: Boolean(row.featured),
     sortOrder: row.sort_order ?? 0,
     heroImageUrl: row.hero_image_url ?? "",
@@ -671,7 +734,8 @@ function toAdminGuide(row: any): AdminGuide {
 
 const ADMIN_GUIDE_SELECT =
   "id, slug, category_id, content_type, status, published_at, updated_at, featured, sort_order, hero_image_url, hero_alt, reading_minutes, " +
-  "guide_translations(locale, slug, title, excerpt, intro, sections, faq, seo_title, seo_description, translation_status), " +
+  "country_iso, city_name, author_id, indexable, canonical_override, related_guide_ids, " +
+  "guide_translations(locale, slug, title, excerpt, intro, sections, faq, seo_title, seo_description, translation_status, h1, hero_alt, city_facts), " +
   "guide_relations(relation_type, country_iso, city_name, airport_iata, service_type, product_id, cta_enabled, sort_order, guide_routes(slug))";
 
 export const listAdminGuides = createServerFn({ method: "GET" })
@@ -711,7 +775,18 @@ export type SaveGuideInput = {
   airportIatas: string[];
   serviceTypes: string[];
   translations: AdminGuideTranslation[];
+  status?: GuideStatus;
+  publishedAt?: string | null;
+  countryIso?: string;
+  cityName?: string;
+  authorId?: string | null;
+  indexable?: boolean;
+  canonicalOverride?: string;
+  relatedGuideIds?: string[];
 };
+
+const GUIDE_STATUSES: GuideStatus[] = ["DRAFT", "REVIEW", "PUBLISHED", "ARCHIVED"];
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 export const saveGuide = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
@@ -721,12 +796,22 @@ export const saveGuide = createServerFn({ method: "POST" })
     const slug = String(data.slug ?? "").trim().toLowerCase();
     if (!slug) throw new Error("Rehber için bir kısa ad (slug) gerekiyor.");
 
+    const status: GuideStatus =
+      data.status && GUIDE_STATUSES.includes(data.status) ? data.status : data.published ? "PUBLISHED" : "DRAFT";
+    const countryIso = String(data.countryIso ?? "").trim().toUpperCase().slice(0, 2);
+    const canonicalOverride = String(data.canonicalOverride ?? "").trim();
     const payload = {
       slug,
       category_id: data.categoryId || null,
       content_type: data.contentType,
-      status: data.published ? "PUBLISHED" : "DRAFT",
-      published_at: data.published ? new Date().toISOString() : null,
+      status,
+      published_at: status === "PUBLISHED" ? (data.publishedAt ?? new Date().toISOString()) : (data.publishedAt ?? null),
+      country_iso: countryIso.length === 2 ? countryIso : null,
+      city_name: String(data.cityName ?? "").trim().slice(0, 120) || null,
+      author_id: data.authorId && UUID_RE.test(data.authorId) ? data.authorId : null,
+      indexable: data.indexable !== false,
+      canonical_override: canonicalOverride.startsWith("https://") ? canonicalOverride.slice(0, 500) : null,
+      related_guide_ids: (data.relatedGuideIds ?? []).filter((id) => UUID_RE.test(id) && id !== data.id).slice(0, 20),
       featured: Boolean(data.featured),
       sort_order: Number(data.sortOrder ?? 0),
       hero_image_url: data.heroImageUrl?.trim() || null,
@@ -768,6 +853,9 @@ export const saveGuide = createServerFn({ method: "POST" })
           faq: translation.faq ?? [],
           seo_title: translation.seoTitle?.trim() || null,
           seo_description: translation.seoDescription?.trim() || null,
+          h1: translation.h1?.trim() || null,
+          hero_alt: translation.heroAlt?.trim() || null,
+          city_facts: cityFactsOf(translation.cityFacts),
           translation_status: translation.published ? "PUBLISHED" : "DRAFT",
         },
         { onConflict: "guide_id,locale" },
@@ -776,8 +864,11 @@ export const saveGuide = createServerFn({ method: "POST" })
     }
 
     await db.from("guide_relations").delete().eq("guide_id", guideId);
+    const relationCountries = [
+      ...new Set([...(payload.country_iso ? [payload.country_iso] : []), ...data.countryIsos]),
+    ];
     const relationRows = [
-      ...data.countryIsos
+      ...relationCountries
         .map((iso) => String(iso).trim().toUpperCase())
         .filter((iso) => iso.length === 2)
         .map((iso, index) => ({

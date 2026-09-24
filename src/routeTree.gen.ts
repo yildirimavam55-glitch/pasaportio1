@@ -50,10 +50,17 @@ import { Route as AuthenticatedAdminThemeRouteImport } from './routes/_authentic
 import { Route as AuthenticatedHesabimIndexRouteImport } from './routes/_authenticated/hesabim.index'
 import { Route as AuthenticatedHesabimSeyahatlerRouteImport } from './routes/_authenticated/hesabim.seyahatler'
 import { Route as ApiPublicProviderSyncRouteImport } from './routes/api/public/provider-sync'
+import { Route as DeEsimSlugRouteImport } from './routes/de.esim.$slug'
+import { Route as DeRatgeberSlugRouteImport } from './routes/de.ratgeber.$slug'
+import { Route as EnEsimSlugRouteImport } from './routes/en.esim.$slug'
+import { Route as EnGuidesSlugRouteImport } from './routes/en.guides.$slug'
+import { Route as TrEsimSlugRouteImport } from './routes/tr.esim.$slug'
+import { Route as TrRehberSlugRouteImport } from './routes/tr.rehber.$slug'
 import { Route as AuthenticatedAccountEsimsIndexRouteImport } from './routes/_authenticated/account.esims.index'
 import { Route as AuthenticatedAccountEsimsIdRouteImport } from './routes/_authenticated/account.esims.$id'
 import { Route as AuthenticatedAccountOrdersIndexRouteImport } from './routes/_authenticated/account.orders.index'
 import { Route as AuthenticatedAccountOrdersIdRouteImport } from './routes/_authenticated/account.orders.$id'
+import { Route as AuthenticatedAdminContentSeoRouteImport } from './routes/_authenticated/admin.content.seo'
 import { Route as AuthenticatedAdminEsimCoverageRouteImport } from './routes/_authenticated/admin.esim.coverage'
 import { Route as AuthenticatedAdminEsimDevicesRouteImport } from './routes/_authenticated/admin.esim.devices'
 import { Route as AuthenticatedAdminEsimFulfillmentRouteImport } from './routes/_authenticated/admin.esim.fulfillment'
@@ -292,6 +299,36 @@ const ApiPublicProviderSyncRoute = ApiPublicProviderSyncRouteImport.update({
   path: '/api/public/provider-sync',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DeEsimSlugRoute = DeEsimSlugRouteImport.update({
+  id: '/de/esim/$slug',
+  path: '/de/esim/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DeRatgeberSlugRoute = DeRatgeberSlugRouteImport.update({
+  id: '/de/ratgeber/$slug',
+  path: '/de/ratgeber/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EnEsimSlugRoute = EnEsimSlugRouteImport.update({
+  id: '/en/esim/$slug',
+  path: '/en/esim/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EnGuidesSlugRoute = EnGuidesSlugRouteImport.update({
+  id: '/en/guides/$slug',
+  path: '/en/guides/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TrEsimSlugRoute = TrEsimSlugRouteImport.update({
+  id: '/tr/esim/$slug',
+  path: '/tr/esim/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TrRehberSlugRoute = TrRehberSlugRouteImport.update({
+  id: '/tr/rehber/$slug',
+  path: '/tr/rehber/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthenticatedAccountEsimsIndexRoute =
   AuthenticatedAccountEsimsIndexRouteImport.update({
     id: '/account/esims/',
@@ -314,6 +351,12 @@ const AuthenticatedAccountOrdersIdRoute =
   AuthenticatedAccountOrdersIdRouteImport.update({
     id: '/account/orders/$id',
     path: '/account/orders/$id',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedAdminContentSeoRoute =
+  AuthenticatedAdminContentSeoRouteImport.update({
+    id: '/admin/content/seo',
+    path: '/admin/content/seo',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedAdminEsimCoverageRoute =
@@ -427,11 +470,18 @@ export interface FileRoutesByFullPath {
   '/admin/theme': typeof AuthenticatedAdminThemeRoute
   '/hesabim/seyahatler': typeof AuthenticatedHesabimSeyahatlerRoute
   '/api/public/provider-sync': typeof ApiPublicProviderSyncRoute
+  '/de/esim/$slug': typeof DeEsimSlugRoute
+  '/de/ratgeber/$slug': typeof DeRatgeberSlugRoute
+  '/en/esim/$slug': typeof EnEsimSlugRoute
+  '/en/guides/$slug': typeof EnGuidesSlugRoute
+  '/tr/esim/$slug': typeof TrEsimSlugRoute
+  '/tr/rehber/$slug': typeof TrRehberSlugRoute
   '/account/': typeof AuthenticatedAccountIndexRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
   '/hesabim/': typeof AuthenticatedHesabimIndexRoute
   '/account/esims/$id': typeof AuthenticatedAccountEsimsIdRoute
   '/account/orders/$id': typeof AuthenticatedAccountOrdersIdRoute
+  '/admin/content/seo': typeof AuthenticatedAdminContentSeoRoute
   '/admin/esim/coverage': typeof AuthenticatedAdminEsimCoverageRoute
   '/admin/esim/devices': typeof AuthenticatedAdminEsimDevicesRoute
   '/admin/esim/fulfillment': typeof AuthenticatedAdminEsimFulfillmentRoute
@@ -485,11 +535,18 @@ export interface FileRoutesByTo {
   '/admin/theme': typeof AuthenticatedAdminThemeRoute
   '/hesabim/seyahatler': typeof AuthenticatedHesabimSeyahatlerRoute
   '/api/public/provider-sync': typeof ApiPublicProviderSyncRoute
+  '/de/esim/$slug': typeof DeEsimSlugRoute
+  '/de/ratgeber/$slug': typeof DeRatgeberSlugRoute
+  '/en/esim/$slug': typeof EnEsimSlugRoute
+  '/en/guides/$slug': typeof EnGuidesSlugRoute
+  '/tr/esim/$slug': typeof TrEsimSlugRoute
+  '/tr/rehber/$slug': typeof TrRehberSlugRoute
   '/account': typeof AuthenticatedAccountIndexRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
   '/hesabim': typeof AuthenticatedHesabimIndexRoute
   '/account/esims/$id': typeof AuthenticatedAccountEsimsIdRoute
   '/account/orders/$id': typeof AuthenticatedAccountOrdersIdRoute
+  '/admin/content/seo': typeof AuthenticatedAdminContentSeoRoute
   '/admin/esim/coverage': typeof AuthenticatedAdminEsimCoverageRoute
   '/admin/esim/devices': typeof AuthenticatedAdminEsimDevicesRoute
   '/admin/esim/fulfillment': typeof AuthenticatedAdminEsimFulfillmentRoute
@@ -545,11 +602,18 @@ export interface FileRoutesById {
   '/_authenticated/admin/theme': typeof AuthenticatedAdminThemeRoute
   '/_authenticated/hesabim/seyahatler': typeof AuthenticatedHesabimSeyahatlerRoute
   '/api/public/provider-sync': typeof ApiPublicProviderSyncRoute
+  '/de/esim/$slug': typeof DeEsimSlugRoute
+  '/de/ratgeber/$slug': typeof DeRatgeberSlugRoute
+  '/en/esim/$slug': typeof EnEsimSlugRoute
+  '/en/guides/$slug': typeof EnGuidesSlugRoute
+  '/tr/esim/$slug': typeof TrEsimSlugRoute
+  '/tr/rehber/$slug': typeof TrRehberSlugRoute
   '/_authenticated/account/': typeof AuthenticatedAccountIndexRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
   '/_authenticated/hesabim/': typeof AuthenticatedHesabimIndexRoute
   '/_authenticated/account/esims/$id': typeof AuthenticatedAccountEsimsIdRoute
   '/_authenticated/account/orders/$id': typeof AuthenticatedAccountOrdersIdRoute
+  '/_authenticated/admin/content/seo': typeof AuthenticatedAdminContentSeoRoute
   '/_authenticated/admin/esim/coverage': typeof AuthenticatedAdminEsimCoverageRoute
   '/_authenticated/admin/esim/devices': typeof AuthenticatedAdminEsimDevicesRoute
   '/_authenticated/admin/esim/fulfillment': typeof AuthenticatedAdminEsimFulfillmentRoute
@@ -605,11 +669,18 @@ export interface FileRouteTypes {
     | '/admin/theme'
     | '/hesabim/seyahatler'
     | '/api/public/provider-sync'
+    | '/de/esim/$slug'
+    | '/de/ratgeber/$slug'
+    | '/en/esim/$slug'
+    | '/en/guides/$slug'
+    | '/tr/esim/$slug'
+    | '/tr/rehber/$slug'
     | '/account/'
     | '/admin/'
     | '/hesabim/'
     | '/account/esims/$id'
     | '/account/orders/$id'
+    | '/admin/content/seo'
     | '/admin/esim/coverage'
     | '/admin/esim/devices'
     | '/admin/esim/fulfillment'
@@ -663,11 +734,18 @@ export interface FileRouteTypes {
     | '/admin/theme'
     | '/hesabim/seyahatler'
     | '/api/public/provider-sync'
+    | '/de/esim/$slug'
+    | '/de/ratgeber/$slug'
+    | '/en/esim/$slug'
+    | '/en/guides/$slug'
+    | '/tr/esim/$slug'
+    | '/tr/rehber/$slug'
     | '/account'
     | '/admin'
     | '/hesabim'
     | '/account/esims/$id'
     | '/account/orders/$id'
+    | '/admin/content/seo'
     | '/admin/esim/coverage'
     | '/admin/esim/devices'
     | '/admin/esim/fulfillment'
@@ -722,11 +800,18 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/theme'
     | '/_authenticated/hesabim/seyahatler'
     | '/api/public/provider-sync'
+    | '/de/esim/$slug'
+    | '/de/ratgeber/$slug'
+    | '/en/esim/$slug'
+    | '/en/guides/$slug'
+    | '/tr/esim/$slug'
+    | '/tr/rehber/$slug'
     | '/_authenticated/account/'
     | '/_authenticated/admin/'
     | '/_authenticated/hesabim/'
     | '/_authenticated/account/esims/$id'
     | '/_authenticated/account/orders/$id'
+    | '/_authenticated/admin/content/seo'
     | '/_authenticated/admin/esim/coverage'
     | '/_authenticated/admin/esim/devices'
     | '/_authenticated/admin/esim/fulfillment'
@@ -758,6 +843,12 @@ export interface RootRouteChildren {
   LoungeIndexRoute: typeof LoungeIndexRoute
   RehberlerIndexRoute: typeof RehberlerIndexRoute
   ApiPublicProviderSyncRoute: typeof ApiPublicProviderSyncRoute
+  DeEsimSlugRoute: typeof DeEsimSlugRoute
+  DeRatgeberSlugRoute: typeof DeRatgeberSlugRoute
+  EnEsimSlugRoute: typeof EnEsimSlugRoute
+  EnGuidesSlugRoute: typeof EnGuidesSlugRoute
+  TrEsimSlugRoute: typeof TrEsimSlugRoute
+  TrRehberSlugRoute: typeof TrRehberSlugRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -1049,6 +1140,48 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicProviderSyncRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/de/esim/$slug': {
+      id: '/de/esim/$slug'
+      path: '/de/esim/$slug'
+      fullPath: '/de/esim/$slug'
+      preLoaderRoute: typeof DeEsimSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/de/ratgeber/$slug': {
+      id: '/de/ratgeber/$slug'
+      path: '/de/ratgeber/$slug'
+      fullPath: '/de/ratgeber/$slug'
+      preLoaderRoute: typeof DeRatgeberSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/en/esim/$slug': {
+      id: '/en/esim/$slug'
+      path: '/en/esim/$slug'
+      fullPath: '/en/esim/$slug'
+      preLoaderRoute: typeof EnEsimSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/en/guides/$slug': {
+      id: '/en/guides/$slug'
+      path: '/en/guides/$slug'
+      fullPath: '/en/guides/$slug'
+      preLoaderRoute: typeof EnGuidesSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/tr/esim/$slug': {
+      id: '/tr/esim/$slug'
+      path: '/tr/esim/$slug'
+      fullPath: '/tr/esim/$slug'
+      preLoaderRoute: typeof TrEsimSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/tr/rehber/$slug': {
+      id: '/tr/rehber/$slug'
+      path: '/tr/rehber/$slug'
+      fullPath: '/tr/rehber/$slug'
+      preLoaderRoute: typeof TrRehberSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_authenticated/account/esims/': {
       id: '/_authenticated/account/esims/'
       path: '/account/esims'
@@ -1075,6 +1208,13 @@ declare module '@tanstack/react-router' {
       path: '/account/orders/$id'
       fullPath: '/account/orders/$id'
       preLoaderRoute: typeof AuthenticatedAccountOrdersIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/admin/content/seo': {
+      id: '/_authenticated/admin/content/seo'
+      path: '/admin/content/seo'
+      fullPath: '/admin/content/seo'
+      preLoaderRoute: typeof AuthenticatedAdminContentSeoRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/admin/esim/coverage': {
@@ -1194,6 +1334,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedHesabimIndexRoute: typeof AuthenticatedHesabimIndexRoute
   AuthenticatedAccountEsimsIdRoute: typeof AuthenticatedAccountEsimsIdRoute
   AuthenticatedAccountOrdersIdRoute: typeof AuthenticatedAccountOrdersIdRoute
+  AuthenticatedAdminContentSeoRoute: typeof AuthenticatedAdminContentSeoRoute
   AuthenticatedAdminEsimCoverageRoute: typeof AuthenticatedAdminEsimCoverageRoute
   AuthenticatedAdminEsimDevicesRoute: typeof AuthenticatedAdminEsimDevicesRoute
   AuthenticatedAdminEsimFulfillmentRoute: typeof AuthenticatedAdminEsimFulfillmentRoute
@@ -1242,6 +1383,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedHesabimIndexRoute: AuthenticatedHesabimIndexRoute,
   AuthenticatedAccountEsimsIdRoute: AuthenticatedAccountEsimsIdRoute,
   AuthenticatedAccountOrdersIdRoute: AuthenticatedAccountOrdersIdRoute,
+  AuthenticatedAdminContentSeoRoute: AuthenticatedAdminContentSeoRoute,
   AuthenticatedAdminEsimCoverageRoute: AuthenticatedAdminEsimCoverageRoute,
   AuthenticatedAdminEsimDevicesRoute: AuthenticatedAdminEsimDevicesRoute,
   AuthenticatedAdminEsimFulfillmentRoute:
@@ -1282,6 +1424,12 @@ const rootRouteChildren: RootRouteChildren = {
   LoungeIndexRoute: LoungeIndexRoute,
   RehberlerIndexRoute: RehberlerIndexRoute,
   ApiPublicProviderSyncRoute: ApiPublicProviderSyncRoute,
+  DeEsimSlugRoute: DeEsimSlugRoute,
+  DeRatgeberSlugRoute: DeRatgeberSlugRoute,
+  EnEsimSlugRoute: EnEsimSlugRoute,
+  EnGuidesSlugRoute: EnGuidesSlugRoute,
+  TrEsimSlugRoute: TrEsimSlugRoute,
+  TrRehberSlugRoute: TrRehberSlugRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
