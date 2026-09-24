@@ -16,6 +16,7 @@ import {
   Signal,
   Sun,
   UserRound,
+  MessageCircle,
   X,
 } from "lucide-react";
 import { useEffect, useState, type ReactNode } from "react";
@@ -58,6 +59,12 @@ const MENU_CLOSE_LABEL = {
   tr: "Menüyü kapat",
   de: "Menü schließen",
   en: "Close menu",
+} as const;
+
+const WHATSAPP_LABEL = {
+  tr: "WhatsApp destek",
+  de: "WhatsApp-Support",
+  en: "WhatsApp support",
 } as const;
 
 function Brand() {
@@ -493,6 +500,16 @@ export function PublicShell({
       )}
       <main>{children}</main>
       <PublicFooter fallback={copy.footer} supportLabel={copy.nav.support} />
+      <Button
+        asChild
+        size="lg"
+        className="fixed bottom-20 right-4 z-40 h-12 gap-2 rounded-full px-4 shadow-lg sm:bottom-6 sm:right-6"
+      >
+        <Link to="/destek" aria-label={WHATSAPP_LABEL[locale]}>
+          <MessageCircle className="size-5" aria-hidden="true" />
+          <span>{WHATSAPP_LABEL[locale]}</span>
+        </Link>
+      </Button>
     </div>
   );
 }
