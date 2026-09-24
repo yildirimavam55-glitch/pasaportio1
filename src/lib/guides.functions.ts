@@ -469,12 +469,6 @@ export const listFeaturedGuides = createServerFn({ method: "GET" })
     if (error) throw new Error(error.message);
     return sortGuides(
       (rows ?? [])
-        .filter((row: any) =>
-          (row.guide_translations ?? []).some(
-            (translation: any) =>
-              translation.translation_status === "PUBLISHED" && translation.locale === data.locale,
-          ),
-        )
         .map((row: any) => toListItem(row, data.locale))
         .filter((item): item is GuideListItem => Boolean(item)),
     ).slice(0, data.limit);
