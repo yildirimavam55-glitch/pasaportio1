@@ -1,8 +1,9 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { Car, Smartphone } from "lucide-react";
-import { pick, TrustRow, V2Hero, V2Shell, V2_NOINDEX } from "@/components/design-v2/V2Shell";
+import { HeroField, heroInputClass, pick, PromoCard, TrustRow, V2Hero, V2Shell, V2_NOINDEX } from "@/components/design-v2/V2Shell";
 import { useI18n } from "@/i18n";
 import heroImage from "@/assets/v2-vignette-hero.jpg";
+import esimPromo from "@/assets/esim-cross-sell.jpg.asset.json";
 
 export const Route = createFileRoute("/design-v2/vignette")({
   head: () => ({
@@ -30,20 +31,18 @@ function VignetteV2() {
   const c = pick(locale, T);
   return (
     <V2Shell service="vignette">
-      <V2Hero image={heroImage} title={c.h} subtitle={c.q}>
+      <V2Hero image={heroImage} eyebrow="Vignette" title={c.h}>
         {/* No vignette catalogue exists yet — selector stays disabled rather than inventing countries. */}
-        <select disabled aria-label={c.q} className="h-14 w-full rounded-2xl bg-card px-4 text-base text-muted-foreground opacity-80">
-          <option>{c.q}</option>
-        </select>
+        <HeroField icon={<Car className="size-5" />}>
+          <input disabled placeholder={c.q} aria-label={c.q} className={`${heroInputClass} cursor-not-allowed`} />
+        </HeroField>
       </V2Hero>
-      <TrustRow items={[{ icon: <Smartphone className="size-4" />, label: c.digital }, { icon: <Car className="size-4" />, label: c.fast }]} />
-      <div className="mt-5 rounded-2xl bg-card p-5 ring-1 ring-border">
-        <p className="font-display text-base font-semibold text-foreground">{c.soon}</p>
+      <TrustRow items={[{ icon: <Smartphone className="size-6" />, label: c.digital }, { icon: <Car className="size-6" />, label: c.fast }]} />
+      <div className="mt-6 rounded-3xl bg-card p-5 ring-1 ring-border">
+        <p className="font-display text-base font-bold text-foreground">{c.soon}</p>
         <p className="mt-1 text-sm text-muted-foreground">{c.soonSub}</p>
-        <Link to="/design-v2/esim" search={{ country: "" }} className="mt-4 flex min-h-12 items-center justify-center rounded-full bg-primary px-5 text-sm font-semibold text-primary-foreground">
-          {c.esim}
-        </Link>
       </div>
+      <PromoCard image={esimPromo.url} title={c.esim} to="/design-v2/esim" />
     </V2Shell>
   );
 }

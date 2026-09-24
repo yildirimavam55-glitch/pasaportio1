@@ -1,9 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
+import { useQueries, useQuery } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 import { z } from "zod";
 import { CalendarCheck, Headphones, LockKeyhole, Search, Sofa } from "lucide-react";
-import { useQueries } from "@tanstack/react-query";
 import { CartBar, HeroField, heroInputClass, HowItWorks, money, PhotoCard, PhotoRail, pick, PromoCard, SectionTitle, TrustRow, V2Hero, V2Shell, V2_NOINDEX } from "@/components/design-v2/V2Shell";
 import { countryPhotoRegistry } from "@/components/travel/countryPhotos";
 import esimPromo from "@/assets/esim-cross-sell.jpg.asset.json";
