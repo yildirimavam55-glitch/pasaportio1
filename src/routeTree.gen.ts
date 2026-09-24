@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as DestekRouteImport } from './routes/destek'
 import { Route as SepetRouteImport } from './routes/sepet'
 import { Route as DeIndexRouteImport } from './routes/de.index'
 import { Route as EnIndexRouteImport } from './routes/en.index'
@@ -92,6 +93,11 @@ const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
   path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DestekRoute = DestekRouteImport.update({
+  id: '/destek',
+  path: '/destek',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SepetRoute = SepetRouteImport.update({
@@ -471,6 +477,7 @@ const AuthenticatedAdminStorefrontNavigationRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/destek': typeof DestekRoute
   '/sepet': typeof SepetRoute
   '/esim/paketler': typeof EsimPaketlerRoute
   '/esim/ulkeler': typeof EsimUlkelerRoute
@@ -542,6 +549,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/destek': typeof DestekRoute
   '/sepet': typeof SepetRoute
   '/esim/paketler': typeof EsimPaketlerRoute
   '/esim/ulkeler': typeof EsimUlkelerRoute
@@ -615,6 +623,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
+  '/destek': typeof DestekRoute
   '/sepet': typeof SepetRoute
   '/esim/paketler': typeof EsimPaketlerRoute
   '/esim/ulkeler': typeof EsimUlkelerRoute
@@ -688,6 +697,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/auth'
+    | '/destek'
     | '/sepet'
     | '/esim/paketler'
     | '/esim/ulkeler'
@@ -759,6 +769,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/auth'
+    | '/destek'
     | '/sepet'
     | '/esim/paketler'
     | '/esim/ulkeler'
@@ -831,6 +842,7 @@ export interface FileRouteTypes {
     | '/'
     | '/_authenticated'
     | '/auth'
+    | '/destek'
     | '/sepet'
     | '/esim/paketler'
     | '/esim/ulkeler'
@@ -904,6 +916,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
+  DestekRoute: typeof DestekRoute
   SepetRoute: typeof SepetRoute
   EsimPaketlerRoute: typeof EsimPaketlerRoute
   EsimUlkelerRoute: typeof EsimUlkelerRoute
@@ -950,6 +963,13 @@ declare module '@tanstack/react-router' {
       path: '/auth'
       fullPath: '/auth'
       preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/destek': {
+      id: '/destek'
+      path: '/destek'
+      fullPath: '/destek'
+      preLoaderRoute: typeof DestekRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/sepet': {
@@ -1533,6 +1553,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
+  DestekRoute: DestekRoute,
   SepetRoute: SepetRoute,
   EsimPaketlerRoute: EsimPaketlerRoute,
   EsimUlkelerRoute: EsimUlkelerRoute,

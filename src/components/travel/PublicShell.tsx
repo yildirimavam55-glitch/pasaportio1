@@ -152,7 +152,9 @@ function PublicFooter({ fallback, supportLabel }: { fallback: string; supportLab
   });
   const data = config.data?.config;
   const text = itemText(data?.footerText, locale, fallback) || fallback;
-  const links = (data?.footerLinks ?? []).filter((link) => link.visible);
+  const links = (data?.footerLinks ?? []).filter(
+    (link) => link.visible && !/support|destek|#support/i.test(link.href),
+  );
   const copyright = itemText(data?.copyright, locale, "");
   return (
     <footer id="support" className="border-t border-border bg-secondary/50 pb-10 pt-10">
@@ -176,7 +178,7 @@ function PublicFooter({ fallback, supportLabel }: { fallback: string; supportLab
               ))}
             </nav>
           )}
-          <Link to="/account/support" className="inline-flex items-center gap-2 text-sm font-semibold text-primary">
+          <Link to="/destek" className="inline-flex items-center gap-2 text-sm font-semibold text-primary">
             <Headphones className="size-4" /> {supportLabel}
           </Link>
           {copyright && <span className="text-xs text-muted-foreground">{copyright}</span>}
@@ -280,9 +282,7 @@ export function PublicShell({
               {copy.nav.how}
             </Link>
             <Link
-              to="/"
-              search={{ service: activeService ?? "esim" }}
-              hash="support"
+              to="/destek"
               className="nav-link"
             >
               {copy.nav.support}
@@ -442,9 +442,7 @@ export function PublicShell({
                   </SheetClose>
                   <SheetClose asChild>
                     <Link
-                      to="/"
-                      search={{ service: activeService ?? "esim" }}
-                      hash="support"
+                      to="/destek"
                       className="mobile-menu-link"
                     >
                       {copy.nav.support}
