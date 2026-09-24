@@ -192,7 +192,7 @@ function PricingRules() {
                 <option value="FIXED_MARKUP">Sabit kâr</option>
               </select>
             </Field>
-            {draft.strategy === "MARKUP_PERCENT" && <Field label="Kâr oranı (%)"><input type="number" inputMode="decimal" step="0.1" min="0" max="500" placeholder="35" className="admin-field mt-1 w-full" value={draft.markupPercent} onChange={(event) => setDraft({ ...draft, markupPercent: event.target.value })} /></Field>}
+            {draft.strategy === "MARKUP_PERCENT" && <Field label="Kâr oranı (%)" hint="35 yazın = %35 kâr. Ondalık kullanılabilir (örn. 32.5)."><input type="number" inputMode="decimal" step="0.1" min="0" max="500" placeholder="35" className="admin-field mt-1 w-full" value={draft.markupPercent} onChange={(event) => setDraft({ ...draft, markupPercent: event.target.value })} /></Field>}
             {draft.strategy === "FIXED_MARKUP" && <Field label="Sabit kâr"><input type="number" step="0.01" className="admin-field mt-1 w-full" value={draft.fixedMarkup} onChange={(event) => setDraft({ ...draft, fixedMarkup: event.target.value })} /></Field>}
             <Field label="Minimum marj (%)"><input type="number" step="0.1" className="admin-field mt-1 w-full" value={draft.minimumMarginPercent} onChange={(event) => setDraft({ ...draft, minimumMarginPercent: event.target.value })} /></Field>
             <Field label="Yuvarlama">
