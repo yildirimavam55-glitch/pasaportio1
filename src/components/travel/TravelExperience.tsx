@@ -1,10 +1,12 @@
-import { ArrowRight, Calculator } from "lucide-react";
+import { ArrowRight, Calculator, Route } from "lucide-react";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { useNavigate } from "@tanstack/react-router";
 import esimHeroDesktop from "@/assets/travely-esim-hero.jpg";
 import esimHeroMobile from "@/assets/travely-esim-hero-compact.jpg";
 import loungeHeroDesktop from "@/assets/travely-lounge-hero.jpg";
 import loungeHeroMobile from "@/assets/travely-lounge-hero-compact.jpg";
+import destinationRouteAsset from "@/assets/destination-sila-yolu.jpg.asset.json";
 import { Button } from "@/components/ui/button";
 import { useI18n } from "@/i18n";
 import {
@@ -31,20 +33,20 @@ import { DestinationDiscovery } from "./DestinationDiscovery";
 
 const ASSISTANT_COPY = {
   tr: {
-    title: "Kaç GB lazım?",
-    description: "Seyahat süren ve kullanımına göre sana uygun internet miktarını bulalım.",
+    title: "Ne kadar internet lazım?",
+    description: "Seyahatine göre sana en uygun paketi önerelim.",
     open: "Bana paket öner",
     close: "Paket yardımcısını kapat",
   },
   de: {
-    title: "Wie viel GB brauchst du?",
-    description: "Finde das passende Datenvolumen anhand deiner Reisedauer und Nutzung.",
+    title: "Wie viel Datenvolumen brauchst du?",
+    description: "Wir empfehlen dir das passende Paket für deine Reise.",
     open: "Paket empfehlen",
     close: "Paket-Assistent schließen",
   },
   en: {
-    title: "How many GB do you need?",
-    description: "Find the right data amount based on your trip length and usage.",
+    title: "How much data do you need?",
+    description: "Let us recommend the right plan for your trip.",
     open: "Recommend a plan",
     close: "Close plan assistant",
   },
@@ -278,6 +280,8 @@ function Experience({
               locale={locale}
               onOpen={openHomepageAssistant}
             />
+            <DestinationDiscovery section={config.sections.find((candidate) => candidate.type === "POPULAR_DESTINATIONS") ?? null} mode="regional" />
+            <SilaYoluPromo locale={locale} />
           );
         }
         return (
@@ -425,7 +429,7 @@ function Experience({
         {service === "esim" && !assistantRoute && (
           <DestinationDiscovery
             section={config.sections.find((section) => section.type === "POPULAR_DESTINATIONS") ?? null}
-            mode="secondary"
+            mode="all"
           />
         )}
         <GuidesStrip />
@@ -456,10 +460,84 @@ function FinderAssistantEntry({
             </p>
           </div>
         </div>
-        <Button type="button" variant="outline" className="min-h-11 w-full shrink-0 sm:w-auto" onClick={onOpen}>
+        <Button type="button" variant="cta" className="min-h-11 w-full shrink-0 sm:w-auto" onClick={onOpen}>
           {copy.open}
           <ArrowRight className="size-4" aria-hidden="true" />
         </Button>
+      </div>
+    </section>
+  );
+}
+
+const SILA_YOLU_COPY = {
+  tr: {
+    badge: "Yolculuk seçkisi",
+    title: "Sıla Yolu 2027",
+    headline: "Yolda da bağlı kal.",
+    description: "Almanya’dan Türkiye’ye giderken internetin hep yanında.",
+    cta: "Paketleri gör",
+    alt: "Sıla Yolu üzerinde otomobille yolculuk",
+  },
+  de: {
+    badge: "Roadtrip-Auswahl",
+    title: "Sıla Yolu 2027",
+    headline: "Auch unterwegs verbunden.",
+    description: "Bleib auf der Fahrt von Deutschland in die Türkei online.",
+    cta: "Pakete ansehen",
+    alt: "Autoreise auf der Sıla-Yolu-Route",
+  },
+  en: {
+    badge: "Road-trip pick",
+    title: "Sıla Yolu 2027",
+    headline: "Stay connected on the road.",
+    description: "Keep your internet with you from Germany to Türkiye.",
+    cta: "View packages",
+    alt: "Road trip along the Sıla Yolu route",
+  },
+} as const;
+
+function SilaYoluPromo({ locale }: { locale: "tr" | "de" | "en" }) {
+  const navigate = useNavigate();
+  const copy = SILA_YOLU_COPY[locale];
+  const openRoute = () =>
+    void navigate({
+      to: "/esim/paketler",
+      search: {
+        destination: "",
+        route: "DE,AT,SI,HR,RS,BG,TR",
+        days: 10,
+        travelers: 1,
+        estimated: 0,
+        required: 0,
+        recommended: 0,
+        recommendedProductId: "",
+        usage: "",
+        intensity: "NORMAL",
+      },
+    });
+  return (
+    <section className="mx-auto max-w-site px-4 py-5 sm:px-6 sm:py-8">
+      <div className="relative min-h-52 overflow-hidden rounded-card bg-primary sm:min-h-64">
+        <img
+          src={destinationRouteAsset.url}
+          alt={copy.alt}
+          loading="lazy"
+          decoding="async"
+          width={1200}
+          height={800}
+          className="absolute inset-0 size-full object-cover"
+        />
+        <div className="absolute inset-0 bg-image-scrim" />
+        <div className="relative z-10 flex min-h-52 max-w-xl flex-col items-start justify-end p-5 text-hero-foreground sm:min-h-64 sm:p-8">
+          <span className="rounded-full bg-cta px-2.5 py-1 text-[10px] font-bold uppercase text-cta-foreground">{copy.badge}</span>
+          <p className="mt-3 text-sm font-bold">{copy.title}</p>
+          <h2 className="mt-1 font-display text-2xl font-bold sm:text-3xl">{copy.headline}</h2>
+          <p className="mt-1.5 text-sm text-hero-foreground/85">{copy.description}</p>
+          <Button type="button" variant="light" className="mt-4 min-h-11" onClick={openRoute}>
+            {copy.cta}
+            <Route className="size-4" aria-hidden="true" />
+          </Button>
+        </div>
       </div>
     </section>
   );
@@ -503,8 +581,8 @@ const SERVICE_HERO_COPY = {
   tr: {
     esim: {
       eyebrow: "Seyahat eSIM’i",
-      headline: "Seyahatte bağlantın hazır.",
-      description: "Ülkeni seç, standart veya sınırsız eSIM paketlerini saniyeler içinde gör.",
+      headline: "Nereye gidiyorsun?",
+      description: "180+ ülkede uygun eSIM paketini saniyeler içinde bul.",
       alt: "Havalimanında telefonunda aktif eSIM bağlantısını gösteren yolcu",
     },
     lounge: {
@@ -517,8 +595,8 @@ const SERVICE_HERO_COPY = {
   de: {
     esim: {
       eyebrow: "Reise-eSIM",
-      headline: "Deine Verbindung ist startklar.",
-      description: "Wähle dein Land und entdecke Standard- oder Unlimited-eSIMs in Sekunden.",
+      headline: "Wohin reist du?",
+      description: "Finde in Sekunden passende eSIM-Pakete für mehr als 180 Länder.",
       alt: "Reisende zeigt am Flughafen ihre aktive eSIM-Verbindung",
     },
     lounge: {
@@ -531,8 +609,8 @@ const SERVICE_HERO_COPY = {
   en: {
     esim: {
       eyebrow: "Travel eSIM",
-      headline: "Stay connected as you travel.",
-      description: "Choose your country and see standard or unlimited eSIM plans in seconds.",
+      headline: "Where are you going?",
+      description: "Find the right eSIM plan for 180+ countries in seconds.",
       alt: "Traveler showing an active eSIM connection at the airport",
     },
     lounge: {

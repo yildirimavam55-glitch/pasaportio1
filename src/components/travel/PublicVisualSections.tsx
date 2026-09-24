@@ -12,6 +12,8 @@ import {
   TicketCheck,
   Utensils,
   Wifi,
+  Headphones,
+  ShieldCheck,
 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
@@ -190,7 +192,37 @@ export function TrustStrip({ section }: SectionProp) {
     : fallback;
   return (
     <section className={`mx-auto ${widthClass(section)} px-4 py-5 sm:px-6 sm:py-7`}>
-      <div className="grid grid-cols-2 gap-x-3 gap-y-3 border-y border-border py-4 md:grid-cols-4 md:py-5">
+      <div className="grid grid-cols-3 gap-2 border-y border-border py-3 sm:hidden">
+        {[
+          {
+            id: "qr",
+            icon: <QrCode className="size-4" aria-hidden="true" />,
+            title: locale === "tr" ? "Anında teslim" : locale === "de" ? "Sofort geliefert" : "Instant delivery",
+            detail: locale === "tr" ? "QR ile kurulum" : locale === "de" ? "QR-Installation" : "Install by QR",
+          },
+          {
+            id: "secure",
+            icon: <ShieldCheck className="size-4" aria-hidden="true" />,
+            title: locale === "tr" ? "Güvenli ödeme" : locale === "de" ? "Sichere Zahlung" : "Secure payment",
+            detail: locale === "tr" ? "SSL korumalı" : locale === "de" ? "SSL-geschützt" : "SSL protected",
+          },
+          {
+            id: "support",
+            icon: <Headphones className="size-4" aria-hidden="true" />,
+            title: locale === "tr" ? "7/24 destek" : locale === "de" ? "24/7 Support" : "24/7 support",
+            detail: locale === "tr" ? "Her zaman yanında" : locale === "de" ? "Immer für dich da" : "Always with you",
+          },
+        ].map((row) => (
+          <div key={row.id} className="min-w-0 text-center">
+            <span className="mx-auto grid size-8 place-items-center rounded-lg bg-primary-soft text-primary">
+              {row.icon}
+            </span>
+            <strong className="mt-1.5 block text-[11px] leading-tight text-primary">{row.title}</strong>
+            <span className="mt-0.5 block text-[9px] leading-tight text-muted-foreground">{row.detail}</span>
+          </div>
+        ))}
+      </div>
+      <div className="hidden grid-cols-2 gap-x-3 gap-y-3 border-y border-border py-4 sm:grid md:grid-cols-4 md:py-5">
         {rows.map((row, index) => (
           <div
             key={row.id}

@@ -1283,6 +1283,32 @@ html[data-quick-search-lock] body {
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 0.6rem;
 }
+@media (max-width: 767px) {
+  .destination-grid.is-popular,
+  .destination-grid.is-regional {
+    grid-auto-flow: column;
+    grid-auto-columns: minmax(9.75rem, 44vw);
+    grid-template-columns: none;
+    grid-template-rows: 1fr;
+    margin-inline: -1rem;
+    overflow-x: auto;
+    padding: 0.1rem 1rem 0.5rem;
+    scroll-padding-inline: 1rem;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+  }
+  .destination-grid.is-popular::-webkit-scrollbar,
+  .destination-grid.is-regional::-webkit-scrollbar {
+    display: none;
+  }
+  .destination-grid.is-popular > *,
+  .destination-grid.is-regional > * {
+    scroll-snap-align: start;
+  }
+  .destination-grid.is-popular > :nth-child(n + 5) {
+    display: none;
+  }
+}
 @media (min-width: 768px) {
   .destination-grid {
     grid-template-columns: repeat(4, minmax(0, 1fr));

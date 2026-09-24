@@ -22,6 +22,7 @@ import {
 } from "./DestinationCards";
 
 const POPULAR_LIMIT = 8;
+const HOMEPAGE_REGION_PRIORITY = ["EUROPE", "ASIA", "AMERICAS", "GLOBAL"] as const;
 const POPULAR_COUNTRY_PRIORITY = ["TR", "ES", "IT", "GR", "EG", "US", "JP", "TH"] as const;
 const POPULAR_COUNTRY_FALLBACKS = ["PT", "MV", "TN", "AE", "CA", "MX"] as const;
 
@@ -30,13 +31,17 @@ export function DestinationDiscovery({
   mode = "full",
 }: {
   section: StorefrontSection | null;
-  mode?: "full" | "popular" | "secondary";
+  mode?: "full" | "popular" | "regional" | "all" | "secondary";
 }) {
   const { locale } = useI18n();
   const copy = DESTINATION_COPY[locale];
   const { data } = useDestinationCatalogue();
   const countries = data?.countries ?? [];
   const regions = sortRegions(data?.regions ?? []);
+  const homepageRegions = HOMEPAGE_REGION_PRIORITY.flatMap((key) => {
+    const region = regions.find((candidate) => candidate.key === key);
+    return region ? [region] : [];
+  });
 
   const sellable = new Map(countries.map((country) => [country.iso, country]));
   const popularIsos = [...new Set([...POPULAR_COUNTRY_PRIORITY, ...POPULAR_COUNTRY_FALLBACKS, ...POPULAR_COUNTRY_ISOS])]
@@ -51,16 +56,32 @@ export function DestinationDiscovery({
 
   return (
     <>
-      {mode !== "secondary" && popular.length > 0 && (
+      {mode !== "secondary" && mode !== "regional" && mode !== "all" && popular.length > 0 && (
         <section id="popular" className={surfaceClasses(section)}>
           <div className={`mx-auto ${widthClass(section)} px-4 sm:px-6`}>
-            <h2 className="font-display text-2xl font-bold sm:text-3xl">
-              {tx(section, "headline", locale, copy.popularTitle)}
-            </h2>
-            <p className="mt-1.5 text-sm text-muted-foreground">
-              {tx(section, "description", locale, copy.popularLead)}
-            </p>
-            <div className="destination-grid mt-4">
+            <div className="grid grid-cols-[minmax(0,1fr)_auto] items-end gap-3">
+              <div className="min-w-0">
+                <h2 className="font-display text-2xl font-bold sm:text-3xl">
+                  {locale === "tr"
+                    ? "En çok tercih edilen destinasyonlar"
+                    : locale === "de"
+                      ? "Die beliebtesten Reiseziele"
+                      : "Most popular destinations"}
+                </h2>
+                <p className="mt-1.5 hidden text-sm text-muted-foreground sm:block">
+                  {tx(section, "description", locale, copy.popularLead)}
+                </p>
+              </div>
+              <Link
+                to="/esim/ulkeler"
+                search={{ q: "", region: "" }}
+                className="inline-flex min-h-11 shrink-0 items-center gap-1 text-sm font-bold text-primary"
+              >
+                {copy.allCountries}
+                <ArrowRight className="size-4" aria-hidden="true" />
+              </Link>
+            </div>
+            <div className="destination-grid is-popular mt-4">
               {popular.map((country, index) => (
                 <CountryDestinationCard key={country.iso} destination={country} eager={index < 2} />
               ))}
@@ -69,7 +90,7 @@ export function DestinationDiscovery({
         </section>
       )}
 
-      {mode !== "popular" && (
+      {(mode === "full" || mode === "all" || mode === "secondary") && (
         <section className="bg-background py-8 sm:py-10">
           <div className={`mx-auto ${widthClass(section)} px-4 sm:px-6`}>
             <div className="flex flex-col gap-3 border-y border-border py-5 sm:flex-row sm:items-center sm:justify-between">
@@ -88,15 +109,23 @@ export function DestinationDiscovery({
         </section>
       )}
 
-      {mode !== "popular" && regions.length > 0 && (
-        <section id="regional-esim" className="bg-accent-soft py-10 sm:py-12">
+      {(mode === "full" || mode === "regional" || mode === "secondary") && homepageRegions.length > 0 && (
+        <section id="regional-esim" className="bg-accent-soft py-7 sm:py-10">
           <div className={`mx-auto ${widthClass(section)} px-4 sm:px-6`}>
             <h2 className="font-display text-2xl font-bold sm:text-3xl">
-              {copy.regionsTitle}
+              {mode === "regional"
+                ? locale === "tr"
+                  ? "Bölgelere göre keşfet"
+                  : locale === "de"
+                    ? "Nach Regionen entdecken"
+                    : "Explore by region"
+                : copy.regionsTitle}
             </h2>
-            <p className="mt-1.5 max-w-2xl text-sm text-muted-foreground">{copy.regionsLead}</p>
-            <div className="destination-grid mt-4">
-              {regions.map((region) => (
+            {mode !== "regional" && (
+              <p className="mt-1.5 max-w-2xl text-sm text-muted-foreground">{copy.regionsLead}</p>
+            )}
+            <div className="destination-grid is-regional mt-4">
+              {homepageRegions.map((region) => (
                 <RegionDestinationCard key={region.key} region={region} />
               ))}
             </div>

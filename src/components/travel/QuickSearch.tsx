@@ -12,7 +12,7 @@ import { CountryFlag } from "./CountryFlag";
 
 const COPY = {
   tr: {
-    esimPlaceholder: "Nereye gidiyorsun?",
+    esimPlaceholder: "Ülke veya bölge ara...",
     loungePlaceholder: "Hangi havalimanı?",
     esimLabel: "Ülke ara",
     loungeLabel: "Havalimanı ara",
@@ -21,7 +21,7 @@ const COPY = {
     empty: "Sonuç bulunamadı.",
   },
   de: {
-    esimPlaceholder: "Wohin reist du?",
+    esimPlaceholder: "Land oder Region suchen...",
     loungePlaceholder: "Welcher Flughafen?",
     esimLabel: "Land suchen",
     loungeLabel: "Flughafen suchen",
@@ -30,7 +30,7 @@ const COPY = {
     empty: "Keine Treffer.",
   },
   en: {
-    esimPlaceholder: "Where are you going?",
+    esimPlaceholder: "Search country or region...",
     loungePlaceholder: "Which airport?",
     esimLabel: "Search country",
     loungeLabel: "Search airport",
