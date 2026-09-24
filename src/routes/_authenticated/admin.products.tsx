@@ -244,7 +244,6 @@ function ProductDrawer({ product, onClose }: { product: any; onClose: () => void
 
   const ruleRows = (((rules.data as any)?.rules ?? []) as any[]);
   const rule = ruleRows.find((row: any) => row.id === form.pricingRuleId) ?? null;
-  const minimumMargin = (rule ?? activeRule)?.minimum_margin_percent == null ? null : Number((rule ?? activeRule).minimum_margin_percent);
   const cost = product.provider_cost == null ? null : Number(product.provider_cost);
   const snapshot = (product.pricing_snapshot ?? null) as any;
   // What the sync would compute today: same rule precedence + same engine.
@@ -255,6 +254,7 @@ function ProductDrawer({ product, onClose }: { product: any; onClose: () => void
   const manualInvalid = form.pricingMode === "MANUAL" && (form.salePrice === "" || !Number.isFinite(manualValue) || manualValue <= 0);
   const effectivePrice = form.pricingMode === "MANUAL" ? (manualInvalid ? 0 : manualValue) : Number(product.sale_price ?? 0);
   const margin = itemMargin(effectivePrice, Number(cost ?? 0));
+  const minimumMargin = (rule ?? activeRule)?.minimum_margin_percent == null ? null : Number((rule ?? activeRule).minimum_margin_percent);
   const belowMinimum = minimumMargin != null && margin.percent != null && margin.percent < minimumMargin;
   const set = (patch: Record<string, unknown>) => setForm((current: any) => ({ ...current, ...patch }));
 
