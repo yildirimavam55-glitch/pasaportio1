@@ -22,3 +22,27 @@ export function seoPath(locale: Locale, contentType: string, slug: string): stri
 export function seoUrl(locale: Locale, contentType: string, slug: string): string {
   return `${SEO_BASE_URL}${seoPath(locale, contentType, slug)}`;
 }
+
+/** Localized homepage for each SEO language. */
+export function localeHomePath(locale: Locale): string {
+  return `/${locale}`;
+}
+
+/** Localized guide hub: /tr/rehber, /de/ratgeber, /en/guides. */
+export function guideHubPath(locale: Locale): string {
+  return `/${locale}/${GUIDE_FOLDER[locale]}`;
+}
+
+/**
+ * Retired slugs → current slug, per locale and family. Used for direct
+ * permanent redirects (old URL → final URL, never a chain).
+ */
+export const SEO_SLUG_ALIASES: Record<Locale, Partial<Record<SeoFamily, Record<string, string>>>> = {
+  tr: { esim: { "turkiye-seyahat-rehberi": "turkiye" } },
+  de: {},
+  en: {},
+};
+
+export function resolveSlugAlias(locale: Locale, family: SeoFamily, slug: string): string | null {
+  return SEO_SLUG_ALIASES[locale]?.[family]?.[slug] ?? null;
+}

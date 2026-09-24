@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { seoPath, SEO_BASE_URL } from "@/domain/seo/paths";
+import { guideHubPath, seoPath, SEO_BASE_URL } from "@/domain/seo/paths";
 
 /**
  * Dynamic XML sitemap — served at /sitemap/xml (the route generator reads the
@@ -12,7 +12,7 @@ const BASE = SEO_BASE_URL;
 const escape = (value: string) =>
   value.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 
-const STATIC_PAGES = ["/", "/esim", "/esim/ulkeler", "/lounge", "/guides", "/rehberler"];
+const STATIC_PAGES = ["/", "/tr", "/esim", "/esim/ulkeler", "/lounge"];
 
 type Entry = { loc: string; lastmod?: string; alternates?: Array<{ lang: string; href: string }> };
 
@@ -33,6 +33,14 @@ async function buildSitemap(): Promise<string> {
       .eq("indexable", true)
       .eq("guide_translations.translation_status", "PUBLISHED")
       .limit(5000);
+    // Localized homepages + guide hubs only for languages with published, indexable content.
+    const langs = new Set<string>();
+    for (const row of (data ?? []) as any[]) for (const t of row.guide_translations ?? []) langs.add(t.locale);
+    for (const loc of ["tr", "de", "en"] as const) {
+      if (!langs.has(loc)) continue;
+      if (loc !== "tr") urls.push({ loc: `${BASE}/${loc}` });
+      urls.push({ loc: `${BASE}${guideHubPath(loc)}` });
+    }
     for (const row of (data ?? []) as any[]) {
       const translations = (row.guide_translations ?? []).filter((t: any) => t.slug);
       const alternates = translations.map((t: any) => ({

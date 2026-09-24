@@ -1,3 +1,5 @@
+import { SeoPathLink } from "@/components/seo/SeoPathLink";
+import { seoPath } from "@/domain/seo/paths";
 /**
  * Travely Guides presentation pieces.
  *
@@ -31,9 +33,8 @@ export function GuideCard({ guide }: { guide: GuideListItem }) {
   const { locale } = useI18n();
   const copy = GUIDES_COPY[locale];
   return (
-    <Link
-      to="/guides/$slug"
-      params={{ slug: guide.slug }}
+    <SeoPathLink
+      path={seoPath(guide.translationLocale, guide.contentType, guide.slug)}
       className="group flex flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-card transition hover:border-primary/40"
     >
       {guide.heroImageUrl && (
@@ -67,7 +68,7 @@ export function GuideCard({ guide }: { guide: GuideListItem }) {
           <ArrowRight className="ml-auto size-4 text-primary transition group-hover:translate-x-0.5" />
         </div>
       </div>
-    </Link>
+    </SeoPathLink>
   );
 }
 
