@@ -37,7 +37,7 @@ function VignetteV2() {
           <input disabled placeholder={c.q} aria-label={c.q} className={`${heroInputClass} cursor-not-allowed`} />
         </HeroField>
       </V2Hero>
-      <TrustRow items={[{ icon: <Smartphone className="size-6" />, label: c.digital }, { icon: <Car className="size-6" />, label: c.fast }]} />
+      <TrustRow items={[{ icon: <Smartphone className="size-6" />, label: c.digital }]} />
       <div className="mt-6 rounded-3xl bg-card p-5 ring-1 ring-border">
         <p className="font-display text-base font-bold text-foreground">{c.soon}</p>
         <p className="mt-1 text-sm text-muted-foreground">{c.soonSub}</p>
