@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ChevronDown, Mail, MessageCircle, Package, Smartphone, UserRound } from "lucide-react";
+import { ChevronDown, Mail, Package, Smartphone, UserRound } from "lucide-react";
+import { WhatsAppLogo } from "@/components/travel/WhatsAppLogo";
 
 import { PublicShell } from "@/components/travel/PublicShell";
 import { Button } from "@/components/ui/button";
