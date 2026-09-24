@@ -34,7 +34,7 @@ type CLinkProps = Omit<LinkProps, "to" | "params" | "search" | "hash"> & {
  */
 export const CLink = forwardRef<HTMLAnchorElement, CLinkProps>(function CLink(props, ref) {
   const v2 = useIsV2();
-  if (!v2) return <Link ref={ref} {...(props as LinkProps)} />;
+  if (!v2) return <Link ref={ref} {...(props as unknown as LinkProps)} />;
   const { to, search, hash, ...rest } = props;
   const mapped = typeof to === "string" ? toV2Path(to) : to;
   const changed = mapped !== to;
@@ -42,7 +42,7 @@ export const CLink = forwardRef<HTMLAnchorElement, CLinkProps>(function CLink(pr
   return (
     <Link
       ref={ref}
-      {...(rest as LinkProps)}
+      {...(rest as unknown as LinkProps)}
       to={mapped as never}
       {...((dropQuery ? {} : { search, hash }) as object)}
     />
