@@ -297,23 +297,37 @@ function ProductDrawer({ product, onClose }: { product: any; onClose: () => void
             <DataRow label="Tedarikçi" value={product.providers?.name ?? "—"} />
             <DataRow label="Tedarikçi paketi" value={product.provider_external_id ?? "—"} />
             <DataRow label="Tedarikçi maliyeti" value={cost == null ? "—" : money(cost, product.provider_currency ?? product.currency)} />
-            {snapshot ? (
+            <DataRow label="Mevcut fiyat kaynağı" value={
+              priceSource(product) === "MANUAL" ? "Manuel satış fiyatı"
+              : priceSource(product) === "REVIEW" ? "Fiyat incelemesi gerekli"
+              : snapshot ? "Otomatik · kural uygulandı"
+              : "Önceki katalog fiyatı (fiyat kaydı yok)"} />
+            <DataRow label="Uygulanmış kural (geçmiş)" value={snapshot?.pricingRuleName ?? (snapshot ? "—" : "Henüz fiyat kaydı yok")} />
+            <DataRow label="Eşleşen kural (şu an)" value={activeRule ? `${activeRule.name}${activePricing?.markupPercent != null ? ` · %${activePricing.markupPercent}` : ""}` : "Eşleşen aktif kural yok"} />
+            {snapshot && (
               <>
-                <DataRow label="Uygulanan kural" value={snapshot.pricingRuleName ?? "—"} />
-                <DataRow label="Kâr" value={snapshot.markupPercent != null ? `%${Number(snapshot.markupPercent)}` : snapshot.fixedMarkup != null ? `+${money(snapshot.fixedMarkup, snapshot.currency)}` : "—"} />
-                {snapshot.rawPrice != null && <DataRow label="Hesaplanan (yuvarlama öncesi)" value={money(snapshot.rawPrice, snapshot.currency)} />}
-                <DataRow label="Yuvarlama" value={ROUNDING_LABELS[snapshot.roundingMode] ?? snapshot.roundingMode ?? "—"} />
-                <DataRow label="Kuralla bulunan fiyat" value={money(snapshot.salePrice, snapshot.currency)} />
+                <DataRow label="Kâr (kayıt)" value={snapshot.markupPercent != null ? `%${Number(snapshot.markupPercent)}` : snapshot.fixedMarkup != null ? `+${money(snapshot.fixedMarkup, snapshot.currency)}` : "—"} />
+                {snapshot.rawPrice != null && <DataRow label="Yuvarlama öncesi (kayıt)" value={money(snapshot.rawPrice, snapshot.currency)} />}
+                <DataRow label="Yuvarlama (kayıt)" value={ROUNDING_LABELS[snapshot.roundingMode] ?? snapshot.roundingMode ?? "—"} />
+                <DataRow label="Kuralla bulunan fiyat (kayıt)" value={money(snapshot.salePrice, snapshot.currency)} />
               </>
-            ) : (
-              <p className="py-2 text-[11px] text-muted-foreground">Bu ürünün fiyatı henüz bir kuralla hesaplanmadı (önceki içe aktarımdan geliyor).</p>
             )}
-            <DataRow label="Mağazadaki fiyat" value={<strong className="text-sm">{product.sale_price == null ? "Fiyat yok" : money(product.sale_price, product.currency)}</strong>} />
-            <DataRow label="Son fiyat güncellemesi" value={product.priced_at ? new Date(product.priced_at).toLocaleString("tr-TR") : "—"} />
             {auto && (
+              <>
+                <DataRow label="Eşleşen kural kârı" value={activePricing?.markupPercent != null ? `%${activePricing.markupPercent}` : activePricing?.fixedMarkup != null ? `+${money(activePricing.fixedMarkup, activePricing.currency)}` : "—"} />
+                <DataRow label="Yuvarlama öncesi fiyat" value={money(auto.rawPrice, activePricing!.currency)} />
+                <DataRow label="Yuvarlama" value={ROUNDING_LABELS[auto.roundingMode] ?? auto.roundingMode} />
+                <DataRow label="Hesaplanan mağaza fiyatı" value={money(auto.salePrice, activePricing!.currency)} />
+              </>
+            )}
+            <DataRow label="Mevcut mağaza fiyatı" value={<strong className="text-sm">{product.sale_price == null ? "Fiyat yok" : money(product.sale_price, product.currency)}</strong>} />
+            <DataRow label="Son fiyat güncellemesi" value={product.priced_at ? new Date(product.priced_at).toLocaleString("tr-TR") : "—"} />
+            {auto && !product.price_overridden && (
               <p className="mt-2 rounded bg-secondary/40 p-2 text-[11px]">
-                Geçerli kural <strong>{activeRule?.name}</strong> ile bugün: {money(cost, product.currency)} × %{activePricing?.markupPercent ?? "—"} = {money(auto.rawPrice, activePricing!.currency)} → {ROUNDING_LABELS[auto.roundingMode] ?? auto.roundingMode} → <strong>{money(auto.salePrice, activePricing!.currency)}</strong>
-                {!product.price_overridden && Number(product.sale_price) !== auto.salePrice && <span className="block text-muted-foreground">Mağaza fiyatı bir sonraki katalog senkronunda bu değere güncellenir.</span>}
+                {Number(product.sale_price) === auto.salePrice
+                  ? "Mevcut fiyat eşleşen kuralın sonucuyla aynı."
+                  : <>Bir sonraki katalog fiyatlaması: <strong>{money(auto.salePrice, activePricing!.currency)}</strong> (şu an {money(product.sale_price, product.currency)}). Hiçbir fiyat otomatik olarak şimdi değiştirilmez.</>}
+                {!snapshot && <span className="block text-muted-foreground">Bir sonraki katalog güncellemesinde otomatik fiyatlanacak.</span>}
               </p>
             )}
           </section>
