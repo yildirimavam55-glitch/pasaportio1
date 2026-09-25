@@ -114,6 +114,17 @@ export async function commercialForGuide(guideId: string): Promise<{ target: Com
   return { target: resolveCommercial(fields, live), service: fields.service };
 }
 
+/** Admin preview variant: same resolution, any status, caller-supplied (admin-verified) client. */
+export async function commercialForDraft(db: any, guideId: string): Promise<{ target: CommercialTarget | null; service: string }> {
+  const [{ data: row }, live] = await Promise.all([
+    db.from("guides").select(REL_COLUMNS).eq("id", guideId).maybeSingle(),
+    loadLiveCatalogue(),
+  ]);
+  if (!row) return { target: null, service: "GENERAL" };
+  const fields = relationFieldsOf(row);
+  return { target: resolveCommercial(fields, live), service: fields.service };
+}
+
 /* ------------------------------ Admin surface ------------------------------ */
 
 export type AdminRelationRow = {

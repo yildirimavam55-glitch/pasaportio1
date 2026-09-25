@@ -30,7 +30,7 @@ export const Route = createFileRoute("/lounge/")({
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
-    links: [{ rel: "canonical", href: "https://wanderlust-core.lovable.app/lounge" }],
+    links: [{ rel: "canonical", href: "https://wanderpath-engine.lovable.app/lounge" }],
   }),
   component: LoungeV2,
 });

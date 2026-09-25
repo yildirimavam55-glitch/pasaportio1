@@ -10,6 +10,7 @@ import { adminDb, audit } from "@/lib/admin-guard";
 import {
   cityFactsOf,
   getGuideBySlug,
+  previewGuideDetail,
   publicClient,
   type CityFacts,
   type GuideDetail,
@@ -17,7 +18,7 @@ import {
 import type { Locale } from "@/domain/enums";
 import { familyOf, seoPath, type SeoFamily } from "@/domain/seo/paths";
 import type { CommercialTarget } from "@/domain/seo/relations";
-import { commercialForGuide } from "@/lib/seo-relations.functions";
+import { commercialForDraft, commercialForGuide } from "@/lib/seo-relations.functions";
 
 export type SeoLink = { id: string; title: string; path: string; contentType: string; countryIso: string | null };
 
@@ -208,6 +209,84 @@ export const getSeoPage = createServerFn({ method: "GET" })
       settings: (settingsRow as any)?.data?.data ? settingsOf((settingsRow as any).data.data) : DEFAULT_SETTINGS,
       commercial: commercial.target,
       relService: commercial.service,
+    };
+  });
+
+/* ------------------------- Admin: draft preview ------------------------- */
+
+/**
+ * Admin-only preview of any guide translation (Draft/Review included).
+ * Admin rights are verified server-side; related links still come from the
+ * public client, so only PUBLISHED content is ever linked. Returns no
+ * alternates, so a preview can never emit hreflang or a public canonical.
+ */
+export const getSeoPreview = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data: { guideId: string; locale: string }) => ({
+    guideId: String(data?.guideId ?? "").replace(/[^0-9a-f-]/gi, "").slice(0, 36),
+    locale: (LOCALES.includes(data?.locale as Locale) ? data.locale : "tr") as Locale,
+  }))
+  .handler(async ({ data, context }): Promise<(SeoPage & { status: string; publicPath: string }) | null> => {
+    const db = await adminDb(context as any);
+    if (!data.guideId) return null;
+    const { data: row } = await db
+      .from("guides")
+      .select("id, status, content_type, country_iso, city_name, indexable, canonical_override, related_guide_ids, seo_authors(name), guide_translations(locale, slug, h1, hero_alt, city_facts)")
+      .eq("id", data.guideId)
+      .maybeSingle();
+    if (!row) return null;
+    const tr = ((row as any).guide_translations ?? []).find((t: any) => t.locale === data.locale);
+    if (!tr) return null;
+    const guide = await previewGuideDetail(db, row.id, data.locale);
+    if (!guide) return null;
+
+    const client = publicClient();
+    const relatedIds: string[] = Array.isArray(row.related_guide_ids) ? row.related_guide_ids : [];
+    const countryIso = row.country_iso ?? guide.countryIsos[0] ?? null;
+    const [manual, sameCountry, destinations, settingsRow, commercial] = await Promise.all([
+      relatedIds.length
+        ? client.from("guides").select(LINK_SELECT).in("id", relatedIds).eq("status", "PUBLISHED")
+        : Promise.resolve({ data: [] as any[] }),
+      countryIso
+        ? client.from("guides").select(LINK_SELECT).eq("country_iso", countryIso).eq("status", "PUBLISHED").limit(24)
+        : Promise.resolve({ data: [] as any[] }),
+      client.from("guides").select(LINK_SELECT).eq("content_type", "DESTINATION").eq("status", "PUBLISHED").limit(12),
+      client.from("platform_settings").select("data").eq("id", "seo").maybeSingle(),
+      commercialForDraft(db, row.id).catch(() => ({ target: null, service: "GENERAL" })),
+    ]);
+    const manualLinks = toLinks((manual as any).data ?? [], data.locale, row.id);
+    const countryLinks = toLinks((sameCountry as any).data ?? [], data.locale, row.id);
+    const seen = new Set<string>();
+    const related = [...manualLinks, ...countryLinks.filter((l) => l.contentType !== "CITY" && l.contentType !== "DESTINATION")]
+      .filter((l) => (seen.has(l.id) ? false : (seen.add(l.id), true)))
+      .slice(0, 6);
+    const destinationLinks = [
+      ...countryLinks.filter((l) => l.contentType === "DESTINATION"),
+      ...toLinks((destinations as any).data ?? [], data.locale, row.id),
+    ]
+      .filter((l, i, arr) => arr.findIndex((x) => x.id === l.id) === i)
+      .slice(0, 8);
+
+    return {
+      guide,
+      locale: data.locale,
+      h1: tr.h1 || guide.title,
+      heroAlt: tr.hero_alt || guide.heroAlt,
+      cityFacts: cityFactsOf(tr.city_facts),
+      countryIso,
+      cityName: row.city_name ?? null,
+      indexable: false,
+      canonicalOverride: null,
+      authorName: (row as any).seo_authors?.name ?? null,
+      alternates: {},
+      related,
+      cities: countryLinks.filter((l) => l.contentType === "CITY"),
+      destinations: destinationLinks,
+      settings: (settingsRow as any)?.data?.data ? settingsOf((settingsRow as any).data.data) : DEFAULT_SETTINGS,
+      commercial: commercial.target,
+      relService: commercial.service,
+      status: String(row.status),
+      publicPath: seoPath(data.locale, row.content_type, tr.slug),
     };
   });
 

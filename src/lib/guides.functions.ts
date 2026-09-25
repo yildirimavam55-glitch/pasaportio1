@@ -547,7 +547,29 @@ export const getGuideBySlug = createServerFn({ method: "GET" })
       .maybeSingle();
     if (error) throw new Error(error.message);
     if (!row) return null;
+    return guideDetailFromRow(client, row, data.locale);
+  });
 
+/**
+ * Admin-only draft preview: builds the exact public GuideDetail for one
+ * locale regardless of status. The caller MUST have verified admin rights and
+ * pass an RLS-scoped admin client. Only the requested locale is treated as
+ * visible, so no other draft language leaks into localeSlugs.
+ */
+export async function previewGuideDetail(client: any, guideId: string, locale: Locale): Promise<GuideDetail | null> {
+  const { data: row, error } = await client.from("guides").select(GUIDE_SELECT).eq("id", guideId).maybeSingle();
+  if (error) throw new Error(error.message);
+  if (!row) return null;
+  const only = ((row as any).guide_translations ?? [])
+    .filter((t: any) => t.locale === locale)
+    .map((t: any) => ({ ...t, translation_status: "PUBLISHED" }));
+  if (!only.length) return null;
+  const detail = await guideDetailFromRow(client, { ...(row as any), guide_translations: only }, locale);
+  return detail ? { ...detail, localeSlugs: {} } : null;
+}
+
+async function guideDetailFromRow(client: any, row: any, locale: Locale): Promise<GuideDetail | null> {
+    const data = { locale };
     const base = toListItem(row, data.locale);
     if (!base) return null;
     const translation = pickTranslation(row, data.locale)!;
@@ -590,7 +612,7 @@ export const getGuideBySlug = createServerFn({ method: "GET" })
       offers,
       routeStops,
     };
-  });
+}
 
 /** Country hub: every published guide that mentions the country + real offers. */
 export const getGuideDestinationHub = createServerFn({ method: "GET" })
