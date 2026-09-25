@@ -4,7 +4,7 @@
 
 - [x] Replace the three-column mobile layout with a native scroll-snap rail while keeping tablet/desktop at three columns
 - [x] Present real duration, coverage, price, and localized CTA in compact equal-height cards
-- [ ] Verify 360/390/430 px, TR/DE/EN, sticky search, WhatsApp, bottom navigation, and unchanged product data
+- [x] Verify 360/390/430 px, TR/DE/EN, sticky search, WhatsApp, bottom navigation, and unchanged product data
 
 ## V2 eSIM homepage final simplification and sticky search
 
