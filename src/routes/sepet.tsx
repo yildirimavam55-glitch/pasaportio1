@@ -21,7 +21,7 @@ function V2Cart() {
 
   return (
     <V2Shell level="transaction" nav="cart">
-      <div className="pt-2">
+      <div className="pt-2 lg:min-h-[55vh] lg:pt-10">
         <V2PageTitle title={c.title} lead={lines.length ? c.lead : undefined} />
         {lines.length === 0 ? (
           <V2State tone="empty" title={c.empty} text={c.emptyText} action={
