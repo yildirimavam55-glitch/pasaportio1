@@ -292,7 +292,16 @@ export const getAdminCatalogue = createServerFn({ method: "POST" })
 
     const from = (data.page - 1) * data.limit;
     const [{ data: rows, error, count }, { count: total }] = await Promise.all([
-      build().order("sort_order").order("name").range(from, from + data.limit - 1),
+      (data.service === "ESIM"
+        // Admin-only ordering on real numeric fields: Standard before Unlimited,
+        // then data GB ascending, then validity days ascending, then stable id.
+        ? build()
+            .order("esim_product_details(unlimited_data)", { ascending: true })
+            .order("esim_product_details(data_gb)", { ascending: true, nullsFirst: false })
+            .order("esim_product_details(validity_days)", { ascending: true, nullsFirst: false })
+            .order("id")
+        : build().order("sort_order").order("name")
+      ).range(from, from + data.limit - 1),
       db.from("service_products").select("id", { count: "exact", head: true }).eq("service_type", data.service),
     ]);
     if (error) throw new Error(error.message);
