@@ -182,13 +182,18 @@ export function V2GuidesRail() {
   );
 }
 
-export function V2EsimFaq() {
+export function V2EsimFaq({ compact = false }: { compact?: boolean }) {
   const { locale } = useI18n();
   const c = COPY[locale];
+  const questions = compact
+    ? [c.questions[0], c.questions[1], c.questions[2], c.questions[3], c.questions[5]].filter(
+        (item): item is (typeof c.questions)[number] => Boolean(item),
+      )
+    : c.questions;
   return (
     <section>
       <SectionTitle>{c.faq}</SectionTitle>
-      <Accordion type="single" collapsible className="rounded-xl bg-card px-3 ring-1 ring-border">{c.questions.map(([question, answer], index) => <AccordionItem key={question} value={`faq-${index}`}><AccordionTrigger className="py-3 text-xs font-bold hover:no-underline">{question}</AccordionTrigger><AccordionContent className="text-xs leading-relaxed text-muted-foreground">{answer}</AccordionContent></AccordionItem>)}</Accordion>
+      <Accordion type="single" collapsible className="rounded-xl bg-card px-3 ring-1 ring-border">{questions.map(([question, answer], index) => <AccordionItem key={question} value={`faq-${index}`}><AccordionTrigger className="py-3 text-xs font-bold hover:no-underline">{question}</AccordionTrigger><AccordionContent className="text-xs leading-relaxed text-muted-foreground">{answer}</AccordionContent></AccordionItem>)}</Accordion>
     </section>
   );
 }

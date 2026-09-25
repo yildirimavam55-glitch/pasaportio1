@@ -187,6 +187,17 @@ export const listEsimPackages = createServerFn({ method: "GET" })
       .filter((pkg) => showTest || !pkg.isTest);
   });
 
+/**
+ * Genuine published Unlimited bundles whose supplier metadata explicitly calls
+ * the coverage Global/Worldwide. Country-count alone never makes a bundle global.
+ */
+export const listGlobalUnlimitedEsimPackages = createServerFn({ method: "GET" }).handler(
+  async (): Promise<EsimPackage[]> => {
+    const packages = await listEsimPackages({ data: { coverageIsos: [] } });
+    return packages.filter((pkg) => pkg.unlimited && pkg.regionFamily === "GLOBAL");
+  },
+);
+
 /** Lowest current customer price for each requested country/route coverage target. */
 export const listEsimStartingPrices = createServerFn({ method: "GET" })
   .inputValidator((input: { targets: Array<{ id: string; coverageIsos: string[] }> }) => ({

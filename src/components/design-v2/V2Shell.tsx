@@ -35,12 +35,14 @@ export function V2Shell({
   nav,
   level = "discovery",
   commerceSelection = false,
+  stickySearch,
   children,
 }: {
   service?: V2Service;
   nav?: V2Nav;
   level?: V2Level;
   commerceSelection?: boolean;
+  stickySearch?: ReactNode;
   children: ReactNode;
 }) {
   const active: V2Nav | undefined = nav ?? service;
@@ -48,7 +50,7 @@ export function V2Shell({
   const serviceAccent = service === "lounge" ? "[--v2-service:var(--color-v2-lounge)]" : service === "vignette" ? "[--v2-service:var(--color-v2-vignette)]" : "[--v2-service:var(--color-v2-esim)]";
   return (
     <V2Context.Provider value={true}>
-      <PublicShell hideStickySearch hideFloatingWhatsApp>
+      <PublicShell hideStickySearch hideFloatingWhatsApp headerAccessory={stickySearch}>
         <div className={`mx-auto w-full ${width} ${serviceAccent} overflow-x-clip px-4 ${commerceSelection ? "pb-36" : "pb-24"} sm:pb-12`}>
           <DesktopNav active={active} />
           {children}

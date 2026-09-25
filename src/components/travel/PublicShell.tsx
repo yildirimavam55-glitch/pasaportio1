@@ -206,6 +206,7 @@ export function PublicShell({
   onServiceChange,
   hideStickySearch = false,
   hideFloatingWhatsApp = false,
+  headerAccessory,
 }: {
   children: ReactNode;
   activeService?: ServiceSlug;
@@ -214,6 +215,8 @@ export function PublicShell({
   hideStickySearch?: boolean;
   /** Design-preview pages dock their own WhatsApp button; production keeps the default. */
   hideFloatingWhatsApp?: boolean;
+  /** Optional page-owned compact content directly below the shared header. */
+  headerAccessory?: ReactNode;
 }) {
   const { locale } = useI18n();
   const copy = localized(GLOBAL_CONTENT, locale);
@@ -501,6 +504,7 @@ export function PublicShell({
           </div>
         </div>
       </header>
+      {!isHeaderOverlayOpen && headerAccessory}
       {!hideStickySearch && activeService !== "lounge" && (
         <StickyQuickSearch service="esim" suppressed={isHeaderOverlayOpen} />
       )}
