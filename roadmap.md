@@ -3,8 +3,8 @@
 ## V2 regional eSIM discovery and results
 
 - [x] Audit genuine published regional inventory without syncing or changing catalogue data
-- [ ] Replace homepage Global Unlimited cards with real regional photo discovery and one compact Worldwide banner
-- [ ] Add regional Standard/Unlimited results through the existing catalogue, detail, cart, and checkout identity
+- [x] Replace homepage Global Unlimited cards with real regional photo discovery and one compact Worldwide banner
+- [x] Add regional Standard/Unlimited results through the existing catalogue, detail, cart, and checkout identity
 - [ ] Verify TR/DE/EN at 360/390/430 px, cart/checkout identity, browser back, sticky search, and fixed controls
 - [ ] Confirm zero price, catalogue, database, supplier, payment, production, or publish changes
 
