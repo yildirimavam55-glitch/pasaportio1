@@ -162,8 +162,8 @@ export function V2WhyTravely() {
   return <section><SectionTitle>{c.why}</SectionTitle><ul className="grid grid-cols-2 gap-2">{c.whyItems.map((item, index) => { const Icon = icons[index] ?? CheckCircle2; return <li key={item} className="flex min-w-0 items-center gap-2 rounded-xl bg-card px-3 py-2.5 ring-1 ring-border"><Icon className="size-4 shrink-0 text-[var(--v2-service)]"/><span className="text-[10px] font-semibold leading-tight text-foreground">{item}</span></li>; })}</ul></section>;
 }
 
-export function V2CompactFaq({ title, questions }: { title: string; questions: readonly (readonly [string, string])[] }) {
-  return <section><SectionTitle>{title}</SectionTitle><Accordion type="single" collapsible className="rounded-xl bg-card px-3 ring-1 ring-border">{questions.map(([question, answer], index) => <AccordionItem key={question} value={`service-faq-${index}`}><AccordionTrigger className="py-3 text-left text-xs font-bold hover:no-underline">{question}</AccordionTrigger><AccordionContent className="text-xs leading-relaxed text-muted-foreground">{answer}</AccordionContent></AccordionItem>)}</Accordion></section>;
+export function V2CompactFaq({ title, questions }: { title: string; questions: readonly (readonly string[])[] }) {
+  return <section><SectionTitle>{title}</SectionTitle><Accordion type="single" collapsible className="rounded-xl bg-card px-3 ring-1 ring-border">{questions.map((item, index) => { const question = item[0] ?? ""; const answer = item[1] ?? ""; return <AccordionItem key={question} value={`service-faq-${index}`}><AccordionTrigger className="py-3 text-left text-xs font-bold hover:no-underline">{question}</AccordionTrigger><AccordionContent className="text-xs leading-relaxed text-muted-foreground">{answer}</AccordionContent></AccordionItem>; })}</Accordion></section>;
 }
 
 export function V2GuidesRail() {
