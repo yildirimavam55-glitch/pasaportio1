@@ -28,7 +28,8 @@ function FakeQr() {
   );
 }
 
-const STEP_MS = 2400;
+const MOBILE_STEP_MS = 1500;
+const DESKTOP_STEP_MS = 2400;
 
 export function V2InstallAnimation({ steps, ready, adding, onPhaseChange }: { steps: readonly string[]; ready: string; adding: string; onPhaseChange?: (phase: number) => void }) {
   const ref = useRef<HTMLDivElement | null>(null);
@@ -48,7 +49,8 @@ export function V2InstallAnimation({ steps, ready, adding, onPhaseChange }: { st
 
   useEffect(() => {
     if (reduced || !visible) return;
-    const id = window.setInterval(() => setPhase((p) => (p + 1) % 4), STEP_MS);
+    const stepMs = window.matchMedia("(min-width: 1024px)").matches ? DESKTOP_STEP_MS : MOBILE_STEP_MS;
+    const id = window.setInterval(() => setPhase((p) => (p + 1) % 4), stepMs);
     return () => window.clearInterval(id);
   }, [visible, reduced]);
 
