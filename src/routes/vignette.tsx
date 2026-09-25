@@ -12,10 +12,10 @@ export const Route = createFileRoute("/vignette")({
   loader: ({ context }) => context.queryClient.ensureQueryData(v2PageQuery("vignette")),
   head: () => ({
     meta: [
-      { title: "Vignette — Design V2 preview" },
-      { name: "description", content: "Internal vignette design preview." },
-      { property: "og:title", content: "Vignette — Design V2 preview" },
-      { property: "og:description", content: "Internal vignette design preview." },
+      { title: "Vignette | travely" },
+      { name: "description", content: "Vignette hizmeti yakında travely’de." },
+      { property: "og:title", content: "Vignette | travely" },
+      { property: "og:description", content: "Vignette hizmeti yakında travely’de." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       ...V2_NOINDEX,

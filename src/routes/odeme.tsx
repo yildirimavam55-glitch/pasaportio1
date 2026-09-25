@@ -16,7 +16,7 @@ const COPY = {
 
 export const Route = createFileRoute("/odeme")({
   ssr: false,
-  head: () => ({ meta: [{ title: "V2 preview — Ödeme" }, ...V2_NOINDEX] }),
+  head: () => ({ meta: [{ title: "Ödeme | travely" }, ...V2_NOINDEX] }),
   component: V2Checkout,
 });
 

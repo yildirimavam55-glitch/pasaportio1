@@ -7,7 +7,7 @@ import { CART_COPY, lineFacts, lineTitle } from "@/components/design-v2/cart-cop
 import { useI18n } from "@/i18n";
 
 export const Route = createFileRoute("/sepet")({
-  head: () => ({ meta: [{ title: "V2 preview — Sepet" }, ...V2_NOINDEX] }),
+  head: () => ({ meta: [{ title: "Sepet | travely" }, ...V2_NOINDEX] }),
   component: V2Cart,
 });
 

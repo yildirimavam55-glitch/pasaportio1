@@ -7,7 +7,7 @@ export const Route = createFileRoute("/auth")({
   validateSearch: (s: Record<string, unknown>): { redirect?: string | undefined } => ({
     redirect: typeof s["redirect"] === "string" ? s["redirect"] : undefined,
   }),
-  head: () => ({ meta: [{ title: "V2 preview — Giriş" }, ...V2_NOINDEX] }),
+  head: () => ({ meta: [{ title: "Giriş | travely" }, ...V2_NOINDEX] }),
   component: V2Login,
 });
 
