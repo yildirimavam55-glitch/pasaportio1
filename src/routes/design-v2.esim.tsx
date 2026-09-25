@@ -66,6 +66,7 @@ function EsimV2() {
   const selected = country ? getCountryByIso(country.toUpperCase()) : undefined;
   const heroSearchRef = useRef<HTMLDivElement | null>(null);
   const [heroSearchVisible, setHeroSearchVisible] = useState(true);
+  const [globalPlansVisible, setGlobalPlansVisible] = useState(false);
   const choose = (iso: string) => {
     setQuery("");
     setPickerOpen(false);
@@ -93,7 +94,7 @@ function EsimV2() {
   ) : undefined;
 
   return (
-    <V2Shell service="esim" commerceSelection={Boolean(selected)} stickySearch={stickySearch}>
+    <V2Shell service="esim" commerceSelection={Boolean(selected)} hideWhatsApp={globalPlansVisible} stickySearch={stickySearch}>
       {!selected && <V2Hero image={heroImage} eyebrow="eSIM" title={c.h} subtitle={c.q}>
         <div ref={heroSearchRef}><HeroField icon={<Search className="size-5" />}>
           <V2PickerSheet
@@ -129,7 +130,7 @@ function EsimV2() {
       ) : (
         <>
           <Popular c={c} onPick={choose} />
-          {globalPlans.length > 0 && <GlobalUnlimited plans={globalPlans} c={c} />}
+          {globalPlans.length > 0 && <GlobalUnlimited plans={globalPlans} c={c} onVisibilityChange={setGlobalPlansVisible} />}
           <V2Compatibility />
           <PromoCard image={loungePromo.url} title={c.promo} sub={c.promoSub} to="/design-v2/lounge" />
           <V2Installation />
@@ -194,9 +195,20 @@ function curateGlobalUnlimited(packages: EsimPackage[]) {
   );
 }
 
-function GlobalUnlimited({ plans, c }: { plans: EsimPackage[]; c: (typeof T)["tr"] }) {
+function GlobalUnlimited({ plans, c, onVisibilityChange }: { plans: EsimPackage[]; c: (typeof T)["tr"]; onVisibilityChange: (visible: boolean) => void }) {
   const { locale } = useI18n();
   const { lines, addLine } = useCart();
+  const sectionRef = useRef<HTMLElement | null>(null);
+  useEffect(() => {
+    const target = sectionRef.current;
+    if (!target) return;
+    const observer = new IntersectionObserver(([entry]) => onVisibilityChange(Boolean(entry?.isIntersecting)), { threshold: 0.05 });
+    observer.observe(target);
+    return () => {
+      observer.disconnect();
+      onVisibilityChange(false);
+    };
+  }, [onVisibilityChange]);
   const add = (pkg: EsimPackage) =>
     addLine({
       productId: pkg.id,
@@ -215,7 +227,7 @@ function GlobalUnlimited({ plans, c }: { plans: EsimPackage[]; c: (typeof T)["tr
       isTest: pkg.isTest,
     });
   return (
-    <section aria-label={c.globalTitle}>
+    <section ref={sectionRef} aria-label={c.globalTitle}>
       <SectionTitle>{c.globalTitle}</SectionTitle>
       <p className="mb-3 text-xs text-muted-foreground">{c.globalLead}</p>
       <ul className="-mx-4 flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-2 [overscroll-behavior-inline:contain] [scrollbar-width:none] sm:mx-0 sm:grid sm:grid-cols-3 sm:gap-3 sm:overflow-visible sm:px-0 sm:pb-0">
