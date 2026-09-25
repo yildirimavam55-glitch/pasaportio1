@@ -16,12 +16,6 @@ export const V2_NOINDEX = [
   { name: "googlebot", content: "noindex, nofollow" },
 ];
 
-const TABS: Array<{ id: V2Service; to: "/design-v2/esim" | "/design-v2/lounge" | "/design-v2/vignette"; label: string }> = [
-  { id: "esim", to: "/design-v2/esim", label: "eSIM" },
-  { id: "lounge", to: "/design-v2/lounge", label: "Lounge" },
-  { id: "vignette", to: "/design-v2/vignette", label: "Vignette" },
-];
-
 export function pick<T>(locale: Locale, value: Record<Locale, T>): T {
   return value[locale] ?? value.tr;
 }
@@ -49,41 +43,18 @@ export function V2Shell({
 }) {
   const active: V2Nav | undefined = nav ?? service;
   const width = level === "discovery" ? "max-w-xl" : "max-w-xl md:max-w-2xl";
+  const serviceAccent = service === "lounge" ? "[--v2-service:var(--color-v2-lounge)]" : service === "vignette" ? "[--v2-service:var(--color-v2-vignette)]" : "[--v2-service:var(--color-v2-esim)]";
   return (
     <V2Context.Provider value={true}>
       <PublicShell hideStickySearch hideFloatingWhatsApp>
-        <div className={`mx-auto w-full ${width} overflow-x-clip px-4 pb-40 pt-3 sm:pb-24`}>
+        <div className={`mx-auto w-full ${width} ${serviceAccent} overflow-x-clip px-4 pb-40 sm:pb-24`}>
           <DesktopNav active={active} />
-          {level === "discovery" && service && <ServiceSwitcher active={service} />}
           {children}
         </div>
         <ActionDock showCart={level === "discovery"} />
         <BottomNav active={active} />
       </PublicShell>
     </V2Context.Provider>
-  );
-}
-
-function ServiceSwitcher({ active }: { active: V2Service }) {
-  return (
-    <nav aria-label="Service" className="grid grid-cols-3 gap-1 rounded-full border border-border bg-card p-1 shadow-sm">
-      {TABS.map((tab) => {
-        const on = tab.id === active;
-        return (
-          <Link
-            key={tab.id}
-            to={tab.to}
-            aria-current={on ? "page" : undefined}
-            className={`flex min-h-11 items-center justify-center gap-1.5 rounded-full text-sm font-semibold transition-colors ${
-              on ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"
-            }`}
-          >
-            {on && <span aria-hidden className="size-1.5 rounded-full bg-accent" />}
-            {tab.label}
-          </Link>
-        );
-      })}
-    </nav>
   );
 }
 
@@ -120,7 +91,7 @@ function BottomNav({ active }: { active?: V2Nav | undefined }) {
           const on = id === active;
           return (
             <Link key={id} to={to as never} search={search as never} aria-current={on ? "page" : undefined}
-              className={`flex min-h-14 min-w-0 flex-1 flex-col items-center justify-center gap-0.5 text-[11px] font-semibold ${on ? "text-primary" : "text-muted-foreground"}`}>
+              className={`flex min-h-[3.7rem] min-w-0 flex-1 flex-col items-center justify-center gap-0.5 text-[10px] font-semibold ${on ? "text-[var(--v2-service,var(--color-primary))]" : "text-muted-foreground"}`}>
               <span className="relative"><Icon className="size-5" />{id === "cart" && <CountBadge />}</span>
               <span className="max-w-full truncate px-0.5">{label}</span>
             </Link>
@@ -152,17 +123,17 @@ function DesktopNav({ active }: { active?: V2Nav | undefined }) {
 /** Full-bleed photo hero with the search floating over its bottom edge. */
 export function V2Hero({ image, eyebrow, title, subtitle, children }: { image: string; eyebrow?: string; title: string; subtitle?: string; children?: ReactNode }) {
   return (
-    <section className="relative -mx-4 mt-3">
-      <div className="relative h-[19rem] overflow-hidden text-primary-foreground sm:mx-4 sm:rounded-3xl">
+    <section className="relative -mx-4">
+      <div className="relative h-[17rem] overflow-hidden text-primary-foreground sm:mx-4 sm:mt-3 sm:rounded-3xl">
         <img src={image} alt="" fetchPriority="high" decoding="async" width={1024} height={768} className="absolute inset-0 size-full object-cover" />
-        <div className="absolute inset-0 bg-gradient-to-t from-primary/90 via-primary/35 to-primary/5" />
-        <div className="absolute inset-x-5 bottom-12">
-          {eyebrow && <p className="text-sm font-semibold opacity-90">{eyebrow}</p>}
-          <h1 className="mt-1 font-display text-[2rem] font-bold leading-[1.08] tracking-tight">{title}</h1>
-          {subtitle && <p className="mt-2 text-sm font-medium opacity-90">{subtitle}</p>}
+        <div className="absolute inset-0 bg-gradient-to-t from-[var(--v2-service)]/95 via-[var(--v2-service)]/30 to-transparent" />
+        <div className="absolute inset-x-5 bottom-10 max-w-[21rem]">
+          {eyebrow && <p className="text-sm font-semibold opacity-95">{eyebrow}</p>}
+          <h1 className="mt-0.5 font-display text-[1.85rem] font-bold leading-[1.04]">{title}</h1>
+          {subtitle && <p className="mt-1.5 text-[13px] font-medium leading-snug opacity-90">{subtitle}</p>}
         </div>
       </div>
-      {children && <div className="relative z-10 -mt-7 px-4">{children}</div>}
+      {children && <div className="relative z-10 -mt-6 px-3.5">{children}</div>}
     </section>
   );
 }
@@ -170,26 +141,26 @@ export function V2Hero({ image, eyebrow, title, subtitle, children }: { image: s
 /** Rounded search field used inside the hero. */
 export function HeroField({ icon, children }: { icon: ReactNode; children: ReactNode }) {
   return (
-    <div className="relative rounded-full bg-card shadow-lg ring-1 ring-border">
+    <div className="relative rounded-full bg-card shadow-panel ring-1 ring-border">
       <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground">{icon}</span>
       {children}
-      <span aria-hidden className="pointer-events-none absolute right-2 top-1/2 grid size-10 -translate-y-1/2 place-items-center rounded-full bg-primary text-primary-foreground">
+      <span aria-hidden className="pointer-events-none absolute right-1.5 top-1/2 grid size-10 -translate-y-1/2 place-items-center rounded-full bg-[var(--v2-service)] text-primary-foreground">
         <ArrowRight className="size-5" />
       </span>
     </div>
   );
 }
 
-export const heroInputClass = "h-14 w-full rounded-full bg-transparent pl-12 pr-14 text-base text-foreground outline-none placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-accent";
+export const heroInputClass = "h-[3.35rem] w-full rounded-full bg-transparent pl-12 pr-14 text-sm text-foreground outline-none placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring";
 
 /** Compact icon row with dividers (value props). */
 export function TrustRow({ items }: { items: Array<{ icon: ReactNode; label: string }> }) {
   if (!items.length) return null;
   return (
-    <ul className="mt-5 flex divide-x divide-border">
+    <ul className="mt-4 flex divide-x divide-border">
       {items.map((item) => (
-        <li key={item.label} className="flex flex-1 flex-col items-center gap-1.5 px-1 text-center text-[11px] font-medium leading-tight text-foreground">
-          <span className="text-primary">{item.icon}</span>
+        <li key={item.label} className="flex min-w-0 flex-1 flex-col items-center gap-1 px-1.5 text-center text-[10px] font-medium leading-tight text-foreground">
+          <span className="text-[var(--v2-service)] [&_svg]:size-5">{item.icon}</span>
           {item.label}
         </li>
       ))}
@@ -199,8 +170,8 @@ export function TrustRow({ items }: { items: Array<{ icon: ReactNode; label: str
 
 export function SectionTitle({ children, action }: { children: ReactNode; action?: ReactNode }) {
   return (
-    <div className="mb-3 mt-7 flex items-center justify-between gap-2">
-      <h2 className="font-display text-lg font-bold text-foreground">{children}</h2>
+    <div className="mb-2 mt-5 flex items-center justify-between gap-2">
+      <h2 className="font-display text-base font-bold text-foreground">{children}</h2>
       {action}
     </div>
   );
@@ -208,19 +179,19 @@ export function SectionTitle({ children, action }: { children: ReactNode; action
 
 /** Horizontal rail of photo cards. */
 export function PhotoRail({ children }: { children: ReactNode }) {
-  return <ul className="-mx-4 flex snap-x scroll-px-4 gap-3 overflow-x-auto px-4 pb-1 [scrollbar-width:none]">{children}</ul>;
+  return <ul className="-mx-4 flex snap-x scroll-px-4 gap-2.5 overflow-x-auto px-4 pb-1 [scrollbar-width:none]">{children}</ul>;
 }
 
 export function PhotoCard({ image, badge, title, sub, price, onClick }: { image?: string | undefined; badge?: ReactNode; title: string; sub?: string | undefined; price?: string | undefined; onClick: () => void }) {
   return (
-    <li className="w-32 shrink-0 snap-start">
-      <button type="button" onClick={onClick} className="w-full overflow-hidden rounded-2xl bg-card text-left shadow-sm ring-1 ring-border">
-        <div className="relative h-24 bg-muted">
+    <li className="w-[7.55rem] shrink-0 snap-start">
+      <button type="button" onClick={onClick} className="w-full overflow-hidden rounded-xl bg-card text-left shadow-sm ring-1 ring-border">
+        <div className="relative h-[5.35rem] bg-muted">
           {image && <img src={image} alt="" loading="lazy" decoding="async" width={256} height={192} className="size-full object-cover" />}
           {badge && <span className="absolute bottom-1.5 left-1.5">{badge}</span>}
         </div>
-        <div className="px-2.5 py-2">
-          <p className="truncate text-sm font-bold text-foreground">{title}</p>
+        <div className="px-2 py-1.5">
+          <p className="truncate text-xs font-bold text-foreground">{title}</p>
           {sub && <p className="truncate text-xs text-muted-foreground">{sub}</p>}
           {price && <p className="text-xs font-bold text-primary">{price}</p>}
         </div>
@@ -229,17 +200,17 @@ export function PhotoCard({ image, badge, title, sub, price, onClick }: { image?
   );
 }
 
-export function PromoCard({ image, title, sub, to }: { image: string; title: string; sub?: string; to: "/design-v2/esim" | "/design-v2/lounge" }) {
+export function PromoCard({ image, title, sub, to }: { image: string; title: string; sub?: string; to: "/design-v2/esim" | "/design-v2/lounge" | "/design-v2/vignette" }) {
   return (
-    <Link to={to} search={(to === "/design-v2/esim" ? { country: "" } : { iata: "" }) as never} className="relative mt-7 block h-32 overflow-hidden rounded-3xl text-primary-foreground">
+    <Link to={to} search={(to === "/design-v2/esim" ? { country: "" } : to === "/design-v2/lounge" ? { iata: "" } : undefined) as never} className="relative mt-5 block h-24 overflow-hidden rounded-xl text-primary-foreground">
       <img src={image} alt="" loading="lazy" decoding="async" className="absolute inset-0 size-full object-cover" />
-      <div className="absolute inset-0 bg-gradient-to-r from-primary/95 via-primary/70 to-transparent" />
-      <div className="relative flex h-full items-center justify-between gap-3 p-5">
+      <div className="absolute inset-0 bg-gradient-to-r from-[var(--v2-service)]/95 via-[var(--v2-service)]/60 to-transparent" />
+      <div className="relative flex h-full items-center justify-between gap-3 p-4">
         <div className="min-w-0">
-          <p className="font-display text-xl font-bold leading-tight">{title}</p>
-          {sub && <p className="mt-1 text-sm opacity-90">{sub}</p>}
+          <p className="font-display text-lg font-bold leading-tight">{title}</p>
+          {sub && <p className="mt-0.5 text-xs opacity-90">{sub}</p>}
         </div>
-        <span className="grid size-11 shrink-0 place-items-center rounded-full bg-card text-primary"><ArrowRight className="size-5" /></span>
+        <span className="grid size-10 shrink-0 place-items-center rounded-full bg-card text-[var(--v2-service)]"><ArrowRight className="size-5" /></span>
       </div>
     </Link>
   );
@@ -249,12 +220,12 @@ export function HowItWorks({ title, steps }: { title: string; steps: Array<{ t: 
   return (
     <>
       <SectionTitle>{title}</SectionTitle>
-      <ol className="grid grid-cols-3 gap-2">
+      <ol className="grid grid-cols-3 gap-2 border-b border-border pb-2">
         {steps.map((step, i) => (
-          <li key={step.t} className="flex flex-col gap-1.5">
-            <span className="grid size-9 place-items-center rounded-full bg-primary font-display text-sm font-bold text-primary-foreground">{i + 1}</span>
-            <span className="text-sm font-bold leading-tight text-foreground">{step.t}</span>
-            <span className="text-xs leading-snug text-muted-foreground">{step.s}</span>
+          <li key={step.t} className="grid grid-cols-[auto_minmax(0,1fr)] items-start gap-x-2 gap-y-0.5">
+            <span className="row-span-2 grid size-7 place-items-center rounded-full bg-[var(--v2-service)] font-display text-xs font-bold text-primary-foreground">{i + 1}</span>
+            <span className="text-[11px] font-bold leading-tight text-foreground">{step.t}</span>
+            <span className="text-[9px] leading-snug text-muted-foreground">{step.s}</span>
           </li>
         ))}
       </ol>
