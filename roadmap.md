@@ -2,7 +2,8 @@
 
 ## V2 complete desktop design system
 
-- [ ] Build one shared responsive customer shell and desktop navigation while preserving approved mobile navigation
+- [x] Build one shared responsive customer shell and desktop navigation while preserving approved mobile navigation
+- [ ] Correct nested desktop width constraints and verify measured 1200–1280px composition
 - [ ] Adapt eSIM, Lounge, and Vignette discovery sections to desktop using the existing storefront configuration
 - [ ] Adapt country/regional packages, selected-product controls, cart, checkout, auth, and account layouts
 - [ ] Adapt guides, article pages, support, footer, sticky search, and WhatsApp placement

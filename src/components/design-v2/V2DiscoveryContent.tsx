@@ -152,18 +152,23 @@ export function V2Installation({ title, subtitle, steps, ready, adding, cta, hre
   const stepList = steps?.length ? steps : [...c.animSteps];
   const search = (href === "/esim" ? { country: "" } : href === "/lounge" ? { iata: "" } : undefined) as never;
   return (
-    <section className="lg:mx-auto lg:max-w-4xl">
-      <SectionTitle>{title || c.install}</SectionTitle>
-       <div className="lg:grid lg:grid-cols-[minmax(18rem,0.8fr)_minmax(0,1.2fr)] lg:items-center lg:gap-10">
-         <div>{variant === "simple" ? <InstallationSteps items={stepList} /> : <V2InstallAnimation steps={stepList} ready={ready || c.animReady} adding={adding || c.animAdding} />}</div>
-         <div>{(subtitle ?? c.installSub) && <p className="mb-3 text-xs leading-relaxed text-muted-foreground lg:text-base">{subtitle ?? c.installSub}</p>}<div className={variant === "simple" ? "hidden" : "hidden lg:block"}><InstallationSteps items={stepList} /></div>{(cta ?? c.installCta) && <Button asChild variant="outline" size="sm" className="mt-3 w-full lg:w-auto"><Link to={href} search={search}>{cta || c.installCta}<ArrowRight /></Link></Button>}</div>
-       </div>
+    <section>
+      <div className="lg:hidden"><SectionTitle>{title || c.install}</SectionTitle></div>
+      <div className="lg:grid lg:min-h-[24rem] lg:grid-cols-[minmax(22rem,0.9fr)_minmax(0,1.1fr)] lg:items-center lg:gap-14 lg:rounded-3xl lg:bg-card lg:px-12 lg:py-10 lg:ring-1 lg:ring-border">
+        <div>{variant === "simple" ? <div className="lg:hidden"><InstallationSteps items={stepList} /></div> : <V2InstallAnimation steps={stepList} ready={ready || c.animReady} adding={adding || c.animAdding} />}</div>
+        <div>
+          <h2 className="hidden font-display text-3xl font-bold text-foreground lg:block">{title || c.install}</h2>
+          {(subtitle ?? c.installSub) && <p className="mb-3 text-xs leading-relaxed text-muted-foreground lg:mt-3 lg:text-base">{subtitle ?? c.installSub}</p>}
+          <div className="hidden lg:block"><InstallationSteps items={stepList} /></div>
+          {(cta ?? c.installCta) && <Button asChild variant="outline" size="sm" className="mt-3 w-full lg:mt-6 lg:w-auto"><Link to={href} search={search}>{cta || c.installCta}<ArrowRight /></Link></Button>}
+        </div>
+      </div>
     </section>
   );
 }
 
 function InstallationSteps({ items }: { items: readonly string[] }) {
-  return <ol className="mt-3 grid grid-cols-2 gap-x-3 gap-y-2">{items.map((step, index) => <li key={step} className="grid min-w-0 grid-cols-[auto_minmax(0,1fr)] gap-1.5 text-[10px] leading-snug text-muted-foreground"><span className="grid size-5 shrink-0 place-items-center rounded-full bg-[var(--v2-service)] text-[9px] font-bold text-primary-foreground">{index + 1}</span><span>{step}</span></li>)}</ol>;
+  return <ol className="mt-3 grid grid-cols-2 gap-x-3 gap-y-2 lg:mt-6 lg:grid-cols-1 lg:gap-3">{items.map((step, index) => <li key={step} className="grid min-w-0 grid-cols-[auto_minmax(0,1fr)] items-center gap-1.5 text-[10px] leading-snug text-muted-foreground lg:gap-3 lg:text-sm"><span className="grid size-5 shrink-0 place-items-center rounded-full bg-[var(--v2-service)] text-[9px] font-bold text-primary-foreground lg:size-8 lg:text-xs">{index + 1}</span><span>{step}</span></li>)}</ol>;
 }
 
 export function V2WhyTravely() {
@@ -200,7 +205,7 @@ export function V2EsimFaq({ compact = false, title, questions: custom }: { compa
     ? [c.questions[0], c.questions[1], c.questions[2], c.questions[3], c.questions[5]].filter(Boolean) as Array<readonly [string, string]>
     : c.questions;
   return (
-    <section className="lg:mx-auto lg:max-w-4xl">
+    <section className="lg:grid lg:grid-cols-[minmax(15rem,0.38fr)_minmax(0,1fr)] lg:items-start lg:gap-12">
       <SectionTitle>{title || c.faq}</SectionTitle>
       <Accordion type="single" collapsible className="rounded-xl bg-card px-3 ring-1 ring-border">{questions.map(([question, answer], index) => <AccordionItem key={question} value={`faq-${index}`}><AccordionTrigger className="min-h-[3.25rem] py-3 text-left text-xs font-bold hover:no-underline">{question}</AccordionTrigger><AccordionContent className="text-xs leading-relaxed text-muted-foreground">{answer}</AccordionContent></AccordionItem>)}</Accordion>
     </section>

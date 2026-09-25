@@ -51,7 +51,7 @@ export function V2Shell({
   children: ReactNode;
 }) {
   const active: V2Nav | undefined = nav ?? service;
-  const width = level === "discovery" ? "max-w-xl lg:max-w-site" : level === "account" ? "max-w-xl lg:max-w-site" : "max-w-xl md:max-w-3xl lg:max-w-6xl";
+  const width = level === "transaction" ? "max-w-xl md:max-w-3xl lg:max-w-site" : "max-w-xl lg:max-w-site";
   const serviceAccent = service === "lounge" ? "[--v2-service:var(--color-v2-lounge)]" : service === "vignette" ? "[--v2-service:var(--color-v2-vignette)]" : "[--v2-service:var(--color-v2-esim)]";
   return (
     <V2Context.Provider value={true}>
@@ -213,7 +213,7 @@ export const heroInputClass = "h-[3.35rem] w-full rounded-full bg-transparent pl
 export function TrustRow({ items }: { items: Array<{ icon: ReactNode; label: string }> }) {
   if (!items.length) return null;
   return (
-    <ul className="mt-4 flex divide-x divide-border lg:mx-auto lg:-mt-1 lg:max-w-5xl lg:rounded-2xl lg:bg-card lg:px-5 lg:py-5 lg:shadow-card lg:ring-1 lg:ring-border">
+    <ul className="mt-4 flex divide-x divide-border lg:-mt-1 lg:w-full lg:rounded-2xl lg:bg-card lg:px-5 lg:py-5 lg:shadow-card lg:ring-1 lg:ring-border">
       {items.map((item) => (
         <li key={item.label} className="flex min-w-0 flex-1 flex-col items-center gap-1 px-1.5 text-center text-[10px] font-medium leading-tight text-foreground lg:flex-row lg:justify-center lg:gap-3 lg:px-5 lg:text-sm">
           <span className="text-[var(--v2-service)] [&_svg]:size-5 lg:[&_svg]:size-6">{item.icon}</span>
@@ -256,9 +256,9 @@ export function PhotoCard({ image, badge, title, sub, price, onClick }: { image?
   );
 }
 
-export function PromoCard({ image, title, sub, to }: { image: string; title: string; sub?: string; to: "/esim" | "/lounge" | "/vignette" | "/destek" | "/sepet" | "/account" }) {
+export function PromoCard({ image, title, sub, to, compactDesktop = false }: { image: string; title: string; sub?: string; to: "/esim" | "/lounge" | "/vignette" | "/destek" | "/sepet" | "/account"; compactDesktop?: boolean }) {
   return (
-    <Link to={to} search={(to === "/esim" ? { country: "" } : to === "/lounge" ? { iata: "" } : undefined) as never} className="relative mt-5 block h-24 overflow-hidden rounded-xl text-primary-foreground lg:mt-14 lg:h-48 lg:rounded-2xl">
+    <Link to={to} search={(to === "/esim" ? { country: "" } : to === "/lounge" ? { iata: "" } : undefined) as never} className={`relative mt-5 block h-24 overflow-hidden rounded-xl text-primary-foreground lg:h-48 lg:rounded-2xl ${compactDesktop ? "lg:mt-14" : "lg:mt-14"}`}>
       {image && <img src={image} alt="" loading="lazy" decoding="async" className="absolute inset-0 size-full object-cover" />}
       <div className="absolute inset-0 bg-gradient-to-r from-[var(--v2-service)]/95 via-[var(--v2-service)]/60 to-transparent" />
       <div className="relative flex h-full items-center justify-between gap-3 p-4 lg:p-8">
