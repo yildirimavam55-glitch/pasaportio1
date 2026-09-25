@@ -53,7 +53,7 @@ export function V2Shell({
   return (
     <V2Context.Provider value={true}>
       <PublicShell hideStickySearch hideFloatingWhatsApp headerAccessory={stickySearch}>
-        <div className={`mx-auto w-full ${width} ${serviceAccent} overflow-x-clip px-4 ${commerceSelection ? "pb-36" : "pb-24"} sm:pb-12`}>
+        <div className={`mx-auto w-full ${width} ${serviceAccent} overflow-x-clip px-4 ${commerceSelection ? "pb-36" : "pb-32"} sm:pb-12`}>
           <DesktopNav active={active} />
           {children}
         </div>
@@ -177,8 +177,8 @@ export function TrustRow({ items }: { items: Array<{ icon: ReactNode; label: str
 export function SectionTitle({ children, action }: { children: ReactNode; action?: ReactNode }) {
   return (
     <div className="mb-2 mt-5 flex items-center justify-between gap-2">
-      <h2 className="font-display text-base font-bold text-foreground">{children}</h2>
-      {action}
+      <h2 className="min-w-0 font-display text-base font-bold text-foreground">{children}</h2>
+      {action && <span className="shrink-0 whitespace-nowrap">{action}</span>}
     </div>
   );
 }
@@ -255,12 +255,12 @@ function ActionDock({ showCart, showWhatsApp }: { showCart: boolean; showWhatsAp
   const l = pick(locale, DOCK);
   const { count } = useCart();
   return (
-    <div className="pointer-events-none fixed inset-x-0 bottom-[calc(3.75rem+env(safe-area-inset-bottom))] z-30 px-4 pb-2 sm:bottom-4">
+    <div className="pointer-events-none fixed inset-x-0 bottom-[calc(3.75rem+env(safe-area-inset-bottom))] z-30 px-4 pb-1.5 sm:bottom-4">
       <div className="mx-auto flex max-w-xl items-center justify-end gap-2">
         {showCart && count > 0 && (
-          <Link to="/design-v2/cart" className="pointer-events-auto flex h-11 flex-1 items-center justify-between rounded-full bg-primary px-4 text-sm font-semibold text-primary-foreground shadow-lg">
-            <span className="flex items-center gap-2"><ShoppingBag className="size-4" />{l.cart}</span>
-            <span className="rounded-full bg-primary-foreground/15 px-2.5 py-0.5">{count}</span>
+          <Link to="/design-v2/cart" className="pointer-events-auto flex h-[3.25rem] min-w-0 flex-1 items-center justify-between gap-2 rounded-full bg-primary pl-4 pr-2.5 text-sm font-semibold text-primary-foreground shadow-lg">
+            <span className="flex min-w-0 items-center gap-2"><ShoppingBag className="size-4 shrink-0" /><span className="truncate">{l.cart}</span></span>
+            <span className="grid h-7 min-w-7 shrink-0 place-items-center rounded-full bg-primary-foreground/15 px-2 text-xs">{count}</span>
           </Link>
         )}
         {showWhatsApp && (
@@ -269,7 +269,7 @@ function ActionDock({ showCart, showWhatsApp }: { showCart: boolean; showWhatsAp
             target="_blank"
             rel="noopener noreferrer"
             aria-label={l.wa}
-            className="pointer-events-auto grid size-11 shrink-0 place-items-center rounded-full shadow-lg hover:brightness-95"
+            className="pointer-events-auto grid size-[3.25rem] shrink-0 place-items-center rounded-full shadow-lg hover:brightness-95"
             style={{ backgroundColor: "#25D366", color: "#fff" }}
           >
             <WhatsAppLogo className="size-6" />
