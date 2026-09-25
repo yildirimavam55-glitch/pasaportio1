@@ -550,3 +550,12 @@
 - [x] Add catalogue-backed eSIM and real-airport mobile selectors
 - [x] Keep Vignette unavailable without fabricated inventory
 - [x] Verify TR/DE/EN, 360/390/430 px, production isolation, and final preview health
+
+## V2 product selection and sticky purchase summary
+- [x] Add shared service-aware selected-card and purchase-summary components.
+- [x] Make country and regional eSIM cards select first, then confirm from the summary.
+- [x] Reuse cart quantity limits and updates before and after adding.
+- [x] Preserve real country/regional identity, product IDs, prices, and details.
+- [x] Apply the same architecture to real Lounge offers; preserve empty state.
+- [x] Keep Vignette unavailable without fake products or purchase controls.
+- [x] Verify Standard, Unlimited, regional, cart state, mobile layouts, and locales.

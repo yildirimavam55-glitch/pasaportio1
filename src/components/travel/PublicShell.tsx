@@ -153,7 +153,7 @@ function ThemePreferenceMenu() {
   );
 }
 /** Footer content is owned by the storefront editor; falls back to built-in copy. */
-function PublicFooter({ fallback, supportLabel, bottomSafe = false }: { fallback: string; supportLabel: string; bottomSafe?: boolean }) {
+function PublicFooter({ fallback, supportLabel, bottomSafe = false }: { fallback: string; supportLabel: string; bottomSafe?: boolean | "purchase" }) {
   const { locale } = useI18n();
   const config = useQuery({
     queryKey: ["storefront", "global"],
@@ -170,7 +170,7 @@ function PublicFooter({ fallback, supportLabel, bottomSafe = false }: { fallback
   );
   const copyright = itemText(data?.copyright, locale, "");
   return (
-    <footer id="support" className={`border-t border-border bg-secondary/50 pt-10 ${bottomSafe ? "pb-[calc(8.5rem+env(safe-area-inset-bottom))] sm:pb-10" : "pb-10"}`}>
+    <footer id="support" className={`border-t border-border bg-secondary/50 pt-10 ${bottomSafe === "purchase" ? "pb-[calc(12.5rem+env(safe-area-inset-bottom))] sm:pb-10" : bottomSafe ? "pb-[calc(8.5rem+env(safe-area-inset-bottom))] sm:pb-10" : "pb-10"}`}>
       <div className="mx-auto flex max-w-site flex-col gap-6 px-4 sm:px-6 md:flex-row md:items-center md:justify-between">
         <Brand />
         <p className="max-w-md text-sm text-muted-foreground">{text}</p>
@@ -219,7 +219,7 @@ export function PublicShell({
   /** Optional page-owned compact content directly below the shared header. */
   headerAccessory?: ReactNode;
   /** Pages with fixed mobile action rows keep the footer scrollable above them. */
-  footerBottomSafe?: boolean;
+  footerBottomSafe?: boolean | "purchase";
 }) {
   const { locale } = useI18n();
   const copy = localized(GLOBAL_CONTENT, locale);

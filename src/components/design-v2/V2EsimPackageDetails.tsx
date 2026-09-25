@@ -7,9 +7,9 @@ import type { Locale } from "@/domain/enums";
 import type { EsimPackage } from "@/lib/esim-catalogue.functions";
 
 const COPY = {
-  tr: { data: "İnternet", unlimited: "Sınırsız", validity: "Geçerlilik", days: "gün", coverage: "Kapsam", countries: "ülke", network: "Ağ", technology: "Ağ teknolojisi", activation: "Aktivasyon", unknown: "Kurulum bilgileri satın alma sonrası hesabında gösterilir.", add: "Sepete ekle", added: "Sepette" },
-  de: { data: "Daten", unlimited: "Unbegrenzt", validity: "Gültigkeit", days: "Tage", coverage: "Abdeckung", countries: "Länder", network: "Netz", technology: "Netztechnologie", activation: "Aktivierung", unknown: "Einrichtungsdaten erscheinen nach dem Kauf in deinem Konto.", add: "In den Warenkorb", added: "Im Warenkorb" },
-  en: { data: "Data", unlimited: "Unlimited", validity: "Validity", days: "days", coverage: "Coverage", countries: "countries", network: "Network", technology: "Network technology", activation: "Activation", unknown: "Setup details appear in your account after purchase.", add: "Add to cart", added: "In cart" },
+  tr: { data: "İnternet", unlimited: "Sınırsız", validity: "Geçerlilik", days: "gün", coverage: "Kapsam", countries: "ülke", network: "Ağ", technology: "Ağ teknolojisi", activation: "Aktivasyon", unknown: "Kurulum bilgileri satın alma sonrası hesabında gösterilir.", add: "Bu paketi seç", added: "Seçildi" },
+  de: { data: "Daten", unlimited: "Unbegrenzt", validity: "Gültigkeit", days: "Tage", coverage: "Abdeckung", countries: "Länder", network: "Netz", technology: "Netztechnologie", activation: "Aktivierung", unknown: "Einrichtungsdaten erscheinen nach dem Kauf in deinem Konto.", add: "Dieses Paket wählen", added: "Ausgewählt" },
+  en: { data: "Data", unlimited: "Unlimited", validity: "Validity", days: "days", coverage: "Coverage", countries: "countries", network: "Network", technology: "Network technology", activation: "Activation", unknown: "Setup details appear in your account after purchase.", add: "Select this plan", added: "Selected" },
 };
 
 function activationText(pkg: EsimPackage, locale: Locale, fallback: string) {
