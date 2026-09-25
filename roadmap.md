@@ -561,8 +561,8 @@
 - [x] Verify Standard, Unlimited, regional, cart state, mobile layouts, and locales.
 
 ## V2 final country/package page cleanup
-- [ ] Keep the selected-country identity, Standard/Unlimited tabs, package grid, selected state, and sticky purchase summary.
-- [ ] Replace the country page’s large repeated education/discovery sections with compact assistant, compatibility, and installation-guide entries.
-- [ ] Keep regional offers separate and optional without changing their catalogue logic.
-- [ ] Verify Türkiye, Germany, Argentina across Standard/Unlimited, TR/DE/EN, and 360/390/430 px.
-- [ ] Confirm cart identity, quantity, info details, compatibility, installation navigation, safe fixed controls, and no production changes.
+- [x] Keep the selected-country identity, Standard/Unlimited tabs, package grid, selected state, and sticky purchase summary.
+- [x] Replace the country page’s large repeated education/discovery sections with compact assistant, compatibility, and installation-guide entries.
+- [x] Keep regional offers separate and optional without changing their catalogue logic.
+- [x] Verify Türkiye, Germany, Argentina across Standard/Unlimited, TR/DE/EN, and 360/390/430 px.
+- [x] Confirm cart identity, quantity, info details, compatibility, installation navigation, safe fixed controls, and no production changes.
