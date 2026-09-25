@@ -57,22 +57,45 @@ function EsimV2() {
   const [pickerOpen, setPickerOpen] = useState(false);
   const { count } = useCart();
   const prices = useQuery({ queryKey: ["v2-esim-destinations"], queryFn: () => listEsimDestinationStartingPrices() });
+  const globalUnlimited = useQuery({ queryKey: ["v2-global-unlimited"], queryFn: () => listGlobalUnlimitedEsimPackages() });
   const priceMap = useMemo(() => new Map((prices.data ?? []).map((price) => [price.targetId, price])), [prices.data]);
   const matches = useMemo(
     () => searchCountries(query, 250).filter((item) => priceMap.has(item.iso)),
     [priceMap, query],
   );
   const selected = country ? getCountryByIso(country.toUpperCase()) : undefined;
+  const heroSearchRef = useRef<HTMLDivElement | null>(null);
+  const [heroSearchVisible, setHeroSearchVisible] = useState(true);
   const choose = (iso: string) => {
     setQuery("");
     setPickerOpen(false);
     void navigate({ search: { country: iso } });
   };
+  useEffect(() => {
+    const target = heroSearchRef.current;
+    if (!target) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => setHeroSearchVisible(Boolean(entry?.isIntersecting)),
+      { rootMargin: "-56px 0px 0px", threshold: 0.05 },
+    );
+    observer.observe(target);
+    return () => observer.disconnect();
+  }, []);
+  const globalPlans = useMemo(() => curateGlobalUnlimited(globalUnlimited.data ?? []), [globalUnlimited.data]);
+  const stickySearch = !selected ? (
+    <div aria-hidden={heroSearchVisible} className={`sticky top-14 z-40 h-0 transition-[opacity,transform] duration-200 sm:top-16 ${heroSearchVisible ? "pointer-events-none -translate-y-2 opacity-0" : "translate-y-0 opacity-100"}`}>
+      <div className="mx-auto max-w-site px-3 pt-1 sm:px-6">
+        <Button type="button" variant="outline" onClick={() => setPickerOpen(true)} className="mx-auto grid h-11 w-full max-w-finder grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2 rounded-xl bg-card px-3 text-left shadow-panel">
+          <Search className="size-4 shrink-0 text-primary" /><span className="truncate text-sm text-muted-foreground">{c.stickyPh}</span><ArrowRight className="size-4 shrink-0" />
+        </Button>
+      </div>
+    </div>
+  ) : undefined;
 
   return (
-    <V2Shell service="esim" commerceSelection={Boolean(selected)}>
+    <V2Shell service="esim" commerceSelection={Boolean(selected)} stickySearch={stickySearch}>
       {!selected && <V2Hero image={heroImage} eyebrow="eSIM" title={c.h} subtitle={c.q}>
-        <HeroField icon={<Search className="size-5" />}>
+        <div ref={heroSearchRef}><HeroField icon={<Search className="size-5" />}>
           <V2PickerSheet
             open={pickerOpen}
             onOpenChange={(open) => { setPickerOpen(open); if (!open) setQuery(""); }}
@@ -91,7 +114,7 @@ function EsimV2() {
               <span className="truncate">{c.ph}</span>
             </Button>
           </V2PickerSheet>
-        </HeroField>
+        </HeroField></div>
       </V2Hero>}
 
       {selected ? (
@@ -105,24 +128,14 @@ function EsimV2() {
         </>
       ) : (
         <>
-          <TrustRow
-            items={[
-              { icon: <Zap className="size-6" />, label: c.setup },
-              { icon: <Signal className="size-6" />, label: c.net },
-              { icon: <LockKeyhole className="size-6" />, label: c.pay },
-              { icon: <Headphones className="size-6" />, label: c.support },
-            ]}
-          />
           <Popular c={c} onPick={choose} />
+          {globalPlans.length > 0 && <GlobalUnlimited plans={globalPlans} c={c} />}
+          <V2Compatibility />
           <PromoCard image={loungePromo.url} title={c.promo} sub={c.promoSub} to="/design-v2/lounge" />
-           <V2DataEducation onCalculate={() => setPickerOpen(true)} />
-           <V2Compatibility />
-          <HowItWorks title={c.how} steps={c.steps} />
-           <V2Installation />
-           <V2WhyTravely />
-           <PromoCard image={vignettePromo} title={c.vignettePromo} sub={c.vignettePromoSub} to="/design-v2/vignette" />
-           <V2GuidesRail />
-           <V2EsimFaq />
+          <V2Installation />
+          <PromoCard image={vignettePromo} title={c.vignettePromo} sub={c.vignettePromoSub} to="/design-v2/vignette" />
+          <V2GuidesRail />
+          <V2EsimFaq compact />
         </>
       )}
       <CartBar count={count} label={c.cart} />
