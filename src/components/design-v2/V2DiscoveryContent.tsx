@@ -8,7 +8,7 @@ import { SeoPathLink } from "@/components/seo/SeoPathLink";
 import { seoPath } from "@/domain/seo/paths";
 import { useI18n } from "@/i18n";
 import { listFeaturedGuides } from "@/lib/guides.functions";
-import { pick, SectionTitle } from "./V2Shell";
+import { SectionTitle } from "./V2Shell";
 
 const COPY = {
   tr: {
@@ -86,7 +86,7 @@ const usageIcons = [MessageCircle, Navigation, Smartphone, Play, PhoneCall];
 
 export function V2DataEducation({ onCalculate }: { onCalculate: () => void }) {
   const { locale } = useI18n();
-  const c = pick(locale, COPY);
+  const c = COPY[locale];
   return (
     <section>
       <SectionTitle>{c.dataTitle}</SectionTitle>
@@ -104,13 +104,13 @@ export function V2DataEducation({ onCalculate }: { onCalculate: () => void }) {
 
 export function V2Compatibility() {
   const { locale } = useI18n();
-  const c = pick(locale, COPY);
+  const c = COPY[locale];
   return <section><SectionTitle>{c.compatibility}</SectionTitle><DeviceCompatibilityPrompt /></section>;
 }
 
 export function V2Installation() {
   const { locale } = useI18n();
-  const c = pick(locale, COPY);
+  const c = COPY[locale];
   return (
     <section>
       <SectionTitle>{c.install}</SectionTitle>
@@ -123,7 +123,7 @@ export function V2Installation() {
 
 export function V2GuidesRail() {
   const { locale } = useI18n();
-  const c = pick(locale, COPY);
+  const c = COPY[locale];
   const { data = [] } = useQuery({ queryKey: ["v2-guides", locale], queryFn: () => listFeaturedGuides({ data: { locale, limit: 4 } }), staleTime: 5 * 60_000 });
   if (!data.length) return null;
   return (
@@ -139,7 +139,7 @@ export function V2GuidesRail() {
 
 export function V2EsimFaq() {
   const { locale } = useI18n();
-  const c = pick(locale, COPY);
+  const c = COPY[locale];
   return (
     <section>
       <SectionTitle>{c.faq}</SectionTitle>
