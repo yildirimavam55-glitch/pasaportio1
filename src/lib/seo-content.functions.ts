@@ -16,6 +16,8 @@ import {
 } from "@/lib/guides.functions";
 import type { Locale } from "@/domain/enums";
 import { familyOf, seoPath, type SeoFamily } from "@/domain/seo/paths";
+import type { CommercialTarget } from "@/domain/seo/relations";
+import { commercialForGuide } from "@/lib/seo-relations.functions";
 
 export type SeoLink = { id: string; title: string; path: string; contentType: string; countryIso: string | null };
 
@@ -62,6 +64,9 @@ export type SeoPage = {
   cities: SeoLink[];
   destinations: SeoLink[];
   settings: SeoSettings;
+  /** Resolved commercial destination (manual override or live auto relation), if any. */
+  commercial: CommercialTarget | null;
+  relService: string;
 };
 
 const LOCALES: Locale[] = ["tr", "de", "en"];
@@ -159,7 +164,7 @@ export const getSeoPage = createServerFn({ method: "GET" })
     const relatedIds: string[] = Array.isArray(row.related_guide_ids) ? row.related_guide_ids : [];
     const countryIso = row.country_iso ?? guide.countryIsos[0] ?? null;
 
-    const [manual, sameCountry, destinations, settingsRow] = await Promise.all([
+    const [manual, sameCountry, destinations, settingsRow, commercial] = await Promise.all([
       relatedIds.length
         ? client.from("guides").select(LINK_SELECT).in("id", relatedIds).eq("status", "PUBLISHED")
         : Promise.resolve({ data: [] as any[] }),
@@ -168,6 +173,7 @@ export const getSeoPage = createServerFn({ method: "GET" })
         : Promise.resolve({ data: [] as any[] }),
       client.from("guides").select(LINK_SELECT).eq("content_type", "DESTINATION").eq("status", "PUBLISHED").limit(12),
       client.from("platform_settings").select("data").eq("id", "seo").maybeSingle(),
+      commercialForGuide(row.id).catch(() => ({ target: null, service: "GENERAL" })),
     ]);
 
     const manualLinks = toLinks((manual as any).data ?? [], data.locale, row.id);
@@ -200,6 +206,8 @@ export const getSeoPage = createServerFn({ method: "GET" })
       cities,
       destinations: destinationLinks,
       settings: (settingsRow as any)?.data?.data ? settingsOf((settingsRow as any).data.data) : DEFAULT_SETTINGS,
+      commercial: commercial.target,
+      relService: commercial.service,
     };
   });
 
