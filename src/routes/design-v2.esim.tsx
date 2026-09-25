@@ -174,10 +174,9 @@ function Packages({ iso, name, c, onBack }: { iso: string; name: string; c: (typ
   const shortlist = buildCustomerShortlist(data, { coverageIsos: [iso], days, requiredGb: estimate.requiredGb, maxPrimary: 4 });
   const rows = shortlist.primary.map((entry) => entry.package);
   const recommendedId = hasInput ? shortlist.primary[0]?.package.id : undefined;
-  const usageLabels = c.usage as readonly [string, string, string, string];
   const usageItems: Array<{ key: UsageKind; label: string; icon: typeof MessageCircle }> = [
-    { key: "MESSAGING", label: usageLabels[0], icon: MessageCircle }, { key: "MAPS", label: usageLabels[1], icon: MapPin },
-    { key: "SOCIAL", label: usageLabels[2], icon: Share2 }, { key: "VIDEO", label: usageLabels[3], icon: Video },
+    { key: "MESSAGING", label: c.usage[0] ?? "", icon: MessageCircle }, { key: "MAPS", label: c.usage[1] ?? "", icon: MapPin },
+    { key: "SOCIAL", label: c.usage[2] ?? "", icon: Share2 }, { key: "VIDEO", label: c.usage[3] ?? "", icon: Video },
   ];
   const add = (p: EsimPackage) =>
     addLine({
