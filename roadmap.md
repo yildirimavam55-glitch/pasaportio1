@@ -484,4 +484,4 @@
 - [x] Match the shared V2 discovery proportions to the approved 390 px reference
 - [x] Add catalogue-backed eSIM and real-airport mobile selectors
 - [x] Keep Vignette unavailable without fabricated inventory
-- [ ] Verify TR/DE/EN, 360/390/430 px, production isolation, and final preview health
+- [x] Verify TR/DE/EN, 360/390/430 px, production isolation, and final preview health
