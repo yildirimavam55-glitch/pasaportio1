@@ -1,5 +1,14 @@
 # Phase 1.3 Roadmap
 
+## V2 desktop final visual polish
+
+- [x] Preserve the approved wide container, mobile layouts, data, and business logic
+- [x] Refine desktop hero proportions and five-card destination rail
+- [x] Keep the regional discovery as a 3 × 2 desktop grid
+- [x] Balance compatibility and Lounge as a matched desktop pair
+- [x] Scale and synchronize the installation animation and active desktop steps
+- [ ] Complete rendered viewport, populated-cart, and screenshot verification
+
 ## V2 complete desktop design system
 
 - [x] Build one shared responsive customer shell and desktop navigation while preserving approved mobile navigation

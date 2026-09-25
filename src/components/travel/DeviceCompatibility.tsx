@@ -451,10 +451,10 @@ export function DeviceCompatibilityPrompt() {
   const copy = COPY[locale];
 
   return (
-    <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2 rounded-xl border border-border bg-card px-3 py-2.5 shadow-soft sm:flex sm:justify-between sm:px-4">
+    <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2 rounded-xl border border-border bg-card px-3 py-2.5 shadow-soft sm:flex sm:justify-between sm:px-4 lg:h-full lg:w-full lg:px-6">
       <div className="flex min-w-0 items-center gap-2.5">
-        <span className="grid size-8 shrink-0 place-items-center rounded-lg bg-primary-soft text-primary">
-          <Smartphone className="size-4.5" aria-hidden="true" />
+        <span className="grid size-8 shrink-0 place-items-center rounded-lg bg-primary-soft text-primary lg:size-12 lg:rounded-xl">
+          <Smartphone className="size-4.5 lg:size-6" aria-hidden="true" />
         </span>
         <span className="min-w-0 text-sm font-semibold leading-5 text-balance">
           {copy.productPrompt}

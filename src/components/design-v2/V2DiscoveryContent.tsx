@@ -1,4 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
+import { useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { Apple, ArrowRight, BookOpen, CheckCircle2, Headphones, MapPin, MessageCircle, Navigation, PhoneCall, Play, Smartphone, Sparkles } from "lucide-react";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
@@ -137,10 +138,10 @@ export function V2DataEducation({ onCalculate }: { onCalculate: () => void }) {
   );
 }
 
-export function V2Compatibility({ title }: { title?: string } = {}) {
+export function V2Compatibility({ title, desktopCard = false }: { title?: string; desktopCard?: boolean } = {}) {
   const { locale } = useI18n();
   const c = COPY[locale];
-  return <section><SectionTitle>{title || c.compatibility}</SectionTitle><DeviceCompatibilityPrompt /></section>;
+  return <section className={desktopCard ? "lg:flex lg:flex-col" : undefined}><SectionTitle>{title || c.compatibility}</SectionTitle><div className={desktopCard ? "lg:flex lg:h-48 lg:items-stretch" : undefined}><DeviceCompatibilityPrompt /></div></section>;
 }
 
 type InstallProps = { title?: string; subtitle?: string; steps?: string[]; ready?: string; adding?: string; cta?: string; href?: "/esim" | "/lounge" | "/vignette" | "/destek" | "/sepet" | "/account"; variant?: "animated" | "simple" };
@@ -150,16 +151,17 @@ export function V2Installation({ title, subtitle, steps, ready, adding, cta, hre
   const { locale } = useI18n();
   const c = COPY[locale];
   const stepList = steps?.length ? steps : [...c.animSteps];
+  const [activeStep, setActiveStep] = useState(0);
   const search = (href === "/esim" ? { country: "" } : href === "/lounge" ? { iata: "" } : undefined) as never;
   return (
     <section>
       <div className="lg:hidden"><SectionTitle>{title || c.install}</SectionTitle></div>
-      <div className="lg:grid lg:min-h-[24rem] lg:grid-cols-[minmax(22rem,0.9fr)_minmax(0,1.1fr)] lg:items-center lg:gap-14 lg:rounded-3xl lg:bg-card lg:px-12 lg:py-10 lg:ring-1 lg:ring-border">
-        <div>{variant === "simple" ? <div className="lg:hidden"><InstallationSteps items={stepList} /></div> : <V2InstallAnimation steps={stepList} ready={ready || c.animReady} adding={adding || c.animAdding} />}</div>
-        <div>
+      <div className="lg:grid lg:min-h-[24rem] lg:grid-cols-[minmax(0,0.42fr)_minmax(0,0.58fr)] lg:items-center lg:gap-10 lg:rounded-3xl lg:bg-card lg:px-12 lg:py-8 lg:ring-1 lg:ring-border">
+        <div className="lg:flex lg:min-h-[20rem] lg:items-center lg:justify-center">{variant === "simple" ? <div className="lg:hidden"><InstallationSteps items={stepList} /></div> : <V2InstallAnimation steps={stepList} ready={ready || c.animReady} adding={adding || c.animAdding} onPhaseChange={setActiveStep} />}</div>
+        <div className="lg:py-3">
           <h2 className="hidden font-display text-3xl font-bold text-foreground lg:block">{title || c.install}</h2>
           {(subtitle ?? c.installSub) && <p className="mb-3 text-xs leading-relaxed text-muted-foreground lg:mt-3 lg:text-base">{subtitle ?? c.installSub}</p>}
-          <div className="hidden lg:block"><InstallationSteps items={stepList} /></div>
+          <div className="hidden lg:block"><InstallationSteps items={stepList} activeStep={activeStep} /></div>
           {(cta ?? c.installCta) && <Button asChild variant="outline" size="sm" className="mt-3 w-full lg:mt-6 lg:w-auto"><Link to={href} search={search}>{cta || c.installCta}<ArrowRight /></Link></Button>}
         </div>
       </div>
@@ -167,8 +169,8 @@ export function V2Installation({ title, subtitle, steps, ready, adding, cta, hre
   );
 }
 
-function InstallationSteps({ items }: { items: readonly string[] }) {
-  return <ol className="mt-3 grid grid-cols-2 gap-x-3 gap-y-2 lg:mt-6 lg:grid-cols-1 lg:gap-3">{items.map((step, index) => <li key={step} className="grid min-w-0 grid-cols-[auto_minmax(0,1fr)] items-center gap-1.5 text-[10px] leading-snug text-muted-foreground lg:gap-3 lg:text-sm"><span className="grid size-5 shrink-0 place-items-center rounded-full bg-[var(--v2-service)] text-[9px] font-bold text-primary-foreground lg:size-8 lg:text-xs">{index + 1}</span><span>{step}</span></li>)}</ol>;
+function InstallationSteps({ items, activeStep }: { items: readonly string[]; activeStep?: number }) {
+  return <ol className="mt-3 grid grid-cols-2 gap-x-3 gap-y-2 lg:mt-6 lg:grid-cols-1 lg:gap-2">{items.map((step, index) => { const active = activeStep === index; return <li key={step} className={`grid min-w-0 grid-cols-[auto_minmax(0,1fr)] items-center gap-1.5 text-[10px] leading-snug transition-colors duration-300 lg:min-h-12 lg:gap-3 lg:rounded-xl lg:px-3 lg:text-sm ${active ? "lg:bg-primary-soft lg:font-bold lg:text-foreground" : "text-muted-foreground"}`}><span className={`grid size-5 shrink-0 place-items-center rounded-full text-[9px] font-bold transition-colors duration-300 lg:size-8 lg:text-xs ${active || activeStep == null ? "bg-[var(--v2-service)] text-primary-foreground" : "bg-secondary text-muted-foreground ring-1 ring-border"}`}>{String(index + 1).padStart(2, "0")}</span><span>{step}</span></li>; })}</ol>;
 }
 
 export function V2WhyTravely() {
@@ -191,7 +193,7 @@ export function V2GuidesRail({ title, lead, allLabel }: { title?: string; lead?:
     <section className="mb-4 pb-4">
       <SectionTitle action={<SeoPathLink path={`/${locale}/${locale === "tr" ? "rehber" : locale === "de" ? "ratgeber" : "guides"}`} className="inline-flex items-center gap-0.5 text-xs font-semibold text-primary">{allLabel || c.allGuides}<ArrowRight className="size-3.5" /></SeoPathLink>}>{title || c.guides}</SectionTitle>
       {(lead ?? c.guideLead) && <p className="-mt-0.5 mb-4 text-xs text-muted-foreground">{lead ?? c.guideLead}</p>}
-      <ul className="-mx-4 flex snap-x snap-mandatory scroll-px-4 gap-3 overflow-x-auto px-4 pb-1 [overscroll-behavior-inline:contain] [scrollbar-width:none] lg:mx-0 lg:grid lg:grid-cols-3 lg:gap-5 lg:overflow-visible lg:px-0">
+      <ul className="-mx-4 flex snap-x snap-mandatory scroll-px-4 gap-3 overflow-x-auto px-4 pb-1 [overscroll-behavior-inline:contain] [scrollbar-width:none] lg:mx-0 lg:grid lg:grid-cols-3 lg:gap-6 lg:overflow-visible lg:px-0">
         {data.slice(0, 3).map((guide) => <li key={guide.id} className="w-[84vw] max-w-[22rem] shrink-0 snap-start sm:w-[17rem] lg:w-auto lg:max-w-none"><SeoPathLink path={seoPath(guide.translationLocale, guide.contentType, guide.slug)} className="group block h-full overflow-hidden rounded-xl bg-card ring-1 ring-border">{guide.heroImageUrl ? <img src={guide.heroImageUrl} alt={guide.heroAlt ?? guide.title} loading="lazy" decoding="async" className="h-[8.5rem] w-full object-cover lg:h-48"/> : <div className="grid h-[8.5rem] place-items-center bg-muted lg:h-48"><BookOpen className="size-6 text-muted-foreground"/></div>}<div className="p-4">{guide.categoryName && <span className="text-[9px] font-bold uppercase text-primary">{guide.categoryName}</span>}<h3 className="mt-0.5 line-clamp-2 text-sm font-bold leading-snug text-foreground lg:text-lg">{guide.title}</h3>{guide.excerpt && <p className="mt-1 line-clamp-2 text-xs leading-snug text-muted-foreground lg:text-sm">{guide.excerpt}</p>}<ArrowRight className="ml-auto mt-1.5 size-4 text-primary"/></div></SeoPathLink></li>)}
       </ul>
     </section>
