@@ -4,6 +4,9 @@ import { useMemo, useState } from "react";
 import { z } from "zod";
 import { CalendarCheck, Headphones, LockKeyhole, Search, Sofa } from "lucide-react";
 import { CartBar, HeroField, heroInputClass, HowItWorks, money, PhotoCard, PhotoRail, pick, PromoCard, SectionTitle, TrustRow, V2Hero, V2Shell, V2_NOINDEX } from "@/components/design-v2/V2Shell";
+import { V2PickerSheet } from "@/components/design-v2/V2PickerSheet";
+import { Button } from "@/components/ui/button";
+import { CountryFlag } from "@/components/travel/CountryFlag";
 import { countryPhotoRegistry } from "@/components/travel/countryPhotos";
 import esimPromo from "@/assets/esim-cross-sell.jpg.asset.json";
 import { useI18n } from "@/i18n";
@@ -31,9 +34,9 @@ export const Route = createFileRoute("/design-v2/lounge")({
 });
 
 const T = {
-  tr: { h: "Havalimanında daha fazla konfor.", q: "Hangi havalimanından uçuyorsun?", ph: "Havalimanı ara, örn. IST", popular: "Popüler havalimanları", select: "Seç", added: "Eklendi", cart: "Sepete git", none: "Bu havalimanı için şu anda yayınlanmış Lounge yok.", back: "Başka havalimanı", terminal: "Terminal", stay: "dk kalış", access: "Lounge erişimi", online: "Online rezervasyon", pay: "Kolay seçim", support: "WhatsApp destek", from: "başlayan", promo: "Yurt dışında bağlantıda kal.", promoSub: "Seyahatin için eSIM al.", how: "Nasıl çalışır?", steps: [{ t: "Havalimanı seç", s: "Lounge seçeneklerini gör." }, { t: "Sepete ekle", s: "Lounge'unu seç." }, { t: "Hesabından takip et", s: "Rezervasyon bilgilerin hesabında." }] },
-  de: { h: "Mehr Komfort am Flughafen.", q: "Von welchem Flughafen fliegst du?", ph: "Flughafen, z. B. IST", popular: "Beliebte Flughäfen", select: "Wählen", added: "Hinzugefügt", cart: "Zum Warenkorb", none: "Für diesen Flughafen gibt es aktuell keine Lounge.", back: "Anderer Flughafen", terminal: "Terminal", stay: "Min. Aufenthalt", access: "Lounge-Zugang", online: "Online buchen", pay: "Einfache Auswahl", support: "WhatsApp-Support", from: "ab", promo: "Im Ausland verbunden bleiben.", promoSub: "eSIM für deine Reise.", how: "So funktioniert’s", steps: [{ t: "Flughafen wählen", s: "Lounges ansehen." }, { t: "In den Warenkorb", s: "Lounge auswählen." }, { t: "Im Konto verfolgen", s: "Buchungsdetails in deinem Konto." }] },
-  en: { h: "More comfort at the airport.", q: "Which airport are you flying from?", ph: "Search airport, e.g. IST", popular: "Popular airports", select: "Select", added: "Added", cart: "Go to cart", none: "No published lounges at this airport right now.", back: "Other airport", terminal: "Terminal", stay: "min stay", access: "Lounge access", online: "Book online", pay: "Easy choice", support: "WhatsApp support", from: "from", promo: "Stay connected abroad.", promoSub: "Get an eSIM for your trip.", how: "How it works", steps: [{ t: "Pick an airport", s: "See lounge options." }, { t: "Add to cart", s: "Choose your lounge." }, { t: "Track in your account", s: "Booking details in your account." }] },
+  tr: { h: "Havalimanında daha fazla konfor.", q: "Hangi havalimanından uçuyorsun?", ph: "Havalimanı ara, örn. IST", picker: "Havalimanı seç", empty: "Eşleşen havalimanı bulunamadı.", popular: "Popüler havalimanları", select: "Seç", added: "Eklendi", cart: "Sepete git", none: "Bu havalimanı için şu anda yayınlanmış Lounge yok.", back: "Başka havalimanı", terminal: "Terminal", stay: "dk kalış", access: "Lounge erişimi", online: "Online rezervasyon", pay: "Kolay seçim", support: "WhatsApp destek", from: "başlayan", promo: "Yurt dışında bağlantıda kal.", promoSub: "Seyahatin için eSIM al.", how: "Nasıl çalışır?", steps: [{ t: "Havalimanı seç", s: "Lounge seçeneklerini gör." }, { t: "Sepete ekle", s: "Yayınlanmış seçeneğini ekle." }, { t: "Hesabından takip et", s: "Rezervasyon bilgilerini gör." }] },
+  de: { h: "Mehr Komfort am Flughafen.", q: "Von welchem Flughafen fliegst du?", ph: "Flughafen, z. B. IST", picker: "Flughafen wählen", empty: "Kein passender Flughafen gefunden.", popular: "Beliebte Flughäfen", select: "Wählen", added: "Hinzugefügt", cart: "Zum Warenkorb", none: "Für diesen Flughafen gibt es aktuell keine Lounge.", back: "Anderer Flughafen", terminal: "Terminal", stay: "Min. Aufenthalt", access: "Lounge-Zugang", online: "Online buchen", pay: "Einfache Auswahl", support: "WhatsApp-Support", from: "ab", promo: "Im Ausland verbunden bleiben.", promoSub: "eSIM für deine Reise.", how: "So funktioniert’s", steps: [{ t: "Flughafen wählen", s: "Lounges ansehen." }, { t: "In den Warenkorb", s: "Verfügbare Option hinzufügen." }, { t: "Im Konto verfolgen", s: "Buchungsdetails ansehen." }] },
+  en: { h: "More comfort at the airport.", q: "Which airport are you flying from?", ph: "Search airport, e.g. IST", picker: "Choose airport", empty: "No matching airport found.", popular: "Popular airports", select: "Select", added: "Added", cart: "Go to cart", none: "No published lounges at this airport right now.", back: "Other airport", terminal: "Terminal", stay: "min stay", access: "Lounge access", online: "Book online", pay: "Easy choice", support: "WhatsApp support", from: "from", promo: "Stay connected abroad.", promoSub: "Get an eSIM for your trip.", how: "How it works", steps: [{ t: "Pick an airport", s: "See lounge options." }, { t: "Add to cart", s: "Add a published option." }, { t: "Track in account", s: "See booking details." }] },
 };
 
 function LoungeV2() {
@@ -42,11 +45,13 @@ function LoungeV2() {
   const { iata } = Route.useSearch();
   const navigate = Route.useNavigate();
   const [query, setQuery] = useState("");
+  const [pickerOpen, setPickerOpen] = useState(false);
   const { count } = useCart();
-  const matches = useMemo(() => (query.trim() ? searchAirports(query, 6) : []), [query]);
+  const matches = useMemo(() => searchAirports(query, 40), [query]);
   const airport = iata ? getAirportByIata(iata) : undefined;
   const choose = (code: string) => {
     setQuery("");
+    setPickerOpen(false);
     void navigate({ search: { iata: code } });
   };
 
@@ -54,20 +59,23 @@ function LoungeV2() {
     <V2Shell service="lounge">
       <V2Hero image={heroImage} eyebrow="Lounge" title={c.h} subtitle={c.q}>
         <HeroField icon={<Search className="size-5" />}>
-          <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder={c.ph} aria-label={c.ph} className={heroInputClass} />
+          <V2PickerSheet
+            open={pickerOpen}
+            onOpenChange={(open) => { setPickerOpen(open); if (!open) setQuery(""); }}
+            title={c.picker}
+            searchLabel={c.ph}
+            query={query}
+            onQueryChange={setQuery}
+            selectedId={airport?.iata}
+            emptyLabel={c.empty}
+            items={matches.map((item) => ({ id: item.iata, label: `${item.city[locale]} (${item.iata})`, detail: item.airport[locale], leading: <CountryFlag iso={item.countryIso} className="h-4 w-6 rounded-sm" /> }))}
+            onSelect={choose}
+          >
+            <Button type="button" variant="ghost" className={`${heroInputClass} justify-start font-normal hover:bg-transparent`}>
+              <span className="truncate">{airport ? `${airport.city[locale]} (${airport.iata})` : c.ph}</span>
+            </Button>
+          </V2PickerSheet>
         </HeroField>
-        {matches.length > 0 && (
-          <ul className="absolute inset-x-4 top-full z-20 mt-2 overflow-hidden rounded-2xl bg-card text-foreground shadow-lg ring-1 ring-border">
-            {matches.map((a) => (
-              <li key={a.iata}>
-                <button type="button" onClick={() => choose(a.iata)} className="flex min-h-12 w-full items-center gap-3 px-4 text-left text-sm font-medium hover:bg-muted">
-                  <span className="w-10 font-bold text-primary">{a.iata}</span>
-                  {a.airport[locale]}
-                </button>
-              </li>
-            ))}
-          </ul>
-        )}
       </V2Hero>
 
       {airport ? (

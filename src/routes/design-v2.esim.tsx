@@ -4,15 +4,18 @@ import { useMemo, useState } from "react";
 import { z } from "zod";
 import { Headphones, Infinity as InfinityIcon, LockKeyhole, Search, Signal, Zap } from "lucide-react";
 import { CartBar, HeroField, heroInputClass, HowItWorks, money, PhotoCard, PhotoRail, pick, PromoCard, SectionTitle, TrustRow, V2Hero, V2Shell, V2_NOINDEX } from "@/components/design-v2/V2Shell";
+import { V2PickerSheet } from "@/components/design-v2/V2PickerSheet";
+import { Button } from "@/components/ui/button";
 import { countryPhotoRegistry } from "@/components/travel/countryPhotos";
 import loungePromo from "@/assets/lounge-card.jpg.asset.json";
 import { CountryFlag } from "@/components/travel/CountryFlag";
 import { useI18n } from "@/i18n";
 import { useCart } from "@/domain/cart/store";
 import { getCountryByIso, POPULAR_COUNTRIES, searchCountries } from "@/domain/geo/countries";
-import { listEsimPackages, listEsimStartingPrices, type EsimPackage } from "@/lib/esim-catalogue.functions";
+import { listEsimDestinationStartingPrices, listEsimPackages, listEsimStartingPrices, type EsimPackage } from "@/lib/esim-catalogue.functions";
 import { customerPackageTitle } from "@/domain/esim/customer-presentation";
 import heroImage from "@/assets/esim-hero-mobile.jpg";
+import vignettePromo from "@/assets/v2-vignette-hero.jpg";
 
 const searchSchema = z.object({ country: z.string().max(2).catch("").default("") });
 
@@ -33,9 +36,9 @@ export const Route = createFileRoute("/design-v2/esim")({
 });
 
 const T = {
-  tr: { h: "Yurt dışında bağlantıda kal.", q: "Hangi ülke için eSIM arıyorsun?", ph: "Ülke ara, örn. İtalya", setup: "Hızlı kurulum", net: "4G / 5G", pay: "Kolay paket seçimi", support: "WhatsApp destek", popular: "Popüler eSIM ülkeleri", from: "başlayan", all: "Tüm paketler", unl: "Sınırsız", days: "gün", select: "Seç", added: "Eklendi", cart: "Sepete git", none: "Bu ülke için şu anda yayınlanmış paket yok.", noPrices: "Fiyatlar yakında burada.", back: "Başka ülke", unlimited: "Sınırsız", countries: "ülke", promo: "Havalimanında beklerken rahat et.", promoSub: "Lounge seçeneklerine göz at.", how: "Nasıl çalışır?", steps: [{ t: "Ülkeni seç", s: "Sana uygun paketi bul." }, { t: "Sepete ekle", s: "Paketini seç, sepete ekle." }, { t: "Kur ve bağlan", s: "Kurulum bilgilerini hesabından takip et." }] },
-  de: { h: "Im Ausland verbunden bleiben.", q: "Für welches Land suchst du eine eSIM?", ph: "Land suchen, z. B. Türkei", setup: "Schnelle Einrichtung", net: "4G / 5G", pay: "Einfache Paketwahl", support: "WhatsApp-Support", popular: "Beliebte eSIM-Länder", from: "ab", all: "Alle Pakete", unl: "Unbegrenzt", days: "Tage", select: "Wählen", added: "Hinzugefügt", cart: "Zum Warenkorb", none: "Für dieses Land gibt es aktuell keine Pakete.", noPrices: "Preise folgen in Kürze.", back: "Anderes Land", unlimited: "Unbegrenzt", countries: "Länder", promo: "Entspannt warten am Flughafen.", promoSub: "Lounges ansehen.", how: "So funktioniert’s", steps: [{ t: "Land wählen", s: "Passendes Paket finden." }, { t: "In den Warenkorb", s: "Paket wählen und hinzufügen." }, { t: "Einrichten & verbinden", s: "Einrichtungsinfos findest du in deinem Konto." }] },
-  en: { h: "Stay connected abroad.", q: "Which country do you need an eSIM for?", ph: "Search country, e.g. Italy", setup: "Fast setup", net: "4G / 5G", pay: "Easy plan choice", support: "WhatsApp support", popular: "Popular eSIM destinations", from: "from", all: "All plans", unl: "Unlimited", days: "days", select: "Select", added: "Added", cart: "Go to cart", none: "No published plans for this country right now.", noPrices: "Prices coming soon.", back: "Other country", unlimited: "Unlimited", countries: "countries", promo: "Relax while you wait.", promoSub: "Browse airport lounges.", how: "How it works", steps: [{ t: "Pick a country", s: "Find the right plan." }, { t: "Add to cart", s: "Pick your plan and add it." }, { t: "Set up & connect", s: "Find setup details in your account." }] },
+  tr: { h: "Yurt dışında bağlantıda kal.", q: "Hangi ülke için eSIM arıyorsun?", ph: "Ülke ara, örn. İtalya", picker: "Ülke seç", empty: "Eşleşen ülke bulunamadı.", setup: "Hızlı kurulum", net: "4G / 5G", pay: "Kolay paket seçimi", support: "WhatsApp destek", popular: "Popüler eSIM ülkeleri", from: "başlayan", all: "Tüm paketler", unl: "Sınırsız", days: "gün", select: "Seç", added: "Eklendi", cart: "Sepete git", none: "Bu ülke için şu anda yayınlanmış paket yok.", noPrices: "Fiyatlar yakında burada.", back: "Başka ülke", unlimited: "Sınırsız", countries: "ülke", promo: "Havalimanında beklerken rahat et.", promoSub: "Lounge seçeneklerine göz at.", vignettePromo: "Avrupa yollarını keşfet.", vignettePromoSub: "Vinyet hizmetinin durumuna göz at.", how: "Nasıl çalışır?", steps: [{ t: "Ülkeni seç", s: "Sana uygun paketi bul." }, { t: "Sepete ekle", s: "Paketini seç, sepete ekle." }, { t: "Kur ve bağlan", s: "Kurulum bilgilerini hesabından takip et." }] },
+  de: { h: "Im Ausland verbunden bleiben.", q: "Für welches Land suchst du eine eSIM?", ph: "Land suchen, z. B. Türkei", picker: "Land wählen", empty: "Kein passendes Land gefunden.", setup: "Schnelle Einrichtung", net: "4G / 5G", pay: "Einfache Paketwahl", support: "WhatsApp-Support", popular: "Beliebte eSIM-Länder", from: "ab", all: "Alle Pakete", unl: "Unbegrenzt", days: "Tage", select: "Wählen", added: "Hinzugefügt", cart: "Zum Warenkorb", none: "Für dieses Land gibt es aktuell keine Pakete.", noPrices: "Preise folgen in Kürze.", back: "Anderes Land", unlimited: "Unbegrenzt", countries: "Länder", promo: "Entspannt warten am Flughafen.", promoSub: "Lounges ansehen.", vignettePromo: "Europas Straßen entdecken.", vignettePromoSub: "Status des Vignettenangebots ansehen.", how: "So funktioniert’s", steps: [{ t: "Land wählen", s: "Passendes Paket finden." }, { t: "In den Warenkorb", s: "Paket wählen und hinzufügen." }, { t: "Einrichten & verbinden", s: "Einrichtungsinfos findest du in deinem Konto." }] },
+  en: { h: "Stay connected abroad.", q: "Which country do you need an eSIM for?", ph: "Search country, e.g. Italy", picker: "Choose country", empty: "No matching country found.", setup: "Fast setup", net: "4G / 5G", pay: "Easy plan choice", support: "WhatsApp support", popular: "Popular eSIM destinations", from: "from", all: "All plans", unl: "Unlimited", days: "days", select: "Select", added: "Added", cart: "Go to cart", none: "No published plans for this country right now.", noPrices: "Prices coming soon.", back: "Other country", unlimited: "Unlimited", countries: "countries", promo: "Relax while you wait.", promoSub: "Browse airport lounges.", vignettePromo: "Explore Europe's roads.", vignettePromoSub: "Check the status of Vignette service.", how: "How it works", steps: [{ t: "Pick a country", s: "Find the right plan." }, { t: "Add to cart", s: "Pick your plan and add it." }, { t: "Set up & connect", s: "Find setup details in your account." }] },
 };
 
 function EsimV2() {
@@ -44,11 +47,18 @@ function EsimV2() {
   const { country } = Route.useSearch();
   const navigate = Route.useNavigate();
   const [query, setQuery] = useState("");
+  const [pickerOpen, setPickerOpen] = useState(false);
   const { count } = useCart();
-  const matches = useMemo(() => (query.trim() ? searchCountries(query, 6) : []), [query]);
+  const prices = useQuery({ queryKey: ["v2-esim-destinations"], queryFn: () => listEsimDestinationStartingPrices() });
+  const priceMap = useMemo(() => new Map((prices.data ?? []).map((price) => [price.targetId, price])), [prices.data]);
+  const matches = useMemo(
+    () => searchCountries(query, 250).filter((item) => priceMap.has(item.iso)),
+    [priceMap, query],
+  );
   const selected = country ? getCountryByIso(country.toUpperCase()) : undefined;
   const choose = (iso: string) => {
     setQuery("");
+    setPickerOpen(false);
     void navigate({ search: { country: iso } });
   };
 
@@ -56,20 +66,26 @@ function EsimV2() {
     <V2Shell service="esim">
       <V2Hero image={heroImage} eyebrow="eSIM" title={c.h} subtitle={c.q}>
         <HeroField icon={<Search className="size-5" />}>
-          <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder={c.ph} aria-label={c.ph} className={heroInputClass} />
+          <V2PickerSheet
+            open={pickerOpen}
+            onOpenChange={(open) => { setPickerOpen(open); if (!open) setQuery(""); }}
+            title={c.picker}
+            searchLabel={c.ph}
+            query={query}
+            onQueryChange={setQuery}
+            selectedId={selected?.iso}
+            emptyLabel={prices.isLoading ? "…" : c.empty}
+            items={matches.map((item) => {
+              const price = priceMap.get(item.iso);
+              return { id: item.iso, label: item.name[locale], leading: <CountryFlag iso={item.iso} className="h-4 w-6 rounded-sm" />, price: price ? `${money(price.amount, price.currency)} ${c.from}` : undefined };
+            })}
+            onSelect={choose}
+          >
+            <Button type="button" variant="ghost" className={`${heroInputClass} justify-start font-normal hover:bg-transparent`}>
+              <span className="truncate">{selected?.name[locale] ?? c.ph}</span>
+            </Button>
+          </V2PickerSheet>
         </HeroField>
-        {matches.length > 0 && (
-          <ul className="absolute inset-x-4 top-full z-20 mt-2 overflow-hidden rounded-2xl bg-card text-foreground shadow-lg ring-1 ring-border">
-            {matches.map((m) => (
-              <li key={m.iso}>
-                <button type="button" onClick={() => choose(m.iso)} className="flex min-h-12 w-full items-center gap-3 px-4 text-left text-sm font-medium hover:bg-muted">
-                  <CountryFlag iso={m.iso} className="h-4 w-6 rounded-sm" />
-                  {m.name[locale]}
-                </button>
-              </li>
-            ))}
-          </ul>
-        )}
       </V2Hero>
 
       {selected ? (
@@ -86,6 +102,7 @@ function EsimV2() {
           />
           <Popular c={c} onPick={choose} />
           <PromoCard image={loungePromo.url} title={c.promo} sub={c.promoSub} to="/design-v2/lounge" />
+           <PromoCard image={vignettePromo} title={c.vignettePromo} sub={c.vignettePromoSub} to="/design-v2/vignette" />
           <HowItWorks title={c.how} steps={c.steps} />
         </>
       )}
