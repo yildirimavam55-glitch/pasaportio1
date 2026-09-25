@@ -55,7 +55,7 @@ export function V2InstallAnimation({ steps, ready, adding }: { steps: readonly s
   const p = reduced ? 3 : phase;
 
   return (
-    <div ref={ref} className="grid grid-cols-[6.5rem_minmax(0,1fr)] items-center gap-4 rounded-2xl bg-muted/50 p-4 ring-1 ring-border">
+    <div ref={ref} className="grid grid-cols-[6.5rem_minmax(0,1fr)] items-center gap-4 rounded-2xl bg-muted/50 p-4 ring-1 ring-border lg:flex lg:min-h-[19rem] lg:justify-center lg:p-8">
       <div aria-hidden className="relative mx-auto h-[12.5rem] w-[6.5rem] rounded-[1.4rem] bg-foreground/90 p-1.5 shadow-lg">
         <div className="relative h-full w-full overflow-hidden rounded-[1.05rem] bg-card">
           <div className="absolute left-1/2 top-1.5 h-1.5 w-8 -translate-x-1/2 rounded-full bg-foreground/80" />
@@ -84,7 +84,7 @@ export function V2InstallAnimation({ steps, ready, adding }: { steps: readonly s
           </div>
         </div>
       </div>
-      <ol className="grid gap-2">
+      <ol className="grid gap-2 lg:hidden">
         {steps.map((step, i) => {
           const on = i === p;
           return (

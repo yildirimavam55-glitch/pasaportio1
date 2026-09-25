@@ -2,12 +2,13 @@
 
 ## V2 complete desktop design system
 
-- [ ] Build one shared responsive customer shell and desktop navigation while preserving approved mobile navigation
-- [ ] Adapt eSIM, Lounge, and Vignette discovery sections to desktop using the existing storefront configuration
-- [ ] Adapt country/regional packages, selected-product controls, cart, checkout, auth, and account layouts
-- [ ] Adapt guides, article pages, support, footer, sticky search, and WhatsApp placement
-- [ ] Run the full mobile/tablet/desktop visual and functional regression matrix
-- [ ] Capture the requested real implementation screenshots and report without publishing
+- [x] Build one shared responsive customer shell and desktop navigation while preserving approved mobile navigation
+- [x] Correct nested desktop width constraints and verify measured 1200–1280px composition
+- [x] Adapt eSIM, Lounge, and Vignette discovery sections to desktop using the existing storefront configuration
+- [x] Adapt country/regional packages, selected-product controls, cart, checkout, auth, and account layouts
+- [x] Adapt guides, article pages, support, footer, sticky search, and WhatsApp placement
+- [x] Run the full mobile/tablet/desktop visual and functional regression matrix
+- [x] Capture the requested real implementation screenshots and report without publishing
 
 ## V2 regional eSIM discovery and results
 
