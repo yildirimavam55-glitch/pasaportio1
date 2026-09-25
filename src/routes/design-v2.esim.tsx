@@ -266,11 +266,11 @@ function Packages({ iso, name, c }: { iso: string; name: string; c: (typeof T)["
               <li key={p.id} className="min-w-0">
                 <Button type="button" variant="outline" onClick={() => setDetail(p)} className={`relative h-24 w-full flex-col items-start justify-start gap-0 rounded-xl bg-card p-2.5 pr-9 text-left shadow-sm ${inCart ? "ring-2 ring-primary" : ""}`}>
                   <Info className="absolute right-2.5 top-2.5 size-4 text-muted-foreground"/>
-                   <span className="flex min-w-0 max-w-full items-center gap-1.5 whitespace-nowrap font-display text-lg font-bold leading-6 text-foreground">
-                     {p.unlimited ? (<><InfinityIcon className="size-4 shrink-0 text-muted-foreground" /><span className="truncate">{c.unlimited}</span></>) : `${p.dataGb ?? "—"} GB`}
+                   <span className="flex min-w-0 max-w-full items-center gap-1 whitespace-nowrap font-display text-[17px] font-bold leading-6 text-foreground">
+                     {p.unlimited ? (<><InfinityIcon className="size-3.5 shrink-0 text-muted-foreground" /><span>{c.unlimited}</span></>) : `${p.dataGb ?? "—"} GB`}
                   </span>
                    <span className="mt-1 text-xs font-normal leading-4 text-muted-foreground">{p.validityDays ? `${p.validityDays} ${c.days}` : ""}</span>
-                   <span className="mt-2 text-lg font-bold leading-5 text-primary">{p.salePrice != null ? money(p.salePrice, p.currency) : ""}</span>
+                   <span className="mt-2 text-base font-bold leading-5 text-primary">{p.salePrice != null ? money(p.salePrice, p.currency) : ""}</span>
                    {inCart && <span className="absolute bottom-2.5 right-2.5 text-[9px] font-bold leading-none text-primary">{c.added}</span>}
                 </Button>
               </li>
