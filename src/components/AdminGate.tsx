@@ -48,6 +48,7 @@ const groups: AdminGroup[] = [
     { to: "/admin/pricing-rules", label: "Fiyatlandırma kuralları", icon: CircleDollarSign },
   ]},
   { label: "Mağaza yönetimi", links: [
+    { to: "/admin/storefront", label: "V2 Storefront", icon: LayoutTemplate },
     { to: "/admin/storefront/home", label: "Ana sayfa düzenleyici", icon: LayoutTemplate },
     { to: "/admin/storefront/navigation", label: "Menü & alt bilgi", icon: Menu },
     { to: "/admin/cms", label: "Sayfalar / CMS", icon: MonitorCog },

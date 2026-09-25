@@ -162,14 +162,24 @@ function DesktopNav({ active }: { active?: V2Nav | undefined }) {
   );
 }
 
-/** Full-bleed photo hero with the search floating over its bottom edge. */
-export function V2Hero({ image, eyebrow, title, subtitle, children }: { image: string; eyebrow?: string; title: string; subtitle?: string; children?: ReactNode }) {
+const HERO_HEIGHT = { compact: "h-[14.5rem]", normal: "h-[17rem]", tall: "h-[20rem]" } as const;
+const HERO_OVERLAY = {
+  light: "from-[var(--v2-service)]/80 via-[var(--v2-service)]/15 to-transparent",
+  normal: "from-[var(--v2-service)]/95 via-[var(--v2-service)]/30 to-transparent",
+  strong: "from-[var(--v2-service)]/95 via-[var(--v2-service)]/60 to-[var(--v2-service)]/20",
+} as const;
+
+/** Full-bleed photo hero with the search floating over its bottom edge. Presets only — no free CSS. */
+export function V2Hero({ image, desktopImage, alt = "", eyebrow, title, subtitle, align = "left", height = "normal", overlay = "normal", children }: { image: string; desktopImage?: string | undefined; alt?: string; eyebrow?: string; title: string; subtitle?: string; align?: "left" | "center"; height?: keyof typeof HERO_HEIGHT; overlay?: keyof typeof HERO_OVERLAY; children?: ReactNode }) {
   return (
     <section className="relative -mx-4">
-      <div className="relative h-[17rem] overflow-hidden text-primary-foreground sm:mx-4 sm:mt-3 sm:rounded-3xl">
-        <img src={image} alt="" fetchPriority="high" decoding="async" width={1024} height={768} className="absolute inset-0 size-full object-cover" />
-        <div className="absolute inset-0 bg-gradient-to-t from-[var(--v2-service)]/95 via-[var(--v2-service)]/30 to-transparent" />
-        <div className="absolute inset-x-5 bottom-10 max-w-[21rem]">
+      <div className={`relative ${HERO_HEIGHT[height]} overflow-hidden text-primary-foreground sm:mx-4 sm:mt-3 sm:rounded-3xl`}>
+        <picture>
+          {desktopImage && <source media="(min-width: 640px)" srcSet={desktopImage} />}
+          {image && <img src={image} alt={alt} fetchPriority="high" decoding="async" width={1024} height={768} className="absolute inset-0 size-full object-cover" />}
+        </picture>
+        <div className={`absolute inset-0 bg-gradient-to-t ${HERO_OVERLAY[overlay]}`} />
+        <div className={`absolute inset-x-5 bottom-10 max-w-[21rem] ${align === "center" ? "mx-auto text-center" : ""}`}>
           {eyebrow && <p className="text-sm font-semibold opacity-95">{eyebrow}</p>}
           <h1 className="mt-0.5 font-display text-[1.85rem] font-bold leading-[1.04]">{title}</h1>
           {subtitle && <p className="mt-1.5 text-[13px] font-medium leading-snug opacity-90">{subtitle}</p>}
@@ -242,10 +252,10 @@ export function PhotoCard({ image, badge, title, sub, price, onClick }: { image?
   );
 }
 
-export function PromoCard({ image, title, sub, to }: { image: string; title: string; sub?: string; to: "/design-v2/esim" | "/design-v2/lounge" | "/design-v2/vignette" }) {
+export function PromoCard({ image, title, sub, to }: { image: string; title: string; sub?: string; to: "/design-v2/esim" | "/design-v2/lounge" | "/design-v2/vignette" | "/design-v2/support" | "/design-v2/cart" | "/design-v2/account" }) {
   return (
     <Link to={to} search={(to === "/design-v2/esim" ? { country: "" } : to === "/design-v2/lounge" ? { iata: "" } : undefined) as never} className="relative mt-5 block h-24 overflow-hidden rounded-xl text-primary-foreground">
-      <img src={image} alt="" loading="lazy" decoding="async" className="absolute inset-0 size-full object-cover" />
+      {image && <img src={image} alt="" loading="lazy" decoding="async" className="absolute inset-0 size-full object-cover" />}
       <div className="absolute inset-0 bg-gradient-to-r from-[var(--v2-service)]/95 via-[var(--v2-service)]/60 to-transparent" />
       <div className="relative flex h-full items-center justify-between gap-3 p-4">
         <div className="min-w-0">

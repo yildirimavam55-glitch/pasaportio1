@@ -2,26 +2,25 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useQueries, useQuery } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 import { z } from "zod";
-import { CalendarCheck, Headphones, LockKeyhole, Search, Sofa } from "lucide-react";
-import { CartBar, HeroField, heroInputClass, HowItWorks, money, PhotoCard, PhotoRail, pick, PromoCard, SectionTitle, TrustRow, useV2StickySearch, V2Hero, V2Shell, V2StickySearchButton, V2_NOINDEX } from "@/components/design-v2/V2Shell";
+import { Search } from "lucide-react";
+import { CartBar, HeroField, heroInputClass, money, PhotoCard, PhotoRail, pick, SectionTitle, useV2StickySearch, V2Hero, V2Shell, V2StickySearchButton, V2_NOINDEX } from "@/components/design-v2/V2Shell";
 import { V2PickerSheet } from "@/components/design-v2/V2PickerSheet";
 import { Button } from "@/components/ui/button";
 import { CountryFlag } from "@/components/travel/CountryFlag";
 import { countryPhotoRegistry } from "@/components/travel/countryPhotos";
-import esimPromo from "@/assets/esim-cross-sell.jpg.asset.json";
 import { useI18n } from "@/i18n";
 import { useCart } from "@/domain/cart/store";
-import { getAirport, getAirportByIata, POPULAR_AIRPORT_IDS, searchAirports } from "@/domain/geo/airports";
+import { getAirportByIata, searchAirports } from "@/domain/geo/airports";
 import { listLoungeOptions, type LoungeOption } from "@/lib/lounge-catalogue.functions";
-import heroImage from "@/assets/lounge-hero-mobile.jpg";
-import vignettePromo from "@/assets/v2-vignette-hero.jpg";
-import { V2CompactFaq, V2GuidesRail, V2InfoGrid } from "@/components/design-v2/V2DiscoveryContent";
+import { mediaUrl, useV2Page, V2Sections, v2PageQuery } from "@/components/design-v2/V2Sections";
+import { v2Text, type V2Section } from "@/domain/storefront/v2";
 import { V2ProductSelectionCard, V2SelectedProductSummary } from "@/components/design-v2/V2ProductSelection";
 
 const searchSchema = z.object({ iata: z.string().max(3).catch("").default("") });
 
 export const Route = createFileRoute("/design-v2/lounge")({
   validateSearch: (s) => searchSchema.parse(s),
+  loader: ({ context }) => context.queryClient.ensureQueryData(v2PageQuery("lounge")),
   head: () => ({
     meta: [
       { title: "Lounge — Design V2 preview" },
@@ -50,6 +49,9 @@ function LoungeV2() {
   const [query, setQuery] = useState("");
   const [pickerOpen, setPickerOpen] = useState(false);
   const { heroSearchRef, heroSearchVisible } = useV2StickySearch();
+  const { config, media } = useV2Page("lounge");
+  const heroSection = config.sections[0];
+  const stickyLabel = v2Text(heroSection, "sticky", locale) || v2Text(heroSection, "placeholder", locale) || c.ph;
   const { lines, addLine, updateQuantity, count } = useCart();
   const [selectedOffer, setSelectedOffer] = useState<LoungeOption | null>(null);
   const [selectionQuantity, setSelectionQuantity] = useState(1);
@@ -74,8 +76,15 @@ function LoungeV2() {
   const summary = selectedOffer ? <V2SelectedProductSummary title={selectedOffer.loungeName ?? selectedOffer.name} subtitle={[selectedOffer.iata, selectedOffer.terminal ? `${c.terminal} ${selectedOffer.terminal}` : null].filter(Boolean).join(" · ")} price={money(selectedOffer.salePrice ?? 0, selectedOffer.currency)} quantity={selectedCartLine?.quantity ?? selectionQuantity} inCart={Boolean(selectedCartLine)} addLabel={c.select} addedLabel={c.added} cartLabel={c.cart} decreaseLabel={c.decrease} increaseLabel={c.increase} whatsappLabel={c.support} onQuantityChange={(quantity) => selectedCartLine ? updateQuantity(selectedCartLine.productId, quantity) : setSelectionQuantity(quantity)} onAdd={addSelectedOffer} /> : undefined;
 
   return (
-    <V2Shell service="lounge" commerceSelection={Boolean(selectedOffer)} purchaseSummary={summary} stickySearch={!airport ? <V2StickySearchButton heroSearchVisible={heroSearchVisible} label={c.ph} onOpen={() => setPickerOpen(true)} /> : undefined}>
-      <V2Hero image={heroImage} eyebrow="Lounge" title={c.h} subtitle={c.q}>
+    <V2Shell service="lounge" commerceSelection={Boolean(selectedOffer)} purchaseSummary={summary} stickySearch={!airport ? <V2StickySearchButton heroSearchVisible={heroSearchVisible} label={stickyLabel} onOpen={() => setPickerOpen(true)} /> : undefined}>
+
+      <V2Sections
+        config={config}
+        media={media}
+        {...(airport ? { only: (section: V2Section) => section.type === "SEARCH_HERO" } : {})}
+        slots={{
+          hero: (section) => (
+      <V2Hero image={mediaUrl(section.mobileMediaId ?? section.mediaId, media) ?? ""} desktopImage={mediaUrl(section.mediaId, media)} eyebrow={v2Text(section, "eyebrow", locale)} title={v2Text(section, "title", locale)} subtitle={v2Text(section, "subtitle", locale)} align={section.align} height={section.height} overlay={section.overlay}>
         <div ref={heroSearchRef}><HeroField icon={<Search className="size-5" />}>
           <V2PickerSheet
             open={pickerOpen}
@@ -90,45 +99,30 @@ function LoungeV2() {
             onSelect={choose}
           >
             <Button type="button" variant="ghost" className={`${heroInputClass} justify-start font-normal hover:bg-transparent`}>
-              <span className="truncate">{airport ? `${airport.city[locale]} (${airport.iata})` : c.ph}</span>
+              <span className="truncate">{airport ? `${airport.city[locale]} (${airport.iata})` : v2Text(section, "placeholder", locale) || c.ph}</span>
             </Button>
           </V2PickerSheet>
         </HeroField></div>
       </V2Hero>
-
-      {airport ? (
+          ),
+          destinations: (section) => <PopularAirports c={c} section={section} onPick={choose} />,
+        }}
+      />
+      {airport && <>
         <Lounges iata={airport.iata} title={`${airport.iata} · ${airport.airport[locale]}`} c={c} selectedOffer={selectedOffer} onSelect={selectOffer} onBack={() => { setSelectedOffer(null); void navigate({ search: { iata: "" } }); }} />
-      ) : (
-        <>
-          <TrustRow
-            items={[
-              { icon: <Sofa className="size-6" />, label: c.access },
-              { icon: <CalendarCheck className="size-6" />, label: c.online },
-              { icon: <LockKeyhole className="size-6" />, label: c.pay },
-              { icon: <Headphones className="size-6" />, label: c.support },
-            ]}
-          />
-          <PopularAirports c={c} onPick={choose} />
-          <V2InfoGrid title={c.info} items={[...c.infoItems]} />
-          <PromoCard image={esimPromo.url} title={c.promo} sub={c.promoSub} to="/design-v2/esim" />
-          <HowItWorks title={c.how} steps={c.steps} />
-          <PromoCard image={vignettePromo} title={c.vignette} sub={c.vignetteSub} to="/design-v2/vignette" />
-          <V2GuidesRail />
-          <V2CompactFaq title={c.faq} questions={c.questions} />
-        </>
-      )}
-      {airport && <><V2InfoGrid title={c.info} items={[...c.infoItems]} /><PromoCard image={esimPromo.url} title={c.promo} sub={c.promoSub} to="/design-v2/esim" /><V2GuidesRail /><V2CompactFaq title={c.faq} questions={c.questions} /></>}
+        <V2Sections config={config} media={media} only={(section) => section.showOnResults && section.type !== "SEARCH_HERO"} slots={{ hero: () => null }} />
+      </>}
       <CartBar count={count} label={c.cart} />
     </V2Shell>
   );
 }
 
-function PopularAirports({ c, onPick }: { c: (typeof T)["tr"]; onPick: (iata: string) => void }) {
+function PopularAirports({ c, section, onPick }: { c: (typeof T)["tr"]; section: V2Section; onPick: (iata: string) => void }) {
   const { locale } = useI18n();
-  const airports = POPULAR_AIRPORT_IDS.flatMap((id) => {
-    const a = getAirport(id);
+  const airports = section.items.filter((item) => item.visible).flatMap((item) => {
+    const a = getAirportByIata(item.entity);
     return a ? [a] : [];
-  }).slice(0, 8);
+  });
   const results = useQueries({
     queries: airports.map((a) => ({
       queryKey: ["v2-lounges", a.iata],
@@ -138,7 +132,7 @@ function PopularAirports({ c, onPick }: { c: (typeof T)["tr"]; onPick: (iata: st
   });
   return (
     <>
-      <SectionTitle>{c.popular}</SectionTitle>
+      <SectionTitle>{v2Text(section, "title", locale) || c.popular}</SectionTitle>
       <PhotoRail>
         {airports.map((a, i) => {
           const prices = (results[i]?.data ?? []).flatMap((o) => (o.salePrice != null ? [{ v: o.salePrice, cur: o.currency }] : []));

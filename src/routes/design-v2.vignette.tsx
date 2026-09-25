@@ -1,16 +1,15 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { Car, FileCheck2, Map, ShieldCheck, Smartphone } from "lucide-react";
+import { Car } from "lucide-react";
 import { useState } from "react";
-import { HeroField, heroInputClass, HowItWorks, pick, PromoCard, TrustRow, useV2StickySearch, V2Hero, V2Shell, V2StickySearchButton, V2_NOINDEX } from "@/components/design-v2/V2Shell";
+import { HeroField, heroInputClass, pick, useV2StickySearch, V2Hero, V2Shell, V2StickySearchButton, V2_NOINDEX } from "@/components/design-v2/V2Shell";
 import { V2PickerSheet } from "@/components/design-v2/V2PickerSheet";
 import { Button } from "@/components/ui/button";
 import { useI18n } from "@/i18n";
-import heroImage from "@/assets/v2-vignette-hero.jpg";
-import esimPromo from "@/assets/esim-cross-sell.jpg.asset.json";
-import loungePromo from "@/assets/lounge-card.jpg.asset.json";
-import { V2CompactFaq, V2GuidesRail, V2InfoGrid } from "@/components/design-v2/V2DiscoveryContent";
+import { mediaUrl, useV2Page, V2Sections, v2PageQuery } from "@/components/design-v2/V2Sections";
+import { v2Text } from "@/domain/storefront/v2";
 
 export const Route = createFileRoute("/design-v2/vignette")({
+  loader: ({ context }) => context.queryClient.ensureQueryData(v2PageQuery("vignette")),
   head: () => ({
     meta: [
       { title: "Vignette — Design V2 preview" },
@@ -37,26 +36,27 @@ function VignetteV2() {
   const [pickerOpen, setPickerOpen] = useState(false);
   const [query, setQuery] = useState("");
   const { heroSearchRef, heroSearchVisible } = useV2StickySearch();
+  const { config, media } = useV2Page("vignette");
+  const heroSection = config.sections[0];
+  const placeholder = v2Text(heroSection, "placeholder", locale) || c.q;
+  const stickyLabel = v2Text(heroSection, "sticky", locale) || placeholder;
   return (
-    <V2Shell service="vignette" stickySearch={<V2StickySearchButton heroSearchVisible={heroSearchVisible} label={c.q} onOpen={() => setPickerOpen(true)} />}>
-      <V2Hero image={heroImage} eyebrow="Vignette" title={c.h}>
-        <div ref={heroSearchRef}><HeroField icon={<Car className="size-5" />}>
-          <V2PickerSheet open={pickerOpen} onOpenChange={setPickerOpen} title={c.picker} searchLabel={c.q} query={query} onQueryChange={setQuery} items={[]} onSelect={() => undefined} emptyLabel={c.empty}>
-            <Button type="button" variant="ghost" className={`${heroInputClass} justify-start font-normal hover:bg-transparent`}>{c.q}</Button>
-          </V2PickerSheet>
-        </HeroField></div>
-      </V2Hero>
-      <TrustRow items={[{ icon: <Smartphone className="size-6" />, label: c.digital }, { icon: <FileCheck2 className="size-6" />, label: c.official }, { icon: <ShieldCheck className="size-6" />, label: c.secure }, { icon: <Map className="size-6" />, label: c.europe }]} />
-      <div className="mt-6 rounded-3xl bg-card p-5 ring-1 ring-border">
-        <p className="font-display text-base font-bold text-foreground">{c.soon}</p>
-        <p className="mt-1 text-sm text-muted-foreground">{c.soonSub}</p>
-      </div>
-      <V2InfoGrid title={c.info} items={[...c.infoItems]} />
-      <HowItWorks title={c.how} steps={[...c.steps]} />
-      <PromoCard image={esimPromo.url} title={c.esim} to="/design-v2/esim" />
-      <PromoCard image={loungePromo.url} title={c.lounge} to="/design-v2/lounge" />
-      <V2GuidesRail />
-      <V2CompactFaq title={c.faq} questions={c.questions} />
+    <V2Shell service="vignette" stickySearch={<V2StickySearchButton heroSearchVisible={heroSearchVisible} label={stickyLabel} onOpen={() => setPickerOpen(true)} />}>
+      <V2Sections
+        config={config}
+        media={media}
+        slots={{
+          hero: (section) => (
+            <V2Hero image={mediaUrl(section.mobileMediaId ?? section.mediaId, media) ?? ""} desktopImage={mediaUrl(section.mediaId, media)} eyebrow={v2Text(section, "eyebrow", locale)} title={v2Text(section, "title", locale)} subtitle={v2Text(section, "subtitle", locale)} align={section.align} height={section.height} overlay={section.overlay}>
+              <div ref={heroSearchRef}><HeroField icon={<Car className="size-5" />}>
+                <V2PickerSheet open={pickerOpen} onOpenChange={setPickerOpen} title={c.picker} searchLabel={placeholder} query={query} onQueryChange={setQuery} items={[]} onSelect={() => undefined} emptyLabel={c.empty}>
+                  <Button type="button" variant="ghost" className={`${heroInputClass} justify-start font-normal hover:bg-transparent`}>{placeholder}</Button>
+                </V2PickerSheet>
+              </HeroField></div>
+            </V2Hero>
+          ),
+        }}
+      />
     </V2Shell>
   );
 }
