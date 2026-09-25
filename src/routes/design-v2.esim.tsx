@@ -1,8 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { z } from "zod";
-import { Headphones, Infinity as InfinityIcon, LockKeyhole, Search, Signal, Zap } from "lucide-react";
+import { Headphones, Infinity as InfinityIcon, LockKeyhole, MapPin, MessageCircle, Search, Share2, Signal, Video, Zap } from "lucide-react";
 import { CartBar, HeroField, heroInputClass, HowItWorks, money, PhotoCard, PhotoRail, pick, PromoCard, SectionTitle, TrustRow, V2Hero, V2Shell, V2_NOINDEX } from "@/components/design-v2/V2Shell";
 import { V2PickerSheet } from "@/components/design-v2/V2PickerSheet";
 import { Button } from "@/components/ui/button";
@@ -14,6 +14,11 @@ import { useCart } from "@/domain/cart/store";
 import { getCountryByIso, POPULAR_COUNTRIES, searchCountries } from "@/domain/geo/countries";
 import { listEsimDestinationStartingPrices, listEsimPackages, listEsimStartingPrices, type EsimPackage } from "@/lib/esim-catalogue.functions";
 import { customerPackageTitle } from "@/domain/esim/customer-presentation";
+import { buildCustomerShortlist } from "@/domain/esim/shortlist";
+import { estimateUsageNeed, type EsimUsageSettings } from "@/domain/esim/usage-recommendation";
+import { getEsimUsageSettings } from "@/lib/esim-settings.functions";
+import type { UsageKind } from "@/domain/experience/types";
+import { V2Compatibility, V2DataEducation, V2EsimFaq, V2GuidesRail, V2Installation } from "@/components/design-v2/V2DiscoveryContent";
 import heroImage from "@/assets/esim-hero-mobile.jpg";
 import vignettePromo from "@/assets/v2-vignette-hero.jpg";
 
@@ -36,9 +41,9 @@ export const Route = createFileRoute("/design-v2/esim")({
 });
 
 const T = {
-  tr: { h: "Yurt dışında bağlantıda kal.", q: "Hangi ülke için eSIM arıyorsun?", ph: "Ülke ara, örn. İtalya", picker: "Ülke seç", empty: "Eşleşen ülke bulunamadı.", setup: "Hızlı kurulum", net: "4G / 5G", pay: "Kolay paket seçimi", support: "WhatsApp destek", popular: "Popüler eSIM ülkeleri", from: "başlayan", all: "Tüm paketler", unl: "Sınırsız", days: "gün", select: "Seç", added: "Eklendi", cart: "Sepete git", none: "Bu ülke için şu anda yayınlanmış paket yok.", noPrices: "Fiyatlar yakında burada.", back: "Başka ülke", unlimited: "Sınırsız", countries: "ülke", promo: "Havalimanında beklerken rahat et.", promoSub: "Lounge seçeneklerine göz at.", vignettePromo: "Avrupa yollarını keşfet.", vignettePromoSub: "Vinyet hizmetinin durumuna göz at.", how: "Nasıl çalışır?", steps: [{ t: "Ülkeni seç", s: "Sana uygun paketi bul." }, { t: "Sepete ekle", s: "Paketini seç, sepete ekle." }, { t: "Kur ve bağlan", s: "Kurulum bilgilerini hesabından takip et." }] },
-  de: { h: "Im Ausland verbunden bleiben.", q: "Für welches Land suchst du eine eSIM?", ph: "Land suchen, z. B. Türkei", picker: "Land wählen", empty: "Kein passendes Land gefunden.", setup: "Schnelle Einrichtung", net: "4G / 5G", pay: "Einfache Paketwahl", support: "WhatsApp-Support", popular: "Beliebte eSIM-Länder", from: "ab", all: "Alle Pakete", unl: "Unbegrenzt", days: "Tage", select: "Wählen", added: "Hinzugefügt", cart: "Zum Warenkorb", none: "Für dieses Land gibt es aktuell keine Pakete.", noPrices: "Preise folgen in Kürze.", back: "Anderes Land", unlimited: "Unbegrenzt", countries: "Länder", promo: "Entspannt warten am Flughafen.", promoSub: "Lounges ansehen.", vignettePromo: "Europas Straßen entdecken.", vignettePromoSub: "Status des Vignettenangebots ansehen.", how: "So funktioniert’s", steps: [{ t: "Land wählen", s: "Passendes Paket finden." }, { t: "In den Warenkorb", s: "Paket wählen und hinzufügen." }, { t: "Einrichten & verbinden", s: "Einrichtungsinfos findest du in deinem Konto." }] },
-  en: { h: "Stay connected abroad.", q: "Which country do you need an eSIM for?", ph: "Search country, e.g. Italy", picker: "Choose country", empty: "No matching country found.", setup: "Fast setup", net: "4G / 5G", pay: "Easy plan choice", support: "WhatsApp support", popular: "Popular eSIM destinations", from: "from", all: "All plans", unl: "Unlimited", days: "days", select: "Select", added: "Added", cart: "Go to cart", none: "No published plans for this country right now.", noPrices: "Prices coming soon.", back: "Other country", unlimited: "Unlimited", countries: "countries", promo: "Relax while you wait.", promoSub: "Browse airport lounges.", vignettePromo: "Explore Europe's roads.", vignettePromoSub: "Check the status of Vignette service.", how: "How it works", steps: [{ t: "Pick a country", s: "Find the right plan." }, { t: "Add to cart", s: "Pick your plan and add it." }, { t: "Set up & connect", s: "Find setup details in your account." }] },
+  tr: { h: "Yurt dışında bağlantıda kal.", q: "Hangi ülke için eSIM arıyorsun?", ph: "Ülke ara, örn. İtalya", picker: "Ülke seç", empty: "Eşleşen ülke bulunamadı.", setup: "Kolay kurulum", net: "Gerçek paketler", pay: "Kolay paket seçimi", support: "WhatsApp destek", popular: "Popüler eSIM ülkeleri", from: "başlayan", days: "gün", select: "Seç", added: "Eklendi", cart: "Sepete git", none: "Bu ülke için şu anda yayınlanmış paket yok.", noPrices: "Fiyatlar yakında burada.", back: "Başka ülke", unlimited: "Sınırsız", countries: "ülkede geçerli", local: "Yalnızca bu ülke", recommended: "Önerilen", assistant: "Ne kadar internet lazım?", assistantLead: "Süre ve kullanımını seç; yaklaşık ihtiyacına uyan gerçek paketi işaretleyelim.", estimate: "Tahmini ihtiyaç", calculate: "Paketleri güncelle", usage: ["Mesajlaşma", "Haritalar", "Sosyal medya", "Video"], promo: "Uçuş öncesi biraz daha konfor", promoSub: "Lounge hizmetini keşfet.", vignettePromo: "Avrupa yollarına hazır ol", vignettePromoSub: "Vinyet hizmetinin durumuna göz at.", how: "Nasıl çalışır?", steps: [{ t: "Ülkeni seç", s: "Sana uygun paketi bul." }, { t: "Sepete ekle", s: "Paketini seç, sepete ekle." }, { t: "Kur ve bağlan", s: "Kurulum bilgilerini hesabından takip et." }] },
+  de: { h: "Im Ausland verbunden bleiben.", q: "Für welches Land suchst du eine eSIM?", ph: "Land suchen, z. B. Türkei", picker: "Land wählen", empty: "Kein passendes Land gefunden.", setup: "Einfache Einrichtung", net: "Echte Pakete", pay: "Einfache Paketwahl", support: "WhatsApp-Support", popular: "Beliebte eSIM-Länder", from: "ab", days: "Tage", select: "Wählen", added: "Hinzugefügt", cart: "Zum Warenkorb", none: "Für dieses Land gibt es aktuell keine Pakete.", noPrices: "Preise folgen in Kürze.", back: "Anderes Land", unlimited: "Unbegrenzt", countries: "Länder gültig", local: "Nur dieses Land", recommended: "Empfohlen", assistant: "Wie viel Datenvolumen brauchst du?", assistantLead: "Wähle Dauer und Nutzung; wir markieren ein passendes echtes Paket.", estimate: "Geschätzter Bedarf", calculate: "Pakete aktualisieren", usage: ["Messaging", "Karten", "Social Media", "Video"], promo: "Mehr Komfort vor dem Abflug", promoSub: "Lounge-Service entdecken.", vignettePromo: "Bereit für Europas Straßen", vignettePromoSub: "Status des Vignettenangebots ansehen.", how: "So funktioniert’s", steps: [{ t: "Land wählen", s: "Passendes Paket finden." }, { t: "In den Warenkorb", s: "Paket wählen und hinzufügen." }, { t: "Einrichten & verbinden", s: "Einrichtungsinfos findest du in deinem Konto." }] },
+  en: { h: "Stay connected abroad.", q: "Which country do you need an eSIM for?", ph: "Search country, e.g. Italy", picker: "Choose country", empty: "No matching country found.", setup: "Easy setup", net: "Real packages", pay: "Easy plan choice", support: "WhatsApp support", popular: "Popular eSIM destinations", from: "from", days: "days", select: "Select", added: "Added", cart: "Go to cart", none: "No published plans for this country right now.", noPrices: "Prices coming soon.", back: "Other country", unlimited: "Unlimited", countries: "countries covered", local: "This country only", recommended: "Recommended", assistant: "How much data do you need?", assistantLead: "Choose your trip length and usage; we'll highlight a matching real package.", estimate: "Estimated need", calculate: "Update packages", usage: ["Messaging", "Maps", "Social media", "Video"], promo: "More comfort before your flight", promoSub: "Discover the Lounge service.", vignettePromo: "Get ready for Europe's roads", vignettePromoSub: "Check the status of Vignette service.", how: "How it works", steps: [{ t: "Pick a country", s: "Find the right plan." }, { t: "Add to cart", s: "Pick your plan and add it." }, { t: "Set up & connect", s: "Find setup details in your account." }] },
 };
 
 function EsimV2() {
@@ -102,8 +107,13 @@ function EsimV2() {
           />
           <Popular c={c} onPick={choose} />
           <PromoCard image={loungePromo.url} title={c.promo} sub={c.promoSub} to="/design-v2/lounge" />
-           <PromoCard image={vignettePromo} title={c.vignettePromo} sub={c.vignettePromoSub} to="/design-v2/vignette" />
+           <V2DataEducation onCalculate={() => setPickerOpen(true)} />
+           <V2Compatibility />
           <HowItWorks title={c.how} steps={c.steps} />
+           <V2Installation />
+           <PromoCard image={vignettePromo} title={c.vignettePromo} sub={c.vignettePromoSub} to="/design-v2/vignette" />
+           <V2GuidesRail />
+           <V2EsimFaq />
         </>
       )}
       <CartBar count={count} label={c.cart} />
@@ -151,21 +161,23 @@ function Popular({ c, onPick }: { c: (typeof T)["tr"]; onPick: (iso: string) => 
 function Packages({ iso, name, c, onBack }: { iso: string; name: string; c: (typeof T)["tr"]; onBack: () => void }) {
   const { locale } = useI18n();
   const { lines, addLine } = useCart();
-  const [tab, setTab] = useState<"all" | "unl">("all");
+  const [days, setDays] = useState(7);
+  const [usage, setUsage] = useState<UsageKind[]>(["MESSAGING", "MAPS"]);
+  const [hasInput, setHasInput] = useState(false);
+  const assistantRef = useRef<HTMLElement>(null);
   const { data = [], isLoading } = useQuery({
     queryKey: ["v2-esim-packages", iso],
     queryFn: () => listEsimPackages({ data: { coverageIsos: [iso] } }),
   });
-  const hasUnlimited = data.some((p) => p.unlimited);
-  // Presentation-only dedupe: rows identical on every customer-visible attribute
-  // (data, validity, price, 5G, number of covered countries) collapse to the first real product.
-  const rows = (tab === "unl" ? data.filter((p) => p.unlimited) : data)
-    .slice()
-    .sort((a, b) => (a.salePrice ?? 0) - (b.salePrice ?? 0) || a.coverage.length - b.coverage.length)
-    .filter((p, i, all) => {
-      const key = (x: EsimPackage) => [x.unlimited, x.dataGb, x.validityDays, x.salePrice, x.supports5g, x.coverage.length].join("|");
-      return all.findIndex((x) => key(x) === key(p)) === i;
-    });
+  const { data: settings } = useQuery({ queryKey: ["esim-usage-settings"], queryFn: () => getEsimUsageSettings() });
+  const estimate = estimateUsageNeed({ days, usage }, settings as EsimUsageSettings | undefined);
+  const shortlist = buildCustomerShortlist(data, { coverageIsos: [iso], days, requiredGb: estimate.requiredGb, maxPrimary: 4 });
+  const rows = shortlist.primary.map((entry) => entry.package);
+  const recommendedId = hasInput ? shortlist.primary[0]?.package.id : undefined;
+  const usageItems: Array<{ key: UsageKind; label: string; icon: typeof MessageCircle }> = [
+    { key: "MESSAGING", label: c.usage[0] ?? "", icon: MessageCircle }, { key: "MAPS", label: c.usage[1] ?? "", icon: MapPin },
+    { key: "SOCIAL", label: c.usage[2] ?? "", icon: Share2 }, { key: "VIDEO", label: c.usage[3] ?? "", icon: Video },
+  ];
   const add = (p: EsimPackage) =>
     addLine({
       productId: p.id,
@@ -190,15 +202,17 @@ function Packages({ iso, name, c, onBack }: { iso: string; name: string; c: (typ
         </h2>
         <button type="button" onClick={onBack} className="min-h-11 px-2 text-sm font-semibold text-primary">{c.back}</button>
       </div>
-      {hasUnlimited && (
-        <div className="mt-2 flex gap-2">
-          {(["all", "unl"] as const).map((t) => (
-            <button key={t} type="button" onClick={() => setTab(t)} className={`min-h-10 rounded-full px-4 text-sm font-semibold ${tab === t ? "bg-primary text-primary-foreground" : "bg-card text-foreground ring-1 ring-border"}`}>
-              {t === "all" ? c.all : c.unl}
-            </button>
-          ))}
+      <section ref={assistantRef} className="mt-3 rounded-2xl bg-card p-4 ring-1 ring-border">
+        <h3 className="font-display text-base font-bold text-foreground">{c.assistant}</h3>
+        <p className="mt-1 text-xs leading-relaxed text-muted-foreground">{c.assistantLead}</p>
+        <div className="mt-3 grid grid-cols-[auto_minmax(0,1fr)] items-center gap-3">
+          <label className="text-xs font-semibold text-foreground">{c.days}</label>
+          <input type="range" min="1" max="30" value={days} onChange={(event) => { setDays(Number(event.target.value)); setHasInput(true); }} className="w-full accent-primary" aria-label={c.days} />
         </div>
-      )}
+        <p className="mt-1 text-right text-xs font-bold text-primary">{days} {c.days}</p>
+        <div className="mt-2 grid grid-cols-2 gap-2">{usageItems.map(({ key, label, icon: Icon }) => { const on = usage.includes(key); return <Button key={key} type="button" variant={on ? "secondary" : "outline"} size="sm" aria-pressed={on} onClick={() => { setHasInput(true); setUsage((current) => on ? current.filter((item) => item !== key) : [...current, key]); }} className="justify-start text-xs"><Icon className="size-4" />{label}</Button>; })}</div>
+        <div className="mt-3 flex items-center justify-between rounded-xl bg-secondary px-3 py-2 text-xs"><span>{c.estimate}</span><strong className="text-primary">≈ {estimate.requiredGb} GB</strong></div>
+      </section>
       {isLoading ? (
         <div className="mt-3 h-48 animate-pulse rounded-2xl bg-muted" />
       ) : rows.length === 0 ? (
@@ -208,26 +222,35 @@ function Packages({ iso, name, c, onBack }: { iso: string; name: string; c: (typ
           {rows.map((p) => {
             const inCart = lines.some((l) => l.productId === p.id);
             return (
-              <li key={p.id} className="flex min-h-16 items-center gap-3 px-4 py-2">
+              <li key={p.id} className="grid min-h-20 grid-cols-[minmax(0,1fr)_auto] items-center gap-x-3 gap-y-2 px-4 py-3">
                 <div className="flex-1">
-                  <p className="flex items-center gap-1 font-display text-base font-semibold text-foreground">
+                  <div className="flex items-center gap-2">{recommendedId === p.id && <span className="rounded-full bg-accent-soft px-2 py-0.5 text-[9px] font-bold text-primary">{c.recommended}</span>}</div>
+                  <p className="mt-0.5 flex items-center gap-1 font-display text-lg font-semibold text-foreground">
                     {p.unlimited ? (<><InfinityIcon className="size-4" />{c.unlimited}</>) : `${p.dataGb ?? "—"} GB`}
                   </p>
                   <p className="text-xs text-muted-foreground">
                     {p.validityDays ? `${p.validityDays} ${c.days}` : ""}
                     {p.supports5g ? " · 5G" : ""}
-                    {p.coverage.length > 1 ? ` · ${p.coverage.length} ${c.countries}` : ""}
+                    {` · ${p.coverage.length > 1 ? `${p.coverage.length} ${c.countries}` : c.local}`}
                   </p>
                 </div>
                 <span className="text-base font-bold text-foreground">{p.salePrice != null ? money(p.salePrice, p.currency) : ""}</span>
-                <button type="button" onClick={() => add(p)} className={`min-h-11 min-w-20 rounded-full px-4 text-sm font-semibold ${inCart ? "bg-accent-soft text-primary" : "bg-primary text-primary-foreground"}`}>
+                <Button type="button" onClick={() => add(p)} variant={inCart ? "secondary" : "default"} className="col-span-2 w-full">
                   {inCart ? c.added : c.select}
-                </button>
+                </Button>
               </li>
             );
           })}
         </ul>
       )}
+      <V2DataEducation onCalculate={() => assistantRef.current?.scrollIntoView({ behavior: "smooth", block: "center" })} />
+      <V2Compatibility />
+      <HowItWorks title={c.how} steps={c.steps} />
+      <V2Installation />
+      <PromoCard image={loungePromo.url} title={c.promo} sub={c.promoSub} to="/design-v2/lounge" />
+      <PromoCard image={vignettePromo} title={c.vignettePromo} sub={c.vignettePromoSub} to="/design-v2/vignette" />
+      <V2GuidesRail />
+      <V2EsimFaq />
       <Link to="/design-v2/cart" className="sr-only">{c.cart}</Link>
     </>
   );
