@@ -566,3 +566,6 @@
 - [x] Keep regional offers separate and optional without changing their catalogue logic.
 - [x] Verify Türkiye, Germany, Argentina across Standard/Unlimited, TR/DE/EN, and 360/390/430 px.
 - [x] Confirm cart identity, quantity, info details, compatibility, installation navigation, safe fixed controls, and no production changes.
+
+- [x] V2 Storefront Builder phase 1 (eSIM/Lounge/Vignette homepages) — awaiting visual approval
+- [ ] Storefront builder phase 2: country page support sections, cart/account/support presentation, V2 service accent tokens
