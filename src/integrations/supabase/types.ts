@@ -1324,13 +1324,16 @@ export type Database = {
       guides: {
         Row: {
           author_id: string | null
+          auto_relation: boolean
           canonical_override: string | null
           category_id: string | null
           city_name: string | null
+          concept_key: string | null
           content_type: string
           country_iso: string | null
           created_at: string
           created_by: string | null
+          display_priority: number
           featured: boolean
           hero_alt: string | null
           hero_image_url: string | null
@@ -1339,8 +1342,17 @@ export type Database = {
           indexable: boolean
           published_at: string | null
           reading_minutes: number | null
+          rel_airport: string | null
+          rel_commercial_page: string | null
+          rel_esim_destination: string | null
+          rel_lounge: string | null
+          rel_region: string | null
+          rel_service: string
+          rel_type: string
+          rel_vignette: string | null
           related_guide_ids: string[]
           related_product_ids: string[]
+          show_on_commercial: boolean
           slug: string
           sort_order: number
           status: Database["public"]["Enums"]["content_status"]
@@ -1349,13 +1361,16 @@ export type Database = {
         }
         Insert: {
           author_id?: string | null
+          auto_relation?: boolean
           canonical_override?: string | null
           category_id?: string | null
           city_name?: string | null
+          concept_key?: string | null
           content_type?: string
           country_iso?: string | null
           created_at?: string
           created_by?: string | null
+          display_priority?: number
           featured?: boolean
           hero_alt?: string | null
           hero_image_url?: string | null
@@ -1364,8 +1379,17 @@ export type Database = {
           indexable?: boolean
           published_at?: string | null
           reading_minutes?: number | null
+          rel_airport?: string | null
+          rel_commercial_page?: string | null
+          rel_esim_destination?: string | null
+          rel_lounge?: string | null
+          rel_region?: string | null
+          rel_service?: string
+          rel_type?: string
+          rel_vignette?: string | null
           related_guide_ids?: string[]
           related_product_ids?: string[]
+          show_on_commercial?: boolean
           slug: string
           sort_order?: number
           status?: Database["public"]["Enums"]["content_status"]
@@ -1374,13 +1398,16 @@ export type Database = {
         }
         Update: {
           author_id?: string | null
+          auto_relation?: boolean
           canonical_override?: string | null
           category_id?: string | null
           city_name?: string | null
+          concept_key?: string | null
           content_type?: string
           country_iso?: string | null
           created_at?: string
           created_by?: string | null
+          display_priority?: number
           featured?: boolean
           hero_alt?: string | null
           hero_image_url?: string | null
@@ -1389,8 +1416,17 @@ export type Database = {
           indexable?: boolean
           published_at?: string | null
           reading_minutes?: number | null
+          rel_airport?: string | null
+          rel_commercial_page?: string | null
+          rel_esim_destination?: string | null
+          rel_lounge?: string | null
+          rel_region?: string | null
+          rel_service?: string
+          rel_type?: string
+          rel_vignette?: string | null
           related_guide_ids?: string[]
           related_product_ids?: string[]
+          show_on_commercial?: boolean
           slug?: string
           sort_order?: number
           status?: Database["public"]["Enums"]["content_status"]
