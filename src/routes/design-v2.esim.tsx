@@ -180,6 +180,64 @@ function Popular({ c, onPick }: { c: (typeof T)["tr"]; onPick: (iso: string) => 
   );
 }
 
+function curateGlobalUnlimited(packages: EsimPackage[]) {
+  const cheapestByDuration = new Map<number, EsimPackage>();
+  for (const pkg of packages) {
+    if (!pkg.validityDays || pkg.salePrice == null) continue;
+    const current = cheapestByDuration.get(pkg.validityDays);
+    if (!current || (current.salePrice ?? Infinity) > pkg.salePrice) cheapestByDuration.set(pkg.validityDays, pkg);
+  }
+  const durations = [...cheapestByDuration.values()].sort((a, b) => (a.validityDays ?? 0) - (b.validityDays ?? 0));
+  if (durations.length <= 3) return durations;
+  return [durations[0], durations[Math.floor((durations.length - 1) / 2)], durations[durations.length - 1]].filter(
+    (item): item is EsimPackage => Boolean(item),
+  );
+}
+
+function GlobalUnlimited({ plans, c }: { plans: EsimPackage[]; c: (typeof T)["tr"] }) {
+  const { locale } = useI18n();
+  const { lines, addLine } = useCart();
+  const add = (pkg: EsimPackage) =>
+    addLine({
+      productId: pkg.id,
+      providerProductId: pkg.providerProductId,
+      serviceType: "ESIM",
+      name: customerCataloguePackageTitle({ locale, destinationIso: pkg.countryIso, coverage: pkg.coverage, packageKind: pkg.packageKind, regionFamily: pkg.regionFamily }),
+      meta: c.unlimited,
+      price: pkg.salePrice,
+      currency: pkg.currency,
+      dataGb: pkg.dataGb,
+      validityDays: pkg.validityDays,
+      coverage: pkg.coverage,
+      destinationIso: pkg.countryIso,
+      packageKind: pkg.packageKind,
+      regionFamily: pkg.regionFamily,
+      isTest: pkg.isTest,
+    });
+  return (
+    <section aria-labelledby="global-unlimited-title">
+      <SectionTitle id="global-unlimited-title">{c.globalTitle}</SectionTitle>
+      <p className="mb-3 text-xs text-muted-foreground">{c.globalLead}</p>
+      <ul className="grid grid-cols-3 gap-2">
+        {plans.map((pkg) => {
+          const inCart = lines.some((line) => line.productId === pkg.id);
+          return (
+            <li key={pkg.id} className="min-w-0">
+              <Button type="button" variant="outline" onClick={() => add(pkg)} className={`h-32 w-full min-w-0 flex-col items-start justify-between rounded-xl bg-card p-2.5 text-left shadow-sm ${inCart ? "ring-2 ring-primary" : ""}`}>
+                <span className="flex min-w-0 items-center gap-1 font-display text-sm font-bold"><InfinityIcon className="size-4 shrink-0 text-primary"/><span className="truncate">{c.unlimited}</span></span>
+                <span className="text-xs font-semibold text-muted-foreground">{pkg.validityDays} {c.days}</span>
+                <span className="text-[10px] text-muted-foreground">{pkg.coverage.length} {c.countries}</span>
+                <strong className="text-sm text-primary">{money(pkg.salePrice ?? 0, pkg.currency)}</strong>
+                <span className="truncate text-[10px] font-bold text-foreground">{inCart ? c.added : c.viewPackage}</span>
+              </Button>
+            </li>
+          );
+        })}
+      </ul>
+    </section>
+  );
+}
+
 const X = {
   tr: { tier: "Paket seviyesi", tiers: { LITE: "Lite", ESSENTIAL: "Essential", PLUS: "Plus" }, tierNote: "Aynı süre için tedarikçi Lite, Essential ve Plus seviyeleri sunar; fiyat farkı bu seviyeden gelir. Hız ve adil kullanım ayrıntıları tedarikçi kataloğunda belirtilmez.", tech: "Ağ teknolojisi", regions: { EUROPE: "Avrupa", EUROPE_USA: "Avrupa + ABD", MIDDLE_EAST: "Orta Doğu", ASIA: "Asya", AFRICA: "Afrika", AMERICAS: "Amerika", GLOBAL: "Global" }, region: "Bölgesel" },
   de: { tier: "Paketstufe", tiers: { LITE: "Lite", ESSENTIAL: "Essential", PLUS: "Plus" }, tierNote: "Für dieselbe Dauer bietet der Anbieter die Stufen Lite, Essential und Plus an; der Preisunterschied ergibt sich aus der Stufe. Geschwindigkeit und Fair-Use werden im Anbieterkatalog nicht angegeben.", tech: "Netztechnologie", regions: { EUROPE: "Europa", EUROPE_USA: "Europa + USA", MIDDLE_EAST: "Naher Osten", ASIA: "Asien", AFRICA: "Afrika", AMERICAS: "Amerika", GLOBAL: "Global" }, region: "Regional" },
