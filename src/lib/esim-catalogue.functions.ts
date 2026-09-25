@@ -82,27 +82,38 @@ export const listEsimPackages = createServerFn({ method: "GET" })
   }))
   .handler(async ({ data }): Promise<EsimPackage[]> => {
     const wantedIsos = data.coverageIsos;
-    let query = publicClient()
-      .from("service_products")
-      .select(
-        "id, provider_external_id, slug, name, currency, sale_price, badge, featured, sort_order, lifecycle, customer_visible, provider_available, margin_flagged, service_type, is_test, source, esim_product_details!inner(data_gb, data_type, unlimited_data, validity_days, raw_validity_value, raw_validity_unit, activation_policy, fair_use_note, fair_use_policy, high_speed_allowance, speed_after_fair_use, coverage_country_isos, country_iso, package_kind, supports_5g, supports_hotspot, data_only, topup_supported, network_operators, supplier_groups:provider_metadata->groups, supplier_speed:provider_metadata->speed, supplier_countries:provider_metadata->countries)",
-      )
-      .eq("service_type", "ESIM")
-      .eq("lifecycle", "PUBLISHED")
-      .eq("customer_visible", true)
-      .eq("provider_available", true)
-      .eq("margin_flagged", false)
-      .gt("sale_price", 0)
-      .order("sort_order")
-      .limit(400);
-    // Coverage is filtered in the database so large catalogues are never truncated.
-    if (wantedIsos.length) query = query.contains("esim_product_details.coverage_country_isos", wantedIsos);
-    const { data: rows, error } = await query;
-    if (error) throw new Error(error.message);
+    const pageSize = wantedIsos.length ? 400 : 1000;
+    let rows: Awaited<ReturnType<typeof queryPage>> = [];
+    async function queryPage(from: number) {
+      let query = publicClient()
+        .from("service_products")
+        .select(
+          "id, provider_external_id, slug, name, currency, sale_price, badge, featured, sort_order, lifecycle, customer_visible, provider_available, margin_flagged, service_type, is_test, source, esim_product_details!inner(data_gb, data_type, unlimited_data, validity_days, raw_validity_value, raw_validity_unit, activation_policy, fair_use_note, fair_use_policy, high_speed_allowance, speed_after_fair_use, coverage_country_isos, country_iso, package_kind, supports_5g, supports_hotspot, data_only, topup_supported, network_operators, supplier_groups:provider_metadata->groups, supplier_speed:provider_metadata->speed, supplier_countries:provider_metadata->countries)",
+        )
+        .eq("service_type", "ESIM")
+        .eq("lifecycle", "PUBLISHED")
+        .eq("customer_visible", true)
+        .eq("provider_available", true)
+        .eq("margin_flagged", false)
+        .gt("sale_price", 0)
+        .order("sort_order")
+        .range(from, from + pageSize - 1);
+      if (wantedIsos.length) query = query.contains("esim_product_details.coverage_country_isos", wantedIsos);
+      const { data: page, error } = await query;
+      if (error) throw new Error(error.message);
+      return page ?? [];
+    }
+    for (let from = 0; ; from += pageSize) {
+      // Coverage remains database-filtered for country result pages. The empty
+      // global-discovery read is paged so catalogue size cannot hide products.
+      const page = await queryPage(from);
+      rows = [...rows, ...page];
+      if (wantedIsos.length || page.length < pageSize) break;
+    }
 
     const showTest = await isTestCatalogueVisible();
     const wanted = wantedIsos;
-    return (rows ?? [])
+    return rows
       .map((row) => {
         const details = (Array.isArray(row.esim_product_details) ? row.esim_product_details[0] : row.esim_product_details) as
           | {
@@ -186,6 +197,17 @@ export const listEsimPackages = createServerFn({ method: "GET" })
       .filter((pkg) => pkg.salePrice != null && pkg.salePrice > 0)
       .filter((pkg) => showTest || !pkg.isTest);
   });
+
+/**
+ * Genuine published Unlimited bundles whose supplier metadata explicitly calls
+ * the coverage Global/Worldwide. Country-count alone never makes a bundle global.
+ */
+export const listGlobalUnlimitedEsimPackages = createServerFn({ method: "GET" }).handler(
+  async (): Promise<EsimPackage[]> => {
+    const packages = await listEsimPackages({ data: { coverageIsos: [] } });
+    return packages.filter((pkg) => pkg.unlimited && pkg.regionFamily === "GLOBAL");
+  },
+);
 
 /** Lowest current customer price for each requested country/route coverage target. */
 export const listEsimStartingPrices = createServerFn({ method: "GET" })
