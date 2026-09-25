@@ -173,7 +173,7 @@ function PublicFooter({ fallback, supportLabel, bottomSafe = false }: { fallback
   const copyright = itemText(data?.copyright, locale, "");
   return (
     <footer id="support" className={`border-t border-border bg-secondary/50 pt-10 ${bottomSafe === "purchase" ? "pb-[calc(12.5rem+env(safe-area-inset-bottom))] sm:pb-10" : bottomSafe ? "pb-[calc(8.5rem+env(safe-area-inset-bottom))] sm:pb-10" : "pb-10"}`}>
-      <div className="mx-auto flex max-w-site flex-col gap-6 px-4 sm:px-6 md:flex-row md:items-center md:justify-between">
+      <div className="mx-auto grid max-w-site gap-6 px-4 sm:px-6 md:grid-cols-2 lg:grid-cols-[0.75fr_1.25fr_1fr] lg:items-start lg:gap-10">
         <Brand />
         <p className="max-w-md text-sm text-muted-foreground">{text}</p>
         <div className="grid gap-2">

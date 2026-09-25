@@ -215,11 +215,11 @@ function RegionalDiscovery({ section, summaries, loading, c }: { section: V2Sect
       <SectionTitle><span id="regional-esim-title">{v2Text(section, "title", locale) || c.regionalTitle}</span></SectionTitle>
       <p className="mb-3 text-xs text-muted-foreground">{v2Text(section, "lead", locale)}</p>
       {loading ? <div className="h-40 animate-pulse rounded-xl bg-muted" /> : (
-        <ul className="-mx-4 flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-2 [overscroll-behavior-inline:contain] [scrollbar-width:none] sm:mx-0 sm:grid sm:grid-cols-3 sm:px-0">
+        <ul className="-mx-4 flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-2 [overscroll-behavior-inline:contain] [scrollbar-width:none] sm:mx-0 sm:grid sm:grid-cols-3 sm:px-0 lg:grid-cols-6 lg:gap-4">
           {regions.map((item) => {
             const photo = getRegionPhoto(item.region);
             return <li key={item.region} className="w-[64%] shrink-0 snap-start sm:w-auto">
-              <Link to="/esim/bolge/$region" params={{ region: item.region }} search={{ country: "" }} className="group relative block h-40 overflow-hidden rounded-xl bg-card shadow-sm ring-1 ring-border">
+              <Link to="/esim/bolge/$region" params={{ region: item.region }} search={{ country: "" }} className="group relative block h-40 overflow-hidden rounded-xl bg-card shadow-sm ring-1 ring-border lg:h-52">
                 {photo && <img src={photo.url} alt={photo.alt[locale]} loading="lazy" className="absolute inset-0 size-full object-cover transition-transform duration-300 group-hover:scale-[1.03]" />}
                 <div className="absolute inset-0 bg-gradient-to-t from-[var(--v2-service)]/95 via-[var(--v2-service)]/35 to-transparent" />
                 <div className="absolute inset-x-0 bottom-0 grid grid-cols-[minmax(0,1fr)_auto] items-end gap-2 p-3 text-primary-foreground">
@@ -231,9 +231,9 @@ function RegionalDiscovery({ section, summaries, loading, c }: { section: V2Sect
           })}
         </ul>
       )}
-      {worldwide?.lowestUnlimitedPrice != null && worldwide.maxUnlimitedCoverageCount != null && <Link to="/esim/bolge/$region" params={{ region: "GLOBAL" }} search={{ country: "" }} className="relative mt-2 grid min-h-20 grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 overflow-hidden rounded-xl bg-primary px-3.5 py-3 text-primary-foreground shadow-sm">
-        <span className="grid size-10 place-items-center rounded-full bg-card text-primary"><InfinityIcon className="size-5" /></span>
-        <span className="min-w-0"><strong className="block font-display text-sm">{v2Text(section, "worldwide", locale) || c.worldwideBanner}</strong><span className="block text-[11px] opacity-90">{worldwide.maxUnlimitedCoverageCount} {c.upTo} · {c.from} {money(worldwide.lowestUnlimitedPrice, worldwide.currency)}</span><span className="mt-1 block text-xs font-bold">{v2Text(section, "cta", locale) || c.discoverPlans} →</span></span>
+      {worldwide?.lowestUnlimitedPrice != null && worldwide.maxUnlimitedCoverageCount != null && <Link to="/esim/bolge/$region" params={{ region: "GLOBAL" }} search={{ country: "" }} className="relative mt-2 grid min-h-20 grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 overflow-hidden rounded-xl bg-primary px-3.5 py-3 text-primary-foreground shadow-sm lg:mt-6 lg:min-h-32 lg:gap-5 lg:px-7">
+        <span className="grid size-10 place-items-center rounded-full bg-card text-primary lg:size-14"><InfinityIcon className="size-5 lg:size-7" /></span>
+        <span className="min-w-0"><strong className="block font-display text-sm lg:text-2xl">{v2Text(section, "worldwide", locale) || c.worldwideBanner}</strong><span className="block text-[11px] opacity-90 lg:mt-1 lg:text-sm">{worldwide.maxUnlimitedCoverageCount} {c.upTo} · {c.from} {money(worldwide.lowestUnlimitedPrice, worldwide.currency)}</span><span className="mt-1 block text-xs font-bold lg:text-sm">{v2Text(section, "cta", locale) || c.discoverPlans} →</span></span>
         <ArrowRight className="size-4 shrink-0" />
       </Link>}
     </section>
@@ -275,14 +275,14 @@ function Packages({ iso, name, c, selectedPackage, onSelectPackage }: { iso: str
   ];
   return (
     <>
-      <div className="mt-5">
-        <h1 className="flex items-center gap-2 font-display text-xl font-bold text-foreground">
+      <div className="mt-5 lg:mt-10">
+        <h1 className="flex items-center gap-2 font-display text-xl font-bold text-foreground lg:text-4xl">
           <CountryFlag iso={iso} className="h-5 w-7 rounded-sm" />
           {name} {c.packages}
         </h1>
         <p className="mt-1 text-xs text-muted-foreground">{c.chooseLead}</p>
       </div>
-      <div className="mt-3 grid grid-cols-2 rounded-xl bg-secondary p-1" role="tablist">
+      <div className="mt-3 grid grid-cols-2 rounded-xl bg-secondary p-1 lg:max-w-xl" role="tablist">
         <Button type="button" variant={type === "standard" ? "default" : "ghost"} role="tab" aria-selected={type === "standard"} onClick={() => setType("standard")} className="min-w-0 text-xs uppercase">{c.standard} · {standard.length}</Button>
         <Button type="button" variant={type === "unlimited" ? "default" : "ghost"} role="tab" aria-selected={type === "unlimited"} onClick={() => setType("unlimited")} className="min-w-0 text-xs uppercase">{c.unlimited} · {unlimited.length}</Button>
       </div>
@@ -291,12 +291,12 @@ function Packages({ iso, name, c, selectedPackage, onSelectPackage }: { iso: str
       ) : rows.length === 0 ? (
         <p className="mt-3 rounded-2xl bg-card p-4 text-sm text-muted-foreground ring-1 ring-border">{c.none}</p>
       ) : (
-        <ul className="mt-3 grid grid-cols-2 gap-2">
+        <ul className="mt-3 grid grid-cols-2 gap-2 md:grid-cols-3 lg:grid-cols-4 lg:gap-4">
           {rows.map((p) => {
             const selected = selectedPackage?.id === p.id;
             return (
               <li key={p.id} className="min-w-0">
-                <V2ProductSelectionCard service="esim" selected={selected} onSelect={() => onSelectPackage(p)} onDetails={() => setDetail(p)} detailsLabel={c.detailsLabel} className="h-24">
+                <V2ProductSelectionCard service="esim" selected={selected} onSelect={() => onSelectPackage(p)} onDetails={() => setDetail(p)} detailsLabel={c.detailsLabel} className="h-24 lg:h-32">
                   <span className="flex h-full w-full flex-col items-start justify-start p-2.5 pr-9">
                    <span className="flex min-w-0 max-w-full items-center gap-1 whitespace-nowrap font-display text-[17px] font-bold leading-6 text-foreground">
                      {p.unlimited ? (<><InfinityIcon className="size-3.5 shrink-0 text-muted-foreground" /><span>{c.unlimited}</span></>) : `${p.dataGb ?? "—"} GB`}
@@ -313,12 +313,12 @@ function Packages({ iso, name, c, selectedPackage, onSelectPackage }: { iso: str
       <Link to="/esim" search={{ country: "" }} className="mt-4 grid min-h-16 grid-cols-[minmax(0,1fr)_auto] items-center gap-3 rounded-xl border border-border bg-card px-4 py-3 shadow-sm">
         <span className="min-w-0"><strong className="block text-sm text-foreground">{c.regional}</strong><span className="block text-xs text-muted-foreground">{c.regionalLead} →</span></span><ArrowRight className="size-4 shrink-0 text-primary" />
       </Link>
-      <section ref={assistantRef} aria-labelledby="decision-help-title" className="mt-6 rounded-2xl bg-[color-mix(in_oklab,var(--color-primary-soft)_70%,var(--color-card))] p-3.5 ring-1 ring-primary/10">
+      <section ref={assistantRef} aria-labelledby="decision-help-title" className="mt-6 rounded-2xl bg-[color-mix(in_oklab,var(--color-primary-soft)_70%,var(--color-card))] p-3.5 ring-1 ring-primary/10 lg:mt-12 lg:p-6">
         <div className="grid grid-cols-[auto_minmax(0,1fr)] items-start gap-2.5 px-0.5">
           <Sparkles className="mt-0.5 size-6 shrink-0 text-primary" aria-hidden />
           <div className="min-w-0"><h2 id="decision-help-title" className="font-display text-base font-bold leading-tight text-foreground">{h.title}</h2><p className="mt-0.5 text-xs leading-snug text-muted-foreground">{h.lead}</p></div>
         </div>
-        <div className="mt-3 grid grid-cols-2 gap-2">
+        <div className="mt-3 grid grid-cols-2 gap-2 lg:gap-5">
           <div className="flex min-w-0 flex-col rounded-xl bg-card p-3 shadow-sm">
             <BarChart3 className="size-6 text-primary" aria-hidden />
             <strong className="mt-2 text-[13px] leading-tight text-foreground">{c.assistant}</strong>

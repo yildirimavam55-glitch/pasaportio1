@@ -123,7 +123,7 @@ export function V2DataEducation({ onCalculate }: { onCalculate: () => void }) {
   const { locale } = useI18n();
   const c = COPY[locale];
   return (
-    <section>
+    <section className="lg:py-2">
       <SectionTitle>{c.dataTitle}</SectionTitle>
       <p className="mb-3 text-xs leading-relaxed text-muted-foreground">{c.dataLead}</p>
       <ul className="grid grid-cols-5 gap-1.5">
@@ -152,11 +152,12 @@ export function V2Installation({ title, subtitle, steps, ready, adding, cta, hre
   const stepList = steps?.length ? steps : [...c.animSteps];
   const search = (href === "/esim" ? { country: "" } : href === "/lounge" ? { iata: "" } : undefined) as never;
   return (
-    <section>
+    <section className="lg:mx-auto lg:max-w-4xl">
       <SectionTitle>{title || c.install}</SectionTitle>
-      {(subtitle ?? c.installSub) && <p className="mb-3 text-xs leading-relaxed text-muted-foreground">{subtitle ?? c.installSub}</p>}
-      {variant === "simple" ? <InstallationSteps items={stepList} /> : <V2InstallAnimation steps={stepList} ready={ready || c.animReady} adding={adding || c.animAdding} />}
-      {(cta ?? c.installCta) && <Button asChild variant="outline" size="sm" className="mt-3 w-full"><Link to={href} search={search}>{cta || c.installCta}<ArrowRight /></Link></Button>}
+       <div className="lg:grid lg:grid-cols-[minmax(18rem,0.8fr)_minmax(0,1.2fr)] lg:items-center lg:gap-10">
+         <div>{variant === "simple" ? <InstallationSteps items={stepList} /> : <V2InstallAnimation steps={stepList} ready={ready || c.animReady} adding={adding || c.animAdding} />}</div>
+         <div>{(subtitle ?? c.installSub) && <p className="mb-3 text-xs leading-relaxed text-muted-foreground lg:text-base">{subtitle ?? c.installSub}</p>}<InstallationSteps items={stepList} />{(cta ?? c.installCta) && <Button asChild variant="outline" size="sm" className="mt-3 w-full lg:w-auto"><Link to={href} search={search}>{cta || c.installCta}<ArrowRight /></Link></Button>}</div>
+       </div>
     </section>
   );
 }
@@ -185,8 +186,8 @@ export function V2GuidesRail({ title, lead, allLabel }: { title?: string; lead?:
     <section className="mb-4 pb-4">
       <SectionTitle action={<SeoPathLink path={`/${locale}/${locale === "tr" ? "rehber" : locale === "de" ? "ratgeber" : "guides"}`} className="inline-flex items-center gap-0.5 text-xs font-semibold text-primary">{allLabel || c.allGuides}<ArrowRight className="size-3.5" /></SeoPathLink>}>{title || c.guides}</SectionTitle>
       {(lead ?? c.guideLead) && <p className="-mt-0.5 mb-4 text-xs text-muted-foreground">{lead ?? c.guideLead}</p>}
-      <ul className="-mx-4 flex snap-x snap-mandatory scroll-px-4 gap-3 overflow-x-auto px-4 pb-1 [overscroll-behavior-inline:contain] [scrollbar-width:none]">
-        {data.map((guide) => <li key={guide.id} className="w-[84vw] max-w-[22rem] shrink-0 snap-start sm:w-[17rem]"><SeoPathLink path={seoPath(guide.translationLocale, guide.contentType, guide.slug)} className="group block overflow-hidden rounded-xl bg-card ring-1 ring-border">{guide.heroImageUrl ? <img src={guide.heroImageUrl} alt={guide.heroAlt ?? guide.title} loading="lazy" decoding="async" className="h-[8.5rem] w-full object-cover"/> : <div className="grid h-[8.5rem] place-items-center bg-muted"><BookOpen className="size-6 text-muted-foreground"/></div>}<div className="p-4">{guide.categoryName && <span className="text-[9px] font-bold uppercase text-primary">{guide.categoryName}</span>}<h3 className="mt-0.5 line-clamp-2 text-sm font-bold leading-snug text-foreground">{guide.title}</h3>{guide.excerpt && <p className="mt-1 line-clamp-2 text-xs leading-snug text-muted-foreground">{guide.excerpt}</p>}<ArrowRight className="ml-auto mt-1.5 size-4 text-primary"/></div></SeoPathLink></li>)}
+      <ul className="-mx-4 flex snap-x snap-mandatory scroll-px-4 gap-3 overflow-x-auto px-4 pb-1 [overscroll-behavior-inline:contain] [scrollbar-width:none] lg:mx-0 lg:grid lg:grid-cols-3 lg:gap-5 lg:overflow-visible lg:px-0">
+        {data.slice(0, 3).map((guide) => <li key={guide.id} className="w-[84vw] max-w-[22rem] shrink-0 snap-start sm:w-[17rem] lg:w-auto lg:max-w-none"><SeoPathLink path={seoPath(guide.translationLocale, guide.contentType, guide.slug)} className="group block h-full overflow-hidden rounded-xl bg-card ring-1 ring-border">{guide.heroImageUrl ? <img src={guide.heroImageUrl} alt={guide.heroAlt ?? guide.title} loading="lazy" decoding="async" className="h-[8.5rem] w-full object-cover lg:h-48"/> : <div className="grid h-[8.5rem] place-items-center bg-muted lg:h-48"><BookOpen className="size-6 text-muted-foreground"/></div>}<div className="p-4">{guide.categoryName && <span className="text-[9px] font-bold uppercase text-primary">{guide.categoryName}</span>}<h3 className="mt-0.5 line-clamp-2 text-sm font-bold leading-snug text-foreground lg:text-lg">{guide.title}</h3>{guide.excerpt && <p className="mt-1 line-clamp-2 text-xs leading-snug text-muted-foreground lg:text-sm">{guide.excerpt}</p>}<ArrowRight className="ml-auto mt-1.5 size-4 text-primary"/></div></SeoPathLink></li>)}
       </ul>
     </section>
   );
@@ -199,7 +200,7 @@ export function V2EsimFaq({ compact = false, title, questions: custom }: { compa
     ? [c.questions[0], c.questions[1], c.questions[2], c.questions[3], c.questions[5]].filter(Boolean) as Array<readonly [string, string]>
     : c.questions;
   return (
-    <section>
+    <section className="lg:mx-auto lg:max-w-4xl">
       <SectionTitle>{title || c.faq}</SectionTitle>
       <Accordion type="single" collapsible className="rounded-xl bg-card px-3 ring-1 ring-border">{questions.map(([question, answer], index) => <AccordionItem key={question} value={`faq-${index}`}><AccordionTrigger className="min-h-[3.25rem] py-3 text-left text-xs font-bold hover:no-underline">{question}</AccordionTrigger><AccordionContent className="text-xs leading-relaxed text-muted-foreground">{answer}</AccordionContent></AccordionItem>)}</Accordion>
     </section>
@@ -210,7 +211,7 @@ export function V2InfoGrid({ title, items }: { title: string; items: Array<{ tit
   return (
     <section>
       <SectionTitle>{title}</SectionTitle>
-      <div className="grid gap-2 sm:grid-cols-2">{items.map((item) => <article key={item.title} className="rounded-xl bg-card p-3 ring-1 ring-border"><h3 className="text-sm font-bold text-foreground">{item.title}</h3><p className="mt-1 text-xs leading-relaxed text-muted-foreground">{item.text}</p></article>)}</div>
+      <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4 lg:gap-4">{items.map((item) => <article key={item.title} className="rounded-xl bg-card p-3 ring-1 ring-border lg:p-5"><h3 className="text-sm font-bold text-foreground">{item.title}</h3><p className="mt-1 text-xs leading-relaxed text-muted-foreground lg:text-sm">{item.text}</p></article>)}</div>
     </section>
   );
 }
