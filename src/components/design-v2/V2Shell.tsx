@@ -1,6 +1,7 @@
-import type { ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { Link } from "@tanstack/react-router";
-import { ArrowRight, Car, Plane, ShoppingBag, Smartphone, UserRound } from "lucide-react";
+import { ArrowRight, Car, Plane, Search, ShoppingBag, Smartphone, UserRound } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { V2Context } from "./v2-context";
 import { PublicShell } from "@/components/travel/PublicShell";
 import { WhatsAppLogo } from "@/components/travel/WhatsAppLogo";
