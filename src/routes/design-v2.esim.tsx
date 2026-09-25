@@ -274,16 +274,6 @@ function Packages({ iso, name, c }: { iso: string; name: string; c: (typeof T)["
       <PromoCard image={vignettePromo} title={c.vignettePromo} sub={c.vignettePromoSub} to="/design-v2/vignette" />
       <V2GuidesRail />
       <V2EsimFaq />
-      <footer className="mt-6 border-t border-border py-5 text-xs text-muted-foreground">
-        <nav className="flex flex-wrap gap-x-4 gap-y-2" aria-label="Footer">
-          <Link to="/design-v2/esim" search={{ country: "" }} className="font-semibold text-foreground">eSIM</Link>
-          <Link to="/design-v2/lounge" className="font-semibold text-foreground">Lounge</Link>
-          <Link to="/design-v2/vignette" className="font-semibold text-foreground">Vignette</Link>
-          <Link to="/design-v2/support" className="font-semibold text-foreground">{c.support}</Link>
-          <Link to="/design-v2/account" className="font-semibold text-foreground">{locale === "tr" ? "Hesabım" : locale === "de" ? "Mein Konto" : "My account"}</Link>
-        </nav>
-        <p className="mt-3">© {new Date().getFullYear()} Travely</p>
-      </footer>
       <PackageDetails pkg={detail} onClose={() => setDetail(null)} onAdd={add} c={c} locale={locale} inCart={detail ? lines.some((line) => line.productId === detail.id) : false} activationText={activationText} />
       <Link to="/design-v2/cart" className="sr-only">{c.cart}</Link>
     </>
