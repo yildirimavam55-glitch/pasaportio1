@@ -147,3 +147,12 @@ export function V2EsimFaq() {
     </section>
   );
 }
+
+export function V2InfoGrid({ title, items }: { title: string; items: Array<{ title: string; text: string }> }) {
+  return (
+    <section>
+      <SectionTitle>{title}</SectionTitle>
+      <div className="grid gap-2 sm:grid-cols-2">{items.map((item) => <article key={item.title} className="rounded-xl bg-card p-3 ring-1 ring-border"><h3 className="text-sm font-bold text-foreground">{item.title}</h3><p className="mt-1 text-xs leading-relaxed text-muted-foreground">{item.text}</p></article>)}</div>
+    </section>
+  );
+}
