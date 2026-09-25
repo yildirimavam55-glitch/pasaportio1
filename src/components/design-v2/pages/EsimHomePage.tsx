@@ -1,10 +1,9 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { Link, useNavigate, useSearch } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useMemo, useRef, useState } from "react";
-import { z } from "zod";
 import { ArrowRight, BarChart3, Infinity as InfinityIcon, MapPin, MessageCircle, Search, Share2, Smartphone, Sparkles, Video } from "lucide-react";
 import { DeviceCheckSheet } from "@/components/travel/DeviceCompatibility";
-import { CartBar, HeroField, heroInputClass, money, PhotoCard, PhotoRail, pick, SectionTitle, useV2StickySearch, V2Hero, V2Shell, V2StickySearchButton, V2_NOINDEX } from "@/components/design-v2/V2Shell";
+import { CartBar, HeroField, heroInputClass, money, PhotoCard, PhotoRail, pick, SectionTitle, useV2StickySearch, V2Hero, V2Shell, V2StickySearchButton } from "@/components/design-v2/V2Shell";
 import { V2PickerSheet } from "@/components/design-v2/V2PickerSheet";
 import { Button } from "@/components/ui/button";
 import { countryPhotoRegistry } from "@/components/travel/countryPhotos";
@@ -27,24 +26,12 @@ import { v2Text, type V2Section } from "@/domain/storefront/v2";
 import { V2EsimPackageDetails } from "@/components/design-v2/V2EsimPackageDetails";
 import { V2ProductSelectionCard, V2SelectedProductSummary } from "@/components/design-v2/V2ProductSelection";
 
-const searchSchema = z.object({ country: z.string().max(2).catch("").default("") });
-
-export const Route = createFileRoute("/design-v2/esim")({
-  validateSearch: (s) => searchSchema.parse(s),
-  loader: ({ context }) => context.queryClient.ensureQueryData(v2PageQuery("esim")),
-  head: () => ({
-    meta: [
-      { title: "eSIM — Design V2 preview" },
-      { name: "description", content: "Internal eSIM design preview." },
-      { property: "og:title", content: "eSIM — Design V2 preview" },
-      { property: "og:description", content: "Internal eSIM design preview." },
-      { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary" },
-      ...V2_NOINDEX,
-    ],
-  }),
-  component: EsimV2,
+/** Public home/eSIM search: optional country + legacy `service` hint (V1 links used `/?service=lounge`). */
+export const validateEsimSearch = (s: Record<string, unknown>): { country?: string; service?: "esim" | "lounge" } => ({
+  ...(typeof s["country"] === "string" && s["country"] ? { country: s["country"].slice(0, 2) } : {}),
+  ...(s["service"] === "lounge" || s["service"] === "esim" ? { service: s["service"] } : {}),
 });
+
 
 const T = {
   tr: { h: "Yurt dışında bağlantıda kal.", q: "Hangi ülke için eSIM arıyorsun?", ph: "Ülke ara, örn. İtalya", stickyPh: "Türkiye veya başka ülke ara", picker: "Ülke seç", empty: "Eşleşen ülke bulunamadı.", setup: "Kolay kurulum", net: "Gerçek paketler", pay: "Kolay paket seçimi", benefitDelivery: "Hızlı teslim", benefitCoverage: "Geniş kapsama", support: "WhatsApp destek", popular: "Popüler eSIM ülkeleri", regionalEyebrow: "Birden fazla ülkeye mi gidiyorsun?", regionalTitle: "Bölgesel eSIM paketleri", regionalHomeLead: "Tek eSIM ile birden fazla ülkede bağlantıda kal.", multiCountry: "Çoklu ülke", worldwideBanner: "Dünya çapında sınırsız internet", upTo: "ülkeye kadar kapsama", discoverPlans: "Paketleri keşfet", from: "başlayan", day: "gün", days: "gün", select: "Sepete ekle", added: "Sepette", cart: "Sepete git", decrease: "Azalt", increase: "Artır", detailsLabel: "Paket detayları", none: "Bu ülke için şu anda yayınlanmış paket yok.", noPrices: "Fiyatlar yakında burada.", back: "Değiştir", unlimited: "Sınırsız", standard: "Standart", countries: "ülke", local: "Yalnızca bu ülke", packages: "eSIM", chooseLead: "Sana uygun paketi seç.", details: "Paket detayları", data: "İnternet", validity: "Geçerlilik", coverage: "Kapsam", network: "Ağ", activation: "Aktivasyon", activationUnknown: "Kurulum bilgileri satın alma sonrası hesabında gösterilir.", fiveG: "5G desteği", regional: "Birden fazla ülkeye mi gidiyorsun?", regionalLead: "Bölgesel paketleri keşfet", assistant: "Hangi paket sana uygun?", assistantLead: "Kısa sorularla ihtiyacını bul.", assistantOpen: "Paket yardımcısını aç", assistantClose: "Paket yardımcısını kapat", estimate: "Tahmini ihtiyaç", recommended: "Önerilen paket", usage: ["Mesajlaşma", "Haritalar", "Sosyal medya", "Video"], installTitle: "Kurulum nasıl yapılır?", installLead: "Gerçek kurulum bilgilerin satın alma ve provisioning tamamlandığında hesabında görünür.", installCta: "Kurulum rehberini gör", promo: "Uçuş öncesi biraz daha konfor", promoSub: "Lounge'u keşfet", vignettePromo: "Avrupa yollarına hazır ol", vignettePromoSub: "Vignette'i keşfet" },
@@ -52,11 +39,12 @@ const T = {
   en: { h: "Stay connected abroad.", q: "Which country do you need an eSIM for?", ph: "Search country, e.g. Italy", stickyPh: "Search Turkey or another country", picker: "Choose country", empty: "No matching country found.", setup: "Easy setup", net: "Real packages", pay: "Easy plan choice", benefitDelivery: "Fast delivery", benefitCoverage: "Wide coverage", support: "WhatsApp support", popular: "Popular eSIM destinations", regionalEyebrow: "Travelling to multiple countries?", regionalTitle: "Regional eSIM plans", regionalHomeLead: "Stay connected across multiple countries with one eSIM.", multiCountry: "Multi-country", worldwideBanner: "Unlimited data worldwide", upTo: "countries covered", discoverPlans: "Explore plans", from: "from", day: "day", days: "days", select: "Add to cart", added: "In cart", cart: "Go to cart", decrease: "Decrease", increase: "Increase", detailsLabel: "Plan details", none: "No published plans for this country right now.", noPrices: "Prices coming soon.", back: "Change", unlimited: "Unlimited", standard: "Standard", countries: "countries", local: "This country only", packages: "eSIM", chooseLead: "Choose the right plan for you.", details: "Plan details", data: "Data", validity: "Validity", coverage: "Coverage", network: "Network", activation: "Activation", activationUnknown: "Setup details appear in your account after purchase.", fiveG: "5G support", regional: "Travelling to more than one country?", regionalLead: "Explore regional plans", assistant: "Which plan is right for you?", assistantLead: "Find what you need with a few quick questions.", assistantOpen: "Open plan assistant", assistantClose: "Close plan assistant", estimate: "Estimated need", recommended: "Matching plan", usage: ["Messaging", "Maps", "Social media", "Video"], installTitle: "How do I install it?", installLead: "Your real setup details appear in your account after purchase and provisioning.", installCta: "View installation guide", promo: "More comfort before your flight", promoSub: "Discover Lounge", vignettePromo: "Get ready for Europe's roads", vignettePromoSub: "Discover Vignette" },
 };
 
-function EsimV2() {
+export function EsimHomePage() {
   const { locale } = useI18n();
   const c = pick(locale, T);
-  const { country } = Route.useSearch();
-  const navigate = Route.useNavigate();
+  const country = String((useSearch({ strict: false }) as { country?: string }).country ?? "").slice(0, 2).toUpperCase();
+  const navigateRaw = useNavigate();
+  const navigate = (opts: { search: { country: string } }) => navigateRaw({ to: ".", search: (prev: Record<string, unknown>) => ({ ...prev, ...opts.search }) } as never);
   const [query, setQuery] = useState("");
   const [pickerOpen, setPickerOpen] = useState(false);
   const { lines, addLine, updateQuantity, count } = useCart();
@@ -231,7 +219,7 @@ function RegionalDiscovery({ section, summaries, loading, c }: { section: V2Sect
           {regions.map((item) => {
             const photo = getRegionPhoto(item.region);
             return <li key={item.region} className="w-[64%] shrink-0 snap-start sm:w-auto">
-              <Link to="/design-v2/esim-region/$region" params={{ region: item.region }} search={{ country: "" }} className="group relative block h-40 overflow-hidden rounded-xl bg-card shadow-sm ring-1 ring-border">
+              <Link to="/esim/bolge/$region" params={{ region: item.region }} search={{ country: "" }} className="group relative block h-40 overflow-hidden rounded-xl bg-card shadow-sm ring-1 ring-border">
                 {photo && <img src={photo.url} alt={photo.alt[locale]} loading="lazy" className="absolute inset-0 size-full object-cover transition-transform duration-300 group-hover:scale-[1.03]" />}
                 <div className="absolute inset-0 bg-gradient-to-t from-[var(--v2-service)]/95 via-[var(--v2-service)]/35 to-transparent" />
                 <div className="absolute inset-x-0 bottom-0 grid grid-cols-[minmax(0,1fr)_auto] items-end gap-2 p-3 text-primary-foreground">
@@ -243,7 +231,7 @@ function RegionalDiscovery({ section, summaries, loading, c }: { section: V2Sect
           })}
         </ul>
       )}
-      {worldwide?.lowestUnlimitedPrice != null && worldwide.maxUnlimitedCoverageCount != null && <Link to="/design-v2/esim-region/$region" params={{ region: "GLOBAL" }} search={{ country: "" }} className="relative mt-2 grid min-h-20 grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 overflow-hidden rounded-xl bg-primary px-3.5 py-3 text-primary-foreground shadow-sm">
+      {worldwide?.lowestUnlimitedPrice != null && worldwide.maxUnlimitedCoverageCount != null && <Link to="/esim/bolge/$region" params={{ region: "GLOBAL" }} search={{ country: "" }} className="relative mt-2 grid min-h-20 grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 overflow-hidden rounded-xl bg-primary px-3.5 py-3 text-primary-foreground shadow-sm">
         <span className="grid size-10 place-items-center rounded-full bg-card text-primary"><InfinityIcon className="size-5" /></span>
         <span className="min-w-0"><strong className="block font-display text-sm">{v2Text(section, "worldwide", locale) || c.worldwideBanner}</strong><span className="block text-[11px] opacity-90">{worldwide.maxUnlimitedCoverageCount} {c.upTo} · {c.from} {money(worldwide.lowestUnlimitedPrice, worldwide.currency)}</span><span className="mt-1 block text-xs font-bold">{v2Text(section, "cta", locale) || c.discoverPlans} →</span></span>
         <ArrowRight className="size-4 shrink-0" />
@@ -322,7 +310,7 @@ function Packages({ iso, name, c, selectedPackage, onSelectPackage }: { iso: str
           })}
         </ul>
       )}
-      <Link to="/design-v2/esim" search={{ country: "" }} className="mt-4 grid min-h-16 grid-cols-[minmax(0,1fr)_auto] items-center gap-3 rounded-xl border border-border bg-card px-4 py-3 shadow-sm">
+      <Link to="/esim" search={{ country: "" }} className="mt-4 grid min-h-16 grid-cols-[minmax(0,1fr)_auto] items-center gap-3 rounded-xl border border-border bg-card px-4 py-3 shadow-sm">
         <span className="min-w-0"><strong className="block text-sm text-foreground">{c.regional}</strong><span className="block text-xs text-muted-foreground">{c.regionalLead} →</span></span><ArrowRight className="size-4 shrink-0 text-primary" />
       </Link>
       <section ref={assistantRef} aria-labelledby="decision-help-title" className="mt-6 rounded-2xl bg-[color-mix(in_oklab,var(--color-primary-soft)_70%,var(--color-card))] p-3.5 ring-1 ring-primary/10">
@@ -350,7 +338,7 @@ function Packages({ iso, name, c, selectedPackage, onSelectPackage }: { iso: str
         <V2Installation />
       </div>
       <V2EsimPackageDetails pkg={detail} onClose={() => setDetail(null)} onAdd={(pkg) => { if (selectedPackage?.id !== pkg.id) onSelectPackage(pkg); setDetail(null); }} locale={locale} inCart={detail ? selectedPackage?.id === detail.id : false} />
-      <Link to="/design-v2/cart" className="sr-only">{c.cart}</Link>
+      <Link to="/sepet" className="sr-only">{c.cart}</Link>
     </>
   );
 }
