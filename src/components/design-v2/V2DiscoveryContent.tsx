@@ -185,10 +185,8 @@ export function V2GuidesRail() {
 export function V2EsimFaq({ compact = false }: { compact?: boolean }) {
   const { locale } = useI18n();
   const c = COPY[locale];
-  const questions = compact
-    ? [c.questions[0], c.questions[1], c.questions[2], c.questions[3], c.questions[5]].filter(
-        (item): item is (typeof c.questions)[number] => Boolean(item),
-      )
+  const questions: ReadonlyArray<readonly [string, string]> = compact
+    ? [c.questions[0], c.questions[1], c.questions[2], c.questions[3], c.questions[5]].filter(Boolean) as Array<readonly [string, string]>
     : c.questions;
   return (
     <section>
