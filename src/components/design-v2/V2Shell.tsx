@@ -222,7 +222,7 @@ export function HowItWorks({ title, steps }: { title: string; steps: Array<{ t: 
   return (
     <>
       <SectionTitle>{title}</SectionTitle>
-      <ol className="grid grid-cols-3 gap-2 border-b border-border pb-2">
+      <ol className={`grid gap-3 border-b border-border pb-2 ${steps.length === 4 ? "grid-cols-2 sm:grid-cols-4" : "grid-cols-3"}`}>
         {steps.map((step, i) => (
           <li key={step.t} className="grid grid-cols-[auto_minmax(0,1fr)] items-start gap-x-2 gap-y-0.5">
             <span className="row-span-2 grid size-7 place-items-center rounded-full bg-[var(--v2-service)] font-display text-xs font-bold text-primary-foreground">{i + 1}</span>
