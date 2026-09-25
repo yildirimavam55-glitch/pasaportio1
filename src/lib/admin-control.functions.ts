@@ -166,6 +166,7 @@ export const getAdminOperations = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context, data }) => {
     const db = await adminDb(context as Ctx);
+    if (data.service !== "ESIM" && data.service !== "LOUNGE") throw new Error("Bilinmeyen servis.");
     const table = data.service === "ESIM" ? "customer_esims" : "customer_lounge_bookings";
     const columns =
       data.service === "ESIM"

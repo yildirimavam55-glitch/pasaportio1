@@ -98,7 +98,7 @@ export function V2SelectedProductSummary({
         </div>
         {inCart ? (
           <Button asChild variant="default" className="h-10 min-w-0 flex-1 rounded-xl px-3">
-            <Link to="/design-v2/cart" aria-label={`${addedLabel} · ${cartLabel}`}><Check className="size-4" /><span className="truncate">{addedLabel} ✓</span></Link>
+            <Link to="/sepet" aria-label={`${addedLabel} · ${cartLabel}`}><Check className="size-4" /><span className="truncate">{addedLabel} ✓</span></Link>
           </Button>
         ) : (
           <Button type="button" onClick={onAdd} className="h-10 min-w-0 flex-1 rounded-xl px-3"><ShoppingBag className="size-4" /><span className="truncate">{addLabel}</span></Button>

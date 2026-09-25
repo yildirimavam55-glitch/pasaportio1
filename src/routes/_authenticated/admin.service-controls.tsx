@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
-import { AlertTriangle, Plane, RadioTower } from "lucide-react";
+import { AlertTriangle, Car, Plane, RadioTower } from "lucide-react";
 import { AdminGate } from "@/components/AdminGate";
 import { AdminError, AdminLoading, AdminPanel, StatusBadge } from "@/components/admin/AdminUi";
 import { adminHead } from "@/components/admin/AdminSectionPage";
@@ -16,6 +16,7 @@ export const Route = createFileRoute("/_authenticated/admin/service-controls")({
 const SERVICES = [
   { key: "esim", label: "eSIM", icon: RadioTower, storefront: "storefront.esim", checkout: "checkout.esim" },
   { key: "lounge", label: "Lounge", icon: Plane, storefront: "storefront.lounge", checkout: "checkout.lounge" },
+  { key: "vignette", label: "Vignette", icon: Car, storefront: "storefront.vignette", checkout: "checkout.vignette" },
 ] as const;
 
 function ServiceControls() {
@@ -50,6 +51,7 @@ function ServiceControls() {
                 return (
                   <AdminPanel key={service.key} title={service.label} action={<Icon className="size-4 text-muted-foreground" />}>
                     <div className="grid gap-3">
+                      <p className="text-xs"><span className="font-semibold">Ticari durum: </span><StatusBadge value={!storefront?.enabled ? "PAUSED" : checkout?.enabled ? "ACTIVE" : "NOT_FOR_SALE"} /></p>
                       <ControlRow
                         title="Mağaza"
                         detail="Kapalıyken müşteriye bakım mesajı gösterilir; mevcut satın alımlar erişilebilir kalır."

@@ -74,6 +74,7 @@ export function useCart() {
   }, []);
 
   const addLine = useCallback((line: Omit<CartLine, "id" | "quantity"> & { quantity?: number }) => {
+    if (!isCartSellableService(line.serviceType)) return;
     const quantity = Math.max(1, Math.round(line.quantity ?? 1));
     const existing = lines.find((item) => item.productId === line.productId);
     if (existing) {
@@ -91,4 +92,13 @@ export function useCart() {
   const clear = useCallback(() => publish([]), []);
 
   return { lines: state, addLine, removeLine, updateQuantity, clear, count: state.reduce((total, line) => total + line.quantity, 0) };
+}
+
+/**
+ * Services that may enter the cart. VIGNETTE is NOT FOR SALE until real products and a
+ * commercial integration exist (the server also only prices/sells ESIM products).
+ */
+export const CART_SELLABLE_SERVICES = ["ESIM", "LOUNGE"] as const;
+export function isCartSellableService(service: string): boolean {
+  return (CART_SELLABLE_SERVICES as readonly string[]).includes(service);
 }

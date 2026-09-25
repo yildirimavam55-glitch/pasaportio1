@@ -39,12 +39,12 @@ export const V2_ADDABLE: readonly V2SectionType[] = ["BENEFIT_ROW", "PROMO_BANNE
 
 /** Internal destinations a CMS link may point to. Nothing else is accepted. */
 export const V2_SAFE_LINKS = [
-  "/design-v2/esim",
-  "/design-v2/lounge",
-  "/design-v2/vignette",
-  "/design-v2/support",
-  "/design-v2/cart",
-  "/design-v2/account",
+  "/esim",
+  "/lounge",
+  "/vignette",
+  "/destek",
+  "/sepet",
+  "/account",
 ] as const;
 export type V2SafeLink = (typeof V2_SAFE_LINKS)[number];
 
@@ -146,7 +146,7 @@ function section(id: string, type: V2SectionType, patch: Partial<V2Section> = {}
     overlay: "normal",
     mediaId: null,
     mobileMediaId: null,
-    href: "/design-v2/esim",
+    href: "/esim",
     startsAt: "",
     endsAt: "",
     text: {},
@@ -195,14 +195,14 @@ function esimDefault(): V2Page {
     }),
     section("regions", "REGION_DISCOVERY", { text: { eyebrow: from3(c, "regionalEyebrow"), title: from3(c, "regionalTitle"), lead: from3(c, "regionalHomeLead"), worldwide: from3(c, "worldwideBanner"), cta: from3(c, "discoverPlans") } }),
     section("compatibility", "COMPATIBILITY", { text: { title: from3(DISCOVERY_COPY, "compatibility") } }),
-    section("promo-lounge", "PROMO_BANNER", { mediaId: "builtin:lounge-card", href: "/design-v2/lounge", text: { title: from3(c, "promo"), subtitle: from3(c, "promoSub") } }),
+    section("promo-lounge", "PROMO_BANNER", { mediaId: "builtin:lounge-card", href: "/lounge", text: { title: from3(c, "promo"), subtitle: from3(c, "promoSub") } }),
     section("installation", "INSTALLATION_STEPS", {
       variant: "animated",
-      href: "/design-v2/support",
+      href: "/destek",
       text: { title: from3(DISCOVERY_COPY, "install"), subtitle: from3(DISCOVERY_COPY, "installSub"), ready: from3(DISCOVERY_COPY, "animReady"), adding: from3(DISCOVERY_COPY, "animAdding"), cta: from3(DISCOVERY_COPY, "installCta") },
       items: listItems("step", { tr: DISCOVERY_COPY.tr.animSteps, de: DISCOVERY_COPY.de.animSteps, en: DISCOVERY_COPY.en.animSteps }, (v) => ({ title: String(v), text: "" })),
     }),
-    section("promo-vignette", "PROMO_BANNER", { mediaId: "builtin:vignette-hero", href: "/design-v2/vignette", text: { title: from3(c, "vignettePromo"), subtitle: from3(c, "vignettePromoSub") } }),
+    section("promo-vignette", "PROMO_BANNER", { mediaId: "builtin:vignette-hero", href: "/vignette", text: { title: from3(c, "vignettePromo"), subtitle: from3(c, "vignettePromoSub") } }),
     guides(),
     section("faq", "FAQ", { variant: "comfortable", text: { title: from3(DISCOVERY_COPY, "faq") }, items: listItems("faq", faqCopy, (v: Pair) => ({ title: v[0], text: v[1] })) }),
   ];
@@ -223,9 +223,9 @@ function loungeDefault(): V2Page {
     }),
     section("popular", "DESTINATION_CAROUSEL", { variant: "airport", text: { title: from3(c, "popular") }, items: airports.map((iata) => item(`a-${iata}`, { entity: iata })) }),
     section("info", "INFO_GRID", { showOnResults: true, text: { title: from3(c, "info") }, items: listItems("info", { tr: c.tr.infoItems, de: c.de.infoItems, en: c.en.infoItems }, (v) => ({ title: v.title, text: v.text })) }),
-    section("promo-esim", "PROMO_BANNER", { showOnResults: true, mediaId: "builtin:esim-cross-sell", href: "/design-v2/esim", text: { title: from3(c, "promo"), subtitle: from3(c, "promoSub") } }),
+    section("promo-esim", "PROMO_BANNER", { showOnResults: true, mediaId: "builtin:esim-cross-sell", href: "/esim", text: { title: from3(c, "promo"), subtitle: from3(c, "promoSub") } }),
     section("how", "HOW_IT_WORKS", { text: { title: from3(c, "how") }, items: listItems("how", { tr: c.tr.steps, de: c.de.steps, en: c.en.steps }, (v) => ({ title: v.t, text: v.s })) }),
-    section("promo-vignette", "PROMO_BANNER", { mediaId: "builtin:vignette-hero", href: "/design-v2/vignette", text: { title: from3(c, "vignette"), subtitle: from3(c, "vignetteSub") } }),
+    section("promo-vignette", "PROMO_BANNER", { mediaId: "builtin:vignette-hero", href: "/vignette", text: { title: from3(c, "vignette"), subtitle: from3(c, "vignetteSub") } }),
     guides(),
     section("faq", "FAQ", { showOnResults: true, text: { title: from3(c, "faq") }, items: listItems("faq", { tr: c.tr.questions, de: c.de.questions, en: c.en.questions }, (v: Pair) => ({ title: v[0], text: v[1] })) }),
   ];
@@ -246,8 +246,8 @@ function vignetteDefault(): V2Page {
     section("notice", "NOTICE", { text: { title: from3(c, "soon"), text: from3(c, "soonSub") } }),
     section("info", "INFO_GRID", { text: { title: from3(c, "info") }, items: listItems("info", { tr: c.tr.infoItems, de: c.de.infoItems, en: c.en.infoItems }, (v) => ({ title: v.title, text: v.text })) }),
     section("how", "HOW_IT_WORKS", { text: { title: from3(c, "how") }, items: listItems("how", { tr: c.tr.steps, de: c.de.steps, en: c.en.steps }, (v) => ({ title: v.t, text: v.s })) }),
-    section("promo-esim", "PROMO_BANNER", { mediaId: "builtin:esim-cross-sell", href: "/design-v2/esim", text: { title: from3(c, "esim"), subtitle: same("") } }),
-    section("promo-lounge", "PROMO_BANNER", { mediaId: "builtin:lounge-card", href: "/design-v2/lounge", text: { title: from3(c, "lounge"), subtitle: same("") } }),
+    section("promo-esim", "PROMO_BANNER", { mediaId: "builtin:esim-cross-sell", href: "/esim", text: { title: from3(c, "esim"), subtitle: same("") } }),
+    section("promo-lounge", "PROMO_BANNER", { mediaId: "builtin:lounge-card", href: "/lounge", text: { title: from3(c, "lounge"), subtitle: same("") } }),
     guides(),
     section("faq", "FAQ", { text: { title: from3(c, "faq") }, items: listItems("faq", { tr: c.tr.questions, de: c.de.questions, en: c.en.questions }, (v: Pair) => ({ title: v[0], text: v[1] })) }),
   ];
@@ -264,7 +264,7 @@ export function createV2Section(type: V2SectionType): V2Section {
   const id = `${type.toLowerCase()}-${Math.random().toString(36).slice(2, 8)}`;
   const base = section(id, type);
   if (type === "SPACER") base.height = "compact";
-  if (type === "INSTALLATION_STEPS") { base.variant = "simple"; base.href = "/design-v2/support"; }
+  if (type === "INSTALLATION_STEPS") { base.variant = "simple"; base.href = "/destek"; }
   return base;
 }
 
@@ -317,7 +317,7 @@ function cleanSection(raw: any): V2Section | null {
     overlay: pick(raw.overlay, V2_OVERLAYS, "normal"),
     mediaId: cleanMediaId(raw.mediaId),
     mobileMediaId: cleanMediaId(raw.mobileMediaId),
-    href: pick(raw.href, V2_SAFE_LINKS, "/design-v2/esim"),
+    href: pick(raw.href, V2_SAFE_LINKS, "/esim"),
     startsAt: DATE.test(String(raw.startsAt)) ? String(raw.startsAt) : "",
     endsAt: DATE.test(String(raw.endsAt)) ? String(raw.endsAt) : "",
     text,

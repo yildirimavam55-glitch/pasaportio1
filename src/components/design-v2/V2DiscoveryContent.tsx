@@ -143,14 +143,14 @@ export function V2Compatibility({ title }: { title?: string } = {}) {
   return <section><SectionTitle>{title || c.compatibility}</SectionTitle><DeviceCompatibilityPrompt /></section>;
 }
 
-type InstallProps = { title?: string; subtitle?: string; steps?: string[]; ready?: string; adding?: string; cta?: string; href?: "/design-v2/esim" | "/design-v2/lounge" | "/design-v2/vignette" | "/design-v2/support" | "/design-v2/cart" | "/design-v2/account"; variant?: "animated" | "simple" };
+type InstallProps = { title?: string; subtitle?: string; steps?: string[]; ready?: string; adding?: string; cta?: string; href?: "/esim" | "/lounge" | "/vignette" | "/destek" | "/sepet" | "/account"; variant?: "animated" | "simple" };
 
 /** Copy/link/variant can come from the storefront builder; animation stays decorative (no real QR). */
-export function V2Installation({ title, subtitle, steps, ready, adding, cta, href = "/design-v2/support", variant = "animated" }: InstallProps = {}) {
+export function V2Installation({ title, subtitle, steps, ready, adding, cta, href = "/destek", variant = "animated" }: InstallProps = {}) {
   const { locale } = useI18n();
   const c = COPY[locale];
   const stepList = steps?.length ? steps : [...c.animSteps];
-  const search = (href === "/design-v2/esim" ? { country: "" } : href === "/design-v2/lounge" ? { iata: "" } : undefined) as never;
+  const search = (href === "/esim" ? { country: "" } : href === "/lounge" ? { iata: "" } : undefined) as never;
   return (
     <section>
       <SectionTitle>{title || c.install}</SectionTitle>

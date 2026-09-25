@@ -110,11 +110,11 @@ function useNavItems() {
   const { locale } = useI18n();
   const l = pick(locale, NAV_LABELS);
   return [
-    { id: "esim" as const, to: "/design-v2/esim", search: { country: "" }, icon: Smartphone, label: "eSIM" },
-    { id: "lounge" as const, to: "/design-v2/lounge", search: { iata: "" }, icon: Plane, label: "Lounge" },
-    { id: "vignette" as const, to: "/design-v2/vignette", search: undefined, icon: Car, label: "Vignette" },
-    { id: "cart" as const, to: "/design-v2/cart", search: undefined, icon: ShoppingBag, label: l.cart },
-    { id: "account" as const, to: "/design-v2/account", search: undefined, icon: UserRound, label: l.account },
+    { id: "esim" as const, to: "/esim", search: { country: "" }, icon: Smartphone, label: "eSIM" },
+    { id: "lounge" as const, to: "/lounge", search: { iata: "" }, icon: Plane, label: "Lounge" },
+    { id: "vignette" as const, to: "/vignette", search: undefined, icon: Car, label: "Vignette" },
+    { id: "cart" as const, to: "/sepet", search: undefined, icon: ShoppingBag, label: l.cart },
+    { id: "account" as const, to: "/account", search: undefined, icon: UserRound, label: l.account },
   ];
 }
 
@@ -252,9 +252,9 @@ export function PhotoCard({ image, badge, title, sub, price, onClick }: { image?
   );
 }
 
-export function PromoCard({ image, title, sub, to }: { image: string; title: string; sub?: string; to: "/design-v2/esim" | "/design-v2/lounge" | "/design-v2/vignette" | "/design-v2/support" | "/design-v2/cart" | "/design-v2/account" }) {
+export function PromoCard({ image, title, sub, to }: { image: string; title: string; sub?: string; to: "/esim" | "/lounge" | "/vignette" | "/destek" | "/sepet" | "/account" }) {
   return (
-    <Link to={to} search={(to === "/design-v2/esim" ? { country: "" } : to === "/design-v2/lounge" ? { iata: "" } : undefined) as never} className="relative mt-5 block h-24 overflow-hidden rounded-xl text-primary-foreground">
+    <Link to={to} search={(to === "/esim" ? { country: "" } : to === "/lounge" ? { iata: "" } : undefined) as never} className="relative mt-5 block h-24 overflow-hidden rounded-xl text-primary-foreground">
       {image && <img src={image} alt="" loading="lazy" decoding="async" className="absolute inset-0 size-full object-cover" />}
       <div className="absolute inset-0 bg-gradient-to-r from-[var(--v2-service)]/95 via-[var(--v2-service)]/60 to-transparent" />
       <div className="relative flex h-full items-center justify-between gap-3 p-4">
@@ -305,7 +305,7 @@ function ActionDock({ showCart, showWhatsApp, purchaseSummary }: { showCart: boo
       <div className="mx-auto flex max-w-xl items-center justify-end gap-2">
         {purchaseSummary}
         {!purchaseSummary && showCart && count > 0 && (
-          <Link to="/design-v2/cart" className="pointer-events-auto flex h-[3.25rem] min-w-0 flex-1 items-center justify-between gap-2 rounded-full bg-primary pl-4 pr-2.5 text-sm font-semibold text-primary-foreground shadow-lg">
+          <Link to="/sepet" className="pointer-events-auto flex h-[3.25rem] min-w-0 flex-1 items-center justify-between gap-2 rounded-full bg-primary pl-4 pr-2.5 text-sm font-semibold text-primary-foreground shadow-lg">
             <span className="flex min-w-0 items-center gap-2"><ShoppingBag className="size-4 shrink-0" /><span className="truncate">{l.cart}</span></span>
             <span className="grid h-7 min-w-7 shrink-0 place-items-center rounded-full bg-primary-foreground/15 px-2 text-xs">{count}</span>
           </Link>

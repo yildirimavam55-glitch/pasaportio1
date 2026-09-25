@@ -39,7 +39,7 @@ import { getAirportByIata, searchAirports } from "@/domain/geo/airports";
 import type { Locale } from "@/domain/enums";
 
 const PAGE_LABEL: Record<V2PageId, string> = { esim: "eSIM ana sayfası", lounge: "Lounge ana sayfası", vignette: "Vignette ana sayfası" };
-const LINK_LABEL: Record<string, string> = { "/design-v2/esim": "eSIM", "/design-v2/lounge": "Lounge", "/design-v2/vignette": "Vignette", "/design-v2/support": "Destek / kurulum rehberi", "/design-v2/cart": "Sepet", "/design-v2/account": "Hesabım" };
+const LINK_LABEL: Record<string, string> = { "/esim": "eSIM", "/lounge": "Lounge", "/vignette": "Vignette", "/destek": "Destek / kurulum rehberi", "/sepet": "Sepet", "/account": "Hesabım" };
 const DEVICES = [{ id: "360", w: 360 }, { id: "390", w: 390 }, { id: "430", w: 430 }, { id: "Masaüstü", w: 1024 }] as const;
 const PRESET = { left: "Sola", center: "Orta", compact: "Kompakt", normal: "Normal", tall: "Yüksek", light: "Hafif", strong: "Güçlü" } as Record<string, string>;
 
@@ -233,7 +233,7 @@ function Editor({ page }: { page: V2PageId }) {
               ref={frame}
               name={V2_PREVIEW_WINDOW}
               title="V2 önizleme"
-              src={page === "esim" ? "/design-v2/esim?country=" : page === "lounge" ? "/design-v2/lounge?iata=" : "/design-v2/vignette"}
+              src={page === "esim" ? "/esim?country=" : page === "lounge" ? "/lounge?iata=" : "/vignette"}
               onLoad={pushPreview}
               style={{ width, height: 760, transform: width > 430 ? "scale(0.4)" : undefined, transformOrigin: "top left" }}
               className="mx-auto block rounded-md bg-background"

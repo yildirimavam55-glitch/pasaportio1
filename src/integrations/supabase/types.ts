@@ -3256,7 +3256,7 @@ export type Database = {
         | "RESULT_UNKNOWN"
         | "CANCELLED"
       refund_status: "REQUESTED" | "APPROVED" | "REJECTED" | "PROCESSED"
-      service_type: "ESIM" | "LOUNGE" | "CAR_RENTAL" | "TRANSFER"
+      service_type: "ESIM" | "LOUNGE" | "CAR_RENTAL" | "TRANSFER" | "VIGNETTE"
       sync_status:
         | "PENDING"
         | "RUNNING"
@@ -3486,7 +3486,7 @@ export const Constants = {
         "CANCELLED",
       ],
       refund_status: ["REQUESTED", "APPROVED", "REJECTED", "PROCESSED"],
-      service_type: ["ESIM", "LOUNGE", "CAR_RENTAL", "TRANSFER"],
+      service_type: ["ESIM", "LOUNGE", "CAR_RENTAL", "TRANSFER", "VIGNETTE"],
       sync_status: [
         "PENDING",
         "RUNNING",

@@ -7,7 +7,7 @@ import {
   CircleDollarSign, ClipboardList, CloudUpload, DatabaseZap, ExternalLink, Flag,
   Image, LayoutDashboard, LayoutTemplate, LoaderCircle, LogOut, MapPin, Megaphone, Menu, MonitorCog, PanelLeftClose, Plane,
   PlugZap, RadioTower, ReceiptText, RotateCw, Route, Search, Settings, ShieldCheck,
-  Smartphone, Sparkles, ToggleLeft, Users, WalletCards, X,
+  Car, Smartphone, Sparkles, ToggleLeft, Users, WalletCards, X,
 } from "lucide-react";
 import { useEffect, useState, type ReactNode } from "react";
 import { BRAND } from "@/domain/experience/config";
@@ -41,6 +41,10 @@ const groups: AdminGroup[] = [
     { to: "/admin/products", label: "Lounge’lar", icon: Building2 },
     { to: "/admin/lounge/bookings", label: "Rezervasyonlar", icon: BriefcaseBusiness },
   ]},
+  { label: "Vignette", links: [
+    { to: "/admin/vignette", label: "Vignette genel bakış", icon: Car },
+    { to: "/admin/storefront/v2/vignette", label: "Vignette storefront", icon: LayoutTemplate },
+  ]},
   { label: "Katalog & Provider", links: [
     { to: "/admin/providers", label: "Provider Hub", icon: PlugZap },
     { to: "/admin/esim/provider-import", label: "Katalog senkronu", icon: CloudUpload },
@@ -48,8 +52,8 @@ const groups: AdminGroup[] = [
     { to: "/admin/pricing-rules", label: "Fiyatlandırma kuralları", icon: CircleDollarSign },
   ]},
   { label: "Mağaza yönetimi", links: [
-    { to: "/admin/storefront", label: "V2 Storefront", icon: LayoutTemplate },
-    { to: "/admin/storefront/home", label: "Ana sayfa düzenleyici", icon: LayoutTemplate },
+    { to: "/admin/storefront", label: "Storefront", icon: LayoutTemplate },
+    { to: "/legacy-v1", label: "Legacy V1 (geri dönüş)", icon: LayoutTemplate },
     { to: "/admin/storefront/navigation", label: "Menü & alt bilgi", icon: Menu },
     { to: "/admin/cms", label: "Sayfalar / CMS", icon: MonitorCog },
     { to: "/admin/guides", label: "Rehberler", icon: BookOpen },

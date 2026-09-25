@@ -16,7 +16,7 @@ export const Route = createFileRoute("/_authenticated/admin/storefront/")({
 
 const TABS = ["Genel bakış", "Sayfalar", "Menüler", "Bölümler", "Medya", "Tema", "Çeviriler"] as const;
 const PAGE_LABEL: Record<V2PageId, string> = { esim: "eSIM ana sayfası", lounge: "Lounge ana sayfası", vignette: "Vignette ana sayfası" };
-const PREVIEW_URL: Record<V2PageId, string> = { esim: "/design-v2/esim", lounge: "/design-v2/lounge", vignette: "/design-v2/vignette" };
+const PREVIEW_URL: Record<V2PageId, string> = { esim: "/esim", lounge: "/lounge", vignette: "/vignette" };
 const LATER = [
   ["Ülke paket sayfası", "Paket seçici çekirdek ticarettir; destek bölümleri sonraki aşamada yönetilebilir olacak."],
   ["Sepet sunumu", "Sepet mantığı kodda korunur."],

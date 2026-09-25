@@ -3,20 +3,16 @@ import { Link, useNavigate } from "@tanstack/react-router";
 
 /**
  * Presentation switch for the V2 design preview.
- * Default is `false` → every shared customer component behaves exactly like production.
- * Only the isolated /design-v2 routes provide `true`.
+ * V2 is the primary storefront → default `true`. Only the admin-only /legacy-v1 area provides `false`.
  */
-export const V2Context = createContext(false);
+export const V2Context = createContext(true);
 export const useIsV2 = () => useContext(V2Context);
 
 /** Maps a production customer path to its V2 preview twin. Unknown paths are returned unchanged. */
 export function toV2Path(path: string): string {
-  if (path === "/" || path === "/esim" || path.startsWith("/esim/")) return "/design-v2/esim";
-  if (path === "/lounge" || path.startsWith("/lounge/")) return "/design-v2/lounge";
-  if (path === "/sepet") return "/design-v2/cart";
-  if (path === "/destek") return "/design-v2/support";
-  if (path === "/auth") return "/design-v2/auth/login";
-  if (path === "/account" || path.startsWith("/account/")) return `/design-v2${path}`;
+  // V2 is the primary storefront: public paths ARE the V2 pages. Only retired V1-only paths are mapped.
+  if (path === "/esim/ulkeler" || path === "/esim/paketler") return "/esim";
+  if (path === "/lounge/secenekler") return "/lounge";
   return path;
 }
 
@@ -38,9 +34,10 @@ export const CLink = forwardRef<HTMLAnchorElement, CLinkProps>(function CLink(pr
   const L = Link as unknown as (p: Record<string, unknown>) => ReturnType<typeof Link>;
   if (!v2) return <L ref={ref} {...props} />;
   const { to, search, hash, ...rest } = props;
-  const mapped = typeof to === "string" ? toV2Path(to) : to;
+  const service = (search as { service?: string } | undefined)?.service;
+  const mapped = to === "/" && (service === "lounge" || service === "esim") ? `/${service}` : typeof to === "string" ? toV2Path(to) : to;
   const changed = mapped !== to;
-  const dropQuery = changed && (to === "/" || to === "/esim" || to === "/lounge");
+  const dropQuery = changed && (to === "/" || to === "/esim/ulkeler" || to === "/esim/paketler" || to === "/lounge/secenekler");
   return (
     <L ref={ref} {...rest} to={mapped} {...(dropQuery ? {} : { search, hash })} />
   );

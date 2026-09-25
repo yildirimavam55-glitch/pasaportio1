@@ -1,35 +1,27 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { TravelExperience } from "@/components/travel/TravelExperience";
+import { createFileRoute, Navigate } from "@tanstack/react-router";
+import { EsimHomePage, validateEsimSearch } from "@/components/design-v2/pages/EsimHomePage";
+import { v2PageQuery } from "@/components/design-v2/V2Sections";
 
+// Primary storefront (V2). Legacy V1 lives at /legacy-v1 (admin-only, noindex).
 export const Route = createFileRoute("/esim/")({
+  validateSearch: (s) => validateEsimSearch(s),
+  loader: ({ context }) => context.queryClient.ensureQueryData(v2PageQuery("esim")),
   head: () => ({
     meta: [
       { title: "Seyahat eSIM’i | travely" },
-      {
-        name: "description",
-        content: "Tek destinasyon ve çoklu rota için eSIM ihtiyacınızı planlayın.",
-      },
+      { name: "description", content: "Ülkene veya bölgene uygun gerçek eSIM paketlerini seç ve hemen sepete ekle." },
       { property: "og:title", content: "Seyahat eSIM’i | travely" },
-      { property: "og:description", content: "Seyahatinize uygun eSIM seçimini planlayın." },
+      { property: "og:description", content: "Ülkene veya bölgene uygun gerçek eSIM paketlerini seç ve hemen sepete ekle." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
+    links: [{ rel: "canonical", href: "https://wanderlust-core.lovable.app/esim" }],
   }),
   component: Page,
 });
 
 function Page() {
-  const navigate = useNavigate();
-  return (
-    <TravelExperience
-      service="esim"
-      assistantRoute
-      onServiceChange={(service) =>
-        void navigate({
-          to: service === "esim" ? "/esim" : "/lounge",
-          resetScroll: false,
-        })
-      }
-    />
-  );
+  const { service } = Route.useSearch();
+  if (service === "lounge") return <Navigate to="/lounge" replace />;
+  return <EsimHomePage />;
 }

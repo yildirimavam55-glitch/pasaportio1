@@ -32,7 +32,7 @@ function Orders() {
             <Field label="Ödeme durumu"><select className="admin-field mt-1 w-full" value={filters.paymentStatus} onChange={(event) => set({ paymentStatus: event.target.value })}>{PAYMENT.map((value) => <option key={value} value={value}>{value === "ALL" ? "Tümü" : value}</option>)}</select></Field>
             <Field label="Teslimat durumu"><select className="admin-field mt-1 w-full" value={filters.fulfillmentStatus} onChange={(event) => set({ fulfillmentStatus: event.target.value })}>{FULFILLMENT.map((value) => <option key={value} value={value}>{value === "ALL" ? "Tümü" : value}</option>)}</select></Field>
             <div className="sm:col-span-2 xl:col-span-3 flex flex-wrap items-end gap-2">
-              {["ALL", "ESIM", "LOUNGE"].map((value) => <Button key={value} size="sm" variant={filters.service === value ? "secondary" : "outline"} onClick={() => set({ service: value })}>{value === "ALL" ? "Tümü" : value === "ESIM" ? "eSIM" : "Lounge"}</Button>)}
+              {["ALL", "ESIM", "LOUNGE", "VIGNETTE"].map((value) => <Button key={value} size="sm" variant={filters.service === value ? "secondary" : "outline"} onClick={() => set({ service: value })}>{value === "ALL" ? "Tümü" : value === "ESIM" ? "eSIM" : "Lounge"}</Button>)}
               <Button size="sm" variant="ghost" onClick={() => setFilters({ service: "ALL", search: "", from: "", to: "", paymentStatus: "ALL", fulfillmentStatus: "ALL" })}>Filtreleri temizle</Button>
             </div>
           </div>
@@ -58,7 +58,7 @@ function Orders() {
                       <tr key={order.id}>
                         <td className="font-semibold">{order.order_number}</td>
                         <td>{order.guest_email ?? "Kayıtlı müşteri"}</td>
-                        <td>{(order.order_items ?? []).map((item: any) => <div key={item.id}><span className="font-semibold">{item.service_type === "ESIM" ? "eSIM" : "Lounge"}</span> · {item.product_name_snapshot}</div>)}</td>
+                        <td>{(order.order_items ?? []).map((item: any) => <div key={item.id}><span className="font-semibold">{serviceLabel(item.service_type)}</span> · {item.product_name_snapshot}</div>)}</td>
                         <td>{money(order.gross_revenue, order.currency)}</td>
                         <td>{money(order.provider_cost_total, order.currency)}</td>
                         <td className="font-semibold">{money(order.gross_profit, order.currency)}</td>
@@ -114,7 +114,7 @@ function OrderDetail({ id, onClose }: { id: string | null; onClose: () => void }
               {(order.order_items ?? []).map((item: any) => (
                 <div key={item.id} className="rounded-md border border-border p-3 text-xs">
                   <div className="flex items-center justify-between gap-2"><strong>{item.product_name_snapshot}</strong><StatusBadge value={item.fulfillment_status} /></div>
-                  <p className="mt-1 text-muted-foreground">{item.service_type === "ESIM" ? `eSIM · ${item.destination_snapshot ?? "—"}` : `Lounge · ${item.airport_iata_snapshot ?? "—"}`}</p>
+                  <p className="mt-1 text-muted-foreground">{item.service_type === "ESIM" ? `eSIM · ${item.destination_snapshot ?? "—"}` : item.service_type === "LOUNGE" ? `Lounge · ${item.airport_iata_snapshot ?? "—"}` : serviceLabel(item.service_type)}</p>
                   <p className="mt-1">Satış {money(item.sale_price, order.currency)} · Maliyet {money(item.provider_cost, order.currency)} · Kâr {money(Number(item.sale_price ?? 0) - Number(item.provider_cost ?? 0), order.currency)}</p>
                   <p className="mt-1 text-muted-foreground">Provider referansı: {item.provider_reference ?? "—"}</p>
                 </div>
@@ -138,4 +138,8 @@ function OrderDetail({ id, onClose }: { id: string | null; onClose: () => void }
       ) : null}
     </AdminDrawer>
   );
+}
+
+function serviceLabel(type: string) {
+  return type === "ESIM" ? "eSIM" : type === "LOUNGE" ? "Lounge" : type === "VIGNETTE" ? "Vignette" : type;
 }
