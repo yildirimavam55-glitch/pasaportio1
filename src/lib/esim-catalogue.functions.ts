@@ -30,6 +30,8 @@ export type EsimPackage = {
   fairUsePolicy: string | null;
   highSpeedAllowance: string | null;
   speedAfterFairUse: string | null;
+  /** Catalogue destination intent; distinct from countries the package happens to cover. */
+  countryIso: string | null;
   coverage: string[];
   supports5g: boolean;
   supportsHotspot: boolean;
@@ -151,6 +153,7 @@ export const listEsimPackages = createServerFn({ method: "GET" })
           fairUsePolicy: details?.fair_use_policy ?? null,
           highSpeedAllowance: details?.high_speed_allowance ?? null,
           speedAfterFairUse: details?.speed_after_fair_use ?? null,
+          countryIso: details?.country_iso ? String(details.country_iso).toUpperCase() : null,
           coverage,
           supports5g: Boolean(details?.supports_5g),
           supportsHotspot: Boolean(details?.supports_hotspot),
