@@ -2,7 +2,8 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { z } from "zod";
-import { ArrowRight, BookOpen, Infinity as InfinityIcon, MapPin, MessageCircle, Search, Share2, Sparkles, Video } from "lucide-react";
+import { ArrowRight, BarChart3, Infinity as InfinityIcon, MapPin, MessageCircle, Search, Share2, Smartphone, Sparkles, Video } from "lucide-react";
+import { DeviceCheckSheet } from "@/components/travel/DeviceCompatibility";
 import { CartBar, HeroField, heroInputClass, money, PhotoCard, PhotoRail, pick, PromoCard, SectionTitle, V2Hero, V2Shell, V2_NOINDEX } from "@/components/design-v2/V2Shell";
 import { V2PickerSheet } from "@/components/design-v2/V2PickerSheet";
 import { Button } from "@/components/ui/button";
@@ -81,6 +82,7 @@ function EsimV2() {
   const selectedCartLine = selectedPackage ? lines.find((line) => line.productId === selectedPackage.id) : undefined;
   const selectedIdentity = selectedPackage ? customerCataloguePackageTitle({ locale, destinationIso: selectedPackage.countryIso, coverage: selectedPackage.coverage, packageKind: selectedPackage.packageKind, regionFamily: selectedPackage.regionFamily }) : "";
   const selectPackage = (pkg: EsimPackage) => {
+    if (selectedPackage?.id === pkg.id) { setSelectedPackage(null); return; }
     setSelectedPackage(pkg);
     setSelectionQuantity(lines.find((line) => line.productId === pkg.id)?.quantity ?? 1);
   };
@@ -263,8 +265,15 @@ function RegionalDiscovery({ summaries, loading, c }: { summaries: EsimRegionalS
 }
 
 // Price deliberately excluded: truly equivalent options collapse to the cheaper one.
+const HELP = {
+  tr: { title: "Karar vermene yardımcı olalım", lead: "Doğru paketi seç ve telefonunun uyumluluğunu kontrol et.", assistantLead: "Kullanımına göre paket önerisi al.", find: "Paketimi bul", compatTitle: "Telefonum eSIM uyumlu mu?", compatLead: "Cihazını birkaç saniyede kontrol et.", compatCta: "Uyumluluğu kontrol et" },
+  de: { title: "Wir helfen dir bei der Wahl", lead: "Wähle das passende Paket und prüfe, ob dein Handy kompatibel ist.", assistantLead: "Erhalte eine Empfehlung nach deiner Nutzung.", find: "Mein Paket finden", compatTitle: "Ist mein Handy eSIM-fähig?", compatLead: "Prüfe dein Gerät in wenigen Sekunden.", compatCta: "Kompatibilität prüfen" },
+  en: { title: "Let us help you decide", lead: "Pick the right plan and check your phone's compatibility.", assistantLead: "Get a plan suggestion based on your usage.", find: "Find my plan", compatTitle: "Is my phone eSIM compatible?", compatLead: "Check your device in seconds.", compatCta: "Check compatibility" },
+};
+
 function Packages({ iso, name, c, selectedPackage, onSelectPackage }: { iso: string; name: string; c: (typeof T)["tr"]; selectedPackage: EsimPackage | null; onSelectPackage: (pkg: EsimPackage) => void }) {
   const { locale } = useI18n();
+  const h = pick(locale, HELP);
   const { lines } = useCart();
   const [type, setType] = useState<"standard" | "unlimited">("standard");
   const [detail, setDetail] = useState<EsimPackage | null>(null);
@@ -328,18 +337,31 @@ function Packages({ iso, name, c, selectedPackage, onSelectPackage }: { iso: str
       <Link to="/design-v2/esim" search={{ country: "" }} className="mt-4 grid min-h-16 grid-cols-[minmax(0,1fr)_auto] items-center gap-3 rounded-xl border border-border bg-card px-4 py-3 shadow-sm">
         <span className="min-w-0"><strong className="block text-sm text-foreground">{c.regional}</strong><span className="block text-xs text-muted-foreground">{c.regionalLead} →</span></span><ArrowRight className="size-4 shrink-0 text-primary" />
       </Link>
-      <section ref={assistantRef} className="mt-3 rounded-xl bg-card p-4 ring-1 ring-border">
-        <div className="grid grid-cols-[auto_minmax(0,1fr)] items-start gap-2.5"><Sparkles className="mt-0.5 size-5 shrink-0 text-primary"/><div className="min-w-0"><h3 className="font-display text-base font-bold text-foreground">{c.assistant}</h3><p className="mt-0.5 text-xs text-muted-foreground">{c.assistantLead}</p></div></div>
-        <Button type="button" variant="link" size="sm" onClick={() => setAssistantOpen((open) => !open)} className="mt-1 h-8 w-full justify-between px-0 text-xs">{assistantOpen ? c.assistantClose : c.assistantOpen}<ArrowRight className="size-4"/></Button>
-        {assistantOpen && <div className="mt-3 border-t border-border pt-3"><div className="grid grid-cols-[auto_minmax(0,1fr)] items-center gap-3"><label className="text-xs font-semibold">{c.days}</label><input type="range" min="1" max="30" value={days} onChange={(event) => { setDays(Number(event.target.value)); setHasInput(true); }} className="w-full accent-primary" aria-label={c.days}/></div><p className="mt-1 text-right text-xs font-bold text-primary">{days} {c.days}</p><div className="mt-2 grid grid-cols-2 gap-2">{usageItems.map(({ key, label, icon: Icon }) => { const on = usage.includes(key); return <Button key={key} type="button" variant={on ? "secondary" : "outline"} size="sm" aria-pressed={on} onClick={() => { setHasInput(true); setUsage((current) => on ? current.filter((item) => item !== key) : [...current, key]); }} className="min-w-0 justify-start text-xs"><Icon className="size-4 shrink-0"/><span className="truncate">{label}</span></Button>; })}</div><div className="mt-3 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2 rounded-xl bg-secondary px-3 py-2 text-xs"><span>{c.estimate}</span><strong className="text-primary">≈ {estimate.requiredGb} GB</strong>{recommended && <><span>{c.recommended}</span><Button type="button" variant="link" size="sm" onClick={() => setDetail(recommended)} className="h-auto p-0 font-bold">{recommended.unlimited ? c.unlimited : `${recommended.dataGb ?? "—"} GB`} · {money(recommended.salePrice ?? 0, recommended.currency)}</Button></>}</div></div>}
+      <section ref={assistantRef} aria-labelledby="decision-help-title" className="mt-6 rounded-2xl bg-[color-mix(in_oklab,var(--color-primary-soft)_70%,var(--color-card))] p-3.5 ring-1 ring-primary/10">
+        <div className="grid grid-cols-[auto_minmax(0,1fr)] items-start gap-2.5 px-0.5">
+          <Sparkles className="mt-0.5 size-6 shrink-0 text-primary" aria-hidden />
+          <div className="min-w-0"><h2 id="decision-help-title" className="font-display text-base font-bold leading-tight text-foreground">{h.title}</h2><p className="mt-0.5 text-xs leading-snug text-muted-foreground">{h.lead}</p></div>
+        </div>
+        <div className="mt-3 grid grid-cols-2 gap-2">
+          <div className="flex min-w-0 flex-col rounded-xl bg-card p-3 shadow-sm">
+            <BarChart3 className="size-6 text-primary" aria-hidden />
+            <strong className="mt-2 text-[13px] leading-tight text-foreground">{c.assistant}</strong>
+            <span className="mt-1 flex-1 text-[11px] leading-snug text-muted-foreground">{h.assistantLead}</span>
+            <Button type="button" size="sm" aria-expanded={assistantOpen} onClick={() => setAssistantOpen((open) => !open)} className="mt-2.5 h-9 w-full whitespace-normal px-2 text-[11px] leading-tight">{assistantOpen ? c.assistantClose : h.find}<ArrowRight className="size-3.5" /></Button>
+          </div>
+          <div className="flex min-w-0 flex-col rounded-xl bg-card p-3 shadow-sm">
+            <Smartphone className="size-6 text-primary" aria-hidden />
+            <strong className="mt-2 text-[13px] leading-tight text-foreground">{h.compatTitle}</strong>
+            <span className="mt-1 flex-1 text-[11px] leading-snug text-muted-foreground">{h.compatLead}</span>
+            <DeviceCheckSheet surface="v2-country" trigger={<Button type="button" size="sm" className="mt-2.5 h-9 w-full whitespace-normal px-2 text-[11px] leading-tight">{h.compatCta}<ArrowRight className="size-3.5" /></Button>} />
+          </div>
+        </div>
+        {assistantOpen && <div className="mt-2 rounded-xl bg-card p-3 shadow-sm"><div className="grid grid-cols-[auto_minmax(0,1fr)] items-center gap-3"><label className="text-xs font-semibold">{c.days}</label><input type="range" min="1" max="30" value={days} onChange={(event) => { setDays(Number(event.target.value)); setHasInput(true); }} className="w-full accent-primary" aria-label={c.days}/></div><p className="mt-1 text-right text-xs font-bold text-primary">{days} {c.days}</p><div className="mt-2 grid grid-cols-2 gap-2">{usageItems.map(({ key, label, icon: Icon }) => { const on = usage.includes(key); return <Button key={key} type="button" variant={on ? "secondary" : "outline"} size="sm" aria-pressed={on} onClick={() => { setHasInput(true); setUsage((current) => on ? current.filter((item) => item !== key) : [...current, key]); }} className="min-w-0 justify-start text-xs"><Icon className="size-4 shrink-0"/><span className="truncate">{label}</span></Button>; })}</div><div className="mt-3 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2 rounded-xl bg-secondary px-3 py-2 text-xs"><span>{c.estimate}</span><strong className="text-primary">≈ {estimate.requiredGb} GB</strong>{recommended && <><span>{c.recommended}</span><Button type="button" variant="link" size="sm" onClick={() => setDetail(recommended)} className="h-auto p-0 font-bold">{recommended.unlimited ? c.unlimited : `${recommended.dataGb ?? "—"} GB`} · {money(recommended.salePrice ?? 0, recommended.currency)}</Button></>}</div></div>}
       </section>
-      <V2Compatibility />
-      <Link to="/design-v2/support" className="mt-4 grid min-h-20 grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 rounded-xl border border-border bg-card px-4 py-3 shadow-sm">
-        <span className="grid size-10 shrink-0 place-items-center rounded-full bg-secondary text-primary"><BookOpen className="size-5"/></span>
-        <span className="min-w-0"><strong className="block text-sm text-foreground">{c.installTitle}</strong><span className="mt-0.5 block text-xs leading-snug text-muted-foreground">{c.installLead}</span><span className="mt-1 block text-xs font-bold text-primary">{c.installCta} →</span></span>
-        <ArrowRight className="size-4 shrink-0 text-primary"/>
-      </Link>
-      <V2EsimPackageDetails pkg={detail} onClose={() => setDetail(null)} onAdd={(pkg) => { onSelectPackage(pkg); setDetail(null); }} locale={locale} inCart={detail ? selectedPackage?.id === detail.id : false} />
+      <div className="mt-6 rounded-2xl bg-secondary/60 px-3.5 pb-3.5 pt-0.5 ring-1 ring-border">
+        <V2Installation />
+      </div>
+      <V2EsimPackageDetails pkg={detail} onClose={() => setDetail(null)} onAdd={(pkg) => { if (selectedPackage?.id !== pkg.id) onSelectPackage(pkg); setDetail(null); }} locale={locale} inCart={detail ? selectedPackage?.id === detail.id : false} />
       <Link to="/design-v2/cart" className="sr-only">{c.cart}</Link>
     </>
   );
