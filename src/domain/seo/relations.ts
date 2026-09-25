@@ -94,7 +94,7 @@ export function resolveCommercial(f: RelationFields, live: LiveCatalogue): Comme
   }
   if (f.service === "VIGNETTE") {
     if (!live.vignetteForSale) return null;
-    if (f.vignette || f.autoRelation) return { path: "/vignette", kind: "VIGNETTE", iso: f.vignette || f.countryIso || undefined, source: f.vignette ? "manual" : "auto" };
+    if (f.vignette || f.autoRelation) { const iso = f.vignette || f.countryIso; return { path: "/vignette", kind: "VIGNETTE", ...(iso ? { iso } : {}), source: f.vignette ? "manual" : "auto" }; }
     return null;
   }
   if (f.service !== "ESIM" || !f.autoRelation) return null;

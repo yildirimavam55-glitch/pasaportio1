@@ -42,7 +42,7 @@ function CommercialCta({ target, locale }: { target: CommercialTarget; locale: L
         {target.kind === "ESIM_COUNTRY" && target.iso ? (
           <Link to="/esim" search={{ country: target.iso }}>{label} <ArrowRight /></Link>
         ) : target.kind === "ESIM_REGION" && target.region ? (
-          <Link to="/esim/bolge/$region" params={{ region: target.region }} search={{ country: "" }}>{label} <ArrowRight /></Link>
+          <Link to="/esim/bolge/$region" params={{ region: target.region as never }} search={{ country: "" }}>{label} <ArrowRight /></Link>
         ) : (
           <a href={target.path}>{label} <ArrowRight /></a>
         )}
