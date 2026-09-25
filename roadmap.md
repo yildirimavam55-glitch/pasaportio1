@@ -6,8 +6,8 @@
 - [x] Reorder the homepage to the exact compact sales flow and remove redundant homepage-only sections
 - [x] Add a catalogue-backed maximum-three global Unlimited product section without changing package-result logic
 - [x] Add one shared-interaction sticky country search that appears only after the hero search leaves view
-- [ ] Verify product identity, existing compatibility, service banners, installation, guides, FAQ, TR/DE/EN, and 360/390/430 px safe areas
-- [ ] Confirm catalogue, prices, database, package logic, production, and publish state remain unchanged
+- [x] Verify product identity, existing compatibility, service banners, installation, guides, FAQ, TR/DE/EN, and 360/390/430 px safe areas
+- [x] Confirm catalogue, prices, database, package logic, production, and publish state remain unchanged
 
 ## V2 homepage content completion
 
