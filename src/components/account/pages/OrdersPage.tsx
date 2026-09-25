@@ -8,11 +8,14 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useI18n } from "@/i18n";
 import { getCustomerOrders } from "@/lib/customer-account.functions";
+import { customerOrderPackageTitle } from "@/domain/esim/customer-presentation";
+import { useIsV2 } from "@/components/design-v2/v2-context";
 
 
 export function OrdersPage() {
   const { locale } = useI18n();
   const copy = ACCOUNT_COPY[locale];
+  const v2 = useIsV2();
   const orders = useQuery({
     queryKey: ["customer-orders"],
     queryFn: () => getCustomerOrders(),
@@ -52,7 +55,12 @@ export function OrdersPage() {
                   <p className="mt-2 truncate text-sm">
                     {order.items
                       .map((item) =>
-                        [item.destination, item.name].filter(Boolean).join(" · "),
+                        [
+                          v2 ? null : item.destination,
+                          v2 && item.serviceType === "ESIM"
+                            ? customerOrderPackageTitle({ locale, fallbackName: item.name, destination: item.destination, detailsSnapshot: item.detailsSnapshot })
+                            : item.name,
+                        ].filter(Boolean).join(" · "),
                       )
                       .join(" | ") || "—"}
                   </p>

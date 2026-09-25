@@ -33,6 +33,7 @@ export type EsimPackage = {
   speedAfterFairUse: string | null;
   /** Catalogue destination intent; distinct from countries the package happens to cover. */
   countryIso: string | null;
+  packageKind: string | null;
   coverage: string[];
   supports5g: boolean;
   supportsHotspot: boolean;
@@ -84,7 +85,7 @@ export const listEsimPackages = createServerFn({ method: "GET" })
     let query = publicClient()
       .from("service_products")
       .select(
-        "id, provider_external_id, slug, name, currency, sale_price, badge, featured, sort_order, lifecycle, customer_visible, provider_available, margin_flagged, service_type, is_test, source, esim_product_details!inner(data_gb, data_type, unlimited_data, validity_days, raw_validity_value, raw_validity_unit, activation_policy, fair_use_note, fair_use_policy, high_speed_allowance, speed_after_fair_use, coverage_country_isos, country_iso, supports_5g, supports_hotspot, data_only, topup_supported, network_operators, supplier_groups:provider_metadata->groups, supplier_speed:provider_metadata->speed, supplier_countries:provider_metadata->countries)",
+        "id, provider_external_id, slug, name, currency, sale_price, badge, featured, sort_order, lifecycle, customer_visible, provider_available, margin_flagged, service_type, is_test, source, esim_product_details!inner(data_gb, data_type, unlimited_data, validity_days, raw_validity_value, raw_validity_unit, activation_policy, fair_use_note, fair_use_policy, high_speed_allowance, speed_after_fair_use, coverage_country_isos, country_iso, package_kind, supports_5g, supports_hotspot, data_only, topup_supported, network_operators, supplier_groups:provider_metadata->groups, supplier_speed:provider_metadata->speed, supplier_countries:provider_metadata->countries)",
       )
       .eq("service_type", "ESIM")
       .eq("lifecycle", "PUBLISHED")
@@ -118,6 +119,7 @@ export const listEsimPackages = createServerFn({ method: "GET" })
               speed_after_fair_use: string | null;
               coverage_country_isos: string[] | null;
               country_iso: string | null;
+              package_kind: string | null;
               supports_5g: boolean | null;
               supports_hotspot: boolean | null;
               data_only: boolean | null;
@@ -165,6 +167,7 @@ export const listEsimPackages = createServerFn({ method: "GET" })
           highSpeedAllowance: details?.high_speed_allowance ?? null,
           speedAfterFairUse: details?.speed_after_fair_use ?? null,
           countryIso: details?.country_iso ? String(details.country_iso).toUpperCase() : null,
+          packageKind: details?.package_kind ?? null,
           coverage,
           supports5g: details?.supports_5g ?? networkGenerationsOf(details?.supplier_speed).includes("5G"),
           supportsHotspot: Boolean(details?.supports_hotspot),

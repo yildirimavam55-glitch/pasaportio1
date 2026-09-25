@@ -1,4 +1,6 @@
 import type { CartLine } from "@/domain/cart/store";
+import type { Locale } from "@/domain/enums";
+import { customerCataloguePackageTitle } from "@/domain/esim/customer-presentation";
 
 export const CART_COPY = {
   tr: { title: "Sepet", lead: "Seçtiğin paketleri kontrol et.", empty: "Sepetin boş", emptyText: "Bir ülke seç ve paketini ekle.", browse: "eSIM paketlerine bak", days: "gün", countries: "ülke", unit: "Birim", qty: "Adet", remove: "Kaldır", total: "Toplam", review: "Siparişi gözden geçir", dec: "Azalt", inc: "Artır", test: "TEST" },
@@ -16,5 +18,17 @@ export function lineFacts(line: CartLine, c: (typeof CART_COPY)["tr"]) {
     line.terminal,
     line.date,
   ].filter(Boolean).join(" · ");
+}
+
+/** Re-localizes stored eSIM lines from their real product snapshot. */
+export function lineTitle(line: CartLine, locale: Locale) {
+  if (line.serviceType !== "ESIM" || !line.coverage?.length) return line.name;
+  return customerCataloguePackageTitle({
+    locale,
+    coverage: line.coverage,
+    destinationIso: line.destinationIso ?? null,
+    packageKind: line.packageKind ?? null,
+    regionFamily: line.regionFamily ?? null,
+  });
 }
 

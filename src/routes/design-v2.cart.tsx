@@ -3,7 +3,7 @@ import { Minus, Plus, Trash2 } from "lucide-react";
 import { V2Shell, V2_NOINDEX, money, pick } from "@/components/design-v2/V2Shell";
 import { V2PageTitle, V2State } from "@/components/design-v2/V2States";
 import { useCart } from "@/domain/cart/store";
-import { CART_COPY, lineFacts } from "@/components/design-v2/cart-copy";
+import { CART_COPY, lineFacts, lineTitle } from "@/components/design-v2/cart-copy";
 import { useI18n } from "@/i18n";
 
 export const Route = createFileRoute("/design-v2/cart")({
@@ -35,12 +35,12 @@ function V2Cart() {
                   <div className="flex items-start justify-between gap-2">
                     <div className="min-w-0">
                       <p className="flex items-center gap-2 font-display text-base font-bold text-foreground">
-                        <span className="truncate">{line.name}</span>
+                        <span className="truncate">{lineTitle(line, locale)}</span>
                         {line.isTest && <span className="rounded-full bg-accent-soft px-2 py-0.5 text-[10px] font-bold text-primary">{c.test}</span>}
                       </p>
                       <p className="mt-0.5 text-sm text-muted-foreground">{lineFacts(line, c)}</p>
                     </div>
-                    <button type="button" onClick={() => removeLine(line.productId)} aria-label={`${c.remove}: ${line.name}`} className="grid size-10 shrink-0 place-items-center rounded-full text-muted-foreground hover:bg-secondary hover:text-destructive">
+                    <button type="button" onClick={() => removeLine(line.productId)} aria-label={`${c.remove}: ${lineTitle(line, locale)}`} className="grid size-10 shrink-0 place-items-center rounded-full text-muted-foreground hover:bg-secondary hover:text-destructive">
                       <Trash2 className="size-4" />
                     </button>
                   </div>

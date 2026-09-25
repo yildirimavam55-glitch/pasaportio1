@@ -20,6 +20,8 @@ import {
   remainingDays,
 } from "@/domain/esim/customer-esim";
 import { flagOf, foldText, getCountryByIso } from "@/domain/geo/countries";
+import { customerCataloguePackageTitle } from "@/domain/esim/customer-presentation";
+import { useIsV2 } from "@/components/design-v2/v2-context";
 import { useI18n } from "@/i18n";
 import {
   getCustomerEsimActivation,
@@ -30,6 +32,7 @@ import {
 export function EsimDetailPage({ id }: { id: string }) {
   const { locale } = useI18n();
   const copy = ACCOUNT_COPY[locale];
+  const v2 = useIsV2();
   const [countryQuery, setCountryQuery] = useState("");
   const [countriesOpen, setCountriesOpen] = useState(false);
 
@@ -95,12 +98,15 @@ export function EsimDetailPage({ id }: { id: string }) {
   const days = remainingDays(esim.expiresAt);
   const purchase = detail.data?.purchase;
   const canTopUp = esim.topupSupported && hasCapability(esim, "TOPUP");
+  const v2Identity = v2 && coverage?.countryIsos.length
+    ? customerCataloguePackageTitle({ locale, coverage: coverage.countryIsos, destinationIso: esim.productInfo?.destinationIso ?? null, packageKind: esim.productInfo?.packageKind ?? null })
+    : null;
 
   return (
     <AccountLayout
       active="esims"
-      title={esim.packageLabel || esim.destinationLabel || "eSIM"}
-      lead={esim.destinationLabel ?? undefined}
+      title={v2Identity ?? (esim.packageLabel || esim.destinationLabel || "eSIM")}
+      lead={v2Identity ? undefined : esim.destinationLabel ?? undefined}
       actions={<Badge variant="outline">{esimStatusLabel(status, locale)}</Badge>}
     >
       <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_22rem]">

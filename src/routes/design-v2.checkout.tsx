@@ -6,7 +6,7 @@ import { V2Shell, V2_NOINDEX, money, pick } from "@/components/design-v2/V2Shell
 import { V2Card, V2PageTitle, V2State } from "@/components/design-v2/V2States";
 import { useCart } from "@/domain/cart/store";
 import { useI18n } from "@/i18n";
-import { CART_COPY, lineFacts } from "@/components/design-v2/cart-copy";
+import { CART_COPY, lineFacts, lineTitle } from "@/components/design-v2/cart-copy";
 
 const COPY = {
   tr: { title: "Ödeme", back: "Sepete dön", summary: "Sipariş özeti", account: "Hesap", signedAs: "Giriş yapıldı", signIn: "Siparişi hesabına bağlamak için giriş yap", signInCta: "Giriş yap", payment: "Ödeme", notLive: "Ödeme henüz aktif değil", notLiveText: "Şu anda gerçek ödeme alınmıyor. Ödeme yöntemi bağlandığında siparişini buradan tamamlayabilirsin.", cta: "Ödeme entegrasyonu bekleniyor", empty: "Sepetin boş", browse: "eSIM paketlerine bak" },
@@ -47,7 +47,7 @@ function V2Checkout() {
                 {lines.map((line) => (
                   <li key={line.id} className="flex items-start justify-between gap-3 py-2">
                     <div className="min-w-0">
-                      <p className="truncate text-sm font-bold text-foreground">{line.quantity} × {line.name}</p>
+                      <p className="truncate text-sm font-bold text-foreground">{line.quantity} × {lineTitle(line, locale)}</p>
                       <p className="text-xs text-muted-foreground">{lineFacts(line, cc)}</p>
                     </div>
                     <span className="shrink-0 text-sm font-bold">{money((line.price ?? 0) * line.quantity, line.currency)}</span>

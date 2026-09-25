@@ -9,6 +9,7 @@ export type CustomerEsimProductInfo = {
   unlimitedData: boolean;
   validityDays: number | null;
   coverageCount: number | null;
+  coverageIsos: string[];
   destinationIso: string | null;
   activationPolicy: string | null;
   packageKind: string | null;
@@ -136,6 +137,9 @@ async function loadProductInfo(
         coverageCount: Array.isArray(item["coverage_country_isos"])
           ? (item["coverage_country_isos"] as string[]).filter(Boolean).length
           : null,
+        coverageIsos: Array.isArray(item["coverage_country_isos"])
+          ? (item["coverage_country_isos"] as string[]).filter(Boolean)
+          : [],
         destinationIso: item["country_iso"] ?? null,
         activationPolicy: item["activation_policy"] ?? null,
         packageKind: item["package_kind"] ?? null,
@@ -328,7 +332,7 @@ export const getCustomerOrders = createServerFn({ method: "GET" })
     const { data, error } = await context.supabase
       .from("orders")
       .select(
-        "id, order_number, status, payment_status, fulfillment_status, currency, gross_revenue, discount_total, created_at, order_items(id, product_name_snapshot, destination_snapshot, service_type, quantity)",
+          "id, order_number, status, payment_status, fulfillment_status, currency, gross_revenue, discount_total, created_at, order_items(id, product_name_snapshot, destination_snapshot, service_type, quantity, details_snapshot)",
       )
       .eq("customer_id", context.userId)
       .order("created_at", { ascending: false })
@@ -350,6 +354,7 @@ export const getCustomerOrders = createServerFn({ method: "GET" })
           destination: item.destination_snapshot,
           serviceType: item.service_type,
           quantity: item.quantity,
+          detailsSnapshot: objectValue(item.details_snapshot),
         })),
       })),
       fetchedAt: new Date().toISOString(),
@@ -364,7 +369,7 @@ export const getCustomerOrderDetail = createServerFn({ method: "GET" })
     const { data: order, error } = await context.supabase
       .from("orders")
       .select(
-        "id, order_number, status, payment_status, fulfillment_status, currency, gross_revenue, discount_total, tax_total, created_at, order_items(id, product_name_snapshot, destination_snapshot, service_type, quantity, sale_price, discount, currency, fulfillment_status)",
+        "id, order_number, status, payment_status, fulfillment_status, currency, gross_revenue, discount_total, tax_total, created_at, order_items(id, product_name_snapshot, destination_snapshot, service_type, quantity, sale_price, discount, currency, fulfillment_status, details_snapshot)",
       )
       .eq("id", data.orderId)
       .eq("customer_id", context.userId)
@@ -409,6 +414,7 @@ export const getCustomerOrderDetail = createServerFn({ method: "GET" })
           discount: Number(item.discount ?? 0),
           currency: item.currency,
           fulfillmentStatus: item.fulfillment_status,
+          detailsSnapshot: objectValue(item.details_snapshot),
         })),
       },
       esims,
