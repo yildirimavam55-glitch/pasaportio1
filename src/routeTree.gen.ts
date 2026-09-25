@@ -95,6 +95,7 @@ import { Route as AuthenticatedAdminMarketingCampaignsRouteImport } from './rout
 import { Route as AuthenticatedAdminSettingsIndexRouteImport } from './routes/_authenticated/admin.settings.index'
 import { Route as AuthenticatedAdminSettingsUsersRouteImport } from './routes/_authenticated/admin.settings.users'
 import { Route as AuthenticatedAdminSmartFindersEsimRouteImport } from './routes/_authenticated/admin.smart-finders.esim'
+import { Route as AuthenticatedAdminStorefrontIndexRouteImport } from './routes/_authenticated/admin.storefront.index'
 import { Route as AuthenticatedAdminStorefrontHomeRouteImport } from './routes/_authenticated/admin.storefront.home'
 import { Route as AuthenticatedAdminStorefrontNavigationRouteImport } from './routes/_authenticated/admin.storefront.navigation'
 import { Route as DesignV2AccountEsimsIndexRouteImport } from './routes/design-v2.account.esims.index'
@@ -570,6 +571,12 @@ const AuthenticatedAdminSmartFindersEsimRoute =
     path: '/admin/smart-finders/esim',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedAdminStorefrontIndexRoute =
+  AuthenticatedAdminStorefrontIndexRouteImport.update({
+    id: '/admin/storefront/',
+    path: '/admin/storefront/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedAdminStorefrontHomeRoute =
   AuthenticatedAdminStorefrontHomeRouteImport.update({
     id: '/admin/storefront/home',
@@ -701,6 +708,7 @@ export interface FileRoutesByFullPath {
   '/account/esims/': typeof AuthenticatedAccountEsimsIndexRoute
   '/account/orders/': typeof AuthenticatedAccountOrdersIndexRoute
   '/admin/settings/': typeof AuthenticatedAdminSettingsIndexRoute
+  '/admin/storefront/': typeof AuthenticatedAdminStorefrontIndexRoute
   '/design-v2/account/esims/': typeof DesignV2AccountEsimsIndexRoute
   '/design-v2/account/orders/': typeof DesignV2AccountOrdersIndexRoute
   '/admin/storefront/v2/$page': typeof AuthenticatedAdminStorefrontV2PageRoute
@@ -793,6 +801,7 @@ export interface FileRoutesByTo {
   '/account/esims': typeof AuthenticatedAccountEsimsIndexRoute
   '/account/orders': typeof AuthenticatedAccountOrdersIndexRoute
   '/admin/settings': typeof AuthenticatedAdminSettingsIndexRoute
+  '/admin/storefront': typeof AuthenticatedAdminStorefrontIndexRoute
   '/design-v2/account/esims': typeof DesignV2AccountEsimsIndexRoute
   '/design-v2/account/orders': typeof DesignV2AccountOrdersIndexRoute
   '/admin/storefront/v2/$page': typeof AuthenticatedAdminStorefrontV2PageRoute
@@ -889,6 +898,7 @@ export interface FileRoutesById {
   '/_authenticated/account/esims/': typeof AuthenticatedAccountEsimsIndexRoute
   '/_authenticated/account/orders/': typeof AuthenticatedAccountOrdersIndexRoute
   '/_authenticated/admin/settings/': typeof AuthenticatedAdminSettingsIndexRoute
+  '/_authenticated/admin/storefront/': typeof AuthenticatedAdminStorefrontIndexRoute
   '/design-v2/account/esims/': typeof DesignV2AccountEsimsIndexRoute
   '/design-v2/account/orders/': typeof DesignV2AccountOrdersIndexRoute
   '/_authenticated/admin/storefront/v2/$page': typeof AuthenticatedAdminStorefrontV2PageRoute
@@ -985,6 +995,7 @@ export interface FileRouteTypes {
     | '/account/esims/'
     | '/account/orders/'
     | '/admin/settings/'
+    | '/admin/storefront/'
     | '/design-v2/account/esims/'
     | '/design-v2/account/orders/'
     | '/admin/storefront/v2/$page'
@@ -1077,6 +1088,7 @@ export interface FileRouteTypes {
     | '/account/esims'
     | '/account/orders'
     | '/admin/settings'
+    | '/admin/storefront'
     | '/design-v2/account/esims'
     | '/design-v2/account/orders'
     | '/admin/storefront/v2/$page'
@@ -1172,6 +1184,7 @@ export interface FileRouteTypes {
     | '/_authenticated/account/esims/'
     | '/_authenticated/account/orders/'
     | '/_authenticated/admin/settings/'
+    | '/_authenticated/admin/storefront/'
     | '/design-v2/account/esims/'
     | '/design-v2/account/orders/'
     | '/_authenticated/admin/storefront/v2/$page'
@@ -1812,6 +1825,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminSmartFindersEsimRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/admin/storefront/': {
+      id: '/_authenticated/admin/storefront/'
+      path: '/admin/storefront'
+      fullPath: '/admin/storefront/'
+      preLoaderRoute: typeof AuthenticatedAdminStorefrontIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/admin/storefront/home': {
       id: '/_authenticated/admin/storefront/home'
       path: '/admin/storefront/home'
@@ -1909,6 +1929,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAccountEsimsIndexRoute: typeof AuthenticatedAccountEsimsIndexRoute
   AuthenticatedAccountOrdersIndexRoute: typeof AuthenticatedAccountOrdersIndexRoute
   AuthenticatedAdminSettingsIndexRoute: typeof AuthenticatedAdminSettingsIndexRoute
+  AuthenticatedAdminStorefrontIndexRoute: typeof AuthenticatedAdminStorefrontIndexRoute
   AuthenticatedAdminStorefrontV2PageRoute: typeof AuthenticatedAdminStorefrontV2PageRoute
 }
 
@@ -1965,6 +1986,8 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAccountEsimsIndexRoute: AuthenticatedAccountEsimsIndexRoute,
   AuthenticatedAccountOrdersIndexRoute: AuthenticatedAccountOrdersIndexRoute,
   AuthenticatedAdminSettingsIndexRoute: AuthenticatedAdminSettingsIndexRoute,
+  AuthenticatedAdminStorefrontIndexRoute:
+    AuthenticatedAdminStorefrontIndexRoute,
   AuthenticatedAdminStorefrontV2PageRoute:
     AuthenticatedAdminStorefrontV2PageRoute,
 }
