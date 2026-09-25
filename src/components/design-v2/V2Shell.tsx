@@ -51,7 +51,7 @@ export function V2Shell({
   children: ReactNode;
 }) {
   const active: V2Nav | undefined = nav ?? service;
-  const width = level === "transaction" ? "max-w-xl md:max-w-3xl lg:max-w-site" : "max-w-xl lg:max-w-site";
+  const width = level === "transaction" ? "max-w-xl md:max-w-3xl lg:max-w-site" : "max-w-xl md:max-w-site";
   const serviceAccent = service === "lounge" ? "[--v2-service:var(--color-v2-lounge)]" : service === "vignette" ? "[--v2-service:var(--color-v2-vignette)]" : "[--v2-service:var(--color-v2-esim)]";
   return (
     <V2Context.Provider value={true}>
