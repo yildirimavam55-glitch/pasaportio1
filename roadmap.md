@@ -1,5 +1,13 @@
 # Phase 1.3 Roadmap
 
+## V2 homepage content completion
+
+- [ ] Complete the real four-step eSIM journey without changing the approved top area
+- [ ] Add compact iPhone/Android installation education and truthful Travely benefits
+- [ ] Complete eSIM, Lounge, and Vignette FAQs in TR/DE/EN
+- [ ] Verify existing guides, compatibility, package assistant, cross-service links, and mobile safe areas
+- [ ] Confirm package logic, catalogue, prices, database, production, and publish state are unchanged
+
 ## V2 package card visual polish
 
 - [x] Match Standard and Unlimited cards to one compact 96px geometry
