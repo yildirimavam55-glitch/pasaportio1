@@ -1,6 +1,8 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { adminDb, audit, type AdminCtx } from "@/lib/admin-guard";
+import { adminScopeOf, summarizeCountries, type AdminDetail } from "@/domain/esim/admin-catalogue";
+import { GLOBAL_COVERAGE_THRESHOLD } from "@/domain/geo/coverage-regions";
 import { grossContribution, isRevenuePaymentStatus, sumFinancialRows, toFinancialRow } from "@/domain/finance/formulas";
 
 type Ctx = AdminCtx;
@@ -201,7 +203,7 @@ export const getAdminOperations = createServerFn({ method: "GET" })
   });
 
 const CATALOGUE_SELECT =
-  "id, name, slug, service_type, lifecycle, customer_visible, provider_available, sale_price, provider_cost, provider_currency, currency, badge, featured, sort_order, margin_flagged, price_overridden, pricing_rule_id, pricing_snapshot, pricing_review_required, priced_at, provider_external_id, is_test, primary_provider_id, destinations(name, slug), airports(iata, name), providers(name), product_translations(locale, short_description), esim_product_details(country_iso, package_kind, coverage_country_isos, coverage_subdivision_codes, data_gb, unlimited_data, validity_days, regions(name)), lounge_product_details(iata, terminal, lounge_name)";
+  "id, name, slug, service_type, lifecycle, customer_visible, provider_available, sale_price, provider_cost, provider_currency, currency, badge, featured, sort_order, margin_flagged, price_overridden, pricing_rule_id, pricing_snapshot, pricing_review_required, priced_at, provider_external_id, is_test, primary_provider_id, destinations(name, slug), airports(iata, name), providers(name), product_translations(locale, short_description), esim_product_details(country_iso, package_kind, provider_bundle_id, coverage_country_isos, coverage_subdivision_codes, data_gb, unlimited_data, validity_days, regions(name)), lounge_product_details(iata, terminal, lounge_name)";
 
 export type AdminCatalogueQuery = {
   page: number;
@@ -214,6 +216,10 @@ export type AdminCatalogueQuery = {
   lifecycle: string;
   packageKind: string;
   marginOnly: boolean;
+  /** Products whose coverage includes this ISO (country + regional + global). */
+  coverageIso: string;
+  scope: "ALL" | "COUNTRY" | "REGION" | "GLOBAL" | "SUBDIVISION";
+  dataType: "ALL" | "STANDARD" | "UNLIMITED";
 };
 
 function normalizeCatalogueQuery(input: Partial<AdminCatalogueQuery> | undefined): AdminCatalogueQuery {
@@ -229,6 +235,9 @@ function normalizeCatalogueQuery(input: Partial<AdminCatalogueQuery> | undefined
     lifecycle: String(input?.lifecycle ?? "ALL"),
     packageKind: String(input?.packageKind ?? "ALL"),
     marginOnly: input?.marginOnly === true,
+    coverageIso: /^[A-Za-z]{2}$/.test(String(input?.coverageIso ?? "")) ? String(input?.coverageIso).toUpperCase() : "",
+    scope: (["COUNTRY", "REGION", "GLOBAL", "SUBDIVISION"] as const).find((value) => value === input?.scope) ?? "ALL",
+    dataType: input?.dataType === "STANDARD" || input?.dataType === "UNLIMITED" ? input.dataType : "ALL",
   };
 }
 
@@ -242,7 +251,14 @@ export const getAdminCatalogue = createServerFn({ method: "POST" })
   .inputValidator((input: Partial<AdminCatalogueQuery>) => normalizeCatalogueQuery(input))
   .handler(async ({ data, context }) => {
     const db = await adminDb(context as Ctx);
-    const needsEsimJoin = data.countryIso !== "ALL" || data.packageKind !== "ALL";
+    const needsEsimJoin = data.service === "ESIM" && (data.countryIso !== "ALL" || data.packageKind !== "ALL" || Boolean(data.coverageIso) || data.scope !== "ALL" || data.dataType !== "ALL");
+    // GLOBAL vs REGION uses the same coverage-size threshold as the storefront classifier.
+    let globalIds: string[] = [];
+    if (data.service === "ESIM" && (data.scope === "GLOBAL" || data.scope === "REGION")) {
+      const { data: regional, error: regionalError } = await db.from("esim_product_details").select("product_id, coverage_country_isos").eq("package_kind", "REGION").limit(5000);
+      if (regionalError) throw new Error(regionalError.message);
+      globalIds = (regional ?? []).filter((row: any) => (row.coverage_country_isos?.length ?? 0) >= GLOBAL_COVERAGE_THRESHOLD).map((row: any) => row.product_id);
+    }
 
     const build = () => {
       let query = db
@@ -251,10 +267,23 @@ export const getAdminCatalogue = createServerFn({ method: "POST" })
           count: "exact",
         })
         .eq("service_type", data.service);
-      if (data.search) query = query.or(`name.ilike.%${data.search}%,slug.ilike.%${data.search}%`);
+      if (data.search) {
+        const term = data.search.replace(/[%,()*]/g, " ");
+        query = query.or(`name.ilike.%${term}%,slug.ilike.%${term}%,provider_external_id.ilike.%${term}%`);
+      }
+      if (data.coverageIso) query = query.contains("esim_product_details.coverage_country_isos", [data.coverageIso]);
+      if (data.scope === "COUNTRY") query = query.eq("esim_product_details.package_kind", "COUNTRY");
+      if (data.scope === "SUBDIVISION") query = query.eq("esim_product_details.package_kind", "SUBDIVISION");
+      if (data.scope === "REGION") {
+        query = query.eq("esim_product_details.package_kind", "REGION");
+        if (globalIds.length) query = query.not("id", "in", `(${globalIds.join(",")})`);
+      }
+      if (data.scope === "GLOBAL") query = query.in("id", globalIds.length ? globalIds : ["00000000-0000-0000-0000-000000000000"]);
+      if (data.dataType !== "ALL") query = query.eq("esim_product_details.unlimited_data", data.dataType === "UNLIMITED");
       if (data.providerId !== "ALL") query = query.eq("primary_provider_id", data.providerId);
       if (data.availability !== "ALL") query = query.eq("provider_available", data.availability === "AVAILABLE");
-      if (data.lifecycle !== "ALL") query = query.eq("lifecycle", data.lifecycle);
+      if (data.lifecycle === "PRICE_REVIEW") query = query.eq("pricing_review_required", true);
+      else if (data.lifecycle !== "ALL") query = query.eq("lifecycle", data.lifecycle);
       if (data.marginOnly) query = query.eq("margin_flagged", true);
       if (data.countryIso !== "ALL") query = query.eq("esim_product_details.country_iso", data.countryIso);
       if (data.packageKind !== "ALL") query = query.eq("esim_product_details.package_kind", data.packageKind);
@@ -278,24 +307,34 @@ export const getAdminCatalogue = createServerFn({ method: "POST" })
     };
   });
 
-/** Filter options are derived server-side so they cover the whole catalogue. */
+/** Filter options and country counts are derived server-side over the whole catalogue. */
 export const getAdminCatalogueFacets = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     const db = await adminDb(context as Ctx);
-    const [{ data: providers }, { data: details }] = await Promise.all([
-      db.from("providers").select("id, name, service_type").order("name"),
-      db.from("esim_product_details").select("country_iso, package_kind").limit(10000),
-    ]);
-    const rows = (details ?? []) as { country_iso: string | null; package_kind: string | null }[];
-    const unique = (values: (string | null)[]): string[] =>
-      [...new Set(values.map((value) => String(value ?? "")).filter((value) => value.length > 0))].sort();
+    const { data: providers } = await db.from("providers").select("id, name, service_type").order("name");
+    // Paged: the Data API caps a single read at 1000 rows, the catalogue is larger.
+    const rows: AdminDetail[] = [];
+    for (let from = 0; ; from += 1000) {
+      const { data: page, error } = await db
+        .from("esim_product_details")
+        .select("product_id, country_iso, package_kind, coverage_country_isos, unlimited_data")
+        .order("product_id")
+        .range(from, from + 999);
+      if (error) throw new Error(error.message);
+      rows.push(...((page ?? []) as AdminDetail[]));
+      if ((page ?? []).length < 1000) break;
+    }
+    const scopes = { COUNTRY: 0, REGION: 0, GLOBAL: 0, SUBDIVISION: 0 };
+    for (const row of rows) scopes[adminScopeOf(row)] += 1;
+    const countries = summarizeCountries(rows);
     return {
       providers: (providers ?? []) as { id: string; name: string; service_type: string }[],
-      countries: unique(rows.map((row) => row.country_iso)),
-      packageKinds: unique(rows.map((row) => row.package_kind)),
+      countries: countries.filter((row) => row.standard + row.unlimited > 0).map((row) => row.iso).sort(),
+      countrySummaries: countries,
+      scopes,
+      totalDetails: rows.length,
     };
-
   });
 
 
