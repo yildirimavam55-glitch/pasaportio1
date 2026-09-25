@@ -36,14 +36,15 @@ function VignetteV2() {
   const c = pick(locale, T);
   const [pickerOpen, setPickerOpen] = useState(false);
   const [query, setQuery] = useState("");
+  const { heroSearchRef, heroSearchVisible } = useV2StickySearch();
   return (
-    <V2Shell service="vignette">
+    <V2Shell service="vignette" stickySearch={<V2StickySearchButton heroSearchVisible={heroSearchVisible} label={c.q} onOpen={() => setPickerOpen(true)} />}>
       <V2Hero image={heroImage} eyebrow="Vignette" title={c.h}>
-        <HeroField icon={<Car className="size-5" />}>
+        <div ref={heroSearchRef}><HeroField icon={<Car className="size-5" />}>
           <V2PickerSheet open={pickerOpen} onOpenChange={setPickerOpen} title={c.picker} searchLabel={c.q} query={query} onQueryChange={setQuery} items={[]} onSelect={() => undefined} emptyLabel={c.empty}>
             <Button type="button" variant="ghost" className={`${heroInputClass} justify-start font-normal hover:bg-transparent`}>{c.q}</Button>
           </V2PickerSheet>
-        </HeroField>
+        </HeroField></div>
       </V2Hero>
       <TrustRow items={[{ icon: <Smartphone className="size-6" />, label: c.digital }, { icon: <FileCheck2 className="size-6" />, label: c.official }, { icon: <ShieldCheck className="size-6" />, label: c.secure }, { icon: <Map className="size-6" />, label: c.europe }]} />
       <div className="mt-6 rounded-3xl bg-card p-5 ring-1 ring-border">
