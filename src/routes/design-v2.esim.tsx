@@ -70,8 +70,7 @@ function EsimV2() {
     [priceMap, query],
   );
   const selected = country ? getCountryByIso(country.toUpperCase()) : undefined;
-  const heroSearchRef = useRef<HTMLDivElement | null>(null);
-  const [heroSearchVisible, setHeroSearchVisible] = useState(true);
+  const { heroSearchRef, heroSearchVisible } = useV2StickySearch();
   const choose = (iso: string) => {
     setSelectedPackage(null);
     setSelectionQuantity(1);
@@ -121,24 +120,8 @@ function EsimV2() {
     onQuantityChange={(quantity) => selectedCartLine ? updateQuantity(selectedCartLine.productId, quantity) : setSelectionQuantity(quantity)}
     onAdd={addSelectedPackage}
   /> : undefined;
-  useEffect(() => {
-    const target = heroSearchRef.current;
-    if (!target) return;
-    const observer = new IntersectionObserver(
-      ([entry]) => setHeroSearchVisible(Boolean(entry?.isIntersecting)),
-      { rootMargin: "-56px 0px 0px", threshold: 0.05 },
-    );
-    observer.observe(target);
-    return () => observer.disconnect();
-  }, []);
   const stickySearch = !selected ? (
-    <div aria-hidden={heroSearchVisible} className={`sticky top-14 z-40 h-0 transition-[opacity,transform] duration-200 sm:top-16 ${heroSearchVisible ? "pointer-events-none -translate-y-2 opacity-0" : "translate-y-0 opacity-100"}`}>
-      <div className="mx-auto max-w-site px-3 pt-1 sm:px-6">
-        <Button type="button" variant="outline" onClick={() => setPickerOpen(true)} className="mx-auto grid h-11 w-full max-w-finder grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2 rounded-xl bg-card px-3 text-left shadow-panel">
-          <Search className="size-4 shrink-0 text-primary" /><span className="truncate text-sm text-muted-foreground">{c.stickyPh}</span><ArrowRight className="size-4 shrink-0" />
-        </Button>
-      </div>
-    </div>
+    <V2StickySearchButton heroSearchVisible={heroSearchVisible} label={c.stickyPh} onOpen={() => setPickerOpen(true)} />
   ) : undefined;
 
   return (
