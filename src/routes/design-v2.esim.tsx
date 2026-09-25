@@ -218,18 +218,31 @@ function GlobalUnlimited({ plans, c }: { plans: EsimPackage[]; c: (typeof T)["tr
     <section aria-label={c.globalTitle}>
       <SectionTitle>{c.globalTitle}</SectionTitle>
       <p className="mb-3 text-xs text-muted-foreground">{c.globalLead}</p>
-      <ul className="grid grid-cols-3 gap-2">
+      <ul className="-mx-4 flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-2 [overscroll-behavior-inline:contain] [scrollbar-width:none] sm:mx-0 sm:grid sm:grid-cols-3 sm:gap-3 sm:overflow-visible sm:px-0 sm:pb-0">
         {plans.map((pkg) => {
           const inCart = lines.some((line) => line.productId === pkg.id);
           return (
-            <li key={pkg.id} className="min-w-0">
-              <Button type="button" variant="outline" onClick={() => add(pkg)} className={`h-32 w-full min-w-0 flex-col items-start justify-between rounded-xl bg-card p-2.5 text-left shadow-sm ${inCart ? "ring-2 ring-primary" : ""}`}>
-                <span className="flex min-w-0 items-center gap-1 font-display text-sm font-bold"><InfinityIcon className="size-4 shrink-0 text-primary"/><span className="truncate">{c.unlimited}</span></span>
-                <span className="text-xs font-semibold text-muted-foreground">{pkg.validityDays} {pkg.validityDays === 1 ? c.day : c.days}</span>
-                <span className="text-[10px] text-muted-foreground">{pkg.coverage.length} {c.countries}</span>
-                <strong className="text-sm text-primary">{money(pkg.salePrice ?? 0, pkg.currency)}</strong>
-                <span className="truncate text-[10px] font-bold text-foreground">{inCart ? c.added : c.viewPackage}</span>
-              </Button>
+            <li key={pkg.id} data-global-plan-id={pkg.id} className="w-[56%] min-w-0 shrink-0 snap-start sm:w-auto">
+              <article className={`flex h-full min-h-44 flex-col rounded-xl border bg-card p-3.5 shadow-sm transition-colors ${inCart ? "border-primary ring-1 ring-primary" : "border-border"}`}>
+                <div className="flex min-w-0 items-center gap-2 font-display text-base font-bold text-foreground">
+                  <InfinityIcon className="size-5 shrink-0 text-primary" />
+                  <span className="min-w-0 truncate">{c.unlimited}</span>
+                </div>
+                <div className="mt-4 space-y-1.5">
+                  <p className="text-lg font-bold leading-none text-foreground">{pkg.validityDays} {pkg.validityDays === 1 ? c.day : c.days}</p>
+                  <p className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground">
+                    <Globe2 className="size-3.5 shrink-0 text-primary" />
+                    <span>{pkg.coverage.length} {c.countries}</span>
+                  </p>
+                </div>
+                <div className="mt-auto pt-4">
+                  <strong className="block font-display text-xl font-bold leading-none text-primary">{money(pkg.salePrice ?? 0, pkg.currency)}</strong>
+                  <Button type="button" variant="ghost" size="sm" onClick={() => add(pkg)} className="mt-2 h-8 max-w-full justify-start gap-1 px-0 text-xs font-bold text-foreground hover:bg-transparent hover:text-primary">
+                    <span className="truncate">{inCart ? c.added : c.viewPackage}</span>
+                    {!inCart && <ArrowRight className="size-3.5 shrink-0" />}
+                  </Button>
+                </div>
+              </article>
             </li>
           );
         })}
