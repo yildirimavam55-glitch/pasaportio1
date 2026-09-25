@@ -49,17 +49,31 @@ function LoungeV2() {
   const navigate = Route.useNavigate();
   const [query, setQuery] = useState("");
   const [pickerOpen, setPickerOpen] = useState(false);
-  const { count } = useCart();
+  const { lines, addLine, updateQuantity, count } = useCart();
+  const [selectedOffer, setSelectedOffer] = useState<LoungeOption | null>(null);
+  const [selectionQuantity, setSelectionQuantity] = useState(1);
   const matches = useMemo(() => searchAirports(query, 40), [query]);
   const airport = iata ? getAirportByIata(iata) : undefined;
   const choose = (code: string) => {
+    setSelectedOffer(null);
+    setSelectionQuantity(1);
     setQuery("");
     setPickerOpen(false);
     void navigate({ search: { iata: code } });
   };
+  const selectedCartLine = selectedOffer ? lines.find((line) => line.productId === selectedOffer.id) : undefined;
+  const selectOffer = (offer: LoungeOption) => {
+    setSelectedOffer(offer);
+    setSelectionQuantity(lines.find((line) => line.productId === offer.id)?.quantity ?? 1);
+  };
+  const addSelectedOffer = () => {
+    if (!selectedOffer || selectedCartLine) return;
+    addLine({ productId: selectedOffer.id, serviceType: "LOUNGE", name: selectedOffer.loungeName ?? selectedOffer.name, meta: [selectedOffer.iata, selectedOffer.terminal].filter(Boolean).join(" · "), price: selectedOffer.salePrice, currency: selectedOffer.currency, quantity: selectionQuantity, airport: selectedOffer.iata, terminal: selectedOffer.terminal, situation: "DEPARTURE", isTest: selectedOffer.isTest });
+  };
+  const summary = selectedOffer ? <V2SelectedProductSummary title={selectedOffer.loungeName ?? selectedOffer.name} subtitle={[selectedOffer.iata, selectedOffer.terminal ? `${c.terminal} ${selectedOffer.terminal}` : null].filter(Boolean).join(" · ")} price={money(selectedOffer.salePrice ?? 0, selectedOffer.currency)} quantity={selectedCartLine?.quantity ?? selectionQuantity} inCart={Boolean(selectedCartLine)} addLabel={c.select} addedLabel={c.added} cartLabel={c.cart} decreaseLabel={c.decrease} increaseLabel={c.increase} whatsappLabel={c.support} onQuantityChange={(quantity) => selectedCartLine ? updateQuantity(selectedCartLine.productId, quantity) : setSelectionQuantity(quantity)} onAdd={addSelectedOffer} /> : undefined;
 
   return (
-    <V2Shell service="lounge">
+    <V2Shell service="lounge" commerceSelection={Boolean(selectedOffer)} purchaseSummary={summary}>
       <V2Hero image={heroImage} eyebrow="Lounge" title={c.h} subtitle={c.q}>
         <HeroField icon={<Search className="size-5" />}>
           <V2PickerSheet
@@ -82,7 +96,7 @@ function LoungeV2() {
       </V2Hero>
 
       {airport ? (
-        <Lounges iata={airport.iata} title={`${airport.iata} · ${airport.airport[locale]}`} c={c} onBack={() => void navigate({ search: { iata: "" } })} />
+        <Lounges iata={airport.iata} title={`${airport.iata} · ${airport.airport[locale]}`} c={c} selectedOffer={selectedOffer} onSelect={selectOffer} onBack={() => { setSelectedOffer(null); void navigate({ search: { iata: "" } }); }} />
       ) : (
         <>
           <TrustRow
@@ -144,50 +158,14 @@ function PopularAirports({ c, onPick }: { c: (typeof T)["tr"]; onPick: (iata: st
   );
 }
 
-function Lounges({ iata, title, c, onBack }: { iata: string; title: string; c: (typeof T)["tr"]; onBack: () => void }) {
-  const { lines, addLine, updateQuantity } = useCart();
-  const [selectedOffer, setSelectedOffer] = useState<LoungeOption | null>(null);
-  const [selectionQuantity, setSelectionQuantity] = useState(1);
+function Lounges({ iata, title, c, selectedOffer, onSelect, onBack }: { iata: string; title: string; c: (typeof T)["tr"]; selectedOffer: LoungeOption | null; onSelect: (offer: LoungeOption) => void; onBack: () => void }) {
+  const { lines } = useCart();
   const { data = [], isLoading } = useQuery({
     queryKey: ["v2-lounges", iata],
     queryFn: () => listLoungeOptions({ data: { iata, situation: "DEPARTURE" } }),
   });
-  const selectedCartLine = selectedOffer ? lines.find((line) => line.productId === selectedOffer.id) : undefined;
-  const select = (offer: LoungeOption) => {
-    setSelectedOffer(offer);
-    setSelectionQuantity(lines.find((line) => line.productId === offer.id)?.quantity ?? 1);
-  };
-  const add = (o: LoungeOption, quantity = 1) =>
-    addLine({
-      productId: o.id,
-      serviceType: "LOUNGE",
-      name: o.loungeName ?? o.name,
-      meta: [o.iata, o.terminal].filter(Boolean).join(" · "),
-      price: o.salePrice,
-      currency: o.currency,
-      quantity,
-      airport: o.iata,
-      terminal: o.terminal,
-      situation: "DEPARTURE",
-      isTest: o.isTest,
-    });
-  const summary = selectedOffer ? <V2SelectedProductSummary
-    title={selectedOffer.loungeName ?? selectedOffer.name}
-    subtitle={[selectedOffer.iata, selectedOffer.terminal ? `${c.terminal} ${selectedOffer.terminal}` : null].filter(Boolean).join(" · ")}
-    price={money(selectedOffer.salePrice ?? 0, selectedOffer.currency)}
-    quantity={selectedCartLine?.quantity ?? selectionQuantity}
-    inCart={Boolean(selectedCartLine)}
-    addLabel={c.select}
-    addedLabel={c.added}
-    cartLabel={c.cart}
-    decreaseLabel={c.decrease}
-    increaseLabel={c.increase}
-    whatsappLabel={c.support}
-    onQuantityChange={(quantity) => selectedCartLine ? updateQuantity(selectedCartLine.productId, quantity) : setSelectionQuantity(quantity)}
-    onAdd={() => { if (selectedOffer && !selectedCartLine) add(selectedOffer, selectionQuantity); }}
-  /> : undefined;
   return (
-    <V2Shell service="lounge" commerceSelection={Boolean(selectedOffer)} purchaseSummary={summary}>
+    <>
       <div className="mt-5 flex items-center justify-between gap-2">
         <h2 className="font-display text-lg font-semibold text-foreground">{title}</h2>
         <button type="button" onClick={onBack} className="min-h-11 shrink-0 px-2 text-sm font-semibold text-primary">{c.back}</button>
@@ -202,7 +180,7 @@ function Lounges({ iata, title, c, onBack }: { iata: string; title: string; c: (
             const inCart = lines.some((l) => l.productId === o.id);
             return (
               <li key={o.id}>
-                <V2ProductSelectionCard service="lounge" selected={selectedOffer?.id === o.id} onSelect={() => select(o)} className="min-h-32">
+                <V2ProductSelectionCard service="lounge" selected={selectedOffer?.id === o.id} onSelect={() => onSelect(o)} className="min-h-32">
                   <span className="flex min-h-32 w-full flex-col items-start p-4 pr-11">
                     <span className="font-display text-base font-semibold text-foreground">{o.loungeName ?? o.name}</span>
                     <span className="text-xs text-muted-foreground">{o.terminal ? `${c.terminal} ${o.terminal}` : ""}{o.maxStayMinutes ? ` · ${o.maxStayMinutes} ${c.stay}` : ""}</span>
@@ -216,6 +194,6 @@ function Lounges({ iata, title, c, onBack }: { iata: string; title: string; c: (
           })}
         </ul>
       )}
-    </V2Shell>
+    </>
   );
 }
