@@ -10,7 +10,7 @@ export const Route = createFileRoute("/destek")({
       { property: "og:title", content: "Destek | travely" },
       { property: "og:description", content: "WhatsApp ve e-posta ile travely destek ekibine ulaşın." },
     ],
-    links: [{ rel: "canonical", href: "https://wanderlust-core.lovable.app/destek" }],
+    links: [{ rel: "canonical", href: "https://wanderpath-engine.lovable.app/destek" }],
   }),
   component: PublicSupportPage,
 });

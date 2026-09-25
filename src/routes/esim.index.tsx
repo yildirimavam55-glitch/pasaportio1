@@ -15,7 +15,7 @@ export const Route = createFileRoute("/esim/")({
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
-    links: [{ rel: "canonical", href: "https://wanderlust-core.lovable.app/esim" }],
+    links: [{ rel: "canonical", href: "https://wanderpath-engine.lovable.app/esim" }],
   }),
   component: Page,
 });

@@ -1,6 +1,6 @@
 import type { Locale } from "@/domain/enums";
 
-export const SEO_BASE_URL = "https://wanderlust-core.lovable.app";
+export const SEO_BASE_URL = "https://wanderpath-engine.lovable.app";
 export const SEO_LOCALES: Locale[] = ["tr", "de", "en"];
 
 /** Localized guide folder: /tr/rehber, /de/ratgeber, /en/guides. */

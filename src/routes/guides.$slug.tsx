@@ -18,12 +18,12 @@ import { CountryFlag } from "@/components/travel/CountryFlag";
 import type { Locale } from "@/domain/enums";
 import { resolveSlugAlias, seoPath, seoUrl } from "@/domain/seo/paths";
 
-const GUIDES_BASE_URL = "https://wanderlust-core.lovable.app/guides";
+const GUIDES_BASE_URL = "https://wanderpath-engine.lovable.app/guides";
 
 function absoluteGuideImage(url: string | null) {
   if (!url) return null;
   if (url.startsWith("https://")) return url;
-  if (url.startsWith("/__l5e/")) return `https://wanderlust-core.lovable.app${url}`;
+  if (url.startsWith("/__l5e/")) return `https://wanderpath-engine.lovable.app${url}`;
   return null;
 }
 
@@ -139,7 +139,7 @@ export const Route = createFileRoute("/guides/$slug")({
           "@context": "https://schema.org",
           "@type": "BreadcrumbList",
           itemListElement: [
-            { "@type": "ListItem", position: 1, name: "Travely", item: "https://wanderlust-core.lovable.app/" },
+            { "@type": "ListItem", position: 1, name: "Travely", item: "https://wanderpath-engine.lovable.app/" },
             { "@type": "ListItem", position: 2, name: "Rehberler", item: GUIDES_BASE_URL },
             { "@type": "ListItem", position: 3, name: guide.title, item: canonical },
           ],

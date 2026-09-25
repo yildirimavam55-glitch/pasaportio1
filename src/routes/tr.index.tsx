@@ -17,7 +17,7 @@ export const Route = createFileRoute("/tr/")({
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
-    links: [{ rel: "canonical", href: "https://wanderlust-core.lovable.app/tr" }],
+    links: [{ rel: "canonical", href: "https://wanderpath-engine.lovable.app/tr" }],
   }),
   component: Page,
 });
