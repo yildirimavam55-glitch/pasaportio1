@@ -1,67 +1,31 @@
+import { createFileRoute, Navigate } from "@tanstack/react-router";
 import { useEffect } from "react";
-import { createFileRoute } from "@tanstack/react-router";
-import { z } from "zod";
-
-import { TravelExperience } from "@/components/travel/TravelExperience";
-import { normalizeService } from "@/domain/experience/state";
 import { useI18n } from "@/i18n";
+import { EsimHomePage, validateEsimSearch } from "@/components/design-v2/pages/EsimHomePage";
+import { v2PageQuery } from "@/components/design-v2/V2Sections";
 
-const searchSchema = z.object({
-  service: z.enum(["esim", "lounge"]).catch("esim").default("esim"),
-});
-
+// Primary storefront (V2). Legacy V1 lives at /legacy-v1 (admin-only, noindex).
 export const Route = createFileRoute("/de/")({
-  validateSearch: (search) => searchSchema.parse(search),
+  validateSearch: (s) => validateEsimSearch(s),
+  loader: ({ context }) => context.queryClient.ensureQueryData(v2PageQuery("esim")),
   head: () => ({
     meta: [
-      { title: "Travely Deutschland | eSIM und Flughafen-Lounges" },
-      {
-        name: "description",
-        content: "Entdecke eSIM-Tarife und Flughafen-Lounges für deine Reise.",
-      },
-      { property: "og:title", content: "Travely Deutschland | eSIM und Flughafen-Lounges" },
-      {
-        property: "og:description",
-        content: "Entdecke eSIM-Tarife und Flughafen-Lounges für deine Reise.",
-      },
+      { title: "Travely | eSIM & Flughafen-Lounge" },
+      { name: "description", content: "Entdecke eSIM-Pakete und Flughafen-Lounges für deine Reise." },
+      { property: "og:title", content: "Travely | eSIM & Flughafen-Lounge" },
+      { property: "og:description", content: "Entdecke eSIM-Pakete und Flughafen-Lounges für deine Reise." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
     links: [{ rel: "canonical", href: "https://wanderlust-core.lovable.app/de" }],
   }),
-  component: GermanHomepage,
+  component: Page,
 });
 
-function GermanHomepage() {
-  const search = Route.useSearch();
-  const navigate = Route.useNavigate();
+function Page() {
   const { locale, setLocale } = useI18n();
-  const service = normalizeService(search.service);
-
-  useEffect(() => {
-    if (locale !== "de") setLocale("de");
-  }, [locale, setLocale]);
-
-  return (
-    <TravelExperience
-      service={service}
-      onServiceChange={(next, options) => {
-        if (options?.finderTarget) {
-          void navigate({
-            to: ".",
-            search: { service: next },
-            hash: "finder",
-            resetScroll: false,
-          });
-          return;
-        }
-        void navigate({
-          to: ".",
-          search: { service: next },
-          replace: true,
-          resetScroll: false,
-        });
-      }}
-    />
-  );
+  useEffect(() => { if (locale !== "de") setLocale("de"); }, [locale, setLocale]);
+  const { service } = Route.useSearch();
+  if (service === "lounge") return <Navigate to="/lounge" replace />;
+  return <EsimHomePage />;
 }

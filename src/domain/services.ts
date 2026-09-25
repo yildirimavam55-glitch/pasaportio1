@@ -36,6 +36,16 @@ export const SERVICE_DEFINITIONS: Record<ServiceType, ServiceDefinition> = {
     routePath: "/lounge",
     sortOrder: 2,
   },
+  VIGNETTE: {
+    type: "VIGNETTE",
+    slug: "vignette",
+    // Not commercially launched: page visible ("coming soon"), never sellable until real products + checkout flag exist.
+    enabledByDefault: false,
+    customerVisibleByDefault: true,
+    detailTable: null,
+    routePath: "/vignette",
+    sortOrder: 3,
+  },
   CAR_RENTAL: {
     type: "CAR_RENTAL",
     slug: "car-rental",
@@ -43,7 +53,7 @@ export const SERVICE_DEFINITIONS: Record<ServiceType, ServiceDefinition> = {
     customerVisibleByDefault: false,
     detailTable: null,
     routePath: null,
-    sortOrder: 3,
+    sortOrder: 4,
   },
   TRANSFER: {
     type: "TRANSFER",
@@ -52,7 +62,7 @@ export const SERVICE_DEFINITIONS: Record<ServiceType, ServiceDefinition> = {
     customerVisibleByDefault: false,
     detailTable: null,
     routePath: null,
-    sortOrder: 4,
+    sortOrder: 5,
   },
 };
 

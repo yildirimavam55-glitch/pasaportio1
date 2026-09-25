@@ -3,7 +3,10 @@
  * These mirror the database enums 1:1 and are the only place the app defines them.
  */
 
-export const SERVICE_TYPES = ["ESIM", "LOUNGE", "CAR_RENTAL", "TRANSFER"] as const;
+export const SERVICE_TYPES = ["ESIM", "LOUNGE", "VIGNETTE", "CAR_RENTAL", "TRANSFER"] as const;
+/** The three first-class customer services. Always handle each explicitly — never `else → LOUNGE`. */
+export const PRIMARY_SERVICES = ["ESIM", "LOUNGE", "VIGNETTE"] as const;
+export type PrimaryService = (typeof PRIMARY_SERVICES)[number];
 export type ServiceType = (typeof SERVICE_TYPES)[number];
 
 export const LOCALES = ["tr", "de", "en"] as const;

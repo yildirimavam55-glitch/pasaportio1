@@ -1,58 +1,27 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { z } from "zod";
-import { TravelExperience } from "@/components/travel/TravelExperience";
-import { normalizeService } from "@/domain/experience/state";
+import { createFileRoute, Navigate } from "@tanstack/react-router";
+import { EsimHomePage, validateEsimSearch } from "@/components/design-v2/pages/EsimHomePage";
+import { v2PageQuery } from "@/components/design-v2/V2Sections";
 
-const searchSchema = z.object({
-  service: z.enum(["esim", "lounge"]).catch("esim").default("esim"),
-});
-
+// Primary storefront (V2). Legacy V1 lives at /legacy-v1 (admin-only, noindex).
 export const Route = createFileRoute("/")({
-  validateSearch: (search) => searchSchema.parse(search),
+  validateSearch: (s) => validateEsimSearch(s),
+  loader: ({ context }) => context.queryClient.ensureQueryData(v2PageQuery("esim")),
   head: () => ({
     meta: [
-      { title: "travely | eSIM & Airport Lounge" },
-      {
-        name: "description",
-        content: "Seyahatiniz için eSIM ve havalimanı Lounge seçeneklerini tek yerde planlayın.",
-      },
-      { property: "og:title", content: "travely | eSIM & Airport Lounge" },
-      {
-        property: "og:description",
-        content: "Seyahatiniz için eSIM ve Lounge seçeneklerini keşfedin.",
-      },
+      { title: "travely | eSIM, Lounge & Vignette" },
+      { name: "description", content: "Seyahatiniz için eSIM paketleri, havalimanı Lounge ve Vignette tek yerde." },
+      { property: "og:title", content: "travely | eSIM, Lounge & Vignette" },
+      { property: "og:description", content: "Seyahatiniz için eSIM paketleri, havalimanı Lounge ve Vignette tek yerde." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
+    links: [{ rel: "canonical", href: "https://wanderlust-core.lovable.app/tr" }],
   }),
-  component: Index,
+  component: Page,
 });
 
-function Index() {
-  const search = Route.useSearch();
-  const navigate = Route.useNavigate();
-  const service = normalizeService(search.service);
-
-  return (
-    <TravelExperience
-      service={service}
-      onServiceChange={(next, options) => {
-        if (options?.finderTarget) {
-          void navigate({
-            to: ".",
-            search: { service: next },
-            hash: "finder",
-            resetScroll: false,
-          });
-          return;
-        }
-        void navigate({
-          to: ".",
-          search: { service: next },
-          replace: true,
-          resetScroll: false,
-        });
-      }}
-    />
-  );
+function Page() {
+  const { service } = Route.useSearch();
+  if (service === "lounge") return <Navigate to="/lounge" replace />;
+  return <EsimHomePage />;
 }

@@ -569,3 +569,8 @@
 
 - [x] V2 Storefront Builder phase 1 (eSIM/Lounge/Vignette homepages) — awaiting visual approval
 - [ ] Storefront builder phase 2: country page support sections, cart/account/support presentation, V2 service accent tokens
+
+## V2 primary storefront (2026-09-25)
+- [x] V2 on public URLs, V1 at admin-only /legacy-v1 (noindex), /design-v2 → 301
+- [x] Vignette first-class in Admin (overview/products/service control/CMS), not for sale
+- [ ] Open: locale hydration warning on /en→/ revisit; admin products page has no Vignette tab (Admin → Vignette covers it)

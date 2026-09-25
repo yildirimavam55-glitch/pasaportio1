@@ -1,27 +1,17 @@
-import { createFileRoute, useSearch } from "@tanstack/react-router";
-
+import { createFileRoute } from "@tanstack/react-router";
 import { AuthPage } from "@/components/auth/AuthPage";
+import { V2_NOINDEX } from "@/components/design-v2/V2Shell";
 
-type AuthSearch = { redirect?: string | undefined };
-
+// Same auth component + providers as /auth; V2 presentation via V2Context.
 export const Route = createFileRoute("/auth")({
-  validateSearch: (search: Record<string, unknown>): AuthSearch => ({
-    redirect: typeof search["redirect"] === "string" ? search["redirect"] : undefined,
+  validateSearch: (s: Record<string, unknown>): { redirect?: string | undefined } => ({
+    redirect: typeof s["redirect"] === "string" ? s["redirect"] : undefined,
   }),
-  head: () => ({
-    meta: [
-      { title: "Giriş yap | travely" },
-      { name: "description", content: "Seyahatlerinize ulaşmak için giriş yapın veya hesap oluşturun." },
-      { property: "og:title", content: "Giriş yap | travely" },
-      { property: "og:description", content: "Seyahat hesabınıza güvenle giriş yapın." },
-      { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary_large_image" },
-    ],
-  }),
-  component: RoutePage,
+  head: () => ({ meta: [{ title: "Giriş | travely" }, ...V2_NOINDEX] }),
+  component: V2Login,
 });
 
-function RoutePage() {
-  const search = useSearch({ from: "/auth" });
-  return <AuthPage redirect={search.redirect} />;
+function V2Login() {
+  const { redirect } = Route.useSearch();
+  return <AuthPage redirect={redirect} fallback="/account" initialMode="signin" />;
 }

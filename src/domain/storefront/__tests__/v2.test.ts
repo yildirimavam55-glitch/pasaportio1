@@ -34,7 +34,7 @@ describe("V2 storefront config", () => {
     bad.sections[1]!.items[0]!.icon = "<svg onload=x>";
     const clean = sanitizeV2Page(bad, "esim");
     expect(clean.sections[0]!.text["title"]!.tr).toBe("alert(1)Merhaba");
-    expect(clean.sections[5]!.href).toBe("/design-v2/esim");
+    expect(clean.sections[5]!.href).toBe("/esim");
     expect(clean.sections[5]!.mediaId).toBeNull();
     expect(clean.sections[1]!.items[0]!.icon).toBe("");
   });

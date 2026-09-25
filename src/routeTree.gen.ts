@@ -11,19 +11,22 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
+import { Route as AccountRouteImport } from './routes/account'
 import { Route as AuthRouteImport } from './routes/auth'
-import { Route as DesignV2RouteImport } from './routes/design-v2'
 import { Route as DestekRouteImport } from './routes/destek'
+import { Route as KayitRouteImport } from './routes/kayit'
+import { Route as OdemeRouteImport } from './routes/odeme'
 import { Route as SepetRouteImport } from './routes/sepet'
+import { Route as VignetteRouteImport } from './routes/vignette'
+import { Route as AuthenticatedLegacyV1RouteImport } from './routes/_authenticated/legacy-v1'
+import { Route as AccountIndexRouteImport } from './routes/account.index'
+import { Route as AccountNotificationsRouteImport } from './routes/account.notifications'
+import { Route as AccountProfileRouteImport } from './routes/account.profile'
+import { Route as AccountSecurityRouteImport } from './routes/account.security'
+import { Route as AccountSupportRouteImport } from './routes/account.support'
 import { Route as DeIndexRouteImport } from './routes/de.index'
 import { Route as DesignV2IndexRouteImport } from './routes/design-v2.index'
-import { Route as DesignV2AccountRouteImport } from './routes/design-v2.account'
-import { Route as DesignV2CartRouteImport } from './routes/design-v2.cart'
-import { Route as DesignV2CheckoutRouteImport } from './routes/design-v2.checkout'
-import { Route as DesignV2EsimRouteImport } from './routes/design-v2.esim'
-import { Route as DesignV2LoungeRouteImport } from './routes/design-v2.lounge'
-import { Route as DesignV2SupportRouteImport } from './routes/design-v2.support'
-import { Route as DesignV2VignetteRouteImport } from './routes/design-v2.vignette'
+import { Route as DesignV2SplatRouteImport } from './routes/design-v2.$'
 import { Route as EnIndexRouteImport } from './routes/en.index'
 import { Route as EsimIndexRouteImport } from './routes/esim.index'
 import { Route as EsimPaketlerRouteImport } from './routes/esim.paketler'
@@ -35,11 +38,6 @@ import { Route as LoungeSeceneklerRouteImport } from './routes/lounge.secenekler
 import { Route as RehberlerIndexRouteImport } from './routes/rehberler.index'
 import { Route as SitemapXmlRouteImport } from './routes/sitemap.xml'
 import { Route as TrIndexRouteImport } from './routes/tr.index'
-import { Route as AuthenticatedAccountIndexRouteImport } from './routes/_authenticated/account.index'
-import { Route as AuthenticatedAccountNotificationsRouteImport } from './routes/_authenticated/account.notifications'
-import { Route as AuthenticatedAccountProfileRouteImport } from './routes/_authenticated/account.profile'
-import { Route as AuthenticatedAccountSecurityRouteImport } from './routes/_authenticated/account.security'
-import { Route as AuthenticatedAccountSupportRouteImport } from './routes/_authenticated/account.support'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin.index'
 import { Route as AuthenticatedAdminAirportsRouteImport } from './routes/_authenticated/admin.airports'
 import { Route as AuthenticatedAdminAlertsRouteImport } from './routes/_authenticated/admin.alerts'
@@ -60,30 +58,28 @@ import { Route as AuthenticatedAdminRefundsRouteImport } from './routes/_authent
 import { Route as AuthenticatedAdminServiceControlsRouteImport } from './routes/_authenticated/admin.service-controls'
 import { Route as AuthenticatedAdminTestCatalogueRouteImport } from './routes/_authenticated/admin.test-catalogue'
 import { Route as AuthenticatedAdminThemeRouteImport } from './routes/_authenticated/admin.theme'
+import { Route as AuthenticatedAdminVignetteRouteImport } from './routes/_authenticated/admin.vignette'
 import { Route as AuthenticatedHesabimIndexRouteImport } from './routes/_authenticated/hesabim.index'
 import { Route as AuthenticatedHesabimSeyahatlerRouteImport } from './routes/_authenticated/hesabim.seyahatler'
+import { Route as AuthenticatedLegacyV1IndexRouteImport } from './routes/_authenticated/legacy-v1.index'
+import { Route as AuthenticatedLegacyV1AuthRouteImport } from './routes/_authenticated/legacy-v1.auth'
+import { Route as AuthenticatedLegacyV1DestekRouteImport } from './routes/_authenticated/legacy-v1.destek'
+import { Route as AuthenticatedLegacyV1SepetRouteImport } from './routes/_authenticated/legacy-v1.sepet'
+import { Route as AccountEsimsIndexRouteImport } from './routes/account.esims.index'
+import { Route as AccountEsimsIdRouteImport } from './routes/account.esims.$id'
+import { Route as AccountOrdersIndexRouteImport } from './routes/account.orders.index'
+import { Route as AccountOrdersIdRouteImport } from './routes/account.orders.$id'
 import { Route as ApiPublicProviderSyncRouteImport } from './routes/api/public/provider-sync'
 import { Route as DeEsimSlugRouteImport } from './routes/de.esim.$slug'
 import { Route as DeRatgeberIndexRouteImport } from './routes/de.ratgeber.index'
 import { Route as DeRatgeberSlugRouteImport } from './routes/de.ratgeber.$slug'
-import { Route as DesignV2AccountIndexRouteImport } from './routes/design-v2.account.index'
-import { Route as DesignV2AccountNotificationsRouteImport } from './routes/design-v2.account.notifications'
-import { Route as DesignV2AccountProfileRouteImport } from './routes/design-v2.account.profile'
-import { Route as DesignV2AccountSecurityRouteImport } from './routes/design-v2.account.security'
-import { Route as DesignV2AccountSupportRouteImport } from './routes/design-v2.account.support'
-import { Route as DesignV2AuthLoginRouteImport } from './routes/design-v2.auth.login'
-import { Route as DesignV2AuthRegisterRouteImport } from './routes/design-v2.auth.register'
-import { Route as DesignV2EsimRegionRegionRouteImport } from './routes/design-v2.esim-region.$region'
 import { Route as EnEsimSlugRouteImport } from './routes/en.esim.$slug'
 import { Route as EnGuidesIndexRouteImport } from './routes/en.guides.index'
 import { Route as EnGuidesSlugRouteImport } from './routes/en.guides.$slug'
+import { Route as EsimBolgeRegionRouteImport } from './routes/esim.bolge.$region'
 import { Route as TrEsimSlugRouteImport } from './routes/tr.esim.$slug'
 import { Route as TrRehberIndexRouteImport } from './routes/tr.rehber.index'
 import { Route as TrRehberSlugRouteImport } from './routes/tr.rehber.$slug'
-import { Route as AuthenticatedAccountEsimsIndexRouteImport } from './routes/_authenticated/account.esims.index'
-import { Route as AuthenticatedAccountEsimsIdRouteImport } from './routes/_authenticated/account.esims.$id'
-import { Route as AuthenticatedAccountOrdersIndexRouteImport } from './routes/_authenticated/account.orders.index'
-import { Route as AuthenticatedAccountOrdersIdRouteImport } from './routes/_authenticated/account.orders.$id'
 import { Route as AuthenticatedAdminContentSeoRouteImport } from './routes/_authenticated/admin.content.seo'
 import { Route as AuthenticatedAdminEsimCoverageRouteImport } from './routes/_authenticated/admin.esim.coverage'
 import { Route as AuthenticatedAdminEsimDevicesRouteImport } from './routes/_authenticated/admin.esim.devices'
@@ -98,11 +94,24 @@ import { Route as AuthenticatedAdminSmartFindersEsimRouteImport } from './routes
 import { Route as AuthenticatedAdminStorefrontIndexRouteImport } from './routes/_authenticated/admin.storefront.index'
 import { Route as AuthenticatedAdminStorefrontHomeRouteImport } from './routes/_authenticated/admin.storefront.home'
 import { Route as AuthenticatedAdminStorefrontNavigationRouteImport } from './routes/_authenticated/admin.storefront.navigation'
-import { Route as DesignV2AccountEsimsIndexRouteImport } from './routes/design-v2.account.esims.index'
-import { Route as DesignV2AccountEsimsIdRouteImport } from './routes/design-v2.account.esims.$id'
-import { Route as DesignV2AccountOrdersIndexRouteImport } from './routes/design-v2.account.orders.index'
-import { Route as DesignV2AccountOrdersIdRouteImport } from './routes/design-v2.account.orders.$id'
+import { Route as AuthenticatedLegacyV1AccountIndexRouteImport } from './routes/_authenticated/legacy-v1.account.index'
+import { Route as AuthenticatedLegacyV1AccountNotificationsRouteImport } from './routes/_authenticated/legacy-v1.account.notifications'
+import { Route as AuthenticatedLegacyV1AccountProfileRouteImport } from './routes/_authenticated/legacy-v1.account.profile'
+import { Route as AuthenticatedLegacyV1AccountSecurityRouteImport } from './routes/_authenticated/legacy-v1.account.security'
+import { Route as AuthenticatedLegacyV1AccountSupportRouteImport } from './routes/_authenticated/legacy-v1.account.support'
+import { Route as AuthenticatedLegacyV1DeIndexRouteImport } from './routes/_authenticated/legacy-v1.de.index'
+import { Route as AuthenticatedLegacyV1EnIndexRouteImport } from './routes/_authenticated/legacy-v1.en.index'
+import { Route as AuthenticatedLegacyV1EsimIndexRouteImport } from './routes/_authenticated/legacy-v1.esim.index'
+import { Route as AuthenticatedLegacyV1EsimPaketlerRouteImport } from './routes/_authenticated/legacy-v1.esim.paketler'
+import { Route as AuthenticatedLegacyV1EsimUlkelerRouteImport } from './routes/_authenticated/legacy-v1.esim.ulkeler'
+import { Route as AuthenticatedLegacyV1LoungeIndexRouteImport } from './routes/_authenticated/legacy-v1.lounge.index'
+import { Route as AuthenticatedLegacyV1LoungeSeceneklerRouteImport } from './routes/_authenticated/legacy-v1.lounge.secenekler'
+import { Route as AuthenticatedLegacyV1TrIndexRouteImport } from './routes/_authenticated/legacy-v1.tr.index'
 import { Route as AuthenticatedAdminStorefrontV2PageRouteImport } from './routes/_authenticated/admin.storefront.v2.$page'
+import { Route as AuthenticatedLegacyV1AccountEsimsIndexRouteImport } from './routes/_authenticated/legacy-v1.account.esims.index'
+import { Route as AuthenticatedLegacyV1AccountEsimsIdRouteImport } from './routes/_authenticated/legacy-v1.account.esims.$id'
+import { Route as AuthenticatedLegacyV1AccountOrdersIndexRouteImport } from './routes/_authenticated/legacy-v1.account.orders.index'
+import { Route as AuthenticatedLegacyV1AccountOrdersIdRouteImport } from './routes/_authenticated/legacy-v1.account.orders.$id'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -113,14 +122,14 @@ const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
   id: '/_authenticated',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AccountRoute = AccountRouteImport.update({
+  id: '/account',
+  path: '/account',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
   path: '/auth',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const DesignV2Route = DesignV2RouteImport.update({
-  id: '/design-v2',
-  path: '/design-v2',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DestekRoute = DestekRouteImport.update({
@@ -128,10 +137,55 @@ const DestekRoute = DestekRouteImport.update({
   path: '/destek',
   getParentRoute: () => rootRouteImport,
 } as any)
+const KayitRoute = KayitRouteImport.update({
+  id: '/kayit',
+  path: '/kayit',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OdemeRoute = OdemeRouteImport.update({
+  id: '/odeme',
+  path: '/odeme',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SepetRoute = SepetRouteImport.update({
   id: '/sepet',
   path: '/sepet',
   getParentRoute: () => rootRouteImport,
+} as any)
+const VignetteRoute = VignetteRouteImport.update({
+  id: '/vignette',
+  path: '/vignette',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedLegacyV1Route = AuthenticatedLegacyV1RouteImport.update({
+  id: '/legacy-v1',
+  path: '/legacy-v1',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AccountIndexRoute = AccountIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AccountRoute,
+} as any)
+const AccountNotificationsRoute = AccountNotificationsRouteImport.update({
+  id: '/notifications',
+  path: '/notifications',
+  getParentRoute: () => AccountRoute,
+} as any)
+const AccountProfileRoute = AccountProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
+  getParentRoute: () => AccountRoute,
+} as any)
+const AccountSecurityRoute = AccountSecurityRouteImport.update({
+  id: '/security',
+  path: '/security',
+  getParentRoute: () => AccountRoute,
+} as any)
+const AccountSupportRoute = AccountSupportRouteImport.update({
+  id: '/support',
+  path: '/support',
+  getParentRoute: () => AccountRoute,
 } as any)
 const DeIndexRoute = DeIndexRouteImport.update({
   id: '/de/',
@@ -139,44 +193,14 @@ const DeIndexRoute = DeIndexRouteImport.update({
   getParentRoute: () => rootRouteImport,
 } as any)
 const DesignV2IndexRoute = DesignV2IndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => DesignV2Route,
+  id: '/design-v2/',
+  path: '/design-v2/',
+  getParentRoute: () => rootRouteImport,
 } as any)
-const DesignV2AccountRoute = DesignV2AccountRouteImport.update({
-  id: '/account',
-  path: '/account',
-  getParentRoute: () => DesignV2Route,
-} as any)
-const DesignV2CartRoute = DesignV2CartRouteImport.update({
-  id: '/cart',
-  path: '/cart',
-  getParentRoute: () => DesignV2Route,
-} as any)
-const DesignV2CheckoutRoute = DesignV2CheckoutRouteImport.update({
-  id: '/checkout',
-  path: '/checkout',
-  getParentRoute: () => DesignV2Route,
-} as any)
-const DesignV2EsimRoute = DesignV2EsimRouteImport.update({
-  id: '/esim',
-  path: '/esim',
-  getParentRoute: () => DesignV2Route,
-} as any)
-const DesignV2LoungeRoute = DesignV2LoungeRouteImport.update({
-  id: '/lounge',
-  path: '/lounge',
-  getParentRoute: () => DesignV2Route,
-} as any)
-const DesignV2SupportRoute = DesignV2SupportRouteImport.update({
-  id: '/support',
-  path: '/support',
-  getParentRoute: () => DesignV2Route,
-} as any)
-const DesignV2VignetteRoute = DesignV2VignetteRouteImport.update({
-  id: '/vignette',
-  path: '/vignette',
-  getParentRoute: () => DesignV2Route,
+const DesignV2SplatRoute = DesignV2SplatRouteImport.update({
+  id: '/design-v2/$',
+  path: '/design-v2/$',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const EnIndexRoute = EnIndexRouteImport.update({
   id: '/en/',
@@ -233,36 +257,6 @@ const TrIndexRoute = TrIndexRouteImport.update({
   path: '/tr/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AuthenticatedAccountIndexRoute =
-  AuthenticatedAccountIndexRouteImport.update({
-    id: '/account/',
-    path: '/account/',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any)
-const AuthenticatedAccountNotificationsRoute =
-  AuthenticatedAccountNotificationsRouteImport.update({
-    id: '/account/notifications',
-    path: '/account/notifications',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any)
-const AuthenticatedAccountProfileRoute =
-  AuthenticatedAccountProfileRouteImport.update({
-    id: '/account/profile',
-    path: '/account/profile',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any)
-const AuthenticatedAccountSecurityRoute =
-  AuthenticatedAccountSecurityRouteImport.update({
-    id: '/account/security',
-    path: '/account/security',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any)
-const AuthenticatedAccountSupportRoute =
-  AuthenticatedAccountSupportRouteImport.update({
-    id: '/account/support',
-    path: '/account/support',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any)
 const AuthenticatedAdminIndexRoute = AuthenticatedAdminIndexRouteImport.update({
   id: '/admin/',
   path: '/admin/',
@@ -377,6 +371,12 @@ const AuthenticatedAdminThemeRoute = AuthenticatedAdminThemeRouteImport.update({
   path: '/admin/theme',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedAdminVignetteRoute =
+  AuthenticatedAdminVignetteRouteImport.update({
+    id: '/admin/vignette',
+    path: '/admin/vignette',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedHesabimIndexRoute =
   AuthenticatedHesabimIndexRouteImport.update({
     id: '/hesabim/',
@@ -389,6 +389,50 @@ const AuthenticatedHesabimSeyahatlerRoute =
     path: '/hesabim/seyahatler',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedLegacyV1IndexRoute =
+  AuthenticatedLegacyV1IndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => AuthenticatedLegacyV1Route,
+  } as any)
+const AuthenticatedLegacyV1AuthRoute =
+  AuthenticatedLegacyV1AuthRouteImport.update({
+    id: '/auth',
+    path: '/auth',
+    getParentRoute: () => AuthenticatedLegacyV1Route,
+  } as any)
+const AuthenticatedLegacyV1DestekRoute =
+  AuthenticatedLegacyV1DestekRouteImport.update({
+    id: '/destek',
+    path: '/destek',
+    getParentRoute: () => AuthenticatedLegacyV1Route,
+  } as any)
+const AuthenticatedLegacyV1SepetRoute =
+  AuthenticatedLegacyV1SepetRouteImport.update({
+    id: '/sepet',
+    path: '/sepet',
+    getParentRoute: () => AuthenticatedLegacyV1Route,
+  } as any)
+const AccountEsimsIndexRoute = AccountEsimsIndexRouteImport.update({
+  id: '/esims/',
+  path: '/esims/',
+  getParentRoute: () => AccountRoute,
+} as any)
+const AccountEsimsIdRoute = AccountEsimsIdRouteImport.update({
+  id: '/esims/$id',
+  path: '/esims/$id',
+  getParentRoute: () => AccountRoute,
+} as any)
+const AccountOrdersIndexRoute = AccountOrdersIndexRouteImport.update({
+  id: '/orders/',
+  path: '/orders/',
+  getParentRoute: () => AccountRoute,
+} as any)
+const AccountOrdersIdRoute = AccountOrdersIdRouteImport.update({
+  id: '/orders/$id',
+  path: '/orders/$id',
+  getParentRoute: () => AccountRoute,
+} as any)
 const ApiPublicProviderSyncRoute = ApiPublicProviderSyncRouteImport.update({
   id: '/api/public/provider-sync',
   path: '/api/public/provider-sync',
@@ -409,48 +453,6 @@ const DeRatgeberSlugRoute = DeRatgeberSlugRouteImport.update({
   path: '/de/ratgeber/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
-const DesignV2AccountIndexRoute = DesignV2AccountIndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => DesignV2AccountRoute,
-} as any)
-const DesignV2AccountNotificationsRoute =
-  DesignV2AccountNotificationsRouteImport.update({
-    id: '/notifications',
-    path: '/notifications',
-    getParentRoute: () => DesignV2AccountRoute,
-  } as any)
-const DesignV2AccountProfileRoute = DesignV2AccountProfileRouteImport.update({
-  id: '/profile',
-  path: '/profile',
-  getParentRoute: () => DesignV2AccountRoute,
-} as any)
-const DesignV2AccountSecurityRoute = DesignV2AccountSecurityRouteImport.update({
-  id: '/security',
-  path: '/security',
-  getParentRoute: () => DesignV2AccountRoute,
-} as any)
-const DesignV2AccountSupportRoute = DesignV2AccountSupportRouteImport.update({
-  id: '/support',
-  path: '/support',
-  getParentRoute: () => DesignV2AccountRoute,
-} as any)
-const DesignV2AuthLoginRoute = DesignV2AuthLoginRouteImport.update({
-  id: '/auth/login',
-  path: '/auth/login',
-  getParentRoute: () => DesignV2Route,
-} as any)
-const DesignV2AuthRegisterRoute = DesignV2AuthRegisterRouteImport.update({
-  id: '/auth/register',
-  path: '/auth/register',
-  getParentRoute: () => DesignV2Route,
-} as any)
-const DesignV2EsimRegionRegionRoute =
-  DesignV2EsimRegionRegionRouteImport.update({
-    id: '/esim-region/$region',
-    path: '/esim-region/$region',
-    getParentRoute: () => DesignV2Route,
-  } as any)
 const EnEsimSlugRoute = EnEsimSlugRouteImport.update({
   id: '/en/esim/$slug',
   path: '/en/esim/$slug',
@@ -464,6 +466,11 @@ const EnGuidesIndexRoute = EnGuidesIndexRouteImport.update({
 const EnGuidesSlugRoute = EnGuidesSlugRouteImport.update({
   id: '/en/guides/$slug',
   path: '/en/guides/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EsimBolgeRegionRoute = EsimBolgeRegionRouteImport.update({
+  id: '/esim/bolge/$region',
+  path: '/esim/bolge/$region',
   getParentRoute: () => rootRouteImport,
 } as any)
 const TrEsimSlugRoute = TrEsimSlugRouteImport.update({
@@ -481,30 +488,6 @@ const TrRehberSlugRoute = TrRehberSlugRouteImport.update({
   path: '/tr/rehber/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AuthenticatedAccountEsimsIndexRoute =
-  AuthenticatedAccountEsimsIndexRouteImport.update({
-    id: '/account/esims/',
-    path: '/account/esims/',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any)
-const AuthenticatedAccountEsimsIdRoute =
-  AuthenticatedAccountEsimsIdRouteImport.update({
-    id: '/account/esims/$id',
-    path: '/account/esims/$id',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any)
-const AuthenticatedAccountOrdersIndexRoute =
-  AuthenticatedAccountOrdersIndexRouteImport.update({
-    id: '/account/orders/',
-    path: '/account/orders/',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any)
-const AuthenticatedAccountOrdersIdRoute =
-  AuthenticatedAccountOrdersIdRouteImport.update({
-    id: '/account/orders/$id',
-    path: '/account/orders/$id',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any)
 const AuthenticatedAdminContentSeoRoute =
   AuthenticatedAdminContentSeoRouteImport.update({
     id: '/admin/content/seo',
@@ -589,53 +572,136 @@ const AuthenticatedAdminStorefrontNavigationRoute =
     path: '/admin/storefront/navigation',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
-const DesignV2AccountEsimsIndexRoute =
-  DesignV2AccountEsimsIndexRouteImport.update({
-    id: '/esims/',
-    path: '/esims/',
-    getParentRoute: () => DesignV2AccountRoute,
+const AuthenticatedLegacyV1AccountIndexRoute =
+  AuthenticatedLegacyV1AccountIndexRouteImport.update({
+    id: '/account/',
+    path: '/account/',
+    getParentRoute: () => AuthenticatedLegacyV1Route,
   } as any)
-const DesignV2AccountEsimsIdRoute = DesignV2AccountEsimsIdRouteImport.update({
-  id: '/esims/$id',
-  path: '/esims/$id',
-  getParentRoute: () => DesignV2AccountRoute,
-} as any)
-const DesignV2AccountOrdersIndexRoute =
-  DesignV2AccountOrdersIndexRouteImport.update({
-    id: '/orders/',
-    path: '/orders/',
-    getParentRoute: () => DesignV2AccountRoute,
+const AuthenticatedLegacyV1AccountNotificationsRoute =
+  AuthenticatedLegacyV1AccountNotificationsRouteImport.update({
+    id: '/account/notifications',
+    path: '/account/notifications',
+    getParentRoute: () => AuthenticatedLegacyV1Route,
   } as any)
-const DesignV2AccountOrdersIdRoute = DesignV2AccountOrdersIdRouteImport.update({
-  id: '/orders/$id',
-  path: '/orders/$id',
-  getParentRoute: () => DesignV2AccountRoute,
-} as any)
+const AuthenticatedLegacyV1AccountProfileRoute =
+  AuthenticatedLegacyV1AccountProfileRouteImport.update({
+    id: '/account/profile',
+    path: '/account/profile',
+    getParentRoute: () => AuthenticatedLegacyV1Route,
+  } as any)
+const AuthenticatedLegacyV1AccountSecurityRoute =
+  AuthenticatedLegacyV1AccountSecurityRouteImport.update({
+    id: '/account/security',
+    path: '/account/security',
+    getParentRoute: () => AuthenticatedLegacyV1Route,
+  } as any)
+const AuthenticatedLegacyV1AccountSupportRoute =
+  AuthenticatedLegacyV1AccountSupportRouteImport.update({
+    id: '/account/support',
+    path: '/account/support',
+    getParentRoute: () => AuthenticatedLegacyV1Route,
+  } as any)
+const AuthenticatedLegacyV1DeIndexRoute =
+  AuthenticatedLegacyV1DeIndexRouteImport.update({
+    id: '/de/',
+    path: '/de/',
+    getParentRoute: () => AuthenticatedLegacyV1Route,
+  } as any)
+const AuthenticatedLegacyV1EnIndexRoute =
+  AuthenticatedLegacyV1EnIndexRouteImport.update({
+    id: '/en/',
+    path: '/en/',
+    getParentRoute: () => AuthenticatedLegacyV1Route,
+  } as any)
+const AuthenticatedLegacyV1EsimIndexRoute =
+  AuthenticatedLegacyV1EsimIndexRouteImport.update({
+    id: '/esim/',
+    path: '/esim/',
+    getParentRoute: () => AuthenticatedLegacyV1Route,
+  } as any)
+const AuthenticatedLegacyV1EsimPaketlerRoute =
+  AuthenticatedLegacyV1EsimPaketlerRouteImport.update({
+    id: '/esim/paketler',
+    path: '/esim/paketler',
+    getParentRoute: () => AuthenticatedLegacyV1Route,
+  } as any)
+const AuthenticatedLegacyV1EsimUlkelerRoute =
+  AuthenticatedLegacyV1EsimUlkelerRouteImport.update({
+    id: '/esim/ulkeler',
+    path: '/esim/ulkeler',
+    getParentRoute: () => AuthenticatedLegacyV1Route,
+  } as any)
+const AuthenticatedLegacyV1LoungeIndexRoute =
+  AuthenticatedLegacyV1LoungeIndexRouteImport.update({
+    id: '/lounge/',
+    path: '/lounge/',
+    getParentRoute: () => AuthenticatedLegacyV1Route,
+  } as any)
+const AuthenticatedLegacyV1LoungeSeceneklerRoute =
+  AuthenticatedLegacyV1LoungeSeceneklerRouteImport.update({
+    id: '/lounge/secenekler',
+    path: '/lounge/secenekler',
+    getParentRoute: () => AuthenticatedLegacyV1Route,
+  } as any)
+const AuthenticatedLegacyV1TrIndexRoute =
+  AuthenticatedLegacyV1TrIndexRouteImport.update({
+    id: '/tr/',
+    path: '/tr/',
+    getParentRoute: () => AuthenticatedLegacyV1Route,
+  } as any)
 const AuthenticatedAdminStorefrontV2PageRoute =
   AuthenticatedAdminStorefrontV2PageRouteImport.update({
     id: '/admin/storefront/v2/$page',
     path: '/admin/storefront/v2/$page',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedLegacyV1AccountEsimsIndexRoute =
+  AuthenticatedLegacyV1AccountEsimsIndexRouteImport.update({
+    id: '/account/esims/',
+    path: '/account/esims/',
+    getParentRoute: () => AuthenticatedLegacyV1Route,
+  } as any)
+const AuthenticatedLegacyV1AccountEsimsIdRoute =
+  AuthenticatedLegacyV1AccountEsimsIdRouteImport.update({
+    id: '/account/esims/$id',
+    path: '/account/esims/$id',
+    getParentRoute: () => AuthenticatedLegacyV1Route,
+  } as any)
+const AuthenticatedLegacyV1AccountOrdersIndexRoute =
+  AuthenticatedLegacyV1AccountOrdersIndexRouteImport.update({
+    id: '/account/orders/',
+    path: '/account/orders/',
+    getParentRoute: () => AuthenticatedLegacyV1Route,
+  } as any)
+const AuthenticatedLegacyV1AccountOrdersIdRoute =
+  AuthenticatedLegacyV1AccountOrdersIdRouteImport.update({
+    id: '/account/orders/$id',
+    path: '/account/orders/$id',
+    getParentRoute: () => AuthenticatedLegacyV1Route,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/account': typeof AccountRouteWithChildren
   '/auth': typeof AuthRoute
-  '/design-v2': typeof DesignV2RouteWithChildren
   '/destek': typeof DestekRoute
+  '/kayit': typeof KayitRoute
+  '/odeme': typeof OdemeRoute
   '/sepet': typeof SepetRoute
-  '/design-v2/account': typeof DesignV2AccountRouteWithChildren
-  '/design-v2/cart': typeof DesignV2CartRoute
-  '/design-v2/checkout': typeof DesignV2CheckoutRoute
-  '/design-v2/esim': typeof DesignV2EsimRoute
-  '/design-v2/lounge': typeof DesignV2LoungeRoute
-  '/design-v2/support': typeof DesignV2SupportRoute
-  '/design-v2/vignette': typeof DesignV2VignetteRoute
+  '/vignette': typeof VignetteRoute
+  '/legacy-v1': typeof AuthenticatedLegacyV1RouteWithChildren
+  '/account/notifications': typeof AccountNotificationsRoute
+  '/account/profile': typeof AccountProfileRoute
+  '/account/security': typeof AccountSecurityRoute
+  '/account/support': typeof AccountSupportRoute
+  '/design-v2/$': typeof DesignV2SplatRoute
   '/esim/paketler': typeof EsimPaketlerRoute
   '/esim/ulkeler': typeof EsimUlkelerRoute
   '/guides/$slug': typeof GuidesSlugRoute
   '/lounge/secenekler': typeof LoungeSeceneklerRoute
   '/sitemap/xml': typeof SitemapXmlRoute
+  '/account/': typeof AccountIndexRoute
   '/de/': typeof DeIndexRoute
   '/design-v2/': typeof DesignV2IndexRoute
   '/en/': typeof EnIndexRoute
@@ -644,10 +710,6 @@ export interface FileRoutesByFullPath {
   '/lounge/': typeof LoungeIndexRoute
   '/rehberler/': typeof RehberlerIndexRoute
   '/tr/': typeof TrIndexRoute
-  '/account/notifications': typeof AuthenticatedAccountNotificationsRoute
-  '/account/profile': typeof AuthenticatedAccountProfileRoute
-  '/account/security': typeof AuthenticatedAccountSecurityRoute
-  '/account/support': typeof AuthenticatedAccountSupportRoute
   '/admin/airports': typeof AuthenticatedAdminAirportsRoute
   '/admin/alerts': typeof AuthenticatedAdminAlertsRoute
   '/admin/analytics': typeof AuthenticatedAdminAnalyticsRoute
@@ -667,30 +729,29 @@ export interface FileRoutesByFullPath {
   '/admin/service-controls': typeof AuthenticatedAdminServiceControlsRoute
   '/admin/test-catalogue': typeof AuthenticatedAdminTestCatalogueRoute
   '/admin/theme': typeof AuthenticatedAdminThemeRoute
+  '/admin/vignette': typeof AuthenticatedAdminVignetteRoute
   '/hesabim/seyahatler': typeof AuthenticatedHesabimSeyahatlerRoute
+  '/legacy-v1/auth': typeof AuthenticatedLegacyV1AuthRoute
+  '/legacy-v1/destek': typeof AuthenticatedLegacyV1DestekRoute
+  '/legacy-v1/sepet': typeof AuthenticatedLegacyV1SepetRoute
+  '/account/esims/$id': typeof AccountEsimsIdRoute
+  '/account/orders/$id': typeof AccountOrdersIdRoute
   '/api/public/provider-sync': typeof ApiPublicProviderSyncRoute
   '/de/esim/$slug': typeof DeEsimSlugRoute
   '/de/ratgeber/$slug': typeof DeRatgeberSlugRoute
-  '/design-v2/account/notifications': typeof DesignV2AccountNotificationsRoute
-  '/design-v2/account/profile': typeof DesignV2AccountProfileRoute
-  '/design-v2/account/security': typeof DesignV2AccountSecurityRoute
-  '/design-v2/account/support': typeof DesignV2AccountSupportRoute
-  '/design-v2/auth/login': typeof DesignV2AuthLoginRoute
-  '/design-v2/auth/register': typeof DesignV2AuthRegisterRoute
-  '/design-v2/esim-region/$region': typeof DesignV2EsimRegionRegionRoute
   '/en/esim/$slug': typeof EnEsimSlugRoute
   '/en/guides/$slug': typeof EnGuidesSlugRoute
+  '/esim/bolge/$region': typeof EsimBolgeRegionRoute
   '/tr/esim/$slug': typeof TrEsimSlugRoute
   '/tr/rehber/$slug': typeof TrRehberSlugRoute
-  '/account/': typeof AuthenticatedAccountIndexRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
   '/hesabim/': typeof AuthenticatedHesabimIndexRoute
+  '/legacy-v1/': typeof AuthenticatedLegacyV1IndexRoute
+  '/account/esims/': typeof AccountEsimsIndexRoute
+  '/account/orders/': typeof AccountOrdersIndexRoute
   '/de/ratgeber/': typeof DeRatgeberIndexRoute
-  '/design-v2/account/': typeof DesignV2AccountIndexRoute
   '/en/guides/': typeof EnGuidesIndexRoute
   '/tr/rehber/': typeof TrRehberIndexRoute
-  '/account/esims/$id': typeof AuthenticatedAccountEsimsIdRoute
-  '/account/orders/$id': typeof AuthenticatedAccountOrdersIdRoute
   '/admin/content/seo': typeof AuthenticatedAdminContentSeoRoute
   '/admin/esim/coverage': typeof AuthenticatedAdminEsimCoverageRoute
   '/admin/esim/devices': typeof AuthenticatedAdminEsimDevicesRoute
@@ -703,32 +764,46 @@ export interface FileRoutesByFullPath {
   '/admin/smart-finders/esim': typeof AuthenticatedAdminSmartFindersEsimRoute
   '/admin/storefront/home': typeof AuthenticatedAdminStorefrontHomeRoute
   '/admin/storefront/navigation': typeof AuthenticatedAdminStorefrontNavigationRoute
-  '/design-v2/account/esims/$id': typeof DesignV2AccountEsimsIdRoute
-  '/design-v2/account/orders/$id': typeof DesignV2AccountOrdersIdRoute
-  '/account/esims/': typeof AuthenticatedAccountEsimsIndexRoute
-  '/account/orders/': typeof AuthenticatedAccountOrdersIndexRoute
+  '/legacy-v1/account/notifications': typeof AuthenticatedLegacyV1AccountNotificationsRoute
+  '/legacy-v1/account/profile': typeof AuthenticatedLegacyV1AccountProfileRoute
+  '/legacy-v1/account/security': typeof AuthenticatedLegacyV1AccountSecurityRoute
+  '/legacy-v1/account/support': typeof AuthenticatedLegacyV1AccountSupportRoute
+  '/legacy-v1/esim/paketler': typeof AuthenticatedLegacyV1EsimPaketlerRoute
+  '/legacy-v1/esim/ulkeler': typeof AuthenticatedLegacyV1EsimUlkelerRoute
+  '/legacy-v1/lounge/secenekler': typeof AuthenticatedLegacyV1LoungeSeceneklerRoute
   '/admin/settings/': typeof AuthenticatedAdminSettingsIndexRoute
   '/admin/storefront/': typeof AuthenticatedAdminStorefrontIndexRoute
-  '/design-v2/account/esims/': typeof DesignV2AccountEsimsIndexRoute
-  '/design-v2/account/orders/': typeof DesignV2AccountOrdersIndexRoute
+  '/legacy-v1/account/': typeof AuthenticatedLegacyV1AccountIndexRoute
+  '/legacy-v1/de/': typeof AuthenticatedLegacyV1DeIndexRoute
+  '/legacy-v1/en/': typeof AuthenticatedLegacyV1EnIndexRoute
+  '/legacy-v1/esim/': typeof AuthenticatedLegacyV1EsimIndexRoute
+  '/legacy-v1/lounge/': typeof AuthenticatedLegacyV1LoungeIndexRoute
+  '/legacy-v1/tr/': typeof AuthenticatedLegacyV1TrIndexRoute
   '/admin/storefront/v2/$page': typeof AuthenticatedAdminStorefrontV2PageRoute
+  '/legacy-v1/account/esims/$id': typeof AuthenticatedLegacyV1AccountEsimsIdRoute
+  '/legacy-v1/account/orders/$id': typeof AuthenticatedLegacyV1AccountOrdersIdRoute
+  '/legacy-v1/account/esims/': typeof AuthenticatedLegacyV1AccountEsimsIndexRoute
+  '/legacy-v1/account/orders/': typeof AuthenticatedLegacyV1AccountOrdersIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/destek': typeof DestekRoute
+  '/kayit': typeof KayitRoute
+  '/odeme': typeof OdemeRoute
   '/sepet': typeof SepetRoute
-  '/design-v2/cart': typeof DesignV2CartRoute
-  '/design-v2/checkout': typeof DesignV2CheckoutRoute
-  '/design-v2/esim': typeof DesignV2EsimRoute
-  '/design-v2/lounge': typeof DesignV2LoungeRoute
-  '/design-v2/support': typeof DesignV2SupportRoute
-  '/design-v2/vignette': typeof DesignV2VignetteRoute
+  '/vignette': typeof VignetteRoute
+  '/account/notifications': typeof AccountNotificationsRoute
+  '/account/profile': typeof AccountProfileRoute
+  '/account/security': typeof AccountSecurityRoute
+  '/account/support': typeof AccountSupportRoute
+  '/design-v2/$': typeof DesignV2SplatRoute
   '/esim/paketler': typeof EsimPaketlerRoute
   '/esim/ulkeler': typeof EsimUlkelerRoute
   '/guides/$slug': typeof GuidesSlugRoute
   '/lounge/secenekler': typeof LoungeSeceneklerRoute
   '/sitemap/xml': typeof SitemapXmlRoute
+  '/account': typeof AccountIndexRoute
   '/de': typeof DeIndexRoute
   '/design-v2': typeof DesignV2IndexRoute
   '/en': typeof EnIndexRoute
@@ -737,10 +812,6 @@ export interface FileRoutesByTo {
   '/lounge': typeof LoungeIndexRoute
   '/rehberler': typeof RehberlerIndexRoute
   '/tr': typeof TrIndexRoute
-  '/account/notifications': typeof AuthenticatedAccountNotificationsRoute
-  '/account/profile': typeof AuthenticatedAccountProfileRoute
-  '/account/security': typeof AuthenticatedAccountSecurityRoute
-  '/account/support': typeof AuthenticatedAccountSupportRoute
   '/admin/airports': typeof AuthenticatedAdminAirportsRoute
   '/admin/alerts': typeof AuthenticatedAdminAlertsRoute
   '/admin/analytics': typeof AuthenticatedAdminAnalyticsRoute
@@ -760,30 +831,29 @@ export interface FileRoutesByTo {
   '/admin/service-controls': typeof AuthenticatedAdminServiceControlsRoute
   '/admin/test-catalogue': typeof AuthenticatedAdminTestCatalogueRoute
   '/admin/theme': typeof AuthenticatedAdminThemeRoute
+  '/admin/vignette': typeof AuthenticatedAdminVignetteRoute
   '/hesabim/seyahatler': typeof AuthenticatedHesabimSeyahatlerRoute
+  '/legacy-v1/auth': typeof AuthenticatedLegacyV1AuthRoute
+  '/legacy-v1/destek': typeof AuthenticatedLegacyV1DestekRoute
+  '/legacy-v1/sepet': typeof AuthenticatedLegacyV1SepetRoute
+  '/account/esims/$id': typeof AccountEsimsIdRoute
+  '/account/orders/$id': typeof AccountOrdersIdRoute
   '/api/public/provider-sync': typeof ApiPublicProviderSyncRoute
   '/de/esim/$slug': typeof DeEsimSlugRoute
   '/de/ratgeber/$slug': typeof DeRatgeberSlugRoute
-  '/design-v2/account/notifications': typeof DesignV2AccountNotificationsRoute
-  '/design-v2/account/profile': typeof DesignV2AccountProfileRoute
-  '/design-v2/account/security': typeof DesignV2AccountSecurityRoute
-  '/design-v2/account/support': typeof DesignV2AccountSupportRoute
-  '/design-v2/auth/login': typeof DesignV2AuthLoginRoute
-  '/design-v2/auth/register': typeof DesignV2AuthRegisterRoute
-  '/design-v2/esim-region/$region': typeof DesignV2EsimRegionRegionRoute
   '/en/esim/$slug': typeof EnEsimSlugRoute
   '/en/guides/$slug': typeof EnGuidesSlugRoute
+  '/esim/bolge/$region': typeof EsimBolgeRegionRoute
   '/tr/esim/$slug': typeof TrEsimSlugRoute
   '/tr/rehber/$slug': typeof TrRehberSlugRoute
-  '/account': typeof AuthenticatedAccountIndexRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
   '/hesabim': typeof AuthenticatedHesabimIndexRoute
+  '/legacy-v1': typeof AuthenticatedLegacyV1IndexRoute
+  '/account/esims': typeof AccountEsimsIndexRoute
+  '/account/orders': typeof AccountOrdersIndexRoute
   '/de/ratgeber': typeof DeRatgeberIndexRoute
-  '/design-v2/account': typeof DesignV2AccountIndexRoute
   '/en/guides': typeof EnGuidesIndexRoute
   '/tr/rehber': typeof TrRehberIndexRoute
-  '/account/esims/$id': typeof AuthenticatedAccountEsimsIdRoute
-  '/account/orders/$id': typeof AuthenticatedAccountOrdersIdRoute
   '/admin/content/seo': typeof AuthenticatedAdminContentSeoRoute
   '/admin/esim/coverage': typeof AuthenticatedAdminEsimCoverageRoute
   '/admin/esim/devices': typeof AuthenticatedAdminEsimDevicesRoute
@@ -796,36 +866,50 @@ export interface FileRoutesByTo {
   '/admin/smart-finders/esim': typeof AuthenticatedAdminSmartFindersEsimRoute
   '/admin/storefront/home': typeof AuthenticatedAdminStorefrontHomeRoute
   '/admin/storefront/navigation': typeof AuthenticatedAdminStorefrontNavigationRoute
-  '/design-v2/account/esims/$id': typeof DesignV2AccountEsimsIdRoute
-  '/design-v2/account/orders/$id': typeof DesignV2AccountOrdersIdRoute
-  '/account/esims': typeof AuthenticatedAccountEsimsIndexRoute
-  '/account/orders': typeof AuthenticatedAccountOrdersIndexRoute
+  '/legacy-v1/account/notifications': typeof AuthenticatedLegacyV1AccountNotificationsRoute
+  '/legacy-v1/account/profile': typeof AuthenticatedLegacyV1AccountProfileRoute
+  '/legacy-v1/account/security': typeof AuthenticatedLegacyV1AccountSecurityRoute
+  '/legacy-v1/account/support': typeof AuthenticatedLegacyV1AccountSupportRoute
+  '/legacy-v1/esim/paketler': typeof AuthenticatedLegacyV1EsimPaketlerRoute
+  '/legacy-v1/esim/ulkeler': typeof AuthenticatedLegacyV1EsimUlkelerRoute
+  '/legacy-v1/lounge/secenekler': typeof AuthenticatedLegacyV1LoungeSeceneklerRoute
   '/admin/settings': typeof AuthenticatedAdminSettingsIndexRoute
   '/admin/storefront': typeof AuthenticatedAdminStorefrontIndexRoute
-  '/design-v2/account/esims': typeof DesignV2AccountEsimsIndexRoute
-  '/design-v2/account/orders': typeof DesignV2AccountOrdersIndexRoute
+  '/legacy-v1/account': typeof AuthenticatedLegacyV1AccountIndexRoute
+  '/legacy-v1/de': typeof AuthenticatedLegacyV1DeIndexRoute
+  '/legacy-v1/en': typeof AuthenticatedLegacyV1EnIndexRoute
+  '/legacy-v1/esim': typeof AuthenticatedLegacyV1EsimIndexRoute
+  '/legacy-v1/lounge': typeof AuthenticatedLegacyV1LoungeIndexRoute
+  '/legacy-v1/tr': typeof AuthenticatedLegacyV1TrIndexRoute
   '/admin/storefront/v2/$page': typeof AuthenticatedAdminStorefrontV2PageRoute
+  '/legacy-v1/account/esims/$id': typeof AuthenticatedLegacyV1AccountEsimsIdRoute
+  '/legacy-v1/account/orders/$id': typeof AuthenticatedLegacyV1AccountOrdersIdRoute
+  '/legacy-v1/account/esims': typeof AuthenticatedLegacyV1AccountEsimsIndexRoute
+  '/legacy-v1/account/orders': typeof AuthenticatedLegacyV1AccountOrdersIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
+  '/account': typeof AccountRouteWithChildren
   '/auth': typeof AuthRoute
-  '/design-v2': typeof DesignV2RouteWithChildren
   '/destek': typeof DestekRoute
+  '/kayit': typeof KayitRoute
+  '/odeme': typeof OdemeRoute
   '/sepet': typeof SepetRoute
-  '/design-v2/account': typeof DesignV2AccountRouteWithChildren
-  '/design-v2/cart': typeof DesignV2CartRoute
-  '/design-v2/checkout': typeof DesignV2CheckoutRoute
-  '/design-v2/esim': typeof DesignV2EsimRoute
-  '/design-v2/lounge': typeof DesignV2LoungeRoute
-  '/design-v2/support': typeof DesignV2SupportRoute
-  '/design-v2/vignette': typeof DesignV2VignetteRoute
+  '/vignette': typeof VignetteRoute
+  '/_authenticated/legacy-v1': typeof AuthenticatedLegacyV1RouteWithChildren
+  '/account/notifications': typeof AccountNotificationsRoute
+  '/account/profile': typeof AccountProfileRoute
+  '/account/security': typeof AccountSecurityRoute
+  '/account/support': typeof AccountSupportRoute
+  '/design-v2/$': typeof DesignV2SplatRoute
   '/esim/paketler': typeof EsimPaketlerRoute
   '/esim/ulkeler': typeof EsimUlkelerRoute
   '/guides/$slug': typeof GuidesSlugRoute
   '/lounge/secenekler': typeof LoungeSeceneklerRoute
   '/sitemap/xml': typeof SitemapXmlRoute
+  '/account/': typeof AccountIndexRoute
   '/de/': typeof DeIndexRoute
   '/design-v2/': typeof DesignV2IndexRoute
   '/en/': typeof EnIndexRoute
@@ -834,10 +918,6 @@ export interface FileRoutesById {
   '/lounge/': typeof LoungeIndexRoute
   '/rehberler/': typeof RehberlerIndexRoute
   '/tr/': typeof TrIndexRoute
-  '/_authenticated/account/notifications': typeof AuthenticatedAccountNotificationsRoute
-  '/_authenticated/account/profile': typeof AuthenticatedAccountProfileRoute
-  '/_authenticated/account/security': typeof AuthenticatedAccountSecurityRoute
-  '/_authenticated/account/support': typeof AuthenticatedAccountSupportRoute
   '/_authenticated/admin/airports': typeof AuthenticatedAdminAirportsRoute
   '/_authenticated/admin/alerts': typeof AuthenticatedAdminAlertsRoute
   '/_authenticated/admin/analytics': typeof AuthenticatedAdminAnalyticsRoute
@@ -857,30 +937,29 @@ export interface FileRoutesById {
   '/_authenticated/admin/service-controls': typeof AuthenticatedAdminServiceControlsRoute
   '/_authenticated/admin/test-catalogue': typeof AuthenticatedAdminTestCatalogueRoute
   '/_authenticated/admin/theme': typeof AuthenticatedAdminThemeRoute
+  '/_authenticated/admin/vignette': typeof AuthenticatedAdminVignetteRoute
   '/_authenticated/hesabim/seyahatler': typeof AuthenticatedHesabimSeyahatlerRoute
+  '/_authenticated/legacy-v1/auth': typeof AuthenticatedLegacyV1AuthRoute
+  '/_authenticated/legacy-v1/destek': typeof AuthenticatedLegacyV1DestekRoute
+  '/_authenticated/legacy-v1/sepet': typeof AuthenticatedLegacyV1SepetRoute
+  '/account/esims/$id': typeof AccountEsimsIdRoute
+  '/account/orders/$id': typeof AccountOrdersIdRoute
   '/api/public/provider-sync': typeof ApiPublicProviderSyncRoute
   '/de/esim/$slug': typeof DeEsimSlugRoute
   '/de/ratgeber/$slug': typeof DeRatgeberSlugRoute
-  '/design-v2/account/notifications': typeof DesignV2AccountNotificationsRoute
-  '/design-v2/account/profile': typeof DesignV2AccountProfileRoute
-  '/design-v2/account/security': typeof DesignV2AccountSecurityRoute
-  '/design-v2/account/support': typeof DesignV2AccountSupportRoute
-  '/design-v2/auth/login': typeof DesignV2AuthLoginRoute
-  '/design-v2/auth/register': typeof DesignV2AuthRegisterRoute
-  '/design-v2/esim-region/$region': typeof DesignV2EsimRegionRegionRoute
   '/en/esim/$slug': typeof EnEsimSlugRoute
   '/en/guides/$slug': typeof EnGuidesSlugRoute
+  '/esim/bolge/$region': typeof EsimBolgeRegionRoute
   '/tr/esim/$slug': typeof TrEsimSlugRoute
   '/tr/rehber/$slug': typeof TrRehberSlugRoute
-  '/_authenticated/account/': typeof AuthenticatedAccountIndexRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
   '/_authenticated/hesabim/': typeof AuthenticatedHesabimIndexRoute
+  '/_authenticated/legacy-v1/': typeof AuthenticatedLegacyV1IndexRoute
+  '/account/esims/': typeof AccountEsimsIndexRoute
+  '/account/orders/': typeof AccountOrdersIndexRoute
   '/de/ratgeber/': typeof DeRatgeberIndexRoute
-  '/design-v2/account/': typeof DesignV2AccountIndexRoute
   '/en/guides/': typeof EnGuidesIndexRoute
   '/tr/rehber/': typeof TrRehberIndexRoute
-  '/_authenticated/account/esims/$id': typeof AuthenticatedAccountEsimsIdRoute
-  '/_authenticated/account/orders/$id': typeof AuthenticatedAccountOrdersIdRoute
   '/_authenticated/admin/content/seo': typeof AuthenticatedAdminContentSeoRoute
   '/_authenticated/admin/esim/coverage': typeof AuthenticatedAdminEsimCoverageRoute
   '/_authenticated/admin/esim/devices': typeof AuthenticatedAdminEsimDevicesRoute
@@ -893,36 +972,50 @@ export interface FileRoutesById {
   '/_authenticated/admin/smart-finders/esim': typeof AuthenticatedAdminSmartFindersEsimRoute
   '/_authenticated/admin/storefront/home': typeof AuthenticatedAdminStorefrontHomeRoute
   '/_authenticated/admin/storefront/navigation': typeof AuthenticatedAdminStorefrontNavigationRoute
-  '/design-v2/account/esims/$id': typeof DesignV2AccountEsimsIdRoute
-  '/design-v2/account/orders/$id': typeof DesignV2AccountOrdersIdRoute
-  '/_authenticated/account/esims/': typeof AuthenticatedAccountEsimsIndexRoute
-  '/_authenticated/account/orders/': typeof AuthenticatedAccountOrdersIndexRoute
+  '/_authenticated/legacy-v1/account/notifications': typeof AuthenticatedLegacyV1AccountNotificationsRoute
+  '/_authenticated/legacy-v1/account/profile': typeof AuthenticatedLegacyV1AccountProfileRoute
+  '/_authenticated/legacy-v1/account/security': typeof AuthenticatedLegacyV1AccountSecurityRoute
+  '/_authenticated/legacy-v1/account/support': typeof AuthenticatedLegacyV1AccountSupportRoute
+  '/_authenticated/legacy-v1/esim/paketler': typeof AuthenticatedLegacyV1EsimPaketlerRoute
+  '/_authenticated/legacy-v1/esim/ulkeler': typeof AuthenticatedLegacyV1EsimUlkelerRoute
+  '/_authenticated/legacy-v1/lounge/secenekler': typeof AuthenticatedLegacyV1LoungeSeceneklerRoute
   '/_authenticated/admin/settings/': typeof AuthenticatedAdminSettingsIndexRoute
   '/_authenticated/admin/storefront/': typeof AuthenticatedAdminStorefrontIndexRoute
-  '/design-v2/account/esims/': typeof DesignV2AccountEsimsIndexRoute
-  '/design-v2/account/orders/': typeof DesignV2AccountOrdersIndexRoute
+  '/_authenticated/legacy-v1/account/': typeof AuthenticatedLegacyV1AccountIndexRoute
+  '/_authenticated/legacy-v1/de/': typeof AuthenticatedLegacyV1DeIndexRoute
+  '/_authenticated/legacy-v1/en/': typeof AuthenticatedLegacyV1EnIndexRoute
+  '/_authenticated/legacy-v1/esim/': typeof AuthenticatedLegacyV1EsimIndexRoute
+  '/_authenticated/legacy-v1/lounge/': typeof AuthenticatedLegacyV1LoungeIndexRoute
+  '/_authenticated/legacy-v1/tr/': typeof AuthenticatedLegacyV1TrIndexRoute
   '/_authenticated/admin/storefront/v2/$page': typeof AuthenticatedAdminStorefrontV2PageRoute
+  '/_authenticated/legacy-v1/account/esims/$id': typeof AuthenticatedLegacyV1AccountEsimsIdRoute
+  '/_authenticated/legacy-v1/account/orders/$id': typeof AuthenticatedLegacyV1AccountOrdersIdRoute
+  '/_authenticated/legacy-v1/account/esims/': typeof AuthenticatedLegacyV1AccountEsimsIndexRoute
+  '/_authenticated/legacy-v1/account/orders/': typeof AuthenticatedLegacyV1AccountOrdersIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/account'
     | '/auth'
-    | '/design-v2'
     | '/destek'
+    | '/kayit'
+    | '/odeme'
     | '/sepet'
-    | '/design-v2/account'
-    | '/design-v2/cart'
-    | '/design-v2/checkout'
-    | '/design-v2/esim'
-    | '/design-v2/lounge'
-    | '/design-v2/support'
-    | '/design-v2/vignette'
+    | '/vignette'
+    | '/legacy-v1'
+    | '/account/notifications'
+    | '/account/profile'
+    | '/account/security'
+    | '/account/support'
+    | '/design-v2/$'
     | '/esim/paketler'
     | '/esim/ulkeler'
     | '/guides/$slug'
     | '/lounge/secenekler'
     | '/sitemap/xml'
+    | '/account/'
     | '/de/'
     | '/design-v2/'
     | '/en/'
@@ -931,10 +1024,6 @@ export interface FileRouteTypes {
     | '/lounge/'
     | '/rehberler/'
     | '/tr/'
-    | '/account/notifications'
-    | '/account/profile'
-    | '/account/security'
-    | '/account/support'
     | '/admin/airports'
     | '/admin/alerts'
     | '/admin/analytics'
@@ -954,30 +1043,29 @@ export interface FileRouteTypes {
     | '/admin/service-controls'
     | '/admin/test-catalogue'
     | '/admin/theme'
+    | '/admin/vignette'
     | '/hesabim/seyahatler'
+    | '/legacy-v1/auth'
+    | '/legacy-v1/destek'
+    | '/legacy-v1/sepet'
+    | '/account/esims/$id'
+    | '/account/orders/$id'
     | '/api/public/provider-sync'
     | '/de/esim/$slug'
     | '/de/ratgeber/$slug'
-    | '/design-v2/account/notifications'
-    | '/design-v2/account/profile'
-    | '/design-v2/account/security'
-    | '/design-v2/account/support'
-    | '/design-v2/auth/login'
-    | '/design-v2/auth/register'
-    | '/design-v2/esim-region/$region'
     | '/en/esim/$slug'
     | '/en/guides/$slug'
+    | '/esim/bolge/$region'
     | '/tr/esim/$slug'
     | '/tr/rehber/$slug'
-    | '/account/'
     | '/admin/'
     | '/hesabim/'
+    | '/legacy-v1/'
+    | '/account/esims/'
+    | '/account/orders/'
     | '/de/ratgeber/'
-    | '/design-v2/account/'
     | '/en/guides/'
     | '/tr/rehber/'
-    | '/account/esims/$id'
-    | '/account/orders/$id'
     | '/admin/content/seo'
     | '/admin/esim/coverage'
     | '/admin/esim/devices'
@@ -990,32 +1078,46 @@ export interface FileRouteTypes {
     | '/admin/smart-finders/esim'
     | '/admin/storefront/home'
     | '/admin/storefront/navigation'
-    | '/design-v2/account/esims/$id'
-    | '/design-v2/account/orders/$id'
-    | '/account/esims/'
-    | '/account/orders/'
+    | '/legacy-v1/account/notifications'
+    | '/legacy-v1/account/profile'
+    | '/legacy-v1/account/security'
+    | '/legacy-v1/account/support'
+    | '/legacy-v1/esim/paketler'
+    | '/legacy-v1/esim/ulkeler'
+    | '/legacy-v1/lounge/secenekler'
     | '/admin/settings/'
     | '/admin/storefront/'
-    | '/design-v2/account/esims/'
-    | '/design-v2/account/orders/'
+    | '/legacy-v1/account/'
+    | '/legacy-v1/de/'
+    | '/legacy-v1/en/'
+    | '/legacy-v1/esim/'
+    | '/legacy-v1/lounge/'
+    | '/legacy-v1/tr/'
     | '/admin/storefront/v2/$page'
+    | '/legacy-v1/account/esims/$id'
+    | '/legacy-v1/account/orders/$id'
+    | '/legacy-v1/account/esims/'
+    | '/legacy-v1/account/orders/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/auth'
     | '/destek'
+    | '/kayit'
+    | '/odeme'
     | '/sepet'
-    | '/design-v2/cart'
-    | '/design-v2/checkout'
-    | '/design-v2/esim'
-    | '/design-v2/lounge'
-    | '/design-v2/support'
-    | '/design-v2/vignette'
+    | '/vignette'
+    | '/account/notifications'
+    | '/account/profile'
+    | '/account/security'
+    | '/account/support'
+    | '/design-v2/$'
     | '/esim/paketler'
     | '/esim/ulkeler'
     | '/guides/$slug'
     | '/lounge/secenekler'
     | '/sitemap/xml'
+    | '/account'
     | '/de'
     | '/design-v2'
     | '/en'
@@ -1024,10 +1126,6 @@ export interface FileRouteTypes {
     | '/lounge'
     | '/rehberler'
     | '/tr'
-    | '/account/notifications'
-    | '/account/profile'
-    | '/account/security'
-    | '/account/support'
     | '/admin/airports'
     | '/admin/alerts'
     | '/admin/analytics'
@@ -1047,30 +1145,29 @@ export interface FileRouteTypes {
     | '/admin/service-controls'
     | '/admin/test-catalogue'
     | '/admin/theme'
+    | '/admin/vignette'
     | '/hesabim/seyahatler'
+    | '/legacy-v1/auth'
+    | '/legacy-v1/destek'
+    | '/legacy-v1/sepet'
+    | '/account/esims/$id'
+    | '/account/orders/$id'
     | '/api/public/provider-sync'
     | '/de/esim/$slug'
     | '/de/ratgeber/$slug'
-    | '/design-v2/account/notifications'
-    | '/design-v2/account/profile'
-    | '/design-v2/account/security'
-    | '/design-v2/account/support'
-    | '/design-v2/auth/login'
-    | '/design-v2/auth/register'
-    | '/design-v2/esim-region/$region'
     | '/en/esim/$slug'
     | '/en/guides/$slug'
+    | '/esim/bolge/$region'
     | '/tr/esim/$slug'
     | '/tr/rehber/$slug'
-    | '/account'
     | '/admin'
     | '/hesabim'
+    | '/legacy-v1'
+    | '/account/esims'
+    | '/account/orders'
     | '/de/ratgeber'
-    | '/design-v2/account'
     | '/en/guides'
     | '/tr/rehber'
-    | '/account/esims/$id'
-    | '/account/orders/$id'
     | '/admin/content/seo'
     | '/admin/esim/coverage'
     | '/admin/esim/devices'
@@ -1083,35 +1180,49 @@ export interface FileRouteTypes {
     | '/admin/smart-finders/esim'
     | '/admin/storefront/home'
     | '/admin/storefront/navigation'
-    | '/design-v2/account/esims/$id'
-    | '/design-v2/account/orders/$id'
-    | '/account/esims'
-    | '/account/orders'
+    | '/legacy-v1/account/notifications'
+    | '/legacy-v1/account/profile'
+    | '/legacy-v1/account/security'
+    | '/legacy-v1/account/support'
+    | '/legacy-v1/esim/paketler'
+    | '/legacy-v1/esim/ulkeler'
+    | '/legacy-v1/lounge/secenekler'
     | '/admin/settings'
     | '/admin/storefront'
-    | '/design-v2/account/esims'
-    | '/design-v2/account/orders'
+    | '/legacy-v1/account'
+    | '/legacy-v1/de'
+    | '/legacy-v1/en'
+    | '/legacy-v1/esim'
+    | '/legacy-v1/lounge'
+    | '/legacy-v1/tr'
     | '/admin/storefront/v2/$page'
+    | '/legacy-v1/account/esims/$id'
+    | '/legacy-v1/account/orders/$id'
+    | '/legacy-v1/account/esims'
+    | '/legacy-v1/account/orders'
   id:
     | '__root__'
     | '/'
     | '/_authenticated'
+    | '/account'
     | '/auth'
-    | '/design-v2'
     | '/destek'
+    | '/kayit'
+    | '/odeme'
     | '/sepet'
-    | '/design-v2/account'
-    | '/design-v2/cart'
-    | '/design-v2/checkout'
-    | '/design-v2/esim'
-    | '/design-v2/lounge'
-    | '/design-v2/support'
-    | '/design-v2/vignette'
+    | '/vignette'
+    | '/_authenticated/legacy-v1'
+    | '/account/notifications'
+    | '/account/profile'
+    | '/account/security'
+    | '/account/support'
+    | '/design-v2/$'
     | '/esim/paketler'
     | '/esim/ulkeler'
     | '/guides/$slug'
     | '/lounge/secenekler'
     | '/sitemap/xml'
+    | '/account/'
     | '/de/'
     | '/design-v2/'
     | '/en/'
@@ -1120,10 +1231,6 @@ export interface FileRouteTypes {
     | '/lounge/'
     | '/rehberler/'
     | '/tr/'
-    | '/_authenticated/account/notifications'
-    | '/_authenticated/account/profile'
-    | '/_authenticated/account/security'
-    | '/_authenticated/account/support'
     | '/_authenticated/admin/airports'
     | '/_authenticated/admin/alerts'
     | '/_authenticated/admin/analytics'
@@ -1143,30 +1250,29 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/service-controls'
     | '/_authenticated/admin/test-catalogue'
     | '/_authenticated/admin/theme'
+    | '/_authenticated/admin/vignette'
     | '/_authenticated/hesabim/seyahatler'
+    | '/_authenticated/legacy-v1/auth'
+    | '/_authenticated/legacy-v1/destek'
+    | '/_authenticated/legacy-v1/sepet'
+    | '/account/esims/$id'
+    | '/account/orders/$id'
     | '/api/public/provider-sync'
     | '/de/esim/$slug'
     | '/de/ratgeber/$slug'
-    | '/design-v2/account/notifications'
-    | '/design-v2/account/profile'
-    | '/design-v2/account/security'
-    | '/design-v2/account/support'
-    | '/design-v2/auth/login'
-    | '/design-v2/auth/register'
-    | '/design-v2/esim-region/$region'
     | '/en/esim/$slug'
     | '/en/guides/$slug'
+    | '/esim/bolge/$region'
     | '/tr/esim/$slug'
     | '/tr/rehber/$slug'
-    | '/_authenticated/account/'
     | '/_authenticated/admin/'
     | '/_authenticated/hesabim/'
+    | '/_authenticated/legacy-v1/'
+    | '/account/esims/'
+    | '/account/orders/'
     | '/de/ratgeber/'
-    | '/design-v2/account/'
     | '/en/guides/'
     | '/tr/rehber/'
-    | '/_authenticated/account/esims/$id'
-    | '/_authenticated/account/orders/$id'
     | '/_authenticated/admin/content/seo'
     | '/_authenticated/admin/esim/coverage'
     | '/_authenticated/admin/esim/devices'
@@ -1179,30 +1285,46 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/smart-finders/esim'
     | '/_authenticated/admin/storefront/home'
     | '/_authenticated/admin/storefront/navigation'
-    | '/design-v2/account/esims/$id'
-    | '/design-v2/account/orders/$id'
-    | '/_authenticated/account/esims/'
-    | '/_authenticated/account/orders/'
+    | '/_authenticated/legacy-v1/account/notifications'
+    | '/_authenticated/legacy-v1/account/profile'
+    | '/_authenticated/legacy-v1/account/security'
+    | '/_authenticated/legacy-v1/account/support'
+    | '/_authenticated/legacy-v1/esim/paketler'
+    | '/_authenticated/legacy-v1/esim/ulkeler'
+    | '/_authenticated/legacy-v1/lounge/secenekler'
     | '/_authenticated/admin/settings/'
     | '/_authenticated/admin/storefront/'
-    | '/design-v2/account/esims/'
-    | '/design-v2/account/orders/'
+    | '/_authenticated/legacy-v1/account/'
+    | '/_authenticated/legacy-v1/de/'
+    | '/_authenticated/legacy-v1/en/'
+    | '/_authenticated/legacy-v1/esim/'
+    | '/_authenticated/legacy-v1/lounge/'
+    | '/_authenticated/legacy-v1/tr/'
     | '/_authenticated/admin/storefront/v2/$page'
+    | '/_authenticated/legacy-v1/account/esims/$id'
+    | '/_authenticated/legacy-v1/account/orders/$id'
+    | '/_authenticated/legacy-v1/account/esims/'
+    | '/_authenticated/legacy-v1/account/orders/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
+  AccountRoute: typeof AccountRouteWithChildren
   AuthRoute: typeof AuthRoute
-  DesignV2Route: typeof DesignV2RouteWithChildren
   DestekRoute: typeof DestekRoute
+  KayitRoute: typeof KayitRoute
+  OdemeRoute: typeof OdemeRoute
   SepetRoute: typeof SepetRoute
+  VignetteRoute: typeof VignetteRoute
+  DesignV2SplatRoute: typeof DesignV2SplatRoute
   EsimPaketlerRoute: typeof EsimPaketlerRoute
   EsimUlkelerRoute: typeof EsimUlkelerRoute
   GuidesSlugRoute: typeof GuidesSlugRoute
   LoungeSeceneklerRoute: typeof LoungeSeceneklerRoute
   SitemapXmlRoute: typeof SitemapXmlRoute
   DeIndexRoute: typeof DeIndexRoute
+  DesignV2IndexRoute: typeof DesignV2IndexRoute
   EnIndexRoute: typeof EnIndexRoute
   EsimIndexRoute: typeof EsimIndexRoute
   GuidesIndexRoute: typeof GuidesIndexRoute
@@ -1214,6 +1336,7 @@ export interface RootRouteChildren {
   DeRatgeberSlugRoute: typeof DeRatgeberSlugRoute
   EnEsimSlugRoute: typeof EnEsimSlugRoute
   EnGuidesSlugRoute: typeof EnGuidesSlugRoute
+  EsimBolgeRegionRoute: typeof EsimBolgeRegionRoute
   TrEsimSlugRoute: typeof TrEsimSlugRoute
   TrRehberSlugRoute: typeof TrRehberSlugRoute
   DeRatgeberIndexRoute: typeof DeRatgeberIndexRoute
@@ -1237,18 +1360,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/account': {
+      id: '/account'
+      path: '/account'
+      fullPath: '/account'
+      preLoaderRoute: typeof AccountRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/auth': {
       id: '/auth'
       path: '/auth'
       fullPath: '/auth'
       preLoaderRoute: typeof AuthRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/design-v2': {
-      id: '/design-v2'
-      path: '/design-v2'
-      fullPath: '/design-v2'
-      preLoaderRoute: typeof DesignV2RouteImport
       parentRoute: typeof rootRouteImport
     }
     '/destek': {
@@ -1258,12 +1381,75 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DestekRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/kayit': {
+      id: '/kayit'
+      path: '/kayit'
+      fullPath: '/kayit'
+      preLoaderRoute: typeof KayitRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/odeme': {
+      id: '/odeme'
+      path: '/odeme'
+      fullPath: '/odeme'
+      preLoaderRoute: typeof OdemeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/sepet': {
       id: '/sepet'
       path: '/sepet'
       fullPath: '/sepet'
       preLoaderRoute: typeof SepetRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/vignette': {
+      id: '/vignette'
+      path: '/vignette'
+      fullPath: '/vignette'
+      preLoaderRoute: typeof VignetteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/legacy-v1': {
+      id: '/_authenticated/legacy-v1'
+      path: '/legacy-v1'
+      fullPath: '/legacy-v1'
+      preLoaderRoute: typeof AuthenticatedLegacyV1RouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/account/': {
+      id: '/account/'
+      path: '/'
+      fullPath: '/account/'
+      preLoaderRoute: typeof AccountIndexRouteImport
+      parentRoute: typeof AccountRoute
+    }
+    '/account/notifications': {
+      id: '/account/notifications'
+      path: '/notifications'
+      fullPath: '/account/notifications'
+      preLoaderRoute: typeof AccountNotificationsRouteImport
+      parentRoute: typeof AccountRoute
+    }
+    '/account/profile': {
+      id: '/account/profile'
+      path: '/profile'
+      fullPath: '/account/profile'
+      preLoaderRoute: typeof AccountProfileRouteImport
+      parentRoute: typeof AccountRoute
+    }
+    '/account/security': {
+      id: '/account/security'
+      path: '/security'
+      fullPath: '/account/security'
+      preLoaderRoute: typeof AccountSecurityRouteImport
+      parentRoute: typeof AccountRoute
+    }
+    '/account/support': {
+      id: '/account/support'
+      path: '/support'
+      fullPath: '/account/support'
+      preLoaderRoute: typeof AccountSupportRouteImport
+      parentRoute: typeof AccountRoute
     }
     '/de/': {
       id: '/de/'
@@ -1274,59 +1460,17 @@ declare module '@tanstack/react-router' {
     }
     '/design-v2/': {
       id: '/design-v2/'
-      path: '/'
+      path: '/design-v2'
       fullPath: '/design-v2/'
       preLoaderRoute: typeof DesignV2IndexRouteImport
-      parentRoute: typeof DesignV2Route
+      parentRoute: typeof rootRouteImport
     }
-    '/design-v2/account': {
-      id: '/design-v2/account'
-      path: '/account'
-      fullPath: '/design-v2/account'
-      preLoaderRoute: typeof DesignV2AccountRouteImport
-      parentRoute: typeof DesignV2Route
-    }
-    '/design-v2/cart': {
-      id: '/design-v2/cart'
-      path: '/cart'
-      fullPath: '/design-v2/cart'
-      preLoaderRoute: typeof DesignV2CartRouteImport
-      parentRoute: typeof DesignV2Route
-    }
-    '/design-v2/checkout': {
-      id: '/design-v2/checkout'
-      path: '/checkout'
-      fullPath: '/design-v2/checkout'
-      preLoaderRoute: typeof DesignV2CheckoutRouteImport
-      parentRoute: typeof DesignV2Route
-    }
-    '/design-v2/esim': {
-      id: '/design-v2/esim'
-      path: '/esim'
-      fullPath: '/design-v2/esim'
-      preLoaderRoute: typeof DesignV2EsimRouteImport
-      parentRoute: typeof DesignV2Route
-    }
-    '/design-v2/lounge': {
-      id: '/design-v2/lounge'
-      path: '/lounge'
-      fullPath: '/design-v2/lounge'
-      preLoaderRoute: typeof DesignV2LoungeRouteImport
-      parentRoute: typeof DesignV2Route
-    }
-    '/design-v2/support': {
-      id: '/design-v2/support'
-      path: '/support'
-      fullPath: '/design-v2/support'
-      preLoaderRoute: typeof DesignV2SupportRouteImport
-      parentRoute: typeof DesignV2Route
-    }
-    '/design-v2/vignette': {
-      id: '/design-v2/vignette'
-      path: '/vignette'
-      fullPath: '/design-v2/vignette'
-      preLoaderRoute: typeof DesignV2VignetteRouteImport
-      parentRoute: typeof DesignV2Route
+    '/design-v2/$': {
+      id: '/design-v2/$'
+      path: '/design-v2/$'
+      fullPath: '/design-v2/$'
+      preLoaderRoute: typeof DesignV2SplatRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/en/': {
       id: '/en/'
@@ -1404,41 +1548,6 @@ declare module '@tanstack/react-router' {
       fullPath: '/tr/'
       preLoaderRoute: typeof TrIndexRouteImport
       parentRoute: typeof rootRouteImport
-    }
-    '/_authenticated/account/': {
-      id: '/_authenticated/account/'
-      path: '/account'
-      fullPath: '/account/'
-      preLoaderRoute: typeof AuthenticatedAccountIndexRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/account/notifications': {
-      id: '/_authenticated/account/notifications'
-      path: '/account/notifications'
-      fullPath: '/account/notifications'
-      preLoaderRoute: typeof AuthenticatedAccountNotificationsRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/account/profile': {
-      id: '/_authenticated/account/profile'
-      path: '/account/profile'
-      fullPath: '/account/profile'
-      preLoaderRoute: typeof AuthenticatedAccountProfileRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/account/security': {
-      id: '/_authenticated/account/security'
-      path: '/account/security'
-      fullPath: '/account/security'
-      preLoaderRoute: typeof AuthenticatedAccountSecurityRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/account/support': {
-      id: '/_authenticated/account/support'
-      path: '/account/support'
-      fullPath: '/account/support'
-      preLoaderRoute: typeof AuthenticatedAccountSupportRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/admin/': {
       id: '/_authenticated/admin/'
@@ -1580,6 +1689,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminThemeRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/admin/vignette': {
+      id: '/_authenticated/admin/vignette'
+      path: '/admin/vignette'
+      fullPath: '/admin/vignette'
+      preLoaderRoute: typeof AuthenticatedAdminVignetteRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/hesabim/': {
       id: '/_authenticated/hesabim/'
       path: '/hesabim'
@@ -1593,6 +1709,62 @@ declare module '@tanstack/react-router' {
       fullPath: '/hesabim/seyahatler'
       preLoaderRoute: typeof AuthenticatedHesabimSeyahatlerRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/legacy-v1/': {
+      id: '/_authenticated/legacy-v1/'
+      path: '/'
+      fullPath: '/legacy-v1/'
+      preLoaderRoute: typeof AuthenticatedLegacyV1IndexRouteImport
+      parentRoute: typeof AuthenticatedLegacyV1Route
+    }
+    '/_authenticated/legacy-v1/auth': {
+      id: '/_authenticated/legacy-v1/auth'
+      path: '/auth'
+      fullPath: '/legacy-v1/auth'
+      preLoaderRoute: typeof AuthenticatedLegacyV1AuthRouteImport
+      parentRoute: typeof AuthenticatedLegacyV1Route
+    }
+    '/_authenticated/legacy-v1/destek': {
+      id: '/_authenticated/legacy-v1/destek'
+      path: '/destek'
+      fullPath: '/legacy-v1/destek'
+      preLoaderRoute: typeof AuthenticatedLegacyV1DestekRouteImport
+      parentRoute: typeof AuthenticatedLegacyV1Route
+    }
+    '/_authenticated/legacy-v1/sepet': {
+      id: '/_authenticated/legacy-v1/sepet'
+      path: '/sepet'
+      fullPath: '/legacy-v1/sepet'
+      preLoaderRoute: typeof AuthenticatedLegacyV1SepetRouteImport
+      parentRoute: typeof AuthenticatedLegacyV1Route
+    }
+    '/account/esims/': {
+      id: '/account/esims/'
+      path: '/esims'
+      fullPath: '/account/esims/'
+      preLoaderRoute: typeof AccountEsimsIndexRouteImport
+      parentRoute: typeof AccountRoute
+    }
+    '/account/esims/$id': {
+      id: '/account/esims/$id'
+      path: '/esims/$id'
+      fullPath: '/account/esims/$id'
+      preLoaderRoute: typeof AccountEsimsIdRouteImport
+      parentRoute: typeof AccountRoute
+    }
+    '/account/orders/': {
+      id: '/account/orders/'
+      path: '/orders'
+      fullPath: '/account/orders/'
+      preLoaderRoute: typeof AccountOrdersIndexRouteImport
+      parentRoute: typeof AccountRoute
+    }
+    '/account/orders/$id': {
+      id: '/account/orders/$id'
+      path: '/orders/$id'
+      fullPath: '/account/orders/$id'
+      preLoaderRoute: typeof AccountOrdersIdRouteImport
+      parentRoute: typeof AccountRoute
     }
     '/api/public/provider-sync': {
       id: '/api/public/provider-sync'
@@ -1622,62 +1794,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DeRatgeberSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/design-v2/account/': {
-      id: '/design-v2/account/'
-      path: '/'
-      fullPath: '/design-v2/account/'
-      preLoaderRoute: typeof DesignV2AccountIndexRouteImport
-      parentRoute: typeof DesignV2AccountRoute
-    }
-    '/design-v2/account/notifications': {
-      id: '/design-v2/account/notifications'
-      path: '/notifications'
-      fullPath: '/design-v2/account/notifications'
-      preLoaderRoute: typeof DesignV2AccountNotificationsRouteImport
-      parentRoute: typeof DesignV2AccountRoute
-    }
-    '/design-v2/account/profile': {
-      id: '/design-v2/account/profile'
-      path: '/profile'
-      fullPath: '/design-v2/account/profile'
-      preLoaderRoute: typeof DesignV2AccountProfileRouteImport
-      parentRoute: typeof DesignV2AccountRoute
-    }
-    '/design-v2/account/security': {
-      id: '/design-v2/account/security'
-      path: '/security'
-      fullPath: '/design-v2/account/security'
-      preLoaderRoute: typeof DesignV2AccountSecurityRouteImport
-      parentRoute: typeof DesignV2AccountRoute
-    }
-    '/design-v2/account/support': {
-      id: '/design-v2/account/support'
-      path: '/support'
-      fullPath: '/design-v2/account/support'
-      preLoaderRoute: typeof DesignV2AccountSupportRouteImport
-      parentRoute: typeof DesignV2AccountRoute
-    }
-    '/design-v2/auth/login': {
-      id: '/design-v2/auth/login'
-      path: '/auth/login'
-      fullPath: '/design-v2/auth/login'
-      preLoaderRoute: typeof DesignV2AuthLoginRouteImport
-      parentRoute: typeof DesignV2Route
-    }
-    '/design-v2/auth/register': {
-      id: '/design-v2/auth/register'
-      path: '/auth/register'
-      fullPath: '/design-v2/auth/register'
-      preLoaderRoute: typeof DesignV2AuthRegisterRouteImport
-      parentRoute: typeof DesignV2Route
-    }
-    '/design-v2/esim-region/$region': {
-      id: '/design-v2/esim-region/$region'
-      path: '/esim-region/$region'
-      fullPath: '/design-v2/esim-region/$region'
-      preLoaderRoute: typeof DesignV2EsimRegionRegionRouteImport
-      parentRoute: typeof DesignV2Route
-    }
     '/en/esim/$slug': {
       id: '/en/esim/$slug'
       path: '/en/esim/$slug'
@@ -1697,6 +1813,13 @@ declare module '@tanstack/react-router' {
       path: '/en/guides/$slug'
       fullPath: '/en/guides/$slug'
       preLoaderRoute: typeof EnGuidesSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/esim/bolge/$region': {
+      id: '/esim/bolge/$region'
+      path: '/esim/bolge/$region'
+      fullPath: '/esim/bolge/$region'
+      preLoaderRoute: typeof EsimBolgeRegionRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/tr/esim/$slug': {
@@ -1719,34 +1842,6 @@ declare module '@tanstack/react-router' {
       fullPath: '/tr/rehber/$slug'
       preLoaderRoute: typeof TrRehberSlugRouteImport
       parentRoute: typeof rootRouteImport
-    }
-    '/_authenticated/account/esims/': {
-      id: '/_authenticated/account/esims/'
-      path: '/account/esims'
-      fullPath: '/account/esims/'
-      preLoaderRoute: typeof AuthenticatedAccountEsimsIndexRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/account/esims/$id': {
-      id: '/_authenticated/account/esims/$id'
-      path: '/account/esims/$id'
-      fullPath: '/account/esims/$id'
-      preLoaderRoute: typeof AuthenticatedAccountEsimsIdRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/account/orders/': {
-      id: '/_authenticated/account/orders/'
-      path: '/account/orders'
-      fullPath: '/account/orders/'
-      preLoaderRoute: typeof AuthenticatedAccountOrdersIndexRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/account/orders/$id': {
-      id: '/_authenticated/account/orders/$id'
-      path: '/account/orders/$id'
-      fullPath: '/account/orders/$id'
-      preLoaderRoute: typeof AuthenticatedAccountOrdersIdRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/admin/content/seo': {
       id: '/_authenticated/admin/content/seo'
@@ -1846,33 +1941,96 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminStorefrontNavigationRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/design-v2/account/esims/': {
-      id: '/design-v2/account/esims/'
-      path: '/esims'
-      fullPath: '/design-v2/account/esims/'
-      preLoaderRoute: typeof DesignV2AccountEsimsIndexRouteImport
-      parentRoute: typeof DesignV2AccountRoute
+    '/_authenticated/legacy-v1/account/': {
+      id: '/_authenticated/legacy-v1/account/'
+      path: '/account'
+      fullPath: '/legacy-v1/account/'
+      preLoaderRoute: typeof AuthenticatedLegacyV1AccountIndexRouteImport
+      parentRoute: typeof AuthenticatedLegacyV1Route
     }
-    '/design-v2/account/esims/$id': {
-      id: '/design-v2/account/esims/$id'
-      path: '/esims/$id'
-      fullPath: '/design-v2/account/esims/$id'
-      preLoaderRoute: typeof DesignV2AccountEsimsIdRouteImport
-      parentRoute: typeof DesignV2AccountRoute
+    '/_authenticated/legacy-v1/account/notifications': {
+      id: '/_authenticated/legacy-v1/account/notifications'
+      path: '/account/notifications'
+      fullPath: '/legacy-v1/account/notifications'
+      preLoaderRoute: typeof AuthenticatedLegacyV1AccountNotificationsRouteImport
+      parentRoute: typeof AuthenticatedLegacyV1Route
     }
-    '/design-v2/account/orders/': {
-      id: '/design-v2/account/orders/'
-      path: '/orders'
-      fullPath: '/design-v2/account/orders/'
-      preLoaderRoute: typeof DesignV2AccountOrdersIndexRouteImport
-      parentRoute: typeof DesignV2AccountRoute
+    '/_authenticated/legacy-v1/account/profile': {
+      id: '/_authenticated/legacy-v1/account/profile'
+      path: '/account/profile'
+      fullPath: '/legacy-v1/account/profile'
+      preLoaderRoute: typeof AuthenticatedLegacyV1AccountProfileRouteImport
+      parentRoute: typeof AuthenticatedLegacyV1Route
     }
-    '/design-v2/account/orders/$id': {
-      id: '/design-v2/account/orders/$id'
-      path: '/orders/$id'
-      fullPath: '/design-v2/account/orders/$id'
-      preLoaderRoute: typeof DesignV2AccountOrdersIdRouteImport
-      parentRoute: typeof DesignV2AccountRoute
+    '/_authenticated/legacy-v1/account/security': {
+      id: '/_authenticated/legacy-v1/account/security'
+      path: '/account/security'
+      fullPath: '/legacy-v1/account/security'
+      preLoaderRoute: typeof AuthenticatedLegacyV1AccountSecurityRouteImport
+      parentRoute: typeof AuthenticatedLegacyV1Route
+    }
+    '/_authenticated/legacy-v1/account/support': {
+      id: '/_authenticated/legacy-v1/account/support'
+      path: '/account/support'
+      fullPath: '/legacy-v1/account/support'
+      preLoaderRoute: typeof AuthenticatedLegacyV1AccountSupportRouteImport
+      parentRoute: typeof AuthenticatedLegacyV1Route
+    }
+    '/_authenticated/legacy-v1/de/': {
+      id: '/_authenticated/legacy-v1/de/'
+      path: '/de'
+      fullPath: '/legacy-v1/de/'
+      preLoaderRoute: typeof AuthenticatedLegacyV1DeIndexRouteImport
+      parentRoute: typeof AuthenticatedLegacyV1Route
+    }
+    '/_authenticated/legacy-v1/en/': {
+      id: '/_authenticated/legacy-v1/en/'
+      path: '/en'
+      fullPath: '/legacy-v1/en/'
+      preLoaderRoute: typeof AuthenticatedLegacyV1EnIndexRouteImport
+      parentRoute: typeof AuthenticatedLegacyV1Route
+    }
+    '/_authenticated/legacy-v1/esim/': {
+      id: '/_authenticated/legacy-v1/esim/'
+      path: '/esim'
+      fullPath: '/legacy-v1/esim/'
+      preLoaderRoute: typeof AuthenticatedLegacyV1EsimIndexRouteImport
+      parentRoute: typeof AuthenticatedLegacyV1Route
+    }
+    '/_authenticated/legacy-v1/esim/paketler': {
+      id: '/_authenticated/legacy-v1/esim/paketler'
+      path: '/esim/paketler'
+      fullPath: '/legacy-v1/esim/paketler'
+      preLoaderRoute: typeof AuthenticatedLegacyV1EsimPaketlerRouteImport
+      parentRoute: typeof AuthenticatedLegacyV1Route
+    }
+    '/_authenticated/legacy-v1/esim/ulkeler': {
+      id: '/_authenticated/legacy-v1/esim/ulkeler'
+      path: '/esim/ulkeler'
+      fullPath: '/legacy-v1/esim/ulkeler'
+      preLoaderRoute: typeof AuthenticatedLegacyV1EsimUlkelerRouteImport
+      parentRoute: typeof AuthenticatedLegacyV1Route
+    }
+    '/_authenticated/legacy-v1/lounge/': {
+      id: '/_authenticated/legacy-v1/lounge/'
+      path: '/lounge'
+      fullPath: '/legacy-v1/lounge/'
+      preLoaderRoute: typeof AuthenticatedLegacyV1LoungeIndexRouteImport
+      parentRoute: typeof AuthenticatedLegacyV1Route
+    }
+    '/_authenticated/legacy-v1/lounge/secenekler': {
+      id: '/_authenticated/legacy-v1/lounge/secenekler'
+      path: '/lounge/secenekler'
+      fullPath: '/legacy-v1/lounge/secenekler'
+      preLoaderRoute: typeof AuthenticatedLegacyV1LoungeSeceneklerRouteImport
+      parentRoute: typeof AuthenticatedLegacyV1Route
+    }
+    '/_authenticated/legacy-v1/tr/': {
+      id: '/_authenticated/legacy-v1/tr/'
+      path: '/tr'
+      fullPath: '/legacy-v1/tr/'
+      preLoaderRoute: typeof AuthenticatedLegacyV1TrIndexRouteImport
+      parentRoute: typeof AuthenticatedLegacyV1Route
     }
     '/_authenticated/admin/storefront/v2/$page': {
       id: '/_authenticated/admin/storefront/v2/$page'
@@ -1881,14 +2039,103 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminStorefrontV2PageRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/legacy-v1/account/esims/': {
+      id: '/_authenticated/legacy-v1/account/esims/'
+      path: '/account/esims'
+      fullPath: '/legacy-v1/account/esims/'
+      preLoaderRoute: typeof AuthenticatedLegacyV1AccountEsimsIndexRouteImport
+      parentRoute: typeof AuthenticatedLegacyV1Route
+    }
+    '/_authenticated/legacy-v1/account/esims/$id': {
+      id: '/_authenticated/legacy-v1/account/esims/$id'
+      path: '/account/esims/$id'
+      fullPath: '/legacy-v1/account/esims/$id'
+      preLoaderRoute: typeof AuthenticatedLegacyV1AccountEsimsIdRouteImport
+      parentRoute: typeof AuthenticatedLegacyV1Route
+    }
+    '/_authenticated/legacy-v1/account/orders/': {
+      id: '/_authenticated/legacy-v1/account/orders/'
+      path: '/account/orders'
+      fullPath: '/legacy-v1/account/orders/'
+      preLoaderRoute: typeof AuthenticatedLegacyV1AccountOrdersIndexRouteImport
+      parentRoute: typeof AuthenticatedLegacyV1Route
+    }
+    '/_authenticated/legacy-v1/account/orders/$id': {
+      id: '/_authenticated/legacy-v1/account/orders/$id'
+      path: '/account/orders/$id'
+      fullPath: '/legacy-v1/account/orders/$id'
+      preLoaderRoute: typeof AuthenticatedLegacyV1AccountOrdersIdRouteImport
+      parentRoute: typeof AuthenticatedLegacyV1Route
+    }
   }
 }
 
+interface AuthenticatedLegacyV1RouteChildren {
+  AuthenticatedLegacyV1AuthRoute: typeof AuthenticatedLegacyV1AuthRoute
+  AuthenticatedLegacyV1DestekRoute: typeof AuthenticatedLegacyV1DestekRoute
+  AuthenticatedLegacyV1SepetRoute: typeof AuthenticatedLegacyV1SepetRoute
+  AuthenticatedLegacyV1IndexRoute: typeof AuthenticatedLegacyV1IndexRoute
+  AuthenticatedLegacyV1AccountNotificationsRoute: typeof AuthenticatedLegacyV1AccountNotificationsRoute
+  AuthenticatedLegacyV1AccountProfileRoute: typeof AuthenticatedLegacyV1AccountProfileRoute
+  AuthenticatedLegacyV1AccountSecurityRoute: typeof AuthenticatedLegacyV1AccountSecurityRoute
+  AuthenticatedLegacyV1AccountSupportRoute: typeof AuthenticatedLegacyV1AccountSupportRoute
+  AuthenticatedLegacyV1EsimPaketlerRoute: typeof AuthenticatedLegacyV1EsimPaketlerRoute
+  AuthenticatedLegacyV1EsimUlkelerRoute: typeof AuthenticatedLegacyV1EsimUlkelerRoute
+  AuthenticatedLegacyV1LoungeSeceneklerRoute: typeof AuthenticatedLegacyV1LoungeSeceneklerRoute
+  AuthenticatedLegacyV1AccountIndexRoute: typeof AuthenticatedLegacyV1AccountIndexRoute
+  AuthenticatedLegacyV1DeIndexRoute: typeof AuthenticatedLegacyV1DeIndexRoute
+  AuthenticatedLegacyV1EnIndexRoute: typeof AuthenticatedLegacyV1EnIndexRoute
+  AuthenticatedLegacyV1EsimIndexRoute: typeof AuthenticatedLegacyV1EsimIndexRoute
+  AuthenticatedLegacyV1LoungeIndexRoute: typeof AuthenticatedLegacyV1LoungeIndexRoute
+  AuthenticatedLegacyV1TrIndexRoute: typeof AuthenticatedLegacyV1TrIndexRoute
+  AuthenticatedLegacyV1AccountEsimsIdRoute: typeof AuthenticatedLegacyV1AccountEsimsIdRoute
+  AuthenticatedLegacyV1AccountOrdersIdRoute: typeof AuthenticatedLegacyV1AccountOrdersIdRoute
+  AuthenticatedLegacyV1AccountEsimsIndexRoute: typeof AuthenticatedLegacyV1AccountEsimsIndexRoute
+  AuthenticatedLegacyV1AccountOrdersIndexRoute: typeof AuthenticatedLegacyV1AccountOrdersIndexRoute
+}
+
+const AuthenticatedLegacyV1RouteChildren: AuthenticatedLegacyV1RouteChildren = {
+  AuthenticatedLegacyV1AuthRoute: AuthenticatedLegacyV1AuthRoute,
+  AuthenticatedLegacyV1DestekRoute: AuthenticatedLegacyV1DestekRoute,
+  AuthenticatedLegacyV1SepetRoute: AuthenticatedLegacyV1SepetRoute,
+  AuthenticatedLegacyV1IndexRoute: AuthenticatedLegacyV1IndexRoute,
+  AuthenticatedLegacyV1AccountNotificationsRoute:
+    AuthenticatedLegacyV1AccountNotificationsRoute,
+  AuthenticatedLegacyV1AccountProfileRoute:
+    AuthenticatedLegacyV1AccountProfileRoute,
+  AuthenticatedLegacyV1AccountSecurityRoute:
+    AuthenticatedLegacyV1AccountSecurityRoute,
+  AuthenticatedLegacyV1AccountSupportRoute:
+    AuthenticatedLegacyV1AccountSupportRoute,
+  AuthenticatedLegacyV1EsimPaketlerRoute:
+    AuthenticatedLegacyV1EsimPaketlerRoute,
+  AuthenticatedLegacyV1EsimUlkelerRoute: AuthenticatedLegacyV1EsimUlkelerRoute,
+  AuthenticatedLegacyV1LoungeSeceneklerRoute:
+    AuthenticatedLegacyV1LoungeSeceneklerRoute,
+  AuthenticatedLegacyV1AccountIndexRoute:
+    AuthenticatedLegacyV1AccountIndexRoute,
+  AuthenticatedLegacyV1DeIndexRoute: AuthenticatedLegacyV1DeIndexRoute,
+  AuthenticatedLegacyV1EnIndexRoute: AuthenticatedLegacyV1EnIndexRoute,
+  AuthenticatedLegacyV1EsimIndexRoute: AuthenticatedLegacyV1EsimIndexRoute,
+  AuthenticatedLegacyV1LoungeIndexRoute: AuthenticatedLegacyV1LoungeIndexRoute,
+  AuthenticatedLegacyV1TrIndexRoute: AuthenticatedLegacyV1TrIndexRoute,
+  AuthenticatedLegacyV1AccountEsimsIdRoute:
+    AuthenticatedLegacyV1AccountEsimsIdRoute,
+  AuthenticatedLegacyV1AccountOrdersIdRoute:
+    AuthenticatedLegacyV1AccountOrdersIdRoute,
+  AuthenticatedLegacyV1AccountEsimsIndexRoute:
+    AuthenticatedLegacyV1AccountEsimsIndexRoute,
+  AuthenticatedLegacyV1AccountOrdersIndexRoute:
+    AuthenticatedLegacyV1AccountOrdersIndexRoute,
+}
+
+const AuthenticatedLegacyV1RouteWithChildren =
+  AuthenticatedLegacyV1Route._addFileChildren(
+    AuthenticatedLegacyV1RouteChildren,
+  )
+
 interface AuthenticatedRouteRouteChildren {
-  AuthenticatedAccountNotificationsRoute: typeof AuthenticatedAccountNotificationsRoute
-  AuthenticatedAccountProfileRoute: typeof AuthenticatedAccountProfileRoute
-  AuthenticatedAccountSecurityRoute: typeof AuthenticatedAccountSecurityRoute
-  AuthenticatedAccountSupportRoute: typeof AuthenticatedAccountSupportRoute
+  AuthenticatedLegacyV1Route: typeof AuthenticatedLegacyV1RouteWithChildren
   AuthenticatedAdminAirportsRoute: typeof AuthenticatedAdminAirportsRoute
   AuthenticatedAdminAlertsRoute: typeof AuthenticatedAdminAlertsRoute
   AuthenticatedAdminAnalyticsRoute: typeof AuthenticatedAdminAnalyticsRoute
@@ -1908,12 +2155,10 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminServiceControlsRoute: typeof AuthenticatedAdminServiceControlsRoute
   AuthenticatedAdminTestCatalogueRoute: typeof AuthenticatedAdminTestCatalogueRoute
   AuthenticatedAdminThemeRoute: typeof AuthenticatedAdminThemeRoute
+  AuthenticatedAdminVignetteRoute: typeof AuthenticatedAdminVignetteRoute
   AuthenticatedHesabimSeyahatlerRoute: typeof AuthenticatedHesabimSeyahatlerRoute
-  AuthenticatedAccountIndexRoute: typeof AuthenticatedAccountIndexRoute
   AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
   AuthenticatedHesabimIndexRoute: typeof AuthenticatedHesabimIndexRoute
-  AuthenticatedAccountEsimsIdRoute: typeof AuthenticatedAccountEsimsIdRoute
-  AuthenticatedAccountOrdersIdRoute: typeof AuthenticatedAccountOrdersIdRoute
   AuthenticatedAdminContentSeoRoute: typeof AuthenticatedAdminContentSeoRoute
   AuthenticatedAdminEsimCoverageRoute: typeof AuthenticatedAdminEsimCoverageRoute
   AuthenticatedAdminEsimDevicesRoute: typeof AuthenticatedAdminEsimDevicesRoute
@@ -1926,19 +2171,13 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminSmartFindersEsimRoute: typeof AuthenticatedAdminSmartFindersEsimRoute
   AuthenticatedAdminStorefrontHomeRoute: typeof AuthenticatedAdminStorefrontHomeRoute
   AuthenticatedAdminStorefrontNavigationRoute: typeof AuthenticatedAdminStorefrontNavigationRoute
-  AuthenticatedAccountEsimsIndexRoute: typeof AuthenticatedAccountEsimsIndexRoute
-  AuthenticatedAccountOrdersIndexRoute: typeof AuthenticatedAccountOrdersIndexRoute
   AuthenticatedAdminSettingsIndexRoute: typeof AuthenticatedAdminSettingsIndexRoute
   AuthenticatedAdminStorefrontIndexRoute: typeof AuthenticatedAdminStorefrontIndexRoute
   AuthenticatedAdminStorefrontV2PageRoute: typeof AuthenticatedAdminStorefrontV2PageRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
-  AuthenticatedAccountNotificationsRoute:
-    AuthenticatedAccountNotificationsRoute,
-  AuthenticatedAccountProfileRoute: AuthenticatedAccountProfileRoute,
-  AuthenticatedAccountSecurityRoute: AuthenticatedAccountSecurityRoute,
-  AuthenticatedAccountSupportRoute: AuthenticatedAccountSupportRoute,
+  AuthenticatedLegacyV1Route: AuthenticatedLegacyV1RouteWithChildren,
   AuthenticatedAdminAirportsRoute: AuthenticatedAdminAirportsRoute,
   AuthenticatedAdminAlertsRoute: AuthenticatedAdminAlertsRoute,
   AuthenticatedAdminAnalyticsRoute: AuthenticatedAdminAnalyticsRoute,
@@ -1959,12 +2198,10 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
     AuthenticatedAdminServiceControlsRoute,
   AuthenticatedAdminTestCatalogueRoute: AuthenticatedAdminTestCatalogueRoute,
   AuthenticatedAdminThemeRoute: AuthenticatedAdminThemeRoute,
+  AuthenticatedAdminVignetteRoute: AuthenticatedAdminVignetteRoute,
   AuthenticatedHesabimSeyahatlerRoute: AuthenticatedHesabimSeyahatlerRoute,
-  AuthenticatedAccountIndexRoute: AuthenticatedAccountIndexRoute,
   AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
   AuthenticatedHesabimIndexRoute: AuthenticatedHesabimIndexRoute,
-  AuthenticatedAccountEsimsIdRoute: AuthenticatedAccountEsimsIdRoute,
-  AuthenticatedAccountOrdersIdRoute: AuthenticatedAccountOrdersIdRoute,
   AuthenticatedAdminContentSeoRoute: AuthenticatedAdminContentSeoRoute,
   AuthenticatedAdminEsimCoverageRoute: AuthenticatedAdminEsimCoverageRoute,
   AuthenticatedAdminEsimDevicesRoute: AuthenticatedAdminEsimDevicesRoute,
@@ -1983,8 +2220,6 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminStorefrontHomeRoute: AuthenticatedAdminStorefrontHomeRoute,
   AuthenticatedAdminStorefrontNavigationRoute:
     AuthenticatedAdminStorefrontNavigationRoute,
-  AuthenticatedAccountEsimsIndexRoute: AuthenticatedAccountEsimsIndexRoute,
-  AuthenticatedAccountOrdersIndexRoute: AuthenticatedAccountOrdersIndexRoute,
   AuthenticatedAdminSettingsIndexRoute: AuthenticatedAdminSettingsIndexRoute,
   AuthenticatedAdminStorefrontIndexRoute:
     AuthenticatedAdminStorefrontIndexRoute,
@@ -1995,79 +2230,51 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
 const AuthenticatedRouteRouteWithChildren =
   AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
 
-interface DesignV2AccountRouteChildren {
-  DesignV2AccountNotificationsRoute: typeof DesignV2AccountNotificationsRoute
-  DesignV2AccountProfileRoute: typeof DesignV2AccountProfileRoute
-  DesignV2AccountSecurityRoute: typeof DesignV2AccountSecurityRoute
-  DesignV2AccountSupportRoute: typeof DesignV2AccountSupportRoute
-  DesignV2AccountIndexRoute: typeof DesignV2AccountIndexRoute
-  DesignV2AccountEsimsIdRoute: typeof DesignV2AccountEsimsIdRoute
-  DesignV2AccountOrdersIdRoute: typeof DesignV2AccountOrdersIdRoute
-  DesignV2AccountEsimsIndexRoute: typeof DesignV2AccountEsimsIndexRoute
-  DesignV2AccountOrdersIndexRoute: typeof DesignV2AccountOrdersIndexRoute
+interface AccountRouteChildren {
+  AccountNotificationsRoute: typeof AccountNotificationsRoute
+  AccountProfileRoute: typeof AccountProfileRoute
+  AccountSecurityRoute: typeof AccountSecurityRoute
+  AccountSupportRoute: typeof AccountSupportRoute
+  AccountIndexRoute: typeof AccountIndexRoute
+  AccountEsimsIdRoute: typeof AccountEsimsIdRoute
+  AccountOrdersIdRoute: typeof AccountOrdersIdRoute
+  AccountEsimsIndexRoute: typeof AccountEsimsIndexRoute
+  AccountOrdersIndexRoute: typeof AccountOrdersIndexRoute
 }
 
-const DesignV2AccountRouteChildren: DesignV2AccountRouteChildren = {
-  DesignV2AccountNotificationsRoute: DesignV2AccountNotificationsRoute,
-  DesignV2AccountProfileRoute: DesignV2AccountProfileRoute,
-  DesignV2AccountSecurityRoute: DesignV2AccountSecurityRoute,
-  DesignV2AccountSupportRoute: DesignV2AccountSupportRoute,
-  DesignV2AccountIndexRoute: DesignV2AccountIndexRoute,
-  DesignV2AccountEsimsIdRoute: DesignV2AccountEsimsIdRoute,
-  DesignV2AccountOrdersIdRoute: DesignV2AccountOrdersIdRoute,
-  DesignV2AccountEsimsIndexRoute: DesignV2AccountEsimsIndexRoute,
-  DesignV2AccountOrdersIndexRoute: DesignV2AccountOrdersIndexRoute,
+const AccountRouteChildren: AccountRouteChildren = {
+  AccountNotificationsRoute: AccountNotificationsRoute,
+  AccountProfileRoute: AccountProfileRoute,
+  AccountSecurityRoute: AccountSecurityRoute,
+  AccountSupportRoute: AccountSupportRoute,
+  AccountIndexRoute: AccountIndexRoute,
+  AccountEsimsIdRoute: AccountEsimsIdRoute,
+  AccountOrdersIdRoute: AccountOrdersIdRoute,
+  AccountEsimsIndexRoute: AccountEsimsIndexRoute,
+  AccountOrdersIndexRoute: AccountOrdersIndexRoute,
 }
 
-const DesignV2AccountRouteWithChildren = DesignV2AccountRoute._addFileChildren(
-  DesignV2AccountRouteChildren,
-)
-
-interface DesignV2RouteChildren {
-  DesignV2AccountRoute: typeof DesignV2AccountRouteWithChildren
-  DesignV2CartRoute: typeof DesignV2CartRoute
-  DesignV2CheckoutRoute: typeof DesignV2CheckoutRoute
-  DesignV2EsimRoute: typeof DesignV2EsimRoute
-  DesignV2LoungeRoute: typeof DesignV2LoungeRoute
-  DesignV2SupportRoute: typeof DesignV2SupportRoute
-  DesignV2VignetteRoute: typeof DesignV2VignetteRoute
-  DesignV2IndexRoute: typeof DesignV2IndexRoute
-  DesignV2AuthLoginRoute: typeof DesignV2AuthLoginRoute
-  DesignV2AuthRegisterRoute: typeof DesignV2AuthRegisterRoute
-  DesignV2EsimRegionRegionRoute: typeof DesignV2EsimRegionRegionRoute
-}
-
-const DesignV2RouteChildren: DesignV2RouteChildren = {
-  DesignV2AccountRoute: DesignV2AccountRouteWithChildren,
-  DesignV2CartRoute: DesignV2CartRoute,
-  DesignV2CheckoutRoute: DesignV2CheckoutRoute,
-  DesignV2EsimRoute: DesignV2EsimRoute,
-  DesignV2LoungeRoute: DesignV2LoungeRoute,
-  DesignV2SupportRoute: DesignV2SupportRoute,
-  DesignV2VignetteRoute: DesignV2VignetteRoute,
-  DesignV2IndexRoute: DesignV2IndexRoute,
-  DesignV2AuthLoginRoute: DesignV2AuthLoginRoute,
-  DesignV2AuthRegisterRoute: DesignV2AuthRegisterRoute,
-  DesignV2EsimRegionRegionRoute: DesignV2EsimRegionRegionRoute,
-}
-
-const DesignV2RouteWithChildren = DesignV2Route._addFileChildren(
-  DesignV2RouteChildren,
-)
+const AccountRouteWithChildren =
+  AccountRoute._addFileChildren(AccountRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
+  AccountRoute: AccountRouteWithChildren,
   AuthRoute: AuthRoute,
-  DesignV2Route: DesignV2RouteWithChildren,
   DestekRoute: DestekRoute,
+  KayitRoute: KayitRoute,
+  OdemeRoute: OdemeRoute,
   SepetRoute: SepetRoute,
+  VignetteRoute: VignetteRoute,
+  DesignV2SplatRoute: DesignV2SplatRoute,
   EsimPaketlerRoute: EsimPaketlerRoute,
   EsimUlkelerRoute: EsimUlkelerRoute,
   GuidesSlugRoute: GuidesSlugRoute,
   LoungeSeceneklerRoute: LoungeSeceneklerRoute,
   SitemapXmlRoute: SitemapXmlRoute,
   DeIndexRoute: DeIndexRoute,
+  DesignV2IndexRoute: DesignV2IndexRoute,
   EnIndexRoute: EnIndexRoute,
   EsimIndexRoute: EsimIndexRoute,
   GuidesIndexRoute: GuidesIndexRoute,
@@ -2079,6 +2286,7 @@ const rootRouteChildren: RootRouteChildren = {
   DeRatgeberSlugRoute: DeRatgeberSlugRoute,
   EnEsimSlugRoute: EnEsimSlugRoute,
   EnGuidesSlugRoute: EnGuidesSlugRoute,
+  EsimBolgeRegionRoute: EsimBolgeRegionRoute,
   TrEsimSlugRoute: TrEsimSlugRoute,
   TrRehberSlugRoute: TrRehberSlugRoute,
   DeRatgeberIndexRoute: DeRatgeberIndexRoute,

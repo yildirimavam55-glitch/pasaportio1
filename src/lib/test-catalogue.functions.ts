@@ -12,7 +12,7 @@ export type TestProduct = {
   code: string | null;
   slug: string;
   name: string;
-  serviceType: "ESIM" | "LOUNGE" | "CAR_RENTAL" | "TRANSFER";
+  serviceType: "ESIM" | "LOUNGE" | "VIGNETTE" | "CAR_RENTAL" | "TRANSFER";
   currency: string;
   salePrice: number | null;
   lifecycle: string;
