@@ -177,7 +177,7 @@ export function V2GuidesRail() {
   const { data = [] } = useQuery({ queryKey: ["v2-guides", locale], queryFn: () => listFeaturedGuides({ data: { locale, limit: 4 } }), staleTime: 5 * 60_000 });
   if (!data.length) return null;
   return (
-    <section>
+    <section className="mb-4">
       <SectionTitle action={<SeoPathLink path={`/${locale}/${locale === "tr" ? "rehber" : locale === "de" ? "ratgeber" : "guides"}`} className="inline-flex items-center gap-0.5 text-xs font-semibold text-primary">{c.allGuides}<ArrowRight className="size-3.5" /></SeoPathLink>}>{c.guides}</SectionTitle>
       <p className="-mt-0.5 mb-4 text-xs text-muted-foreground">{c.guideLead}</p>
       <ul className="-mx-4 flex snap-x snap-mandatory scroll-px-4 gap-3 overflow-x-auto px-4 pb-1 [overscroll-behavior-inline:contain] [scrollbar-width:none]">
