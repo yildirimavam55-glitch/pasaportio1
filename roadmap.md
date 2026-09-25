@@ -2,12 +2,12 @@
 
 ## V2 final customer experience completion
 
-- [ ] Preserve the approved reference-locked V2 discovery and shared customer shell
-- [ ] Curate every destination to 2–5 real catalogue packages with stable cart IDs
-- [ ] Add the compact usage assistant, data education, compatibility, installation, guides, FAQ, and footer
-- [ ] Deepen truthful Lounge and Vignette pages without invented inventory or claims
-- [ ] Verify Türkiye plus DE/IT/US/JP, TR/DE/EN, cart mapping, and 360/390/430 px layouts
-- [ ] Confirm production, database, catalogue, pricing, Auth, orders, customer eSIMs, and Admin remain unchanged
+- [x] Preserve the approved reference-locked V2 discovery and shared customer shell
+- [x] Curate every destination to 2–5 real catalogue packages with stable cart IDs
+- [x] Add the compact usage assistant, data education, compatibility, installation, guides, FAQ, and footer
+- [x] Deepen truthful Lounge and Vignette pages without invented inventory or claims
+- [x] Verify Türkiye plus DE/IT/US/JP, TR/DE/EN, cart mapping, and 360/390/430 px layouts
+- [x] Confirm production, database, catalogue, pricing, Auth, orders, customer eSIMs, and Admin remain unchanged
 
 ## Mobile header overlay and sticky search fix
 
