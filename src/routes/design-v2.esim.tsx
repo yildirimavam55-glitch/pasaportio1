@@ -347,7 +347,7 @@ function Packages({ iso, name, c, selectedPackage, onSelectPackage }: { iso: str
             <BarChart3 className="size-6 text-primary" aria-hidden />
             <strong className="mt-2 text-[13px] leading-tight text-foreground">{c.assistant}</strong>
             <span className="mt-1 flex-1 text-[11px] leading-snug text-muted-foreground">{h.assistantLead}</span>
-            <Button type="button" size="sm" aria-expanded={assistantOpen} onClick={() => setAssistantOpen((open) => !open)} className="mt-2.5 h-9 w-full whitespace-normal px-2 text-[11px] leading-tight">{assistantOpen ? c.assistantClose : h.find}<ArrowRight className="size-3.5" /></Button>
+            <Button type="button" size="sm" aria-expanded={assistantOpen} onClick={() => setAssistantOpen((open) => !open)} className="mt-2.5 h-9 w-full whitespace-normal px-2 text-[11px] leading-tight">{h.find}<ArrowRight className="size-3.5" /></Button>
           </div>
           <div className="flex min-w-0 flex-col rounded-xl bg-card p-3 shadow-sm">
             <Smartphone className="size-6 text-primary" aria-hidden />
