@@ -52,8 +52,8 @@ export function V2Shell({
   const serviceAccent = service === "lounge" ? "[--v2-service:var(--color-v2-lounge)]" : service === "vignette" ? "[--v2-service:var(--color-v2-vignette)]" : "[--v2-service:var(--color-v2-esim)]";
   return (
     <V2Context.Provider value={true}>
-      <PublicShell hideStickySearch hideFloatingWhatsApp headerAccessory={stickySearch}>
-        <div className={`mx-auto w-full ${width} ${serviceAccent} overflow-x-clip px-4 ${commerceSelection ? "pb-36" : "pb-32"} sm:pb-12`}>
+      <PublicShell hideStickySearch hideFloatingWhatsApp footerBottomSafe headerAccessory={stickySearch}>
+        <div className={`mx-auto w-full ${width} ${serviceAccent} overflow-x-clip px-4 ${commerceSelection ? "pb-8" : "pb-8"} sm:pb-12`}>
           <DesktopNav active={active} />
           {children}
         </div>
