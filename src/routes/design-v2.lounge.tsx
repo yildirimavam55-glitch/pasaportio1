@@ -3,7 +3,7 @@ import { useQueries, useQuery } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 import { z } from "zod";
 import { CalendarCheck, Headphones, LockKeyhole, Search, Sofa } from "lucide-react";
-import { CartBar, HeroField, heroInputClass, HowItWorks, money, PhotoCard, PhotoRail, pick, PromoCard, SectionTitle, TrustRow, V2Hero, V2Shell, V2_NOINDEX } from "@/components/design-v2/V2Shell";
+import { CartBar, HeroField, heroInputClass, HowItWorks, money, PhotoCard, PhotoRail, pick, PromoCard, SectionTitle, TrustRow, useV2StickySearch, V2Hero, V2Shell, V2StickySearchButton, V2_NOINDEX } from "@/components/design-v2/V2Shell";
 import { V2PickerSheet } from "@/components/design-v2/V2PickerSheet";
 import { Button } from "@/components/ui/button";
 import { CountryFlag } from "@/components/travel/CountryFlag";
@@ -49,6 +49,7 @@ function LoungeV2() {
   const navigate = Route.useNavigate();
   const [query, setQuery] = useState("");
   const [pickerOpen, setPickerOpen] = useState(false);
+  const { heroSearchRef, heroSearchVisible } = useV2StickySearch();
   const { lines, addLine, updateQuantity, count } = useCart();
   const [selectedOffer, setSelectedOffer] = useState<LoungeOption | null>(null);
   const [selectionQuantity, setSelectionQuantity] = useState(1);
@@ -73,9 +74,9 @@ function LoungeV2() {
   const summary = selectedOffer ? <V2SelectedProductSummary title={selectedOffer.loungeName ?? selectedOffer.name} subtitle={[selectedOffer.iata, selectedOffer.terminal ? `${c.terminal} ${selectedOffer.terminal}` : null].filter(Boolean).join(" · ")} price={money(selectedOffer.salePrice ?? 0, selectedOffer.currency)} quantity={selectedCartLine?.quantity ?? selectionQuantity} inCart={Boolean(selectedCartLine)} addLabel={c.select} addedLabel={c.added} cartLabel={c.cart} decreaseLabel={c.decrease} increaseLabel={c.increase} whatsappLabel={c.support} onQuantityChange={(quantity) => selectedCartLine ? updateQuantity(selectedCartLine.productId, quantity) : setSelectionQuantity(quantity)} onAdd={addSelectedOffer} /> : undefined;
 
   return (
-    <V2Shell service="lounge" commerceSelection={Boolean(selectedOffer)} purchaseSummary={summary}>
+    <V2Shell service="lounge" commerceSelection={Boolean(selectedOffer)} purchaseSummary={summary} stickySearch={!airport ? <V2StickySearchButton heroSearchVisible={heroSearchVisible} label={c.ph} onOpen={() => setPickerOpen(true)} /> : undefined}>
       <V2Hero image={heroImage} eyebrow="Lounge" title={c.h} subtitle={c.q}>
-        <HeroField icon={<Search className="size-5" />}>
+        <div ref={heroSearchRef}><HeroField icon={<Search className="size-5" />}>
           <V2PickerSheet
             open={pickerOpen}
             onOpenChange={(open) => { setPickerOpen(open); if (!open) setQuery(""); }}
@@ -92,7 +93,7 @@ function LoungeV2() {
               <span className="truncate">{airport ? `${airport.city[locale]} (${airport.iata})` : c.ph}</span>
             </Button>
           </V2PickerSheet>
-        </HeroField>
+        </HeroField></div>
       </V2Hero>
 
       {airport ? (
