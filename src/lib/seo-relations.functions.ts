@@ -97,7 +97,7 @@ export const getCommercialGuides = createServerFn({ method: "GET" })
       path: seoPath(data.locale, contentType, t.slug),
       heroImageUrl: row.hero_image_url ?? null,
       heroAlt: t.hero_alt ?? row.hero_alt ?? null,
-      category: row.guide_categories?.labels?.[data.locale] ?? row.guide_categories?.slug ?? null,
+      category: (() => { const l = row.guide_categories?.labels?.[data.locale]; return typeof l === "string" ? l : typeof l?.name === "string" ? l.name : (row.guide_categories?.slug ?? null); })(),
       readingMinutes: row.reading_minutes ?? null,
     }));
   });
