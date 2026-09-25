@@ -1,5 +1,14 @@
 # Phase 1.3 Roadmap
 
+## V2 complete desktop design system
+
+- [ ] Build one shared responsive customer shell and desktop navigation while preserving approved mobile navigation
+- [ ] Adapt eSIM, Lounge, and Vignette discovery sections to desktop using the existing storefront configuration
+- [ ] Adapt country/regional packages, selected-product controls, cart, checkout, auth, and account layouts
+- [ ] Adapt guides, article pages, support, footer, sticky search, and WhatsApp placement
+- [ ] Run the full mobile/tablet/desktop visual and functional regression matrix
+- [ ] Capture the requested real implementation screenshots and report without publishing
+
 ## V2 regional eSIM discovery and results
 
 - [x] Audit genuine published regional inventory without syncing or changing catalogue data
