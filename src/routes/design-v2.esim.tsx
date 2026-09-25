@@ -2,18 +2,17 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useMemo, useRef, useState } from "react";
 import { z } from "zod";
-import { ArrowRight, BarChart3, Globe, Headphones, Infinity as InfinityIcon, MapPin, MessageCircle, Search, Share2, Smartphone, Sparkles, Video, Zap } from "lucide-react";
+import { ArrowRight, BarChart3, Infinity as InfinityIcon, MapPin, MessageCircle, Search, Share2, Smartphone, Sparkles, Video } from "lucide-react";
 import { DeviceCheckSheet } from "@/components/travel/DeviceCompatibility";
-import { CartBar, HeroField, heroInputClass, money, PhotoCard, PhotoRail, pick, PromoCard, SectionTitle, TrustRow, useV2StickySearch, V2Hero, V2Shell, V2StickySearchButton, V2_NOINDEX } from "@/components/design-v2/V2Shell";
+import { CartBar, HeroField, heroInputClass, money, PhotoCard, PhotoRail, pick, SectionTitle, useV2StickySearch, V2Hero, V2Shell, V2StickySearchButton, V2_NOINDEX } from "@/components/design-v2/V2Shell";
 import { V2PickerSheet } from "@/components/design-v2/V2PickerSheet";
 import { Button } from "@/components/ui/button";
 import { countryPhotoRegistry } from "@/components/travel/countryPhotos";
 import { getRegionPhoto } from "@/components/travel/regionPhotos";
-import loungePromo from "@/assets/lounge-card.jpg.asset.json";
 import { CountryFlag } from "@/components/travel/CountryFlag";
 import { useI18n } from "@/i18n";
 import { useCart } from "@/domain/cart/store";
-import { getCountryByIso, POPULAR_COUNTRIES, searchCountries } from "@/domain/geo/countries";
+import { getCountryByIso, searchCountries } from "@/domain/geo/countries";
 import { listEsimDestinationStartingPrices, listEsimPackages, listEsimRegionalSummaries, listEsimStartingPrices, type EsimPackage, type EsimRegionalSummary } from "@/lib/esim-catalogue.functions";
 import { customerCataloguePackageTitle } from "@/domain/esim/customer-presentation";
 import { estimateUsageNeed, type EsimUsageSettings } from "@/domain/esim/usage-recommendation";
@@ -22,16 +21,17 @@ import { dedupeStorefrontPackages, sortStandardPackages, sortUnlimitedPackages }
 import { COVERAGE_REGION_LABELS } from "@/domain/geo/coverage-regions";
 import { getEsimUsageSettings } from "@/lib/esim-settings.functions";
 import type { UsageKind } from "@/domain/experience/types";
-import { V2Compatibility, V2EsimFaq, V2GuidesRail, V2Installation } from "@/components/design-v2/V2DiscoveryContent";
+import { V2Installation } from "@/components/design-v2/V2DiscoveryContent";
+import { mediaUrl, useV2Page, V2Sections, v2PageQuery } from "@/components/design-v2/V2Sections";
+import { v2Text, type V2Section } from "@/domain/storefront/v2";
 import { V2EsimPackageDetails } from "@/components/design-v2/V2EsimPackageDetails";
 import { V2ProductSelectionCard, V2SelectedProductSummary } from "@/components/design-v2/V2ProductSelection";
-import heroImage from "@/assets/esim-hero-mobile.jpg";
-import vignettePromo from "@/assets/v2-vignette-hero.jpg";
 
 const searchSchema = z.object({ country: z.string().max(2).catch("").default("") });
 
 export const Route = createFileRoute("/design-v2/esim")({
   validateSearch: (s) => searchSchema.parse(s),
+  loader: ({ context }) => context.queryClient.ensureQueryData(v2PageQuery("esim")),
   head: () => ({
     meta: [
       { title: "eSIM — Design V2 preview" },
@@ -71,6 +71,9 @@ function EsimV2() {
   );
   const selected = country ? getCountryByIso(country.toUpperCase()) : undefined;
   const { heroSearchRef, heroSearchVisible } = useV2StickySearch();
+  const { config, media } = useV2Page("esim");
+  const heroSection = config.sections[0];
+  const stickyLabel = v2Text(heroSection, "sticky", locale) || v2Text(heroSection, "placeholder", locale) || c.stickyPh;
   const choose = (iso: string) => {
     setSelectedPackage(null);
     setSelectionQuantity(1);
@@ -121,12 +124,29 @@ function EsimV2() {
     onAdd={addSelectedPackage}
   /> : undefined;
   const stickySearch = !selected ? (
-    <V2StickySearchButton heroSearchVisible={heroSearchVisible} label={c.stickyPh} onOpen={() => setPickerOpen(true)} />
+    <V2StickySearchButton heroSearchVisible={heroSearchVisible} label={stickyLabel} onOpen={() => setPickerOpen(true)} />
   ) : undefined;
 
   return (
     <V2Shell service="esim" commerceSelection={Boolean(selectedPackage)} stickySearch={stickySearch} purchaseSummary={purchaseSummary}>
-      {!selected && <V2Hero image={heroImage} eyebrow="eSIM" title={c.h} subtitle={c.q}>
+
+      {selected ? (
+        <>
+          <div className="mt-2 grid grid-cols-[minmax(0,1fr)_auto] items-center rounded-full bg-card px-4 py-2.5 shadow-sm ring-1 ring-border">
+            <span className="flex min-w-0 items-center gap-2 text-sm font-bold text-foreground"><Search className="size-4 shrink-0 text-muted-foreground"/><CountryFlag iso={selected.iso} className="h-4 w-6 shrink-0 rounded-sm"/><span className="truncate">{selected.name[locale]}</span></span>
+            <Button type="button" variant="ghost" size="sm" onClick={() => setPickerOpen(true)} className="shrink-0 text-primary">{c.back}</Button>
+          </div>
+          <V2PickerSheet open={pickerOpen} onOpenChange={(open) => { setPickerOpen(open); if (!open) setQuery(""); }} title={c.picker} searchLabel={c.ph} query={query} onQueryChange={setQuery} selectedId={selected.iso} emptyLabel={prices.isLoading ? "…" : c.empty} items={matches.map((item) => { const price = priceMap.get(item.iso); return { id: item.iso, label: item.name[locale], leading: <CountryFlag iso={item.iso} className="h-4 w-6 rounded-sm" />, ...(price ? { price: `${money(price.amount, price.currency)} ${c.from}` } : {}) }; })} onSelect={choose}><span /></V2PickerSheet>
+          <Packages iso={selected.iso} name={selected.name[locale]} c={c} selectedPackage={selectedPackage} onSelectPackage={selectPackage} />
+        </>
+      ) : (
+        <>
+          <V2Sections
+            config={config}
+            media={media}
+            slots={{
+              hero: (section) => (
+<V2Hero image={mediaUrl(section.mobileMediaId ?? section.mediaId, media) ?? ""} desktopImage={mediaUrl(section.mediaId, media)} eyebrow={v2Text(section, "eyebrow", locale)} title={v2Text(section, "title", locale)} subtitle={v2Text(section, "subtitle", locale)} align={section.align} height={section.height} overlay={section.overlay}>
         <div ref={heroSearchRef}><HeroField icon={<Search className="size-5" />}>
           <V2PickerSheet
             open={pickerOpen}
@@ -143,39 +163,16 @@ function EsimV2() {
             onSelect={choose}
           >
             <Button type="button" variant="ghost" className={`${heroInputClass} justify-start font-normal hover:bg-transparent`}>
-              <span className="truncate">{c.ph}</span>
+              <span className="truncate">{v2Text(section, "placeholder", locale) || c.ph}</span>
             </Button>
           </V2PickerSheet>
         </HeroField></div>
-      </V2Hero>}
-
-      {selected ? (
-        <>
-          <div className="mt-2 grid grid-cols-[minmax(0,1fr)_auto] items-center rounded-full bg-card px-4 py-2.5 shadow-sm ring-1 ring-border">
-            <span className="flex min-w-0 items-center gap-2 text-sm font-bold text-foreground"><Search className="size-4 shrink-0 text-muted-foreground"/><CountryFlag iso={selected.iso} className="h-4 w-6 shrink-0 rounded-sm"/><span className="truncate">{selected.name[locale]}</span></span>
-            <Button type="button" variant="ghost" size="sm" onClick={() => setPickerOpen(true)} className="shrink-0 text-primary">{c.back}</Button>
-          </div>
-          <V2PickerSheet open={pickerOpen} onOpenChange={(open) => { setPickerOpen(open); if (!open) setQuery(""); }} title={c.picker} searchLabel={c.ph} query={query} onQueryChange={setQuery} selectedId={selected.iso} emptyLabel={prices.isLoading ? "…" : c.empty} items={matches.map((item) => { const price = priceMap.get(item.iso); return { id: item.iso, label: item.name[locale], leading: <CountryFlag iso={item.iso} className="h-4 w-6 rounded-sm" />, ...(price ? { price: `${money(price.amount, price.currency)} ${c.from}` } : {}) }; })} onSelect={choose}><span /></V2PickerSheet>
-          <Packages iso={selected.iso} name={selected.name[locale]} c={c} selectedPackage={selectedPackage} onSelectPackage={selectPackage} />
-        </>
-      ) : (
-        <>
-          <TrustRow
-            items={[
-              { icon: <Zap className="size-6" />, label: c.benefitDelivery },
-              { icon: <Globe className="size-6" />, label: c.benefitCoverage },
-              { icon: <Smartphone className="size-6" />, label: c.setup },
-              { icon: <Headphones className="size-6" />, label: c.support },
-            ]}
+      </V2Hero>
+              ),
+              destinations: (section) => <Popular c={c} section={section} onPick={choose} />,
+              regions: (section) => <RegionalDiscovery section={section} summaries={regionalSummaries.data ?? []} loading={regionalSummaries.isLoading} c={c} />,
+            }}
           />
-          <Popular c={c} onPick={choose} />
-          <RegionalDiscovery summaries={regionalSummaries.data ?? []} loading={regionalSummaries.isLoading} c={c} />
-          <V2Compatibility />
-          <PromoCard image={loungePromo.url} title={c.promo} sub={c.promoSub} to="/design-v2/lounge" />
-          <V2Installation />
-          <PromoCard image={vignettePromo} title={c.vignettePromo} sub={c.vignettePromoSub} to="/design-v2/vignette" />
-          <V2GuidesRail />
-          <V2EsimFaq compact />
         </>
       )}
       <CartBar count={count} label={c.cart} />
@@ -183,9 +180,9 @@ function EsimV2() {
   );
 }
 
-function Popular({ c, onPick }: { c: (typeof T)["tr"]; onPick: (iso: string) => void }) {
+function Popular({ c, section, onPick }: { c: (typeof T)["tr"]; section: V2Section; onPick: (iso: string) => void }) {
   const { locale } = useI18n();
-  const list = POPULAR_COUNTRIES.slice(0, 10);
+  const list = section.items.filter((item) => item.visible).flatMap((item) => { const country = getCountryByIso(item.entity); return country ? [country] : []; });
   const { data, isLoading } = useQuery({
     queryKey: ["v2-esim-starting", list.map((x) => x.iso)],
     queryFn: () => listEsimStartingPrices({ data: { targets: list.map((x) => ({ id: x.iso, coverageIsos: [x.iso] })) } }),
@@ -197,7 +194,7 @@ function Popular({ c, onPick }: { c: (typeof T)["tr"]; onPick: (iso: string) => 
   });
   return (
     <>
-      <SectionTitle>{c.popular}</SectionTitle>
+      <SectionTitle>{v2Text(section, "title", locale) || c.popular}</SectionTitle>
       {isLoading ? (
         <div className="h-40 animate-pulse rounded-2xl bg-muted" />
       ) : priced.length === 0 ? (
@@ -220,15 +217,15 @@ function Popular({ c, onPick }: { c: (typeof T)["tr"]; onPick: (iso: string) => 
   );
 }
 
-function RegionalDiscovery({ summaries, loading, c }: { summaries: EsimRegionalSummary[]; loading: boolean; c: (typeof T)["tr"] }) {
+function RegionalDiscovery({ section, summaries, loading, c }: { section: V2Section; summaries: EsimRegionalSummary[]; loading: boolean; c: (typeof T)["tr"] }) {
   const { locale } = useI18n();
   const worldwide = summaries.find((item) => item.region === "GLOBAL" && item.unlimitedCount > 0);
   const regions = summaries.filter((item) => item.region !== "GLOBAL");
   return (
     <section aria-labelledby="regional-esim-title">
-      <p className="mt-5 text-[11px] font-bold uppercase text-primary">{c.regionalEyebrow}</p>
-      <SectionTitle><span id="regional-esim-title">{c.regionalTitle}</span></SectionTitle>
-      <p className="mb-3 text-xs text-muted-foreground">{c.regionalHomeLead}</p>
+      <p className="mt-5 text-[11px] font-bold uppercase text-primary">{v2Text(section, "eyebrow", locale)}</p>
+      <SectionTitle><span id="regional-esim-title">{v2Text(section, "title", locale) || c.regionalTitle}</span></SectionTitle>
+      <p className="mb-3 text-xs text-muted-foreground">{v2Text(section, "lead", locale)}</p>
       {loading ? <div className="h-40 animate-pulse rounded-xl bg-muted" /> : (
         <ul className="-mx-4 flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-2 [overscroll-behavior-inline:contain] [scrollbar-width:none] sm:mx-0 sm:grid sm:grid-cols-3 sm:px-0">
           {regions.map((item) => {
@@ -248,7 +245,7 @@ function RegionalDiscovery({ summaries, loading, c }: { summaries: EsimRegionalS
       )}
       {worldwide?.lowestUnlimitedPrice != null && worldwide.maxUnlimitedCoverageCount != null && <Link to="/design-v2/esim-region/$region" params={{ region: "GLOBAL" }} search={{ country: "" }} className="relative mt-2 grid min-h-20 grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 overflow-hidden rounded-xl bg-primary px-3.5 py-3 text-primary-foreground shadow-sm">
         <span className="grid size-10 place-items-center rounded-full bg-card text-primary"><InfinityIcon className="size-5" /></span>
-        <span className="min-w-0"><strong className="block font-display text-sm">{c.worldwideBanner}</strong><span className="block text-[11px] opacity-90">{worldwide.maxUnlimitedCoverageCount} {c.upTo} · {c.from} {money(worldwide.lowestUnlimitedPrice, worldwide.currency)}</span><span className="mt-1 block text-xs font-bold">{c.discoverPlans} →</span></span>
+        <span className="min-w-0"><strong className="block font-display text-sm">{v2Text(section, "worldwide", locale) || c.worldwideBanner}</strong><span className="block text-[11px] opacity-90">{worldwide.maxUnlimitedCoverageCount} {c.upTo} · {c.from} {money(worldwide.lowestUnlimitedPrice, worldwide.currency)}</span><span className="mt-1 block text-xs font-bold">{v2Text(section, "cta", locale) || c.discoverPlans} →</span></span>
         <ArrowRight className="size-4 shrink-0" />
       </Link>}
     </section>
