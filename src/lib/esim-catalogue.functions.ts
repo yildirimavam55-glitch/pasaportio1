@@ -5,6 +5,9 @@ import type { Database } from "@/integrations/supabase/types";
 import { isTestCatalogueVisible } from "@/lib/test-catalogue.functions";
 import { commercialDataGb } from "@/domain/esim/customer-presentation";
 import { networkGenerationsOf, planTierOf, regionFamilyOf, regionLabelOf, type PlanTier, type RegionFamily } from "@/domain/esim/supplier-metadata";
+import { classifyCoverageRegion, COVERAGE_REGION_ORDER, type CoverageRegionKey } from "@/domain/geo/coverage-regions";
+import { resolvePackageScope } from "@/domain/esim/package-scope";
+import { dedupeStorefrontPackages } from "@/domain/esim/storefront-packages";
 
 export type ActivationPolicy = "ON_INSTALL" | "ON_FIRST_NETWORK_CONNECTION" | "ON_PURCHASE" | "UNKNOWN";
 
@@ -56,6 +59,26 @@ export type EsimStartingPrice = {
   amount: number;
   currency: string;
 };
+
+export type EsimRegionalSummary = {
+  region: Exclude<CoverageRegionKey, "MULTI">;
+  standardCount: number;
+  unlimitedCount: number;
+  lowestStandardPrice: number | null;
+  lowestUnlimitedPrice: number | null;
+  startingPrice: number;
+  currency: string;
+  coverageCount: number | null;
+  minCoverageCount: number;
+  maxCoverageCount: number;
+  maxUnlimitedCoverageCount: number | null;
+};
+
+function regionalIdentity(pkg: EsimPackage): CoverageRegionKey | null {
+  const scope = resolvePackageScope({ declaredKind: pkg.packageKind, coverageCount: pkg.coverage.length });
+  if (scope === "COUNTRY" || scope === "SUBDIVISION") return null;
+  return classifyCoverageRegion(pkg.coverage);
+}
 
 function publicClient() {
   const key = process.env["SUPABASE_PUBLISHABLE_KEY"]!;
@@ -208,6 +231,49 @@ export const listGlobalUnlimitedEsimPackages = createServerFn({ method: "GET" })
     return packages.filter((pkg) => pkg.unlimited && pkg.regionFamily === "GLOBAL");
   },
 );
+
+/** Real published multi-country inventory summarized for V2 regional discovery. */
+export const listEsimRegionalSummaries = createServerFn({ method: "GET" }).handler(
+  async (): Promise<EsimRegionalSummary[]> => {
+    const packages = dedupeStorefrontPackages(await listEsimPackages({ data: { coverageIsos: [] } }));
+    return COVERAGE_REGION_ORDER.flatMap((region) => {
+      if (region === "MULTI") return [];
+      const rows = packages.filter((pkg) => regionalIdentity(pkg) === region && pkg.salePrice != null);
+      if (!rows.length) return [];
+      const standard = rows.filter((pkg) => !pkg.unlimited);
+      const unlimited = rows.filter((pkg) => pkg.unlimited);
+      const coverageCounts = [...new Set(rows.map((pkg) => pkg.coverage.length))].sort((a, b) => a - b);
+      const cheapest = [...rows].sort((a, b) => (a.salePrice ?? Infinity) - (b.salePrice ?? Infinity))[0];
+      if (!cheapest?.salePrice) return [];
+      const lowest = (items: EsimPackage[]) => items.length ? Math.min(...items.map((pkg) => pkg.salePrice ?? Infinity)) : null;
+      return [{
+        region,
+        standardCount: standard.length,
+        unlimitedCount: unlimited.length,
+        lowestStandardPrice: lowest(standard),
+        lowestUnlimitedPrice: lowest(unlimited),
+        startingPrice: cheapest.salePrice,
+        currency: cheapest.currency,
+        coverageCount: coverageCounts.length === 1 ? coverageCounts[0] ?? null : null,
+        minCoverageCount: coverageCounts[0] ?? 0,
+        maxCoverageCount: coverageCounts.at(-1) ?? 0,
+        maxUnlimitedCoverageCount: unlimited.length ? Math.max(...unlimited.map((pkg) => pkg.coverage.length)) : null,
+      }];
+    });
+  },
+);
+
+/** All meaningful published packages whose real multi-country coverage belongs to one region. */
+export const listEsimRegionPackages = createServerFn({ method: "GET" })
+  .inputValidator((input: { region: string }) => {
+    const region = String(input.region ?? "").toUpperCase() as CoverageRegionKey;
+    if (!COVERAGE_REGION_ORDER.includes(region) || region === "MULTI") throw new Error("Unknown eSIM region");
+    return { region: region as Exclude<CoverageRegionKey, "MULTI"> };
+  })
+  .handler(async ({ data }): Promise<EsimPackage[]> => {
+    const packages = await listEsimPackages({ data: { coverageIsos: [] } });
+    return packages.filter((pkg) => regionalIdentity(pkg) === data.region);
+  });
 
 /** Lowest current customer price for each requested country/route coverage target. */
 export const listEsimStartingPrices = createServerFn({ method: "GET" })

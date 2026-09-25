@@ -73,6 +73,7 @@ import { Route as DesignV2AccountSecurityRouteImport } from './routes/design-v2.
 import { Route as DesignV2AccountSupportRouteImport } from './routes/design-v2.account.support'
 import { Route as DesignV2AuthLoginRouteImport } from './routes/design-v2.auth.login'
 import { Route as DesignV2AuthRegisterRouteImport } from './routes/design-v2.auth.register'
+import { Route as DesignV2EsimRegionRegionRouteImport } from './routes/design-v2.esim-region.$region'
 import { Route as EnEsimSlugRouteImport } from './routes/en.esim.$slug'
 import { Route as EnGuidesIndexRouteImport } from './routes/en.guides.index'
 import { Route as EnGuidesSlugRouteImport } from './routes/en.guides.$slug'
@@ -442,6 +443,12 @@ const DesignV2AuthRegisterRoute = DesignV2AuthRegisterRouteImport.update({
   path: '/auth/register',
   getParentRoute: () => DesignV2Route,
 } as any)
+const DesignV2EsimRegionRegionRoute =
+  DesignV2EsimRegionRegionRouteImport.update({
+    id: '/esim-region/$region',
+    path: '/esim-region/$region',
+    getParentRoute: () => DesignV2Route,
+  } as any)
 const EnEsimSlugRoute = EnEsimSlugRouteImport.update({
   id: '/en/esim/$slug',
   path: '/en/esim/$slug',
@@ -656,6 +663,7 @@ export interface FileRoutesByFullPath {
   '/design-v2/account/support': typeof DesignV2AccountSupportRoute
   '/design-v2/auth/login': typeof DesignV2AuthLoginRoute
   '/design-v2/auth/register': typeof DesignV2AuthRegisterRoute
+  '/design-v2/esim-region/$region': typeof DesignV2EsimRegionRegionRoute
   '/en/esim/$slug': typeof EnEsimSlugRoute
   '/en/guides/$slug': typeof EnGuidesSlugRoute
   '/tr/esim/$slug': typeof TrEsimSlugRoute
@@ -746,6 +754,7 @@ export interface FileRoutesByTo {
   '/design-v2/account/support': typeof DesignV2AccountSupportRoute
   '/design-v2/auth/login': typeof DesignV2AuthLoginRoute
   '/design-v2/auth/register': typeof DesignV2AuthRegisterRoute
+  '/design-v2/esim-region/$region': typeof DesignV2EsimRegionRegionRoute
   '/en/esim/$slug': typeof EnEsimSlugRoute
   '/en/guides/$slug': typeof EnGuidesSlugRoute
   '/tr/esim/$slug': typeof TrEsimSlugRoute
@@ -840,6 +849,7 @@ export interface FileRoutesById {
   '/design-v2/account/support': typeof DesignV2AccountSupportRoute
   '/design-v2/auth/login': typeof DesignV2AuthLoginRoute
   '/design-v2/auth/register': typeof DesignV2AuthRegisterRoute
+  '/design-v2/esim-region/$region': typeof DesignV2EsimRegionRegionRoute
   '/en/esim/$slug': typeof EnEsimSlugRoute
   '/en/guides/$slug': typeof EnGuidesSlugRoute
   '/tr/esim/$slug': typeof TrEsimSlugRoute
@@ -934,6 +944,7 @@ export interface FileRouteTypes {
     | '/design-v2/account/support'
     | '/design-v2/auth/login'
     | '/design-v2/auth/register'
+    | '/design-v2/esim-region/$region'
     | '/en/esim/$slug'
     | '/en/guides/$slug'
     | '/tr/esim/$slug'
@@ -1024,6 +1035,7 @@ export interface FileRouteTypes {
     | '/design-v2/account/support'
     | '/design-v2/auth/login'
     | '/design-v2/auth/register'
+    | '/design-v2/esim-region/$region'
     | '/en/esim/$slug'
     | '/en/guides/$slug'
     | '/tr/esim/$slug'
@@ -1117,6 +1129,7 @@ export interface FileRouteTypes {
     | '/design-v2/account/support'
     | '/design-v2/auth/login'
     | '/design-v2/auth/register'
+    | '/design-v2/esim-region/$region'
     | '/en/esim/$slug'
     | '/en/guides/$slug'
     | '/tr/esim/$slug'
@@ -1632,6 +1645,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DesignV2AuthRegisterRouteImport
       parentRoute: typeof DesignV2Route
     }
+    '/design-v2/esim-region/$region': {
+      id: '/design-v2/esim-region/$region'
+      path: '/esim-region/$region'
+      fullPath: '/design-v2/esim-region/$region'
+      preLoaderRoute: typeof DesignV2EsimRegionRegionRouteImport
+      parentRoute: typeof DesignV2Route
+    }
     '/en/esim/$slug': {
       id: '/en/esim/$slug'
       path: '/en/esim/$slug'
@@ -1968,6 +1988,7 @@ interface DesignV2RouteChildren {
   DesignV2IndexRoute: typeof DesignV2IndexRoute
   DesignV2AuthLoginRoute: typeof DesignV2AuthLoginRoute
   DesignV2AuthRegisterRoute: typeof DesignV2AuthRegisterRoute
+  DesignV2EsimRegionRegionRoute: typeof DesignV2EsimRegionRegionRoute
 }
 
 const DesignV2RouteChildren: DesignV2RouteChildren = {
@@ -1981,6 +2002,7 @@ const DesignV2RouteChildren: DesignV2RouteChildren = {
   DesignV2IndexRoute: DesignV2IndexRoute,
   DesignV2AuthLoginRoute: DesignV2AuthLoginRoute,
   DesignV2AuthRegisterRoute: DesignV2AuthRegisterRoute,
+  DesignV2EsimRegionRegionRoute: DesignV2EsimRegionRegionRoute,
 }
 
 const DesignV2RouteWithChildren = DesignV2Route._addFileChildren(

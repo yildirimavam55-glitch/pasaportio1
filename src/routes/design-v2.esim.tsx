@@ -7,16 +7,19 @@ import { CartBar, HeroField, heroInputClass, HowItWorks, money, PhotoCard, Photo
 import { V2PickerSheet } from "@/components/design-v2/V2PickerSheet";
 import { Button } from "@/components/ui/button";
 import { countryPhotoRegistry } from "@/components/travel/countryPhotos";
+import { getRegionPhoto } from "@/components/travel/regionPhotos";
 import loungePromo from "@/assets/lounge-card.jpg.asset.json";
 import { CountryFlag } from "@/components/travel/CountryFlag";
 import { useI18n } from "@/i18n";
 import { useCart } from "@/domain/cart/store";
 import { getCountryByIso, POPULAR_COUNTRIES, searchCountries } from "@/domain/geo/countries";
-import { listEsimDestinationStartingPrices, listEsimPackages, listEsimStartingPrices, listGlobalUnlimitedEsimPackages, type EsimPackage } from "@/lib/esim-catalogue.functions";
+import { listEsimDestinationStartingPrices, listEsimPackages, listEsimRegionalSummaries, listEsimStartingPrices, type EsimPackage, type EsimRegionalSummary } from "@/lib/esim-catalogue.functions";
 import { customerCataloguePackageTitle } from "@/domain/esim/customer-presentation";
 import { estimateUsageNeed, type EsimUsageSettings } from "@/domain/esim/usage-recommendation";
 import { selectRecommendedPackage } from "@/domain/esim/package-matching";
 import { pickRegionalRecommendations } from "@/domain/esim/supplier-metadata";
+import { dedupeStorefrontPackages, sortStandardPackages, sortUnlimitedPackages } from "@/domain/esim/storefront-packages";
+import { COVERAGE_REGION_LABELS } from "@/domain/geo/coverage-regions";
 import { getEsimUsageSettings } from "@/lib/esim-settings.functions";
 import type { UsageKind } from "@/domain/experience/types";
 import { V2Compatibility, V2DataEducation, V2EsimFaq, V2GuidesRail, V2Installation, V2WhyTravely } from "@/components/design-v2/V2DiscoveryContent";
@@ -43,9 +46,9 @@ export const Route = createFileRoute("/design-v2/esim")({
 });
 
 const T = {
-  tr: { h: "Yurt dışında bağlantıda kal.", q: "Hangi ülke için eSIM arıyorsun?", ph: "Ülke ara, örn. İtalya", stickyPh: "Türkiye veya başka ülke ara", picker: "Ülke seç", empty: "Eşleşen ülke bulunamadı.", setup: "Kolay kurulum", net: "Gerçek paketler", pay: "Kolay paket seçimi", support: "WhatsApp destek", popular: "Popüler eSIM ülkeleri", globalTitle: "Dünya çapında sınırsız internet", globalLead: "Gerçek global kapsamlı paketler", viewPackage: "Paketi gör", worldwide: "Global kapsam", from: "başlayan", day: "gün", days: "gün", select: "Sepete ekle", added: "Sepette", cart: "Sepete git", none: "Bu ülke için şu anda yayınlanmış paket yok.", noPrices: "Fiyatlar yakında burada.", back: "Değiştir", unlimited: "Sınırsız", standard: "Standart", countries: "ülke", local: "Yalnızca bu ülke", packages: "paketleri", chooseLead: "Sana uygun paketi seç.", details: "Paket detayları", data: "İnternet", validity: "Geçerlilik", coverage: "Kapsam", network: "Ağ", activation: "Aktivasyon", activationUnknown: "Kurulum bilgileri satın alma sonrası hesabında gösterilir.", fiveG: "5G desteği", regional: "Birden fazla ülkeye mi gidiyorsun?", regionalLead: "Bölgesel paketlere göz at.", assistant: "Emin değil misin?", assistantLead: "Süre ve kullanımını seç; gerçek paketlerden sana uygun olanı bulalım.", assistantOpen: "Paket yardımcısını aç", assistantClose: "Paket yardımcısını kapat", estimate: "Tahmini ihtiyaç", recommended: "Önerilen paket", usage: ["Mesajlaşma", "Haritalar", "Sosyal medya", "Video"], promo: "Uçuş öncesi biraz daha konfor", promoSub: "Lounge'u keşfet", vignettePromo: "Avrupa yollarına hazır ol", vignettePromoSub: "Vignette'i keşfet", how: "Nasıl çalışır?", steps: [{ t: "Paketini seç", s: "Ülkeni ve ihtiyacına uygun paketi seç." }, { t: "QR kodunu al", s: "Gerçek provisioning sonrası kurulum bilgilerin hesabına gelir." }, { t: "eSIM'i kur", s: "Gerçek QR kodunu tarayıp cihazına ekle." }, { t: "Seyahatte kullan", s: "Paketinin gerçek koşullarına göre bağlantını kullan." }] },
-  de: { h: "Im Ausland verbunden bleiben.", q: "Für welches Land suchst du eine eSIM?", ph: "Land suchen, z. B. Türkei", stickyPh: "Türkei oder anderes Land suchen", picker: "Land wählen", empty: "Kein passendes Land gefunden.", setup: "Einfache Einrichtung", net: "Echte Pakete", pay: "Einfache Paketwahl", support: "WhatsApp-Support", popular: "Beliebte eSIM-Länder", globalTitle: "Weltweit unbegrenzt online", globalLead: "Echte Pakete mit globaler Abdeckung", viewPackage: "Paket ansehen", worldwide: "Globale Abdeckung", from: "ab", day: "Tag", days: "Tage", select: "In den Warenkorb", added: "Im Warenkorb", cart: "Zum Warenkorb", none: "Für dieses Land gibt es aktuell keine Pakete.", noPrices: "Preise folgen in Kürze.", back: "Ändern", unlimited: "Unbegrenzt", standard: "Standard", countries: "Länder", local: "Nur dieses Land", packages: "Pakete", chooseLead: "Wähle das passende Paket.", details: "Paketdetails", data: "Daten", validity: "Gültigkeit", coverage: "Abdeckung", network: "Netz", activation: "Aktivierung", activationUnknown: "Einrichtungsdaten erscheinen nach dem Kauf in deinem Konto.", fiveG: "5G-Unterstützung", regional: "Reist du in mehrere Länder?", regionalLead: "Regionale Pakete ansehen.", assistant: "Noch unsicher?", assistantLead: "Wähle Dauer und Nutzung; wir finden ein passendes echtes Paket.", assistantOpen: "Paketassistent öffnen", assistantClose: "Paketassistent schließen", estimate: "Geschätzter Bedarf", recommended: "Passendes Paket", usage: ["Messaging", "Karten", "Social Media", "Video"], promo: "Mehr Komfort vor dem Abflug", promoSub: "Lounge entdecken", vignettePromo: "Bereit für Europas Straßen", vignettePromoSub: "Vignette entdecken", how: "So funktioniert’s", steps: [{ t: "Paket wählen", s: "Land und passendes Datenpaket auswählen." }, { t: "QR-Code erhalten", s: "Nach echter Provisionierung erscheinen die Daten im Konto." }, { t: "eSIM installieren", s: "Echten QR-Code scannen und zum Gerät hinzufügen." }, { t: "Auf Reisen nutzen", s: "Gemäß den tatsächlichen Paketbedingungen verbinden." }] },
-  en: { h: "Stay connected abroad.", q: "Which country do you need an eSIM for?", ph: "Search country, e.g. Italy", stickyPh: "Search Turkey or another country", picker: "Choose country", empty: "No matching country found.", setup: "Easy setup", net: "Real packages", pay: "Easy plan choice", support: "WhatsApp support", popular: "Popular eSIM destinations", globalTitle: "Unlimited data worldwide", globalLead: "Real plans with global coverage", viewPackage: "View plan", worldwide: "Global coverage", from: "from", day: "day", days: "days", select: "Add to cart", added: "In cart", cart: "Go to cart", none: "No published plans for this country right now.", noPrices: "Prices coming soon.", back: "Change", unlimited: "Unlimited", standard: "Standard", countries: "countries", local: "This country only", packages: "plans", chooseLead: "Choose the right plan for you.", details: "Plan details", data: "Data", validity: "Validity", coverage: "Coverage", network: "Network", activation: "Activation", activationUnknown: "Setup details appear in your account after purchase.", fiveG: "5G support", regional: "Travelling to more than one country?", regionalLead: "Browse regional plans.", assistant: "Not sure?", assistantLead: "Choose your trip length and usage; we'll find a matching real plan.", assistantOpen: "Open plan assistant", assistantClose: "Close plan assistant", estimate: "Estimated need", recommended: "Matching plan", usage: ["Messaging", "Maps", "Social media", "Video"], promo: "More comfort before your flight", promoSub: "Discover Lounge", vignettePromo: "Get ready for Europe's roads", vignettePromoSub: "Discover Vignette", how: "How it works", steps: [{ t: "Choose your plan", s: "Pick your country and a suitable package." }, { t: "Get your QR code", s: "Setup details arrive after real provisioning." }, { t: "Install your eSIM", s: "Scan the real QR code and add it to your phone." }, { t: "Use it abroad", s: "Connect under the package's actual conditions." }] },
+  tr: { h: "Yurt dışında bağlantıda kal.", q: "Hangi ülke için eSIM arıyorsun?", ph: "Ülke ara, örn. İtalya", stickyPh: "Türkiye veya başka ülke ara", picker: "Ülke seç", empty: "Eşleşen ülke bulunamadı.", setup: "Kolay kurulum", net: "Gerçek paketler", pay: "Kolay paket seçimi", support: "WhatsApp destek", popular: "Popüler eSIM ülkeleri", regionalEyebrow: "Birden fazla ülkeye mi gidiyorsun?", regionalTitle: "Bölgesel eSIM paketleri", regionalHomeLead: "Tek eSIM ile birden fazla ülkede bağlantıda kal.", multiCountry: "Çoklu ülke", worldwideBanner: "Dünya çapında sınırsız internet", upTo: "ülkeye kadar kapsama", discoverPlans: "Paketleri keşfet", from: "başlayan", day: "gün", days: "gün", select: "Sepete ekle", added: "Sepette", cart: "Sepete git", none: "Bu ülke için şu anda yayınlanmış paket yok.", noPrices: "Fiyatlar yakında burada.", back: "Değiştir", unlimited: "Sınırsız", standard: "Standart", countries: "ülke", local: "Yalnızca bu ülke", packages: "paketleri", chooseLead: "Sana uygun paketi seç.", details: "Paket detayları", data: "İnternet", validity: "Geçerlilik", coverage: "Kapsam", network: "Ağ", activation: "Aktivasyon", activationUnknown: "Kurulum bilgileri satın alma sonrası hesabında gösterilir.", fiveG: "5G desteği", regional: "Birden fazla ülkeye mi gidiyorsun?", regionalLead: "Bölgesel paketlere göz at.", assistant: "Emin değil misin?", assistantLead: "Süre ve kullanımını seç; gerçek paketlerden sana uygun olanı bulalım.", assistantOpen: "Paket yardımcısını aç", assistantClose: "Paket yardımcısını kapat", estimate: "Tahmini ihtiyaç", recommended: "Önerilen paket", usage: ["Mesajlaşma", "Haritalar", "Sosyal medya", "Video"], promo: "Uçuş öncesi biraz daha konfor", promoSub: "Lounge'u keşfet", vignettePromo: "Avrupa yollarına hazır ol", vignettePromoSub: "Vignette'i keşfet", how: "Nasıl çalışır?", steps: [{ t: "Paketini seç", s: "Ülkeni ve ihtiyacına uygun paketi seç." }, { t: "QR kodunu al", s: "Gerçek provisioning sonrası kurulum bilgilerin hesabına gelir." }, { t: "eSIM'i kur", s: "Gerçek QR kodunu tarayıp cihazına ekle." }, { t: "Seyahatte kullan", s: "Paketinin gerçek koşullarına göre bağlantını kullan." }] },
+  de: { h: "Im Ausland verbunden bleiben.", q: "Für welches Land suchst du eine eSIM?", ph: "Land suchen, z. B. Türkei", stickyPh: "Türkei oder anderes Land suchen", picker: "Land wählen", empty: "Kein passendes Land gefunden.", setup: "Einfache Einrichtung", net: "Echte Pakete", pay: "Einfache Paketwahl", support: "WhatsApp-Support", popular: "Beliebte eSIM-Länder", regionalEyebrow: "Reist du in mehrere Länder?", regionalTitle: "Regionale eSIM-Pakete", regionalHomeLead: "Mit einer eSIM in mehreren Ländern verbunden bleiben.", multiCountry: "Mehrere Länder", worldwideBanner: "Weltweit unbegrenzt online", upTo: "Länder Abdeckung", discoverPlans: "Pakete entdecken", from: "ab", day: "Tag", days: "Tage", select: "In den Warenkorb", added: "Im Warenkorb", cart: "Zum Warenkorb", none: "Für dieses Land gibt es aktuell keine Pakete.", noPrices: "Preise folgen in Kürze.", back: "Ändern", unlimited: "Unbegrenzt", standard: "Standard", countries: "Länder", local: "Nur dieses Land", packages: "Pakete", chooseLead: "Wähle das passende Paket.", details: "Paketdetails", data: "Daten", validity: "Gültigkeit", coverage: "Abdeckung", network: "Netz", activation: "Aktivierung", activationUnknown: "Einrichtungsdaten erscheinen nach dem Kauf in deinem Konto.", fiveG: "5G-Unterstützung", regional: "Reist du in mehrere Länder?", regionalLead: "Regionale Pakete ansehen.", assistant: "Noch unsicher?", assistantLead: "Wähle Dauer und Nutzung; wir finden ein passendes echtes Paket.", assistantOpen: "Paketassistent öffnen", assistantClose: "Paketassistent schließen", estimate: "Geschätzter Bedarf", recommended: "Passendes Paket", usage: ["Messaging", "Karten", "Social Media", "Video"], promo: "Mehr Komfort vor dem Abflug", promoSub: "Lounge entdecken", vignettePromo: "Bereit für Europas Straßen", vignettePromoSub: "Vignette entdecken", how: "So funktioniert’s", steps: [{ t: "Paket wählen", s: "Land und passendes Datenpaket auswählen." }, { t: "QR-Code erhalten", s: "Nach echter Provisionierung erscheinen die Daten im Konto." }, { t: "eSIM installieren", s: "Echten QR-Code scannen und zum Gerät hinzufügen." }, { t: "Auf Reisen nutzen", s: "Gemäß den tatsächlichen Paketbedingungen verbinden." }] },
+  en: { h: "Stay connected abroad.", q: "Which country do you need an eSIM for?", ph: "Search country, e.g. Italy", stickyPh: "Search Turkey or another country", picker: "Choose country", empty: "No matching country found.", setup: "Easy setup", net: "Real packages", pay: "Easy plan choice", support: "WhatsApp support", popular: "Popular eSIM destinations", regionalEyebrow: "Travelling to multiple countries?", regionalTitle: "Regional eSIM plans", regionalHomeLead: "Stay connected across multiple countries with one eSIM.", multiCountry: "Multi-country", worldwideBanner: "Unlimited data worldwide", upTo: "countries covered", discoverPlans: "Explore plans", from: "from", day: "day", days: "days", select: "Add to cart", added: "In cart", cart: "Go to cart", none: "No published plans for this country right now.", noPrices: "Prices coming soon.", back: "Change", unlimited: "Unlimited", standard: "Standard", countries: "countries", local: "This country only", packages: "plans", chooseLead: "Choose the right plan for you.", details: "Plan details", data: "Data", validity: "Validity", coverage: "Coverage", network: "Network", activation: "Activation", activationUnknown: "Setup details appear in your account after purchase.", fiveG: "5G support", regional: "Travelling to more than one country?", regionalLead: "Browse regional plans.", assistant: "Not sure?", assistantLead: "Choose your trip length and usage; we'll find a matching real plan.", assistantOpen: "Open plan assistant", assistantClose: "Close plan assistant", estimate: "Estimated need", recommended: "Matching plan", usage: ["Messaging", "Maps", "Social media", "Video"], promo: "More comfort before your flight", promoSub: "Discover Lounge", vignettePromo: "Get ready for Europe's roads", vignettePromoSub: "Discover Vignette", how: "How it works", steps: [{ t: "Choose your plan", s: "Pick your country and a suitable package." }, { t: "Get your QR code", s: "Setup details arrive after real provisioning." }, { t: "Install your eSIM", s: "Scan the real QR code and add it to your phone." }, { t: "Use it abroad", s: "Connect under the package's actual conditions." }] },
 };
 
 function EsimV2() {
@@ -57,7 +60,7 @@ function EsimV2() {
   const [pickerOpen, setPickerOpen] = useState(false);
   const { count } = useCart();
   const prices = useQuery({ queryKey: ["v2-esim-destinations"], queryFn: () => listEsimDestinationStartingPrices() });
-  const globalUnlimited = useQuery({ queryKey: ["v2-global-unlimited"], queryFn: () => listGlobalUnlimitedEsimPackages() });
+  const regionalSummaries = useQuery({ queryKey: ["v2-esim-regions"], queryFn: () => listEsimRegionalSummaries() });
   const priceMap = useMemo(() => new Map((prices.data ?? []).map((price) => [price.targetId, price])), [prices.data]);
   const matches = useMemo(
     () => searchCountries(query, 250).filter((item) => priceMap.has(item.iso)),
@@ -66,7 +69,6 @@ function EsimV2() {
   const selected = country ? getCountryByIso(country.toUpperCase()) : undefined;
   const heroSearchRef = useRef<HTMLDivElement | null>(null);
   const [heroSearchVisible, setHeroSearchVisible] = useState(true);
-  const [globalPlansVisible, setGlobalPlansVisible] = useState(false);
   const choose = (iso: string) => {
     setQuery("");
     setPickerOpen(false);
@@ -82,7 +84,6 @@ function EsimV2() {
     observer.observe(target);
     return () => observer.disconnect();
   }, []);
-  const globalPlans = useMemo(() => curateGlobalUnlimited(globalUnlimited.data ?? []), [globalUnlimited.data]);
   const stickySearch = !selected ? (
     <div aria-hidden={heroSearchVisible} className={`sticky top-14 z-40 h-0 transition-[opacity,transform] duration-200 sm:top-16 ${heroSearchVisible ? "pointer-events-none -translate-y-2 opacity-0" : "translate-y-0 opacity-100"}`}>
       <div className="mx-auto max-w-site px-3 pt-1 sm:px-6">
@@ -94,7 +95,7 @@ function EsimV2() {
   ) : undefined;
 
   return (
-    <V2Shell service="esim" commerceSelection={Boolean(selected)} hideWhatsApp={globalPlansVisible} stickySearch={stickySearch}>
+    <V2Shell service="esim" commerceSelection={Boolean(selected)} stickySearch={stickySearch}>
       {!selected && <V2Hero image={heroImage} eyebrow="eSIM" title={c.h} subtitle={c.q}>
         <div ref={heroSearchRef}><HeroField icon={<Search className="size-5" />}>
           <V2PickerSheet
@@ -130,7 +131,7 @@ function EsimV2() {
       ) : (
         <>
           <Popular c={c} onPick={choose} />
-          {globalPlans.length > 0 && <GlobalUnlimited plans={globalPlans} c={c} onVisibilityChange={setGlobalPlansVisible} />}
+          <RegionalDiscovery summaries={regionalSummaries.data ?? []} loading={regionalSummaries.isLoading} c={c} />
           <V2Compatibility />
           <PromoCard image={loungePromo.url} title={c.promo} sub={c.promoSub} to="/design-v2/lounge" />
           <V2Installation />
@@ -181,84 +182,37 @@ function Popular({ c, onPick }: { c: (typeof T)["tr"]; onPick: (iso: string) => 
   );
 }
 
-function curateGlobalUnlimited(packages: EsimPackage[]) {
-  const cheapestByDuration = new Map<number, EsimPackage>();
-  for (const pkg of packages) {
-    if (!pkg.validityDays || pkg.salePrice == null) continue;
-    const current = cheapestByDuration.get(pkg.validityDays);
-    if (!current || (current.salePrice ?? Infinity) > pkg.salePrice) cheapestByDuration.set(pkg.validityDays, pkg);
-  }
-  const durations = [...cheapestByDuration.values()].sort((a, b) => (a.validityDays ?? 0) - (b.validityDays ?? 0));
-  if (durations.length <= 3) return durations;
-  return [durations[0], durations[Math.floor((durations.length - 1) / 2)], durations[durations.length - 1]].filter(
-    (item): item is EsimPackage => Boolean(item),
-  );
-}
-
-function GlobalUnlimited({ plans, c, onVisibilityChange }: { plans: EsimPackage[]; c: (typeof T)["tr"]; onVisibilityChange: (visible: boolean) => void }) {
+function RegionalDiscovery({ summaries, loading, c }: { summaries: EsimRegionalSummary[]; loading: boolean; c: (typeof T)["tr"] }) {
   const { locale } = useI18n();
-  const { lines, addLine } = useCart();
-  const sectionRef = useRef<HTMLElement | null>(null);
-  useEffect(() => {
-    const target = sectionRef.current;
-    if (!target) return;
-    const observer = new IntersectionObserver(([entry]) => onVisibilityChange(Boolean(entry?.isIntersecting)), { threshold: 0.05 });
-    observer.observe(target);
-    return () => {
-      observer.disconnect();
-      onVisibilityChange(false);
-    };
-  }, [onVisibilityChange]);
-  const add = (pkg: EsimPackage) =>
-    addLine({
-      productId: pkg.id,
-      providerProductId: pkg.providerProductId,
-      serviceType: "ESIM",
-      name: customerCataloguePackageTitle({ locale, destinationIso: pkg.countryIso, coverage: pkg.coverage, packageKind: pkg.packageKind, regionFamily: pkg.regionFamily }),
-      meta: c.unlimited,
-      price: pkg.salePrice,
-      currency: pkg.currency,
-      dataGb: pkg.dataGb,
-      validityDays: pkg.validityDays,
-      coverage: pkg.coverage,
-      destinationIso: pkg.countryIso,
-      packageKind: pkg.packageKind,
-      regionFamily: pkg.regionFamily,
-      isTest: pkg.isTest,
-    });
+  const worldwide = summaries.find((item) => item.region === "GLOBAL" && item.unlimitedCount > 0);
+  const regions = summaries.filter((item) => item.region !== "GLOBAL");
   return (
-    <section ref={sectionRef} aria-label={c.globalTitle}>
-      <SectionTitle>{c.globalTitle}</SectionTitle>
-      <p className="mb-3 text-xs text-muted-foreground">{c.globalLead}</p>
-      <ul className="-mx-4 flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-2 [overscroll-behavior-inline:contain] [scrollbar-width:none] sm:mx-0 sm:grid sm:grid-cols-3 sm:gap-3 sm:overflow-visible sm:px-0 sm:pb-0">
-        {plans.map((pkg) => {
-          const inCart = lines.some((line) => line.productId === pkg.id);
-          return (
-            <li key={pkg.id} data-global-plan-id={pkg.id} className="w-[66%] min-w-0 shrink-0 snap-start sm:w-auto">
-              <article className={`flex h-full min-h-44 flex-col rounded-xl border bg-card p-3.5 shadow-sm transition-colors ${inCart ? "border-primary ring-1 ring-primary" : "border-border"}`}>
-                <div className="flex min-w-0 items-center gap-2 font-display text-base font-bold text-foreground">
-                  <InfinityIcon className="size-5 shrink-0 text-primary" />
-                  <span className="min-w-0 truncate">{c.unlimited}</span>
+    <section aria-labelledby="regional-esim-title">
+      <p className="mt-5 text-[11px] font-bold uppercase text-primary">{c.regionalEyebrow}</p>
+      <SectionTitle><span id="regional-esim-title">{c.regionalTitle}</span></SectionTitle>
+      <p className="mb-3 text-xs text-muted-foreground">{c.regionalHomeLead}</p>
+      {loading ? <div className="h-40 animate-pulse rounded-xl bg-muted" /> : (
+        <ul className="-mx-4 flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-2 [overscroll-behavior-inline:contain] [scrollbar-width:none] sm:mx-0 sm:grid sm:grid-cols-3 sm:px-0">
+          {regions.map((item) => {
+            const photo = getRegionPhoto(item.region);
+            return <li key={item.region} className="w-[64%] shrink-0 snap-start sm:w-auto">
+              <Link to="/design-v2/esim-region/$region" params={{ region: item.region }} search={{ country: "" }} className="group relative block h-40 overflow-hidden rounded-xl bg-card shadow-sm ring-1 ring-border">
+                {photo && <img src={photo.url} alt={photo.alt[locale]} loading="lazy" className="absolute inset-0 size-full object-cover transition-transform duration-300 group-hover:scale-[1.03]" />}
+                <div className="absolute inset-0 bg-gradient-to-t from-[var(--v2-service)]/95 via-[var(--v2-service)]/35 to-transparent" />
+                <div className="absolute inset-x-0 bottom-0 grid grid-cols-[minmax(0,1fr)_auto] items-end gap-2 p-3 text-primary-foreground">
+                  <div className="min-w-0"><h3 className="truncate font-display text-lg font-bold">{COVERAGE_REGION_LABELS[item.region][locale]}</h3><p className="text-xs opacity-90">{item.coverageCount ? `${item.coverageCount} ${c.countries}` : c.multiCountry}</p><p className="mt-1 text-sm font-bold">{locale === "de" ? `${c.from} ${money(item.startingPrice, item.currency)}` : `${c.from} ${money(item.startingPrice, item.currency)}`}</p></div>
+                  <span className="grid size-8 shrink-0 place-items-center rounded-full bg-card text-primary"><ArrowRight className="size-4" /></span>
                 </div>
-                <div className="mt-4 space-y-1.5">
-                  <p className="text-lg font-bold leading-none text-foreground">{pkg.validityDays} {pkg.validityDays === 1 ? c.day : c.days}</p>
-                  <p className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground">
-                    <Globe2 className="size-3.5 shrink-0 text-primary" />
-                    <span>{pkg.coverage.length} {c.countries}</span>
-                  </p>
-                </div>
-                <div className="mt-auto pt-4">
-                  <strong className="block font-display text-xl font-bold leading-none text-primary">{money(pkg.salePrice ?? 0, pkg.currency)}</strong>
-                  <Button type="button" variant="ghost" size="sm" onClick={() => add(pkg)} className="mt-2 h-8 max-w-full justify-start gap-1 px-0 text-xs font-bold text-foreground hover:bg-transparent hover:text-primary">
-                    <span className="truncate">{inCart ? c.added : c.viewPackage}</span>
-                    {!inCart && <ArrowRight className="size-3.5 shrink-0" />}
-                  </Button>
-                </div>
-              </article>
-            </li>
-          );
-        })}
-      </ul>
+              </Link>
+            </li>;
+          })}
+        </ul>
+      )}
+      {worldwide?.lowestUnlimitedPrice != null && worldwide.maxUnlimitedCoverageCount != null && <Link to="/design-v2/esim-region/$region" params={{ region: "GLOBAL" }} search={{ country: "" }} className="relative mt-2 grid min-h-20 grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 overflow-hidden rounded-xl bg-primary px-3.5 py-3 text-primary-foreground shadow-sm">
+        <span className="grid size-10 place-items-center rounded-full bg-card text-primary"><InfinityIcon className="size-5" /></span>
+        <span className="min-w-0"><strong className="block font-display text-sm">{c.worldwideBanner}</strong><span className="block text-[11px] opacity-90">{worldwide.maxUnlimitedCoverageCount} {c.upTo} · {c.from} {money(worldwide.lowestUnlimitedPrice, worldwide.currency)}</span><span className="mt-1 block text-xs font-bold">{c.discoverPlans} →</span></span>
+        <ArrowRight className="size-4 shrink-0" />
+      </Link>}
     </section>
   );
 }
@@ -275,16 +229,6 @@ function techLabel(p: EsimPackage) {
 }
 
 // Price deliberately excluded: truly equivalent options collapse to the cheaper one.
-function customerKey(p: EsimPackage) {
-  return [p.countryIso, p.unlimited ? "U" : p.dataGb, p.validityDays, [...p.coverage].sort().join(","), p.networkGenerations.join(","), [...p.networks].sort().join(",")].join("|");
-}
-
-function dedupe(packages: EsimPackage[]) {
-  const found = new Map<string, EsimPackage>();
-  for (const pkg of [...packages].sort((a, b) => (a.salePrice ?? Infinity) - (b.salePrice ?? Infinity))) if (!found.has(customerKey(pkg))) found.set(customerKey(pkg), pkg);
-  return [...found.values()];
-}
-
 function Packages({ iso, name, c }: { iso: string; name: string; c: (typeof T)["tr"] }) {
   const { locale } = useI18n();
   const { lines, addLine } = useCart();
@@ -301,10 +245,10 @@ function Packages({ iso, name, c }: { iso: string; name: string; c: (typeof T)["
   });
   const { data: settings } = useQuery({ queryKey: ["esim-usage-settings"], queryFn: () => getEsimUsageSettings() });
   const estimate = estimateUsageNeed({ days, usage }, settings as EsimUsageSettings | undefined);
-  const countryPackages = useMemo(() => dedupe(data.filter((pkg) => pkg.countryIso === iso)), [data, iso]);
-  const standard = useMemo(() => countryPackages.filter((pkg) => !pkg.unlimited).sort((a, b) => (a.dataGb ?? 0) - (b.dataGb ?? 0) || (a.validityDays ?? 0) - (b.validityDays ?? 0) || (a.salePrice ?? Infinity) - (b.salePrice ?? Infinity)), [countryPackages]);
-  const unlimited = useMemo(() => countryPackages.filter((pkg) => pkg.unlimited).sort((a, b) => (a.validityDays ?? 0) - (b.validityDays ?? 0) || (a.salePrice ?? Infinity) - (b.salePrice ?? Infinity)), [countryPackages]);
-  const regional = useMemo(() => pickRegionalRecommendations(dedupe(data.filter((pkg) => pkg.countryIso !== iso && pkg.coverage.length > 1))), [data, iso]);
+  const countryPackages = useMemo(() => dedupeStorefrontPackages(data.filter((pkg) => pkg.countryIso === iso)), [data, iso]);
+  const standard = useMemo(() => sortStandardPackages(countryPackages.filter((pkg) => !pkg.unlimited)), [countryPackages]);
+  const unlimited = useMemo(() => sortUnlimitedPackages(countryPackages.filter((pkg) => pkg.unlimited)), [countryPackages]);
+  const regional = useMemo(() => pickRegionalRecommendations(dedupeStorefrontPackages(data.filter((pkg) => pkg.countryIso !== iso && pkg.coverage.length > 1))), [data, iso]);
   const x = X[locale];
   const regionName = (p: EsimPackage) => (p.regionFamily ? x.regions[p.regionFamily] : x.region);
   const rows = type === "standard" ? standard : unlimited;

@@ -1,5 +1,13 @@
 # Phase 1.3 Roadmap
 
+## V2 regional eSIM discovery and results
+
+- [x] Audit genuine published regional inventory without syncing or changing catalogue data
+- [x] Replace homepage Global Unlimited cards with real regional photo discovery and one compact Worldwide banner
+- [x] Add regional Standard/Unlimited results through the existing catalogue, detail, cart, and checkout identity
+- [x] Verify TR/DE/EN at 360/390/430 px, cart/checkout identity, browser back, sticky search, and fixed controls
+- [x] Confirm zero price, catalogue, database, supplier, payment, production, or publish changes
+
 ## V2 global Unlimited card visual fix
 
 - [x] Replace the three-column mobile layout with a native scroll-snap rail while keeping tablet/desktop at three columns
