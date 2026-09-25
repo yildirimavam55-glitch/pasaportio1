@@ -145,12 +145,19 @@ function PopularAirports({ c, onPick }: { c: (typeof T)["tr"]; onPick: (iata: st
 }
 
 function Lounges({ iata, title, c, onBack }: { iata: string; title: string; c: (typeof T)["tr"]; onBack: () => void }) {
-  const { lines, addLine } = useCart();
+  const { lines, addLine, updateQuantity } = useCart();
+  const [selectedOffer, setSelectedOffer] = useState<LoungeOption | null>(null);
+  const [selectionQuantity, setSelectionQuantity] = useState(1);
   const { data = [], isLoading } = useQuery({
     queryKey: ["v2-lounges", iata],
     queryFn: () => listLoungeOptions({ data: { iata, situation: "DEPARTURE" } }),
   });
-  const add = (o: LoungeOption) =>
+  const selectedCartLine = selectedOffer ? lines.find((line) => line.productId === selectedOffer.id) : undefined;
+  const select = (offer: LoungeOption) => {
+    setSelectedOffer(offer);
+    setSelectionQuantity(lines.find((line) => line.productId === offer.id)?.quantity ?? 1);
+  };
+  const add = (o: LoungeOption, quantity = 1) =>
     addLine({
       productId: o.id,
       serviceType: "LOUNGE",
@@ -158,13 +165,29 @@ function Lounges({ iata, title, c, onBack }: { iata: string; title: string; c: (
       meta: [o.iata, o.terminal].filter(Boolean).join(" · "),
       price: o.salePrice,
       currency: o.currency,
+      quantity,
       airport: o.iata,
       terminal: o.terminal,
       situation: "DEPARTURE",
       isTest: o.isTest,
     });
+  const summary = selectedOffer ? <V2SelectedProductSummary
+    title={selectedOffer.loungeName ?? selectedOffer.name}
+    subtitle={[selectedOffer.iata, selectedOffer.terminal ? `${c.terminal} ${selectedOffer.terminal}` : null].filter(Boolean).join(" · ")}
+    price={money(selectedOffer.salePrice ?? 0, selectedOffer.currency)}
+    quantity={selectedCartLine?.quantity ?? selectionQuantity}
+    inCart={Boolean(selectedCartLine)}
+    addLabel={c.select}
+    addedLabel={c.added}
+    cartLabel={c.cart}
+    decreaseLabel={c.decrease}
+    increaseLabel={c.increase}
+    whatsappLabel={c.support}
+    onQuantityChange={(quantity) => selectedCartLine ? updateQuantity(selectedCartLine.productId, quantity) : setSelectionQuantity(quantity)}
+    onAdd={() => { if (selectedOffer && !selectedCartLine) add(selectedOffer, selectionQuantity); }}
+  /> : undefined;
   return (
-    <>
+    <V2Shell service="lounge" commerceSelection={Boolean(selectedOffer)} purchaseSummary={summary}>
       <div className="mt-5 flex items-center justify-between gap-2">
         <h2 className="font-display text-lg font-semibold text-foreground">{title}</h2>
         <button type="button" onClick={onBack} className="min-h-11 shrink-0 px-2 text-sm font-semibold text-primary">{c.back}</button>
@@ -178,30 +201,21 @@ function Lounges({ iata, title, c, onBack }: { iata: string; title: string; c: (
           {data.map((o) => {
             const inCart = lines.some((l) => l.productId === o.id);
             return (
-              <li key={o.id} className="rounded-2xl bg-card p-4 ring-1 ring-border">
-                <p className="font-display text-base font-semibold text-foreground">{o.loungeName ?? o.name}</p>
-                <p className="text-xs text-muted-foreground">
-                  {o.terminal ? `${c.terminal} ${o.terminal}` : ""}
-                  {o.maxStayMinutes ? ` · ${o.maxStayMinutes} ${c.stay}` : ""}
-                </p>
-                {o.amenities.length > 0 && (
-                  <ul className="mt-2 flex flex-wrap gap-1.5">
-                    {o.amenities.slice(0, 4).map((a) => (
-                      <li key={a} className="rounded-full bg-sand-soft px-2.5 py-1 text-xs font-medium text-foreground">{a}</li>
-                    ))}
-                  </ul>
-                )}
-                <div className="mt-3 flex items-center justify-between">
-                  <span className="text-lg font-bold text-foreground">{o.salePrice != null ? money(o.salePrice, o.currency) : ""}</span>
-                  <button type="button" onClick={() => add(o)} className={`min-h-11 min-w-24 rounded-full px-4 text-sm font-semibold ${inCart ? "bg-accent-soft text-primary" : "bg-primary text-primary-foreground"}`}>
-                    {inCart ? c.added : c.select}
-                  </button>
-                </div>
+              <li key={o.id}>
+                <V2ProductSelectionCard service="lounge" selected={selectedOffer?.id === o.id} onSelect={() => select(o)} className="min-h-32">
+                  <span className="flex min-h-32 w-full flex-col items-start p-4 pr-11">
+                    <span className="font-display text-base font-semibold text-foreground">{o.loungeName ?? o.name}</span>
+                    <span className="text-xs text-muted-foreground">{o.terminal ? `${c.terminal} ${o.terminal}` : ""}{o.maxStayMinutes ? ` · ${o.maxStayMinutes} ${c.stay}` : ""}</span>
+                    {o.amenities.length > 0 && <span className="mt-2 flex flex-wrap gap-1.5">{o.amenities.slice(0, 4).map((a) => <span key={a} className="rounded-full bg-sand-soft px-2.5 py-1 text-xs font-medium text-foreground">{a}</span>)}</span>}
+                    <span className="mt-auto pt-3 text-lg font-bold text-[var(--v2-service)]">{o.salePrice != null ? money(o.salePrice, o.currency) : ""}</span>
+                    {inCart && <span className="sr-only">{c.added}</span>}
+                  </span>
+                </V2ProductSelectionCard>
               </li>
             );
           })}
         </ul>
       )}
-    </>
+    </V2Shell>
   );
 }
