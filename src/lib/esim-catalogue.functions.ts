@@ -83,8 +83,8 @@ export const listEsimPackages = createServerFn({ method: "GET" })
   .handler(async ({ data }): Promise<EsimPackage[]> => {
     const wantedIsos = data.coverageIsos;
     const pageSize = wantedIsos.length ? 400 : 1000;
-    const rows: Array<Record<string, unknown>> = [];
-    for (let from = 0; ; from += pageSize) {
+    let rows: Awaited<ReturnType<typeof queryPage>> = [];
+    async function queryPage(from: number) {
       let query = publicClient()
         .from("service_products")
         .select(
@@ -98,13 +98,17 @@ export const listEsimPackages = createServerFn({ method: "GET" })
         .gt("sale_price", 0)
         .order("sort_order")
         .range(from, from + pageSize - 1);
-      // Coverage remains database-filtered for country result pages. The empty
-      // global-discovery read is paged so catalogue size cannot hide products.
       if (wantedIsos.length) query = query.contains("esim_product_details.coverage_country_isos", wantedIsos);
       const { data: page, error } = await query;
       if (error) throw new Error(error.message);
-      rows.push(...((page ?? []) as Array<Record<string, unknown>>));
-      if (wantedIsos.length || (page ?? []).length < pageSize) break;
+      return page ?? [];
+    }
+    for (let from = 0; ; from += pageSize) {
+      // Coverage remains database-filtered for country result pages. The empty
+      // global-discovery read is paged so catalogue size cannot hide products.
+      const page = await queryPage(from);
+      rows = [...rows, ...page];
+      if (wantedIsos.length || page.length < pageSize) break;
     }
 
     const showTest = await isTestCatalogueVisible();
