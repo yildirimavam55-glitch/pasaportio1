@@ -47,7 +47,7 @@ export function V2Shell({
   return (
     <V2Context.Provider value={true}>
       <PublicShell hideStickySearch hideFloatingWhatsApp>
-        <div className={`mx-auto w-full ${width} ${serviceAccent} overflow-x-clip px-4 pb-40 sm:pb-24`}>
+        <div className={`mx-auto w-full ${width} ${serviceAccent} overflow-x-clip px-4 pb-24 sm:pb-12`}>
           <DesktopNav active={active} />
           {children}
         </div>
