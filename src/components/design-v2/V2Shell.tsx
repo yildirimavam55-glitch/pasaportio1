@@ -163,9 +163,9 @@ function DesktopNav({ active }: { active?: V2Nav | undefined }) {
 }
 
 const HERO_HEIGHT = {
-  compact: "h-[14.5rem] lg:h-[27.5rem]",
+  compact: "h-[14.5rem] lg:h-[27rem]",
   normal: "h-[17rem] lg:h-[29rem]",
-  tall: "h-[20rem] lg:h-[32rem]",
+  tall: "h-[20rem] lg:h-[30rem]",
 } as const;
 const HERO_OVERLAY = {
   light: "from-[var(--v2-service)]/80 via-[var(--v2-service)]/15 to-transparent",
@@ -184,9 +184,9 @@ export function V2Hero({ image, desktopImage, alt = "", eyebrow, title, subtitle
         </picture>
         <div className={`absolute inset-0 bg-gradient-to-t ${HERO_OVERLAY[overlay]}`} />
         <div className={`absolute inset-x-5 bottom-10 max-w-[21rem] lg:inset-x-14 lg:bottom-24 lg:max-w-2xl ${align === "center" ? "mx-auto text-center" : ""}`}>
-          {eyebrow && <p className="text-sm font-semibold opacity-95 lg:text-base">{eyebrow}</p>}
-          <h1 className="mt-0.5 font-display text-[1.85rem] font-bold leading-[1.04] lg:text-5xl xl:text-[3.5rem]">{title}</h1>
-          {subtitle && <p className="mt-1.5 text-[13px] font-medium leading-snug opacity-90 lg:mt-3 lg:max-w-xl lg:text-lg">{subtitle}</p>}
+          {eyebrow && <p className="text-sm font-semibold opacity-95 lg:text-lg">{eyebrow}</p>}
+          <h1 className="mt-0.5 font-display text-[1.85rem] font-bold leading-[1.04] lg:text-[3.35rem] xl:text-[3.65rem]">{title}</h1>
+          {subtitle && <p className="mt-1.5 text-[13px] font-medium leading-snug opacity-90 lg:mt-3 lg:max-w-xl lg:text-xl">{subtitle}</p>}
         </div>
       </div>
       {children && <div className="relative z-10 -mt-6 px-3.5 lg:mx-auto lg:-mt-8 lg:max-w-2xl lg:px-0">{children}</div>}
@@ -226,7 +226,7 @@ export function TrustRow({ items }: { items: Array<{ icon: ReactNode; label: str
 
 export function SectionTitle({ children, action }: { children: ReactNode; action?: ReactNode }) {
   return (
-    <div className="mb-2 mt-5 flex items-center justify-between gap-2 lg:mb-5 lg:mt-14">
+    <div className="mb-2 mt-5 flex items-center justify-between gap-2 lg:mb-4 lg:mt-12">
       <h2 className="min-w-0 font-display text-base font-bold text-foreground lg:text-3xl">{children}</h2>
       {action && <span className="shrink-0 whitespace-nowrap">{action}</span>}
     </div>
@@ -235,14 +235,14 @@ export function SectionTitle({ children, action }: { children: ReactNode; action
 
 /** Horizontal rail of photo cards. */
 export function PhotoRail({ children }: { children: ReactNode }) {
-  return <ul className="-mx-4 flex snap-x scroll-px-4 gap-2.5 overflow-x-auto px-4 pb-1 [scrollbar-width:none] lg:mx-0 lg:grid lg:grid-cols-5 lg:gap-4 lg:overflow-visible lg:px-0">{children}</ul>;
+  return <ul className="-mx-4 flex snap-x snap-mandatory scroll-px-4 gap-2.5 overflow-x-auto px-4 pb-1 [overscroll-behavior-inline:contain] [scrollbar-width:none] lg:mx-0 lg:scroll-px-0 lg:gap-4 lg:px-0 lg:[&>li]:w-[calc((100%_-_4rem)/5)]">{children}</ul>;
 }
 
 export function PhotoCard({ image, badge, title, sub, price, onClick }: { image?: string | undefined; badge?: ReactNode; title: string; sub?: string | undefined; price?: string | undefined; onClick: () => void }) {
   return (
-    <li className="w-[7.55rem] shrink-0 snap-start lg:w-auto">
+    <li className="w-[7.55rem] shrink-0 snap-start">
       <button type="button" onClick={onClick} className="w-full overflow-hidden rounded-xl bg-card text-left shadow-sm ring-1 ring-border">
-        <div className="relative h-[5.35rem] bg-muted lg:h-32">
+        <div className="relative h-[5.35rem] bg-muted lg:h-40">
           {image && <img src={image} alt="" loading="lazy" decoding="async" width={256} height={192} className="size-full object-cover" />}
           {badge && <span className="absolute bottom-1.5 left-1.5">{badge}</span>}
         </div>

@@ -91,7 +91,7 @@ export function V2Sections({ config, media, slots, only }: { config: V2PageConfi
             const pairedPromo = sections[index + 1];
             if (pairedPromo?.type === "PROMO_BANNER" && pairedPromo.href === "/lounge" && isInWindow(pairedPromo)) {
               const image = mediaUrl(pairedPromo.mediaId, media);
-              return <div key={`${s.id}-${pairedPromo.id}`} className="lg:grid lg:grid-cols-2 lg:items-stretch lg:gap-6"><V2Compatibility title={t("title")} /><PromoCard image={image ?? ""} title={v2Text(pairedPromo, "title", locale)} {...(v2Text(pairedPromo, "subtitle", locale) ? { sub: v2Text(pairedPromo, "subtitle", locale) } : {})} to={pairedPromo.href} compactDesktop /></div>;
+              return <div key={`${s.id}-${pairedPromo.id}`} className="lg:grid lg:grid-cols-2 lg:items-stretch lg:gap-6"><V2Compatibility title={t("title")} desktopCard /><PromoCard image={image ?? ""} title={v2Text(pairedPromo, "title", locale)} {...(v2Text(pairedPromo, "subtitle", locale) ? { sub: v2Text(pairedPromo, "subtitle", locale) } : {})} to={pairedPromo.href} compactDesktop /></div>;
             }
             return <V2Compatibility key={s.id} title={t("title")} />;
           }

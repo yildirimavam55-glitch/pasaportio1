@@ -28,9 +28,10 @@ function FakeQr() {
   );
 }
 
-const STEP_MS = 1500;
+const MOBILE_STEP_MS = 1500;
+const DESKTOP_STEP_MS = 2400;
 
-export function V2InstallAnimation({ steps, ready, adding }: { steps: readonly string[]; ready: string; adding: string }) {
+export function V2InstallAnimation({ steps, ready, adding, onPhaseChange }: { steps: readonly string[]; ready: string; adding: string; onPhaseChange?: (phase: number) => void }) {
   const ref = useRef<HTMLDivElement | null>(null);
   const [visible, setVisible] = useState(false);
   const [reduced, setReduced] = useState(false);
@@ -48,37 +49,42 @@ export function V2InstallAnimation({ steps, ready, adding }: { steps: readonly s
 
   useEffect(() => {
     if (reduced || !visible) return;
-    const id = window.setInterval(() => setPhase((p) => (p + 1) % 4), STEP_MS);
+    const stepMs = window.matchMedia("(min-width: 1024px)").matches ? DESKTOP_STEP_MS : MOBILE_STEP_MS;
+    const id = window.setInterval(() => setPhase((p) => (p + 1) % 4), stepMs);
     return () => window.clearInterval(id);
   }, [visible, reduced]);
 
   const p = reduced ? 3 : phase;
 
+  useEffect(() => {
+    onPhaseChange?.(p);
+  }, [onPhaseChange, p]);
+
   return (
-    <div ref={ref} className="grid grid-cols-[6.5rem_minmax(0,1fr)] items-center gap-4 rounded-2xl bg-muted/50 p-4 ring-1 ring-border lg:flex lg:min-h-[19rem] lg:justify-center lg:p-8">
-      <div aria-hidden className="relative mx-auto h-[12.5rem] w-[6.5rem] rounded-[1.4rem] bg-foreground/90 p-1.5 shadow-lg">
+    <div ref={ref} className="grid grid-cols-[6.5rem_minmax(0,1fr)] items-center gap-4 rounded-2xl bg-muted/50 p-4 ring-1 ring-border lg:flex lg:h-[20rem] lg:w-full lg:items-center lg:justify-center lg:p-6">
+      <div aria-hidden className="relative mx-auto h-[12.5rem] w-[6.5rem] rounded-[1.4rem] bg-foreground/90 p-1.5 shadow-lg lg:h-[19rem] lg:w-[9.8rem] lg:rounded-[2rem] lg:p-2">
         <div className="relative h-full w-full overflow-hidden rounded-[1.05rem] bg-card">
-          <div className="absolute left-1/2 top-1.5 h-1.5 w-8 -translate-x-1/2 rounded-full bg-foreground/80" />
+          <div className="absolute left-1/2 top-1.5 h-1.5 w-8 -translate-x-1/2 rounded-full bg-foreground/80 lg:top-2 lg:h-2 lg:w-12" />
           {/* QR */}
-          <div className={`absolute inset-x-3 top-9 aspect-square transition-all duration-500 ${p <= 1 ? "scale-100 opacity-100" : "scale-90 opacity-0"}`}>
+          <div className={`absolute inset-x-3 top-9 aspect-square transition-all duration-500 lg:inset-x-5 lg:top-14 ${p <= 1 ? "translate-y-0 scale-100 opacity-100" : "translate-y-2 scale-90 opacity-0"}`}>
             <FakeQr />
             {p === 1 && <span className="v2-scanline absolute inset-x-[-4px] top-0 h-0.5 rounded-full bg-[var(--v2-service)] shadow-[0_0_8px_var(--v2-service)]" />}
           </div>
           {/* Adding */}
-          <div className={`absolute inset-x-3 top-14 text-center transition-opacity duration-500 ${p === 2 ? "opacity-100" : "opacity-0"}`}>
-            <span className="text-[9px] font-semibold text-foreground">{adding}</span>
+          <div className={`absolute inset-x-3 top-14 text-center transition-all duration-500 lg:inset-x-5 lg:top-28 ${p === 2 ? "translate-y-0 opacity-100" : "translate-y-2 opacity-0"}`}>
+            <span className="text-[9px] font-semibold text-foreground lg:text-xs">{adding}</span>
             <div className="mt-2 h-1 overflow-hidden rounded-full bg-muted">
               <div className={`h-full rounded-full bg-[var(--v2-service)] ${p === 2 ? "v2-progress" : "w-0"}`} />
             </div>
           </div>
           {/* Ready */}
-          <div className={`absolute inset-x-2 top-10 flex flex-col items-center transition-opacity duration-500 ${p === 3 ? "opacity-100" : "opacity-0"}`}>
-            <div className="flex h-8 items-end gap-1">
+          <div className={`absolute inset-x-2 top-10 flex flex-col items-center transition-all duration-500 lg:top-20 ${p === 3 ? "translate-y-0 opacity-100" : "translate-y-2 opacity-0"}`}>
+            <div className="flex h-8 items-end gap-1 lg:h-14 lg:gap-1.5">
               {[0, 1, 2, 3].map((i) => (
-                <span key={i} className="w-1.5 rounded-sm bg-[var(--v2-service)] transition-all duration-300" style={{ height: p === 3 ? `${(i + 1) * 25}%` : "10%", transitionDelay: reduced ? "0ms" : `${i * 150}ms` }} />
+                <span key={i} className="w-1.5 rounded-sm bg-[var(--v2-service)] transition-all duration-300 lg:w-2" style={{ height: p === 3 ? `${(i + 1) * 25}%` : "10%", transitionDelay: reduced ? "0ms" : `${i * 150}ms` }} />
               ))}
             </div>
-            <span className="mt-3 inline-flex items-center gap-1 rounded-full bg-[var(--v2-service)]/12 px-2 py-1 text-[9px] font-bold text-[var(--v2-service)]">
+            <span className="mt-3 inline-flex items-center gap-1 rounded-full bg-[var(--v2-service)]/12 px-2 py-1 text-[9px] font-bold text-[var(--v2-service)] lg:px-3 lg:py-1.5 lg:text-xs">
               <Check className="size-3" />{ready}
             </span>
           </div>

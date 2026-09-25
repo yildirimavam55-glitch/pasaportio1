@@ -215,7 +215,7 @@ function RegionalDiscovery({ section, summaries, loading, c }: { section: V2Sect
       <SectionTitle><span id="regional-esim-title">{v2Text(section, "title", locale) || c.regionalTitle}</span></SectionTitle>
       <p className="mb-3 text-xs text-muted-foreground">{v2Text(section, "lead", locale)}</p>
       {loading ? <div className="h-40 animate-pulse rounded-xl bg-muted" /> : (
-        <ul className="-mx-4 flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-2 [overscroll-behavior-inline:contain] [scrollbar-width:none] sm:mx-0 sm:grid sm:grid-cols-3 sm:px-0 lg:grid-cols-6 lg:gap-4">
+        <ul className="-mx-4 flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-2 [overscroll-behavior-inline:contain] [scrollbar-width:none] sm:mx-0 sm:grid sm:grid-cols-3 sm:px-0 lg:grid-cols-3 lg:gap-4">
           {regions.map((item) => {
             const photo = getRegionPhoto(item.region);
             return <li key={item.region} className="w-[64%] shrink-0 snap-start sm:w-auto">
