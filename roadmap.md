@@ -558,4 +558,4 @@
 - [x] Preserve real country/regional identity, product IDs, prices, and details.
 - [x] Apply the same architecture to real Lounge offers; preserve empty state.
 - [x] Keep Vignette unavailable without fake products or purchase controls.
-- [ ] Verify Standard, Unlimited, regional, cart state, mobile layouts, and locales.
+- [x] Verify Standard, Unlimited, regional, cart state, mobile layouts, and locales.
