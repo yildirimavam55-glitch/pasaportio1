@@ -92,7 +92,8 @@ export type GuideRelation = {
   ctaEnabled: boolean;
 };
 
-export type GuideSection = { heading: string; body: string };
+/** level 3 = sub-section rendered as H3 under the preceding H2. */
+export type GuideSection = { heading: string; body: string; level?: 2 | 3 };
 export type GuideFaq = { question: string; answer: string };
 
 export type GuideListItem = {
@@ -193,7 +194,11 @@ function routeLabelOf(labels: any, fallback: string) {
 function sectionsOf(value: unknown): GuideSection[] {
   if (!Array.isArray(value)) return [];
   return value
-    .map((row: any) => ({ heading: String(row?.heading ?? ""), body: String(row?.body ?? "") }))
+    .map((row: any): GuideSection => ({
+      heading: String(row?.heading ?? ""),
+      body: String(row?.body ?? ""),
+      ...(row?.level === 3 ? { level: 3 as const } : {}),
+    }))
     .filter((row) => row.heading || row.body);
 }
 

@@ -424,6 +424,20 @@ function GuideDrawer({
                   setTranslation({ sections });
                 }}
               />
+              <label className="flex items-center gap-2 text-xs">
+                <input
+                  type="checkbox"
+                  checked={section.level === 3}
+                  disabled={index === 0}
+                  onChange={(event) => {
+                    const sections = [...translation.sections];
+                    const { level: _drop, ...rest } = section;
+                    sections[index] = event.target.checked ? { ...rest, level: 3 } : rest;
+                    setTranslation({ sections });
+                  }}
+                />
+                Alt başlık (H3) — önceki H2 bölümünün alt konusu
+              </label>
               <textarea
                 className="admin-field h-20 w-full"
                 value={section.body}

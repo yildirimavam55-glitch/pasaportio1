@@ -200,8 +200,8 @@ export function SeoContentPage({ page }: { page: SeoPage }) {
             <h2 className="text-xs font-bold uppercase tracking-wide text-muted-foreground">{copy.contents}</h2>
             <ol className="mt-2 space-y-1.5 text-sm">
               {guide.sections.map((s, i) => (
-                <li key={sectionId(i)}>
-                  <a href={`#${sectionId(i)}`} className="font-semibold text-primary">
+                <li key={sectionId(i)} className={s.level === 3 ? "pl-4" : undefined}>
+                  <a href={`#${sectionId(i)}`} className={s.level === 3 ? "text-primary" : "font-semibold text-primary"}>
                     {s.heading}
                   </a>
                 </li>
@@ -221,11 +221,15 @@ export function SeoContentPage({ page }: { page: SeoPage }) {
           </div>
         ) : null}
 
-        <div className="mt-8 space-y-8">
+        <div className="mt-8 space-y-6">
           {guide.sections.map((s, i) => (
             <div key={sectionId(i)}>
               <section id={sectionId(i)} className="scroll-mt-24">
-                <h2 className="font-display text-xl font-bold">{s.heading}</h2>
+                {s.level === 3 ? (
+                  <h3 className="font-display text-lg font-bold">{s.heading}</h3>
+                ) : (
+                  <h2 className="font-display text-xl font-bold">{s.heading}</h2>
+                )}
                 <p className="mt-2 whitespace-pre-line text-[15px] leading-relaxed text-muted-foreground">{s.body}</p>
               </section>
               
