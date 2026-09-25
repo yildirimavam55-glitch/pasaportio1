@@ -1,3 +1,4 @@
+import { designV2ToPublic } from "./public-routes";
 /**
  * V2 storefront builder — presentation-only configuration for the V2 service homepages.
  * Commerce (search logic, catalogue, prices, cart, availability) stays in code; this
@@ -317,7 +318,7 @@ function cleanSection(raw: any): V2Section | null {
     overlay: pick(raw.overlay, V2_OVERLAYS, "normal"),
     mediaId: cleanMediaId(raw.mediaId),
     mobileMediaId: cleanMediaId(raw.mobileMediaId),
-    href: pick(raw.href, V2_SAFE_LINKS, "/esim"),
+    href: pick(typeof raw.href === "string" && raw.href.startsWith("/design-v2") ? designV2ToPublic(raw.href) : raw.href, V2_SAFE_LINKS, "/esim"),
     startsAt: DATE.test(String(raw.startsAt)) ? String(raw.startsAt) : "",
     endsAt: DATE.test(String(raw.endsAt)) ? String(raw.endsAt) : "",
     text,

@@ -12,7 +12,9 @@ const BASE = SEO_BASE_URL;
 const escape = (value: string) =>
   value.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 
-const STATIC_PAGES = ["/", "/tr", "/esim", "/esim/ulkeler", "/lounge"];
+// Public V2 storefront pages only. Legacy V1 (/legacy-v1), former /design-v2 URLs, cart/checkout/auth
+// and the not-yet-for-sale /vignette page are intentionally excluded.
+const STATIC_PAGES = ["/", "/tr", "/esim", "/lounge", "/destek"];
 
 type Entry = { loc: string; lastmod?: string; alternates?: Array<{ lang: string; href: string }> };
 
