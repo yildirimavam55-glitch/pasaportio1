@@ -169,7 +169,7 @@ function StatusIcon({ status }: { status: CompatibilityStatus }) {
   return <CircleHelp className="size-5 shrink-0 text-cta" aria-hidden="true" />;
 }
 
-function DeviceCheckSheet({ surface, trigger }: { surface: string; trigger: React.ReactNode }) {
+export function DeviceCheckSheet({ surface, trigger }: { surface: string; trigger: React.ReactNode }) {
   const { locale } = useI18n();
   const copy = COPY[locale];
   const [open, setOpen] = useState(false);
