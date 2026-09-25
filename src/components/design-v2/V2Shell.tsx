@@ -51,12 +51,12 @@ export function V2Shell({
   children: ReactNode;
 }) {
   const active: V2Nav | undefined = nav ?? service;
-  const width = level === "discovery" ? "max-w-xl" : "max-w-xl md:max-w-2xl";
+  const width = level === "discovery" ? "max-w-xl lg:max-w-site" : level === "account" ? "max-w-xl lg:max-w-site" : "max-w-xl md:max-w-3xl lg:max-w-6xl";
   const serviceAccent = service === "lounge" ? "[--v2-service:var(--color-v2-lounge)]" : service === "vignette" ? "[--v2-service:var(--color-v2-vignette)]" : "[--v2-service:var(--color-v2-esim)]";
   return (
     <V2Context.Provider value={true}>
       <PublicShell hideStickySearch hideFloatingWhatsApp footerBottomSafe={purchaseSummary ? "purchase" : true} headerAccessory={stickySearch}>
-        <div className={`mx-auto w-full ${width} ${serviceAccent} overflow-x-clip px-4 pb-8 sm:pb-12`}>
+        <div className={`mx-auto w-full ${width} ${serviceAccent} overflow-x-clip px-4 pb-8 sm:px-6 sm:pb-12 lg:pb-16`}>
           <DesktopNav active={active} />
           {children}
         </div>
@@ -90,7 +90,7 @@ export function useV2StickySearch() {
 
 export function V2StickySearchButton({ heroSearchVisible, label, onOpen }: { heroSearchVisible: boolean; label: string; onOpen: () => void }) {
   return (
-    <div aria-hidden={heroSearchVisible} className={`sticky top-14 z-40 h-0 transition-[opacity,transform] duration-200 sm:top-16 ${heroSearchVisible ? "pointer-events-none -translate-y-2 opacity-0" : "translate-y-0 opacity-100"}`}>
+    <div aria-hidden={heroSearchVisible} className={`sticky top-14 z-40 h-0 transition-[opacity,transform] duration-200 sm:top-16 lg:top-[4.5rem] ${heroSearchVisible ? "pointer-events-none -translate-y-2 opacity-0" : "translate-y-0 opacity-100"}`}>
       <div className="mx-auto max-w-site px-3 pt-1 sm:px-6">
         <Button type="button" variant="outline" onClick={onOpen} className="mx-auto grid h-11 w-full max-w-finder grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2 rounded-xl bg-card px-3 text-left shadow-panel">
           <Search className="size-4 shrink-0 text-primary" /><span className="truncate text-sm text-muted-foreground">{label}</span><ArrowRight className="size-4 shrink-0" />
@@ -144,11 +144,11 @@ function BottomNav({ active }: { active?: V2Nav | undefined }) {
   );
 }
 
-/** Tablet/desktop: same five destinations as a compact top bar (bottom nav is mobile only). */
+/** Tablet bridge only. Desktop navigation lives in the shared public header. */
 function DesktopNav({ active }: { active?: V2Nav | undefined }) {
   const items = useNavItems();
   return (
-    <nav aria-label="V2" className="mb-4 hidden items-center gap-1 rounded-full border border-border bg-card p-1 shadow-sm sm:flex">
+    <nav aria-label="V2" className="mb-4 hidden items-center gap-1 rounded-full border border-border bg-card p-1 shadow-sm sm:flex lg:hidden">
       {items.map(({ id, to, search, icon: Icon, label }) => {
         const on = id === active;
         return (
@@ -162,7 +162,11 @@ function DesktopNav({ active }: { active?: V2Nav | undefined }) {
   );
 }
 
-const HERO_HEIGHT = { compact: "h-[14.5rem]", normal: "h-[17rem]", tall: "h-[20rem]" } as const;
+const HERO_HEIGHT = {
+  compact: "h-[14.5rem] lg:h-[27.5rem]",
+  normal: "h-[17rem] lg:h-[29rem]",
+  tall: "h-[20rem] lg:h-[32rem]",
+} as const;
 const HERO_OVERLAY = {
   light: "from-[var(--v2-service)]/80 via-[var(--v2-service)]/15 to-transparent",
   normal: "from-[var(--v2-service)]/95 via-[var(--v2-service)]/30 to-transparent",
@@ -172,20 +176,20 @@ const HERO_OVERLAY = {
 /** Full-bleed photo hero with the search floating over its bottom edge. Presets only — no free CSS. */
 export function V2Hero({ image, desktopImage, alt = "", eyebrow, title, subtitle, align = "left", height = "normal", overlay = "normal", children }: { image: string; desktopImage?: string | undefined; alt?: string; eyebrow?: string; title: string; subtitle?: string; align?: "left" | "center"; height?: keyof typeof HERO_HEIGHT; overlay?: keyof typeof HERO_OVERLAY; children?: ReactNode }) {
   return (
-    <section className="relative -mx-4">
-      <div className={`relative ${HERO_HEIGHT[height]} overflow-hidden text-primary-foreground sm:mx-4 sm:mt-3 sm:rounded-3xl`}>
+    <section className="relative -mx-4 sm:-mx-6 lg:mx-0">
+      <div className={`relative ${HERO_HEIGHT[height]} overflow-hidden text-primary-foreground sm:mx-4 sm:mt-3 sm:rounded-3xl lg:mx-0 lg:mt-4`}>
         <picture>
           {desktopImage && <source media="(min-width: 640px)" srcSet={desktopImage} />}
           {image && <img src={image} alt={alt} fetchPriority="high" decoding="async" width={1024} height={768} className="absolute inset-0 size-full object-cover" />}
         </picture>
         <div className={`absolute inset-0 bg-gradient-to-t ${HERO_OVERLAY[overlay]}`} />
-        <div className={`absolute inset-x-5 bottom-10 max-w-[21rem] ${align === "center" ? "mx-auto text-center" : ""}`}>
-          {eyebrow && <p className="text-sm font-semibold opacity-95">{eyebrow}</p>}
-          <h1 className="mt-0.5 font-display text-[1.85rem] font-bold leading-[1.04]">{title}</h1>
-          {subtitle && <p className="mt-1.5 text-[13px] font-medium leading-snug opacity-90">{subtitle}</p>}
+        <div className={`absolute inset-x-5 bottom-10 max-w-[21rem] lg:inset-x-14 lg:bottom-24 lg:max-w-2xl ${align === "center" ? "mx-auto text-center" : ""}`}>
+          {eyebrow && <p className="text-sm font-semibold opacity-95 lg:text-base">{eyebrow}</p>}
+          <h1 className="mt-0.5 font-display text-[1.85rem] font-bold leading-[1.04] lg:text-5xl xl:text-[3.5rem]">{title}</h1>
+          {subtitle && <p className="mt-1.5 text-[13px] font-medium leading-snug opacity-90 lg:mt-3 lg:max-w-xl lg:text-lg">{subtitle}</p>}
         </div>
       </div>
-      {children && <div className="relative z-10 -mt-6 px-3.5">{children}</div>}
+      {children && <div className="relative z-10 -mt-6 px-3.5 lg:mx-auto lg:-mt-8 lg:max-w-2xl lg:px-0">{children}</div>}
     </section>
   );
 }
@@ -193,7 +197,7 @@ export function V2Hero({ image, desktopImage, alt = "", eyebrow, title, subtitle
 /** Rounded search field used inside the hero. */
 export function HeroField({ icon, children }: { icon: ReactNode; children: ReactNode }) {
   return (
-    <div className="relative rounded-full bg-card shadow-panel ring-1 ring-border">
+    <div className="relative rounded-full bg-card shadow-panel ring-1 ring-border lg:min-h-16">
       <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground">{icon}</span>
       {children}
       <span aria-hidden className="pointer-events-none absolute right-1.5 top-1/2 grid size-10 -translate-y-1/2 place-items-center rounded-full bg-[var(--v2-service)] text-primary-foreground">
@@ -203,16 +207,16 @@ export function HeroField({ icon, children }: { icon: ReactNode; children: React
   );
 }
 
-export const heroInputClass = "h-[3.35rem] w-full rounded-full bg-transparent pl-12 pr-14 text-sm text-foreground outline-none placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring";
+export const heroInputClass = "h-[3.35rem] w-full rounded-full bg-transparent pl-12 pr-14 text-sm text-foreground outline-hidden placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring lg:h-16 lg:text-base";
 
 /** Compact icon row with dividers (value props). */
 export function TrustRow({ items }: { items: Array<{ icon: ReactNode; label: string }> }) {
   if (!items.length) return null;
   return (
-    <ul className="mt-4 flex divide-x divide-border">
+    <ul className="mt-4 flex divide-x divide-border lg:mx-auto lg:-mt-1 lg:max-w-5xl lg:rounded-2xl lg:bg-card lg:px-5 lg:py-5 lg:shadow-card lg:ring-1 lg:ring-border">
       {items.map((item) => (
-        <li key={item.label} className="flex min-w-0 flex-1 flex-col items-center gap-1 px-1.5 text-center text-[10px] font-medium leading-tight text-foreground">
-          <span className="text-[var(--v2-service)] [&_svg]:size-5">{item.icon}</span>
+        <li key={item.label} className="flex min-w-0 flex-1 flex-col items-center gap-1 px-1.5 text-center text-[10px] font-medium leading-tight text-foreground lg:flex-row lg:justify-center lg:gap-3 lg:px-5 lg:text-sm">
+          <span className="text-[var(--v2-service)] [&_svg]:size-5 lg:[&_svg]:size-6">{item.icon}</span>
           {item.label}
         </li>
       ))}
@@ -222,8 +226,8 @@ export function TrustRow({ items }: { items: Array<{ icon: ReactNode; label: str
 
 export function SectionTitle({ children, action }: { children: ReactNode; action?: ReactNode }) {
   return (
-    <div className="mb-2 mt-5 flex items-center justify-between gap-2">
-      <h2 className="min-w-0 font-display text-base font-bold text-foreground">{children}</h2>
+    <div className="mb-2 mt-5 flex items-center justify-between gap-2 lg:mb-5 lg:mt-14">
+      <h2 className="min-w-0 font-display text-base font-bold text-foreground lg:text-3xl">{children}</h2>
       {action && <span className="shrink-0 whitespace-nowrap">{action}</span>}
     </div>
   );
@@ -231,19 +235,19 @@ export function SectionTitle({ children, action }: { children: ReactNode; action
 
 /** Horizontal rail of photo cards. */
 export function PhotoRail({ children }: { children: ReactNode }) {
-  return <ul className="-mx-4 flex snap-x scroll-px-4 gap-2.5 overflow-x-auto px-4 pb-1 [scrollbar-width:none]">{children}</ul>;
+  return <ul className="-mx-4 flex snap-x scroll-px-4 gap-2.5 overflow-x-auto px-4 pb-1 [scrollbar-width:none] lg:mx-0 lg:grid lg:grid-cols-6 lg:gap-4 lg:overflow-visible lg:px-0">{children}</ul>;
 }
 
 export function PhotoCard({ image, badge, title, sub, price, onClick }: { image?: string | undefined; badge?: ReactNode; title: string; sub?: string | undefined; price?: string | undefined; onClick: () => void }) {
   return (
-    <li className="w-[7.55rem] shrink-0 snap-start">
+    <li className="w-[7.55rem] shrink-0 snap-start lg:w-auto">
       <button type="button" onClick={onClick} className="w-full overflow-hidden rounded-xl bg-card text-left shadow-sm ring-1 ring-border">
-        <div className="relative h-[5.35rem] bg-muted">
+        <div className="relative h-[5.35rem] bg-muted lg:h-32">
           {image && <img src={image} alt="" loading="lazy" decoding="async" width={256} height={192} className="size-full object-cover" />}
           {badge && <span className="absolute bottom-1.5 left-1.5">{badge}</span>}
         </div>
-        <div className="px-2 py-1.5">
-          <p className="truncate text-xs font-bold text-foreground">{title}</p>
+        <div className="px-2 py-1.5 lg:p-3">
+          <p className="truncate text-xs font-bold text-foreground lg:text-sm">{title}</p>
           {sub && <p className="truncate text-xs text-muted-foreground">{sub}</p>}
           {price && <p className="text-xs font-bold text-primary">{price}</p>}
         </div>
@@ -254,13 +258,13 @@ export function PhotoCard({ image, badge, title, sub, price, onClick }: { image?
 
 export function PromoCard({ image, title, sub, to }: { image: string; title: string; sub?: string; to: "/esim" | "/lounge" | "/vignette" | "/destek" | "/sepet" | "/account" }) {
   return (
-    <Link to={to} search={(to === "/esim" ? { country: "" } : to === "/lounge" ? { iata: "" } : undefined) as never} className="relative mt-5 block h-24 overflow-hidden rounded-xl text-primary-foreground">
+    <Link to={to} search={(to === "/esim" ? { country: "" } : to === "/lounge" ? { iata: "" } : undefined) as never} className="relative mt-5 block h-24 overflow-hidden rounded-xl text-primary-foreground lg:mt-14 lg:h-48 lg:rounded-2xl">
       {image && <img src={image} alt="" loading="lazy" decoding="async" className="absolute inset-0 size-full object-cover" />}
       <div className="absolute inset-0 bg-gradient-to-r from-[var(--v2-service)]/95 via-[var(--v2-service)]/60 to-transparent" />
-      <div className="relative flex h-full items-center justify-between gap-3 p-4">
+      <div className="relative flex h-full items-center justify-between gap-3 p-4 lg:p-8">
         <div className="min-w-0">
-          <p className="font-display text-lg font-bold leading-tight">{title}</p>
-          {sub && <p className="mt-0.5 text-xs opacity-90">{sub}</p>}
+          <p className="font-display text-lg font-bold leading-tight lg:text-3xl">{title}</p>
+          {sub && <p className="mt-0.5 text-xs opacity-90 lg:mt-2 lg:text-base">{sub}</p>}
         </div>
         <span className="grid size-10 shrink-0 place-items-center rounded-full bg-card text-[var(--v2-service)]"><ArrowRight className="size-5" /></span>
       </div>
@@ -301,8 +305,8 @@ function ActionDock({ showCart, showWhatsApp, purchaseSummary }: { showCart: boo
   const l = pick(locale, DOCK);
   const { count } = useCart();
   return (
-    <div className="pointer-events-none fixed inset-x-0 bottom-[calc(3.75rem+env(safe-area-inset-bottom))] z-30 px-4 pb-1.5 sm:bottom-4">
-      <div className="mx-auto flex max-w-xl items-center justify-end gap-2">
+    <div className="pointer-events-none fixed inset-x-0 bottom-[calc(3.75rem+env(safe-area-inset-bottom))] z-30 px-4 pb-1.5 sm:bottom-4 lg:left-auto lg:right-6 lg:w-[25rem] lg:px-0">
+      <div className="mx-auto flex max-w-xl items-center justify-end gap-2 lg:mx-0">
         {purchaseSummary}
         {!purchaseSummary && showCart && count > 0 && (
           <Link to="/sepet" className="pointer-events-auto flex h-[3.25rem] min-w-0 flex-1 items-center justify-between gap-2 rounded-full bg-primary pl-4 pr-2.5 text-sm font-semibold text-primary-foreground shadow-lg">

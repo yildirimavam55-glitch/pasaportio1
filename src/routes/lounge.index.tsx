@@ -161,8 +161,8 @@ function Lounges({ iata, title, c, selectedOffer, onSelect, onBack }: { iata: st
   });
   return (
     <>
-      <div className="mt-5 flex items-center justify-between gap-2">
-        <h2 className="font-display text-lg font-semibold text-foreground">{title}</h2>
+      <div className="mt-5 flex items-center justify-between gap-2 lg:mt-10">
+        <h2 className="font-display text-lg font-semibold text-foreground lg:text-3xl">{title}</h2>
         <button type="button" onClick={onBack} className="min-h-11 shrink-0 px-2 text-sm font-semibold text-primary">{c.back}</button>
       </div>
       {isLoading ? (
@@ -170,7 +170,7 @@ function Lounges({ iata, title, c, selectedOffer, onSelect, onBack }: { iata: st
       ) : data.length === 0 ? (
         <p className="mt-3 rounded-2xl bg-card p-4 text-sm text-muted-foreground ring-1 ring-border">{c.none}</p>
       ) : (
-        <ul className="mt-3 space-y-2">
+        <ul className="mt-3 grid gap-3 lg:grid-cols-3">
           {data.map((o) => {
             const inCart = lines.some((l) => l.productId === o.id);
             return (

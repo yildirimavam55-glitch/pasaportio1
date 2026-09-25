@@ -135,14 +135,14 @@ export function AuthPage({ redirect, initialMode = "signin", fallback = "/accoun
         </div>
     );
     return v2 ? (
-      <V2Shell level="transaction" nav="account"><div className="mx-auto max-w-md py-6">{done}</div></V2Shell>
+      <V2Shell level="transaction" nav="account"><div className="mx-auto max-w-md py-6 lg:py-16">{done}</div></V2Shell>
     ) : (
       <main className="grid min-h-screen place-items-center bg-background px-5 py-10">{done}</main>
     );
   }
 
   const form = (
-        <div className="w-full max-w-md">
+        <div className="w-full max-w-md lg:rounded-2xl lg:border lg:border-border lg:bg-card lg:p-8 lg:shadow-card">
           <Button asChild variant="ghost" className="mb-8 -ml-3">
             <Link to="/" search={{ service: "esim" }}>
               <ArrowLeft /> {copy.back}
@@ -294,7 +294,7 @@ export function AuthPage({ redirect, initialMode = "signin", fallback = "/accoun
   if (v2) {
     return (
       <V2Shell level="transaction" nav="account">
-        <div className="mx-auto max-w-md py-2 [&>div>a:first-child]:hidden">{form}</div>
+        <div className="mx-auto max-w-md py-2 lg:py-12 [&>div>a:first-child]:hidden">{form}</div>
       </V2Shell>
     );
   }
