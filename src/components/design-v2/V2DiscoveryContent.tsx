@@ -156,7 +156,7 @@ export function V2Installation({ title, subtitle, steps, ready, adding, cta, hre
   return (
     <section>
       <div className="lg:hidden"><SectionTitle>{title || c.install}</SectionTitle></div>
-      <div className="lg:grid lg:min-h-[24rem] lg:grid-cols-[minmax(0,0.42fr)_minmax(0,0.58fr)] lg:items-center lg:gap-10 lg:rounded-3xl lg:bg-card lg:px-12 lg:py-8 lg:ring-1 lg:ring-border">
+      <div className="lg:grid lg:min-h-[22rem] lg:grid-cols-[minmax(0,0.42fr)_minmax(0,0.58fr)] lg:items-center lg:gap-10 lg:rounded-3xl lg:bg-card lg:px-12 lg:py-6 lg:ring-1 lg:ring-border">
         <div className="lg:flex lg:min-h-[20rem] lg:items-center lg:justify-center">{variant === "simple" ? <div className="lg:hidden"><InstallationSteps items={stepList} /></div> : <V2InstallAnimation steps={stepList} ready={ready || c.animReady} adding={adding || c.animAdding} onPhaseChange={setActiveStep} />}</div>
         <div className="lg:py-3">
           <h2 className="hidden font-display text-3xl font-bold text-foreground lg:block">{title || c.install}</h2>
