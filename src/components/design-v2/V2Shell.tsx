@@ -176,7 +176,7 @@ export function V2Hero({ image, desktopImage, alt = "", eyebrow, title, subtitle
       <div className={`relative ${HERO_HEIGHT[height]} overflow-hidden text-primary-foreground sm:mx-4 sm:mt-3 sm:rounded-3xl`}>
         <picture>
           {desktopImage && <source media="(min-width: 640px)" srcSet={desktopImage} />}
-          <img src={image} alt={alt} fetchPriority="high" decoding="async" width={1024} height={768} className="absolute inset-0 size-full object-cover" />
+          {image && <img src={image} alt={alt} fetchPriority="high" decoding="async" width={1024} height={768} className="absolute inset-0 size-full object-cover" />}
         </picture>
         <div className={`absolute inset-0 bg-gradient-to-t ${HERO_OVERLAY[overlay]}`} />
         <div className={`absolute inset-x-5 bottom-10 max-w-[21rem] ${align === "center" ? "mx-auto text-center" : ""}`}>
