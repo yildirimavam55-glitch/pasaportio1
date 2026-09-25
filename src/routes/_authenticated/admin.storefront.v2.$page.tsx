@@ -36,7 +36,6 @@ import {
 } from "@/domain/storefront/v2";
 import { getCountryByIso, searchCountries } from "@/domain/geo/countries";
 import { getAirportByIata, searchAirports } from "@/domain/geo/airports";
-import { useI18n } from "@/i18n";
 import type { Locale } from "@/domain/enums";
 
 const PAGE_LABEL: Record<V2PageId, string> = { esim: "eSIM ana sayfası", lounge: "Lounge ana sayfası", vignette: "Vignette ana sayfası" };
@@ -67,15 +66,14 @@ function Editor({ page }: { page: V2PageId }) {
   const [dragId, setDragId] = useState<string | null>(null);
   const [showHistory, setShowHistory] = useState(false);
   const frame = useRef<HTMLIFrameElement | null>(null);
-  const { setLocale } = useI18n();
 
   useEffect(() => { if (editor.data && !dirty) setDraft(editor.data.draft); }, [editor.data, dirty]);
 
   const media = useMemo(() => Object.fromEntries((mediaList.data ?? []).filter((m) => m.url).map((m) => [m.id, { url: m.url as string, alt: m.altText ?? "" }])), [mediaList.data]);
   const pushPreview = useCallback(() => {
     if (!draft || !frame.current?.contentWindow) return;
-    frame.current.contentWindow.postMessage({ type: "v2-cms-preview", page, config: draft, media }, window.location.origin);
-  }, [draft, media, page]);
+    frame.current.contentWindow.postMessage({ type: "v2-cms-preview", page, config: draft, media, locale: lang }, window.location.origin);
+  }, [draft, media, page, lang]);
   useEffect(() => { pushPreview(); }, [pushPreview]);
   useEffect(() => {
     const onReady = (event: MessageEvent) => { if (event.origin === window.location.origin && event.data?.type === "v2-cms-ready" && event.data.page === page) pushPreview(); };
@@ -218,7 +216,7 @@ function Editor({ page }: { page: V2PageId }) {
           </div>}>
           <div className="mb-3 flex items-center gap-1">
             {(["tr", "de", "en"] as const).map((code) => (
-              <Button key={code} size="sm" variant={lang === code ? "default" : "outline"} onClick={() => { setLang(code); setLocale(code); pushPreview(); }} className="uppercase">
+              <Button key={code} size="sm" variant={lang === code ? "default" : "outline"} onClick={() => setLang(code)} className="uppercase">
                 {code}{code !== "tr" && missing[code] > 0 && <span className="ml-1 rounded-full bg-warning/20 px-1.5 text-[10px]">{missing[code]}</span>}
               </Button>
             ))}

@@ -37,6 +37,7 @@ export function mediaUrl(id: string | null | undefined, media: V2Media): string 
  */
 export function useV2Page(page: V2PageId): { config: V2PageConfig; media: V2Media } {
   const published = useQuery(v2PageQuery(page));
+  const { locale, setLocale } = useI18n();
   const [preview, setPreview] = useState<{ config: V2PageConfig; media: V2Media } | null>(null);
   useEffect(() => {
     if (window.parent === window || window.name !== V2_PREVIEW_WINDOW) return;
@@ -44,12 +45,13 @@ export function useV2Page(page: V2PageId): { config: V2PageConfig; media: V2Medi
       if (event.origin !== window.location.origin || event.source !== window.parent) return;
       const msg = event.data;
       if (msg?.type !== "v2-cms-preview" || msg.page !== page) return;
+      if (["tr", "de", "en"].includes(msg.locale) && msg.locale !== locale) setLocale(msg.locale);
       setPreview({ config: sanitizeV2Page(msg.config, page), media: msg.media && typeof msg.media === "object" ? msg.media : {} });
     };
     window.addEventListener("message", onMessage);
     window.parent.postMessage({ type: "v2-cms-ready", page }, window.location.origin);
     return () => window.removeEventListener("message", onMessage);
-  }, [page]);
+  }, [page, locale, setLocale]);
   return preview ?? published.data ?? { config: defaultV2Page(page), media: {} };
 }
 

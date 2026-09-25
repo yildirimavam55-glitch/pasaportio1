@@ -101,6 +101,7 @@ import { Route as DesignV2AccountEsimsIndexRouteImport } from './routes/design-v
 import { Route as DesignV2AccountEsimsIdRouteImport } from './routes/design-v2.account.esims.$id'
 import { Route as DesignV2AccountOrdersIndexRouteImport } from './routes/design-v2.account.orders.index'
 import { Route as DesignV2AccountOrdersIdRouteImport } from './routes/design-v2.account.orders.$id'
+import { Route as AuthenticatedAdminStorefrontV2PageRouteImport } from './routes/_authenticated/admin.storefront.v2.$page'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -603,6 +604,12 @@ const DesignV2AccountOrdersIdRoute = DesignV2AccountOrdersIdRouteImport.update({
   path: '/orders/$id',
   getParentRoute: () => DesignV2AccountRoute,
 } as any)
+const AuthenticatedAdminStorefrontV2PageRoute =
+  AuthenticatedAdminStorefrontV2PageRouteImport.update({
+    id: '/admin/storefront/v2/$page',
+    path: '/admin/storefront/v2/$page',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -696,6 +703,7 @@ export interface FileRoutesByFullPath {
   '/admin/settings/': typeof AuthenticatedAdminSettingsIndexRoute
   '/design-v2/account/esims/': typeof DesignV2AccountEsimsIndexRoute
   '/design-v2/account/orders/': typeof DesignV2AccountOrdersIndexRoute
+  '/admin/storefront/v2/$page': typeof AuthenticatedAdminStorefrontV2PageRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -787,6 +795,7 @@ export interface FileRoutesByTo {
   '/admin/settings': typeof AuthenticatedAdminSettingsIndexRoute
   '/design-v2/account/esims': typeof DesignV2AccountEsimsIndexRoute
   '/design-v2/account/orders': typeof DesignV2AccountOrdersIndexRoute
+  '/admin/storefront/v2/$page': typeof AuthenticatedAdminStorefrontV2PageRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -882,6 +891,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/settings/': typeof AuthenticatedAdminSettingsIndexRoute
   '/design-v2/account/esims/': typeof DesignV2AccountEsimsIndexRoute
   '/design-v2/account/orders/': typeof DesignV2AccountOrdersIndexRoute
+  '/_authenticated/admin/storefront/v2/$page': typeof AuthenticatedAdminStorefrontV2PageRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -977,6 +987,7 @@ export interface FileRouteTypes {
     | '/admin/settings/'
     | '/design-v2/account/esims/'
     | '/design-v2/account/orders/'
+    | '/admin/storefront/v2/$page'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -1068,6 +1079,7 @@ export interface FileRouteTypes {
     | '/admin/settings'
     | '/design-v2/account/esims'
     | '/design-v2/account/orders'
+    | '/admin/storefront/v2/$page'
   id:
     | '__root__'
     | '/'
@@ -1162,6 +1174,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/settings/'
     | '/design-v2/account/esims/'
     | '/design-v2/account/orders/'
+    | '/_authenticated/admin/storefront/v2/$page'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -1841,6 +1854,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DesignV2AccountOrdersIdRouteImport
       parentRoute: typeof DesignV2AccountRoute
     }
+    '/_authenticated/admin/storefront/v2/$page': {
+      id: '/_authenticated/admin/storefront/v2/$page'
+      path: '/admin/storefront/v2/$page'
+      fullPath: '/admin/storefront/v2/$page'
+      preLoaderRoute: typeof AuthenticatedAdminStorefrontV2PageRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
   }
 }
 
@@ -1889,6 +1909,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAccountEsimsIndexRoute: typeof AuthenticatedAccountEsimsIndexRoute
   AuthenticatedAccountOrdersIndexRoute: typeof AuthenticatedAccountOrdersIndexRoute
   AuthenticatedAdminSettingsIndexRoute: typeof AuthenticatedAdminSettingsIndexRoute
+  AuthenticatedAdminStorefrontV2PageRoute: typeof AuthenticatedAdminStorefrontV2PageRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
@@ -1944,6 +1965,8 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAccountEsimsIndexRoute: AuthenticatedAccountEsimsIndexRoute,
   AuthenticatedAccountOrdersIndexRoute: AuthenticatedAccountOrdersIndexRoute,
   AuthenticatedAdminSettingsIndexRoute: AuthenticatedAdminSettingsIndexRoute,
+  AuthenticatedAdminStorefrontV2PageRoute:
+    AuthenticatedAdminStorefrontV2PageRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
