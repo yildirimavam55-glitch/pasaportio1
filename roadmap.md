@@ -2,10 +2,10 @@
 
 ## V2 package card visual polish
 
-- [ ] Match Standard and Unlimited cards to one compact 96px geometry
-- [ ] Keep Unlimited infinity and localized title on one line with compact validity and price spacing
-- [ ] Prevent WhatsApp and bottom navigation from obstructing the package-selection screen
-- [ ] Verify Standard and Unlimited in TR/DE/EN at 360/390/430 px without changing package data or logic
+- [x] Match Standard and Unlimited cards to one compact 96px geometry
+- [x] Keep Unlimited infinity and localized title on one line with compact validity and price spacing
+- [x] Prevent WhatsApp and bottom navigation from obstructing the package-selection screen
+- [x] Verify Standard and Unlimited in TR/DE/EN at 360/390/430 px without changing package data or logic
 
 ## V2 regional package cart identity
 
