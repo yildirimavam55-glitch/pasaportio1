@@ -156,7 +156,7 @@ export function V2Installation({ title, subtitle, steps, ready, adding, cta, hre
       <SectionTitle>{title || c.install}</SectionTitle>
        <div className="lg:grid lg:grid-cols-[minmax(18rem,0.8fr)_minmax(0,1.2fr)] lg:items-center lg:gap-10">
          <div>{variant === "simple" ? <InstallationSteps items={stepList} /> : <V2InstallAnimation steps={stepList} ready={ready || c.animReady} adding={adding || c.animAdding} />}</div>
-         <div>{(subtitle ?? c.installSub) && <p className="mb-3 text-xs leading-relaxed text-muted-foreground lg:text-base">{subtitle ?? c.installSub}</p>}<InstallationSteps items={stepList} />{(cta ?? c.installCta) && <Button asChild variant="outline" size="sm" className="mt-3 w-full lg:w-auto"><Link to={href} search={search}>{cta || c.installCta}<ArrowRight /></Link></Button>}</div>
+         <div>{(subtitle ?? c.installSub) && <p className="mb-3 text-xs leading-relaxed text-muted-foreground lg:text-base">{subtitle ?? c.installSub}</p>}<div className={variant === "simple" ? "hidden" : "hidden lg:block"}><InstallationSteps items={stepList} /></div>{(cta ?? c.installCta) && <Button asChild variant="outline" size="sm" className="mt-3 w-full lg:w-auto"><Link to={href} search={search}>{cta || c.installCta}<ArrowRight /></Link></Button>}</div>
        </div>
     </section>
   );

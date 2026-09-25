@@ -82,6 +82,7 @@
   --radius-hero: 1.5rem;
   --spacing-site: 76rem;
   --spacing-finder: 69rem;
+  --spacing-reading: 50rem;
 }
 
 :root {
@@ -504,6 +505,22 @@ html.dark .destination-scene {
     margin-inline: 0;
     padding-inline: 0;
     overflow: visible;
+  }
+}
+@media (min-width: 1024px) {
+  .customer-esim-track {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .esim-package-rail,
+  .esim-package-rail.is-standard,
+  .esim-package-rail.is-unlimited {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 1rem;
+  }
+  .editorial-card-rail {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1.25rem;
   }
 }
 

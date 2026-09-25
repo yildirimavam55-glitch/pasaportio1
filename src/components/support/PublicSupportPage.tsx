@@ -77,13 +77,13 @@ export function PublicSupportPage() {
     { to: "/esim/paketler", icon: UserRound },
   ] as const;
   const content = (
-      <div className={v2 ? "grid gap-5 pt-2" : "mx-auto grid max-w-3xl gap-6 px-4 py-8 sm:px-6 sm:py-12"}>
-        <header className="grid gap-2">
+      <div className={v2 ? "grid gap-5 pt-2 lg:grid-cols-[minmax(18rem,0.8fr)_minmax(0,1.4fr)] lg:gap-8 lg:pt-8" : "mx-auto grid max-w-3xl gap-6 px-4 py-8 sm:px-6 sm:py-12"}>
+        <header className="grid gap-2 lg:col-span-2">
           <h1 className={v2 ? "font-display text-xl font-bold text-foreground sm:text-2xl" : "font-display text-3xl font-bold text-foreground sm:text-4xl"}>{c.title}</h1>
           <p className="text-muted-foreground">{c.lead}</p>
         </header>
 
-        <section className="grid gap-3 rounded-2xl border border-border bg-card p-5 shadow-card">
+        <section className="grid gap-3 rounded-2xl border border-border bg-card p-5 shadow-card lg:row-span-2 lg:self-start lg:p-7">
           <Button asChild size="lg" className="h-14 text-base">
             <a
               href={waHref}
@@ -103,7 +103,7 @@ export function PublicSupportPage() {
           </Button>
         </section>
 
-        <section className="grid gap-3">
+        <section className="grid gap-3 lg:self-start">
           <h2 className="text-lg font-bold text-foreground">{c.quick}</h2>
           <div className="grid gap-2 sm:grid-cols-3">
             {quick.map((q, i) => (
@@ -114,7 +114,7 @@ export function PublicSupportPage() {
           </div>
         </section>
 
-        <section className="grid gap-3">
+        <section className="grid gap-3 lg:self-start">
           <h2 className="text-lg font-bold text-foreground">{c.faq}</h2>
           <div className="grid gap-2">
             {c.qa.map(([q, a]) => (

@@ -40,26 +40,8 @@ function V2Checkout() {
         {lines.length === 0 ? (
           <V2State tone="empty" title={c.empty} action={<Link to="/esim" search={{ country: "" }} className="inline-flex min-h-11 items-center rounded-full bg-primary px-5 text-sm font-semibold text-primary-foreground">{c.browse}</Link>} />
         ) : (
-          <div className="grid gap-3">
-            <V2Card>
-              <p className="text-xs font-bold uppercase text-muted-foreground">{c.summary}</p>
-              <ul className="mt-2 divide-y divide-border">
-                {lines.map((line) => (
-                  <li key={line.id} className="flex items-start justify-between gap-3 py-2">
-                    <div className="min-w-0">
-                      <p className="truncate text-sm font-bold text-foreground">{line.quantity} × {lineTitle(line, locale)}</p>
-                      <p className="text-xs text-muted-foreground">{lineFacts(line, cc)}</p>
-                    </div>
-                    <span className="shrink-0 text-sm font-bold">{money((line.price ?? 0) * line.quantity, line.currency)}</span>
-                  </li>
-                ))}
-              </ul>
-              <div className="mt-1 flex items-center justify-between border-t border-border pt-3">
-                <span className="text-sm font-semibold text-muted-foreground">{cc.total}</span>
-                <strong className="font-display text-xl">{money(total, currency)}</strong>
-              </div>
-            </V2Card>
-
+          <div className="grid gap-3 lg:grid-cols-[minmax(0,1.5fr)_minmax(19rem,0.85fr)] lg:items-start lg:gap-8">
+            <div className="grid gap-3">
             <V2Card>
               <p className="text-xs font-bold uppercase text-muted-foreground">{c.account}</p>
               {email === undefined ? null : email ? (
@@ -77,6 +59,25 @@ function V2Checkout() {
               <V2State tone="warning" title={c.notLive} text={c.notLiveText} />
             </div>
             <button type="button" disabled className="min-h-12 w-full rounded-full bg-primary text-sm font-semibold text-primary-foreground opacity-50">{c.cta}</button>
+            </div>
+            <V2Card className="lg:sticky lg:top-24">
+              <p className="text-xs font-bold uppercase text-muted-foreground">{c.summary}</p>
+              <ul className="mt-2 divide-y divide-border">
+                {lines.map((line) => (
+                  <li key={line.id} className="flex items-start justify-between gap-3 py-2">
+                    <div className="min-w-0">
+                      <p className="truncate text-sm font-bold text-foreground">{line.quantity} × {lineTitle(line, locale)}</p>
+                      <p className="text-xs text-muted-foreground">{lineFacts(line, cc)}</p>
+                    </div>
+                    <span className="shrink-0 text-sm font-bold">{money((line.price ?? 0) * line.quantity, line.currency)}</span>
+                  </li>
+                ))}
+              </ul>
+              <div className="mt-1 flex items-center justify-between border-t border-border pt-3">
+                <span className="text-sm font-semibold text-muted-foreground">{cc.total}</span>
+                <strong className="font-display text-xl">{money(total, currency)}</strong>
+              </div>
+            </V2Card>
           </div>
         )}
       </div>

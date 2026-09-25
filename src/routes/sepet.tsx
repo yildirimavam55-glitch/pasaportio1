@@ -28,10 +28,10 @@ function V2Cart() {
             <Link to="/esim" search={{ country: "" }} className="inline-flex min-h-11 items-center rounded-full bg-primary px-5 text-sm font-semibold text-primary-foreground">{c.browse}</Link>
           } />
         ) : (
-          <>
-            <ul className="grid gap-2">
+          <div className="lg:grid lg:grid-cols-[minmax(0,1.8fr)_minmax(18rem,0.9fr)] lg:items-start lg:gap-8">
+            <ul className="grid gap-2 lg:gap-3">
               {lines.map((line) => (
-                <li key={line.id} className="rounded-2xl border border-border bg-card p-3">
+                <li key={line.id} className="rounded-2xl border border-border bg-card p-3 lg:p-5">
                   <div className="flex items-start justify-between gap-2">
                     <div className="min-w-0">
                       <p className="flex items-center gap-2 font-display text-base font-bold text-foreground">
@@ -58,12 +58,14 @@ function V2Cart() {
                 </li>
               ))}
             </ul>
-            <div className="mt-3 flex items-center justify-between rounded-2xl bg-secondary px-4 py-3">
-              <span className="text-sm font-semibold text-muted-foreground">{c.total}</span>
-              <strong className="font-display text-xl text-foreground">{money(total, currency)}</strong>
-            </div>
-            <Link to="/odeme" className="mt-3 flex min-h-12 w-full items-center justify-center rounded-full bg-primary text-sm font-semibold text-primary-foreground">{c.review}</Link>
-          </>
+            <aside className="mt-3 rounded-2xl border border-border bg-card p-4 shadow-card lg:sticky lg:top-24 lg:mt-0 lg:p-6">
+              <div className="flex items-center justify-between bg-secondary px-4 py-3 rounded-xl">
+                <span className="text-sm font-semibold text-muted-foreground">{c.total}</span>
+                <strong className="font-display text-xl text-foreground">{money(total, currency)}</strong>
+              </div>
+              <Link to="/odeme" className="mt-3 flex min-h-12 w-full items-center justify-center rounded-full bg-primary text-sm font-semibold text-primary-foreground">{c.review}</Link>
+            </aside>
+          </div>
         )}
       </div>
     </V2Shell>
