@@ -3,7 +3,9 @@ import { Link } from "@tanstack/react-router";
 import { Check, Info, Minus, Plus, ShoppingBag } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { WhatsAppLogo } from "@/components/travel/WhatsAppLogo";
 import { cn } from "@/lib/utils";
+import { waLink } from "@/lib/whatsapp";
 import type { V2Service } from "@/components/design-v2/V2Shell";
 
 export function V2ProductSelectionCard({
@@ -61,6 +63,7 @@ export function V2SelectedProductSummary({
   cartLabel,
   decreaseLabel,
   increaseLabel,
+  whatsappLabel,
   onQuantityChange,
   onAdd,
 }: {
@@ -74,6 +77,7 @@ export function V2SelectedProductSummary({
   cartLabel: string;
   decreaseLabel: string;
   increaseLabel: string;
+  whatsappLabel: string;
   onQuantityChange: (quantity: number) => void;
   onAdd: () => void;
 }) {
@@ -99,6 +103,9 @@ export function V2SelectedProductSummary({
         ) : (
           <Button type="button" onClick={onAdd} className="h-10 min-w-0 flex-1 rounded-xl px-3"><ShoppingBag className="size-4" /><span className="truncate">{addLabel}</span></Button>
         )}
+        <Button asChild variant="ghost" size="icon" className="size-10 shrink-0 rounded-xl p-0 shadow-sm" style={{ backgroundColor: "#25D366", color: "#fff" }}>
+          <a href={waLink()} target="_blank" rel="noopener noreferrer" aria-label={whatsappLabel}><WhatsAppLogo className="size-5" /></a>
+        </Button>
       </div>
     </section>
   );

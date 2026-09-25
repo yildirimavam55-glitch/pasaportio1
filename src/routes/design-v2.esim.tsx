@@ -116,6 +116,7 @@ function EsimV2() {
     cartLabel={c.cart}
     decreaseLabel={c.decrease}
     increaseLabel={c.increase}
+    whatsappLabel={c.support}
     onQuantityChange={(quantity) => selectedCartLine ? updateQuantity(selectedCartLine.productId, quantity) : setSelectionQuantity(quantity)}
     onAdd={addSelectedPackage}
   /> : undefined;
