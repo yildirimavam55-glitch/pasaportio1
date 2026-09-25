@@ -1,5 +1,14 @@
 # Phase 1.3 Roadmap
 
+## V2 eSIM homepage final simplification and sticky search
+
+- [ ] Preserve the approved hero, visual identity, popular destination cards, and bottom navigation
+- [ ] Reorder the homepage to the exact compact sales flow and remove redundant homepage-only sections
+- [ ] Add a catalogue-backed maximum-three global Unlimited product section without changing package-result logic
+- [ ] Add one shared-interaction sticky country search that appears only after the hero search leaves view
+- [ ] Verify product identity, existing compatibility, service banners, installation, guides, FAQ, TR/DE/EN, and 360/390/430 px safe areas
+- [ ] Confirm catalogue, prices, database, package logic, production, and publish state remain unchanged
+
 ## V2 homepage content completion
 
 - [x] Complete the real four-step eSIM journey without changing the approved top area
