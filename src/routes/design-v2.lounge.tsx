@@ -66,7 +66,7 @@ function LoungeV2() {
             searchLabel={c.ph}
             query={query}
             onQueryChange={setQuery}
-            selectedId={airport?.iata}
+            {...(airport ? { selectedId: airport.iata } : {})}
             emptyLabel={c.empty}
             items={matches.map((item) => ({ id: item.iata, label: `${item.city[locale]} (${item.iata})`, detail: item.airport[locale], leading: <CountryFlag iso={item.countryIso} className="h-4 w-6 rounded-sm" /> }))}
             onSelect={choose}

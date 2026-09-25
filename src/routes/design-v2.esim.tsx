@@ -77,7 +77,7 @@ function EsimV2() {
             emptyLabel={prices.isLoading ? "…" : c.empty}
             items={matches.map((item) => {
               const price = priceMap.get(item.iso);
-              return { id: item.iso, label: item.name[locale], leading: <CountryFlag iso={item.iso} className="h-4 w-6 rounded-sm" />, price: price ? `${money(price.amount, price.currency)} ${c.from}` : undefined };
+              return { id: item.iso, label: item.name[locale], leading: <CountryFlag iso={item.iso} className="h-4 w-6 rounded-sm" />, ...(price ? { price: `${money(price.amount, price.currency)} ${c.from}` } : {}) };
             })}
             onSelect={choose}
           >
