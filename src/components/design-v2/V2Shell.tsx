@@ -53,7 +53,7 @@ export function V2Shell({
   return (
     <V2Context.Provider value={true}>
       <PublicShell hideStickySearch hideFloatingWhatsApp footerBottomSafe headerAccessory={stickySearch}>
-        <div className={`mx-auto w-full ${width} ${serviceAccent} overflow-x-clip px-4 ${commerceSelection ? "pb-8" : "pb-8"} sm:pb-12`}>
+        <div className={`mx-auto w-full ${width} ${serviceAccent} overflow-x-clip px-4 pb-8 sm:pb-12`}>
           <DesktopNav active={active} />
           {children}
         </div>
