@@ -5,8 +5,8 @@
 - [x] Audit genuine published regional inventory without syncing or changing catalogue data
 - [x] Replace homepage Global Unlimited cards with real regional photo discovery and one compact Worldwide banner
 - [x] Add regional Standard/Unlimited results through the existing catalogue, detail, cart, and checkout identity
-- [ ] Verify TR/DE/EN at 360/390/430 px, cart/checkout identity, browser back, sticky search, and fixed controls
-- [ ] Confirm zero price, catalogue, database, supplier, payment, production, or publish changes
+- [x] Verify TR/DE/EN at 360/390/430 px, cart/checkout identity, browser back, sticky search, and fixed controls
+- [x] Confirm zero price, catalogue, database, supplier, payment, production, or publish changes
 
 ## V2 global Unlimited card visual fix
 
