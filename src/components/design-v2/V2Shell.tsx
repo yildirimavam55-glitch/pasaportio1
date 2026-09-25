@@ -37,6 +37,7 @@ export function V2Shell({
   commerceSelection = false,
   hideWhatsApp = false,
   stickySearch,
+  purchaseSummary,
   children,
 }: {
   service?: V2Service;
@@ -45,6 +46,7 @@ export function V2Shell({
   commerceSelection?: boolean;
   hideWhatsApp?: boolean;
   stickySearch?: ReactNode;
+  purchaseSummary?: ReactNode;
   children: ReactNode;
 }) {
   const active: V2Nav | undefined = nav ?? service;
@@ -52,12 +54,12 @@ export function V2Shell({
   const serviceAccent = service === "lounge" ? "[--v2-service:var(--color-v2-lounge)]" : service === "vignette" ? "[--v2-service:var(--color-v2-vignette)]" : "[--v2-service:var(--color-v2-esim)]";
   return (
     <V2Context.Provider value={true}>
-      <PublicShell hideStickySearch hideFloatingWhatsApp footerBottomSafe headerAccessory={stickySearch}>
+      <PublicShell hideStickySearch hideFloatingWhatsApp footerBottomSafe={purchaseSummary ? "purchase" : true} headerAccessory={stickySearch}>
         <div className={`mx-auto w-full ${width} ${serviceAccent} overflow-x-clip px-4 pb-8 sm:pb-12`}>
           <DesktopNav active={active} />
           {children}
         </div>
-        <ActionDock showCart={level === "discovery"} showWhatsApp={!commerceSelection && !hideWhatsApp} />
+        <ActionDock showCart={level === "discovery"} showWhatsApp={!commerceSelection && !hideWhatsApp && !purchaseSummary} purchaseSummary={purchaseSummary} />
         <BottomNav active={active} />
       </PublicShell>
     </V2Context.Provider>
@@ -250,14 +252,15 @@ const DOCK = {
  * Both share a single row so neither stacks over the other; page bottom padding keeps
  * the last cards/rows scrollable clear of it.
  */
-function ActionDock({ showCart, showWhatsApp }: { showCart: boolean; showWhatsApp: boolean }) {
+function ActionDock({ showCart, showWhatsApp, purchaseSummary }: { showCart: boolean; showWhatsApp: boolean; purchaseSummary?: ReactNode }) {
   const { locale } = useI18n();
   const l = pick(locale, DOCK);
   const { count } = useCart();
   return (
     <div className="pointer-events-none fixed inset-x-0 bottom-[calc(3.75rem+env(safe-area-inset-bottom))] z-30 px-4 pb-1.5 sm:bottom-4">
       <div className="mx-auto flex max-w-xl items-center justify-end gap-2">
-        {showCart && count > 0 && (
+        {purchaseSummary}
+        {!purchaseSummary && showCart && count > 0 && (
           <Link to="/design-v2/cart" className="pointer-events-auto flex h-[3.25rem] min-w-0 flex-1 items-center justify-between gap-2 rounded-full bg-primary pl-4 pr-2.5 text-sm font-semibold text-primary-foreground shadow-lg">
             <span className="flex min-w-0 items-center gap-2"><ShoppingBag className="size-4 shrink-0" /><span className="truncate">{l.cart}</span></span>
             <span className="grid h-7 min-w-7 shrink-0 place-items-center rounded-full bg-primary-foreground/15 px-2 text-xs">{count}</span>
