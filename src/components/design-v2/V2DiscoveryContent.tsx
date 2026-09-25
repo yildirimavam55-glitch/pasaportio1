@@ -137,21 +137,26 @@ export function V2DataEducation({ onCalculate }: { onCalculate: () => void }) {
   );
 }
 
-export function V2Compatibility() {
+export function V2Compatibility({ title }: { title?: string } = {}) {
   const { locale } = useI18n();
   const c = COPY[locale];
-  return <section><SectionTitle>{c.compatibility}</SectionTitle><DeviceCompatibilityPrompt /></section>;
+  return <section><SectionTitle>{title || c.compatibility}</SectionTitle><DeviceCompatibilityPrompt /></section>;
 }
 
-export function V2Installation() {
+type InstallProps = { title?: string; subtitle?: string; steps?: string[]; ready?: string; adding?: string; cta?: string; href?: "/design-v2/esim" | "/design-v2/lounge" | "/design-v2/vignette" | "/design-v2/support" | "/design-v2/cart" | "/design-v2/account"; variant?: "animated" | "simple" };
+
+/** Copy/link/variant can come from the storefront builder; animation stays decorative (no real QR). */
+export function V2Installation({ title, subtitle, steps, ready, adding, cta, href = "/design-v2/support", variant = "animated" }: InstallProps = {}) {
   const { locale } = useI18n();
   const c = COPY[locale];
+  const stepList = steps?.length ? steps : [...c.animSteps];
+  const search = (href === "/design-v2/esim" ? { country: "" } : href === "/design-v2/lounge" ? { iata: "" } : undefined) as never;
   return (
     <section>
-      <SectionTitle>{c.install}</SectionTitle>
-      <p className="mb-3 text-xs leading-relaxed text-muted-foreground">{c.installSub}</p>
-      <V2InstallAnimation steps={c.animSteps} ready={c.animReady} adding={c.animAdding} />
-      <Button asChild variant="outline" size="sm" className="mt-3 w-full"><Link to="/design-v2/support">{c.installCta}<ArrowRight /></Link></Button>
+      <SectionTitle>{title || c.install}</SectionTitle>
+      {(subtitle ?? c.installSub) && <p className="mb-3 text-xs leading-relaxed text-muted-foreground">{subtitle ?? c.installSub}</p>}
+      {variant === "simple" ? <InstallationSteps items={stepList} /> : <V2InstallAnimation steps={stepList} ready={ready || c.animReady} adding={adding || c.animAdding} />}
+      {(cta ?? c.installCta) && <Button asChild variant="outline" size="sm" className="mt-3 w-full"><Link to={href} search={search}>{cta || c.installCta}<ArrowRight /></Link></Button>}
     </section>
   );
 }
@@ -171,15 +176,15 @@ export function V2CompactFaq({ title, questions }: { title: string; questions: r
   return <section><SectionTitle>{title}</SectionTitle><Accordion type="single" collapsible className="rounded-xl bg-card px-3 ring-1 ring-border">{questions.map((item, index) => { const question = item[0] ?? ""; const answer = item[1] ?? ""; return <AccordionItem key={question} value={`service-faq-${index}`}><AccordionTrigger className="py-3 text-left text-xs font-bold hover:no-underline">{question}</AccordionTrigger><AccordionContent className="text-xs leading-relaxed text-muted-foreground">{answer}</AccordionContent></AccordionItem>; })}</Accordion></section>;
 }
 
-export function V2GuidesRail() {
+export function V2GuidesRail({ title, lead, allLabel }: { title?: string; lead?: string; allLabel?: string } = {}) {
   const { locale } = useI18n();
   const c = COPY[locale];
   const { data = [] } = useQuery({ queryKey: ["v2-guides", locale], queryFn: () => listFeaturedGuides({ data: { locale, limit: 4 } }), staleTime: 5 * 60_000 });
   if (!data.length) return null;
   return (
     <section className="mb-4 pb-4">
-      <SectionTitle action={<SeoPathLink path={`/${locale}/${locale === "tr" ? "rehber" : locale === "de" ? "ratgeber" : "guides"}`} className="inline-flex items-center gap-0.5 text-xs font-semibold text-primary">{c.allGuides}<ArrowRight className="size-3.5" /></SeoPathLink>}>{c.guides}</SectionTitle>
-      <p className="-mt-0.5 mb-4 text-xs text-muted-foreground">{c.guideLead}</p>
+      <SectionTitle action={<SeoPathLink path={`/${locale}/${locale === "tr" ? "rehber" : locale === "de" ? "ratgeber" : "guides"}`} className="inline-flex items-center gap-0.5 text-xs font-semibold text-primary">{allLabel || c.allGuides}<ArrowRight className="size-3.5" /></SeoPathLink>}>{title || c.guides}</SectionTitle>
+      {(lead ?? c.guideLead) && <p className="-mt-0.5 mb-4 text-xs text-muted-foreground">{lead ?? c.guideLead}</p>}
       <ul className="-mx-4 flex snap-x snap-mandatory scroll-px-4 gap-3 overflow-x-auto px-4 pb-1 [overscroll-behavior-inline:contain] [scrollbar-width:none]">
         {data.map((guide) => <li key={guide.id} className="w-[84vw] max-w-[22rem] shrink-0 snap-start sm:w-[17rem]"><SeoPathLink path={seoPath(guide.translationLocale, guide.contentType, guide.slug)} className="group block overflow-hidden rounded-xl bg-card ring-1 ring-border">{guide.heroImageUrl ? <img src={guide.heroImageUrl} alt={guide.heroAlt ?? guide.title} loading="lazy" decoding="async" className="h-[8.5rem] w-full object-cover"/> : <div className="grid h-[8.5rem] place-items-center bg-muted"><BookOpen className="size-6 text-muted-foreground"/></div>}<div className="p-4">{guide.categoryName && <span className="text-[9px] font-bold uppercase text-primary">{guide.categoryName}</span>}<h3 className="mt-0.5 line-clamp-2 text-sm font-bold leading-snug text-foreground">{guide.title}</h3>{guide.excerpt && <p className="mt-1 line-clamp-2 text-xs leading-snug text-muted-foreground">{guide.excerpt}</p>}<ArrowRight className="ml-auto mt-1.5 size-4 text-primary"/></div></SeoPathLink></li>)}
       </ul>
@@ -187,15 +192,15 @@ export function V2GuidesRail() {
   );
 }
 
-export function V2EsimFaq({ compact = false }: { compact?: boolean }) {
+export function V2EsimFaq({ compact = false, title, questions: custom }: { compact?: boolean; title?: string; questions?: ReadonlyArray<readonly [string, string]> }) {
   const { locale } = useI18n();
   const c = COPY[locale];
-  const questions: ReadonlyArray<readonly [string, string]> = compact
+  const questions: ReadonlyArray<readonly [string, string]> = custom ? custom : compact
     ? [c.questions[0], c.questions[1], c.questions[2], c.questions[3], c.questions[5]].filter(Boolean) as Array<readonly [string, string]>
     : c.questions;
   return (
     <section>
-      <SectionTitle>{c.faq}</SectionTitle>
+      <SectionTitle>{title || c.faq}</SectionTitle>
       <Accordion type="single" collapsible className="rounded-xl bg-card px-3 ring-1 ring-border">{questions.map(([question, answer], index) => <AccordionItem key={question} value={`faq-${index}`}><AccordionTrigger className="min-h-[3.25rem] py-3 text-left text-xs font-bold hover:no-underline">{question}</AccordionTrigger><AccordionContent className="text-xs leading-relaxed text-muted-foreground">{answer}</AccordionContent></AccordionItem>)}</Accordion>
     </section>
   );
