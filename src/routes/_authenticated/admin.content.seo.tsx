@@ -211,6 +211,16 @@ function ContentTable({ guides }: { guides: AdminGuide[] }) {
                       {row.t.title}
                     </Link>
                     <div className="text-muted-foreground">{seoPath(row.locale, g.contentType, row.t.slug)}</div>
+                    {g.status !== "PUBLISHED" ? (
+                      <Link
+                        to="/admin/seo-preview/$guideId/$locale"
+                        params={{ guideId: g.id, locale: row.locale }}
+                        target="_blank"
+                        className="text-[11px] font-semibold text-primary underline"
+                      >
+                        Önizle (Preview)
+                      </Link>
+                    ) : null}
                   </td>
                   <td className="p-1.5 uppercase">{row.locale}</td>
                   <td className="p-1.5">{g.status}</td>

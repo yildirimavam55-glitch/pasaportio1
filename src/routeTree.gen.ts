@@ -107,6 +107,7 @@ import { Route as AuthenticatedLegacyV1EsimUlkelerRouteImport } from './routes/_
 import { Route as AuthenticatedLegacyV1LoungeIndexRouteImport } from './routes/_authenticated/legacy-v1.lounge.index'
 import { Route as AuthenticatedLegacyV1LoungeSeceneklerRouteImport } from './routes/_authenticated/legacy-v1.lounge.secenekler'
 import { Route as AuthenticatedLegacyV1TrIndexRouteImport } from './routes/_authenticated/legacy-v1.tr.index'
+import { Route as AuthenticatedAdminSeoPreviewGuideIdLocaleRouteImport } from './routes/_authenticated/admin.seo-preview.$guideId.$locale'
 import { Route as AuthenticatedAdminStorefrontV2PageRouteImport } from './routes/_authenticated/admin.storefront.v2.$page'
 import { Route as AuthenticatedLegacyV1AccountEsimsIndexRouteImport } from './routes/_authenticated/legacy-v1.account.esims.index'
 import { Route as AuthenticatedLegacyV1AccountEsimsIdRouteImport } from './routes/_authenticated/legacy-v1.account.esims.$id'
@@ -650,6 +651,12 @@ const AuthenticatedLegacyV1TrIndexRoute =
     path: '/tr/',
     getParentRoute: () => AuthenticatedLegacyV1Route,
   } as any)
+const AuthenticatedAdminSeoPreviewGuideIdLocaleRoute =
+  AuthenticatedAdminSeoPreviewGuideIdLocaleRouteImport.update({
+    id: '/admin/seo-preview/$guideId/$locale',
+    path: '/admin/seo-preview/$guideId/$locale',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedAdminStorefrontV2PageRoute =
   AuthenticatedAdminStorefrontV2PageRouteImport.update({
     id: '/admin/storefront/v2/$page',
@@ -779,6 +786,7 @@ export interface FileRoutesByFullPath {
   '/legacy-v1/esim/': typeof AuthenticatedLegacyV1EsimIndexRoute
   '/legacy-v1/lounge/': typeof AuthenticatedLegacyV1LoungeIndexRoute
   '/legacy-v1/tr/': typeof AuthenticatedLegacyV1TrIndexRoute
+  '/admin/seo-preview/$guideId/$locale': typeof AuthenticatedAdminSeoPreviewGuideIdLocaleRoute
   '/admin/storefront/v2/$page': typeof AuthenticatedAdminStorefrontV2PageRoute
   '/legacy-v1/account/esims/$id': typeof AuthenticatedLegacyV1AccountEsimsIdRoute
   '/legacy-v1/account/orders/$id': typeof AuthenticatedLegacyV1AccountOrdersIdRoute
@@ -881,6 +889,7 @@ export interface FileRoutesByTo {
   '/legacy-v1/esim': typeof AuthenticatedLegacyV1EsimIndexRoute
   '/legacy-v1/lounge': typeof AuthenticatedLegacyV1LoungeIndexRoute
   '/legacy-v1/tr': typeof AuthenticatedLegacyV1TrIndexRoute
+  '/admin/seo-preview/$guideId/$locale': typeof AuthenticatedAdminSeoPreviewGuideIdLocaleRoute
   '/admin/storefront/v2/$page': typeof AuthenticatedAdminStorefrontV2PageRoute
   '/legacy-v1/account/esims/$id': typeof AuthenticatedLegacyV1AccountEsimsIdRoute
   '/legacy-v1/account/orders/$id': typeof AuthenticatedLegacyV1AccountOrdersIdRoute
@@ -987,6 +996,7 @@ export interface FileRoutesById {
   '/_authenticated/legacy-v1/esim/': typeof AuthenticatedLegacyV1EsimIndexRoute
   '/_authenticated/legacy-v1/lounge/': typeof AuthenticatedLegacyV1LoungeIndexRoute
   '/_authenticated/legacy-v1/tr/': typeof AuthenticatedLegacyV1TrIndexRoute
+  '/_authenticated/admin/seo-preview/$guideId/$locale': typeof AuthenticatedAdminSeoPreviewGuideIdLocaleRoute
   '/_authenticated/admin/storefront/v2/$page': typeof AuthenticatedAdminStorefrontV2PageRoute
   '/_authenticated/legacy-v1/account/esims/$id': typeof AuthenticatedLegacyV1AccountEsimsIdRoute
   '/_authenticated/legacy-v1/account/orders/$id': typeof AuthenticatedLegacyV1AccountOrdersIdRoute
@@ -1093,6 +1103,7 @@ export interface FileRouteTypes {
     | '/legacy-v1/esim/'
     | '/legacy-v1/lounge/'
     | '/legacy-v1/tr/'
+    | '/admin/seo-preview/$guideId/$locale'
     | '/admin/storefront/v2/$page'
     | '/legacy-v1/account/esims/$id'
     | '/legacy-v1/account/orders/$id'
@@ -1195,6 +1206,7 @@ export interface FileRouteTypes {
     | '/legacy-v1/esim'
     | '/legacy-v1/lounge'
     | '/legacy-v1/tr'
+    | '/admin/seo-preview/$guideId/$locale'
     | '/admin/storefront/v2/$page'
     | '/legacy-v1/account/esims/$id'
     | '/legacy-v1/account/orders/$id'
@@ -1300,6 +1312,7 @@ export interface FileRouteTypes {
     | '/_authenticated/legacy-v1/esim/'
     | '/_authenticated/legacy-v1/lounge/'
     | '/_authenticated/legacy-v1/tr/'
+    | '/_authenticated/admin/seo-preview/$guideId/$locale'
     | '/_authenticated/admin/storefront/v2/$page'
     | '/_authenticated/legacy-v1/account/esims/$id'
     | '/_authenticated/legacy-v1/account/orders/$id'
@@ -2032,6 +2045,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedLegacyV1TrIndexRouteImport
       parentRoute: typeof AuthenticatedLegacyV1Route
     }
+    '/_authenticated/admin/seo-preview/$guideId/$locale': {
+      id: '/_authenticated/admin/seo-preview/$guideId/$locale'
+      path: '/admin/seo-preview/$guideId/$locale'
+      fullPath: '/admin/seo-preview/$guideId/$locale'
+      preLoaderRoute: typeof AuthenticatedAdminSeoPreviewGuideIdLocaleRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/admin/storefront/v2/$page': {
       id: '/_authenticated/admin/storefront/v2/$page'
       path: '/admin/storefront/v2/$page'
@@ -2173,6 +2193,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminStorefrontNavigationRoute: typeof AuthenticatedAdminStorefrontNavigationRoute
   AuthenticatedAdminSettingsIndexRoute: typeof AuthenticatedAdminSettingsIndexRoute
   AuthenticatedAdminStorefrontIndexRoute: typeof AuthenticatedAdminStorefrontIndexRoute
+  AuthenticatedAdminSeoPreviewGuideIdLocaleRoute: typeof AuthenticatedAdminSeoPreviewGuideIdLocaleRoute
   AuthenticatedAdminStorefrontV2PageRoute: typeof AuthenticatedAdminStorefrontV2PageRoute
 }
 
@@ -2223,6 +2244,8 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminSettingsIndexRoute: AuthenticatedAdminSettingsIndexRoute,
   AuthenticatedAdminStorefrontIndexRoute:
     AuthenticatedAdminStorefrontIndexRoute,
+  AuthenticatedAdminSeoPreviewGuideIdLocaleRoute:
+    AuthenticatedAdminSeoPreviewGuideIdLocaleRoute,
   AuthenticatedAdminStorefrontV2PageRoute:
     AuthenticatedAdminStorefrontV2PageRoute,
 }
