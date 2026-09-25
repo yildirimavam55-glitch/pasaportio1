@@ -73,6 +73,7 @@ import { Route as DesignV2AccountSecurityRouteImport } from './routes/design-v2.
 import { Route as DesignV2AccountSupportRouteImport } from './routes/design-v2.account.support'
 import { Route as DesignV2AuthLoginRouteImport } from './routes/design-v2.auth.login'
 import { Route as DesignV2AuthRegisterRouteImport } from './routes/design-v2.auth.register'
+import { Route as DesignV2EsimRegionRegionRouteImport } from './routes/design-v2.esim-region.$region'
 import { Route as EnEsimSlugRouteImport } from './routes/en.esim.$slug'
 import { Route as EnGuidesIndexRouteImport } from './routes/en.guides.index'
 import { Route as EnGuidesSlugRouteImport } from './routes/en.guides.$slug'
@@ -100,7 +101,6 @@ import { Route as DesignV2AccountEsimsIndexRouteImport } from './routes/design-v
 import { Route as DesignV2AccountEsimsIdRouteImport } from './routes/design-v2.account.esims.$id'
 import { Route as DesignV2AccountOrdersIndexRouteImport } from './routes/design-v2.account.orders.index'
 import { Route as DesignV2AccountOrdersIdRouteImport } from './routes/design-v2.account.orders.$id'
-import { Route as DesignV2EsimRegionRegionRouteImport } from './routes/design-v2.esim.region.$region'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -443,6 +443,12 @@ const DesignV2AuthRegisterRoute = DesignV2AuthRegisterRouteImport.update({
   path: '/auth/register',
   getParentRoute: () => DesignV2Route,
 } as any)
+const DesignV2EsimRegionRegionRoute =
+  DesignV2EsimRegionRegionRouteImport.update({
+    id: '/esim-region/$region',
+    path: '/esim-region/$region',
+    getParentRoute: () => DesignV2Route,
+  } as any)
 const EnEsimSlugRoute = EnEsimSlugRouteImport.update({
   id: '/en/esim/$slug',
   path: '/en/esim/$slug',
@@ -597,12 +603,6 @@ const DesignV2AccountOrdersIdRoute = DesignV2AccountOrdersIdRouteImport.update({
   path: '/orders/$id',
   getParentRoute: () => DesignV2AccountRoute,
 } as any)
-const DesignV2EsimRegionRegionRoute =
-  DesignV2EsimRegionRegionRouteImport.update({
-    id: '/region/$region',
-    path: '/region/$region',
-    getParentRoute: () => DesignV2EsimRoute,
-  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -613,7 +613,7 @@ export interface FileRoutesByFullPath {
   '/design-v2/account': typeof DesignV2AccountRouteWithChildren
   '/design-v2/cart': typeof DesignV2CartRoute
   '/design-v2/checkout': typeof DesignV2CheckoutRoute
-  '/design-v2/esim': typeof DesignV2EsimRouteWithChildren
+  '/design-v2/esim': typeof DesignV2EsimRoute
   '/design-v2/lounge': typeof DesignV2LoungeRoute
   '/design-v2/support': typeof DesignV2SupportRoute
   '/design-v2/vignette': typeof DesignV2VignetteRoute
@@ -663,6 +663,7 @@ export interface FileRoutesByFullPath {
   '/design-v2/account/support': typeof DesignV2AccountSupportRoute
   '/design-v2/auth/login': typeof DesignV2AuthLoginRoute
   '/design-v2/auth/register': typeof DesignV2AuthRegisterRoute
+  '/design-v2/esim-region/$region': typeof DesignV2EsimRegionRegionRoute
   '/en/esim/$slug': typeof EnEsimSlugRoute
   '/en/guides/$slug': typeof EnGuidesSlugRoute
   '/tr/esim/$slug': typeof TrEsimSlugRoute
@@ -690,7 +691,6 @@ export interface FileRoutesByFullPath {
   '/admin/storefront/navigation': typeof AuthenticatedAdminStorefrontNavigationRoute
   '/design-v2/account/esims/$id': typeof DesignV2AccountEsimsIdRoute
   '/design-v2/account/orders/$id': typeof DesignV2AccountOrdersIdRoute
-  '/design-v2/esim/region/$region': typeof DesignV2EsimRegionRegionRoute
   '/account/esims/': typeof AuthenticatedAccountEsimsIndexRoute
   '/account/orders/': typeof AuthenticatedAccountOrdersIndexRoute
   '/admin/settings/': typeof AuthenticatedAdminSettingsIndexRoute
@@ -704,7 +704,7 @@ export interface FileRoutesByTo {
   '/sepet': typeof SepetRoute
   '/design-v2/cart': typeof DesignV2CartRoute
   '/design-v2/checkout': typeof DesignV2CheckoutRoute
-  '/design-v2/esim': typeof DesignV2EsimRouteWithChildren
+  '/design-v2/esim': typeof DesignV2EsimRoute
   '/design-v2/lounge': typeof DesignV2LoungeRoute
   '/design-v2/support': typeof DesignV2SupportRoute
   '/design-v2/vignette': typeof DesignV2VignetteRoute
@@ -754,6 +754,7 @@ export interface FileRoutesByTo {
   '/design-v2/account/support': typeof DesignV2AccountSupportRoute
   '/design-v2/auth/login': typeof DesignV2AuthLoginRoute
   '/design-v2/auth/register': typeof DesignV2AuthRegisterRoute
+  '/design-v2/esim-region/$region': typeof DesignV2EsimRegionRegionRoute
   '/en/esim/$slug': typeof EnEsimSlugRoute
   '/en/guides/$slug': typeof EnGuidesSlugRoute
   '/tr/esim/$slug': typeof TrEsimSlugRoute
@@ -781,7 +782,6 @@ export interface FileRoutesByTo {
   '/admin/storefront/navigation': typeof AuthenticatedAdminStorefrontNavigationRoute
   '/design-v2/account/esims/$id': typeof DesignV2AccountEsimsIdRoute
   '/design-v2/account/orders/$id': typeof DesignV2AccountOrdersIdRoute
-  '/design-v2/esim/region/$region': typeof DesignV2EsimRegionRegionRoute
   '/account/esims': typeof AuthenticatedAccountEsimsIndexRoute
   '/account/orders': typeof AuthenticatedAccountOrdersIndexRoute
   '/admin/settings': typeof AuthenticatedAdminSettingsIndexRoute
@@ -799,7 +799,7 @@ export interface FileRoutesById {
   '/design-v2/account': typeof DesignV2AccountRouteWithChildren
   '/design-v2/cart': typeof DesignV2CartRoute
   '/design-v2/checkout': typeof DesignV2CheckoutRoute
-  '/design-v2/esim': typeof DesignV2EsimRouteWithChildren
+  '/design-v2/esim': typeof DesignV2EsimRoute
   '/design-v2/lounge': typeof DesignV2LoungeRoute
   '/design-v2/support': typeof DesignV2SupportRoute
   '/design-v2/vignette': typeof DesignV2VignetteRoute
@@ -849,6 +849,7 @@ export interface FileRoutesById {
   '/design-v2/account/support': typeof DesignV2AccountSupportRoute
   '/design-v2/auth/login': typeof DesignV2AuthLoginRoute
   '/design-v2/auth/register': typeof DesignV2AuthRegisterRoute
+  '/design-v2/esim-region/$region': typeof DesignV2EsimRegionRegionRoute
   '/en/esim/$slug': typeof EnEsimSlugRoute
   '/en/guides/$slug': typeof EnGuidesSlugRoute
   '/tr/esim/$slug': typeof TrEsimSlugRoute
@@ -876,7 +877,6 @@ export interface FileRoutesById {
   '/_authenticated/admin/storefront/navigation': typeof AuthenticatedAdminStorefrontNavigationRoute
   '/design-v2/account/esims/$id': typeof DesignV2AccountEsimsIdRoute
   '/design-v2/account/orders/$id': typeof DesignV2AccountOrdersIdRoute
-  '/design-v2/esim/region/$region': typeof DesignV2EsimRegionRegionRoute
   '/_authenticated/account/esims/': typeof AuthenticatedAccountEsimsIndexRoute
   '/_authenticated/account/orders/': typeof AuthenticatedAccountOrdersIndexRoute
   '/_authenticated/admin/settings/': typeof AuthenticatedAdminSettingsIndexRoute
@@ -944,6 +944,7 @@ export interface FileRouteTypes {
     | '/design-v2/account/support'
     | '/design-v2/auth/login'
     | '/design-v2/auth/register'
+    | '/design-v2/esim-region/$region'
     | '/en/esim/$slug'
     | '/en/guides/$slug'
     | '/tr/esim/$slug'
@@ -971,7 +972,6 @@ export interface FileRouteTypes {
     | '/admin/storefront/navigation'
     | '/design-v2/account/esims/$id'
     | '/design-v2/account/orders/$id'
-    | '/design-v2/esim/region/$region'
     | '/account/esims/'
     | '/account/orders/'
     | '/admin/settings/'
@@ -1035,6 +1035,7 @@ export interface FileRouteTypes {
     | '/design-v2/account/support'
     | '/design-v2/auth/login'
     | '/design-v2/auth/register'
+    | '/design-v2/esim-region/$region'
     | '/en/esim/$slug'
     | '/en/guides/$slug'
     | '/tr/esim/$slug'
@@ -1062,7 +1063,6 @@ export interface FileRouteTypes {
     | '/admin/storefront/navigation'
     | '/design-v2/account/esims/$id'
     | '/design-v2/account/orders/$id'
-    | '/design-v2/esim/region/$region'
     | '/account/esims'
     | '/account/orders'
     | '/admin/settings'
@@ -1129,6 +1129,7 @@ export interface FileRouteTypes {
     | '/design-v2/account/support'
     | '/design-v2/auth/login'
     | '/design-v2/auth/register'
+    | '/design-v2/esim-region/$region'
     | '/en/esim/$slug'
     | '/en/guides/$slug'
     | '/tr/esim/$slug'
@@ -1156,7 +1157,6 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/storefront/navigation'
     | '/design-v2/account/esims/$id'
     | '/design-v2/account/orders/$id'
-    | '/design-v2/esim/region/$region'
     | '/_authenticated/account/esims/'
     | '/_authenticated/account/orders/'
     | '/_authenticated/admin/settings/'
@@ -1645,6 +1645,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DesignV2AuthRegisterRouteImport
       parentRoute: typeof DesignV2Route
     }
+    '/design-v2/esim-region/$region': {
+      id: '/design-v2/esim-region/$region'
+      path: '/esim-region/$region'
+      fullPath: '/design-v2/esim-region/$region'
+      preLoaderRoute: typeof DesignV2EsimRegionRegionRouteImport
+      parentRoute: typeof DesignV2Route
+    }
     '/en/esim/$slug': {
       id: '/en/esim/$slug'
       path: '/en/esim/$slug'
@@ -1834,13 +1841,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DesignV2AccountOrdersIdRouteImport
       parentRoute: typeof DesignV2AccountRoute
     }
-    '/design-v2/esim/region/$region': {
-      id: '/design-v2/esim/region/$region'
-      path: '/region/$region'
-      fullPath: '/design-v2/esim/region/$region'
-      preLoaderRoute: typeof DesignV2EsimRegionRegionRouteImport
-      parentRoute: typeof DesignV2EsimRoute
-    }
   }
 }
 
@@ -1977,42 +1977,32 @@ const DesignV2AccountRouteWithChildren = DesignV2AccountRoute._addFileChildren(
   DesignV2AccountRouteChildren,
 )
 
-interface DesignV2EsimRouteChildren {
-  DesignV2EsimRegionRegionRoute: typeof DesignV2EsimRegionRegionRoute
-}
-
-const DesignV2EsimRouteChildren: DesignV2EsimRouteChildren = {
-  DesignV2EsimRegionRegionRoute: DesignV2EsimRegionRegionRoute,
-}
-
-const DesignV2EsimRouteWithChildren = DesignV2EsimRoute._addFileChildren(
-  DesignV2EsimRouteChildren,
-)
-
 interface DesignV2RouteChildren {
   DesignV2AccountRoute: typeof DesignV2AccountRouteWithChildren
   DesignV2CartRoute: typeof DesignV2CartRoute
   DesignV2CheckoutRoute: typeof DesignV2CheckoutRoute
-  DesignV2EsimRoute: typeof DesignV2EsimRouteWithChildren
+  DesignV2EsimRoute: typeof DesignV2EsimRoute
   DesignV2LoungeRoute: typeof DesignV2LoungeRoute
   DesignV2SupportRoute: typeof DesignV2SupportRoute
   DesignV2VignetteRoute: typeof DesignV2VignetteRoute
   DesignV2IndexRoute: typeof DesignV2IndexRoute
   DesignV2AuthLoginRoute: typeof DesignV2AuthLoginRoute
   DesignV2AuthRegisterRoute: typeof DesignV2AuthRegisterRoute
+  DesignV2EsimRegionRegionRoute: typeof DesignV2EsimRegionRegionRoute
 }
 
 const DesignV2RouteChildren: DesignV2RouteChildren = {
   DesignV2AccountRoute: DesignV2AccountRouteWithChildren,
   DesignV2CartRoute: DesignV2CartRoute,
   DesignV2CheckoutRoute: DesignV2CheckoutRoute,
-  DesignV2EsimRoute: DesignV2EsimRouteWithChildren,
+  DesignV2EsimRoute: DesignV2EsimRoute,
   DesignV2LoungeRoute: DesignV2LoungeRoute,
   DesignV2SupportRoute: DesignV2SupportRoute,
   DesignV2VignetteRoute: DesignV2VignetteRoute,
   DesignV2IndexRoute: DesignV2IndexRoute,
   DesignV2AuthLoginRoute: DesignV2AuthLoginRoute,
   DesignV2AuthRegisterRoute: DesignV2AuthRegisterRoute,
+  DesignV2EsimRegionRegionRoute: DesignV2EsimRegionRegionRoute,
 }
 
 const DesignV2RouteWithChildren = DesignV2Route._addFileChildren(
