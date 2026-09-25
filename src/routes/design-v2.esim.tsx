@@ -215,8 +215,8 @@ function GlobalUnlimited({ plans, c }: { plans: EsimPackage[]; c: (typeof T)["tr
       isTest: pkg.isTest,
     });
   return (
-    <section aria-labelledby="global-unlimited-title">
-      <SectionTitle id="global-unlimited-title">{c.globalTitle}</SectionTitle>
+    <section aria-label={c.globalTitle}>
+      <SectionTitle>{c.globalTitle}</SectionTitle>
       <p className="mb-3 text-xs text-muted-foreground">{c.globalLead}</p>
       <ul className="grid grid-cols-3 gap-2">
         {plans.map((pkg) => {
