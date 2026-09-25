@@ -110,7 +110,7 @@ export type RankInput = { id: string; fields: RelationFields; contentType: strin
  */
 export function relevanceTier(item: RankInput, iso: string): number | null {
   const f = item.fields;
-  if (!f.showOnCommercial || item.contentType === "DESTINATION") return null;
+  if (!f.showOnCommercial) return null;
   const linkedIso = item.target?.iso === iso;
   const sameCountry = f.countryIso === iso || linkedIso;
   const esim = f.service === "ESIM";
