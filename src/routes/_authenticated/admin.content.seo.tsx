@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 
 import { AdminGate } from "@/components/AdminGate";
+import { ContentRelationsTab } from "@/components/admin/ContentRelations";
 import { AdminError, AdminLoading, AdminPanel, EmptyState, Field } from "@/components/admin/AdminUi";
 import { adminHead } from "@/components/admin/AdminSectionPage";
 import { Button } from "@/components/ui/button";
@@ -26,9 +27,10 @@ export const Route = createFileRoute("/_authenticated/admin/content/seo")({
   component: SeoAdmin,
 });
 
-type Tab = "dashboard" | "articles" | "cities" | "destinations" | "categories" | "authors" | "settings";
+type Tab = "dashboard" | "relations" | "articles" | "cities" | "destinations" | "categories" | "authors" | "settings";
 const TABS: Array<{ id: Tab; label: string }> = [
   { id: "dashboard", label: "SEO Dashboard" },
+  { id: "relations", label: "Content Relations" },
   { id: "articles", label: "Makaleler" },
   { id: "cities", label: "Şehirler" },
   { id: "destinations", label: "Destinasyonlar" },
@@ -51,7 +53,7 @@ function SeoAdmin() {
             </Button>
           ))}
         </div>
-        {tab === "authors" ? <AuthorsTab /> : tab === "settings" ? <SettingsTab /> : <GuidesTabs tab={tab} />}
+        {tab === "relations" ? <ContentRelationsTab /> : tab === "authors" ? <AuthorsTab /> : tab === "settings" ? <SettingsTab /> : <GuidesTabs tab={tab} />}
       </div>
     </AdminGate>
   );

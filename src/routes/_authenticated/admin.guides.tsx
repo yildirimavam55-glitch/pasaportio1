@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { GuideRelationsSection } from "@/components/admin/ContentRelations";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -676,6 +677,7 @@ function GuideDrawer({
         </div>
 
         <SeoChecklistView guide={form} locale={locale} />
+        {form.id ? <div className="mt-4"><GuideRelationsSection guideId={form.id} /></div> : null}
 
         <div className="flex justify-end gap-2">
           <Button variant="outline" onClick={onClose}>

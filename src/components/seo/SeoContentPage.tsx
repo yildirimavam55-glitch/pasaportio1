@@ -1,6 +1,8 @@
 import { SeoPathLink } from "@/components/seo/SeoPathLink";
 import { guideHubPath, localeHomePath } from "@/domain/seo/paths";
-import { Link } from "@tanstack/react-router";
+import { Link, useNavigate } from "@tanstack/react-router";
+import { useMemo, useState } from "react";
+import type { CommercialTarget } from "@/domain/seo/relations";
 import { ArrowRight, CalendarDays, Clock3, Sparkles } from "lucide-react";
 
 import { PublicShell } from "@/components/travel/PublicShell";
@@ -18,38 +20,69 @@ function countryName(iso: string | null, locale: Locale) {
   return COUNTRIES.find((c) => c.iso === iso)?.name[locale] ?? iso;
 }
 
-function CountryCta({ iso, locale }: { iso: string; locale: Locale }) {
+const FINDER_COPY: Record<Locale, { title: string; destination: string; choose: string; cta: string; region: string }> = {
+  tr: { title: "Seyahatin için doğru eSIM'i bul", destination: "Destinasyon", choose: "Ülke seç", cta: "eSIM'imi bul", region: "Bölgesel eSIM paketlerini görüntüle" },
+  de: { title: "Finde die passende eSIM für deine Reise", destination: "Reiseziel", choose: "Land wählen", cta: "Meine eSIM finden", region: "Regionale eSIM-Pakete ansehen" },
+  en: { title: "Find the right eSIM for your trip", destination: "Destination", choose: "Choose country", cta: "Find my eSIM", region: "View regional eSIM plans" },
+};
+
+/** Guide → commercial page CTA. Target always comes from the live relation resolver. */
+function CommercialCta({ target, locale }: { target: CommercialTarget; locale: Locale }) {
   const copy = SEO_COPY[locale];
-  const name = countryName(iso, locale)!;
+  const name = target.iso ? countryName(target.iso, locale) : null;
+  const label =
+    target.kind === "ESIM_COUNTRY" && name ? copy.ctaCountry(name) : target.kind === "ESIM_REGION" ? FINDER_COPY[locale].region : FINDER_COPY[locale].cta;
   return (
-    <aside className="my-8 flex flex-col gap-3 rounded-2xl border border-border bg-card p-4 sm:flex-row sm:items-center sm:justify-between">
+    <aside data-testid="guide-commercial-cta" className="my-8 flex flex-col gap-3 rounded-2xl border border-border bg-card p-4 sm:flex-row sm:items-center sm:justify-between">
       <p className="flex items-center gap-2 text-sm font-bold">
-        <CountryFlag iso={iso} className="h-3.5 w-5" />
-        {copy.ctaCountryTitle(name)}
+        {target.iso ? <CountryFlag iso={target.iso} className="h-3.5 w-5" /> : null}
+        {name ? copy.ctaCountryTitle(name) : copy.ctaFinderTitle}
       </p>
       <Button asChild size="sm">
-        <Link to="/esim/paketler" search={{ destination: iso } as never}>
-          {copy.ctaCountry(name)} <ArrowRight />
-        </Link>
+        {target.kind === "ESIM_COUNTRY" && target.iso ? (
+          <Link to="/esim" search={{ country: target.iso }}>{label} <ArrowRight /></Link>
+        ) : target.kind === "ESIM_REGION" && target.region ? (
+          <Link to="/esim/bolge/$region" params={{ region: target.region as never }} search={{ country: "" }}>{label} <ArrowRight /></Link>
+        ) : (
+          <a href={target.path}>{label} <ArrowRight /></a>
+        )}
       </Button>
     </aside>
   );
 }
 
-function FinderCta({ locale }: { locale: Locale }) {
+/** End-of-article finder: hands the destination to the existing eSIM finder / country page. */
+function FinderCta({ locale, iso }: { locale: Locale; iso: string | null }) {
   const copy = SEO_COPY[locale];
+  const f = FINDER_COPY[locale];
+  const navigate = useNavigate();
+  const [dest, setDest] = useState(iso ?? "");
+  const options = useMemo(() => [...COUNTRIES].sort((x, y) => x.name[locale].localeCompare(y.name[locale])), [locale]);
   return (
-    <aside className="my-8 rounded-2xl border border-border bg-secondary/40 p-4">
+    <aside data-testid="guide-finder-cta" className="my-8 rounded-2xl border border-border bg-secondary/40 p-4">
       <p className="flex items-center gap-2 text-sm font-bold">
         <Sparkles className="size-4 text-primary" aria-hidden="true" />
-        {copy.ctaFinderTitle}
+        {f.title}
       </p>
       <p className="mt-1 text-sm text-muted-foreground">{copy.ctaFinderLead}</p>
-      <Button asChild size="sm" variant="outline" className="mt-3">
-        <Link to="/" search={{ service: "esim" } as never}>
-          {copy.ctaFinder}
-        </Link>
-      </Button>
+      <form
+        className="mt-3 grid gap-2 sm:grid-cols-[minmax(0,1fr)_auto]"
+        onSubmit={(e) => {
+          e.preventDefault();
+          void navigate(dest ? { to: "/esim", search: { country: dest } } : { to: "/esim", search: { country: "" } });
+        }}
+      >
+        <label className="min-w-0">
+          <span className="sr-only">{f.destination}</span>
+          <select value={dest} onChange={(e) => setDest(e.target.value)} className="h-10 w-full min-w-0 rounded-md border border-input bg-card px-3 text-sm">
+            <option value="">{f.choose}</option>
+            {options.map((c) => (
+              <option key={c.iso} value={c.iso}>{c.name[locale]}</option>
+            ))}
+          </select>
+        </label>
+        <Button type="submit" size="sm" className="h-10">{f.cta} <ArrowRight /></Button>
+      </form>
     </aside>
   );
 }
@@ -87,8 +120,9 @@ export function SeoContentPage({ page }: { page: SeoPage }) {
   const factKeys = CITY_FACT_KEYS.filter((k) => k !== "shortAnswer" && facts[k].trim());
   const shortAnswer = facts.shortAnswer.trim() || guide.excerpt;
   const iso = page.countryIso;
-  const hasCountryOffer = Boolean(iso && guide.offers.some((o) => o.serviceType === "ESIM" && o.code === iso));
-  const half = Math.ceil(guide.sections.length / 2);
+  const commercial = page.commercial;
+  const esimGuide = page.relService === "ESIM" || commercial?.kind === "ESIM_COUNTRY" || commercial?.kind === "ESIM_REGION";
+  const finderIso = commercial?.iso ?? iso;
   const isDestination = guide.contentType === "DESTINATION";
   const dateLocale = locale === "tr" ? "tr-TR" : locale === "de" ? "de-DE" : "en-GB";
   const sectionId = (i: number) => `s-${i + 1}`;
@@ -155,7 +189,7 @@ export function SeoContentPage({ page }: { page: SeoPage }) {
           </section>
         ) : null}
 
-        {hasCountryOffer && iso ? <CountryCta iso={iso} locale={locale} /> : null}
+        {commercial ? <CommercialCta target={commercial} locale={locale} /> : null}
 
         {guide.intro ? (
           <p className="mt-6 whitespace-pre-line text-[15px] leading-relaxed text-muted-foreground">{guide.intro}</p>
@@ -194,12 +228,12 @@ export function SeoContentPage({ page }: { page: SeoPage }) {
                 <h2 className="font-display text-xl font-bold">{s.heading}</h2>
                 <p className="mt-2 whitespace-pre-line text-[15px] leading-relaxed text-muted-foreground">{s.body}</p>
               </section>
-              {i === half - 1 && guide.sections.length > 1 ? <FinderCta locale={locale} /> : null}
+              
             </div>
           ))}
         </div>
 
-        {guide.sections.length <= 1 ? <FinderCta locale={locale} /> : null}
+        {esimGuide || !commercial ? <FinderCta locale={locale} iso={finderIso} /> : null}
 
         {guide.faq.length ? (
           <section className="mt-10">
