@@ -4,6 +4,7 @@ import { createClient } from "@supabase/supabase-js";
 import type { Database } from "@/integrations/supabase/types";
 import { isTestCatalogueVisible } from "@/lib/test-catalogue.functions";
 import { commercialDataGb } from "@/domain/esim/customer-presentation";
+import { networkGenerationsOf, planTierOf, regionFamilyOf, regionLabelOf, type PlanTier, type RegionFamily } from "@/domain/esim/supplier-metadata";
 
 export type ActivationPolicy = "ON_INSTALL" | "ON_FIRST_NETWORK_CONNECTION" | "ON_PURCHASE" | "UNKNOWN";
 
@@ -39,6 +40,13 @@ export type EsimPackage = {
   topupSupported: boolean | null;
   networks: string[];
   isTest: boolean;
+  /** Supplier-published network generations (e.g. 4G, 5G); [] when unknown. */
+  networkGenerations: string[];
+  /** Supplier unlimited tier (Lite/Essential/Plus); null for fixed or unknown. */
+  planTier: PlanTier | null;
+  /** Supplier region label for multi-country bundles; admin/reference only. */
+  regionLabel: string | null;
+  regionFamily: RegionFamily | null;
 };
 
 
@@ -76,7 +84,7 @@ export const listEsimPackages = createServerFn({ method: "GET" })
     let query = publicClient()
       .from("service_products")
       .select(
-        "id, provider_external_id, slug, name, currency, sale_price, badge, featured, sort_order, lifecycle, customer_visible, provider_available, margin_flagged, service_type, is_test, source, esim_product_details!inner(data_gb, data_type, unlimited_data, validity_days, raw_validity_value, raw_validity_unit, activation_policy, fair_use_note, fair_use_policy, high_speed_allowance, speed_after_fair_use, coverage_country_isos, country_iso, supports_5g, supports_hotspot, data_only, topup_supported, network_operators)",
+        "id, provider_external_id, slug, name, currency, sale_price, badge, featured, sort_order, lifecycle, customer_visible, provider_available, margin_flagged, service_type, is_test, source, esim_product_details!inner(data_gb, data_type, unlimited_data, validity_days, raw_validity_value, raw_validity_unit, activation_policy, fair_use_note, fair_use_policy, high_speed_allowance, speed_after_fair_use, coverage_country_isos, country_iso, supports_5g, supports_hotspot, data_only, topup_supported, network_operators, supplier_groups:provider_metadata->groups, supplier_speed:provider_metadata->speed, supplier_countries:provider_metadata->countries)",
       )
       .eq("service_type", "ESIM")
       .eq("lifecycle", "PUBLISHED")
@@ -115,6 +123,9 @@ export const listEsimPackages = createServerFn({ method: "GET" })
               data_only: boolean | null;
               topup_supported: boolean | null;
               network_operators: string[] | null;
+              supplier_groups?: unknown;
+              supplier_speed?: unknown;
+              supplier_countries?: unknown;
             }
           | null
           | undefined;
@@ -155,12 +166,16 @@ export const listEsimPackages = createServerFn({ method: "GET" })
           speedAfterFairUse: details?.speed_after_fair_use ?? null,
           countryIso: details?.country_iso ? String(details.country_iso).toUpperCase() : null,
           coverage,
-          supports5g: Boolean(details?.supports_5g),
+          supports5g: details?.supports_5g ?? networkGenerationsOf(details?.supplier_speed).includes("5G"),
           supportsHotspot: Boolean(details?.supports_hotspot),
           dataOnly: details?.data_only ?? null,
           topupSupported: details?.topup_supported ?? null,
           networks: details?.network_operators ?? [],
           isTest: Boolean(row.is_test),
+          networkGenerations: networkGenerationsOf(details?.supplier_speed),
+          planTier: unlimited ? planTierOf(details?.supplier_groups) : null,
+          regionLabel: regionLabelOf(details?.supplier_countries, coverage.length),
+          regionFamily: regionFamilyOf(regionLabelOf(details?.supplier_countries, coverage.length)),
         } satisfies EsimPackage;
 
       })
