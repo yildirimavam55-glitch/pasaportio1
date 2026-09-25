@@ -34,11 +34,13 @@ export function V2Shell({
   service,
   nav,
   level = "discovery",
+  commerceSelection = false,
   children,
 }: {
   service?: V2Service;
   nav?: V2Nav;
   level?: V2Level;
+  commerceSelection?: boolean;
   children: ReactNode;
 }) {
   const active: V2Nav | undefined = nav ?? service;
@@ -47,11 +49,11 @@ export function V2Shell({
   return (
     <V2Context.Provider value={true}>
       <PublicShell hideStickySearch hideFloatingWhatsApp>
-        <div className={`mx-auto w-full ${width} ${serviceAccent} overflow-x-clip px-4 pb-24 sm:pb-12`}>
+        <div className={`mx-auto w-full ${width} ${serviceAccent} overflow-x-clip px-4 ${commerceSelection ? "pb-36" : "pb-24"} sm:pb-12`}>
           <DesktopNav active={active} />
           {children}
         </div>
-        <ActionDock showCart={level === "discovery"} />
+        <ActionDock showCart={level === "discovery"} showWhatsApp={!commerceSelection} />
         <BottomNav active={active} />
       </PublicShell>
     </V2Context.Provider>
@@ -244,7 +246,7 @@ const DOCK = {
  * Both share a single row so neither stacks over the other; page bottom padding keeps
  * the last cards/rows scrollable clear of it.
  */
-function ActionDock({ showCart }: { showCart: boolean }) {
+function ActionDock({ showCart, showWhatsApp }: { showCart: boolean; showWhatsApp: boolean }) {
   const { locale } = useI18n();
   const l = pick(locale, DOCK);
   const { count } = useCart();
@@ -257,16 +259,18 @@ function ActionDock({ showCart }: { showCart: boolean }) {
             <span className="rounded-full bg-primary-foreground/15 px-2.5 py-0.5">{count}</span>
           </Link>
         )}
-        <a
-          href={waLink()}
-          target="_blank"
-          rel="noopener noreferrer"
-          aria-label={l.wa}
-          className="pointer-events-auto grid size-11 shrink-0 place-items-center rounded-full shadow-lg hover:brightness-95"
-          style={{ backgroundColor: "#25D366", color: "#fff" }}
-        >
-          <WhatsAppLogo className="size-6" />
-        </a>
+        {showWhatsApp && (
+          <a
+            href={waLink()}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label={l.wa}
+            className="pointer-events-auto grid size-11 shrink-0 place-items-center rounded-full shadow-lg hover:brightness-95"
+            style={{ backgroundColor: "#25D366", color: "#fff" }}
+          >
+            <WhatsAppLogo className="size-6" />
+          </a>
+        )}
       </div>
     </div>
   );
