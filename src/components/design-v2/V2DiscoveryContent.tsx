@@ -10,6 +10,7 @@ import { seoPath } from "@/domain/seo/paths";
 import { useI18n } from "@/i18n";
 import { listFeaturedGuides } from "@/lib/guides.functions";
 import { SectionTitle } from "./V2Shell";
+import { V2InstallAnimation } from "./V2InstallAnimation";
 
 const COPY = {
   tr: {
@@ -21,6 +22,10 @@ const COPY = {
     install: "eSIM kurulumu çok kolay",
     installLead: "Gerçek QR kodun ve kurulum bilgilerin, satın alma ve provisioning tamamlandıktan sonra hesabında görünür.",
     installCta: "Detaylı kurulum rehberi",
+    installSub: "Sadece birkaç adımda bağlantıya hazır.",
+    animSteps: ["QR kodunu al", "QR kodunu tara", "eSIM'i ekle", "Bağlantını aç"],
+    animReady: "eSIM hazır",
+    animAdding: "eSIM ekleniyor...",
     iphone: "iPhone",
     android: "Android",
     iphoneSteps: ["Hesabındaki gerçek QR kodunu başka bir ekranda aç.", "Ayarlar → Hücresel → eSIM Ekle bölümüne git.", "QR kodunu tara ve ekrandaki adımları tamamla.", "Paket bilgilerine göre mobil veri hattını ayarla."],
@@ -51,6 +56,10 @@ const COPY = {
     install: "eSIM ganz einfach installieren",
     installLead: "Dein echter QR-Code und die Einrichtungsdaten erscheinen nach Kauf und Provisionierung in deinem Konto.",
     installCta: "Ausführliche Installationshilfe",
+    installSub: "In wenigen Schritten verbunden.",
+    animSteps: ["QR-Code erhalten", "QR-Code scannen", "eSIM hinzufügen", "Verbindung aktivieren"],
+    animReady: "eSIM bereit",
+    animAdding: "eSIM wird hinzugefügt...",
     iphone: "iPhone",
     android: "Android",
     iphoneSteps: ["Öffne den echten QR-Code aus deinem Konto auf einem anderen Bildschirm.", "Öffne Einstellungen → Mobilfunk → eSIM hinzufügen.", "Scanne den QR-Code und folge den angezeigten Schritten.", "Richte die mobile Datenleitung gemäß den Paketangaben ein."],
@@ -81,6 +90,10 @@ const COPY = {
     install: "eSIM installation is easy",
     installLead: "Your real QR code and setup details appear in your account after purchase and provisioning are complete.",
     installCta: "Detailed installation guide",
+    installSub: "Ready to connect in just a few steps.",
+    animSteps: ["Get QR code", "Scan QR code", "Add eSIM", "Enable connection"],
+    animReady: "eSIM ready",
+    animAdding: "Adding eSIM...",
     iphone: "iPhone",
     android: "Android",
     iphoneSteps: ["Open the real QR code from your account on another screen.", "Go to Settings → Cellular → Add eSIM.", "Scan the QR code and follow the on-screen steps.", "Set the mobile data line according to your package details."],
@@ -136,16 +149,8 @@ export function V2Installation() {
   return (
     <section>
       <SectionTitle>{c.install}</SectionTitle>
-      <p className="mb-3 text-xs leading-relaxed text-muted-foreground">{c.installLead}</p>
-      <Tabs defaultValue="iphone">
-        <TabsList className="grid h-9 w-full grid-cols-2">
-          <TabsTrigger value="iphone" className="gap-1.5 text-xs"><Apple className="size-3.5" />{c.iphone}</TabsTrigger>
-          <TabsTrigger value="android" className="gap-1.5 text-xs"><Smartphone className="size-3.5" />{c.android}</TabsTrigger>
-        </TabsList>
-        <TabsContent value="iphone"><InstallationSteps items={c.iphoneSteps} /></TabsContent>
-        <TabsContent value="android"><InstallationSteps items={c.androidSteps} /></TabsContent>
-      </Tabs>
-      <p className="mt-2 text-[10px] leading-relaxed text-muted-foreground">{c.qrNote}</p>
+      <p className="mb-3 text-xs leading-relaxed text-muted-foreground">{c.installSub}</p>
+      <V2InstallAnimation steps={c.animSteps} ready={c.animReady} adding={c.animAdding} />
       <Button asChild variant="outline" size="sm" className="mt-3 w-full"><Link to="/design-v2/support">{c.installCta}<ArrowRight /></Link></Button>
     </section>
   );
