@@ -165,13 +165,25 @@ function Popular({ c, onPick }: { c: (typeof T)["tr"]; onPick: (iso: string) => 
   );
 }
 
+const X = {
+  tr: { tier: "Paket seviyesi", tiers: { LITE: "Lite", ESSENTIAL: "Essential", PLUS: "Plus" }, tierNote: "Aynı süre için tedarikçi Lite, Essential ve Plus seviyeleri sunar; fiyat farkı bu seviyeden gelir. Hız ve adil kullanım ayrıntıları tedarikçi kataloğunda belirtilmez.", tech: "Ağ teknolojisi", regions: { EUROPE: "Avrupa", EUROPE_USA: "Avrupa + ABD", MIDDLE_EAST: "Orta Doğu", ASIA: "Asya", AFRICA: "Afrika", AMERICAS: "Amerika", GLOBAL: "Global" }, region: "Bölgesel" },
+  de: { tier: "Paketstufe", tiers: { LITE: "Lite", ESSENTIAL: "Essential", PLUS: "Plus" }, tierNote: "Für dieselbe Dauer bietet der Anbieter die Stufen Lite, Essential und Plus an; der Preisunterschied ergibt sich aus der Stufe. Geschwindigkeit und Fair-Use werden im Anbieterkatalog nicht angegeben.", tech: "Netztechnologie", regions: { EUROPE: "Europa", EUROPE_USA: "Europa + USA", MIDDLE_EAST: "Naher Osten", ASIA: "Asien", AFRICA: "Afrika", AMERICAS: "Amerika", GLOBAL: "Global" }, region: "Regional" },
+  en: { tier: "Plan tier", tiers: { LITE: "Lite", ESSENTIAL: "Essential", PLUS: "Plus" }, tierNote: "For the same duration the supplier offers Lite, Essential and Plus tiers; the price difference comes from the tier. Speed and fair-use details are not specified in the supplier catalogue.", tech: "Network technology", regions: { EUROPE: "Europe", EUROPE_USA: "Europe + USA", MIDDLE_EAST: "Middle East", ASIA: "Asia", AFRICA: "Africa", AMERICAS: "Americas", GLOBAL: "Global" }, region: "Regional" },
+} as const;
+
+function techLabel(p: EsimPackage) {
+  const g = p.networkGenerations.filter((x) => x === "4G" || x === "5G");
+  return g.length ? g.join("/") : p.networkGenerations.at(-1) ?? null;
+}
+
+// Price deliberately excluded: truly equivalent options collapse to the cheaper one.
 function customerKey(p: EsimPackage) {
-  return [p.countryIso, p.unlimited ? "U" : p.dataGb, p.validityDays, p.salePrice, [...p.coverage].sort().join(","), p.supports5g, [...p.networks].sort().join(",")].join("|");
+  return [p.countryIso, p.unlimited ? "U" : p.dataGb, p.validityDays, p.planTier, [...p.coverage].sort().join(","), p.networkGenerations.join(","), [...p.networks].sort().join(",")].join("|");
 }
 
 function dedupe(packages: EsimPackage[]) {
   const found = new Map<string, EsimPackage>();
-  for (const pkg of packages) if (!found.has(customerKey(pkg))) found.set(customerKey(pkg), pkg);
+  for (const pkg of [...packages].sort((a, b) => (a.salePrice ?? Infinity) - (b.salePrice ?? Infinity))) if (!found.has(customerKey(pkg))) found.set(customerKey(pkg), pkg);
   return [...found.values()];
 }
 
@@ -193,8 +205,10 @@ function Packages({ iso, name, c }: { iso: string; name: string; c: (typeof T)["
   const estimate = estimateUsageNeed({ days, usage }, settings as EsimUsageSettings | undefined);
   const countryPackages = useMemo(() => dedupe(data.filter((pkg) => pkg.countryIso === iso)), [data, iso]);
   const standard = useMemo(() => countryPackages.filter((pkg) => !pkg.unlimited).sort((a, b) => (a.dataGb ?? 0) - (b.dataGb ?? 0) || (a.validityDays ?? 0) - (b.validityDays ?? 0) || (a.salePrice ?? Infinity) - (b.salePrice ?? Infinity)), [countryPackages]);
-  const unlimited = useMemo(() => countryPackages.filter((pkg) => pkg.unlimited).sort((a, b) => (a.validityDays ?? 0) - (b.validityDays ?? 0) || (a.salePrice ?? Infinity) - (b.salePrice ?? Infinity)), [countryPackages]);
-  const regional = useMemo(() => dedupe(data.filter((pkg) => pkg.countryIso !== iso && pkg.coverage.length > 1)).sort((a, b) => (a.salePrice ?? Infinity) - (b.salePrice ?? Infinity)).filter((pkg, index, all) => all.findIndex((item) => item.dataGb === pkg.dataGb && item.validityDays === pkg.validityDays && item.unlimited === pkg.unlimited) === index).slice(0, 3), [data, iso]);
+  const unlimited = useMemo(() => countryPackages.filter((pkg) => pkg.unlimited).sort((a, b) => (a.validityDays ?? 0) - (b.validityDays ?? 0) || (a.planTier ? TIER_ORDER[a.planTier] : 9) - (b.planTier ? TIER_ORDER[b.planTier] : 9) || (a.salePrice ?? Infinity) - (b.salePrice ?? Infinity)), [countryPackages]);
+  const regional = useMemo(() => pickRegionalRecommendations(dedupe(data.filter((pkg) => pkg.countryIso !== iso && pkg.coverage.length > 1))), [data, iso]);
+  const x = X[locale];
+  const regionName = (p: EsimPackage) => (p.regionFamily ? x.regions[p.regionFamily] : x.region);
   const rows = type === "standard" ? standard : unlimited;
   const recommended = hasInput ? selectRecommendedPackage(countryPackages, { coverageIsos: [iso], days, requiredGb: estimate.requiredGb }) : null;
   const usageItems: Array<{ key: UsageKind; label: string; icon: typeof MessageCircle }> = [
@@ -251,7 +265,7 @@ function Packages({ iso, name, c }: { iso: string; name: string; c: (typeof T)["
                   <span className="font-display text-xl font-bold text-foreground">
                     {p.unlimited ? (<><InfinityIcon className="size-4" />{c.unlimited}</>) : `${p.dataGb ?? "—"} GB`}
                   </span>
-                  <span className="text-xs font-normal text-muted-foreground">{p.validityDays ? `${p.validityDays} ${c.days}` : ""}</span>
+                  <span className="text-xs font-normal text-muted-foreground">{p.validityDays ? `${p.validityDays} ${c.days}` : ""}{p.planTier ? <> · <strong className="font-semibold text-foreground">{x.tiers[p.planTier]}</strong></> : null}</span>
                   <span className="text-lg font-bold text-primary">{p.salePrice != null ? money(p.salePrice, p.currency) : ""}</span>
                   {inCart && <span className="absolute bottom-2.5 right-2.5 text-[9px] font-bold text-primary">{c.added}</span>}
                 </Button>
@@ -260,7 +274,7 @@ function Packages({ iso, name, c }: { iso: string; name: string; c: (typeof T)["
           })}
         </ul>
       )}
-      {regional.length > 0 && <section><SectionTitle>{c.regional}</SectionTitle><p className="mb-3 text-xs text-muted-foreground">{c.regionalLead}</p><ul className="grid gap-2">{regional.map((p) => <li key={p.id}><Button type="button" variant="outline" onClick={() => setDetail(p)} className="grid h-auto min-h-20 w-full grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 rounded-xl bg-card p-3 text-left"><span className="grid size-9 shrink-0 place-items-center rounded-full bg-secondary text-primary"><Globe2 className="size-4"/></span><span className="min-w-0"><strong className="block truncate text-xs uppercase text-primary">{p.name}</strong><span className="block text-base font-bold text-foreground">{p.unlimited ? c.unlimited : `${p.dataGb ?? "—"} GB`} · {p.validityDays ?? "—"} {c.days}</span><span className="block text-xs font-normal text-muted-foreground">{p.coverage.length} {c.countries}</span></span><strong className="shrink-0 text-sm text-foreground">{p.salePrice != null ? money(p.salePrice, p.currency) : ""}</strong></Button></li>)}</ul></section>}
+      {regional.length > 0 && <section><SectionTitle>{c.regional}</SectionTitle><p className="mb-3 text-xs text-muted-foreground">{c.regionalLead}</p><ul className="grid gap-2">{regional.map((p) => <li key={p.id}><Button type="button" variant="outline" onClick={() => setDetail(p)} className="grid h-auto min-h-20 w-full grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 rounded-xl bg-card p-3 text-left"><span className="grid size-9 shrink-0 place-items-center rounded-full bg-secondary text-primary"><Globe2 className="size-4"/></span><span className="min-w-0"><strong className="block truncate text-xs uppercase text-primary">{regionName(p)}</strong><span className="block text-base font-bold text-foreground">{p.unlimited ? c.unlimited : `${p.dataGb ?? "—"} GB`} · {p.validityDays ?? "—"} {c.days}</span><span className="block text-xs font-normal text-muted-foreground">{p.coverage.length} {c.countries}</span></span><strong className="shrink-0 text-sm text-foreground">{p.salePrice != null ? money(p.salePrice, p.currency) : ""}</strong></Button></li>)}</ul></section>}
       <section ref={assistantRef} className="mt-5 rounded-xl bg-card p-4 ring-1 ring-border">
         <h3 className="font-display text-base font-bold text-foreground">{c.assistant}</h3><p className="mt-1 text-xs text-muted-foreground">{c.assistantLead}</p>
         <Button type="button" variant="outline" size="sm" onClick={() => setAssistantOpen((open) => !open)} className="mt-3 w-full">{assistantOpen ? c.assistantClose : c.assistantOpen}</Button>
@@ -283,6 +297,17 @@ function Packages({ iso, name, c }: { iso: string; name: string; c: (typeof T)["
 function PackageDetails({ pkg, onClose, onAdd, c, locale, inCart, activationText }: { pkg: EsimPackage | null; onClose: () => void; onAdd: (pkg: EsimPackage) => void; c: (typeof T)["tr"]; locale: "tr" | "de" | "en"; inCart: boolean; activationText: (pkg: EsimPackage) => string }) {
   if (!pkg) return null;
   const coverage = pkg.coverage.map((code) => getCountryByIso(code)?.name[locale] ?? code).join(", ");
-  const rows = [[c.data, pkg.unlimited ? c.unlimited : `${pkg.dataGb ?? "—"} GB`], [c.validity, `${pkg.validityDays ?? "—"} ${c.days}`], [c.coverage, coverage], [c.network, pkg.networks.length ? pkg.networks.join(", ") : "—"], [c.fiveG, pkg.supports5g ? "5G" : "—"], [c.activation, activationText(pkg)]];
+  const x = X[locale];
+  const tech = techLabel(pkg);
+  const rows = ([
+    [c.data, pkg.unlimited ? c.unlimited : `${pkg.dataGb ?? "—"} GB`],
+    pkg.planTier ? [x.tier, x.tiers[pkg.planTier]] : null,
+    [c.validity, `${pkg.validityDays ?? "—"} ${c.days}`],
+    [c.coverage, pkg.coverage.length > 1 ? `${pkg.regionFamily ? x.regions[pkg.regionFamily] + " · " : ""}${pkg.coverage.length} ${c.countries}: ${coverage}` : coverage],
+    pkg.networks.length ? [c.network, pkg.networks.join(", ")] : null,
+    tech ? [x.tech, tech] : null,
+    pkg.highSpeedAllowance ? ["FUP", pkg.highSpeedAllowance] : null,
+    [c.activation, activationText(pkg)],
+  ].filter(Boolean) as string[][]);
   return <Sheet open onOpenChange={(open) => { if (!open) onClose(); }}><SheetContent side="bottom" className="max-h-[82dvh] rounded-t-3xl pb-[calc(1rem+env(safe-area-inset-bottom))] sm:left-1/2 sm:max-w-xl sm:-translate-x-1/2 sm:rounded-3xl sm:border"><SheetHeader className="pr-10 text-left"><SheetTitle>{c.details}</SheetTitle><SheetDescription>{pkg.unlimited ? c.unlimited : `${pkg.dataGb ?? "—"} GB`} · {pkg.validityDays ?? "—"} {c.days}</SheetDescription></SheetHeader><dl className="mt-4 grid gap-2 text-sm">{rows.map(([label, value]) => <div key={label} className="grid grid-cols-[minmax(0,1fr)_minmax(0,1.5fr)] gap-3 border-b border-border pb-2"><dt className="text-muted-foreground">{label}</dt><dd className="break-words text-right font-semibold">{value}</dd></div>)}</dl><div className="mt-5 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3"><strong className="text-xl text-foreground">{money(pkg.salePrice ?? 0, pkg.currency)}</strong><Button type="button" onClick={() => onAdd(pkg)} variant={inCart ? "secondary" : "default"}>{inCart ? c.added : c.select}</Button></div></SheetContent></Sheet>;
 }
