@@ -123,7 +123,6 @@ export function SeoContentPage({ page }: { page: SeoPage }) {
   const commercial = page.commercial;
   const esimGuide = page.relService === "ESIM" || commercial?.kind === "ESIM_COUNTRY" || commercial?.kind === "ESIM_REGION";
   const finderIso = commercial?.iso ?? iso;
-  const half = Math.ceil(guide.sections.length / 2);
   const isDestination = guide.contentType === "DESTINATION";
   const dateLocale = locale === "tr" ? "tr-TR" : locale === "de" ? "de-DE" : "en-GB";
   const sectionId = (i: number) => `s-${i + 1}`;

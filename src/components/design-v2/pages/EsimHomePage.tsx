@@ -24,6 +24,7 @@ import { V2Installation } from "@/components/design-v2/V2DiscoveryContent";
 import { mediaUrl, useV2Page, V2Sections, v2PageQuery } from "@/components/design-v2/V2Sections";
 import { v2Text, type V2Section } from "@/domain/storefront/v2";
 import { V2EsimPackageDetails } from "@/components/design-v2/V2EsimPackageDetails";
+import { RelatedGuides } from "@/components/seo/RelatedGuides";
 import { V2ProductSelectionCard, V2SelectedProductSummary } from "@/components/design-v2/V2ProductSelection";
 
 /** Public home/eSIM search: optional country + legacy `service` hint (V1 links used `/?service=lounge`). */
@@ -313,6 +314,7 @@ function Packages({ iso, name, c, selectedPackage, onSelectPackage }: { iso: str
       <Link to="/esim" search={{ country: "" }} className="mt-4 grid min-h-16 grid-cols-[minmax(0,1fr)_auto] items-center gap-3 rounded-xl border border-border bg-card px-4 py-3 shadow-sm">
         <span className="min-w-0"><strong className="block text-sm text-foreground">{c.regional}</strong><span className="block text-xs text-muted-foreground">{c.regionalLead} →</span></span><ArrowRight className="size-4 shrink-0 text-primary" />
       </Link>
+      <RelatedGuides iso={iso} locale={locale} />
       <section ref={assistantRef} aria-labelledby="decision-help-title" className="mt-6 rounded-2xl bg-[color-mix(in_oklab,var(--color-primary-soft)_70%,var(--color-card))] p-3.5 ring-1 ring-primary/10 lg:mt-12 lg:p-6">
         <div className="grid grid-cols-[auto_minmax(0,1fr)] items-start gap-2.5 px-0.5">
           <Sparkles className="mt-0.5 size-6 shrink-0 text-primary" aria-hidden />
