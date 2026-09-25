@@ -70,7 +70,7 @@ function EsimV2() {
 
   return (
     <V2Shell service="esim">
-      <V2Hero image={heroImage} eyebrow="eSIM" title={c.h} subtitle={c.q}>
+      {!selected && <V2Hero image={heroImage} eyebrow="eSIM" title={c.h} subtitle={c.q}>
         <HeroField icon={<Search className="size-5" />}>
           <V2PickerSheet
             open={pickerOpen}
@@ -92,10 +92,17 @@ function EsimV2() {
             </Button>
           </V2PickerSheet>
         </HeroField>
-      </V2Hero>
+      </V2Hero>}
 
       {selected ? (
-        <Packages iso={selected.iso} name={selected.name[locale]} c={c} onBack={() => void navigate({ search: { country: "" } })} />
+        <>
+          <div className="mt-2 grid grid-cols-[minmax(0,1fr)_auto] items-center rounded-full bg-card px-4 py-2.5 shadow-sm ring-1 ring-border">
+            <span className="flex min-w-0 items-center gap-2 text-sm font-bold text-foreground"><Search className="size-4 shrink-0 text-muted-foreground"/><CountryFlag iso={selected.iso} className="h-4 w-6 shrink-0 rounded-sm"/><span className="truncate">{selected.name[locale]}</span></span>
+            <Button type="button" variant="ghost" size="sm" onClick={() => setPickerOpen(true)} className="shrink-0 text-primary">{c.back}</Button>
+          </div>
+          <V2PickerSheet open={pickerOpen} onOpenChange={(open) => { setPickerOpen(open); if (!open) setQuery(""); }} title={c.picker} searchLabel={c.ph} query={query} onQueryChange={setQuery} selectedId={selected.iso} emptyLabel={prices.isLoading ? "…" : c.empty} items={matches.map((item) => { const price = priceMap.get(item.iso); return { id: item.iso, label: item.name[locale], leading: <CountryFlag iso={item.iso} className="h-4 w-6 rounded-sm" />, ...(price ? { price: `${money(price.amount, price.currency)} ${c.from}` } : {}) }; })} onSelect={choose}><span /></V2PickerSheet>
+          <Packages iso={selected.iso} name={selected.name[locale]} c={c} />
+        </>
       ) : (
         <>
           <TrustRow
@@ -159,9 +166,22 @@ function Popular({ c, onPick }: { c: (typeof T)["tr"]; onPick: (iso: string) => 
   );
 }
 
-function Packages({ iso, name, c, onBack }: { iso: string; name: string; c: (typeof T)["tr"]; onBack: () => void }) {
+function customerKey(p: EsimPackage) {
+  return [p.countryIso, p.unlimited ? "U" : p.dataGb, p.validityDays, p.salePrice, [...p.coverage].sort().join(","), p.supports5g, [...p.networks].sort().join(",")].join("|");
+}
+
+function dedupe(packages: EsimPackage[]) {
+  const found = new Map<string, EsimPackage>();
+  for (const pkg of packages) if (!found.has(customerKey(pkg))) found.set(customerKey(pkg), pkg);
+  return [...found.values()];
+}
+
+function Packages({ iso, name, c }: { iso: string; name: string; c: (typeof T)["tr"] }) {
   const { locale } = useI18n();
   const { lines, addLine } = useCart();
+  const [type, setType] = useState<"standard" | "unlimited">("standard");
+  const [detail, setDetail] = useState<EsimPackage | null>(null);
+  const [assistantOpen, setAssistantOpen] = useState(false);
   const [days, setDays] = useState(7);
   const [usage, setUsage] = useState<UsageKind[]>(["MESSAGING", "MAPS"]);
   const [hasInput, setHasInput] = useState(false);
@@ -172,9 +192,12 @@ function Packages({ iso, name, c, onBack }: { iso: string; name: string; c: (typ
   });
   const { data: settings } = useQuery({ queryKey: ["esim-usage-settings"], queryFn: () => getEsimUsageSettings() });
   const estimate = estimateUsageNeed({ days, usage }, settings as EsimUsageSettings | undefined);
-  const shortlist = buildCustomerShortlist(data, { coverageIsos: [iso], days, requiredGb: estimate.requiredGb, maxPrimary: 4 });
-  const rows = shortlist.primary.map((entry) => entry.package);
-  const recommendedId = hasInput ? shortlist.primary[0]?.package.id : undefined;
+  const countryPackages = useMemo(() => dedupe(data.filter((pkg) => pkg.countryIso === iso)), [data, iso]);
+  const standard = useMemo(() => countryPackages.filter((pkg) => !pkg.unlimited).sort((a, b) => (a.dataGb ?? 0) - (b.dataGb ?? 0) || (a.validityDays ?? 0) - (b.validityDays ?? 0) || (a.salePrice ?? Infinity) - (b.salePrice ?? Infinity)), [countryPackages]);
+  const unlimited = useMemo(() => countryPackages.filter((pkg) => pkg.unlimited).sort((a, b) => (a.validityDays ?? 0) - (b.validityDays ?? 0) || (a.salePrice ?? Infinity) - (b.salePrice ?? Infinity)), [countryPackages]);
+  const regional = useMemo(() => dedupe(data.filter((pkg) => pkg.countryIso !== iso && pkg.coverage.length > 1)).sort((a, b) => (a.salePrice ?? Infinity) - (b.salePrice ?? Infinity)).filter((pkg, index, all) => all.findIndex((item) => item.dataGb === pkg.dataGb && item.validityDays === pkg.validityDays && item.unlimited === pkg.unlimited) === index).slice(0, 3), [data, iso]);
+  const rows = type === "standard" ? standard : unlimited;
+  const recommended = hasInput ? selectRecommendedPackage(countryPackages, { coverageIsos: [iso], days, requiredGb: estimate.requiredGb }) : null;
   const usageItems: Array<{ key: UsageKind; label: string; icon: typeof MessageCircle }> = [
     { key: "MESSAGING", label: c.usage[0] ?? "", icon: MessageCircle }, { key: "MAPS", label: c.usage[1] ?? "", icon: MapPin },
     { key: "SOCIAL", label: c.usage[2] ?? "", icon: Share2 }, { key: "VIDEO", label: c.usage[3] ?? "", icon: Video },
@@ -194,56 +217,56 @@ function Packages({ iso, name, c, onBack }: { iso: string; name: string; c: (typ
       isTest: p.isTest,
     });
 
+  const activationText = (p: EsimPackage) => {
+    if (p.activationPolicy === "ON_INSTALL") return locale === "tr" ? "Kurulumla başlar" : locale === "de" ? "Beginnt mit der Installation" : "Starts on installation";
+    if (p.activationPolicy === "ON_FIRST_NETWORK_CONNECTION") return locale === "tr" ? "İlk ağ bağlantısında başlar" : locale === "de" ? "Beginnt bei der ersten Netzverbindung" : "Starts on first network connection";
+    if (p.activationPolicy === "ON_PURCHASE") return locale === "tr" ? "Satın alındığında başlar" : locale === "de" ? "Beginnt beim Kauf" : "Starts on purchase";
+    return c.activationUnknown;
+  };
+
   return (
     <>
-      <div className="mt-5 flex items-center justify-between">
-        <h2 className="flex items-center gap-2 font-display text-lg font-semibold text-foreground">
+      <div className="mt-5">
+        <h1 className="flex items-center gap-2 font-display text-xl font-bold text-foreground">
           <CountryFlag iso={iso} className="h-5 w-7 rounded-sm" />
-          {name}
-        </h2>
-        <button type="button" onClick={onBack} className="min-h-11 px-2 text-sm font-semibold text-primary">{c.back}</button>
+          {name} {c.packages}
+        </h1>
+        <p className="mt-1 text-xs text-muted-foreground">{c.chooseLead}</p>
       </div>
-      <section ref={assistantRef} className="mt-3 rounded-2xl bg-card p-4 ring-1 ring-border">
-        <h3 className="font-display text-base font-bold text-foreground">{c.assistant}</h3>
-        <p className="mt-1 text-xs leading-relaxed text-muted-foreground">{c.assistantLead}</p>
-        <div className="mt-3 grid grid-cols-[auto_minmax(0,1fr)] items-center gap-3">
-          <label className="text-xs font-semibold text-foreground">{c.days}</label>
-          <input type="range" min="1" max="30" value={days} onChange={(event) => { setDays(Number(event.target.value)); setHasInput(true); }} className="w-full accent-primary" aria-label={c.days} />
-        </div>
-        <p className="mt-1 text-right text-xs font-bold text-primary">{days} {c.days}</p>
-        <div className="mt-2 grid grid-cols-2 gap-2">{usageItems.map(({ key, label, icon: Icon }) => { const on = usage.includes(key); return <Button key={key} type="button" variant={on ? "secondary" : "outline"} size="sm" aria-pressed={on} onClick={() => { setHasInput(true); setUsage((current) => on ? current.filter((item) => item !== key) : [...current, key]); }} className="justify-start text-xs"><Icon className="size-4" />{label}</Button>; })}</div>
-        <div className="mt-3 flex items-center justify-between rounded-xl bg-secondary px-3 py-2 text-xs"><span>{c.estimate}</span><strong className="text-primary">≈ {estimate.requiredGb} GB</strong></div>
-      </section>
+      <div className="mt-3 grid grid-cols-2 rounded-xl bg-secondary p-1" role="tablist">
+        <Button type="button" variant={type === "standard" ? "default" : "ghost"} role="tab" aria-selected={type === "standard"} onClick={() => setType("standard")} className="min-w-0 text-xs uppercase">{c.standard} · {standard.length}</Button>
+        <Button type="button" variant={type === "unlimited" ? "default" : "ghost"} role="tab" aria-selected={type === "unlimited"} onClick={() => setType("unlimited")} className="min-w-0 text-xs uppercase">{c.unlimited} · {unlimited.length}</Button>
+      </div>
       {isLoading ? (
         <div className="mt-3 h-48 animate-pulse rounded-2xl bg-muted" />
       ) : rows.length === 0 ? (
         <p className="mt-3 rounded-2xl bg-card p-4 text-sm text-muted-foreground ring-1 ring-border">{c.none}</p>
       ) : (
-        <ul className="mt-3 divide-y divide-border overflow-hidden rounded-2xl bg-card ring-1 ring-border">
+        <ul className="mt-3 grid grid-cols-2 gap-2">
           {rows.map((p) => {
             const inCart = lines.some((l) => l.productId === p.id);
             return (
-              <li key={p.id} className="grid min-h-20 grid-cols-[minmax(0,1fr)_auto] items-center gap-x-3 gap-y-2 px-4 py-3">
-                <div className="flex-1">
-                  <div className="flex items-center gap-2">{recommendedId === p.id && <span className="rounded-full bg-accent-soft px-2 py-0.5 text-[9px] font-bold text-primary">{c.recommended}</span>}</div>
-                  <p className="mt-0.5 flex items-center gap-1 font-display text-lg font-semibold text-foreground">
+              <li key={p.id}>
+                <Button type="button" variant="outline" onClick={() => setDetail(p)} className={`relative h-28 w-full flex-col items-start justify-between rounded-xl bg-card p-3 text-left ${inCart ? "ring-2 ring-primary" : ""}`}>
+                  <Info className="absolute right-2.5 top-2.5 size-4 text-muted-foreground"/>
+                  <span className="font-display text-xl font-bold text-foreground">
                     {p.unlimited ? (<><InfinityIcon className="size-4" />{c.unlimited}</>) : `${p.dataGb ?? "—"} GB`}
-                  </p>
-                  <p className="text-xs text-muted-foreground">
-                    {p.validityDays ? `${p.validityDays} ${c.days}` : ""}
-                    {p.supports5g ? " · 5G" : ""}
-                    {` · ${p.coverage.length > 1 ? `${p.coverage.length} ${c.countries}` : c.local}`}
-                  </p>
-                </div>
-                <span className="text-base font-bold text-foreground">{p.salePrice != null ? money(p.salePrice, p.currency) : ""}</span>
-                <Button type="button" onClick={() => add(p)} variant={inCart ? "secondary" : "default"} className="col-span-2 w-full">
-                  {inCart ? c.added : c.select}
+                  </span>
+                  <span className="text-xs font-normal text-muted-foreground">{p.validityDays ? `${p.validityDays} ${c.days}` : ""}</span>
+                  <span className="text-lg font-bold text-primary">{p.salePrice != null ? money(p.salePrice, p.currency) : ""}</span>
+                  {inCart && <span className="absolute bottom-2.5 right-2.5 text-[9px] font-bold text-primary">{c.added}</span>}
                 </Button>
               </li>
             );
           })}
         </ul>
       )}
+      {regional.length > 0 && <section><SectionTitle>{c.regional}</SectionTitle><p className="mb-3 text-xs text-muted-foreground">{c.regionalLead}</p><ul className="grid gap-2">{regional.map((p) => <li key={p.id}><Button type="button" variant="outline" onClick={() => setDetail(p)} className="grid h-auto min-h-20 w-full grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 rounded-xl bg-card p-3 text-left"><span className="grid size-9 shrink-0 place-items-center rounded-full bg-secondary text-primary"><Globe2 className="size-4"/></span><span className="min-w-0"><strong className="block truncate text-xs uppercase text-primary">{p.name}</strong><span className="block text-base font-bold text-foreground">{p.unlimited ? c.unlimited : `${p.dataGb ?? "—"} GB`} · {p.validityDays ?? "—"} {c.days}</span><span className="block text-xs font-normal text-muted-foreground">{p.coverage.length} {c.countries}</span></span><strong className="shrink-0 text-sm text-foreground">{p.salePrice != null ? money(p.salePrice, p.currency) : ""}</strong></Button></li>)}</ul></section>}
+      <section ref={assistantRef} className="mt-5 rounded-xl bg-card p-4 ring-1 ring-border">
+        <h3 className="font-display text-base font-bold text-foreground">{c.assistant}</h3><p className="mt-1 text-xs text-muted-foreground">{c.assistantLead}</p>
+        <Button type="button" variant="outline" size="sm" onClick={() => setAssistantOpen((open) => !open)} className="mt-3 w-full">{assistantOpen ? c.assistantClose : c.assistantOpen}</Button>
+        {assistantOpen && <div className="mt-3 border-t border-border pt-3"><div className="grid grid-cols-[auto_minmax(0,1fr)] items-center gap-3"><label className="text-xs font-semibold">{c.days}</label><input type="range" min="1" max="30" value={days} onChange={(event) => { setDays(Number(event.target.value)); setHasInput(true); }} className="w-full accent-primary" aria-label={c.days}/></div><p className="mt-1 text-right text-xs font-bold text-primary">{days} {c.days}</p><div className="mt-2 grid grid-cols-2 gap-2">{usageItems.map(({ key, label, icon: Icon }) => { const on = usage.includes(key); return <Button key={key} type="button" variant={on ? "secondary" : "outline"} size="sm" aria-pressed={on} onClick={() => { setHasInput(true); setUsage((current) => on ? current.filter((item) => item !== key) : [...current, key]); }} className="min-w-0 justify-start text-xs"><Icon className="size-4 shrink-0"/><span className="truncate">{label}</span></Button>; })}</div><div className="mt-3 grid grid-cols-[minmax(0,1fr)_auto] gap-2 rounded-xl bg-secondary px-3 py-2 text-xs"><span>{c.estimate}</span><strong className="text-primary">≈ {estimate.requiredGb} GB</strong>{recommended && <><span>{c.recommended}</span><button type="button" onClick={() => setDetail(recommended)} className="font-bold text-primary">{recommended.unlimited ? c.unlimited : `${recommended.dataGb ?? "—"} GB`} · {money(recommended.salePrice ?? 0, recommended.currency)}</button></>}</div></div>}
+      </section>
       <V2DataEducation onCalculate={() => assistantRef.current?.scrollIntoView({ behavior: "smooth", block: "center" })} />
       <V2Compatibility />
       <HowItWorks title={c.how} steps={c.steps} />
@@ -252,7 +275,15 @@ function Packages({ iso, name, c, onBack }: { iso: string; name: string; c: (typ
       <PromoCard image={vignettePromo} title={c.vignettePromo} sub={c.vignettePromoSub} to="/design-v2/vignette" />
       <V2GuidesRail />
       <V2EsimFaq />
+      <PackageDetails pkg={detail} onClose={() => setDetail(null)} onAdd={add} c={c} locale={locale} inCart={detail ? lines.some((line) => line.productId === detail.id) : false} activationText={activationText} />
       <Link to="/design-v2/cart" className="sr-only">{c.cart}</Link>
     </>
   );
+}
+
+function PackageDetails({ pkg, onClose, onAdd, c, locale, inCart, activationText }: { pkg: EsimPackage | null; onClose: () => void; onAdd: (pkg: EsimPackage) => void; c: (typeof T)["tr"]; locale: "tr" | "de" | "en"; inCart: boolean; activationText: (pkg: EsimPackage) => string }) {
+  if (!pkg) return null;
+  const coverage = pkg.coverage.map((code) => getCountryByIso(code)?.name[locale] ?? code).join(", ");
+  const rows = [[c.data, pkg.unlimited ? c.unlimited : `${pkg.dataGb ?? "—"} GB`], [c.validity, `${pkg.validityDays ?? "—"} ${c.days}`], [c.coverage, coverage], [c.network, pkg.networks.length ? pkg.networks.join(", ") : "—"], [c.fiveG, pkg.supports5g ? "5G" : "—"], [c.activation, activationText(pkg)]];
+  return <Sheet open onOpenChange={(open) => { if (!open) onClose(); }}><SheetContent side="bottom" className="max-h-[82dvh] rounded-t-3xl pb-[calc(1rem+env(safe-area-inset-bottom))] sm:left-1/2 sm:max-w-xl sm:-translate-x-1/2 sm:rounded-3xl sm:border"><SheetHeader className="pr-10 text-left"><SheetTitle>{c.details}</SheetTitle><SheetDescription>{pkg.unlimited ? c.unlimited : `${pkg.dataGb ?? "—"} GB`} · {pkg.validityDays ?? "—"} {c.days}</SheetDescription></SheetHeader><dl className="mt-4 grid gap-2 text-sm">{rows.map(([label, value]) => <div key={label} className="grid grid-cols-[minmax(0,1fr)_minmax(0,1.5fr)] gap-3 border-b border-border pb-2"><dt className="text-muted-foreground">{label}</dt><dd className="break-words text-right font-semibold">{value}</dd></div>)}</dl><div className="mt-5 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3"><strong className="text-xl text-foreground">{money(pkg.salePrice ?? 0, pkg.currency)}</strong><Button type="button" onClick={() => onAdd(pkg)} variant={inCart ? "secondary" : "default"}>{inCart ? c.added : c.select}</Button></div></SheetContent></Sheet>;
 }
