@@ -153,7 +153,7 @@ function ThemePreferenceMenu() {
   );
 }
 /** Footer content is owned by the storefront editor; falls back to built-in copy. */
-function PublicFooter({ fallback, supportLabel }: { fallback: string; supportLabel: string }) {
+function PublicFooter({ fallback, supportLabel, bottomSafe = false }: { fallback: string; supportLabel: string; bottomSafe?: boolean }) {
   const { locale } = useI18n();
   const config = useQuery({
     queryKey: ["storefront", "global"],
@@ -170,7 +170,7 @@ function PublicFooter({ fallback, supportLabel }: { fallback: string; supportLab
   );
   const copyright = itemText(data?.copyright, locale, "");
   return (
-    <footer id="support" className="border-t border-border bg-secondary/50 pb-10 pt-10">
+    <footer id="support" className={`border-t border-border bg-secondary/50 pt-10 ${bottomSafe ? "pb-[calc(8.5rem+env(safe-area-inset-bottom))] sm:pb-10" : "pb-10"}`}>
       <div className="mx-auto flex max-w-site flex-col gap-6 px-4 sm:px-6 md:flex-row md:items-center md:justify-between">
         <Brand />
         <p className="max-w-md text-sm text-muted-foreground">{text}</p>
@@ -207,6 +207,7 @@ export function PublicShell({
   hideStickySearch = false,
   hideFloatingWhatsApp = false,
   headerAccessory,
+  footerBottomSafe = false,
 }: {
   children: ReactNode;
   activeService?: ServiceSlug;
@@ -217,6 +218,8 @@ export function PublicShell({
   hideFloatingWhatsApp?: boolean;
   /** Optional page-owned compact content directly below the shared header. */
   headerAccessory?: ReactNode;
+  /** Pages with fixed mobile action rows keep the footer scrollable above them. */
+  footerBottomSafe?: boolean;
 }) {
   const { locale } = useI18n();
   const copy = localized(GLOBAL_CONTENT, locale);
@@ -509,7 +512,7 @@ export function PublicShell({
         <StickyQuickSearch service="esim" suppressed={isHeaderOverlayOpen} />
       )}
       <main>{children}</main>
-      <PublicFooter fallback={copy.footer} supportLabel={copy.nav.support} />
+      <PublicFooter fallback={copy.footer} supportLabel={copy.nav.support} bottomSafe={footerBottomSafe} />
       {!hideFloatingWhatsApp && <Button
         asChild
         size="lg"

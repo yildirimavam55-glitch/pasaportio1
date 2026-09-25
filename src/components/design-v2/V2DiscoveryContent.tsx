@@ -35,7 +35,7 @@ const COPY = {
     whyItems: ["Gerçek paket seçenekleri", "Kolay paket seçimi", "eSIM bilgilerine hesabından erişim", "WhatsApp destek"],
     guides: "Seyahat rehberi",
     guideLead: "Yayınlanmış gerçek seyahat içerikleri.",
-    allGuides: "Tüm rehberler",
+    allGuides: "Tüm yazılar",
     faq: "eSIM hakkında sık sorulanlar",
     questions: [
       ["eSIM nedir?", "eSIM, uyumlu telefona dijital olarak eklenen bir mobil veri hattıdır."],
@@ -177,11 +177,11 @@ export function V2GuidesRail() {
   const { data = [] } = useQuery({ queryKey: ["v2-guides", locale], queryFn: () => listFeaturedGuides({ data: { locale, limit: 4 } }), staleTime: 5 * 60_000 });
   if (!data.length) return null;
   return (
-    <section>
-      <SectionTitle action={<SeoPathLink path={`/${locale}/${locale === "tr" ? "rehber" : locale === "de" ? "ratgeber" : "guides"}`} className="text-xs font-semibold text-primary">{c.allGuides}</SeoPathLink>}>{c.guides}</SectionTitle>
-      <p className="mb-3 text-xs text-muted-foreground">{c.guideLead}</p>
-      <ul className="-mx-4 flex snap-x gap-2.5 overflow-x-auto px-4 pb-1 [scrollbar-width:none]">
-        {data.map((guide) => <li key={guide.id} className="w-[15.5rem] shrink-0 snap-start"><SeoPathLink path={seoPath(guide.translationLocale, guide.contentType, guide.slug)} className="group block overflow-hidden rounded-xl bg-card ring-1 ring-border">{guide.heroImageUrl ? <img src={guide.heroImageUrl} alt={guide.heroAlt ?? guide.title} loading="lazy" decoding="async" className="h-24 w-full object-cover"/> : <div className="grid h-24 place-items-center bg-muted"><BookOpen className="size-6 text-muted-foreground"/></div>}<div className="p-3">{guide.categoryName && <span className="text-[9px] font-bold uppercase text-primary">{guide.categoryName}</span>}<h3 className="mt-0.5 line-clamp-2 text-sm font-bold leading-snug text-foreground">{guide.title}</h3>{guide.excerpt && <p className="mt-1 line-clamp-2 text-[10px] leading-relaxed text-muted-foreground">{guide.excerpt}</p>}<ArrowRight className="ml-auto mt-2 size-4 text-primary"/></div></SeoPathLink></li>)}
+    <section className="mb-4 pb-4">
+      <SectionTitle action={<SeoPathLink path={`/${locale}/${locale === "tr" ? "rehber" : locale === "de" ? "ratgeber" : "guides"}`} className="inline-flex items-center gap-0.5 text-xs font-semibold text-primary">{c.allGuides}<ArrowRight className="size-3.5" /></SeoPathLink>}>{c.guides}</SectionTitle>
+      <p className="-mt-0.5 mb-4 text-xs text-muted-foreground">{c.guideLead}</p>
+      <ul className="-mx-4 flex snap-x snap-mandatory scroll-px-4 gap-3 overflow-x-auto px-4 pb-1 [overscroll-behavior-inline:contain] [scrollbar-width:none]">
+        {data.map((guide) => <li key={guide.id} className="w-[84vw] max-w-[22rem] shrink-0 snap-start sm:w-[17rem]"><SeoPathLink path={seoPath(guide.translationLocale, guide.contentType, guide.slug)} className="group block overflow-hidden rounded-xl bg-card ring-1 ring-border">{guide.heroImageUrl ? <img src={guide.heroImageUrl} alt={guide.heroAlt ?? guide.title} loading="lazy" decoding="async" className="h-[8.5rem] w-full object-cover"/> : <div className="grid h-[8.5rem] place-items-center bg-muted"><BookOpen className="size-6 text-muted-foreground"/></div>}<div className="p-4">{guide.categoryName && <span className="text-[9px] font-bold uppercase text-primary">{guide.categoryName}</span>}<h3 className="mt-0.5 line-clamp-2 text-sm font-bold leading-snug text-foreground">{guide.title}</h3>{guide.excerpt && <p className="mt-1 line-clamp-2 text-xs leading-snug text-muted-foreground">{guide.excerpt}</p>}<ArrowRight className="ml-auto mt-1.5 size-4 text-primary"/></div></SeoPathLink></li>)}
       </ul>
     </section>
   );
@@ -196,7 +196,7 @@ export function V2EsimFaq({ compact = false }: { compact?: boolean }) {
   return (
     <section>
       <SectionTitle>{c.faq}</SectionTitle>
-      <Accordion type="single" collapsible className="rounded-xl bg-card px-3 ring-1 ring-border">{questions.map(([question, answer], index) => <AccordionItem key={question} value={`faq-${index}`}><AccordionTrigger className="py-3 text-xs font-bold hover:no-underline">{question}</AccordionTrigger><AccordionContent className="text-xs leading-relaxed text-muted-foreground">{answer}</AccordionContent></AccordionItem>)}</Accordion>
+      <Accordion type="single" collapsible className="rounded-xl bg-card px-3 ring-1 ring-border">{questions.map(([question, answer], index) => <AccordionItem key={question} value={`faq-${index}`}><AccordionTrigger className="min-h-[3.25rem] py-3 text-left text-xs font-bold hover:no-underline">{question}</AccordionTrigger><AccordionContent className="text-xs leading-relaxed text-muted-foreground">{answer}</AccordionContent></AccordionItem>)}</Accordion>
     </section>
   );
 }
