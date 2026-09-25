@@ -35,10 +35,10 @@ function V2Checkout() {
   return (
     <V2Shell level="transaction" nav="cart">
       <div className="pt-2">
-        <Link to="/design-v2/cart" className="mb-2 inline-flex min-h-10 items-center gap-1 text-sm font-semibold text-primary"><ChevronLeft className="size-4" />{c.back}</Link>
+        <Link to="/sepet" className="mb-2 inline-flex min-h-10 items-center gap-1 text-sm font-semibold text-primary"><ChevronLeft className="size-4" />{c.back}</Link>
         <V2PageTitle title={c.title} />
         {lines.length === 0 ? (
-          <V2State tone="empty" title={c.empty} action={<Link to="/design-v2/esim" search={{ country: "" }} className="inline-flex min-h-11 items-center rounded-full bg-primary px-5 text-sm font-semibold text-primary-foreground">{c.browse}</Link>} />
+          <V2State tone="empty" title={c.empty} action={<Link to="/esim" search={{ country: "" }} className="inline-flex min-h-11 items-center rounded-full bg-primary px-5 text-sm font-semibold text-primary-foreground">{c.browse}</Link>} />
         ) : (
           <div className="grid gap-3">
             <V2Card>
@@ -67,7 +67,7 @@ function V2Checkout() {
               ) : (
                 <div className="mt-2 flex items-center justify-between gap-3">
                   <p className="text-sm text-muted-foreground">{c.signIn}</p>
-                  <Link to="/design-v2/auth/login" search={{ redirect: "/design-v2/checkout" }} className="inline-flex min-h-10 shrink-0 items-center rounded-full border border-border px-4 text-sm font-semibold">{c.signInCta}</Link>
+                  <Link to="/auth" search={{ redirect: "/odeme" }} className="inline-flex min-h-10 shrink-0 items-center rounded-full border border-border px-4 text-sm font-semibold">{c.signInCta}</Link>
                 </div>
               )}
             </V2Card>

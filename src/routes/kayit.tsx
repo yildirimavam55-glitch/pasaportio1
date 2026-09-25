@@ -12,5 +12,5 @@ export const Route = createFileRoute("/kayit")({
 
 function V2Register() {
   const { redirect } = Route.useSearch();
-  return <AuthPage redirect={redirect} fallback="/design-v2/account" initialMode="signup" />;
+  return <AuthPage redirect={redirect} fallback="/account" initialMode="signup" />;
 }

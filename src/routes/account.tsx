@@ -52,8 +52,8 @@ function V2AccountGate() {
             text={c.text}
             action={
               <>
-                <Link to="/design-v2/auth/login" search={{ redirect: href }} className="inline-flex min-h-11 items-center rounded-full bg-primary px-5 text-sm font-semibold text-primary-foreground">{c.login}</Link>
-                <Link to="/design-v2/auth/register" search={{ redirect: href }} className="inline-flex min-h-11 items-center rounded-full border border-border bg-card px-5 text-sm font-semibold text-foreground">{c.register}</Link>
+                <Link to="/auth" search={{ redirect: href }} className="inline-flex min-h-11 items-center rounded-full bg-primary px-5 text-sm font-semibold text-primary-foreground">{c.login}</Link>
+                <Link to="/kayit" search={{ redirect: href }} className="inline-flex min-h-11 items-center rounded-full border border-border bg-card px-5 text-sm font-semibold text-foreground">{c.register}</Link>
               </>
             }
           />
