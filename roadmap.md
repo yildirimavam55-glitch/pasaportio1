@@ -1,5 +1,15 @@
 # Phase 1.3 Roadmap
 
+## V2 eSIM results final simplification
+
+- [ ] Separate exact-country storefront products from technical coverage matches
+- [ ] Show every deduplicated Standard or Unlimited country product with exact tab counts
+- [ ] Limit regional alternatives to 2–3 clearly differentiated real products
+- [ ] Add compact package details and preserve exact cart identity, price, validity, and quantity
+- [ ] Move the optional assistant below shopping and retain education, compatibility, installation, guides, services, FAQ, and compact footer
+- [ ] Verify Türkiye, Germany, Italy, USA, Japan in TR/DE/EN at 360/390/430 px
+- [ ] Confirm production, database, catalogue, pricing, Admin, supplier sync, purchases, and payments remain unchanged
+
 ## V2 final customer experience completion
 
 - [x] Preserve the approved reference-locked V2 discovery and shared customer shell
