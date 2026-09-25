@@ -73,7 +73,7 @@ function EsimV2() {
             searchLabel={c.ph}
             query={query}
             onQueryChange={setQuery}
-            selectedId={selected?.iso}
+            {...(selected ? { selectedId: selected.iso } : {})}
             emptyLabel={prices.isLoading ? "…" : c.empty}
             items={matches.map((item) => {
               const price = priceMap.get(item.iso);
