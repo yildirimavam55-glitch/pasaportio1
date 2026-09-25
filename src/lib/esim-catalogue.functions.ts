@@ -203,3 +203,46 @@ export const listEsimStartingPrices = createServerFn({ method: "GET" })
     }
     return results;
   });
+
+/** All currently sellable country destinations with their lowest published price. */
+export const listEsimDestinationStartingPrices = createServerFn({ method: "GET" }).handler(
+  async (): Promise<EsimStartingPrice[]> => {
+    const client = publicClient();
+    const showTest = await isTestCatalogueVisible();
+    const lowestByIso = new Map<string, { amount: number; currency: string }>();
+    const pageSize = 1000;
+
+    for (let from = 0; ; from += pageSize) {
+      const { data: rows, error } = await client
+        .from("service_products")
+        .select("currency, sale_price, is_test, esim_product_details!inner(coverage_country_isos, country_iso)")
+        .eq("service_type", "ESIM")
+        .eq("lifecycle", "PUBLISHED")
+        .eq("customer_visible", true)
+        .eq("provider_available", true)
+        .eq("margin_flagged", false)
+        .gt("sale_price", 0)
+        .range(from, from + pageSize - 1);
+      if (error) throw new Error(error.message);
+
+      for (const row of rows ?? []) {
+        if (!showTest && row.is_test) continue;
+        const details = (Array.isArray(row.esim_product_details) ? row.esim_product_details[0] : row.esim_product_details) as
+          | { coverage_country_isos: string[] | null; country_iso: string | null }
+          | null
+          | undefined;
+        const isos = new Set([...(details?.coverage_country_isos ?? []), ...(details?.country_iso ? [details.country_iso] : [])]);
+        const amount = Number(row.sale_price);
+        for (const rawIso of isos) {
+          const iso = String(rawIso).toUpperCase();
+          if (!/^[A-Z]{2}$/.test(iso)) continue;
+          const current = lowestByIso.get(iso);
+          if (!current || amount < current.amount) lowestByIso.set(iso, { amount, currency: row.currency ?? "EUR" });
+        }
+      }
+      if ((rows ?? []).length < pageSize) break;
+    }
+
+    return [...lowestByIso.entries()].map(([targetId, value]) => ({ targetId, ...value }));
+  },
+);

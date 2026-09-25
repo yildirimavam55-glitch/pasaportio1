@@ -478,3 +478,10 @@
 - Admin UI: `ProvisioningPanel` added below the existing eSIM fulfillment operations view (no redesign); no QR/ICCID/credential shown.
 - Live supplier purchases gated on server switch `COMMERCE_LIVE_PROVISIONING` (unset = off). Real eSIM Go orders placed: 0.
 - [ ] First live € supplier test — needs eSIM Go balance top-up (currently 0 EUR), payment integration, and explicit approval.
+
+## V2 approved-reference visual lock
+
+- [x] Match the shared V2 discovery proportions to the approved 390 px reference
+- [x] Add catalogue-backed eSIM and real-airport mobile selectors
+- [x] Keep Vignette unavailable without fabricated inventory
+- [x] Verify TR/DE/EN, 360/390/430 px, production isolation, and final preview health
