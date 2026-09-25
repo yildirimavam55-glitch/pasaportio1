@@ -3,7 +3,7 @@
  * and lists which public paths must render V2 (used by regression tests).
  */
 const MAP: Array<[string, string]> = [
-  ["/design-v2/esim-region/", "/esim/bolge/"],
+  ["/design-v2/esim-region", "/esim/bolge"],
   ["/design-v2/auth/login", "/auth"],
   ["/design-v2/auth/register", "/kayit"],
   ["/design-v2/esim", "/esim"],
@@ -16,8 +16,10 @@ const MAP: Array<[string, string]> = [
 ];
 
 export function designV2ToPublic(path: string): string {
-  const clean = path.replace(/\/+$/, "") || "/design-v2";
-  for (const [from, to] of MAP) if (clean === from.replace(/\/$/, "") || clean.startsWith(from.endsWith("/") ? from : `${from}/`)) return to + clean.slice(from.replace(/\/$/, "").length).replace(/^\/$/, "");
+  const clean = path.replace(/\/+$/, "");
+  for (const [from, to] of MAP) {
+    if (clean === from || clean.startsWith(`${from}/`)) return to + clean.slice(from.length);
+  }
   return "/esim";
 }
 
