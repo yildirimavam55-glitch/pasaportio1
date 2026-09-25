@@ -208,7 +208,7 @@ const CATALOGUE_SELECT =
 export type AdminCatalogueQuery = {
   page: number;
   limit: number;
-  service: "ESIM" | "LOUNGE";
+  service: "ESIM" | "LOUNGE" | "VIGNETTE";
   search: string;
   providerId: string;
   countryIso: string;
@@ -227,7 +227,7 @@ function normalizeCatalogueQuery(input: Partial<AdminCatalogueQuery> | undefined
   return {
     page: Math.max(1, Number(input?.page ?? 1)),
     limit,
-    service: input?.service === "LOUNGE" ? "LOUNGE" : "ESIM",
+    service: input?.service === "LOUNGE" || input?.service === "VIGNETTE" ? input.service : "ESIM",
     search: String(input?.search ?? "").trim().slice(0, 120),
     providerId: String(input?.providerId ?? "ALL"),
     countryIso: String(input?.countryIso ?? "ALL").toUpperCase().slice(0, 4),
