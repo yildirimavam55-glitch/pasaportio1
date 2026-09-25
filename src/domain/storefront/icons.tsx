@@ -3,17 +3,17 @@ import {
   Gauge, Globe2, Headphones, HelpCircle, Hotel, Info, Languages, LifeBuoy, Luggage, Mail, MapPin, Medal,
   MessageCircle, Monitor, Navigation, Phone, Plane, PlaneLanding, PlaneTakeoff, QrCode, Route, Settings,
   ShieldCheck, ShoppingBag, ShowerHead, Signal, Smartphone, Sparkles, Star, Tag, TicketCheck, Timer, Utensils,
-  Wallet, Wifi, Zap,
+  Wallet, Wifi, Zap, Globe, Sofa, CalendarCheck, LockKeyhole, FileCheck2, Map as MapIcon,
   type LucideIcon,
 } from "lucide-react";
 
 /** One approved icon family, grouped for the visual picker. */
 export const ICON_LIBRARY: Record<string, string[]> = {
-  Seyahat: ["Plane", "PlaneTakeoff", "PlaneLanding", "Luggage", "BaggageClaim", "MapPin", "Route", "Compass", "Navigation", "Hotel", "Car"],
+  Seyahat: ["Plane", "PlaneTakeoff", "PlaneLanding", "Luggage", "BaggageClaim", "MapPin", "Route", "Compass", "Navigation", "Hotel", "Car", "Map", "Globe"],
   Bağlantı: ["Signal", "Wifi", "Smartphone", "QrCode", "Zap", "Monitor", "Languages"],
-  Havalimanı: ["Building2", "Coffee", "Utensils", "ShowerHead", "TicketCheck", "Clock", "Timer"],
+  Havalimanı: ["Building2", "Coffee", "Utensils", "ShowerHead", "TicketCheck", "Clock", "Timer", "Sofa", "CalendarCheck"],
   Destek: ["Headphones", "LifeBuoy", "MessageCircle", "Phone", "Mail", "HelpCircle", "Info"],
-  Güven: ["ShieldCheck", "BadgeCheck", "CheckCircle2", "Star", "Medal", "Bell"],
+  Güven: ["ShieldCheck", "BadgeCheck", "CheckCircle2", "Star", "Medal", "Bell", "LockKeyhole", "FileCheck2"],
   Ticaret: ["CreditCard", "Wallet", "ShoppingBag", "Tag", "Gauge", "Globe2", "Sparkles", "Settings", "ArrowRight"],
 };
 
@@ -22,7 +22,7 @@ const ICONS: Record<string, LucideIcon> = {
   Gauge, Globe2, Headphones, HelpCircle, Hotel, Info, Languages, LifeBuoy, Luggage, Mail, MapPin, Medal,
   MessageCircle, Monitor, Navigation, Phone, Plane, PlaneLanding, PlaneTakeoff, QrCode, Route, Settings,
   ShieldCheck, ShoppingBag, ShowerHead, Signal, Smartphone, Sparkles, Star, Tag, TicketCheck, Timer, Utensils,
-  Wallet, Wifi, Zap,
+  Wallet, Wifi, Zap, Globe, Sofa, CalendarCheck, LockKeyhole, FileCheck2, Map: MapIcon,
 };
 
 export function StorefrontIcon({ name, className }: { name: string | undefined; className?: string }) {
