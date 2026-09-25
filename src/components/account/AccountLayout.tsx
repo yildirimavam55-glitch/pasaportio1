@@ -57,8 +57,8 @@ export function AccountLayout({
 
   const v2 = useIsV2();
   const inner = (
-        <div className={v2 ? "grid gap-4" : "grid gap-6 lg:grid-cols-[15rem_minmax(0,1fr)]"}>
-          <aside className={v2 ? "hidden" : "hidden lg:block"}>
+        <div className={v2 ? "grid gap-4 lg:grid-cols-[15rem_minmax(0,1fr)] lg:gap-8" : "grid gap-6 lg:grid-cols-[15rem_minmax(0,1fr)]"}>
+          <aside className={v2 ? "hidden lg:block" : "hidden lg:block"}>
             <p className="px-3 text-xs font-bold uppercase text-primary">{copy.eyebrow}</p>
             <nav className="mt-3 grid gap-1" aria-label={copy.eyebrow}>
               {NAV.map(({ key, to, icon: Icon }) => {
@@ -86,7 +86,7 @@ export function AccountLayout({
             {active !== "overview" && (
               <Link
                 to="/account"
-                className={`mb-3 inline-flex min-h-10 items-center gap-1 text-sm font-semibold text-primary ${v2 ? "" : "lg:hidden"}`}
+                className={`mb-3 inline-flex min-h-10 items-center gap-1 text-sm font-semibold text-primary ${v2 ? "lg:hidden" : "lg:hidden"}`}
               >
                 <ChevronLeft className="size-4" />
                 {copy.back}
@@ -99,10 +99,10 @@ export function AccountLayout({
               </div>
               {actions && <div className="flex shrink-0 items-center gap-2">{actions}</div>}
             </header>
-            <div className={v2 ? "mt-4" : "mt-6"}>{children}</div>
+            <div className={v2 ? "mt-4 lg:mt-6" : "mt-6"}>{children}</div>
 
             {active === "overview" && (
-              <nav className={v2 ? "mt-6 grid gap-2" : "mt-10 grid gap-2 lg:hidden"} aria-label={copy.eyebrow}>
+              <nav className={v2 ? "mt-6 grid gap-2 lg:hidden" : "mt-10 grid gap-2 lg:hidden"} aria-label={copy.eyebrow}>
                 {NAV.filter((item) => item.key !== "overview").map(({ key, to, icon: Icon }) => (
                   <Link
                     key={key}

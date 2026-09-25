@@ -15,6 +15,7 @@ import {
   Plane,
   Search,
   Signal,
+  ShoppingBag,
   Sun,
   UserRound,
   X,
@@ -39,6 +40,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { CountryFlag } from "./CountryFlag";
 import { StickyQuickSearch } from "./StickyQuickSearch";
 import { useThemePreference, type ThemePreference } from "@/components/ThemePreference";
+import { useCart } from "@/domain/cart/store";
 
 const localeMeta = {
   tr: { iso: "TR", short: "TR" },
@@ -227,6 +229,7 @@ export function PublicShell({
   const [languageOpen, setLanguageOpen] = useState(false);
   const [accountOpen, setAccountOpen] = useState(false);
   const [signedIn, setSignedIn] = useState(false);
+  const { count } = useCart();
   const isHeaderOverlayOpen = menuOpen || languageOpen || accountOpen;
   useEffect(() => {
     void supabase.auth.getSession().then(({ data }) => setSignedIn(Boolean(data.session)));
@@ -287,30 +290,15 @@ export function PublicShell({
                 </Link>
               </>
             )}
-            <Link
-              to="/"
-              search={{ service: activeService ?? "esim" }}
-              hash="popular"
-              className="nav-link"
-            >
-              {copy.nav.destinations}
-            </Link>
-            <Link
-              to="/"
-              search={{ service: activeService ?? "esim" }}
-              hash="how"
-              className="nav-link"
-            >
-              {copy.nav.how}
-            </Link>
-            <Link
-              to="/destek"
-              className="nav-link"
-            >
-              {copy.nav.support}
-            </Link>
+            <Link to="/vignette" className="nav-link">Vignette</Link>
           </nav>
           <div className="flex shrink-0 items-center gap-1 sm:gap-1.5">
+            <Button asChild variant="ghost" size="icon" className="relative hidden size-11 lg:inline-flex">
+              <Link to="/sepet" aria-label={locale === "tr" ? "Sepet" : locale === "de" ? "Warenkorb" : "Cart"}>
+                <ShoppingBag className="size-5" />
+                {count > 0 && <span className="absolute right-0.5 top-0.5 grid size-4 place-items-center rounded-full bg-accent text-[9px] font-bold text-accent-foreground">{count}</span>}
+              </Link>
+            </Button>
             <LanguageMenu
               open={languageOpen}
               onOpenChange={(open) => {
@@ -366,11 +354,6 @@ export function PublicShell({
                 </Link>
               </Button>
             )}
-            <Button asChild className="hidden lg:inline-flex">
-              <Link to="/" search={{ service: activeService ?? "esim" }} hash="finder">
-                {copy.nav.plan}
-              </Link>
-            </Button>
             <Sheet
               open={menuOpen}
               onOpenChange={(open) => {
@@ -382,7 +365,7 @@ export function PublicShell({
               }}
             >
               <SheetTrigger asChild>
-                <Button variant="ghost" size="icon" className="size-11" aria-label="Menü">
+                <Button variant="ghost" size="icon" className="size-11 lg:hidden" aria-label="Menü">
                   <Menu className="size-[18px] sm:size-5" />
                 </Button>
               </SheetTrigger>

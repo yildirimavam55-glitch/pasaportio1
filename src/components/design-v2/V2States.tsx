@@ -32,7 +32,7 @@ export function V2State({ tone, title, text, action }: { tone: V2Tone; title: st
 export function V2PageTitle({ title, lead }: { title: string; lead?: ReactNode }) {
   return (
     <header className="mb-4">
-      <h1 className="font-display text-xl font-bold text-foreground sm:text-2xl">{title}</h1>
+      <h1 className="font-display text-xl font-bold text-foreground sm:text-2xl lg:text-4xl">{title}</h1>
       {lead && <p className="mt-1 text-sm text-muted-foreground">{lead}</p>}
     </header>
   );

@@ -82,7 +82,7 @@ export function V2SelectedProductSummary({
   onAdd: () => void;
 }) {
   return (
-    <section aria-label={title} className="pointer-events-auto w-full rounded-2xl border border-[var(--v2-service)]/40 bg-card/98 p-3 shadow-xl backdrop-blur">
+    <section aria-label={title} className="pointer-events-auto w-full rounded-2xl border border-[var(--v2-service)]/40 bg-card/98 p-3 shadow-xl backdrop-blur lg:w-[25rem] lg:p-4">
       <div className="flex min-w-0 items-start justify-between gap-3">
         <div className="min-w-0">
           <p className="truncate font-display text-sm font-bold text-foreground">{title}</p>
