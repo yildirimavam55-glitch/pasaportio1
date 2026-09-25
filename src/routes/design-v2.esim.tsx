@@ -222,7 +222,7 @@ function GlobalUnlimited({ plans, c }: { plans: EsimPackage[]; c: (typeof T)["tr
         {plans.map((pkg) => {
           const inCart = lines.some((line) => line.productId === pkg.id);
           return (
-            <li key={pkg.id} data-global-plan-id={pkg.id} className="w-[56%] min-w-0 shrink-0 snap-start sm:w-auto">
+            <li key={pkg.id} data-global-plan-id={pkg.id} className="w-[66%] min-w-0 shrink-0 snap-start sm:w-auto">
               <article className={`flex h-full min-h-44 flex-col rounded-xl border bg-card p-3.5 shadow-sm transition-colors ${inCart ? "border-primary ring-1 ring-primary" : "border-border"}`}>
                 <div className="flex min-w-0 items-center gap-2 font-display text-base font-bold text-foreground">
                   <InfinityIcon className="size-5 shrink-0 text-primary" />
