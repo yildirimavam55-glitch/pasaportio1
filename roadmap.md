@@ -1,5 +1,13 @@
 # Phase 1.3 Roadmap
 
+## V2 regional package cart identity
+
+- [x] Separate the searched destination from the selected product's real identity
+- [x] Persist normalized country/region identity and real coverage in V2 cart lines
+- [x] Show the same localized identity in V2 package details, cart, and checkout
+- [x] Verify TR/DE country and Europe products in TR/DE/EN at 360/390/430 px
+- [x] Confirm Unlimited selection, catalogue, pricing, supplier, payment, orders, production, and publish state are unchanged
+
 ## V2 eSIM results final simplification
 
 - [x] Separate exact-country storefront products from technical coverage matches

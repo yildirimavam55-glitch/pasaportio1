@@ -25,7 +25,8 @@ import {
 } from "@/components/ui/sheet";
 import type { Locale } from "@/domain/enums";
 import { flagOf, getCountryByIso } from "@/domain/geo/countries";
-import { commercialDataGb } from "@/domain/esim/customer-presentation";
+import { commercialDataGb, customerCataloguePackageTitle } from "@/domain/esim/customer-presentation";
+import { useIsV2 } from "@/components/design-v2/v2-context";
 import {
   boundedUsagePercent,
   fairUseText,
@@ -90,12 +91,15 @@ export function hasCapability(esim: CustomerEsimRecord, capability: string) {
 }
 
 /** Clean customer-facing identity derived from structured product fields — never the raw supplier title. */
-function displayInfo(esim: CustomerEsimRecord, locale: Locale) {
+function displayInfo(esim: CustomerEsimRecord, locale: Locale, v2: boolean) {
   const copy = ACCOUNT_COPY[locale];
   const info = esim.productInfo;
   const country = info?.destinationIso ? getCountryByIso(info.destinationIso) : undefined;
-  const name = (country?.name[locale] ?? esim.destinationLabel ?? "").trim() || "eSIM";
-  const flag = country ? `${flagOf(country.iso)} ` : "";
+  const structuredIdentity = v2 && info?.coverageIsos.length
+    ? customerCataloguePackageTitle({ locale, coverage: info.coverageIsos, destinationIso: info.destinationIso, packageKind: info.packageKind })
+    : null;
+  const name = structuredIdentity ?? ((country?.name[locale] ?? esim.destinationLabel ?? "").trim() || "eSIM");
+  const flag = country && (!v2 || info?.coverageIsos.length === 1) ? `${flagOf(country.iso)} ` : "";
 
   const structuredGb = info?.dataGb != null ? commercialDataGb(info.dataGb) : null;
   const dataMb =
@@ -137,6 +141,7 @@ export function CustomerEsimCard({
   activationPolicy?: string | null;
 }) {
   const copy = ACCOUNT_COPY[locale];
+  const v2 = useIsV2();
   const [guideOpen, setGuideOpen] = useState(false);
   const status = normalizeCustomerEsimStatus(esim.status);
   const expired = isHistoryEsim({
@@ -145,7 +150,7 @@ export function CustomerEsimCard({
     remainingMb: esim.remainingDataMb,
     expiresAt: esim.expiresAt,
   });
-  const { flag, name, subtitle, coverageCount } = displayInfo(esim, locale);
+  const { flag, name, subtitle, coverageCount } = displayInfo(esim, locale, v2);
   const unlimited = isUnlimitedEsim(esim.totalDataMb, esim.installInfo);
   const usage = boundedUsagePercent(esim.totalDataMb, esim.remainingDataMb);
   const days = remainingDays(esim.expiresAt);
@@ -354,8 +359,9 @@ export function CustomerEsimHistoryRow({
   locale: Locale;
 }) {
   const copy = ACCOUNT_COPY[locale];
+  const v2 = useIsV2();
   const status = normalizeCustomerEsimStatus(esim.status);
-  const { flag, name, subtitle } = displayInfo(esim, locale);
+  const { flag, name, subtitle } = displayInfo(esim, locale, v2);
   const days = remainingDays(esim.expiresAt);
 
   return (

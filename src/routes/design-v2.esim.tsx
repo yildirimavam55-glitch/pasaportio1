@@ -13,7 +13,7 @@ import { useI18n } from "@/i18n";
 import { useCart } from "@/domain/cart/store";
 import { getCountryByIso, POPULAR_COUNTRIES, searchCountries } from "@/domain/geo/countries";
 import { listEsimDestinationStartingPrices, listEsimPackages, listEsimStartingPrices, type EsimPackage } from "@/lib/esim-catalogue.functions";
-import { customerPackageTitle } from "@/domain/esim/customer-presentation";
+import { customerCataloguePackageTitle } from "@/domain/esim/customer-presentation";
 import { estimateUsageNeed, type EsimUsageSettings } from "@/domain/esim/usage-recommendation";
 import { selectRecommendedPackage } from "@/domain/esim/package-matching";
 import { pickRegionalRecommendations } from "@/domain/esim/supplier-metadata";
@@ -221,13 +221,16 @@ function Packages({ iso, name, c }: { iso: string; name: string; c: (typeof T)["
       productId: p.id,
       providerProductId: p.providerProductId,
       serviceType: "ESIM",
-      name: customerPackageTitle({ locale, destinationIso: iso, routeIsos: [], coverage: p.coverage }),
+      name: customerCataloguePackageTitle({ locale, destinationIso: p.countryIso, coverage: p.coverage, packageKind: p.packageKind, regionFamily: p.regionFamily }),
       meta: p.unlimited ? c.unlimited : `${p.dataGb ?? "—"} GB`,
       price: p.salePrice,
       currency: p.currency,
       dataGb: p.dataGb,
       validityDays: p.validityDays,
       coverage: p.coverage,
+      destinationIso: p.countryIso,
+      packageKind: p.packageKind,
+      regionFamily: p.regionFamily,
       isTest: p.isTest,
     });
 
@@ -309,5 +312,6 @@ function PackageDetails({ pkg, onClose, onAdd, c, locale, inCart, activationText
     pkg.highSpeedAllowance ? ["FUP", pkg.highSpeedAllowance] : null,
     [c.activation, activationText(pkg)],
   ].filter(Boolean) as string[][]);
-  return <Sheet open onOpenChange={(open) => { if (!open) onClose(); }}><SheetContent side="bottom" className="max-h-[82dvh] rounded-t-3xl pb-[calc(1rem+env(safe-area-inset-bottom))] sm:left-1/2 sm:max-w-xl sm:-translate-x-1/2 sm:rounded-3xl sm:border"><SheetHeader className="pr-10 text-left"><SheetTitle>{c.details}</SheetTitle><SheetDescription>{pkg.unlimited ? c.unlimited : `${pkg.dataGb ?? "—"} GB`} · {pkg.validityDays ?? "—"} {c.days}</SheetDescription></SheetHeader><dl className="mt-4 grid gap-2 text-sm">{rows.map(([label, value]) => <div key={label} className="grid grid-cols-[minmax(0,1fr)_minmax(0,1.5fr)] gap-3 border-b border-border pb-2"><dt className="text-muted-foreground">{label}</dt><dd className="break-words text-right font-semibold">{value}</dd></div>)}</dl><div className="mt-5 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3"><strong className="text-xl text-foreground">{money(pkg.salePrice ?? 0, pkg.currency)}</strong><Button type="button" onClick={() => onAdd(pkg)} variant={inCart ? "secondary" : "default"}>{inCart ? c.added : c.select}</Button></div></SheetContent></Sheet>;
+  const identity = customerCataloguePackageTitle({ locale, destinationIso: pkg.countryIso, coverage: pkg.coverage, packageKind: pkg.packageKind, regionFamily: pkg.regionFamily });
+  return <Sheet open onOpenChange={(open) => { if (!open) onClose(); }}><SheetContent side="bottom" className="max-h-[82dvh] rounded-t-3xl pb-[calc(1rem+env(safe-area-inset-bottom))] sm:left-1/2 sm:max-w-xl sm:-translate-x-1/2 sm:rounded-3xl sm:border"><SheetHeader className="pr-10 text-left"><SheetTitle>{identity}</SheetTitle><SheetDescription>{pkg.unlimited ? c.unlimited : `${pkg.dataGb ?? "—"} GB`} · {pkg.validityDays ?? "—"} {c.days}</SheetDescription></SheetHeader><dl className="mt-4 grid gap-2 text-sm">{rows.map(([label, value]) => <div key={label} className="grid grid-cols-[minmax(0,1fr)_minmax(0,1.5fr)] gap-3 border-b border-border pb-2"><dt className="text-muted-foreground">{label}</dt><dd className="break-words text-right font-semibold">{value}</dd></div>)}</dl><div className="mt-5 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3"><strong className="text-xl text-foreground">{money(pkg.salePrice ?? 0, pkg.currency)}</strong><Button type="button" onClick={() => onAdd(pkg)} variant={inCart ? "secondary" : "default"}>{inCart ? c.added : c.select}</Button></div></SheetContent></Sheet>;
 }

@@ -7,11 +7,14 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useI18n } from "@/i18n";
 import { getCustomerOrderDetail } from "@/lib/customer-account.functions";
+import { customerOrderPackageTitle } from "@/domain/esim/customer-presentation";
+import { useIsV2 } from "@/components/design-v2/v2-context";
 
 
 export function OrderDetailPage({ id }: { id: string }) {
   const { locale } = useI18n();
   const copy = ACCOUNT_COPY[locale];
+  const v2 = useIsV2();
   const detail = useQuery({
     queryKey: ["customer-order-detail", id],
     queryFn: () => getCustomerOrderDetail({ data: { orderId: id } }),
@@ -53,9 +56,9 @@ export function OrderDetailPage({ id }: { id: string }) {
           <ul className="mt-4 grid gap-3">
             {order.items.map((item) => (
               <li key={item.id} className="grid gap-1 border-b border-border/60 pb-3 last:border-b-0">
-                <p className="font-semibold">{item.name}</p>
+                <p className="font-semibold">{v2 && item.serviceType === "ESIM" ? customerOrderPackageTitle({ locale, fallbackName: item.name, destination: item.destination, detailsSnapshot: item.detailsSnapshot }) : item.name}</p>
                 <p className="text-xs text-muted-foreground">
-                  {[item.destination, `${copy.orders.quantity}: ${item.quantity}`]
+                  {[v2 && item.serviceType === "ESIM" ? null : item.destination, `${copy.orders.quantity}: ${item.quantity}`]
                     .filter(Boolean)
                     .join(" · ")}
                 </p>

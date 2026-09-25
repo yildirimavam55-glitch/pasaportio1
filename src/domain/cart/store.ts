@@ -18,6 +18,10 @@ export type CartLine = {
   dataGb?: number | null;
   validityDays?: number | null;
   coverage?: string[];
+  /** Product identity snapshot; deliberately separate from the searched destination. */
+  destinationIso?: string | null;
+  packageKind?: string | null;
+  regionFamily?: "EUROPE" | "EUROPE_USA" | "MIDDLE_EAST" | "ASIA" | "AFRICA" | "AMERICAS" | "GLOBAL" | null;
   isTest?: boolean;
   /** Lounge purchase snapshot (no reservation is created). */
   airport?: string | null;
