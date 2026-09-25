@@ -28,7 +28,7 @@ const MIDDLE_EAST_ISOS = new Set([
   "YE",
 ]);
 
-const GLOBAL_COVERAGE_THRESHOLD = 50;
+export const GLOBAL_COVERAGE_THRESHOLD = 50;
 const DOMINANT_SHARE = 0.6;
 
 export const COVERAGE_REGION_ORDER: CoverageRegionKey[] = [

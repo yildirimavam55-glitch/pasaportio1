@@ -1,7 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useMemo, useState } from "react";
-import { AlertTriangle, ChevronDown, Plane, RadioTower } from "lucide-react";
+import { AlertTriangle, ChevronDown, Plane, RadioTower, Ticket } from "lucide-react";
+import { CountryFlag } from "@/components/travel/CountryFlag";
+import { adminScopeOf, countryLabel, matchContext, resolveCountryQuery, type CountrySummary, type MatchContext } from "@/domain/esim/admin-catalogue";
+import { foldText } from "@/domain/geo/countries";
 import { AdminGate } from "@/components/AdminGate";
 import { AdminDrawer, AdminError, AdminLoading, AdminPanel, DataRow, EmptyState, Field, StatusBadge, money } from "@/components/admin/AdminUi";
 import { adminHead } from "@/components/admin/AdminSectionPage";
@@ -25,7 +28,7 @@ function PriceSourceBadge({ product }: { product: any }) {
   const source = priceSource(product);
   if (source === "REVIEW") return <span className="inline-flex rounded-full bg-destructive/10 px-2 py-0.5 text-[10px] font-bold text-destructive">Fiyat incelemesi gerekli</span>;
   if (source === "MANUAL") return <span className="inline-flex rounded-full bg-warning/15 px-2 py-0.5 text-[10px] font-bold text-foreground">Manuel fiyat</span>;
-  if (source === "LEGACY") return <span className="inline-flex rounded-full bg-secondary px-2 py-0.5 text-[10px] font-bold text-muted-foreground">Önceki katalog fiyatı</span>;
+  if (source === "LEGACY") return <span className="inline-flex rounded-full bg-secondary px-2 py-0.5 text-[10px] font-bold text-muted-foreground"title="Bu fiyat için kayıtlı bir fiyat kuralı çıktısı yok; aktif kuralın bu fiyatı ürettiği kanıtlanamaz.">Önceki katalog fiyatı · kural kaydı yok</span>;
   return <span className="inline-flex rounded-full bg-success/10 px-2 py-0.5 text-[10px] font-bold text-success">Kural uygulandı</span>;
 }
 
@@ -34,51 +37,177 @@ export const Route = createFileRoute("/_authenticated/admin/products")({
   component: Products,
 });
 
+type Service = "ESIM" | "LOUNGE" | "VIGNETTE";
+type Scope = "ALL" | "COUNTRY" | "REGION" | "GLOBAL" | "SUBDIVISION";
+type DataType = "ALL" | "STANDARD" | "UNLIMITED";
+
+const SCOPE_LABEL: Record<Exclude<Scope, "ALL">, string> = { COUNTRY: "Ülke ürünü", REGION: "Bölgesel", GLOBAL: "Global", SUBDIVISION: "Alt bölge" };
+
+function detailOf(product: any) {
+  const details = product.esim_product_details;
+  return Array.isArray(details) ? details[0] : details;
+}
+
+function unlimitedTier(name: string): string {
+  if (/unlimited plus/i.test(name)) return "Sınırsız Plus";
+  if (/unlimited essential/i.test(name)) return "Sınırsız Essential";
+  if (/unlimited lite/i.test(name)) return "Sınırsız Lite";
+  return "Sınırsız";
+}
+
+function ProductRow({ product, selected, onToggle, onOpen, match }: { product: any; selected: boolean; onToggle: () => void; onOpen: () => void; match?: MatchContext | null }) {
+  const detail = detailOf(product);
+  const isEsim = product.service_type === "ESIM";
+  const scope = isEsim ? adminScopeOf(detail) : null;
+  const coverage: string[] = detail?.coverage_country_isos ?? [];
+  const title = isEsim
+    ? `${detail?.unlimited_data ? unlimitedTier(product.name ?? "") : `${detail?.data_gb == null ? "—" : Number(detail.data_gb)} GB`} · ${detail?.validity_days ?? "—"} gün`
+    : (product.lounge_product_details?.lounge_name ?? product.name);
+  const where = !isEsim
+    ? `${product.lounge_product_details?.iata ?? product.airports?.iata ?? "—"} · ${product.lounge_product_details?.terminal ?? "Terminal belirtilmedi"}`
+    : scope === "COUNTRY" && detail?.country_iso
+      ? countryLabel(detail.country_iso)
+      : `${detail?.regions?.name ?? SCOPE_LABEL[scope ?? "REGION"]} · ${coverage.length} ülke`;
+  const margin = itemMargin(Number(product.sale_price ?? 0), Number(product.provider_cost ?? 0));
+  return (
+    <div className="flex items-start gap-2 border-b border-border px-2 py-2.5 text-xs last:border-0">
+      <input type="checkbox" className="mt-1" aria-label="Ürünü seç" checked={selected} onChange={onToggle} />
+      <button type="button" onClick={onOpen} className="grid w-full min-w-0 gap-1.5 text-left hover:opacity-80 sm:grid-cols-[minmax(0,1fr)_auto] sm:gap-4">
+        <span className="min-w-0">
+          <span className="flex flex-wrap items-center gap-2">
+            {isEsim && scope === "COUNTRY" && detail?.country_iso && <CountryFlag iso={detail.country_iso} />}
+            <strong className="text-sm">{title}</strong>
+          </span>
+          <span className="mt-0.5 block text-muted-foreground">{where}</span>
+          <span className="mt-1 flex flex-wrap gap-1">
+            {isEsim && <span className="rounded-full bg-secondary px-2 py-0.5 text-[10px] font-bold">{detail?.unlimited_data ? "UNLIMITED" : "STANDARD"}</span>}
+            {isEsim && scope && scope !== "COUNTRY" && <span className="rounded-full bg-info/10 px-2 py-0.5 text-[10px] font-bold text-info">{SCOPE_LABEL[scope]}</span>}
+            <StatusBadge value={product.lifecycle} />
+            {match && match.kind !== "COUNTRY" && <span className="rounded-full border border-info/30 px-2 py-0.5 text-[10px] font-semibold text-info">{match.label}</span>}
+          </span>
+          <span className="mt-1 block truncate text-[10px] text-muted-foreground">{product.name} · {product.provider_external_id ?? "—"}</span>
+        </span>
+        <span className="grid content-start gap-0.5 sm:text-right">
+          <span className="text-sm font-semibold">{product.sale_price == null ? "Fiyat yok" : money(product.sale_price, product.currency)} <span className="text-[10px] font-normal text-muted-foreground">satış</span></span>
+          <span className="text-muted-foreground">{product.provider_cost == null ? "—" : money(product.provider_cost, product.provider_currency ?? product.currency)} tedarikçi maliyeti</span>
+          <span className={product.margin_flagged ? "font-semibold text-destructive" : ""}>{margin.percent == null ? "—" : `%${margin.percent.toFixed(1)} marj`}</span>
+          <span className="text-muted-foreground">{product.providers?.name ?? "Provider yok"}</span>
+          <span><PriceSourceBadge product={product} /></span>
+        </span>
+      </button>
+    </div>
+  );
+}
+
+function ProductSection({ title, query, selectedIds, onToggle, onOpen, matchIso, rowsRef }: { title: string; query: Record<string, unknown>; selectedIds: string[]; onToggle: (id: string) => void; onOpen: (product: any) => void; matchIso?: string; rowsRef?: never }) {
+  const [page, setPage] = useState(1);
+  const full = { limit: 100, ...query, page };
+  const result = useQuery({ queryKey: ["admin-catalogue-v4", full], queryFn: () => getAdminCatalogue({ data: full as any }), placeholderData: (previous) => previous });
+  void rowsRef;
+  if (result.isPending) return <AdminLoading />;
+  if (result.error) return <AdminError error={result.error} />;
+  const rows = (result.data?.rows ?? []) as any[];
+  return (
+    <section className="grid gap-1">
+      <h4 className="px-2 pt-2 text-[11px] font-bold uppercase tracking-wide text-muted-foreground">{title} · {result.data?.filtered ?? 0}</h4>
+      {!rows.length ? <p className="px-2 pb-2 text-xs text-muted-foreground">Ürün yok.</p> : rows.map((product) => (
+        <ProductRow key={product.id} product={product} selected={selectedIds.includes(product.id)} onToggle={() => onToggle(product.id)} onOpen={() => onOpen(product)} match={matchIso ? matchContext(detailOf(product), matchIso) : null} />
+      ))}
+      {(result.data?.pageCount ?? 1) > 1 && (
+        <div className="flex items-center gap-2 px-2 py-1 text-xs">
+          <span className="text-muted-foreground">sayfa {result.data?.page}/{result.data?.pageCount}</span>
+          <Button size="sm" variant="outline" disabled={page <= 1} onClick={() => setPage((value) => value - 1)}>Önceki</Button>
+          <Button size="sm" variant="outline" disabled={page >= (result.data?.pageCount ?? 1)} onClick={() => setPage((value) => value + 1)}>Sonraki</Button>
+        </div>
+      )}
+    </section>
+  );
+}
+
+function CountryPanel({ summary, selectedIds, onToggle, onOpen }: { summary: CountrySummary; selectedIds: string[]; onToggle: (id: string) => void; onOpen: (product: any) => void }) {
+  const [showWide, setShowWide] = useState(false);
+  const base = { service: "ESIM" };
+  return (
+    <div className="border-t border-border p-2">
+      {summary.standard > 0 && <ProductSection title="Standard" query={{ ...base, countryIso: summary.iso, scope: "COUNTRY", dataType: "STANDARD" }} selectedIds={selectedIds} onToggle={onToggle} onOpen={onOpen} />}
+      {summary.unlimited > 0 && <ProductSection title="Unlimited" query={{ ...base, countryIso: summary.iso, scope: "COUNTRY", dataType: "UNLIMITED" }} selectedIds={selectedIds} onToggle={onToggle} onOpen={onOpen} />}
+      {summary.standard + summary.unlimited === 0 && <p className="px-2 py-2 text-xs text-muted-foreground">Bu ülkeye özel ürün yok.</p>}
+      {summary.regional + summary.global > 0 && (
+        <div className="mt-2 rounded-md bg-secondary/30 p-1">
+          <Button size="sm" variant="ghost" onClick={() => setShowWide((value) => !value)}>
+            {showWide ? "Kapsayan çok ülkeli ürünleri gizle" : `${countryLabel(summary.iso)} ülkesini kapsayan çok ülkeli ürünler (${summary.regional} bölgesel · ${summary.global} global)`}
+          </Button>
+          {showWide && (
+            <>
+              {summary.regional > 0 && <ProductSection title="Bölgesel / çok ülkeli" query={{ ...base, coverageIso: summary.iso, scope: "REGION" }} selectedIds={selectedIds} onToggle={onToggle} onOpen={onOpen} matchIso={summary.iso} />}
+              {summary.global > 0 && <ProductSection title="Global" query={{ ...base, coverageIso: summary.iso, scope: "GLOBAL" }} selectedIds={selectedIds} onToggle={onToggle} onOpen={onOpen} matchIso={summary.iso} />}
+            </>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
 function Products() {
   const queryClient = useQueryClient();
-  const [service, setService] = useState<"ESIM" | "LOUNGE">("ESIM");
-  const [openId, setOpenId] = useState<string | null>(null);
+  const [service, setService] = useState<Service>("ESIM");
+  const [openProduct, setOpenProduct] = useState<any>(null);
   const [search, setSearch] = useState("");
   const [provider, setProvider] = useState("ALL");
-  const [place, setPlace] = useState("ALL");
+  const [scope, setScope] = useState<Scope>("ALL");
+  const [dataType, setDataType] = useState<DataType>("ALL");
   const [availability, setAvailability] = useState<"ALL" | "AVAILABLE" | "UNAVAILABLE">("ALL");
   const [lifecycle, setLifecycle] = useState("ALL");
   const [marginOnly, setMarginOnly] = useState(false);
+  const [countrySearch, setCountrySearch] = useState("");
+  const [openCountries, setOpenCountries] = useState<string[]>([]);
   const [page, setPage] = useState(1);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [bulkRule, setBulkRule] = useState("");
 
+  const facets = useQuery({ queryKey: ["admin-catalogue-facets-v2"], queryFn: () => getAdminCatalogueFacets() });
+  const rules = useQuery({ queryKey: ["pricing-rules"], queryFn: () => listPricingRules() });
+  const summaries = (facets.data?.countrySummaries ?? []) as CountrySummary[];
+  const knownIsos = useMemo(() => summaries.map((row) => row.iso), [summaries]);
+
+  // A search that is an ISO code or a country name becomes a coverage search,
+  // so every result can say why it matched.
+  const countryMatch = service === "ESIM" ? resolveCountryQuery(search, knownIsos) : null;
+  const filtersActive = Boolean(search.trim()) || provider !== "ALL" || scope !== "ALL" || dataType !== "ALL" || availability !== "ALL" || lifecycle !== "ALL" || marginOnly;
+  const browseCountries = service === "ESIM" && !filtersActive;
+
   // Server-side paging: the catalogue holds thousands of products, so the
   // browser only ever receives the current page.
-  const query = { page, limit: 50, service, search, providerId: provider, countryIso: place, availability, lifecycle, packageKind: "ALL", marginOnly };
+  const query = {
+    page, limit: 50, service,
+    search: countryMatch ? "" : search,
+    coverageIso: countryMatch ?? "",
+    providerId: provider, countryIso: "ALL", availability, lifecycle, packageKind: "ALL", marginOnly,
+    scope: service === "ESIM" ? scope : "ALL", dataType: service === "ESIM" ? dataType : "ALL",
+  };
   const catalogue = useQuery({
     queryKey: ["admin-catalogue-v4", query],
-    queryFn: () => getAdminCatalogue({ data: query }),
+    queryFn: () => getAdminCatalogue({ data: query as any }),
     placeholderData: (previous) => previous,
+    enabled: !browseCountries,
   });
-  const facets = useQuery({ queryKey: ["admin-catalogue-facets"], queryFn: () => getAdminCatalogueFacets() });
-  const rules = useQuery({ queryKey: ["pricing-rules"], queryFn: () => listPricingRules() });
 
-  useEffect(() => { setPage(1); }, [service, search, provider, place, availability, lifecycle, marginOnly]);
-
-  const placeOf = (product: any) =>
-    product.service_type === "ESIM"
-      ? (product.esim_product_details?.regions?.name ?? product.destinations?.name ?? product.esim_product_details?.country_iso ?? product.esim_product_details?.package_kind ?? "Diğer kapsama")
-      : `${product.lounge_product_details?.iata ?? product.airports?.iata ?? "Havalimanı yok"} · ${product.lounge_product_details?.terminal ?? "Terminal belirtilmedi"}`;
+  useEffect(() => { setPage(1); }, [service, search, provider, scope, dataType, availability, lifecycle, marginOnly]);
 
   const rows: any[] = (catalogue.data?.rows ?? []) as any[];
-  const filtered = rows;
-
-  const groups = useMemo(() => {
-    const map = new Map<string, any[]>();
-    for (const product of filtered) map.set(placeOf(product), [...(map.get(placeOf(product)) ?? []), product]);
-    return [...map.entries()];
-  }, [filtered]);
-
   const providerOptions = (facets.data?.providers ?? []).filter((row) => row.service_type === service);
-  const placeOptions = service === "ESIM" ? (facets.data?.countries ?? []) : [];
-  const selected = rows.find((product: any) => product.id === openId) ?? null;
 
+  const countryRows = useMemo(() => {
+    const term = countrySearch.trim();
+    const list = summaries
+      .filter((row) => row.standard + row.unlimited > 0)
+      .map((row) => ({ ...row, name: countryLabel(row.iso) }))
+      .sort((a, b) => a.name.localeCompare(b.name, "tr"));
+    if (!term) return list;
+    const folded = foldText(term);
+    return list.filter((row) => row.iso === term.toUpperCase() || foldText(row.name).includes(folded) || foldText(countryLabel(row.iso, "en")).includes(folded) || foldText(countryLabel(row.iso, "de")).includes(folded));
+  }, [summaries, countrySearch]);
 
   const bulk = useMutation({
     mutationFn: (action: Parameters<typeof bulkUpdateProducts>[0]["data"]["action"]) =>
@@ -87,46 +216,66 @@ function Products() {
   });
 
   const toggle = (id: string) => setSelectedIds((current) => (current.includes(id) ? current.filter((row) => row !== id) : [...current, id]));
+  const switchService = (next: Service) => { setService(next); setSelectedIds([]); setProvider("ALL"); setScope("ALL"); setDataType("ALL"); };
+  const scopes = facets.data?.scopes;
 
   return (
     <AdminGate title="Ürün kataloğu">
       <div className="grid gap-4">
-        <div className="flex gap-2">
-          <Button size="sm" variant={service === "ESIM" ? "secondary" : "outline"} onClick={() => { setService("ESIM"); setSelectedIds([]); setPlace("ALL"); setProvider("ALL"); }}><RadioTower />eSIM paketleri</Button>
-          <Button size="sm" variant={service === "LOUNGE" ? "secondary" : "outline"} onClick={() => { setService("LOUNGE"); setSelectedIds([]); setPlace("ALL"); setProvider("ALL"); }}><Plane />Lounge’lar</Button>
+        <div className="flex flex-wrap gap-2">
+          <Button size="sm" variant={service === "ESIM" ? "secondary" : "outline"} onClick={() => switchService("ESIM")}><RadioTower />eSIM</Button>
+          <Button size="sm" variant={service === "LOUNGE" ? "secondary" : "outline"} onClick={() => switchService("LOUNGE")}><Plane />Lounge</Button>
+          <Button size="sm" variant={service === "VIGNETTE" ? "secondary" : "outline"} onClick={() => switchService("VIGNETTE")}><Ticket />Vignette</Button>
         </div>
 
         <AdminPanel title="Filtreler">
-          <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
-            <Field label="Ara"><input className="admin-field mt-1 w-full" value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Ürün adı" /></Field>
-            <Field label="Provider">
+          <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+            <Field label="Ara"><input className="admin-field mt-1 w-full" value={search} onChange={(event) => setSearch(event.target.value)} placeholder={service === "ESIM" ? "Ürün adı, ülke adı veya ISO (AU, Australia)" : "Ürün adı"} /></Field>
+            <Field label="Tedarikçi">
               <select className="admin-field mt-1 w-full" value={provider} onChange={(event) => setProvider(event.target.value)}>
                 <option value="ALL">Tümü</option>
                 {providerOptions.map((row: { id: string; name: string }) => <option key={row.id} value={row.id}>{row.name}</option>)}
               </select>
             </Field>
-            <Field label={service === "ESIM" ? "Ülke" : "Havalimanı"}>
-              <select className="admin-field mt-1 w-full" value={place} onChange={(event) => setPlace(event.target.value)}>
+            {service === "ESIM" && (
+              <>
+                <Field label="Kapsama">
+                  <select className="admin-field mt-1 w-full" value={scope} onChange={(event) => setScope(event.target.value as Scope)}>
+                    <option value="ALL">Tümü</option>
+                    <option value="COUNTRY">Ülkeye özel</option>
+                    <option value="REGION">Bölgesel</option>
+                    <option value="GLOBAL">Global</option>
+                    <option value="SUBDIVISION">Alt bölge</option>
+                  </select>
+                </Field>
+                <Field label="Tür">
+                  <select className="admin-field mt-1 w-full" value={dataType} onChange={(event) => setDataType(event.target.value as DataType)}>
+                    <option value="ALL">Tümü</option>
+                    <option value="STANDARD">Standard</option>
+                    <option value="UNLIMITED">Unlimited</option>
+                  </select>
+                </Field>
+              </>
+            )}
+            <Field label="Durum">
+              <select className="admin-field mt-1 w-full" value={lifecycle} onChange={(event) => setLifecycle(event.target.value)}>
                 <option value="ALL">Tümü</option>
-                {placeOptions.map((name: string) => <option key={name} value={name}>{name}</option>)}
+                <option value="PUBLISHED">Yayında</option>
+                <option value="DRAFT">Taslak</option>
+                <option value="PRICE_REVIEW">Fiyat incelemesi</option>
+                {["IMPORTED", "READY", "PAUSED", "UNAVAILABLE", "ARCHIVED"].map((value) => <option key={value} value={value}>{value}</option>)}
               </select>
             </Field>
             <Field label="Uygunluk">
               <select className="admin-field mt-1 w-full" value={availability} onChange={(event) => setAvailability(event.target.value as "ALL" | "AVAILABLE" | "UNAVAILABLE")}>
-
                 <option value="ALL">Tümü</option>
                 <option value="AVAILABLE">Satışa uygun</option>
                 <option value="UNAVAILABLE">Provider’da yok</option>
               </select>
             </Field>
-            <Field label="Yaşam döngüsü">
-              <select className="admin-field mt-1 w-full" value={lifecycle} onChange={(event) => setLifecycle(event.target.value)}>
-                <option value="ALL">Tümü</option>
-                {["IMPORTED", "DRAFT", "READY", "PUBLISHED", "PAUSED", "UNAVAILABLE", "ARCHIVED"].map((value) => <option key={value} value={value}>{value}</option>)}
-              </select>
-            </Field>
             <label className="flex items-end gap-2 text-xs font-semibold"><input type="checkbox" checked={marginOnly} onChange={(event) => setMarginOnly(event.target.checked)} />Yalnızca marj uyarısı olanlar</label>
           </div>
+          {countryMatch && <p className="mt-2 text-[11px] text-muted-foreground">“{search}” bir ülke olarak algılandı: <strong>{countryLabel(countryMatch)} ({countryMatch})</strong> kapsamındaki tüm ürünler gösteriliyor; her ürünün neden eşleştiği etiketlidir.</p>}
         </AdminPanel>
 
         {selectedIds.length > 0 && (
@@ -145,57 +294,61 @@ function Products() {
               <Button size="sm" variant="secondary" disabled={bulk.isPending || !bulkRule} onClick={() => bulk.mutate("ASSIGN_RULE")}>Kuralı ata</Button>
               <Button size="sm" variant="ghost" onClick={() => setSelectedIds([])}>Seçimi temizle</Button>
             </div>
-            <p className="mt-2 text-[11px] text-muted-foreground">Toplu işlemler yalnızca ticari alanları değiştirir; provider kapsama ve maliyet verisi hiçbir zaman değiştirilmez.</p>
           </AdminPanel>
         )}
 
-        {catalogue.isPending ? <AdminLoading /> : catalogue.error ? <AdminError error={catalogue.error} /> : (
-          <AdminPanel title={service === "ESIM" ? "Ülke / bölge / rota grupları" : "Havalimanı → terminal → Lounge"}>
-            {!groups.length ? <EmptyState title={service === "ESIM" ? "Eşleşen eSIM ürünü yok." : "Eşleşen Lounge ürünü yok."} detail="Katalog, provider senkronu ile dolar." /> : (
-              <div className="grid gap-2">
-                {groups.map(([name, products]) => (
-                  <details key={name} className="group rounded-md border border-border bg-background">
-                    <summary className="flex cursor-pointer list-none items-center gap-3 p-3">
-                      <span className={`grid size-8 place-items-center rounded-md ${service === "ESIM" ? "bg-primary-soft text-success" : "bg-sand-soft text-warning"}`}>{service === "ESIM" ? <RadioTower className="size-4" /> : <Plane className="size-4" />}</span>
-                      <strong className="min-w-0 flex-1 text-sm">{name}</strong>
-                      <span className="text-xs text-muted-foreground">{products.length} ürün</span>
-                      <ChevronDown className="size-4 transition group-open:rotate-180" />
-                    </summary>
-                    <div className="border-t border-border p-2">
-                      {products.map((product: any) => {
-                        const margin = itemMargin(Number(product.sale_price ?? 0), Number(product.provider_cost ?? 0));
-                        return (
-                          <div key={product.id} className="flex items-start gap-2 border-b border-border px-2 py-2.5 text-xs last:border-0">
-                            <input type="checkbox" className="mt-1" aria-label="Ürünü seç" checked={selectedIds.includes(product.id)} onChange={() => toggle(product.id)} />
-                            <button type="button" onClick={() => setOpenId(product.id)} className="grid w-full gap-2 text-left hover:opacity-80 sm:grid-cols-[minmax(0,1fr)_auto_auto_auto_auto_auto]">
-                              <span><strong>{product.name}</strong><span className="ml-2 text-muted-foreground">{service === "ESIM" ? (product.esim_product_details?.unlimited_data ? "Sınırsız" : `${product.esim_product_details?.data_gb ?? "—"} GB · ${product.esim_product_details?.validity_days ?? "—"} gün`) : (product.lounge_product_details?.lounge_name ?? "Lounge")}</span></span>
-                              <span className="text-muted-foreground">maliyet {product.provider_cost == null ? "—" : money(product.provider_cost, product.provider_currency ?? product.currency)}</span>
-                              <span className="font-semibold">{product.sale_price == null ? "Fiyat yok" : money(product.sale_price, product.currency)} <PriceSourceBadge product={product} /></span>
-                              <span className={product.margin_flagged ? "font-semibold text-destructive" : ""}>{margin.percent == null ? "—" : `%${margin.percent.toFixed(1)} marj`}</span>
-                              <span className="text-muted-foreground">{product.providers?.name ?? "Provider yok"}</span>
-                              <StatusBadge value={product.lifecycle} />
-                            </button>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </details>
+        {browseCountries ? (
+          facets.isPending ? <AdminLoading /> : facets.error ? <AdminError error={facets.error} /> : (
+            <AdminPanel title="Ülkeler" action={<span className="text-[11px] text-muted-foreground">{countryRows.length} ülke</span>}>
+              <div className="mb-3 flex flex-wrap gap-2 text-xs">
+                {scopes && (["REGION", "GLOBAL", "SUBDIVISION"] as const).filter((key) => scopes[key] > 0).map((key) => (
+                  <Button key={key} size="sm" variant="outline" onClick={() => setScope(key)}>{SCOPE_LABEL[key]} ürünler · {scopes[key]}</Button>
+                ))}
+              </div>
+              <input className="admin-field mb-2 w-full" value={countrySearch} onChange={(event) => setCountrySearch(event.target.value)} placeholder="Ülke ara (ad veya ISO)" aria-label="Ülke ara" />
+              <p className="mb-2 text-[10px] text-muted-foreground">Sayı = o ülkeye özel ürünler (Standard + Unlimited). Ülkeyi de kapsayan bölgesel/global ürünler ayrıca gösterilir ve bu sayıya eklenmez.</p>
+              {!countryRows.length ? <EmptyState title="Eşleşen ülke yok." /> : (
+                <div className="grid gap-1.5">
+                  {countryRows.map((row) => {
+                    const open = openCountries.includes(row.iso);
+                    return (
+                      <div key={row.iso} className="rounded-md border border-border bg-background">
+                        <button type="button" aria-expanded={open} onClick={() => setOpenCountries((current) => open ? current.filter((iso) => iso !== row.iso) : [...current, row.iso])} className="flex w-full items-center gap-3 p-2.5 text-left">
+                          <CountryFlag iso={row.iso} className="text-base" />
+                          <strong className="min-w-0 flex-1 truncate text-sm">{row.name}</strong>
+                          <span className="w-8 text-xs font-semibold text-muted-foreground">{row.iso}</span>
+                          <span className="text-right text-xs"><strong>{row.standard + row.unlimited}</strong> ürün<span className="block text-[10px] text-muted-foreground">{row.standard} std · {row.unlimited} unl{row.regional + row.global ? ` · +${row.regional + row.global} kapsayan` : ""}</span></span>
+                          <ChevronDown className={`size-4 shrink-0 transition ${open ? "rotate-180" : ""}`} />
+                        </button>
+                        {open && <CountryPanel summary={row} selectedIds={selectedIds} onToggle={toggle} onOpen={setOpenProduct} />}
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </AdminPanel>
+          )
+        ) : catalogue.isPending ? <AdminLoading /> : catalogue.error ? <AdminError error={catalogue.error} /> : (
+          <AdminPanel title="Sonuçlar" action={service === "ESIM" && filtersActive ? <Button size="sm" variant="ghost" onClick={() => { setSearch(""); setProvider("ALL"); setScope("ALL"); setDataType("ALL"); setAvailability("ALL"); setLifecycle("ALL"); setMarginOnly(false); }}>Ülke listesine dön</Button> : undefined}>
+            {!rows.length ? <EmptyState title={service === "VIGNETTE" ? "Katalogda Vignette ürünü yok." : "Eşleşen ürün yok."} detail="Katalog, provider senkronu ile dolar." /> : (
+              <div className="rounded-md border border-border bg-background">
+                {rows.map((product) => (
+                  <ProductRow key={product.id} product={product} selected={selectedIds.includes(product.id)} onToggle={() => toggle(product.id)} onOpen={() => setOpenProduct(product)} match={countryMatch ? matchContext(detailOf(product), countryMatch) : null} />
                 ))}
               </div>
             )}
             <div className="mt-3 flex flex-wrap items-center gap-2 border-t border-border pt-3 text-xs">
               <span className="text-muted-foreground">
-                Toplam {catalogue.data?.total ?? 0} ürün · filtrelenen {catalogue.data?.filtered ?? 0} · sayfa {catalogue.data?.page ?? 1}/{catalogue.data?.pageCount ?? 1}
+                Toplam {catalogue.data?.total ?? 0} ürün · eşleşen {catalogue.data?.filtered ?? 0} · sayfa {catalogue.data?.page ?? 1}/{catalogue.data?.pageCount ?? 1}
               </span>
               <span className="flex-1" />
               <Button size="sm" variant="outline" disabled={page <= 1 || catalogue.isFetching} onClick={() => setPage((current) => Math.max(1, current - 1))}>Önceki</Button>
               <Button size="sm" variant="outline" disabled={page >= (catalogue.data?.pageCount ?? 1) || catalogue.isFetching} onClick={() => setPage((current) => current + 1)}>Sonraki</Button>
             </div>
           </AdminPanel>
-
         )}
       </div>
-      <ProductDrawer product={selected} onClose={() => setOpenId(null)} />
+      <ProductDrawer product={openProduct} onClose={() => setOpenProduct(null)} />
     </AdminGate>
   );
 }
