@@ -1,8 +1,17 @@
-import type { EsimPackage } from "@/lib/esim-catalogue.functions";
+type CustomerPackageShape = {
+  countryIso: string | null;
+  unlimited: boolean;
+  dataGb: number | null;
+  validityDays: number | null;
+  coverage: string[];
+  networkGenerations: string[];
+  networks: string[];
+  salePrice: number | null;
+};
 
 // Price is deliberately excluded: customer-equivalent products collapse to
 // the cheapest real storefront option without altering catalogue records.
-export function customerPackageKey(pkg: EsimPackage) {
+export function customerPackageKey(pkg: CustomerPackageShape) {
   return [
     pkg.countryIso,
     pkg.unlimited ? "U" : pkg.dataGb,
@@ -14,15 +23,15 @@ export function customerPackageKey(pkg: EsimPackage) {
 }
 
 /** Existing approved storefront deduplication, shared by country and region views. */
-export function dedupeStorefrontPackages(packages: EsimPackage[]) {
-  const found = new Map<string, EsimPackage>();
+export function dedupeStorefrontPackages<T extends CustomerPackageShape>(packages: T[]) {
+  const found = new Map<string, T>();
   for (const pkg of [...packages].sort((a, b) => (a.salePrice ?? Infinity) - (b.salePrice ?? Infinity))) {
     if (!found.has(customerPackageKey(pkg))) found.set(customerPackageKey(pkg), pkg);
   }
   return [...found.values()];
 }
 
-export function sortStandardPackages(packages: EsimPackage[]) {
+export function sortStandardPackages<T extends CustomerPackageShape>(packages: T[]) {
   return [...packages].sort(
     (a, b) =>
       (a.dataGb ?? 0) - (b.dataGb ?? 0) ||
@@ -31,7 +40,7 @@ export function sortStandardPackages(packages: EsimPackage[]) {
   );
 }
 
-export function sortUnlimitedPackages(packages: EsimPackage[]) {
+export function sortUnlimitedPackages<T extends CustomerPackageShape>(packages: T[]) {
   return [...packages].sort(
     (a, b) =>
       (a.validityDays ?? 0) - (b.validityDays ?? 0) ||
