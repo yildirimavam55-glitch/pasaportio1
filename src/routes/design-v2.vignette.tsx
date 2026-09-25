@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { Car, FileCheck2, Map, ShieldCheck, Smartphone } from "lucide-react";
 import { useState } from "react";
-import { HeroField, heroInputClass, HowItWorks, pick, PromoCard, TrustRow, V2Hero, V2Shell, V2_NOINDEX } from "@/components/design-v2/V2Shell";
+import { HeroField, heroInputClass, HowItWorks, pick, PromoCard, TrustRow, useV2StickySearch, V2Hero, V2Shell, V2StickySearchButton, V2_NOINDEX } from "@/components/design-v2/V2Shell";
 import { V2PickerSheet } from "@/components/design-v2/V2PickerSheet";
 import { Button } from "@/components/ui/button";
 import { useI18n } from "@/i18n";

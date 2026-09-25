@@ -93,7 +93,7 @@ function LoungeV2() {
               <span className="truncate">{airport ? `${airport.city[locale]} (${airport.iata})` : c.ph}</span>
             </Button>
           </V2PickerSheet>
-        </HeroField>
+        </HeroField></div>
       </V2Hero>
 
       {airport ? (
