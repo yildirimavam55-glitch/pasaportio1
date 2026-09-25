@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 
 import { SecurityPage } from "@/components/account/pages/SecurityPage";
 
-export const Route = createFileRoute("/_authenticated/account/security")({
+export const Route = createFileRoute("/_authenticated/legacy-v1/account/security")({
   head: () => ({
     meta: [
       { title: "Güvenlik — Travely" },

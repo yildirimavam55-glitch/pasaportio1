@@ -8,7 +8,7 @@ import { useI18n } from "@/i18n";
 import { mediaUrl, useV2Page, V2Sections, v2PageQuery } from "@/components/design-v2/V2Sections";
 import { v2Text } from "@/domain/storefront/v2";
 
-export const Route = createFileRoute("/design-v2/vignette")({
+export const Route = createFileRoute("/vignette")({
   loader: ({ context }) => context.queryClient.ensureQueryData(v2PageQuery("vignette")),
   head: () => ({
     meta: [

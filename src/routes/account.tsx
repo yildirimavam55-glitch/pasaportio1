@@ -13,7 +13,7 @@ const COPY = {
 
 // Same session check as the production /_authenticated gate, but the signed-out
 // state stays inside the V2 preview instead of jumping to the old /auth screen.
-export const Route = createFileRoute("/design-v2/account")({
+export const Route = createFileRoute("/account")({
   ssr: false,
   head: () => ({ meta: V2_NOINDEX }),
   component: V2AccountGate,

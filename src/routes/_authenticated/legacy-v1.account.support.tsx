@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 
 import { SupportPage } from "@/components/account/pages/SupportPage";
 
-export const Route = createFileRoute("/_authenticated/account/support")({
+export const Route = createFileRoute("/_authenticated/legacy-v1/account/support")({
   head: () => ({
     meta: [
       { title: "Destek — Travely" },

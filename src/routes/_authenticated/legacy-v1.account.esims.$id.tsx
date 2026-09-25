@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 
 import { EsimDetailPage } from "@/components/account/pages/EsimDetailPage";
 
-export const Route = createFileRoute("/_authenticated/account/esims/$id")({
+export const Route = createFileRoute("/_authenticated/legacy-v1/account/esims/$id")({
   head: () => ({
     meta: [
       { title: "eSIM detayı — Travely" },

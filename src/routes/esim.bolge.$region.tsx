@@ -30,7 +30,7 @@ function parseRegion(value: string): ResultRegion {
   return region;
 }
 
-export const Route = createFileRoute("/design-v2/esim-region/$region")({
+export const Route = createFileRoute("/esim/bolge/$region")({
   validateSearch: (search) => ({ country: typeof search["country"] === "string" ? search["country"].slice(0, 2) : "" }),
   params: { parse: ({ region }) => ({ region: parseRegion(region) }), stringify: ({ region }) => ({ region: region.toLowerCase() }) },
   head: ({ params }) => {

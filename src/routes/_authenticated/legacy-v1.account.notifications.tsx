@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 
 import { NotificationsPage } from "@/components/account/pages/NotificationsPage";
 
-export const Route = createFileRoute("/_authenticated/account/notifications")({
+export const Route = createFileRoute("/_authenticated/legacy-v1/account/notifications")({
   head: () => ({
     meta: [
       { title: "Bildirimler — Travely" },

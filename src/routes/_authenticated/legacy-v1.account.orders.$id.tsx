@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 
 import { OrderDetailPage } from "@/components/account/pages/OrderDetailPage";
 
-export const Route = createFileRoute("/_authenticated/account/orders/$id")({
+export const Route = createFileRoute("/_authenticated/legacy-v1/account/orders/$id")({
   head: () => ({
     meta: [
       { title: "Sipariş detayı — Travely" },

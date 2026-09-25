@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 
 import { ProfilePage } from "@/components/account/pages/ProfilePage";
 
-export const Route = createFileRoute("/_authenticated/account/profile")({
+export const Route = createFileRoute("/_authenticated/legacy-v1/account/profile")({
   head: () => ({
     meta: [
       { title: "Profil ve hesap — Travely" },

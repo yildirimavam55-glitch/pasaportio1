@@ -14,7 +14,7 @@ const COPY = {
   en: { title: "Checkout", back: "Back to cart", summary: "Order summary", account: "Account", signedAs: "Signed in", signIn: "Sign in to link this order to your account", signInCta: "Sign in", payment: "Payment", notLive: "Payment is not active yet", notLiveText: "No real payment is taken right now. Once a payment provider is connected you can complete your order here.", cta: "Payment integration pending", empty: "Your cart is empty", browse: "Browse eSIM packages" },
 };
 
-export const Route = createFileRoute("/design-v2/checkout")({
+export const Route = createFileRoute("/odeme")({
   ssr: false,
   head: () => ({ meta: [{ title: "V2 preview — Ödeme" }, ...V2_NOINDEX] }),
   component: V2Checkout,
