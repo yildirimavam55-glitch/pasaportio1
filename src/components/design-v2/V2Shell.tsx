@@ -35,6 +35,7 @@ export function V2Shell({
   nav,
   level = "discovery",
   commerceSelection = false,
+  hideWhatsApp = false,
   stickySearch,
   children,
 }: {
@@ -42,6 +43,7 @@ export function V2Shell({
   nav?: V2Nav;
   level?: V2Level;
   commerceSelection?: boolean;
+  hideWhatsApp?: boolean;
   stickySearch?: ReactNode;
   children: ReactNode;
 }) {
@@ -55,7 +57,7 @@ export function V2Shell({
           <DesktopNav active={active} />
           {children}
         </div>
-        <ActionDock showCart={level === "discovery"} showWhatsApp={!commerceSelection} />
+        <ActionDock showCart={level === "discovery"} showWhatsApp={!commerceSelection && !hideWhatsApp} />
         <BottomNav active={active} />
       </PublicShell>
     </V2Context.Provider>
