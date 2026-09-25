@@ -59,7 +59,9 @@ function EsimV2() {
   const navigate = Route.useNavigate();
   const [query, setQuery] = useState("");
   const [pickerOpen, setPickerOpen] = useState(false);
-  const { count } = useCart();
+  const { lines, addLine, updateQuantity, count } = useCart();
+  const [selectedPackage, setSelectedPackage] = useState<EsimPackage | null>(null);
+  const [selectionQuantity, setSelectionQuantity] = useState(1);
   const prices = useQuery({ queryKey: ["v2-esim-destinations"], queryFn: () => listEsimDestinationStartingPrices() });
   const regionalSummaries = useQuery({ queryKey: ["v2-esim-regions"], queryFn: () => listEsimRegionalSummaries() });
   const priceMap = useMemo(() => new Map((prices.data ?? []).map((price) => [price.targetId, price])), [prices.data]);
@@ -71,10 +73,52 @@ function EsimV2() {
   const heroSearchRef = useRef<HTMLDivElement | null>(null);
   const [heroSearchVisible, setHeroSearchVisible] = useState(true);
   const choose = (iso: string) => {
+    setSelectedPackage(null);
+    setSelectionQuantity(1);
     setQuery("");
     setPickerOpen(false);
     void navigate({ search: { country: iso } });
   };
+  const selectedCartLine = selectedPackage ? lines.find((line) => line.productId === selectedPackage.id) : undefined;
+  const selectedIdentity = selectedPackage ? customerCataloguePackageTitle({ locale, destinationIso: selectedPackage.countryIso, coverage: selectedPackage.coverage, packageKind: selectedPackage.packageKind, regionFamily: selectedPackage.regionFamily }) : "";
+  const selectPackage = (pkg: EsimPackage) => {
+    setSelectedPackage(pkg);
+    setSelectionQuantity(lines.find((line) => line.productId === pkg.id)?.quantity ?? 1);
+  };
+  const addSelectedPackage = () => {
+    if (!selectedPackage || selectedCartLine) return;
+    addLine({
+      productId: selectedPackage.id,
+      providerProductId: selectedPackage.providerProductId,
+      serviceType: "ESIM",
+      name: selectedIdentity,
+      meta: selectedPackage.unlimited ? c.unlimited : `${selectedPackage.dataGb ?? "—"} GB`,
+      price: selectedPackage.salePrice,
+      currency: selectedPackage.currency,
+      quantity: selectionQuantity,
+      dataGb: selectedPackage.dataGb,
+      validityDays: selectedPackage.validityDays,
+      coverage: selectedPackage.coverage,
+      destinationIso: selectedPackage.countryIso,
+      packageKind: selectedPackage.packageKind,
+      regionFamily: selectedPackage.regionFamily,
+      isTest: selectedPackage.isTest,
+    });
+  };
+  const purchaseSummary = selectedPackage ? <V2SelectedProductSummary
+    title={`${selectedPackage.unlimited ? `∞ ${c.unlimited}` : `${selectedPackage.dataGb ?? "—"} GB`} · ${selectedPackage.validityDays ?? "—"} ${c.days}`}
+    subtitle={selectedPackage.coverage.length > 1 ? `${selectedIdentity.replace(/ eSIM$/, "")} · ${selectedPackage.coverage.length} ${c.countries}` : selectedIdentity.replace(/ eSIM$/, "")}
+    price={money(selectedPackage.salePrice ?? 0, selectedPackage.currency)}
+    quantity={selectedCartLine?.quantity ?? selectionQuantity}
+    inCart={Boolean(selectedCartLine)}
+    addLabel={c.select}
+    addedLabel={c.added}
+    cartLabel={c.cart}
+    decreaseLabel={c.decrease}
+    increaseLabel={c.increase}
+    onQuantityChange={(quantity) => selectedCartLine ? updateQuantity(selectedCartLine.productId, quantity) : setSelectionQuantity(quantity)}
+    onAdd={addSelectedPackage}
+  /> : undefined;
   useEffect(() => {
     const target = heroSearchRef.current;
     if (!target) return;
@@ -96,7 +140,7 @@ function EsimV2() {
   ) : undefined;
 
   return (
-    <V2Shell service="esim" commerceSelection={Boolean(selected)} stickySearch={stickySearch}>
+    <V2Shell service="esim" commerceSelection={Boolean(selectedPackage)} stickySearch={stickySearch} purchaseSummary={purchaseSummary}>
       {!selected && <V2Hero image={heroImage} eyebrow="eSIM" title={c.h} subtitle={c.q}>
         <div ref={heroSearchRef}><HeroField icon={<Search className="size-5" />}>
           <V2PickerSheet
@@ -127,7 +171,7 @@ function EsimV2() {
             <Button type="button" variant="ghost" size="sm" onClick={() => setPickerOpen(true)} className="shrink-0 text-primary">{c.back}</Button>
           </div>
           <V2PickerSheet open={pickerOpen} onOpenChange={(open) => { setPickerOpen(open); if (!open) setQuery(""); }} title={c.picker} searchLabel={c.ph} query={query} onQueryChange={setQuery} selectedId={selected.iso} emptyLabel={prices.isLoading ? "…" : c.empty} items={matches.map((item) => { const price = priceMap.get(item.iso); return { id: item.iso, label: item.name[locale], leading: <CountryFlag iso={item.iso} className="h-4 w-6 rounded-sm" />, ...(price ? { price: `${money(price.amount, price.currency)} ${c.from}` } : {}) }; })} onSelect={choose}><span /></V2PickerSheet>
-          <Packages iso={selected.iso} name={selected.name[locale]} c={c} />
+          <Packages iso={selected.iso} name={selected.name[locale]} c={c} selectedPackage={selectedPackage} onSelectPackage={selectPackage} />
         </>
       ) : (
         <>
@@ -230,9 +274,9 @@ function techLabel(p: EsimPackage) {
 }
 
 // Price deliberately excluded: truly equivalent options collapse to the cheaper one.
-function Packages({ iso, name, c }: { iso: string; name: string; c: (typeof T)["tr"] }) {
+function Packages({ iso, name, c, selectedPackage, onSelectPackage }: { iso: string; name: string; c: (typeof T)["tr"]; selectedPackage: EsimPackage | null; onSelectPackage: (pkg: EsimPackage) => void }) {
   const { locale } = useI18n();
-  const { lines, addLine } = useCart();
+  const { lines } = useCart();
   const [type, setType] = useState<"standard" | "unlimited">("standard");
   const [detail, setDetail] = useState<EsimPackage | null>(null);
   const [assistantOpen, setAssistantOpen] = useState(false);
@@ -258,24 +302,6 @@ function Packages({ iso, name, c }: { iso: string; name: string; c: (typeof T)["
     { key: "MESSAGING", label: c.usage[0] ?? "", icon: MessageCircle }, { key: "MAPS", label: c.usage[1] ?? "", icon: MapPin },
     { key: "SOCIAL", label: c.usage[2] ?? "", icon: Share2 }, { key: "VIDEO", label: c.usage[3] ?? "", icon: Video },
   ];
-  const add = (p: EsimPackage) =>
-    addLine({
-      productId: p.id,
-      providerProductId: p.providerProductId,
-      serviceType: "ESIM",
-      name: customerCataloguePackageTitle({ locale, destinationIso: p.countryIso, coverage: p.coverage, packageKind: p.packageKind, regionFamily: p.regionFamily }),
-      meta: p.unlimited ? c.unlimited : `${p.dataGb ?? "—"} GB`,
-      price: p.salePrice,
-      currency: p.currency,
-      dataGb: p.dataGb,
-      validityDays: p.validityDays,
-      coverage: p.coverage,
-      destinationIso: p.countryIso,
-      packageKind: p.packageKind,
-      regionFamily: p.regionFamily,
-      isTest: p.isTest,
-    });
-
   const activationText = (p: EsimPackage) => {
     if (p.activationPolicy === "ON_INSTALL") return locale === "tr" ? "Kurulumla başlar" : locale === "de" ? "Beginnt mit der Installation" : "Starts on installation";
     if (p.activationPolicy === "ON_FIRST_NETWORK_CONNECTION") return locale === "tr" ? "İlk ağ bağlantısında başlar" : locale === "de" ? "Beginnt bei der ersten Netzverbindung" : "Starts on first network connection";
@@ -303,24 +329,24 @@ function Packages({ iso, name, c }: { iso: string; name: string; c: (typeof T)["
       ) : (
         <ul className="mt-3 grid grid-cols-2 gap-2">
           {rows.map((p) => {
-            const inCart = lines.some((l) => l.productId === p.id);
+            const selected = selectedPackage?.id === p.id;
             return (
               <li key={p.id} className="min-w-0">
-                <Button type="button" variant="outline" onClick={() => setDetail(p)} className={`relative h-24 w-full flex-col items-start justify-start gap-0 rounded-xl bg-card p-2.5 pr-9 text-left shadow-sm ${inCart ? "ring-2 ring-primary" : ""}`}>
-                  <Info className="absolute right-2.5 top-2.5 size-4 text-muted-foreground"/>
+                <V2ProductSelectionCard service="esim" selected={selected} onSelect={() => onSelectPackage(p)} onDetails={() => setDetail(p)} detailsLabel={c.detailsLabel} className="h-24">
+                  <span className="flex h-full w-full flex-col items-start justify-start p-2.5 pr-9">
                    <span className="flex min-w-0 max-w-full items-center gap-1 whitespace-nowrap font-display text-[17px] font-bold leading-6 text-foreground">
                      {p.unlimited ? (<><InfinityIcon className="size-3.5 shrink-0 text-muted-foreground" /><span>{c.unlimited}</span></>) : `${p.dataGb ?? "—"} GB`}
-                  </span>
+                    </span>
                    <span className="mt-1 text-xs font-normal leading-4 text-muted-foreground">{p.validityDays ? `${p.validityDays} ${c.days}` : ""}</span>
                    <span className="mt-2 text-base font-bold leading-5 text-primary">{p.salePrice != null ? money(p.salePrice, p.currency) : ""}</span>
-                   {inCart && <span className="absolute bottom-2.5 right-2.5 text-[9px] font-bold leading-none text-primary">{c.added}</span>}
-                </Button>
+                  </span>
+                </V2ProductSelectionCard>
               </li>
             );
           })}
         </ul>
       )}
-      {regional.length > 0 && <section><SectionTitle>{c.regional}</SectionTitle><p className="mb-3 text-xs text-muted-foreground">{c.regionalLead}</p><ul className="grid gap-2">{regional.map((p) => <li key={p.id}><Button type="button" variant="outline" onClick={() => setDetail(p)} className="grid h-auto min-h-20 w-full grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 rounded-xl bg-card p-3 text-left"><span className="grid size-9 shrink-0 place-items-center rounded-full bg-secondary text-primary"><Globe2 className="size-4"/></span><span className="min-w-0"><strong className="block truncate text-xs uppercase text-primary">{regionName(p)}</strong><span className="block text-base font-bold text-foreground">{p.unlimited ? c.unlimited : `${p.dataGb ?? "—"} GB`} · {p.validityDays ?? "—"} {c.days}</span><span className="block text-xs font-normal text-muted-foreground">{p.coverage.length} {c.countries}</span></span><strong className="shrink-0 text-sm text-foreground">{p.salePrice != null ? money(p.salePrice, p.currency) : ""}</strong></Button></li>)}</ul></section>}
+      {regional.length > 0 && <section><SectionTitle>{c.regional}</SectionTitle><p className="mb-3 text-xs text-muted-foreground">{c.regionalLead}</p><ul className="grid gap-2">{regional.map((p) => <li key={p.id}><V2ProductSelectionCard service="esim" selected={selectedPackage?.id === p.id} onSelect={() => onSelectPackage(p)} onDetails={() => setDetail(p)} detailsLabel={c.detailsLabel} className="min-h-20"><span className="grid min-h-20 w-full grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 p-3 pr-11"><span className="grid size-9 shrink-0 place-items-center rounded-full bg-secondary text-primary"><Globe2 className="size-4"/></span><span className="min-w-0"><strong className="block truncate text-xs uppercase text-primary">{regionName(p)}</strong><span className="block text-base font-bold text-foreground">{p.unlimited ? c.unlimited : `${p.dataGb ?? "—"} GB`} · {p.validityDays ?? "—"} {c.days}</span><span className="block text-xs font-normal text-muted-foreground">{p.coverage.length} {c.countries}</span></span><strong className="shrink-0 text-sm text-foreground">{p.salePrice != null ? money(p.salePrice, p.currency) : ""}</strong></span></V2ProductSelectionCard></li>)}</ul></section>}
       <section ref={assistantRef} className="mt-5 rounded-xl bg-card p-4 ring-1 ring-border">
         <h3 className="font-display text-base font-bold text-foreground">{c.assistant}</h3><p className="mt-1 text-xs text-muted-foreground">{c.assistantLead}</p>
         <Button type="button" variant="outline" size="sm" onClick={() => setAssistantOpen((open) => !open)} className="mt-3 w-full">{assistantOpen ? c.assistantClose : c.assistantOpen}</Button>
@@ -335,26 +361,8 @@ function Packages({ iso, name, c }: { iso: string; name: string; c: (typeof T)["
       <PromoCard image={vignettePromo} title={c.vignettePromo} sub={c.vignettePromoSub} to="/design-v2/vignette" />
       <V2GuidesRail />
       <V2EsimFaq />
-      <PackageDetails pkg={detail} onClose={() => setDetail(null)} onAdd={add} c={c} locale={locale} inCart={detail ? lines.some((line) => line.productId === detail.id) : false} activationText={activationText} />
+      <V2EsimPackageDetails pkg={detail} onClose={() => setDetail(null)} onAdd={(pkg) => { onSelectPackage(pkg); setDetail(null); }} locale={locale} inCart={detail ? selectedPackage?.id === detail.id : false} />
       <Link to="/design-v2/cart" className="sr-only">{c.cart}</Link>
     </>
   );
-}
-
-function PackageDetails({ pkg, onClose, onAdd, c, locale, inCart, activationText }: { pkg: EsimPackage | null; onClose: () => void; onAdd: (pkg: EsimPackage) => void; c: (typeof T)["tr"]; locale: "tr" | "de" | "en"; inCart: boolean; activationText: (pkg: EsimPackage) => string }) {
-  if (!pkg) return null;
-  const coverage = pkg.coverage.map((code) => getCountryByIso(code)?.name[locale] ?? code).join(", ");
-  const x = X[locale];
-  const tech = techLabel(pkg);
-  const rows = ([
-    [c.data, pkg.unlimited ? c.unlimited : `${pkg.dataGb ?? "—"} GB`],
-    [c.validity, `${pkg.validityDays ?? "—"} ${c.days}`],
-    [c.coverage, pkg.coverage.length > 1 ? `${pkg.regionFamily ? x.regions[pkg.regionFamily] + " · " : ""}${pkg.coverage.length} ${c.countries}: ${coverage}` : coverage],
-    pkg.networks.length ? [c.network, pkg.networks.join(", ")] : null,
-    tech ? [x.tech, tech] : null,
-    pkg.highSpeedAllowance ? ["FUP", pkg.highSpeedAllowance] : null,
-    [c.activation, activationText(pkg)],
-  ].filter(Boolean) as string[][]);
-  const identity = customerCataloguePackageTitle({ locale, destinationIso: pkg.countryIso, coverage: pkg.coverage, packageKind: pkg.packageKind, regionFamily: pkg.regionFamily });
-  return <Sheet open onOpenChange={(open) => { if (!open) onClose(); }}><SheetContent side="bottom" className="max-h-[82dvh] rounded-t-3xl pb-[calc(1rem+env(safe-area-inset-bottom))] sm:left-1/2 sm:max-w-xl sm:-translate-x-1/2 sm:rounded-3xl sm:border"><SheetHeader className="pr-10 text-left"><SheetTitle>{identity}</SheetTitle><SheetDescription>{pkg.unlimited ? c.unlimited : `${pkg.dataGb ?? "—"} GB`} · {pkg.validityDays ?? "—"} {c.days}</SheetDescription></SheetHeader><dl className="mt-4 grid gap-2 text-sm">{rows.map(([label, value]) => <div key={label} className="grid grid-cols-[minmax(0,1fr)_minmax(0,1.5fr)] gap-3 border-b border-border pb-2"><dt className="text-muted-foreground">{label}</dt><dd className="break-words text-right font-semibold">{value}</dd></div>)}</dl><div className="mt-5 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3"><strong className="text-xl text-foreground">{money(pkg.salePrice ?? 0, pkg.currency)}</strong><Button type="button" onClick={() => onAdd(pkg)} variant={inCart ? "secondary" : "default"}>{inCart ? c.added : c.select}</Button></div></SheetContent></Sheet>;
 }
