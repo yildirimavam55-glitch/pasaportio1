@@ -3,6 +3,7 @@
 ## V2 cart CTA state
 - [x] Show localized Add / Adding / In cart confirmation and Go to cart actions in the shared selected-product panel.
 - [x] Verify cart-store synchronization after removal and country/regional Standard/Unlimited journeys at mobile and desktop sizes.
+- [ ] Verify the single post-add primary CTA visually reads “✓ Go to cart →” and resets after cart removal across languages, package types, and mobile widths.
 
 ## V2 desktop final visual polish
 
