@@ -77,6 +77,8 @@ export type DeviceCheckState = {
   compatibilityChecked: boolean;
   deviceModel: string;
   compatibilityResult: CompatibilityStatus | null;
+  deviceBrand?: string;
+  verificationSource?: "manual";
 };
 
 export const EMPTY_DEVICE_CHECK: DeviceCheckState = {

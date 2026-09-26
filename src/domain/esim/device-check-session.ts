@@ -9,7 +9,7 @@ let hydrated = false;
 function read(): DeviceCheckState {
   if (typeof window === "undefined") return EMPTY_DEVICE_CHECK;
   try {
-    const raw = window.sessionStorage.getItem(STORAGE_KEY);
+    const raw = window.localStorage.getItem(STORAGE_KEY) ?? window.sessionStorage.getItem(STORAGE_KEY);
     if (!raw) return EMPTY_DEVICE_CHECK;
     const parsed = JSON.parse(raw) as Partial<DeviceCheckState>;
     if (!parsed || typeof parsed.deviceModel !== "string" || !parsed.compatibilityResult) return EMPTY_DEVICE_CHECK;
@@ -17,6 +17,8 @@ function read(): DeviceCheckState {
       compatibilityChecked: true,
       deviceModel: parsed.deviceModel,
       compatibilityResult: normalizeStatus(parsed.compatibilityResult),
+      deviceBrand: typeof parsed.deviceBrand === "string" ? parsed.deviceBrand : undefined,
+      verificationSource: "manual",
     };
   } catch {
     return EMPTY_DEVICE_CHECK;
@@ -27,8 +29,9 @@ function publish(next: DeviceCheckState) {
   current = next;
   if (typeof window !== "undefined") {
     try {
-      if (next.compatibilityChecked) window.sessionStorage.setItem(STORAGE_KEY, JSON.stringify(next));
-      else window.sessionStorage.removeItem(STORAGE_KEY);
+      if (next.compatibilityChecked) window.localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+      else window.localStorage.removeItem(STORAGE_KEY);
+      window.sessionStorage.removeItem(STORAGE_KEY);
     } catch {
       /* storage unavailable — state stays in memory for this session */
     }
@@ -36,7 +39,7 @@ function publish(next: DeviceCheckState) {
   listeners.forEach((listener) => listener(next));
 }
 
-/** Remembers the checked device for the session only (checkout readiness state). */
+/** Remembers only a manually confirmed model and result; no browser fingerprint data is persisted. */
 export function useDeviceCheck() {
   const [state, setState] = useState<DeviceCheckState>(current);
 
@@ -52,8 +55,8 @@ export function useDeviceCheck() {
     };
   }, []);
 
-  const setResult = useCallback((deviceModel: string, compatibilityResult: CompatibilityStatus) => {
-    publish({ compatibilityChecked: true, deviceModel, compatibilityResult });
+  const setResult = useCallback((deviceModel: string, compatibilityResult: CompatibilityStatus, deviceBrand?: string) => {
+    publish({ compatibilityChecked: true, deviceModel, compatibilityResult, deviceBrand, verificationSource: "manual" });
   }, []);
   const reset = useCallback(() => publish(EMPTY_DEVICE_CHECK), []);
 
