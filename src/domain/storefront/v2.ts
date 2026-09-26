@@ -1,3 +1,4 @@
+import { translateString } from "@/i18n/overlay";
 import { designV2ToPublic } from "./public-routes";
 /**
  * V2 storefront builder — presentation-only configuration for the V2 service homepages.
@@ -348,13 +349,18 @@ export function sanitizeV2Page(raw: any, page: V2PageId): V2PageConfig {
 
 /* ------------------------------ rendering helpers ------------------------------ */
 
+/** CMS English copy is translated through the static overlay resources for fr/es/…. */
+function overlayText(text: string, locale: Locale): string {
+  return locale === "en" ? translateString(text) : text;
+}
+
 export function v2Text(section: V2Section | undefined, key: string, locale: Locale): string {
   const value = section?.text?.[key];
-  return (value?.[locale] || value?.tr || "").trim();
+  return overlayText((value?.[locale] || value?.tr || "").trim(), locale);
 }
 
 export function v2ItemText(value: LT | undefined, locale: Locale): string {
-  return (value?.[locale] || value?.tr || "").trim();
+  return overlayText((value?.[locale] || value?.tr || "").trim(), locale);
 }
 
 /** Promo date window, evaluated on the viewer's calendar day. */

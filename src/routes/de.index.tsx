@@ -24,7 +24,9 @@ export const Route = createFileRoute("/de/")({
 
 function Page() {
   const { locale, setLocale } = useI18n();
-  useEffect(() => { if (locale !== "de") setLocale("de", { persist: false }); }, [locale, setLocale]);
+  // URL locale applies on entry only; a later manual switch must not be reverted.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => { if (locale !== "de") setLocale("de", { persist: false }); }, []);
   const { service } = Route.useSearch();
   if (service === "lounge") return <Navigate to="/lounge" replace />;
   return <EsimHomePage />;

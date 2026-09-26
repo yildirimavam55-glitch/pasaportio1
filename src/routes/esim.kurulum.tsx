@@ -2,12 +2,13 @@ import { createFileRoute, useRouter } from "@tanstack/react-router";
 import { EsimInstallationPage } from "@/components/design-v2/EsimInstallationPage";
 import { Button } from "@/components/ui/button";
 import { useI18n } from "@/i18n";
+import { localize } from "@/i18n/overlay";
 
-const FALLBACK = {
+const FALLBACK = localize({
   tr: { title: "Kurulum rehberi yüklenemedi.", retry: "Tekrar dene", back: "Geri dön" },
   de: { title: "Die Installationsanleitung konnte nicht geladen werden.", retry: "Erneut versuchen", back: "Zurück" },
   en: { title: "The installation guide could not be loaded.", retry: "Try again", back: "Go back" },
-} as const;
+} as const);
 
 function GuideError({ reset }: { reset: () => void }) {
   const { locale } = useI18n();

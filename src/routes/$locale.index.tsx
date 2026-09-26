@@ -36,7 +36,8 @@ function Page() {
   const { uiLocale, setLocale } = useI18n();
   useEffect(() => {
     if (isUiLocale(param) && uiLocale !== param) setLocale(param as UiLocale, { persist: false });
-  }, [param, uiLocale, setLocale]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [param]);
   const { service } = Route.useSearch();
   if (service === "lounge") return <Navigate to="/lounge" replace />;
   return <EsimHomePage />;

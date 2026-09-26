@@ -7,6 +7,7 @@ import { getServiceAvailability } from "@/lib/platform-settings.functions";
 import { DEFAULT_SETTINGS, settingsText } from "@/domain/platform/settings";
 import type { ServiceSlug } from "@/content/travel-content";
 import { EsimServiceIcon, LoungeServiceIcon } from "./ServiceIcons";
+import { localize } from "@/i18n/overlay";
 
 /**
  * Public service availability, derived from the existing feature flags.
@@ -28,8 +29,8 @@ export function useServiceAvailability() {
 }
 
 const OTHER_LABEL: Record<ServiceSlug, { tr: string; de: string; en: string }> = {
-  esim: { tr: "Lounge seçeneklerine bak", de: "Lounge-Optionen ansehen", en: "See lounge options" },
-  lounge: { tr: "eSIM seçeneklerine bak", de: "eSIM-Optionen ansehen", en: "See eSIM options" },
+  esim: localize({ tr: "Lounge seçeneklerine bak", de: "Lounge-Optionen ansehen", en: "See lounge options" }),
+  lounge: localize({ tr: "eSIM seçeneklerine bak", de: "eSIM-Optionen ansehen", en: "See eSIM options" }),
 };
 
 /** Branded maintenance state for a paused service. */

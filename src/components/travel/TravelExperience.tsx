@@ -32,7 +32,7 @@ import { QuickSearch } from "./QuickSearch";
 import { DestinationDiscovery } from "./DestinationDiscovery";
 import { useDestinationCatalogue } from "./DestinationCards";
 
-const ASSISTANT_COPY = {
+const ASSISTANT_COPY = localize({
   tr: {
     title: "Ne kadar internet lazım?",
     description: "Seyahatine göre sana en uygun paketi önerelim.",
@@ -51,7 +51,7 @@ const ASSISTANT_COPY = {
     open: "Recommend a plan",
     close: "Close plan assistant",
   },
-} as const;
+} as const);
 import { DeviceCompatibilitySection } from "./DeviceCompatibility";
 import { GuidesStrip } from "@/components/guides/GuidesStrip";
 import { PublicShell } from "./PublicShell";
@@ -68,6 +68,7 @@ import {
   VisualComplementary,
   VisualPopular,
 } from "./PublicVisualSections";
+import { localize } from "@/i18n/overlay";
 
 /**
  * The public homepage is rendered from the PUBLISHED storefront configuration.
@@ -473,7 +474,7 @@ function FinderAssistantEntry({
   );
 }
 
-const SILA_YOLU_COPY = {
+const SILA_YOLU_COPY = localize({
   tr: {
     badge: "Yolculuk seçkisi",
     title: "Sıla Yolu 2027",
@@ -498,7 +499,7 @@ const SILA_YOLU_COPY = {
     cta: "View packages",
     alt: "Road trip along the Sıla Yolu route",
   },
-} as const;
+} as const);
 
 function SilaYoluPromo({ locale }: { locale: "tr" | "de" | "en" }) {
   const navigate = useNavigate();
@@ -581,7 +582,7 @@ function ServiceButton({
   );
 }
 
-const SERVICE_HERO_COPY = {
+const SERVICE_HERO_COPY = localize({
   tr: {
     esim: {
       eyebrow: "Seyahat eSIM’i",
@@ -639,7 +640,7 @@ const SERVICE_HERO_COPY = {
       alt: "Traveler relaxing in a premium airport lounge overlooking the apron",
     },
   },
-} as const;
+} as const);
 
 function ServiceHero({
   service,

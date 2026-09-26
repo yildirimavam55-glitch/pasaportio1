@@ -3,6 +3,7 @@ import { classifyCoverageRegion, COVERAGE_REGION_LABELS } from "@/domain/geo/cov
 import { getCountryByIso } from "@/domain/geo/countries";
 import { resolvePackageScope } from "@/domain/esim/package-scope";
 import type { RegionFamily } from "@/domain/esim/supplier-metadata";
+import { localize } from "@/i18n/overlay";
 
 /**
  * Restores commercial whole-GB bundle sizes that were previously converted
@@ -37,7 +38,7 @@ export function customerPackageTitle(input: {
 
 const REGION_FAMILY_LABELS: Record<RegionFamily, Record<Locale, string>> = {
   EUROPE: COVERAGE_REGION_LABELS.EUROPE,
-  EUROPE_USA: { tr: "Avrupa + ABD", de: "Europa + USA", en: "Europe + USA" },
+  EUROPE_USA: localize({ tr: "Avrupa + ABD", de: "Europa + USA", en: "Europe + USA" }),
   MIDDLE_EAST: COVERAGE_REGION_LABELS.MIDDLE_EAST,
   ASIA: COVERAGE_REGION_LABELS.ASIA,
   AFRICA: COVERAGE_REGION_LABELS.AFRICA,

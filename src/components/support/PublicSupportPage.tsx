@@ -8,10 +8,11 @@ import { Button } from "@/components/ui/button";
 import { useI18n } from "@/i18n";
 
 import { WHATSAPP_NUMBER, waLink } from "@/lib/whatsapp";
+import { localize } from "@/i18n/overlay";
 const SUPPORT_EMAIL = "destek@travely.app";
 
 
-const COPY = {
+const COPY = localize({
   tr: {
     title: "Nasıl yardımcı olabiliriz?",
     lead: "eSIM kurulumu, siparişler ve seyahat soruların için buradayız.",
@@ -63,7 +64,7 @@ const COPY = {
       ["My internet isn't working?", "Check that the eSIM line is on and data roaming is enabled. If it persists, message us on WhatsApp."],
     ],
   },
-} as const;
+} as const);
 
 
 export function PublicSupportPage() {

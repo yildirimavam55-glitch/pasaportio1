@@ -1,7 +1,8 @@
 import type { Locale } from "@/domain/enums";
+import { localize } from "@/i18n/overlay";
 
 /** Phase 0 i18n foundation. Customer-facing CMS copy becomes translatable via the DB. */
-export const messages = {
+export const messages = localize({
   tr: {
     brand: "Travel Platform",
     "nav.home": "Ana Sayfa",
@@ -47,6 +48,6 @@ export const messages = {
     "auth.signIn": "Sign in",
     "auth.signOut": "Sign out",
   },
-} satisfies Record<Locale, Record<string, string>>;
+} satisfies Record<Locale, Record<string, string>>);
 
 export type MessageKey = keyof (typeof messages)["tr"];

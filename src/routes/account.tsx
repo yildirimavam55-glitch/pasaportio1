@@ -4,12 +4,13 @@ import { supabase } from "@/integrations/supabase/client";
 import { V2Shell, V2_NOINDEX, pick } from "@/components/design-v2/V2Shell";
 import { V2State } from "@/components/design-v2/V2States";
 import { useI18n } from "@/i18n";
+import { localize } from "@/i18n/overlay";
 
-const COPY = {
+const COPY = localize({
   tr: { loading: "Hesabın yükleniyor…", title: "Hesabına giriş yap", text: "eSIM'lerini, siparişlerini ve ayarlarını görmek için giriş yap.", login: "Giriş yap", register: "Kayıt ol" },
   de: { loading: "Konto wird geladen…", title: "Melde dich an", text: "Melde dich an, um eSIMs, Bestellungen und Einstellungen zu sehen.", login: "Anmelden", register: "Registrieren" },
   en: { loading: "Loading your account…", title: "Sign in to your account", text: "Sign in to see your eSIMs, orders and settings.", login: "Sign in", register: "Create account" },
-};
+});
 
 // Same session check as the production /_authenticated gate, but the signed-out
 // state stays inside the V2 preview instead of jumping to the old /auth screen.

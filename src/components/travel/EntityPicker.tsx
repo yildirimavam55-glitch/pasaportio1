@@ -14,15 +14,16 @@ import {
 } from "@/domain/geo/countries";
 import { AIRPORTS, POPULAR_AIRPORT_IDS, getAirport, searchAirports, type Airport } from "@/domain/geo/airports";
 import { CountryFlag } from "./CountryFlag";
+import { localize } from "@/i18n/overlay";
 
 const PICKER_COPY = {
-  countryTitle: { tr: "Ülke seç", de: "Land wählen", en: "Select a country" },
-  countryPlaceholder: { tr: "Ülke adı veya kodu ara", de: "Land oder Code suchen", en: "Search by country or code" },
-  airportTitle: { tr: "Havalimanı seç", de: "Flughafen wählen", en: "Select an airport" },
-  airportPlaceholder: { tr: "Şehir, havalimanı veya IATA ara", de: "Stadt, Flughafen oder IATA suchen", en: "Search city, airport or IATA" },
-  popular: { tr: "Popüler", de: "Beliebt", en: "Popular" },
-  empty: { tr: "Sonuç bulunamadı.", de: "Keine Treffer.", en: "No results." },
-  choose: { tr: "Seç", de: "Wählen", en: "Choose" },
+  countryTitle: localize({ tr: "Ülke seç", de: "Land wählen", en: "Select a country" }),
+  countryPlaceholder: localize({ tr: "Ülke adı veya kodu ara", de: "Land oder Code suchen", en: "Search by country or code" }),
+  airportTitle: localize({ tr: "Havalimanı seç", de: "Flughafen wählen", en: "Select an airport" }),
+  airportPlaceholder: localize({ tr: "Şehir, havalimanı veya IATA ara", de: "Stadt, Flughafen oder IATA suchen", en: "Search city, airport or IATA" }),
+  popular: localize({ tr: "Popüler", de: "Beliebt", en: "Popular" }),
+  empty: localize({ tr: "Sonuç bulunamadı.", de: "Keine Treffer.", en: "No results." }),
+  choose: localize({ tr: "Seç", de: "Wählen", en: "Choose" }),
 } as const;
 
 function Row({ selected, onSelect, iso, title, meta }: { selected: boolean; onSelect: () => void; iso: string; title: string; meta?: string }) {

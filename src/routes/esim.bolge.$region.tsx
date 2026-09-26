@@ -14,15 +14,16 @@ import { dedupeStorefrontPackages, sortStandardPackages, sortUnlimitedPackages }
 import { COVERAGE_REGION_LABELS, type CoverageRegionKey } from "@/domain/geo/coverage-regions";
 import { useI18n } from "@/i18n";
 import { listEsimRegionPackages, type EsimPackage } from "@/lib/esim-catalogue.functions";
+import { localize } from "@/i18n/overlay";
 
 const REGIONS = ["GLOBAL", "EUROPE", "MIDDLE_EAST", "ASIA", "AMERICAS", "AFRICA", "OCEANIA"] as const;
 type ResultRegion = (typeof REGIONS)[number];
 
-const C = {
+const C = localize({
   tr: { back: "Bölgesel paketler", suffix: "eSIM paketleri", lead: "Birden fazla ülkede kullanabileceğin paketleri seç.", standard: "Standart", unlimited: "Sınırsız", days: "gün", countries: "ülke", empty: "Bu paket türünde yayınlanmış seçenek yok.", cart: "Sepete git", add: "Sepete ekle", adding: "Ekleniyor…", added: "Sepette", decrease: "Azalt", increase: "Artır", details: "Paket detayları", support: "WhatsApp destek" },
   de: { back: "Regionale Pakete", suffix: "eSIM-Pakete", lead: "Wähle Pakete, die du in mehreren Ländern nutzen kannst.", standard: "Standard", unlimited: "Unbegrenzt", days: "Tage", countries: "Länder", empty: "Für diesen Pakettyp gibt es keine veröffentlichten Optionen.", cart: "Zum Warenkorb", add: "In den Warenkorb", adding: "Wird hinzugefügt…", added: "Im Warenkorb", decrease: "Weniger", increase: "Mehr", details: "Paketdetails", support: "WhatsApp-Support" },
   en: { back: "Regional plans", suffix: "eSIM plans", lead: "Choose plans you can use across multiple countries.", standard: "Standard", unlimited: "Unlimited", days: "days", countries: "countries", empty: "There are no published options for this plan type.", cart: "Go to cart", add: "Add to cart", adding: "Adding…", added: "In cart", decrease: "Decrease", increase: "Increase", details: "Plan details", support: "WhatsApp support" },
-};
+});
 
 function parseRegion(value: string): ResultRegion {
   const region = value.toUpperCase() as ResultRegion;

@@ -2,6 +2,7 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useState, t
 
 import { DEFAULT_LOCALE, LOCALES, type Locale } from "@/domain/enums";
 import { messages, type MessageKey } from "./messages";
+import { setActiveUiLocale } from "./overlay";
 import {
   LOCALE_REGISTRY,
   LOCALE_STORAGE_KEY,
@@ -44,6 +45,8 @@ export function I18nProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const meta = LOCALE_REGISTRY[uiLocale];
+  // Overlay must be active before children render; browser-only so SSR requests never share it.
+  if (typeof window !== "undefined") setActiveUiLocale(uiLocale);
 
   useEffect(() => {
     const el = document.documentElement;

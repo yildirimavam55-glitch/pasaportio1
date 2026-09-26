@@ -19,8 +19,9 @@ import {
   type EsimCountryDestination,
   type EsimRegionDestination,
 } from "@/lib/esim-destinations.functions";
+import { localize } from "@/i18n/overlay";
 
-export const DESTINATION_COPY = {
+export const DESTINATION_COPY = localize({
   tr: {
     regionsTitle: "Bölgesel eSIM paketleri",
     regionsLead: "Birden fazla ülkeye mi gidiyorsun? Tek paketle birden fazla destinasyonda bağlan.",
@@ -66,7 +67,7 @@ export const DESTINATION_COPY = {
     noResults: "No country matches your search.",
     allRegions: "All",
   },
-} as const satisfies Record<Locale, unknown>;
+} as const satisfies Record<Locale, unknown>);
 
 export function useDestinationCatalogue() {
   return useQuery({
@@ -85,10 +86,10 @@ export function formatFrom(amount: number, currency: string, locale: Locale) {
 
 export function countryLabel(iso: string, locale: Locale) {
   const territoryNames: Record<string, Record<Locale, string>> = {
-    AN: { tr: "Hollanda Antilleri", de: "Niederländische Antillen", en: "Netherlands Antilles" },
-    GL: { tr: "Grönland", de: "Grönland", en: "Greenland" },
-    IC: { tr: "Kanarya Adaları", de: "Kanarische Inseln", en: "Canary Islands" },
-    US: { tr: "ABD", de: "USA", en: "USA" },
+    AN: localize({ tr: "Hollanda Antilleri", de: "Niederländische Antillen", en: "Netherlands Antilles" }),
+    GL: localize({ tr: "Grönland", de: "Grönland", en: "Greenland" }),
+    IC: localize({ tr: "Kanarya Adaları", de: "Kanarische Inseln", en: "Canary Islands" }),
+    US: localize({ tr: "ABD", de: "USA", en: "USA" }),
   };
   const code = iso.toUpperCase();
   return territoryNames[code]?.[locale] ?? getCountryByIso(code)?.name[locale] ?? code;
