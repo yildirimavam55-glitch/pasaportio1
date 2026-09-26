@@ -24,7 +24,7 @@ export const Route = createFileRoute("/tr/")({
 
 function Page() {
   const { locale, setLocale } = useI18n();
-  useEffect(() => { if (locale !== "tr") setLocale("tr"); }, [locale, setLocale]);
+  useEffect(() => { if (locale !== "tr") setLocale("tr", { persist: false }); }, [locale, setLocale]);
   const { service } = Route.useSearch();
   if (service === "lounge") return <Navigate to="/lounge" replace />;
   return <EsimHomePage />;

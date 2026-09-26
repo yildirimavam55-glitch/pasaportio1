@@ -144,7 +144,7 @@ function HubSection({ title, items }: { title: string; items: SeoHubItem[] }) {
 export function SeoGuideHub({ locale, data }: { locale: Locale; data: SeoHubData }) {
   const { locale: current, setLocale } = useI18n();
   useEffect(() => {
-    if (current !== locale) setLocale(locale);
+    if (current !== locale) setLocale(locale, { persist: false });
   }, [current, locale, setLocale]);
   const text = HUB_TEXT[locale];
 
