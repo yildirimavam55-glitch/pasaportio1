@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import {
   CheckCircle2,
@@ -29,7 +30,6 @@ import {
 import { useI18n } from "@/i18n";
 import { listDeviceCompatibility } from "@/lib/device-compatibility.functions";
 import {
-  DEVICE_BRANDS,
   searchDevices,
   type CompatibilityStatus,
   type DeviceRecord,
@@ -50,11 +50,14 @@ const COPY = {
     sheetTitle: "Telefonum eSIM uyumlu mu?",
     sheetLead: "Markanı seç ya da doğrudan model ara.",
     searchPlaceholder: "Telefon modelini ara",
+    modelPlaceholder: "Model ara...",
+    chooseBrand: "Marka seç",
+    guide: "Kurulum rehberini görüntüle",
     brand: "Marka",
     model: "Model",
     noResult: "Bu aramaya uygun model bulunamadı.",
     compatible: "Bu model eSIM destekliyor.",
-    uncertain: "Bu modelin eSIM desteği bölge veya cihaz varyantına göre değişebilir.",
+    uncertain: "Bu model için eSIM desteğini doğrulayamadık. Cihaz ayarlarından veya üretici bilgilerinden kontrol edebilirsiniz.",
     notCompatible: "Bu model için eSIM desteği bulunamadı.",
     ctaCompatible: "Paketimi seç",
     ctaUncertain: "Telefonda kontrol et",
@@ -87,11 +90,14 @@ const COPY = {
     sheetTitle: "Ist mein Handy eSIM-fähig?",
     sheetLead: "Marke wählen oder direkt nach dem Modell suchen.",
     searchPlaceholder: "Handymodell suchen",
+    modelPlaceholder: "Modell suchen...",
+    chooseBrand: "Marke wählen",
+    guide: "Installationsanleitung ansehen",
     brand: "Marke",
     model: "Modell",
     noResult: "Zu dieser Suche wurde kein Modell gefunden.",
     compatible: "Dieses Modell unterstützt eSIM.",
-    uncertain: "Die eSIM-Unterstützung kann je nach Region oder Gerätevariante abweichen.",
+    uncertain: "Wir konnten die eSIM-Unterstützung für dieses Modell nicht bestätigen. Prüfe die Geräteeinstellungen oder Herstellerangaben.",
     notCompatible: "Für dieses Modell wurde keine eSIM-Unterstützung gefunden.",
     ctaCompatible: "Paket auswählen",
     ctaUncertain: "Am Gerät prüfen",
@@ -125,11 +131,14 @@ const COPY = {
     sheetTitle: "Is my phone eSIM compatible?",
     sheetLead: "Pick your brand or search for the model directly.",
     searchPlaceholder: "Search your phone model",
+    modelPlaceholder: "Search model...",
+    chooseBrand: "Choose brand",
+    guide: "View installation guide",
     brand: "Brand",
     model: "Model",
     noResult: "No model matches this search.",
     compatible: "This model supports eSIM.",
-    uncertain: "eSIM support for this model can differ by region or device variant.",
+    uncertain: "We could not verify eSIM support for this model. Check your device settings or manufacturer information.",
     notCompatible: "No eSIM support found for this model.",
     ctaCompatible: "Choose my package",
     ctaUncertain: "Check on the device",
@@ -176,7 +185,7 @@ export function DeviceCheckSheet({ surface, trigger }: { surface: string; trigge
   const [brand, setBrand] = useState<string | null>(null);
   const [query, setQuery] = useState("");
   const [selected, setSelected] = useState<DeviceRecord | null>(null);
-  const { setResult } = useDeviceCheck();
+  const { setResult, reset: resetResult } = useDeviceCheck();
 
   const { data: devices = [], isPending } = useQuery({
     queryKey: ["device-compatibility"],
@@ -185,8 +194,9 @@ export function DeviceCheckSheet({ surface, trigger }: { surface: string; trigge
     enabled: open,
   });
 
+  const brands = useMemo(() => [...new Set(devices.map((device) => device.brand))].sort(), [devices]);
   const results = useMemo(
-    () => searchDevices(devices, query, query ? undefined : (brand ?? undefined)).slice(0, 40),
+    () => brand ? searchDevices(devices, query, brand) : [],
     [devices, query, brand],
   );
 
@@ -227,59 +237,33 @@ export function DeviceCheckSheet({ surface, trigger }: { surface: string; trigge
               device={selected}
               copy={copy}
               onAgain={() => setSelected(null)}
-              onClose={() => setOpen(false)}
             />
           ) : (
             <>
-              <label className="flex min-h-13 items-center gap-2 rounded-xl border border-border bg-secondary/60 px-3">
-                <span className="icon-slot-sm text-muted-foreground">
-                  <Search aria-hidden="true" />
-                </span>
-                <input
-                  value={query}
-                  onChange={(event) => {
-                    setQuery(event.target.value);
-                    void noopAnalyticsSink.track({
-                      name: "device_searched",
-                      queryLength: event.target.value.length,
-                    });
-                  }}
-                  placeholder={copy.searchPlaceholder}
-                  aria-label={copy.searchPlaceholder}
-                  className="min-w-0 flex-1 bg-transparent text-sm outline-none"
-                />
-              </label>
-
-              {!query && (
-                <div>
-                  <span className="mb-1.5 block text-sm font-semibold">{copy.brand}</span>
-                  <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
-                    {DEVICE_BRANDS.map((item) => (
-                      <button
-                        key={item}
-                        type="button"
-                        aria-pressed={brand === item}
-                        onClick={() => setBrand(brand === item ? null : item)}
-                        className={`min-h-12 rounded-xl border px-3 text-sm font-semibold transition ${brand === item ? "border-primary bg-accent-soft text-primary" : "border-border bg-card hover:border-primary/50"}`}
-                      >
-                        {item}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
-
               <div>
-                <span className="mb-1.5 block text-sm font-semibold">{copy.model}</span>
+                <label htmlFor="device-brand" className="mb-1.5 block text-sm font-semibold">{copy.brand}</label>
+                <select id="device-brand" value={brand ?? ""} onChange={(event) => { setBrand(event.target.value || null); setSelected(null); setQuery(""); resetResult(); }} className="min-h-12 w-full rounded-xl border border-border bg-card px-3 text-sm font-semibold text-foreground outline-none focus-visible:ring-2 focus-visible:ring-ring">
+                  <option value="">{copy.chooseBrand}</option>
+                  {brands.map((item) => <option key={item} value={item}>{item}</option>)}
+                </select>
+              </div>
+              {brand && <label className="block text-sm font-semibold">{copy.model}
+                <span className="mt-1.5 flex min-h-12 items-center gap-2 rounded-xl border border-border bg-secondary/60 px-3 focus-within:ring-2 focus-within:ring-ring">
+                  <Search className="size-4 text-muted-foreground" aria-hidden="true" />
+                  <input value={query} onChange={(event) => { setQuery(event.target.value); void noopAnalyticsSink.track({ name: "device_searched", queryLength: event.target.value.length }); }} placeholder={copy.modelPlaceholder} className="min-w-0 flex-1 bg-transparent text-sm outline-none" />
+                </span>
+              </label>}
+              {brand &&
+              <div>
                 {isPending ? (
                   <p className="flex items-center gap-2 py-4 text-sm text-muted-foreground">
                     <LoaderCircle className="size-4 animate-spin" /> …
                   </p>
                 ) : results.length ? (
-                  <ul className="space-y-1.5">
+                  <ul aria-label={`${brand} ${copy.model}`} className="max-h-56 space-y-1.5 overflow-y-auto overscroll-contain pr-1 sm:max-h-64">
                     {results.map((device) => (
                       <li key={device.id}>
-                        <button
+                        <Button variant="ghost"
                           type="button"
                           onClick={() => {
                             setSelected(device);
@@ -290,7 +274,7 @@ export function DeviceCheckSheet({ surface, trigger }: { surface: string; trigge
                               brand: device.brand,
                             });
                           }}
-                          className="flex min-h-13 w-full items-center gap-2 rounded-xl border border-border bg-card px-3 text-left text-sm font-semibold hover:border-primary/60"
+                          className="flex min-h-12 w-full items-center justify-start gap-2 rounded-xl border border-border bg-card px-3 text-left text-sm font-semibold hover:border-primary/60"
                         >
                           <span className="icon-slot-sm text-primary">
                             <Smartphone aria-hidden="true" />
@@ -300,14 +284,14 @@ export function DeviceCheckSheet({ surface, trigger }: { surface: string; trigge
                             className="size-4 shrink-0 text-muted-foreground"
                             aria-hidden="true"
                           />
-                        </button>
+                        </Button>
                       </li>
                     ))}
                   </ul>
                 ) : (
                   <p className="py-4 text-sm text-muted-foreground">{copy.noResult}</p>
                 )}
-              </div>
+              </div>}
             </>
           )}
 
