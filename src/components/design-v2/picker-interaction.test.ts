@@ -1,11 +1,11 @@
 import { describe, expect, it, vi } from "vitest";
-import { beginPickerPress, completePickerPress, isDuplicatePickerClick, movePickerPress } from "./picker-interaction";
+import { beginPickerPress, completePickerPress, isDuplicatePickerClick, movePickerPress, type PickerPress } from "./picker-interaction";
 
 describe("V2 picker touch selection", () => {
   it("commits a focused-input result once before blur and viewport changes", () => {
     const select = vi.fn();
     const navigate = vi.fn();
-    let press = beginPickerPress("TR", 7, 32, 120);
+    let press: PickerPress | null = beginPickerPress("TR", 7, 32, 120);
 
     // iOS may blur the input and resize visualViewport before its synthetic click.
     const inputBlurred = true;
@@ -30,7 +30,7 @@ describe("V2 picker touch selection", () => {
 
   it("does not select when a vertical drag scrolls the results", () => {
     const select = vi.fn();
-    let press = beginPickerPress("TR", 8, 40, 180);
+    let press: PickerPress | null = beginPickerPress("TR", 8, 40, 180);
     press = movePickerPress(press, 8, 42, 212);
     const selectedId = completePickerPress(press, 8);
     if (selectedId) select(selectedId);
