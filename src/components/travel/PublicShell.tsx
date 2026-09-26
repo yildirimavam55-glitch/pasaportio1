@@ -94,8 +94,18 @@ function LanguageMenu({
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }) {
-  const { locale, setLocale } = useI18n();
+  const { locale, uiLocale, uiLocales, setLocale } = useI18n();
+  const navigate = useNavigate();
   const copy = localized(GLOBAL_CONTENT, locale);
+  const hasFlag = uiLocale === "tr" || uiLocale === "de" || uiLocale === "en";
+  const choose = (code: UiLocale) => {
+    setLocale(code);
+    // Keep the equivalent page: a locale homepage maps to the new locale's homepage.
+    const path = window.location.pathname.replace(/\/+$/, "");
+    if (localeFromPath(path) && path.split("/").length === 2) {
+      void navigate({ to: "/$locale", params: { locale: code }, search: ((s: object) => s) as never });
+    }
+  };
   return (
     <DropdownMenu open={open} onOpenChange={onOpenChange}>
       <DropdownMenuTrigger asChild>
@@ -105,16 +115,18 @@ function LanguageMenu({
           aria-label={copy.language.label}
           className="min-h-10 gap-1 px-2 text-xs sm:min-h-11 sm:px-3"
         >
-          <CountryFlag iso={localeMeta[locale].iso} />
-          <span>{localeMeta[locale].short}</span>
+          {hasFlag ? <CountryFlag iso={localeMeta[uiLocale as "tr"].iso} /> : <Globe2 className="size-4" aria-hidden="true" />}
+          <span>{uiLocale.toUpperCase()}</span>
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="min-w-44">
-        {(["tr", "de", "en"] as const).map((code) => (
-          <DropdownMenuItem key={code} onSelect={() => setLocale(code)} className="min-h-11 gap-3">
-            <CountryFlag iso={localeMeta[code].iso} />
-            <span className="flex-1">{copy.language[code]}</span>
-            {locale === code && <Check className="size-4 text-primary" aria-hidden="true" />}
+      <DropdownMenuContent align="end" className="max-h-[min(70vh,26rem)] min-w-44 overflow-y-auto">
+        {uiLocales.map((code) => (
+          <DropdownMenuItem key={code} onSelect={() => choose(code)} className="min-h-11 gap-3">
+            <span lang={LOCALE_REGISTRY[code].bcp47} dir={LOCALE_REGISTRY[code].dir} className="flex-1">
+              {LOCALE_REGISTRY[code].nativeName}
+            </span>
+            <span className="text-[10px] font-semibold text-muted-foreground">{code.toUpperCase()}</span>
+            {uiLocale === code && <Check className="size-4 text-primary" aria-hidden="true" />}
           </DropdownMenuItem>
         ))}
       </DropdownMenuContent>
