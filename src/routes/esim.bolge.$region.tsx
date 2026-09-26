@@ -26,7 +26,7 @@ const C = localize({
 });
 
 function parseRegion(value: string): ResultRegion {
-  const region = value.toUpperCase() as ResultRegion;
+  const region = value.toUpperCase() as CoverageRegionKey;
   if (region === "MULTI" || !COVERAGE_REGION_ORDER.includes(region)) throw notFound();
   return region;
 }
