@@ -42,11 +42,11 @@ import { StickyQuickSearch } from "./StickyQuickSearch";
 import { useThemePreference, type ThemePreference } from "@/components/ThemePreference";
 import { useCart } from "@/domain/cart/store";
 
-const localeMeta = {
-  tr: { iso: "TR", short: "TR" },
-  de: { iso: "DE", short: "DE" },
-  en: { iso: "GB", short: "EN" },
-} as const;
+/** Flag shown next to each language (language, not location). */
+const LOCALE_FLAG: Record<UiLocale, string> = {
+  tr: "TR", de: "DE", en: "GB", fr: "FR", es: "ES", it: "IT", pt: "PT",
+  nl: "NL", pl: "PL", ar: "SA", ru: "RU", ja: "JP", ko: "KR", zh: "CN",
+};
 
 const ACCOUNT_COPY = {
   tr: { trips: "Seyahatlerim", signIn: "Giriş yap", signOut: "Çıkış yap" },
@@ -97,7 +97,6 @@ function LanguageMenu({
   const { locale, uiLocale, uiLocales, setLocale } = useI18n();
   const navigate = useNavigate();
   const copy = localized(GLOBAL_CONTENT, locale);
-  const hasFlag = uiLocale === "tr" || uiLocale === "de" || uiLocale === "en";
   const choose = (code: UiLocale) => {
     setLocale(code);
     // Keep the equivalent page: a locale homepage maps to the new locale's homepage.
@@ -115,13 +114,14 @@ function LanguageMenu({
           aria-label={copy.language.label}
           className="min-h-10 gap-1 px-2 text-xs sm:min-h-11 sm:px-3"
         >
-          {hasFlag ? <CountryFlag iso={localeMeta[uiLocale as "tr"].iso} /> : <Globe2 className="size-4" aria-hidden="true" />}
+          <CountryFlag iso={LOCALE_FLAG[uiLocale]} />
           <span>{uiLocale.toUpperCase()}</span>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="max-h-[min(70vh,26rem)] min-w-44 overflow-y-auto">
         {uiLocales.map((code) => (
           <DropdownMenuItem key={code} onSelect={() => choose(code)} className="min-h-11 gap-3">
+            <CountryFlag iso={LOCALE_FLAG[code]} />
             <span lang={LOCALE_REGISTRY[code].bcp47} dir={LOCALE_REGISTRY[code].dir} className="flex-1">
               {LOCALE_REGISTRY[code].nativeName}
             </span>
