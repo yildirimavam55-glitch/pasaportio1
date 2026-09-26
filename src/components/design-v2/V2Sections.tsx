@@ -100,7 +100,7 @@ export function V2Sections({ config, media, slots, only }: { config: V2PageConfi
             if (s.href === "/lounge" && previous?.type === "COMPATIBILITY") return null;
             const image = mediaUrl(s.mediaId, media);
             if (!isInWindow(s) || !t("title")) return null;
-            return <PromoCard key={s.id} image={image ?? ""} title={t("title")} {...(t("subtitle") ? { sub: t("subtitle") } : {})} to={s.href} />;
+            return <PromoCard key={s.id} image={image ?? ""} title={t("title")} {...(t("subtitle") ? { sub: t("subtitle") } : {})} to={s.href === "/esim/kurulum" ? "/esim" : s.href} />;
           }
           case "GUIDE_CAROUSEL":
             return <V2GuidesRail key={s.id} title={t("title")} lead={t("lead")} allLabel={t("all")} />;
