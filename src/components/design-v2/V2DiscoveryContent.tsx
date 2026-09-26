@@ -144,15 +144,15 @@ export function V2Compatibility({ title, desktopCard = false }: { title?: string
   return <section className={desktopCard ? "lg:flex lg:flex-col" : undefined}><SectionTitle>{title || c.compatibility}</SectionTitle><div className={desktopCard ? "lg:flex lg:h-48 lg:items-stretch" : undefined}><DeviceCompatibilityPrompt /></div></section>;
 }
 
-type InstallProps = { title?: string; subtitle?: string; steps?: string[]; ready?: string; adding?: string; cta?: string; href?: "/esim" | "/lounge" | "/vignette" | "/destek" | "/sepet" | "/account"; variant?: "animated" | "simple" };
+type InstallProps = { title?: string; subtitle?: string; steps?: string[]; ready?: string; adding?: string; cta?: string; href?: "/esim" | "/lounge" | "/vignette" | "/destek" | "/esim/kurulum" | "/sepet" | "/account"; variant?: "animated" | "simple" };
 
 /** Copy/link/variant can come from the storefront builder; animation stays decorative (no real QR). */
-export function V2Installation({ title, subtitle, steps, ready, adding, cta, href = "/destek", variant = "animated" }: InstallProps = {}) {
+export function V2Installation({ title, subtitle, steps, ready, adding, cta, href = "/esim/kurulum", variant = "animated" }: InstallProps = {}) {
   const { locale } = useI18n();
   const c = COPY[locale];
   const stepList = steps?.length ? steps : [...c.animSteps];
   const [activeStep, setActiveStep] = useState(0);
-  const search = (href === "/esim" ? { country: "" } : href === "/lounge" ? { iata: "" } : undefined) as never;
+  const search = (href === "/esim" ? { country: "" } : href === "/lounge" ? { iata: "" } : href === "/esim/kurulum" ? { platform: "ios", brand: "" } : undefined) as never;
   return (
     <section>
       <div className="lg:hidden"><SectionTitle>{title || c.install}</SectionTitle></div>

@@ -585,6 +585,7 @@
 - [x] Verify Standard, Unlimited, regional, cart state, mobile layouts, and locales.
 
 ## V2 final country/package page cleanup
+- [ ] Complete curated-data device checker and public TR/DE/EN iOS/Android installation guide; verify mobile/desktop and reduced motion, without touching provisioning.
 - [x] Keep the selected-country identity, Standard/Unlimited tabs, package grid, selected state, and sticky purchase summary.
 - [x] Replace the country page’s large repeated education/discovery sections with compact assistant, compatibility, and installation-guide entries.
 - [x] Keep regional offers separate and optional without changing their catalogue logic.
