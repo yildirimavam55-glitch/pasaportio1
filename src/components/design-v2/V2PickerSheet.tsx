@@ -93,8 +93,6 @@ export function V2PickerSheet({
         side="bottom"
         style={keyboardStyle}
         onOpenAutoFocus={(event) => event.preventDefault()}
-        onFocusCapture={() => window.requestAnimationFrame(() => window.visualViewport?.dispatchEvent(new Event("resize")))}
-        onBlurCapture={() => setKeyboardViewport(null)}
         onCloseAutoFocus={(event) => {
           // The trigger may be far above the sticky search. Radix focusing it
           // after close scrolls the storefront back to the hero.
@@ -118,7 +116,7 @@ export function V2PickerSheet({
             className="min-w-0 flex-1 bg-transparent text-sm text-foreground outline-none placeholder:text-muted-foreground"
           />
         </label>
-        <div className={`mt-3 max-h-[calc(88dvh-9.5rem)] overflow-y-auto overscroll-contain rounded-2xl border border-border bg-card ${keyboardViewport ? "min-h-0 flex-1" : ""}`}>
+        <div className={`mt-3 overflow-y-auto overscroll-contain rounded-2xl border border-border bg-card ${keyboardViewport ? "min-h-0 max-h-none flex-1" : "max-h-[calc(88dvh-9.5rem)]"}`}>
           {items.length ? (
             <ul className="divide-y divide-border">
               {items.map((item) => {
