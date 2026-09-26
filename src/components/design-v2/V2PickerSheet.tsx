@@ -1,5 +1,5 @@
 import { Check, Search } from "lucide-react";
-import { useRef, type ReactNode } from "react";
+import { useLayoutEffect, useRef, type ReactNode } from "react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 
@@ -37,6 +37,12 @@ export function V2PickerSheet({
   children: ReactNode;
 }) {
   const previousScroll = useRef<{ x: number; y: number } | null>(null);
+
+  // The sticky search opens the controlled sheet directly (not via its
+  // trigger), so capture that path too before the dialog's focus effects.
+  useLayoutEffect(() => {
+    if (open && !previousScroll.current) previousScroll.current = { x: window.scrollX, y: window.scrollY };
+  }, [open]);
 
   const handleOpenChange = (nextOpen: boolean) => {
     if (nextOpen) previousScroll.current = { x: window.scrollX, y: window.scrollY };
