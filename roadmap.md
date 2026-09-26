@@ -1,8 +1,8 @@
 # Phase 1.3 Roadmap
 
 ## V2 cart CTA state
-- [ ] Show localized Add / Adding / In cart confirmation and Go to cart actions in the shared selected-product panel.
-- [ ] Verify cart-store synchronization after removal and country/regional Standard/Unlimited journeys at mobile and desktop sizes.
+- [x] Show localized Add / Adding / In cart confirmation and Go to cart actions in the shared selected-product panel.
+- [x] Verify cart-store synchronization after removal and country/regional Standard/Unlimited journeys at mobile and desktop sizes.
 
 ## V2 desktop final visual polish
 
