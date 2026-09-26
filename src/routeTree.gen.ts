@@ -29,6 +29,7 @@ import { Route as DesignV2IndexRouteImport } from './routes/design-v2.index'
 import { Route as DesignV2SplatRouteImport } from './routes/design-v2.$'
 import { Route as EnIndexRouteImport } from './routes/en.index'
 import { Route as EsimIndexRouteImport } from './routes/esim.index'
+import { Route as EsimKurulumRouteImport } from './routes/esim.kurulum'
 import { Route as EsimPaketlerRouteImport } from './routes/esim.paketler'
 import { Route as EsimUlkelerRouteImport } from './routes/esim.ulkeler'
 import { Route as GuidesIndexRouteImport } from './routes/guides.index'
@@ -211,6 +212,11 @@ const EnIndexRoute = EnIndexRouteImport.update({
 const EsimIndexRoute = EsimIndexRouteImport.update({
   id: '/esim/',
   path: '/esim/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EsimKurulumRoute = EsimKurulumRouteImport.update({
+  id: '/esim/kurulum',
+  path: '/esim/kurulum',
   getParentRoute: () => rootRouteImport,
 } as any)
 const EsimPaketlerRoute = EsimPaketlerRouteImport.update({
@@ -703,6 +709,7 @@ export interface FileRoutesByFullPath {
   '/account/security': typeof AccountSecurityRoute
   '/account/support': typeof AccountSupportRoute
   '/design-v2/$': typeof DesignV2SplatRoute
+  '/esim/kurulum': typeof EsimKurulumRoute
   '/esim/paketler': typeof EsimPaketlerRoute
   '/esim/ulkeler': typeof EsimUlkelerRoute
   '/guides/$slug': typeof GuidesSlugRoute
@@ -806,6 +813,7 @@ export interface FileRoutesByTo {
   '/account/security': typeof AccountSecurityRoute
   '/account/support': typeof AccountSupportRoute
   '/design-v2/$': typeof DesignV2SplatRoute
+  '/esim/kurulum': typeof EsimKurulumRoute
   '/esim/paketler': typeof EsimPaketlerRoute
   '/esim/ulkeler': typeof EsimUlkelerRoute
   '/guides/$slug': typeof GuidesSlugRoute
@@ -913,6 +921,7 @@ export interface FileRoutesById {
   '/account/security': typeof AccountSecurityRoute
   '/account/support': typeof AccountSupportRoute
   '/design-v2/$': typeof DesignV2SplatRoute
+  '/esim/kurulum': typeof EsimKurulumRoute
   '/esim/paketler': typeof EsimPaketlerRoute
   '/esim/ulkeler': typeof EsimUlkelerRoute
   '/guides/$slug': typeof GuidesSlugRoute
@@ -1020,6 +1029,7 @@ export interface FileRouteTypes {
     | '/account/security'
     | '/account/support'
     | '/design-v2/$'
+    | '/esim/kurulum'
     | '/esim/paketler'
     | '/esim/ulkeler'
     | '/guides/$slug'
@@ -1123,6 +1133,7 @@ export interface FileRouteTypes {
     | '/account/security'
     | '/account/support'
     | '/design-v2/$'
+    | '/esim/kurulum'
     | '/esim/paketler'
     | '/esim/ulkeler'
     | '/guides/$slug'
@@ -1229,6 +1240,7 @@ export interface FileRouteTypes {
     | '/account/security'
     | '/account/support'
     | '/design-v2/$'
+    | '/esim/kurulum'
     | '/esim/paketler'
     | '/esim/ulkeler'
     | '/guides/$slug'
@@ -1331,6 +1343,7 @@ export interface RootRouteChildren {
   SepetRoute: typeof SepetRoute
   VignetteRoute: typeof VignetteRoute
   DesignV2SplatRoute: typeof DesignV2SplatRoute
+  EsimKurulumRoute: typeof EsimKurulumRoute
   EsimPaketlerRoute: typeof EsimPaketlerRoute
   EsimUlkelerRoute: typeof EsimUlkelerRoute
   GuidesSlugRoute: typeof GuidesSlugRoute
@@ -1497,6 +1510,13 @@ declare module '@tanstack/react-router' {
       path: '/esim'
       fullPath: '/esim/'
       preLoaderRoute: typeof EsimIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/esim/kurulum': {
+      id: '/esim/kurulum'
+      path: '/esim/kurulum'
+      fullPath: '/esim/kurulum'
+      preLoaderRoute: typeof EsimKurulumRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/esim/paketler': {
@@ -2291,6 +2311,7 @@ const rootRouteChildren: RootRouteChildren = {
   SepetRoute: SepetRoute,
   VignetteRoute: VignetteRoute,
   DesignV2SplatRoute: DesignV2SplatRoute,
+  EsimKurulumRoute: EsimKurulumRoute,
   EsimPaketlerRoute: EsimPaketlerRoute,
   EsimUlkelerRoute: EsimUlkelerRoute,
   GuidesSlugRoute: GuidesSlugRoute,
