@@ -3,7 +3,7 @@
 ## V2 approved country product-page reference
 - [x] Recompose the selected-country page around the existing dynamic country imagery, catalogue, device checker, product cards, and cart state.
 - [x] Add the compact trust, compatibility, regional, recommendation, installation, FAQ, and selected-product surfaces from the approved reference.
-- [ ] Verify the complete TR/DE/EN journey at 360/390/430/1440, capture requested screenshots, and confirm tests/build without publishing.
+- [x] Verify the complete TR/DE/EN journey at 360/390/430/1440, capture requested screenshots, and confirm tests/build without publishing.
 
 ## V2 country search one-tap selection
 - [x] Keep the focused input from blurring on result pointer-down, then commit intentional taps on pointer release before keyboard viewport changes can suppress the action.
