@@ -1,9 +1,9 @@
 # Phase 1.3 Roadmap
 
 ## V2 country search one-tap selection
-- [x] Commit intentional result taps before iOS blur and visual-viewport resizing can suppress the synthetic click.
+- [x] Keep the focused input from blurring on result pointer-down, then commit intentional taps on pointer release before keyboard viewport changes can suppress the action.
 - [x] Preserve native vertical result scrolling with movement and cancellation guards, without duplicate selection.
-- [x] Complete 360/390/430 simulated mobile interaction and geometry regression checks; physical iPhone remains device-only.
+- [x] Re-run 360/390/430 simulated WebKit and Android interaction/geometry checks; final physical iPhone confirmation remains device-only.
 
 ## V2 country search keyboard usability
 - [x] Keep the keyboard-open title/close/search below the visible iOS edge and leave unused space outside compact single-result lists.

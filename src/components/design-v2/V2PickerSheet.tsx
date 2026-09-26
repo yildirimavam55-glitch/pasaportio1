@@ -2,7 +2,7 @@ import { Check, Search } from "lucide-react";
 import { useLayoutEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
-import { beginPickerPress, completePickerPress, isDuplicatePickerClick, movePickerPress, type PickerPress } from "./picker-interaction";
+import { beginPickerPress, completePickerPress, getPickerKeyboardStyle, isDuplicatePickerClick, movePickerPress, type PickerPress } from "./picker-interaction";
 
 export type V2PickerItem = {
   id: string;
@@ -40,10 +40,10 @@ export function V2PickerSheet({
   const previousScroll = useRef<{ x: number; y: number } | null>(null);
   const inputRef = useRef<HTMLInputElement | null>(null);
   const pressRef = useRef<PickerPress | null>(null);
-  const pendingViewportRef = useRef<{ top: number; height: number; width: number } | null>(null);
+  const pendingViewportRef = useRef<{ top: number; height: number } | null>(null);
   const lastPointerSelectionRef = useRef<{ id: string; at: number } | null>(null);
   const [inputFocused, setInputFocused] = useState(false);
-  const [visibleViewport, setVisibleViewport] = useState<{ top: number; height: number; width: number } | null>(null);
+  const [visibleViewport, setVisibleViewport] = useState<{ top: number; height: number } | null>(null);
 
   // The sticky search opens the controlled sheet directly (not via its
   // trigger), so capture that path too before the dialog's focus effects.
@@ -63,13 +63,12 @@ export function V2PickerSheet({
       const next = {
         top: Math.max(0, Math.round(viewport?.offsetTop ?? 0)),
         height: Math.max(0, Math.round(viewport?.height ?? window.innerHeight)),
-        width: Math.max(0, Math.round(viewport?.width ?? window.innerWidth)),
       };
       if (pressRef.current) {
         pendingViewportRef.current = next;
         return;
       }
-      setVisibleViewport((current) => current?.top === next.top && current?.height === next.height && current?.width === next.width ? current : next);
+      setVisibleViewport((current) => current?.top === next.top && current?.height === next.height ? current : next);
     };
     update();
     viewport?.addEventListener("resize", update);
@@ -106,16 +105,9 @@ export function V2PickerSheet({
     onSelect(id);
   };
 
-  const keyboardOpen = inputFocused && Boolean(visibleViewport && visibleViewport.width < 640);
+  const keyboardOpen = inputFocused && window.matchMedia("(max-width: 639px)").matches;
   const keyboardStyle: CSSProperties | undefined = keyboardOpen && visibleViewport
-    ? {
-        // Keep the title and close control clear of iOS browser chrome while
-        // continuing to size the results against the real visible viewport.
-        top: visibleViewport.top + 8,
-        bottom: "auto",
-        height: Math.max(0, visibleViewport.height - 16),
-        maxHeight: Math.max(0, visibleViewport.height - 16),
-      }
+    ? getPickerKeyboardStyle(visibleViewport.top, visibleViewport.height)
     : undefined;
 
   return (
@@ -152,10 +144,10 @@ export function V2PickerSheet({
             }}
             placeholder={searchLabel}
             aria-label={searchLabel}
-            className="min-w-0 flex-1 bg-transparent text-sm text-foreground outline-none placeholder:text-muted-foreground"
+            className="min-w-0 flex-1 bg-transparent text-base text-foreground outline-none placeholder:text-muted-foreground"
           />
         </label>
-        <div className={`${keyboardOpen ? "mt-2 min-h-0 max-h-[calc(100%-10rem)] shrink-0" : "mt-3 max-h-[calc(88dvh-9.5rem)]"} overflow-y-auto overscroll-contain rounded-2xl border border-border bg-card`}>
+        <div className={`${keyboardOpen ? "mt-2 min-h-0 flex-1" : "mt-3 max-h-[calc(88dvh-9.5rem)]"} overflow-y-auto overscroll-contain rounded-2xl border border-border bg-card`}>
           {items.length ? (
             <ul className="grid auto-rows-min content-start divide-y divide-border">
               {items.map((item) => {
@@ -166,6 +158,10 @@ export function V2PickerSheet({
                       type="button"
                       variant="ghost"
                       onPointerDown={(event) => {
+                        // Do not let a result button steal focus from the input.
+                        // On iOS that blur dismisses the keyboard and can cancel
+                        // the rest of the tap before pointerup/click is delivered.
+                        event.preventDefault();
                         pressRef.current = beginPickerPress(item.id, event.pointerId, event.clientX, event.clientY);
                       }}
                       onPointerMove={(event) => {
