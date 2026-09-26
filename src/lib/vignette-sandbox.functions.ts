@@ -63,8 +63,8 @@ export const getVignetteSandbox = createServerFn({ method: "GET" })
       latest: latest.data ?? null,
       lastSuccessAt: (lastOk.data?.created_at as string | undefined) ?? null,
       catalogueAt: (catalogue.data?.created_at as string | undefined) ?? null,
-      raw,
-      products: extractProducts(raw),
+      /** Sanitized supplier JSON as a string (keeps the RPC payload type-safe). */
+      rawJson: raw == null ? null : JSON.stringify(raw),
     };
   });
 
