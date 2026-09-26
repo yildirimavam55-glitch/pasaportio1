@@ -44,6 +44,7 @@ export const V2_SAFE_LINKS = [
   "/lounge",
   "/vignette",
   "/destek",
+  "/esim/kurulum",
   "/sepet",
   "/account",
 ] as const;
@@ -199,7 +200,7 @@ function esimDefault(): V2Page {
     section("promo-lounge", "PROMO_BANNER", { mediaId: "builtin:lounge-card", href: "/lounge", text: { title: from3(c, "promo"), subtitle: from3(c, "promoSub") } }),
     section("installation", "INSTALLATION_STEPS", {
       variant: "animated",
-      href: "/destek",
+      href: "/esim/kurulum",
       text: { title: from3(DISCOVERY_COPY, "install"), subtitle: from3(DISCOVERY_COPY, "installSub"), ready: from3(DISCOVERY_COPY, "animReady"), adding: from3(DISCOVERY_COPY, "animAdding"), cta: from3(DISCOVERY_COPY, "installCta") },
       items: listItems("step", { tr: DISCOVERY_COPY.tr.animSteps, de: DISCOVERY_COPY.de.animSteps, en: DISCOVERY_COPY.en.animSteps }, (v) => ({ title: String(v), text: "" })),
     }),
@@ -265,7 +266,7 @@ export function createV2Section(type: V2SectionType): V2Section {
   const id = `${type.toLowerCase()}-${Math.random().toString(36).slice(2, 8)}`;
   const base = section(id, type);
   if (type === "SPACER") base.height = "compact";
-  if (type === "INSTALLATION_STEPS") { base.variant = "simple"; base.href = "/destek"; }
+  if (type === "INSTALLATION_STEPS") { base.variant = "simple"; base.href = "/esim/kurulum"; }
   return base;
 }
 
