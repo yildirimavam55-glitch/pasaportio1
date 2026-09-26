@@ -508,3 +508,23 @@ export function DeviceCompatibilityInline() {
     </div>
   );
 }
+
+/** Product-page state card; verification still comes exclusively from the existing manual checker. */
+export function DeviceCompatibilityProductCard() {
+  const { locale } = useI18n();
+  const copy = COPY[locale];
+  const { compatibilityChecked, deviceModel, compatibilityResult } = useDeviceCheck();
+  const verified = compatibilityChecked && compatibilityResult && compatibilityResult !== "UNCERTAIN";
+  const title = verified ? statusLabel(copy, compatibilityResult) : copy.sectionTitle;
+  const lead = verified ? deviceModel : copy.sectionLead;
+
+  return (
+    <div className="grid min-h-[5.75rem] grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 rounded-2xl bg-primary-soft px-4 py-3 ring-1 ring-primary/10">
+      <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-card text-primary shadow-sm">
+        {verified ? <StatusIcon status={compatibilityResult} /> : <Smartphone className="size-5" aria-hidden="true" />}
+      </span>
+      <span className="min-w-0"><strong className="block text-sm leading-tight text-foreground">{title}</strong><span className="mt-0.5 block text-xs leading-snug text-muted-foreground">{lead}</span></span>
+      <DeviceCheckSheet surface="v2-country" trigger={<Button type="button" size="sm" className="shrink-0 rounded-full px-3 text-xs">{verified ? copy.change : copy.recheck}<ChevronRight className="size-4" /></Button>} />
+    </div>
+  );
+}
