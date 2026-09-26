@@ -629,7 +629,7 @@
 - [ ] Pass 3: RTL polish (arrows, logical spacing, LTR numbers/prices), SEO wiring for reviewed languages, full responsive QA
 
 ## V2 compact compatibility and safe device detection
-- [ ] Reduce the country-product compatibility card to a 72–84px utility row at mobile widths.
-- [ ] Reuse the existing compatibility catalogue for strict, unique exact-model matching from non-invasive browser signals.
-- [ ] Preserve manual confirmation priority and store only confirmed model/result metadata locally.
-- [ ] Verify exact, partial, unknown, saved compatible/incompatible, and change-device states across TR/DE/EN and 360/390/430/desktop.
+- [x] Reduce the country-product compatibility card to a 72–84px utility row at mobile widths.
+- [x] Reuse the existing compatibility catalogue for strict, unique exact-model matching from non-invasive browser signals.
+- [x] Preserve manual confirmation priority and store only confirmed model/result metadata locally.
+- [x] Verify exact, partial, unknown, saved compatible/incompatible, and change-device states across TR/DE/EN and 360/390/430/desktop.
