@@ -125,7 +125,7 @@ export function V2SelectedProductSummary({
         </div>
         {inCart ? (
           <Button asChild variant="default" className="h-10 min-w-0 flex-1 rounded-xl px-3">
-            <Link to="/sepet" aria-label={cartLabel}><span className="truncate">{cartLabel}</span><ArrowRight className="size-4 shrink-0" /></Link>
+            <Link to="/sepet" aria-label={cartLabel}><Check className="size-4 shrink-0" /><span className="truncate">{cartLabel}</span><ArrowRight className="size-4 shrink-0" /></Link>
           </Button>
         ) : (
           <Button type="button" onClick={addOnce} disabled={adding} aria-busy={adding} className="h-10 min-w-0 flex-1 rounded-xl px-3"><ShoppingBag className="size-4 shrink-0" /><span className="truncate">{adding ? addingLabel : addLabel}</span></Button>
