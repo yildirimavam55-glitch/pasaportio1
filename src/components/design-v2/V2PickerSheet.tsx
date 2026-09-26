@@ -173,7 +173,13 @@ export function V2PickerSheet({
                       }}
                       onPointerCancel={finishPress}
                       onPointerUp={(event) => commitPointerSelection(item.id, event.pointerId)}
-                      onClick={() => {
+                      onClick={(event) => {
+                        // Keyboard and assistive activations have no pointer
+                        // click count and must always retain native behavior.
+                        if (event.detail === 0) {
+                          onSelect(item.id);
+                          return;
+                        }
                         if (isDuplicatePickerClick(lastPointerSelectionRef.current, item.id, performance.now())) return;
                         onSelect(item.id);
                       }}
