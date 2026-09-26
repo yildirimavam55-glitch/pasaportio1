@@ -4,7 +4,7 @@ import type { Locale } from "@/domain/enums";
 import type { EsimRegionalSummary } from "@/lib/esim-catalogue.functions";
 
 const normalize = (text: string) => text.toLocaleLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim();
-const matches = (name: string, query: string) => normalize(name).includes(query) || foldText(name).includes(foldText(query));
+const matches = (name: string, query: string) => normalize(name).includes(query) || (foldText(query).length > 0 && foldText(name).includes(foldText(query)));
 
 /** Rankings use only the coverage ISOs of real published eligible products. */
 export function searchPublishedRegions(items: EsimRegionalSummary[], query: string, locale: Locale) {
