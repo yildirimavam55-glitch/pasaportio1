@@ -124,7 +124,8 @@ export function searchCountries(query: string, limit = 60, locale: Locale = "tr"
     }
     if (!best) return;
     const names = [country.name[locale], country.name.tr, country.name.de, country.name.en];
-    const exactSpelling = raw && names.some((name) => name?.toLocaleLowerCase(locale).startsWith(raw)) ? 0 : 1;
+    // Spelling only breaks ties when the customer typed diacritics (e.g. "Tür").
+    const exactSpelling = !/[^\x00-\x7f]/.test(raw) || names.some((name) => name?.toLocaleLowerCase(locale).startsWith(raw)) ? 0 : 1;
     const found = best as { tier: number; length: number };
     scored.push({ country, tier: found.tier, exactSpelling, length: found.length, index });
   });

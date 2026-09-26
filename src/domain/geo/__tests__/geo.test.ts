@@ -44,3 +44,13 @@ describe("airport search", () => {
     expect(searchAirports("düsseldorf")[0]?.iata).toBe("DUS");
   });
 });
+
+describe("country search relevance", () => {
+  it.each([
+    ["Tür", "tr", "TR"], ["Türk", "tr", "TR"], ["Turkiye", "tr", "TR"], ["Tür", "de", "TR"], ["Turkei", "de", "TR"],
+    ["Tur", "en", "TR"], ["Turkey", "en", "TR"], ["Italya", "tr", "IT"], ["Italien", "de", "IT"],
+    ["Avusturya", "tr", "AT"], ["Osterreich", "de", "AT"], ["Germany", "en", "DE"],
+  ] as const)("%s (%s) ranks %s first", (query, locale, iso) => {
+    expect(searchCountries(query, 5, locale)[0]?.iso).toBe(iso);
+  });
+});
