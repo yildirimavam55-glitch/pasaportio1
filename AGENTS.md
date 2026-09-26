@@ -20,3 +20,4 @@ Keep a GIN index on eSIM coverage country arrays because public country-package 
 - i18n: one locale registry (`src/i18n/locales.ts`); languages without their own resources set `content: "en"` and are translated through `localize()` + static JSON resources in `src/i18n/resources/` — keeps one component system without widening every copy object.
 - V2 country product pages reuse the central country photo registry, session device checker, catalogue queries, and cart store; presentation must not duplicate those data systems.
 - Automatic eSIM compatibility may claim a result only for one unique exact browser model match in the curated compatibility catalogue; ambiguous and iPhone-family signals stay manual, and only manual confirmations persist.
+- Regional eSIM discovery reuses published regional summaries, coverage classification, and region product routes; country search matches actual eligible package coverage, never geographic assumptions.

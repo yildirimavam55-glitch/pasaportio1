@@ -25,6 +25,7 @@ import { mediaUrl, useV2Page, V2Sections, v2PageQuery } from "@/components/desig
 import { v2Text, type V2Section } from "@/domain/storefront/v2";
 import { V2EsimPackageDetails } from "@/components/design-v2/V2EsimPackageDetails";
 import { V2ProductSelectionCard, V2SelectedProductSummary } from "@/components/design-v2/V2ProductSelection";
+import { V2RegionCard } from "@/components/design-v2/V2RegionCard";
 import { localize } from "@/i18n/overlay";
 
 /** Public home/eSIM search: optional country + legacy `service` hint (V1 links used `/?service=lounge`). */
@@ -243,19 +244,7 @@ function RegionalDiscovery({ section, summaries, loading, c }: { section: V2Sect
       <p className="mb-3 text-xs text-muted-foreground">{v2Text(section, "lead", locale)}</p>
       {loading ? <div className="h-40 animate-pulse rounded-xl bg-muted" /> : (
         <ul className="-mx-4 flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-2 [overscroll-behavior-inline:contain] [scrollbar-width:none] sm:mx-0 sm:grid sm:grid-cols-3 sm:px-0 lg:grid-cols-3 lg:gap-4">
-          {regions.map((item) => {
-            const photo = getRegionPhoto(item.region);
-            return <li key={item.region} className="w-[64%] shrink-0 snap-start sm:w-auto">
-              <Link to="/esim/bolge/$region" params={{ region: item.region }} search={{ country: "" }} className="group relative block h-40 overflow-hidden rounded-xl bg-card shadow-sm ring-1 ring-border lg:h-52">
-                {photo && <img src={photo.url} alt={photo.alt[locale]} loading="lazy" className="absolute inset-0 size-full object-cover transition-transform duration-300 group-hover:scale-[1.03]" />}
-                <div className="absolute inset-0 bg-gradient-to-t from-[var(--v2-service)]/95 via-[var(--v2-service)]/35 to-transparent" />
-                <div className="absolute inset-x-0 bottom-0 grid grid-cols-[minmax(0,1fr)_auto] items-end gap-2 p-3 text-primary-foreground">
-                  <div className="min-w-0"><h3 className="truncate font-display text-lg font-bold">{COVERAGE_REGION_LABELS[item.region][locale]}</h3><p className="text-xs opacity-90">{item.coverageCount ? `${item.coverageCount} ${c.countries}` : c.multiCountry}</p><p className="mt-1 text-sm font-bold">{locale === "de" ? `${c.from} ${money(item.startingPrice, item.currency)}` : `${c.from} ${money(item.startingPrice, item.currency)}`}</p></div>
-                  <span className="grid size-8 shrink-0 place-items-center rounded-full bg-card text-primary"><ArrowRight className="size-4" /></span>
-                </div>
-              </Link>
-            </li>;
-          })}
+           {regions.map((item) => <li key={item.region} className="w-[64%] shrink-0 snap-start sm:w-auto"><V2RegionCard item={item} countries={c.countries} multi={c.multiCountry} from={c.from} /></li>)}
         </ul>
       )}
       {worldwide?.lowestUnlimitedPrice != null && worldwide.maxUnlimitedCoverageCount != null && <Link to="/esim/bolge/$region" params={{ region: "GLOBAL" }} search={{ country: "" }} className="relative mt-2 grid min-h-20 grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 overflow-hidden rounded-xl bg-primary px-3.5 py-3 text-primary-foreground shadow-sm lg:mt-6 lg:min-h-32 lg:gap-5 lg:px-7">
@@ -336,7 +325,7 @@ function Packages({ iso, name, c, selectedPackage, onSelectPackage }: { iso: str
           })}
         </ul>
       )}
-      <Link to="/esim" search={{ country: "" }} className="mt-5 grid min-h-16 grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 rounded-xl bg-primary-soft px-4 py-3 ring-1 ring-primary/10">
+       <Link to="/esim/bolge" className="mt-5 grid min-h-16 grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 rounded-xl bg-primary-soft px-4 py-3 ring-1 ring-primary/10">
         <Globe2 className="size-7 shrink-0 text-primary"/><span className="min-w-0"><strong className="block text-sm text-foreground">{c.regional}</strong><span className="block text-xs text-muted-foreground">{c.regionalLead}</span></span><ArrowRight className="size-4 shrink-0 text-primary" />
       </Link>
       <section ref={assistantRef} aria-labelledby="decision-help-title" className="mt-2 rounded-xl bg-card ring-1 ring-border">
