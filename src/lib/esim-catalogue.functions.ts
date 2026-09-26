@@ -72,6 +72,7 @@ export type EsimRegionalSummary = {
   minCoverageCount: number;
   maxCoverageCount: number;
   maxUnlimitedCoverageCount: number | null;
+  coverageIsos: string[];
 };
 
 export function regionalIdentity(pkg: EsimPackage): CoverageRegionKey | null {
@@ -259,6 +260,7 @@ export const listEsimRegionalSummaries = createServerFn({ method: "GET" }).handl
         minCoverageCount: coverageCounts[0] ?? 0,
         maxCoverageCount: coverageCounts.at(-1) ?? 0,
         maxUnlimitedCoverageCount: unlimited.length ? Math.max(...unlimited.map((pkg) => pkg.coverage.length)) : null,
+         coverageIsos: [...new Set(rows.flatMap((pkg) => pkg.coverage))],
       }];
     });
   },
