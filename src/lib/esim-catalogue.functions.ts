@@ -105,7 +105,7 @@ export const listEsimPackages = createServerFn({ method: "GET" })
   }))
   .handler(async ({ data }): Promise<EsimPackage[]> => {
     const wantedIsos = data.coverageIsos;
-    const pageSize = wantedIsos.length ? 400 : 1000;
+    const pageSize = wantedIsos.length ? 400 : 500;
     let rows: Awaited<ReturnType<typeof queryPage>> = [];
     async function queryPage(from: number) {
       let query = publicClient()
@@ -120,6 +120,7 @@ export const listEsimPackages = createServerFn({ method: "GET" })
         .eq("margin_flagged", false)
         .gt("sale_price", 0)
         .order("sort_order")
+        .order("id")
         .range(from, from + pageSize - 1);
       if (wantedIsos.length) query = query.contains("esim_product_details.coverage_country_isos", wantedIsos);
       const { data: page, error } = await query;
