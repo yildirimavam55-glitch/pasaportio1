@@ -78,6 +78,7 @@ import { Route as DeRatgeberSlugRouteImport } from './routes/de.ratgeber.$slug'
 import { Route as EnEsimSlugRouteImport } from './routes/en.esim.$slug'
 import { Route as EnGuidesIndexRouteImport } from './routes/en.guides.index'
 import { Route as EnGuidesSlugRouteImport } from './routes/en.guides.$slug'
+import { Route as EsimBolgeIndexRouteImport } from './routes/esim.bolge.index'
 import { Route as EsimBolgeRegionRouteImport } from './routes/esim.bolge.$region'
 import { Route as TrEsimSlugRouteImport } from './routes/tr.esim.$slug'
 import { Route as TrRehberIndexRouteImport } from './routes/tr.rehber.index'
@@ -481,6 +482,11 @@ const EnGuidesSlugRoute = EnGuidesSlugRouteImport.update({
   path: '/en/guides/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
+const EsimBolgeIndexRoute = EsimBolgeIndexRouteImport.update({
+  id: '/esim/bolge/',
+  path: '/esim/bolge/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const EsimBolgeRegionRoute = EsimBolgeRegionRouteImport.update({
   id: '/esim/bolge/$region',
   path: '/esim/bolge/$region',
@@ -772,6 +778,7 @@ export interface FileRoutesByFullPath {
   '/account/orders/': typeof AccountOrdersIndexRoute
   '/de/ratgeber/': typeof DeRatgeberIndexRoute
   '/en/guides/': typeof EnGuidesIndexRoute
+  '/esim/bolge/': typeof EsimBolgeIndexRoute
   '/tr/rehber/': typeof TrRehberIndexRoute
   '/admin/content/seo': typeof AuthenticatedAdminContentSeoRoute
   '/admin/esim/coverage': typeof AuthenticatedAdminEsimCoverageRoute
@@ -877,6 +884,7 @@ export interface FileRoutesByTo {
   '/account/orders': typeof AccountOrdersIndexRoute
   '/de/ratgeber': typeof DeRatgeberIndexRoute
   '/en/guides': typeof EnGuidesIndexRoute
+  '/esim/bolge': typeof EsimBolgeIndexRoute
   '/tr/rehber': typeof TrRehberIndexRoute
   '/admin/content/seo': typeof AuthenticatedAdminContentSeoRoute
   '/admin/esim/coverage': typeof AuthenticatedAdminEsimCoverageRoute
@@ -986,6 +994,7 @@ export interface FileRoutesById {
   '/account/orders/': typeof AccountOrdersIndexRoute
   '/de/ratgeber/': typeof DeRatgeberIndexRoute
   '/en/guides/': typeof EnGuidesIndexRoute
+  '/esim/bolge/': typeof EsimBolgeIndexRoute
   '/tr/rehber/': typeof TrRehberIndexRoute
   '/_authenticated/admin/content/seo': typeof AuthenticatedAdminContentSeoRoute
   '/_authenticated/admin/esim/coverage': typeof AuthenticatedAdminEsimCoverageRoute
@@ -1095,6 +1104,7 @@ export interface FileRouteTypes {
     | '/account/orders/'
     | '/de/ratgeber/'
     | '/en/guides/'
+    | '/esim/bolge/'
     | '/tr/rehber/'
     | '/admin/content/seo'
     | '/admin/esim/coverage'
@@ -1200,6 +1210,7 @@ export interface FileRouteTypes {
     | '/account/orders'
     | '/de/ratgeber'
     | '/en/guides'
+    | '/esim/bolge'
     | '/tr/rehber'
     | '/admin/content/seo'
     | '/admin/esim/coverage'
@@ -1308,6 +1319,7 @@ export interface FileRouteTypes {
     | '/account/orders/'
     | '/de/ratgeber/'
     | '/en/guides/'
+    | '/esim/bolge/'
     | '/tr/rehber/'
     | '/_authenticated/admin/content/seo'
     | '/_authenticated/admin/esim/coverage'
@@ -1380,6 +1392,7 @@ export interface RootRouteChildren {
   TrRehberSlugRoute: typeof TrRehberSlugRoute
   DeRatgeberIndexRoute: typeof DeRatgeberIndexRoute
   EnGuidesIndexRoute: typeof EnGuidesIndexRoute
+  EsimBolgeIndexRoute: typeof EsimBolgeIndexRoute
   TrRehberIndexRoute: typeof TrRehberIndexRoute
 }
 
@@ -1866,6 +1879,13 @@ declare module '@tanstack/react-router' {
       path: '/en/guides/$slug'
       fullPath: '/en/guides/$slug'
       preLoaderRoute: typeof EnGuidesSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/esim/bolge/': {
+      id: '/esim/bolge/'
+      path: '/esim/bolge'
+      fullPath: '/esim/bolge/'
+      preLoaderRoute: typeof EsimBolgeIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/esim/bolge/$region': {
@@ -2356,6 +2376,7 @@ const rootRouteChildren: RootRouteChildren = {
   TrRehberSlugRoute: TrRehberSlugRoute,
   DeRatgeberIndexRoute: DeRatgeberIndexRoute,
   EnGuidesIndexRoute: EnGuidesIndexRoute,
+  EsimBolgeIndexRoute: EsimBolgeIndexRoute,
   TrRehberIndexRoute: TrRehberIndexRoute,
 }
 export const routeTree = rootRouteImport
