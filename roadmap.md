@@ -1,6 +1,8 @@
 # Phase 1.3 Roadmap
 
 ## V2 country search keyboard usability
+- [x] Pin the focused shared picker to the actual visual viewport top/height so results remain above real mobile keyboards.
+- [x] Verify first-result visibility, two-row capacity, focused selection, width stability, and close state at 360/390/430 px with reduced viewport geometry.
 - [x] Fit the shared mobile picker above the software keyboard using the visual viewport while keeping the search input and results visible.
 - [x] Verify hero and sticky country selection, scrollable results, Lounge/Vignette, width stability and scroll restoration at 360/390/430 px in simulated WebKit/Chromium keyboard states.
 - [ ] Physical iPhone Safari keyboard verification requires a device.
