@@ -74,7 +74,7 @@ export type EsimRegionalSummary = {
   maxUnlimitedCoverageCount: number | null;
 };
 
-function regionalIdentity(pkg: EsimPackage): CoverageRegionKey | null {
+export function regionalIdentity(pkg: EsimPackage): CoverageRegionKey | null {
   const scope = resolvePackageScope({ declaredKind: pkg.packageKind, coverageCount: pkg.coverage.length });
   if (scope === "COUNTRY" || scope === "SUBDIVISION") return null;
   return classifyCoverageRegion(pkg.coverage);

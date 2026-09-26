@@ -633,3 +633,8 @@
 - [x] Reuse the existing compatibility catalogue for strict, unique exact-model matching from non-invasive browser signals.
 - [x] Preserve manual confirmation priority and store only confirmed model/result metadata locally.
 - [x] Verify exact, partial, unknown, saved compatible/incompatible, and change-device states across TR/DE/EN and 360/390/430/desktop.
+
+## Regional and global eSIM customer flow
+- [ ] Connect country product page to regional discovery using existing regional inventory, photos, and region product routes.
+- [ ] Search regions and actual published package coverage by country; show truthful counts and prices.
+- [ ] Add product-aware coverage inspection and validate selection, cart, back navigation, language and responsive views.

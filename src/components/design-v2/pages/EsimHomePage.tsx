@@ -336,7 +336,7 @@ function Packages({ iso, name, c, selectedPackage, onSelectPackage }: { iso: str
           })}
         </ul>
       )}
-      <Link to="/esim" search={{ country: "" }} className="mt-5 grid min-h-16 grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 rounded-xl bg-primary-soft px-4 py-3 ring-1 ring-primary/10">
+       <Link to="/esim/bolge" className="mt-5 grid min-h-16 grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 rounded-xl bg-primary-soft px-4 py-3 ring-1 ring-primary/10">
         <Globe2 className="size-7 shrink-0 text-primary"/><span className="min-w-0"><strong className="block text-sm text-foreground">{c.regional}</strong><span className="block text-xs text-muted-foreground">{c.regionalLead}</span></span><ArrowRight className="size-4 shrink-0 text-primary" />
       </Link>
       <section ref={assistantRef} aria-labelledby="decision-help-title" className="mt-2 rounded-xl bg-card ring-1 ring-border">
