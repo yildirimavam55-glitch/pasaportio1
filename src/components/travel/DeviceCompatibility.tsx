@@ -178,12 +178,34 @@ function StatusIcon({ status }: { status: CompatibilityStatus }) {
   return <CircleHelp className="size-5 shrink-0 text-cta" aria-hidden="true" />;
 }
 
+const EXTRA = {
+  tr: { eyebrow: "CİHAZ UYUMLULUĞU", title: "Cihazınız eSIM ile uyumlu mu?", lead: "Marka ve modelinizi seçerek kolayca kontrol edin.", brandSelect: "Marka seçin", modelSelect: "Model seçin", checkCta: "Uyumluluğu kontrol et", okTitle: "Bu cihaz eSIM ile uyumlu ✓", okBody: (m: string) => `${m} cihazınız eSIM kullanımı için uygundur.`, notTitle: "Bu cihaz eSIM desteklemiyor", unknownTitle: "eSIM desteği doğrulanamadı", badge: "eSIM uyumlu" },
+  de: { eyebrow: "GERÄTEKOMPATIBILITÄT", title: "Ist dein Gerät eSIM-fähig?", lead: "Wähle Marke und Modell und prüfe es ganz einfach.", brandSelect: "Marke wählen", modelSelect: "Modell wählen", checkCta: "Kompatibilität prüfen", okTitle: "Dieses Gerät ist eSIM-fähig ✓", okBody: (m: string) => `Dein ${m} ist für die eSIM-Nutzung geeignet.`, notTitle: "Dieses Gerät unterstützt keine eSIM", unknownTitle: "eSIM-Unterstützung nicht bestätigt", badge: "eSIM-fähig" },
+  en: { eyebrow: "DEVICE COMPATIBILITY", title: "Is your device eSIM compatible?", lead: "Pick your brand and model to check in seconds.", brandSelect: "Select brand", modelSelect: "Select model", checkCta: "Check compatibility", okTitle: "This device is eSIM compatible ✓", okBody: (m: string) => `Your ${m} can use an eSIM.`, notTitle: "This device doesn't support eSIM", unknownTitle: "eSIM support not verified", badge: "eSIM compatible" },
+} as const;
+
+/** Generic, non-branded phone illustration (no manufacturer imagery). */
+function CheckerPhone({ badge }: { badge: string }) {
+  return (
+    <div className="relative hidden h-36 w-32 shrink-0 sm:block" aria-hidden="true">
+      <div className="absolute right-2 top-0 h-40 w-[5.5rem] rounded-[1.4rem] border-[4px] border-foreground/85 bg-gradient-to-b from-primary-soft to-card shadow-panel">
+        <span className="mx-auto mt-1.5 block h-2 w-8 rounded-full bg-foreground/85" />
+        <span className="mx-auto mt-8 grid size-9 place-items-center rounded-xl bg-card text-primary shadow-soft"><Smartphone className="size-5" /></span>
+      </div>
+      <span className="absolute -left-3 bottom-3 flex items-center gap-1 rounded-full bg-card px-2.5 py-1 text-[11px] font-bold shadow-panel"><CheckCircle2 className="size-4 text-primary" />{badge}</span>
+    </div>
+  );
+}
+
 export function DeviceCheckSheet({ surface, trigger }: { surface: string; trigger: ReactNode }) {
   const { locale } = useI18n();
   const copy = COPY[locale];
+  const x = EXTRA[locale];
   const [open, setOpen] = useState(false);
   const [brand, setBrand] = useState<string | null>(null);
   const [query, setQuery] = useState("");
+  const [listOpen, setListOpen] = useState(false);
+  const [pending, setPending] = useState<DeviceRecord | null>(null);
   const [selected, setSelected] = useState<DeviceRecord | null>(null);
   const { setResult, reset: resetResult } = useDeviceCheck();
 
@@ -202,8 +224,17 @@ export function DeviceCheckSheet({ surface, trigger }: { surface: string; trigge
 
   const reset = () => {
     setSelected(null);
+    setPending(null);
     setQuery("");
     setBrand(null);
+    setListOpen(false);
+  };
+
+  const runCheck = () => {
+    if (!pending) return;
+    setSelected(pending);
+    setResult(pending.model, pending.status);
+    void noopAnalyticsSink.track({ name: "compatibility_result_viewed", result: pending.status, brand: pending.brand });
   };
 
   return (
@@ -220,90 +251,80 @@ export function DeviceCheckSheet({ surface, trigger }: { surface: string; trigge
         side="bottom"
         overlayClassName="compatibility-backdrop"
         closeClassName="right-3 top-3 sm:right-4 sm:top-4"
-        className="compatibility-sheet max-h-[88svh] overflow-y-auto rounded-t-2xl pb-28 sm:bottom-auto sm:left-1/2 sm:top-1/2 sm:max-h-[86vh] sm:w-[min(42rem,calc(100vw-3rem))] sm:-translate-x-1/2 sm:-translate-y-1/2 sm:rounded-2xl sm:border"
+        className="compatibility-sheet max-h-[88svh] overflow-y-auto rounded-t-2xl pb-28 sm:bottom-auto sm:left-1/2 sm:top-1/2 sm:max-h-[86vh] sm:w-[min(40rem,calc(100vw-3rem))] sm:-translate-x-1/2 sm:-translate-y-1/2 sm:rounded-2xl sm:border sm:pb-6"
       >
-        <span
-          className="mx-auto mb-1 block h-1 w-10 shrink-0 rounded-full bg-border sm:hidden"
-          aria-hidden="true"
-        />
-        <SheetHeader className="px-4 sm:px-6">
-          <SheetTitle className="font-display text-xl">{copy.sheetTitle}</SheetTitle>
-          <SheetDescription>{copy.sheetLead}</SheetDescription>
+        <span className="mx-auto mb-1 block h-1 w-10 shrink-0 rounded-full bg-border sm:hidden" aria-hidden="true" />
+        <SheetHeader className="flex-row items-start justify-between gap-4 space-y-0 px-4 text-left sm:px-6">
+          <div className="min-w-0 pr-8 sm:pr-0">
+            <p className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground">{x.eyebrow}</p>
+            <SheetTitle className="mt-1 font-display text-2xl font-bold leading-tight sm:text-3xl">{x.title}</SheetTitle>
+            <SheetDescription className="mt-2">{x.lead}</SheetDescription>
+          </div>
+          <CheckerPhone badge={x.badge} />
         </SheetHeader>
 
-        <div className="space-y-4 px-4 pb-4 sm:px-6">
-          {selected ? (
-            <ResultPanel
-              device={selected}
-              copy={copy}
-              onAgain={() => setSelected(null)}
-            />
-          ) : (
-            <>
-              <div>
-                <label htmlFor="device-brand" className="mb-1.5 block text-sm font-semibold">{copy.brand}</label>
-                <select id="device-brand" value={brand ?? ""} onChange={(event) => { setBrand(event.target.value || null); setSelected(null); setQuery(""); resetResult(); }} className="min-h-12 w-full rounded-xl border border-border bg-card px-3 text-sm font-semibold text-foreground outline-none focus-visible:ring-2 focus-visible:ring-ring">
-                  <option value="">{copy.chooseBrand}</option>
-                  {brands.map((item) => <option key={item} value={item}>{item}</option>)}
-                </select>
-              </div>
-              {brand && <label className="block text-sm font-semibold">{copy.model}
-                <span className="mt-1.5 flex min-h-12 items-center gap-2 rounded-xl border border-border bg-secondary/60 px-3 focus-within:ring-2 focus-within:ring-ring">
-                  <Search className="size-4 text-muted-foreground" aria-hidden="true" />
-                  <input value={query} onChange={(event) => { setQuery(event.target.value); void noopAnalyticsSink.track({ name: "device_searched", queryLength: event.target.value.length }); }} placeholder={copy.modelPlaceholder} className="min-w-0 flex-1 bg-transparent text-sm outline-none" />
-                </span>
-              </label>}
-              {brand &&
-              <div>
-                {isPending ? (
-                  <p className="flex items-center gap-2 py-4 text-sm text-muted-foreground">
-                    <LoaderCircle className="size-4 animate-spin" /> …
-                  </p>
-                ) : results.length ? (
-                  <ul aria-label={`${brand} ${copy.model}`} className="max-h-56 space-y-1.5 overflow-y-auto overscroll-contain pr-1 sm:max-h-64">
-                    {results.map((device) => (
-                      <li key={device.id}>
-                        <Button variant="ghost"
-                          type="button"
-                          onClick={() => {
-                            setSelected(device);
-                            setResult(device.model, device.status);
-                            void noopAnalyticsSink.track({
-                              name: "compatibility_result_viewed",
-                              result: device.status,
-                              brand: device.brand,
-                            });
-                          }}
-                          className="flex min-h-12 w-full items-center justify-start gap-2 rounded-xl border border-border bg-card px-3 text-left text-sm font-semibold hover:border-primary/60"
-                        >
-                          <span className="icon-slot-sm text-primary">
-                            <Smartphone aria-hidden="true" />
-                          </span>
-                          <span className="min-w-0 flex-1 truncate">{device.model}</span>
-                          <ChevronRight
-                            className="size-4 shrink-0 text-muted-foreground"
-                            aria-hidden="true"
-                          />
-                        </Button>
-                      </li>
-                    ))}
-                  </ul>
-                ) : (
-                  <div role="status" className="flex gap-2 py-4 text-sm text-muted-foreground"><CircleHelp className="size-5 shrink-0 text-cta" aria-hidden="true" /><p><strong className="block text-foreground">{copy.statusUncertain}</strong>{copy.noResult}</p></div>
-                )}
-              </div>}
-            </>
-          )}
+        <div className="space-y-4 px-4 pb-4 pt-2 sm:px-6">
+          <div className="rounded-2xl border border-border bg-card p-4 shadow-soft">
+            <label htmlFor="device-brand" className="mb-1.5 block text-sm font-semibold">{x.brandSelect}</label>
+            <select
+              id="device-brand"
+              value={brand ?? ""}
+              onChange={(event) => { setBrand(event.target.value || null); setPending(null); setSelected(null); setQuery(""); setListOpen(Boolean(event.target.value)); resetResult(); }}
+              className="min-h-12 w-full rounded-xl border border-border bg-card px-3 text-sm font-semibold text-foreground outline-none focus-visible:ring-2 focus-visible:ring-ring sm:max-w-xs"
+            >
+              <option value="">{x.brandSelect}</option>
+              {brands.map((item) => <option key={item} value={item}>{item}</option>)}
+            </select>
 
-          <Accordion
-            type="single"
-            collapsible
-            className="rounded-xl border border-border bg-card px-4"
-          >
+            <p className="mb-1.5 mt-4 block text-sm font-semibold" id="device-model-label">{x.modelSelect}</p>
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-start">
+              <div className="relative min-w-0 flex-1">
+                <button
+                  type="button"
+                  disabled={!brand}
+                  aria-haspopup="listbox"
+                  aria-expanded={listOpen}
+                  aria-labelledby="device-model-label"
+                  onClick={() => setListOpen((v) => !v)}
+                  className={`flex min-h-12 w-full items-center justify-between gap-2 rounded-xl border bg-card px-3 text-left text-sm font-semibold outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-50 ${listOpen ? "border-primary" : "border-border"}`}
+                >
+                  <span className={`truncate ${pending ? "text-foreground" : "text-muted-foreground"}`}>{pending?.model ?? x.modelSelect}</span>
+                  <ChevronRight className={`size-4 shrink-0 text-muted-foreground transition-transform ${listOpen ? "-rotate-90" : "rotate-90"}`} aria-hidden="true" />
+                </button>
+                {brand && listOpen && (
+                  <div className="mt-2 overflow-hidden rounded-xl border border-border bg-card shadow-panel motion-safe:animate-in motion-safe:fade-in motion-safe:slide-in-from-top-1">
+                    <span className="flex min-h-11 items-center gap-2 border-b border-border px-3">
+                      <Search className="size-4 text-muted-foreground" aria-hidden="true" />
+                      <input autoFocus value={query} aria-label={copy.modelPlaceholder} onChange={(event) => { setQuery(event.target.value); void noopAnalyticsSink.track({ name: "device_searched", queryLength: event.target.value.length }); }} placeholder={copy.modelPlaceholder} className="min-w-0 flex-1 bg-transparent text-sm outline-none" />
+                    </span>
+                    {isPending ? (
+                      <p className="flex items-center gap-2 p-4 text-sm text-muted-foreground"><LoaderCircle className="size-4 animate-spin" /> …</p>
+                    ) : results.length ? (
+                      <ul role="listbox" aria-label={`${brand} ${copy.model}`} className="max-h-60 overflow-y-auto overscroll-contain py-1">
+                        {results.map((device) => (
+                          <li key={device.id} role="option" aria-selected={pending?.id === device.id}>
+                            <button type="button" onClick={() => { setPending(device); setSelected(null); setListOpen(false); }} className={`flex min-h-11 w-full items-center justify-between px-3 text-left text-sm transition-colors hover:bg-primary-soft ${pending?.id === device.id ? "bg-primary-soft font-semibold" : ""}`}>
+                              <span className="truncate">{device.model}</span>
+                              {pending?.id === device.id && <CheckCircle2 className="size-4 text-primary" aria-hidden="true" />}
+                            </button>
+                          </li>
+                        ))}
+                      </ul>
+                    ) : (
+                      <div role="status" className="flex gap-2 p-4 text-sm text-muted-foreground"><CircleHelp className="size-5 shrink-0 text-cta" aria-hidden="true" /><p><strong className="block text-foreground">{copy.statusUncertain}</strong>{copy.noResult}</p></div>
+                    )}
+                  </div>
+                )}
+              </div>
+              <Button size="lg" className="min-h-12 w-full sm:w-auto" disabled={!pending} onClick={runCheck}>{x.checkCta}<ArrowRightIcon /></Button>
+            </div>
+
+            {selected && <div className="mt-4"><ResultPanel device={selected} copy={copy} onAgain={() => { setSelected(null); setPending(null); setListOpen(true); }} /></div>}
+          </div>
+
+          <Accordion type="single" collapsible className="rounded-xl border border-border bg-card px-4">
             <AccordionItem value="manual" className="border-none">
-              <AccordionTrigger className="text-left text-sm font-semibold">
-                {copy.manualTitle}
-              </AccordionTrigger>
+              <AccordionTrigger className="text-left text-sm font-semibold">{copy.manualTitle}</AccordionTrigger>
               <AccordionContent className="space-y-1.5 text-sm text-muted-foreground">
                 <p>{copy.manualIphone}</p>
                 <p>{copy.manualAndroid}</p>
@@ -313,13 +334,8 @@ export function DeviceCheckSheet({ surface, trigger }: { surface: string; trigge
           </Accordion>
 
           <div className="flex gap-2 rounded-xl bg-secondary/60 p-3 text-sm text-muted-foreground">
-            <span className="icon-slot-sm self-start text-primary">
-              <Info aria-hidden="true" />
-            </span>
-            <span>
-              <strong className="block text-foreground">{copy.disclaimerTitle}</strong>
-              {copy.disclaimer}
-            </span>
+            <span className="icon-slot-sm self-start text-primary"><Info aria-hidden="true" /></span>
+            <span><strong className="block text-foreground">{copy.disclaimerTitle}</strong>{copy.disclaimer}</span>
           </div>
         </div>
       </SheetContent>
@@ -327,54 +343,38 @@ export function DeviceCheckSheet({ surface, trigger }: { surface: string; trigge
   );
 }
 
-function ResultPanel({
-  device,
-  copy,
-  onAgain,
-}: {
-  device: DeviceRecord;
-  copy: Copy;
-  onAgain: () => void;
-}) {
-  const message =
-    device.status === "COMPATIBLE"
-      ? copy.compatible
-      : device.status === "NOT_COMPATIBLE"
-        ? copy.notCompatible
-        : copy.uncertain;
-  const tone =
-    device.status === "COMPATIBLE"
-      ? "bg-primary-soft"
-      : device.status === "NOT_COMPATIBLE"
-        ? "bg-destructive/10"
-        : "bg-cta-soft";
+function ArrowRightIcon() {
+  return <ChevronRight className="size-4" aria-hidden="true" />;
+}
+
+function ResultPanel({ device, copy, onAgain }: { device: DeviceRecord; copy: Copy; onAgain: () => void }) {
+  const { locale } = useI18n();
+  const x = EXTRA[locale];
+  const ok = device.status === "COMPATIBLE";
+  const not = device.status === "NOT_COMPATIBLE";
+  const title = ok ? x.okTitle : not ? x.notTitle : x.unknownTitle;
+  const message = ok ? x.okBody(device.model) : not ? copy.notCompatible : copy.uncertain;
+  const tone = ok ? "bg-primary-soft" : not ? "bg-destructive/10" : "bg-cta-soft";
+  const Icon = ok ? CheckCircle2 : not ? XCircle : CircleHelp;
+  const iconTone = ok ? "bg-primary text-primary-foreground" : not ? "bg-destructive text-destructive-foreground" : "bg-cta text-cta-foreground";
 
   return (
-    <div className={`rounded-xl p-4 ${tone}`}>
-      <div className="flex items-start gap-2">
-        <StatusIcon status={device.status} />
+    <div role="status" className={`rounded-xl p-4 motion-safe:animate-in motion-safe:fade-in motion-safe:zoom-in-95 ${tone}`}>
+      <div className="flex items-start gap-3">
+        <span className={`grid size-11 shrink-0 place-items-center rounded-full ${iconTone}`}><Icon className="size-6" aria-hidden="true" /></span>
         <div className="min-w-0">
-          <strong className="block">
-            {device.model} — {statusLabel(copy, device.status)}
-          </strong>
-          <p className="mt-1 text-sm text-muted-foreground">{message}</p>
+          <strong className="block font-display text-base sm:text-lg">{title}</strong>
+          <p className="mt-0.5 text-sm text-muted-foreground">{message}</p>
+          {!ok && <p className="mt-0.5 text-xs font-semibold text-muted-foreground">{device.model} — {statusLabel(copy, device.status)}</p>}
           {device.notes && <p className="mt-1 text-sm text-muted-foreground">{device.notes}</p>}
-          {device.regionVariantWarning && (
-            <p className="mt-1 text-sm text-muted-foreground">{copy.regionNote}</p>
-          )}
+          {device.regionVariantWarning && <p className="mt-1 text-sm text-muted-foreground">{copy.regionNote}</p>}
         </div>
       </div>
       <div className="mt-4">
-        {device.status === "COMPATIBLE" ? (
-          <Button asChild variant="cta" className="w-full sm:w-auto"><Link to="/esim/kurulum" search={{ platform: device.brand === "Apple" ? "ios" : "android", brand: device.brand }}>{copy.guide}<ChevronRight className="size-4" /></Link></Button>
-        ) : device.status === "NOT_COMPATIBLE" ? (
-          <Button variant="outline" className="w-full sm:w-auto" onClick={onAgain}>
-            {copy.ctaNot}
-          </Button>
+        {ok ? (
+          <Button asChild variant="cta" size="lg" className="min-h-12 w-full"><Link to="/esim/kurulum" search={{ platform: device.brand === "Apple" ? "ios" : "android", brand: device.brand }}>{copy.guide}<ChevronRight className="size-4" /></Link></Button>
         ) : (
-          <Button variant="outline" className="w-full sm:w-auto" onClick={onAgain}>
-            {copy.ctaUncertain}
-          </Button>
+          <Button variant="outline" className="w-full sm:w-auto" onClick={onAgain}>{not ? copy.ctaNot : copy.ctaUncertain}</Button>
         )}
       </div>
     </div>
