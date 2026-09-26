@@ -80,6 +80,8 @@ const COPY = localize({
     checkedUncertain: "Kontrol gerekli",
     checkedNot: "eSIM desteği bulunamadı",
     productPrompt: "Telefonun eSIM destekliyor mu?",
+    compactCheck: "Kontrol et",
+    changeDevice: "Cihazı değiştir",
     detectedIphone: "iPhone algılandı — modeli kontrol et",
     detectedAndroid: "Android cihaz algılandı — modeli kontrol et",
     detectedSamsung: "Samsung cihaz algılandı — modeli kontrol et",
@@ -124,6 +126,8 @@ const COPY = localize({
     checkedUncertain: "Prüfen",
     checkedNot: "Keine eSIM-Unterstützung",
     productPrompt: "Unterstützt dein Handy eSIM?",
+    compactCheck: "Gerät prüfen",
+    changeDevice: "Gerät ändern",
     detectedIphone: "iPhone erkannt – Modell prüfen",
     detectedAndroid: "Android-Gerät erkannt – Modell prüfen",
     detectedSamsung: "Samsung-Gerät erkannt – Modell prüfen",
@@ -167,6 +171,8 @@ const COPY = localize({
     checkedUncertain: "Check device",
     checkedNot: "No eSIM support",
     productPrompt: "Does your phone support eSIM?",
+    compactCheck: "Check device",
+    changeDevice: "Change device",
     detectedIphone: "iPhone detected — check the model",
     detectedAndroid: "Android device detected — check the model",
     detectedSamsung: "Samsung device detected — check the model",
@@ -571,9 +577,9 @@ export function DeviceCompatibilityProductCard() {
   const automaticDevice = !compatibilityChecked && detected.kind === "exact" && detected.device.status !== "UNCERTAIN" ? detected.device : null;
   const result = manualVerified ? compatibilityResult : automaticDevice?.status ?? null;
   const verified = result === "COMPATIBLE" || result === "NOT_COMPATIBLE";
-  const title = verified ? statusLabel(copy, result) : copy.sectionTitle;
+  const title = verified ? (result === "COMPATIBLE" ? copy.checked : copy.checkedNot) : copy.sectionTitle;
   const lead = manualVerified ? deviceModel : automaticDevice?.model ?? partialDetectionLabel(copy, detected);
-  const action = verified ? (result === "NOT_COMPATIBLE" ? copy.ctaNot : copy.change) : copy.recheck;
+  const action = verified ? (result === "NOT_COMPATIBLE" ? copy.ctaNot : copy.changeDevice) : copy.compactCheck;
 
   return (
     <div data-testid="product-compatibility-card" className="grid min-h-[4.75rem] grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2 rounded-xl bg-primary-soft px-3 py-2 ring-1 ring-primary/10 sm:gap-3 sm:px-4">
@@ -581,7 +587,7 @@ export function DeviceCompatibilityProductCard() {
         {verified ? <StatusIcon status={result} /> : <Smartphone className="size-4" aria-hidden="true" />}
       </span>
       <span className="min-w-0"><strong className="block text-[13px] leading-4 text-foreground sm:text-sm">{title}</strong><span className="mt-0.5 block text-[11px] leading-4 text-muted-foreground sm:text-xs">{lead}</span></span>
-      <DeviceCheckSheet surface="v2-country" trigger={<Button type="button" size="sm" className="h-9 max-w-32 shrink-0 whitespace-normal rounded-full px-2.5 text-[11px] leading-3 sm:max-w-none sm:px-3 sm:text-xs">{action}<ChevronRight className="size-3.5" /></Button>} />
+      <DeviceCheckSheet surface="v2-country" trigger={<Button type="button" size="sm" className="h-9 shrink-0 whitespace-nowrap rounded-full px-2.5 text-[11px] sm:px-3 sm:text-xs">{action}<ChevronRight className="size-3.5" /></Button>} />
     </div>
   );
 }
