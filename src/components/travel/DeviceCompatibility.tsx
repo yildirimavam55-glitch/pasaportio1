@@ -557,7 +557,7 @@ export function DeviceCompatibilityProductCard() {
     let cancelled = false;
     const browserNavigator = navigator as NavigatorWithUserAgentData;
     const inspect = async () => {
-      const highEntropy = browserNavigator.userAgentData?.getHighEntropyValues
+      const highEntropy: { model?: string; platform?: string } = browserNavigator.userAgentData?.getHighEntropyValues
         ? await browserNavigator.userAgentData.getHighEntropyValues(["model", "platform"]).catch(() => ({}))
         : {};
       if (cancelled) return;
