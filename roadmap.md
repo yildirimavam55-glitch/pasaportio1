@@ -1,5 +1,9 @@
 # Phase 1.3 Roadmap
 
+## V2 country search keyboard usability
+- [ ] Fit the shared mobile picker above the software keyboard using the visual viewport while keeping the search input and results visible.
+- [ ] Verify hero and sticky country selection, scrollable results, Lounge/Vignette, width stability and scroll restoration at 360/390/430 px.
+
 ## V2 mobile search sheet viewport stability
 - [x] Keep shared eSIM/Lounge/Vignette picker width and storefront x-position fixed during scroll lock, focus, filtering, and close.
 - [x] Restore scroll after dismissal and verify Chromium/WebKit mobile widths plus 1280/1440 desktop widths.
