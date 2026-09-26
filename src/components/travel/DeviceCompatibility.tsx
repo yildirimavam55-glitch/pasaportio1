@@ -1,4 +1,4 @@
-import { useMemo, useState, type ReactNode } from "react";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import {
@@ -35,6 +35,7 @@ import {
   type DeviceRecord,
 } from "@/domain/esim/device-compatibility";
 import { useDeviceCheck } from "@/domain/esim/device-check-session";
+import { detectDeviceFromSignals, type DeviceDetection } from "@/domain/esim/device-detection";
 import { noopAnalyticsSink } from "@/domain/analytics";
 import type { Locale } from "@/domain/enums";
 import { localize } from "@/i18n/overlay";
@@ -79,6 +80,11 @@ const COPY = localize({
     checkedUncertain: "Kontrol gerekli",
     checkedNot: "eSIM desteği bulunamadı",
     productPrompt: "Telefonun eSIM destekliyor mu?",
+    compactCheck: "Kontrol et",
+    changeDevice: "Cihazı değiştir",
+    detectedIphone: "iPhone algılandı — modeli kontrol et",
+    detectedAndroid: "Android cihaz algılandı — modeli kontrol et",
+    detectedSamsung: "Samsung cihaz algılandı — modeli kontrol et",
   },
   de: {
     sectionTitle: "Ist dein Handy eSIM-fähig?",
@@ -120,6 +126,11 @@ const COPY = localize({
     checkedUncertain: "Prüfen",
     checkedNot: "Keine eSIM-Unterstützung",
     productPrompt: "Unterstützt dein Handy eSIM?",
+    compactCheck: "Gerät prüfen",
+    changeDevice: "Gerät ändern",
+    detectedIphone: "iPhone erkannt – Modell prüfen",
+    detectedAndroid: "Android-Gerät erkannt – Modell prüfen",
+    detectedSamsung: "Samsung-Gerät erkannt – Modell prüfen",
   },
   en: {
     sectionTitle: "Is your phone eSIM compatible?",
@@ -160,6 +171,11 @@ const COPY = localize({
     checkedUncertain: "Check device",
     checkedNot: "No eSIM support",
     productPrompt: "Does your phone support eSIM?",
+    compactCheck: "Check device",
+    changeDevice: "Change device",
+    detectedIphone: "iPhone detected — check the model",
+    detectedAndroid: "Android device detected — check the model",
+    detectedSamsung: "Samsung device detected — check the model",
   },
 } satisfies Record<Locale, Record<string, string>>);
 
@@ -234,7 +250,7 @@ export function DeviceCheckSheet({ surface, trigger }: { surface: string; trigge
   const runCheck = () => {
     if (!pending) return;
     setSelected(pending);
-    setResult(pending.model, pending.status);
+    setResult(pending.model, pending.status, pending.brand);
     void noopAnalyticsSink.track({ name: "compatibility_result_viewed", result: pending.status, brand: pending.brand });
   };
 
@@ -509,22 +525,69 @@ export function DeviceCompatibilityInline() {
   );
 }
 
-/** Product-page state card; verification still comes exclusively from the existing manual checker. */
+type NavigatorWithUserAgentData = Navigator & {
+  userAgentData?: {
+    model?: string;
+    platform?: string;
+    getHighEntropyValues?: (hints: string[]) => Promise<{ model?: string; platform?: string }>;
+  };
+};
+
+function partialDetectionLabel(copy: Copy, detection: DeviceDetection) {
+  if (detection.kind !== "partial") return copy.sectionLead;
+  if (detection.family === "iphone") return copy.detectedIphone;
+  if (detection.family === "samsung") return copy.detectedSamsung;
+  return copy.detectedAndroid;
+}
+
+/** Compact product-page state card with strict, catalogue-backed browser detection. */
 export function DeviceCompatibilityProductCard() {
   const { locale } = useI18n();
   const copy = COPY[locale];
   const { compatibilityChecked, deviceModel, compatibilityResult } = useDeviceCheck();
-  const verified = compatibilityChecked && compatibilityResult && compatibilityResult !== "UNCERTAIN";
-  const title = verified ? statusLabel(copy, compatibilityResult) : copy.sectionTitle;
-  const lead = verified ? deviceModel : copy.sectionLead;
+  const { data: devices = [] } = useQuery({
+    queryKey: ["device-compatibility"],
+    queryFn: () => listDeviceCompatibility(),
+    staleTime: 10 * 60 * 1000,
+  });
+  const [detected, setDetected] = useState<DeviceDetection>({ kind: "unknown" });
+
+  useEffect(() => {
+    if (compatibilityChecked || devices.length === 0) return;
+    let cancelled = false;
+    const browserNavigator = navigator as NavigatorWithUserAgentData;
+    const inspect = async () => {
+      const highEntropy: { model?: string; platform?: string } = browserNavigator.userAgentData?.getHighEntropyValues
+        ? await browserNavigator.userAgentData.getHighEntropyValues(["model", "platform"]).catch(() => ({}))
+        : {};
+      if (cancelled) return;
+      const model = highEntropy.model ?? browserNavigator.userAgentData?.model;
+      setDetected(detectDeviceFromSignals(devices, {
+        ...(model ? { model } : {}),
+        userAgent: browserNavigator.userAgent,
+        platform: highEntropy.platform ?? browserNavigator.userAgentData?.platform ?? browserNavigator.platform,
+        maxTouchPoints: browserNavigator.maxTouchPoints,
+      }));
+    };
+    void inspect();
+    return () => { cancelled = true; };
+  }, [compatibilityChecked, devices]);
+
+  const manualVerified = Boolean(compatibilityChecked && compatibilityResult && compatibilityResult !== "UNCERTAIN");
+  const automaticDevice = !compatibilityChecked && detected.kind === "exact" && detected.device.status !== "UNCERTAIN" ? detected.device : null;
+  const result = manualVerified ? compatibilityResult : automaticDevice?.status ?? null;
+  const verified = result === "COMPATIBLE" || result === "NOT_COMPATIBLE";
+  const title = verified ? (result === "COMPATIBLE" ? copy.checked : copy.checkedNot) : copy.sectionTitle;
+  const lead = manualVerified ? deviceModel : automaticDevice?.model ?? partialDetectionLabel(copy, detected);
+  const action = verified ? (result === "NOT_COMPATIBLE" ? copy.ctaNot : copy.changeDevice) : copy.compactCheck;
 
   return (
-    <div className="grid min-h-[5.75rem] grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 rounded-2xl bg-primary-soft px-4 py-3 ring-1 ring-primary/10">
-      <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-card text-primary shadow-sm">
-        {verified ? <StatusIcon status={compatibilityResult} /> : <Smartphone className="size-5" aria-hidden="true" />}
+    <div data-testid="product-compatibility-card" className="grid min-h-[4.75rem] grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2 rounded-xl bg-primary-soft px-3 py-2 ring-1 ring-primary/10 sm:gap-3 sm:px-4">
+      <span className="grid size-8 shrink-0 place-items-center rounded-lg bg-card text-primary shadow-sm">
+        {verified ? <StatusIcon status={result} /> : <Smartphone className="size-4" aria-hidden="true" />}
       </span>
-      <span className="min-w-0"><strong className="block text-sm leading-tight text-foreground">{title}</strong><span className="mt-0.5 block text-xs leading-snug text-muted-foreground">{lead}</span></span>
-      <DeviceCheckSheet surface="v2-country" trigger={<Button type="button" size="sm" className="shrink-0 rounded-full px-3 text-xs">{verified ? copy.change : copy.recheck}<ChevronRight className="size-4" /></Button>} />
+      <span className="min-w-0"><strong className="block text-[13px] leading-4 text-foreground sm:text-sm">{title}</strong><span className="mt-0.5 block text-[11px] leading-4 text-muted-foreground sm:text-xs">{lead}</span></span>
+      <DeviceCheckSheet surface="v2-country" trigger={<Button type="button" size="sm" className="h-9 shrink-0 whitespace-nowrap rounded-full px-2.5 text-[11px] sm:px-3 sm:text-xs">{action}<ChevronRight className="size-3.5" /></Button>} />
     </div>
   );
 }
