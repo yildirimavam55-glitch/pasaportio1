@@ -3,7 +3,7 @@
 ## V2 country search one-tap selection
 - [x] Commit intentional result taps before iOS blur and visual-viewport resizing can suppress the synthetic click.
 - [x] Preserve native vertical result scrolling with movement and cancellation guards, without duplicate selection.
-- [ ] Complete 360/390/430 simulated mobile interaction and geometry regression checks; physical iPhone remains device-only.
+- [x] Complete 360/390/430 simulated mobile interaction and geometry regression checks; physical iPhone remains device-only.
 
 ## V2 country search keyboard usability
 - [x] Keep the keyboard-open title/close/search below the visible iOS edge and leave unused space outside compact single-result lists.
