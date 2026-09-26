@@ -519,7 +519,13 @@ export function DeviceCompatibilityInline() {
   );
 }
 
-type NavigatorWithUserAgentData = Navigator & { userAgentData?: { model?: string; platform?: string } };
+type NavigatorWithUserAgentData = Navigator & {
+  userAgentData?: {
+    model?: string;
+    platform?: string;
+    getHighEntropyValues?: (hints: string[]) => Promise<{ model?: string; platform?: string }>;
+  };
+};
 
 function partialDetectionLabel(copy: Copy, detection: DeviceDetection) {
   if (detection.kind !== "partial") return copy.sectionLead;
@@ -542,13 +548,23 @@ export function DeviceCompatibilityProductCard() {
 
   useEffect(() => {
     if (compatibilityChecked || devices.length === 0) return;
+    let cancelled = false;
     const browserNavigator = navigator as NavigatorWithUserAgentData;
-    setDetected(detectDeviceFromSignals(devices, {
-      ...(browserNavigator.userAgentData?.model ? { model: browserNavigator.userAgentData.model } : {}),
-      userAgent: browserNavigator.userAgent,
-      platform: browserNavigator.userAgentData?.platform ?? browserNavigator.platform,
-      maxTouchPoints: browserNavigator.maxTouchPoints,
-    }));
+    const inspect = async () => {
+      const highEntropy = browserNavigator.userAgentData?.getHighEntropyValues
+        ? await browserNavigator.userAgentData.getHighEntropyValues(["model", "platform"]).catch(() => ({}))
+        : {};
+      if (cancelled) return;
+      const model = highEntropy.model ?? browserNavigator.userAgentData?.model;
+      setDetected(detectDeviceFromSignals(devices, {
+        ...(model ? { model } : {}),
+        userAgent: browserNavigator.userAgent,
+        platform: highEntropy.platform ?? browserNavigator.userAgentData?.platform ?? browserNavigator.platform,
+        maxTouchPoints: browserNavigator.maxTouchPoints,
+      }));
+    };
+    void inspect();
+    return () => { cancelled = true; };
   }, [compatibilityChecked, devices]);
 
   const manualVerified = Boolean(compatibilityChecked && compatibilityResult && compatibilityResult !== "UNCERTAIN");
@@ -560,7 +576,7 @@ export function DeviceCompatibilityProductCard() {
   const action = verified ? (result === "NOT_COMPATIBLE" ? copy.ctaNot : copy.change) : copy.recheck;
 
   return (
-    <div className="grid min-h-[4.75rem] grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2 rounded-xl bg-primary-soft px-3 py-2 ring-1 ring-primary/10 sm:gap-3 sm:px-4">
+    <div data-testid="product-compatibility-card" className="grid min-h-[4.75rem] grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2 rounded-xl bg-primary-soft px-3 py-2 ring-1 ring-primary/10 sm:gap-3 sm:px-4">
       <span className="grid size-8 shrink-0 place-items-center rounded-lg bg-card text-primary shadow-sm">
         {verified ? <StatusIcon status={result} /> : <Smartphone className="size-4" aria-hidden="true" />}
       </span>
