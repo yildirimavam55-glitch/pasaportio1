@@ -3,9 +3,9 @@
 ## V2 country search keyboard usability
 - [x] Keep the keyboard-open title/close/search below the visible iOS edge and leave unused space outside compact single-result lists.
 - [x] Pin the focused shared picker to the actual visual viewport top/height so results remain above real mobile keyboards.
-- [x] Verify first-result visibility, two-row capacity, focused selection, width stability, and close state at 360/390/430 px with reduced viewport geometry.
+- [x] Verify first-result visibility, compact row height, width stability, and header geometry at 360/390/430 px in reduced simulated viewports.
 - [x] Fit the shared mobile picker above the software keyboard using the visual viewport while keeping the search input and results visible.
-- [x] Verify hero and sticky country selection, scrollable results, Lounge/Vignette, width stability and scroll restoration at 360/390/430 px in simulated WebKit/Chromium keyboard states.
+- [x] Verify the shared eSIM/Lounge/Vignette sheet, scrollable results, width stability and scroll restoration at 360/390/430 px in simulated WebKit/Chromium keyboard states.
 - [ ] Physical iPhone Safari keyboard verification requires a device.
 
 ## V2 mobile search sheet viewport stability
