@@ -620,5 +620,5 @@
 
 ## Multilingual storefront (14 languages)
 - [x] Pass 1: locale registry, device-language detection + manual persistence, pre-paint lang/dir, 14-language switcher, /$locale homes (noindex for new languages), resolver tests
-- [ ] Pass 2: FR/ES/IT/PT/NL/PL/AR/RU/JA/KO/ZH translation resources + hardcoded-string audit + Intl country names
+- [x] Pass 2: static translation resources for 11 languages via overlay, switch/reload fix, Intl country names (search in Latin-script languages)
 - [ ] Pass 3: RTL polish (arrows, logical spacing, LTR numbers/prices), SEO wiring for reviewed languages, full responsive QA

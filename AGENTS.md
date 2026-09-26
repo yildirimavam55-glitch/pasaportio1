@@ -17,3 +17,4 @@ Measure the visual viewport for focused V2 picker inputs and confine the result 
 Resolve V2 picker result taps on pointer release with movement/cancellation guards while deferring blur-driven viewport updates; iOS can suppress click when keyboard resizing moves a row mid-gesture.
 
 Keep a GIN index on eSIM coverage country arrays because public country-package reads filter with array containment and otherwise risk database timeouts.
+- i18n: one locale registry (`src/i18n/locales.ts`); languages without their own resources set `content: "en"` and are translated through `localize()` + static JSON resources in `src/i18n/resources/` — keeps one component system without widening every copy object.
