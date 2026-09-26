@@ -39,7 +39,7 @@ export function V2PickerSheet({
   const previousScroll = useRef<{ x: number; y: number } | null>(null);
   const inputRef = useRef<HTMLInputElement | null>(null);
   const [inputFocused, setInputFocused] = useState(false);
-  const [visibleViewport, setVisibleViewport] = useState<{ top: number; height: number } | null>(null);
+  const [visibleViewport, setVisibleViewport] = useState<{ top: number; height: number; width: number } | null>(null);
 
   // The sticky search opens the controlled sheet directly (not via its
   // trigger), so capture that path too before the dialog's focus effects.
@@ -59,8 +59,9 @@ export function V2PickerSheet({
       const next = {
         top: Math.max(0, Math.round(viewport?.offsetTop ?? 0)),
         height: Math.max(0, Math.round(viewport?.height ?? window.innerHeight)),
+        width: Math.max(0, Math.round(viewport?.width ?? window.innerWidth)),
       };
-      setVisibleViewport((current) => current?.top === next.top && current?.height === next.height ? current : next);
+      setVisibleViewport((current) => current?.top === next.top && current?.height === next.height && current?.width === next.width ? current : next);
     };
     update();
     viewport?.addEventListener("resize", update);
@@ -78,7 +79,7 @@ export function V2PickerSheet({
     onOpenChange(nextOpen);
   };
 
-  const keyboardOpen = inputFocused && window.innerWidth < 640;
+  const keyboardOpen = inputFocused && Boolean(visibleViewport && visibleViewport.width < 640);
   const keyboardStyle: CSSProperties | undefined = keyboardOpen && visibleViewport
     ? { top: visibleViewport.top, bottom: "auto", height: visibleViewport.height, maxHeight: visibleViewport.height }
     : undefined;
