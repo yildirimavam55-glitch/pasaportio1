@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, type ReactNode } from "react";
 import { Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import {
@@ -48,7 +48,7 @@ const COPY = {
     dontKnow: "Modelini bilmiyor musun?",
     howTo: "Nasıl kontrol edilir?",
     sheetTitle: "Telefonum eSIM uyumlu mu?",
-    sheetLead: "Markanı seç ya da doğrudan model ara.",
+    sheetLead: "Markanı seç, ardından modelini ara.",
     searchPlaceholder: "Telefon modelini ara",
     modelPlaceholder: "Model ara...",
     chooseBrand: "Marka seç",
@@ -88,7 +88,7 @@ const COPY = {
     dontKnow: "Modell unbekannt?",
     howTo: "Wie prüfe ich das?",
     sheetTitle: "Ist mein Handy eSIM-fähig?",
-    sheetLead: "Marke wählen oder direkt nach dem Modell suchen.",
+    sheetLead: "Wähle zuerst die Marke, dann dein Modell.",
     searchPlaceholder: "Handymodell suchen",
     modelPlaceholder: "Modell suchen...",
     chooseBrand: "Marke wählen",
@@ -129,7 +129,7 @@ const COPY = {
     dontKnow: "Don't know your model?",
     howTo: "How do I check?",
     sheetTitle: "Is my phone eSIM compatible?",
-    sheetLead: "Pick your brand or search for the model directly.",
+    sheetLead: "Choose your brand, then search for your model.",
     searchPlaceholder: "Search your phone model",
     modelPlaceholder: "Search model...",
     chooseBrand: "Choose brand",
@@ -178,7 +178,7 @@ function StatusIcon({ status }: { status: CompatibilityStatus }) {
   return <CircleHelp className="size-5 shrink-0 text-cta" aria-hidden="true" />;
 }
 
-export function DeviceCheckSheet({ surface, trigger }: { surface: string; trigger: React.ReactNode }) {
+export function DeviceCheckSheet({ surface, trigger }: { surface: string; trigger: ReactNode }) {
   const { locale } = useI18n();
   const copy = COPY[locale];
   const [open, setOpen] = useState(false);
@@ -331,12 +331,10 @@ function ResultPanel({
   device,
   copy,
   onAgain,
-  onClose,
 }: {
   device: DeviceRecord;
   copy: Copy;
   onAgain: () => void;
-  onClose: () => void;
 }) {
   const message =
     device.status === "COMPATIBLE"
@@ -368,9 +366,7 @@ function ResultPanel({
       </div>
       <div className="mt-4">
         {device.status === "COMPATIBLE" ? (
-          <Button variant="cta" className="w-full sm:w-auto" onClick={onClose}>
-            {copy.ctaCompatible}
-          </Button>
+          <Button asChild variant="cta" className="w-full sm:w-auto"><Link to="/esim/kurulum" search={{ platform: device.brand === "Apple" ? "ios" : "android", brand: device.brand }}>{copy.guide}<ChevronRight className="size-4" /></Link></Button>
         ) : device.status === "NOT_COMPATIBLE" ? (
           <Button variant="outline" className="w-full sm:w-auto" onClick={onAgain}>
             {copy.ctaNot}
