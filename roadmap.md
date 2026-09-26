@@ -1,6 +1,7 @@
 # Phase 1.3 Roadmap
 
 ## V2 country search keyboard usability
+- [x] Keep the keyboard-open title/close/search below the visible iOS edge and leave unused space outside compact single-result lists.
 - [x] Pin the focused shared picker to the actual visual viewport top/height so results remain above real mobile keyboards.
 - [x] Verify first-result visibility, two-row capacity, focused selection, width stability, and close state at 360/390/430 px with reduced viewport geometry.
 - [x] Fit the shared mobile picker above the software keyboard using the visual viewport while keeping the search input and results visible.
