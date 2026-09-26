@@ -544,7 +544,7 @@ export function DeviceCompatibilityProductCard() {
     if (compatibilityChecked || devices.length === 0) return;
     const browserNavigator = navigator as NavigatorWithUserAgentData;
     setDetected(detectDeviceFromSignals(devices, {
-      model: browserNavigator.userAgentData?.model,
+      ...(browserNavigator.userAgentData?.model ? { model: browserNavigator.userAgentData.model } : {}),
       userAgent: browserNavigator.userAgent,
       platform: browserNavigator.userAgentData?.platform ?? browserNavigator.platform,
       maxTouchPoints: browserNavigator.maxTouchPoints,

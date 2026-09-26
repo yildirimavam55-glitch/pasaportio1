@@ -17,7 +17,7 @@ function read(): DeviceCheckState {
       compatibilityChecked: true,
       deviceModel: parsed.deviceModel,
       compatibilityResult: normalizeStatus(parsed.compatibilityResult),
-      deviceBrand: typeof parsed.deviceBrand === "string" ? parsed.deviceBrand : undefined,
+      ...(typeof parsed.deviceBrand === "string" ? { deviceBrand: parsed.deviceBrand } : {}),
       verificationSource: "manual",
     };
   } catch {
@@ -56,7 +56,7 @@ export function useDeviceCheck() {
   }, []);
 
   const setResult = useCallback((deviceModel: string, compatibilityResult: CompatibilityStatus, deviceBrand?: string) => {
-    publish({ compatibilityChecked: true, deviceModel, compatibilityResult, deviceBrand, verificationSource: "manual" });
+    publish({ compatibilityChecked: true, deviceModel, compatibilityResult, ...(deviceBrand ? { deviceBrand } : {}), verificationSource: "manual" });
   }, []);
   const reset = useCallback(() => publish(EMPTY_DEVICE_CHECK), []);
 
