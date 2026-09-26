@@ -15,6 +15,7 @@ import { I18nProvider } from "@/i18n";
 import { ServiceSwitchTransitionProvider } from "@/components/travel/ServiceSwitchTransition";
 import { PublishedTheme } from "@/components/PublishedTheme";
 import { Toaster } from "@/components/ui/sonner";
+import { localeBootScript } from "@/i18n/locales";
 import { ThemePreferenceProvider } from "@/components/ThemePreference";
 
 function NotFoundComponent() {
@@ -122,6 +123,7 @@ function RootShell({ children }: { children: ReactNode }) {
     <html lang="en" suppressHydrationWarning>
       <head>
         <HeadContent />
+        <script dangerouslySetInnerHTML={{ __html: localeBootScript() }} />
         <script
           dangerouslySetInnerHTML={{
             __html: `(function(){try{var t=localStorage.getItem('travely.theme')||'light';var d=t==='dark'||(t==='system'&&matchMedia('(prefers-color-scheme: dark)').matches);document.documentElement.classList.toggle('dark',d);document.documentElement.style.colorScheme=d?'dark':'light'}catch(e){}})();`,

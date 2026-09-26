@@ -34,7 +34,7 @@ import { BRAND } from "@/domain/experience/config";
 import { waLink } from "@/lib/whatsapp";
 import { WhatsAppLogo } from "./WhatsAppLogo";
 
-import { useI18n } from "@/i18n";
+import { useI18n, LOCALE_REGISTRY, localeFromPath, type UiLocale } from "@/i18n";
 import { GLOBAL_CONTENT, localized, type ServiceSlug } from "@/content/travel-content";
 import { supabase } from "@/integrations/supabase/client";
 import { CountryFlag } from "./CountryFlag";
