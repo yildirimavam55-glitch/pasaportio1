@@ -17,7 +17,8 @@ export const Route = createFileRoute("/_authenticated/admin/vignette")({
 
 const AVAILABILITY_LABEL = { ACTIVE: "Satışta", NOT_FOR_SALE: "Yakında / satışta değil", PAUSED: "Duraklatıldı" } as const;
 type Tab = "overview" | "catalog" | "api" | "settings";
-type Product = Record<string, any>;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type Product = any;
 /** One row per product × duration, flattened from the documented `price[duration]` object. Values copied verbatim. */
 type Variant = { country: string; name: string; title: string; type: string; vehicle: string; status: string; duration: string; government_price: unknown; partner_fee: unknown; total_price: unknown; currency: unknown; restrictions: unknown };
 
