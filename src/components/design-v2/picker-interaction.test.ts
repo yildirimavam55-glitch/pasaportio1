@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { beginPickerPress, completePickerPress, isDuplicatePickerClick, movePickerPress, type PickerPress } from "./picker-interaction";
+import { beginPickerPress, completePickerPress, getPickerKeyboardStyle, isDuplicatePickerClick, movePickerPress, type PickerPress } from "./picker-interaction";
 
 describe("V2 picker touch selection", () => {
   it("commits a focused-input result once before blur and viewport changes", () => {
@@ -41,5 +41,18 @@ describe("V2 picker touch selection", () => {
     const germany = beginPickerPress("DE", 9, 35, 176);
     expect(completePickerPress(germany, 9)).toBe("DE");
     expect(completePickerPress(germany, 10)).toBeNull();
+  });
+
+  it("keeps horizontal sheet geometry out of visual viewport adaptation", () => {
+    const beforeKeyboard = getPickerKeyboardStyle(0, 780);
+    const afterKeyboard = getPickerKeyboardStyle(44, 390);
+
+    expect(beforeKeyboard).not.toHaveProperty("width");
+    expect(beforeKeyboard).not.toHaveProperty("left");
+    expect(beforeKeyboard).not.toHaveProperty("right");
+    expect(afterKeyboard).not.toHaveProperty("width");
+    expect(afterKeyboard).not.toHaveProperty("left");
+    expect(afterKeyboard).not.toHaveProperty("right");
+    expect(afterKeyboard).toEqual({ top: 52, bottom: "auto", height: 374, maxHeight: 374 });
   });
 });

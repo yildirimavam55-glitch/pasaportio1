@@ -30,3 +30,14 @@ export function isDuplicatePickerClick(
 ): boolean {
   return Boolean(lastSelection && lastSelection.id === id && now - lastSelection.at < 750);
 }
+
+export function getPickerKeyboardStyle(top: number, height: number) {
+  const inset = 8;
+  const availableHeight = Math.max(0, height - inset * 2);
+  return {
+    top: Math.max(0, top) + inset,
+    bottom: "auto" as const,
+    height: availableHeight,
+    maxHeight: availableHeight,
+  };
+}
