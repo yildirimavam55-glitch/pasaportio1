@@ -2,40 +2,80 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useState, t
 
 import { DEFAULT_LOCALE, LOCALES, type Locale } from "@/domain/enums";
 import { messages, type MessageKey } from "./messages";
+import {
+  LOCALE_REGISTRY,
+  LOCALE_STORAGE_KEY,
+  UI_LOCALES,
+  localeFromPath,
+  resolveLocale,
+  type UiLocale,
+} from "./locales";
+
+export * from "./locales";
 
 type I18nValue = {
+  /** Resource locale for customer copy (tr/de/en). */
   locale: Locale;
-  setLocale: (locale: Locale) => void;
+  /** Language the visitor chose / was detected (one of UI_LOCALES). */
+  uiLocale: UiLocale;
+  dir: "ltr" | "rtl";
+  /** persist=false for URL-driven changes; manual switches persist as the explicit preference. */
+  setLocale: (locale: UiLocale, opts?: { persist?: boolean }) => void;
   t: (key: MessageKey) => string;
   locales: readonly Locale[];
+  uiLocales: readonly UiLocale[];
 };
 
 const I18nContext = createContext<I18nValue | null>(null);
 
-const STORAGE_KEY = "tp.locale";
+const warned = new Set<string>();
 
 export function I18nProvider({ children }: { children: ReactNode }) {
-  const [locale, setLocaleState] = useState<Locale>(DEFAULT_LOCALE);
+  const [uiLocale, setUiLocale] = useState<UiLocale>(DEFAULT_LOCALE);
 
   useEffect(() => {
-    const stored = window.localStorage.getItem(STORAGE_KEY);
-    if (stored && LOCALES.some((code) => code === stored)) setLocaleState(stored as Locale);
+    let stored: string | null = null;
+    try { stored = window.localStorage.getItem(LOCALE_STORAGE_KEY); } catch { /* private mode */ }
+    setUiLocale(resolveLocale({
+      urlLocale: localeFromPath(window.location.pathname),
+      stored,
+      navigatorLanguages: navigator.languages?.length ? navigator.languages : [navigator.language],
+    }));
   }, []);
 
-  const setLocale = useCallback((next: Locale) => {
-    setLocaleState(next);
-    if (typeof window !== "undefined") window.localStorage.setItem(STORAGE_KEY, next);
+  const meta = LOCALE_REGISTRY[uiLocale];
+
+  useEffect(() => {
+    const el = document.documentElement;
+    el.lang = meta.bcp47;
+    el.dir = meta.dir;
+  }, [meta]);
+
+  const setLocale = useCallback((next: UiLocale, opts?: { persist?: boolean }) => {
+    setUiLocale(next);
+    if (opts?.persist === false || typeof window === "undefined") return;
+    try { window.localStorage.setItem(LOCALE_STORAGE_KEY, next); } catch { /* ignore */ }
   }, []);
 
-  const value = useMemo<I18nValue>(
-    () => ({
+  const value = useMemo<I18nValue>(() => {
+    const locale = meta.content;
+    return {
       locale,
+      uiLocale,
+      dir: meta.dir,
       setLocale,
       locales: LOCALES,
-      t: (key) => messages[locale][key] ?? messages[DEFAULT_LOCALE][key] ?? key,
-    }),
-    [locale, setLocale],
-  );
+      uiLocales: UI_LOCALES,
+      t: (key) => {
+        const hit = messages[locale]?.[key] ?? messages.en[key] ?? messages[DEFAULT_LOCALE][key];
+        if (hit === undefined && import.meta.env.DEV && !warned.has(key)) {
+          warned.add(key);
+          console.warn(`[i18n] missing key: ${key}`);
+        }
+        return hit ?? "";
+      },
+    };
+  }, [meta, uiLocale, setLocale]);
 
   return <I18nContext.Provider value={value}>{children}</I18nContext.Provider>;
 }

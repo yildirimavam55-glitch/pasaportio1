@@ -617,3 +617,8 @@
 - [x] V2 on public URLs, V1 at admin-only /legacy-v1 (noindex), /design-v2 → 301
 - [x] Vignette first-class in Admin (overview/products/service control/CMS), not for sale
 - [ ] Open: locale hydration warning on /en→/ revisit; admin products page has no Vignette tab (Admin → Vignette covers it)
+
+## Multilingual storefront (14 languages)
+- [x] Pass 1: locale registry, device-language detection + manual persistence, pre-paint lang/dir, 14-language switcher, /$locale homes (noindex for new languages), resolver tests
+- [ ] Pass 2: FR/ES/IT/PT/NL/PL/AR/RU/JA/KO/ZH translation resources + hardcoded-string audit + Intl country names
+- [ ] Pass 3: RTL polish (arrows, logical spacing, LTR numbers/prices), SEO wiring for reviewed languages, full responsive QA

@@ -18,6 +18,7 @@ import { Route as KayitRouteImport } from './routes/kayit'
 import { Route as OdemeRouteImport } from './routes/odeme'
 import { Route as SepetRouteImport } from './routes/sepet'
 import { Route as VignetteRouteImport } from './routes/vignette'
+import { Route as LocaleIndexRouteImport } from './routes/$locale.index'
 import { Route as AuthenticatedLegacyV1RouteImport } from './routes/_authenticated/legacy-v1'
 import { Route as AccountIndexRouteImport } from './routes/account.index'
 import { Route as AccountNotificationsRouteImport } from './routes/account.notifications'
@@ -157,6 +158,11 @@ const SepetRoute = SepetRouteImport.update({
 const VignetteRoute = VignetteRouteImport.update({
   id: '/vignette',
   path: '/vignette',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LocaleIndexRoute = LocaleIndexRouteImport.update({
+  id: '/$locale/',
+  path: '/$locale/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedLegacyV1Route = AuthenticatedLegacyV1RouteImport.update({
@@ -715,6 +721,7 @@ export interface FileRoutesByFullPath {
   '/guides/$slug': typeof GuidesSlugRoute
   '/lounge/secenekler': typeof LoungeSeceneklerRoute
   '/sitemap/xml': typeof SitemapXmlRoute
+  '/$locale/': typeof LocaleIndexRoute
   '/account/': typeof AccountIndexRoute
   '/de/': typeof DeIndexRoute
   '/design-v2/': typeof DesignV2IndexRoute
@@ -819,6 +826,7 @@ export interface FileRoutesByTo {
   '/guides/$slug': typeof GuidesSlugRoute
   '/lounge/secenekler': typeof LoungeSeceneklerRoute
   '/sitemap/xml': typeof SitemapXmlRoute
+  '/$locale': typeof LocaleIndexRoute
   '/account': typeof AccountIndexRoute
   '/de': typeof DeIndexRoute
   '/design-v2': typeof DesignV2IndexRoute
@@ -927,6 +935,7 @@ export interface FileRoutesById {
   '/guides/$slug': typeof GuidesSlugRoute
   '/lounge/secenekler': typeof LoungeSeceneklerRoute
   '/sitemap/xml': typeof SitemapXmlRoute
+  '/$locale/': typeof LocaleIndexRoute
   '/account/': typeof AccountIndexRoute
   '/de/': typeof DeIndexRoute
   '/design-v2/': typeof DesignV2IndexRoute
@@ -1035,6 +1044,7 @@ export interface FileRouteTypes {
     | '/guides/$slug'
     | '/lounge/secenekler'
     | '/sitemap/xml'
+    | '/$locale/'
     | '/account/'
     | '/de/'
     | '/design-v2/'
@@ -1139,6 +1149,7 @@ export interface FileRouteTypes {
     | '/guides/$slug'
     | '/lounge/secenekler'
     | '/sitemap/xml'
+    | '/$locale'
     | '/account'
     | '/de'
     | '/design-v2'
@@ -1246,6 +1257,7 @@ export interface FileRouteTypes {
     | '/guides/$slug'
     | '/lounge/secenekler'
     | '/sitemap/xml'
+    | '/$locale/'
     | '/account/'
     | '/de/'
     | '/design-v2/'
@@ -1349,6 +1361,7 @@ export interface RootRouteChildren {
   GuidesSlugRoute: typeof GuidesSlugRoute
   LoungeSeceneklerRoute: typeof LoungeSeceneklerRoute
   SitemapXmlRoute: typeof SitemapXmlRoute
+  LocaleIndexRoute: typeof LocaleIndexRoute
   DeIndexRoute: typeof DeIndexRoute
   DesignV2IndexRoute: typeof DesignV2IndexRoute
   EnIndexRoute: typeof EnIndexRoute
@@ -1433,6 +1446,13 @@ declare module '@tanstack/react-router' {
       path: '/vignette'
       fullPath: '/vignette'
       preLoaderRoute: typeof VignetteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/$locale/': {
+      id: '/$locale/'
+      path: '/$locale'
+      fullPath: '/$locale/'
+      preLoaderRoute: typeof LocaleIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated/legacy-v1': {
@@ -2317,6 +2337,7 @@ const rootRouteChildren: RootRouteChildren = {
   GuidesSlugRoute: GuidesSlugRoute,
   LoungeSeceneklerRoute: LoungeSeceneklerRoute,
   SitemapXmlRoute: SitemapXmlRoute,
+  LocaleIndexRoute: LocaleIndexRoute,
   DeIndexRoute: DeIndexRoute,
   DesignV2IndexRoute: DesignV2IndexRoute,
   EnIndexRoute: EnIndexRoute,
