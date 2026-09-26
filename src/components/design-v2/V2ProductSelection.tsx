@@ -7,6 +7,7 @@ import { WhatsAppLogo } from "@/components/travel/WhatsAppLogo";
 import { cn } from "@/lib/utils";
 import { waLink } from "@/lib/whatsapp";
 import type { V2Service } from "@/components/design-v2/V2Shell";
+import { CountryFlag } from "@/components/travel/CountryFlag";
 
 export function V2ProductSelectionCard({
   service,
@@ -55,6 +56,7 @@ export function V2ProductSelectionCard({
 export function V2SelectedProductSummary({
   title,
   subtitle,
+  flagIso,
   price,
   quantity,
   inCart,
@@ -70,6 +72,7 @@ export function V2SelectedProductSummary({
 }: {
   title: string;
   subtitle: string;
+  flagIso?: string | null | undefined;
   price: string;
   quantity: number;
   inCart: boolean;
@@ -107,7 +110,8 @@ export function V2SelectedProductSummary({
   };
   return (
     <section aria-label={title} className="pointer-events-auto w-full rounded-2xl border border-[var(--v2-service)]/40 bg-card/98 p-3 shadow-xl backdrop-blur lg:w-[25rem] lg:p-4">
-      <div className="flex min-w-0 items-start justify-between gap-3">
+      <div className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-start gap-3">
+        {flagIso ? <CountryFlag iso={flagIso} className="mt-0.5 h-7 w-10 rounded-md" /> : <span />}
         <div className="min-w-0">
           <p className="truncate font-display text-sm font-bold text-foreground">{title}</p>
           <p className="truncate text-xs text-muted-foreground">{subtitle}</p>
