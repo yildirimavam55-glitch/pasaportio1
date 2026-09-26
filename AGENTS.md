@@ -12,3 +12,5 @@
 Public installation instructions live in a V2 guide route; real QR, activation credentials, and package policy stay in authenticated account views to avoid exposing provisioning data.
 
 V2 destination, airport, and vignette pickers share `V2PickerSheet`; scope mobile scroll-lock width overrides to its open sheet and suppress trigger refocus on close so the storefront keeps its x-position and scroll location.
+Measure the visual viewport for focused V2 picker inputs and confine the result list above the mobile keyboard; viewport units alone do not track iOS keyboard occlusion.
+Keep a GIN index on eSIM coverage country arrays because public country-package reads filter with array containment and otherwise risk database timeouts.
