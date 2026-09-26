@@ -55,8 +55,8 @@ export function EsimHomePage() {
   const regionalSummaries = useQuery({ queryKey: ["v2-esim-regions"], queryFn: () => listEsimRegionalSummaries() });
   const priceMap = useMemo(() => new Map((prices.data ?? []).map((price) => [price.targetId, price])), [prices.data]);
   const matches = useMemo(
-    () => searchCountries(query, 250).filter((item) => priceMap.has(item.iso)),
-    [priceMap, query],
+    () => searchCountries(query, 250, locale).filter((item) => priceMap.has(item.iso)),
+    [priceMap, query, locale],
   );
   const selected = country ? getCountryByIso(country.toUpperCase()) : undefined;
   const { heroSearchRef, heroSearchVisible } = useV2StickySearch();
