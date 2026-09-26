@@ -197,6 +197,17 @@ html.dark .destination-scene {
   filter: brightness(0.82) saturate(0.9);
 }
 
+/* Radix's scroll lock makes body position:relative and injects scrollbar
+   compensation. Mobile has no layout scrollbar; preserve its original
+   containing block and width while a V2 picker sheet is open. */
+@media (max-width: 639px) {
+  body[data-scroll-locked]:has([data-v2-picker-sheet]) {
+    position: static !important;
+    margin-right: 0 !important;
+    padding-right: 0 !important;
+  }
+}
+
 .mobile-purchase-bar {
   right: 1rem;
   bottom: calc(0.75rem + env(safe-area-inset-bottom));
