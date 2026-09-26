@@ -1,6 +1,6 @@
-import type { ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { Link } from "@tanstack/react-router";
-import { Check, Info, Minus, Plus, ShoppingBag } from "lucide-react";
+import { ArrowRight, Check, Info, Minus, Plus, ShoppingBag } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { WhatsAppLogo } from "@/components/travel/WhatsAppLogo";
@@ -59,6 +59,7 @@ export function V2SelectedProductSummary({
   quantity,
   inCart,
   addLabel,
+  addingLabel,
   addedLabel,
   cartLabel,
   decreaseLabel,
@@ -73,6 +74,7 @@ export function V2SelectedProductSummary({
   quantity: number;
   inCart: boolean;
   addLabel: string;
+  addingLabel: string;
   addedLabel: string;
   cartLabel: string;
   decreaseLabel: string;
@@ -81,6 +83,28 @@ export function V2SelectedProductSummary({
   onQuantityChange: (quantity: number) => void;
   onAdd: () => void;
 }) {
+  const [adding, setAdding] = useState(false);
+  const addingRef = useRef(false);
+  const frameRef = useRef<number | null>(null);
+  useEffect(() => () => {
+    if (frameRef.current !== null) cancelAnimationFrame(frameRef.current);
+  }, []);
+  const addOnce = () => {
+    if (addingRef.current || inCart) return;
+    addingRef.current = true;
+    setAdding(true);
+    // The existing cart update is synchronous. Give its pending state a paint,
+    // without delaying the update beyond the next frame or inferring success from a click.
+    frameRef.current = requestAnimationFrame(() => {
+      frameRef.current = requestAnimationFrame(() => {
+        try { onAdd(); } finally {
+          addingRef.current = false;
+          setAdding(false);
+          frameRef.current = null;
+        }
+      });
+    });
+  };
   return (
     <section aria-label={title} className="pointer-events-auto w-full rounded-2xl border border-[var(--v2-service)]/40 bg-card/98 p-3 shadow-xl backdrop-blur lg:w-[25rem] lg:p-4">
       <div className="flex min-w-0 items-start justify-between gap-3">
@@ -88,20 +112,23 @@ export function V2SelectedProductSummary({
           <p className="truncate font-display text-sm font-bold text-foreground">{title}</p>
           <p className="truncate text-xs text-muted-foreground">{subtitle}</p>
         </div>
-        <strong className="shrink-0 font-display text-base text-[var(--v2-service)]">{price}</strong>
+        <div className="shrink-0 text-right">
+          <strong className="block font-display text-base text-[var(--v2-service)]">{price}</strong>
+          {inCart && <span role="status" className="block text-[11px] font-semibold leading-4 text-[var(--v2-service)]">{addedLabel} ✓</span>}
+        </div>
       </div>
       <div className="mt-2 flex items-center gap-2">
         <div className="flex h-10 shrink-0 items-center rounded-xl border border-border bg-background" aria-label={`${decreaseLabel} / ${increaseLabel}`}>
-          <Button type="button" variant="ghost" size="icon" disabled={quantity <= 1} onClick={() => onQuantityChange(quantity - 1)} aria-label={decreaseLabel} className="size-10 rounded-xl"><Minus className="size-4" /></Button>
+          <Button type="button" variant="ghost" size="icon" disabled={adding || quantity <= 1} onClick={() => onQuantityChange(quantity - 1)} aria-label={decreaseLabel} className="size-10 rounded-xl"><Minus className="size-4" /></Button>
           <span className="min-w-6 text-center text-sm font-bold text-foreground">{quantity}</span>
-          <Button type="button" variant="ghost" size="icon" disabled={quantity >= 9} onClick={() => onQuantityChange(quantity + 1)} aria-label={increaseLabel} className="size-10 rounded-xl"><Plus className="size-4" /></Button>
+          <Button type="button" variant="ghost" size="icon" disabled={adding || quantity >= 9} onClick={() => onQuantityChange(quantity + 1)} aria-label={increaseLabel} className="size-10 rounded-xl"><Plus className="size-4" /></Button>
         </div>
         {inCart ? (
           <Button asChild variant="default" className="h-10 min-w-0 flex-1 rounded-xl px-3">
-            <Link to="/sepet" aria-label={`${addedLabel} · ${cartLabel}`}><Check className="size-4" /><span className="truncate">{addedLabel} ✓</span></Link>
+            <Link to="/sepet" aria-label={cartLabel}><span className="truncate">{cartLabel}</span><ArrowRight className="size-4 shrink-0" /></Link>
           </Button>
         ) : (
-          <Button type="button" onClick={onAdd} className="h-10 min-w-0 flex-1 rounded-xl px-3"><ShoppingBag className="size-4" /><span className="truncate">{addLabel}</span></Button>
+          <Button type="button" onClick={addOnce} disabled={adding} aria-busy={adding} className="h-10 min-w-0 flex-1 rounded-xl px-3"><ShoppingBag className="size-4 shrink-0" /><span className="truncate">{adding ? addingLabel : addLabel}</span></Button>
         )}
         <Button asChild variant="ghost" size="icon" className="size-10 shrink-0 rounded-xl p-0 shadow-sm" style={{ backgroundColor: "#25D366", color: "#fff" }}>
           <a href={waLink()} target="_blank" rel="noopener noreferrer" aria-label={whatsappLabel}><WhatsAppLogo className="size-5" /></a>

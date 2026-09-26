@@ -1,5 +1,9 @@
 # Phase 1.3 Roadmap
 
+## V2 cart CTA state
+- [x] Show localized Add / Adding / In cart confirmation and Go to cart actions in the shared selected-product panel.
+- [x] Verify cart-store synchronization after removal and country/regional Standard/Unlimited journeys at mobile and desktop sizes.
+
 ## V2 desktop final visual polish
 
 - [x] Preserve the approved wide container, mobile layouts, data, and business logic
