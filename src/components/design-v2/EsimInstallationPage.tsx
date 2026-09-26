@@ -48,7 +48,7 @@ const GUIDE = {
   },
 } as const;
 
-type Guide = (typeof GUIDE)["tr"];
+type Guide = (typeof GUIDE)[keyof typeof GUIDE];
 const LAST = 4;
 
 /* ---------- Phone illustrations (generic, own artwork) ---------- */
