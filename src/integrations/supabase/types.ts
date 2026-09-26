@@ -3162,6 +3162,42 @@ export type Database = {
         }
         Relationships: []
       }
+      vignette_supplier_snapshots: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          environment: string
+          error: string | null
+          http_status: number | null
+          id: string
+          ok: boolean
+          product_count: number
+          raw_response: Json | null
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          environment?: string
+          error?: string | null
+          http_status?: number | null
+          id?: string
+          ok?: boolean
+          product_count?: number
+          raw_response?: Json | null
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          environment?: string
+          error?: string | null
+          http_status?: number | null
+          id?: string
+          ok?: boolean
+          product_count?: number
+          raw_response?: Json | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
