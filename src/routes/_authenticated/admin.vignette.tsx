@@ -17,29 +17,37 @@ export const Route = createFileRoute("/_authenticated/admin/vignette")({
 
 const AVAILABILITY_LABEL = { ACTIVE: "Satışta", NOT_FOR_SALE: "Yakında / satışta değil", PAUSED: "Duraklatıldı" } as const;
 type Tab = "overview" | "catalog" | "api" | "settings";
-type Row = Record<string, unknown>;
+type Product = Record<string, any>;
+/** One row per product × duration, flattened from the documented `price[duration]` object. Values copied verbatim. */
+type Variant = { country: string; name: string; title: string; type: string; vehicle: string; status: string; duration: string; government_price: unknown; partner_fee: unknown; total_price: unknown; currency: unknown; restrictions: unknown };
 
-/** Only picks a field when the API actually returned a key with one of these names. Never computes. */
-const COLUMNS: { label: string; keys: string[] }[] = [
-  { label: "Ülke", keys: ["country", "country_name", "countryName"] },
-  { label: "Ülke kodu", keys: ["country_code", "countryCode", "country_iso", "iso"] },
-  { label: "Ürün adı", keys: ["name", "title", "product_name", "productName"] },
-  { label: "Tedarikçi ürün ID", keys: ["id", "product_id", "productId", "code", "slug"] },
-  { label: "Ürün tipi", keys: ["type", "product_type", "productType", "kind"] },
-  { label: "Araç kategorisi", keys: ["vehicle_type", "vehicleType", "vehicle_category", "vehicle", "category"] },
-  { label: "Geçerlilik", keys: ["duration", "validity", "period", "valid_days", "days", "duration_type"] },
-  { label: "Resmî/baz fiyat", keys: ["price", "base_price", "government_price", "official_price", "basePrice"] },
-  { label: "Partner ücreti", keys: ["fee", "partner_fee", "service_fee", "commission", "partnerFee", "serviceFee"] },
-  { label: "Toplam tedarik maliyeti", keys: ["total", "total_price", "partner_price", "cost", "totalPrice", "partnerPrice"] },
-  { label: "Para birimi", keys: ["currency", "currency_code", "currencyCode"] },
-];
+const COUNTRY: Record<string, string> = { at: "Avusturya", bg: "Bulgaristan", ch: "İsviçre", cz: "Çekya", hu: "Macaristan", md: "Moldova", ro: "Romanya", si: "Slovenya", sk: "Slovakya" };
+const DOC_PRODUCT_KEYS = ["name", "title", "type", "icon", "color", "country", "vehicle_type", "priority", "price", "restrictions", "status"];
 
-function pickKey(sample: Row[], keys: string[]) {
-  return keys.find((k) => sample.some((r) => r[k] !== undefined)) ?? null;
+function parse(rawJson: string | null | undefined): { raw: unknown; products: Product[] } {
+  if (!rawJson) return { raw: null, products: [] };
+  const raw = JSON.parse(rawJson);
+  const products = Array.isArray(raw?.result) ? raw.result : [];
+  return { raw, products };
+}
+function flatten(products: Product[]): Variant[] {
+  return products.flatMap((p) => Object.entries((p.price ?? {}) as Record<string, any>).map(([duration, v]) => ({
+    country: String(p.country ?? ""), name: String(p.name ?? ""), title: String(p.title ?? ""), type: String(p.type ?? ""), vehicle: String(p.vehicle_type ?? ""), status: String(p.status ?? ""),
+    duration, government_price: v?.government_price, partner_fee: v?.partner_fee, total_price: v?.total_price, currency: v?.currency, restrictions: v?.restrictions,
+  })));
 }
 function show(v: unknown) {
   if (v == null || v === "") return "—";
   return typeof v === "object" ? JSON.stringify(v) : String(v);
+}
+function summarize(products: Product[]) {
+  const v = flatten(products);
+  return {
+    variants: v.length,
+    countries: [...new Set(products.map((p) => String(p.country ?? "")))].filter(Boolean).sort(),
+    vehicles: [...new Set(products.map((p) => String(p.vehicle_type ?? "")))].filter(Boolean).sort(),
+    currencies: [...new Set(v.map((x) => show(x.currency)))].filter((x) => x !== "—"),
+  };
 }
 
 function VignetteAdmin() {
@@ -66,27 +74,18 @@ function useSandbox() {
   return useQuery({ queryKey: ["admin-vignette-sandbox"], queryFn: () => getVignetteSandbox() });
 }
 
-function summarize(products: Row[]) {
-  const ck = pickKey(products, COLUMNS[1].keys) ?? pickKey(products, COLUMNS[0].keys);
-  const cur = pickKey(products, COLUMNS[10].keys);
-  return {
-    countries: ck ? [...new Set(products.map((p) => show(p[ck])))].filter((x) => x !== "—") : [],
-    currencies: cur ? [...new Set(products.map((p) => show(p[cur])))].filter((x) => x !== "—") : [],
-  };
-}
-
 function Overview() {
   const q = useQuery({ queryKey: ["admin-vignette"], queryFn: () => getVignetteAdmin() });
   const s = useSandbox();
   if (q.isPending) return <AdminLoading />;
   if (q.error) return <AdminError error={q.error} />;
-  const sum = summarize(s.data?.products ?? []);
+  const sum = summarize(parse(s.data?.rawJson).products);
   return (
     <AdminPanel title="Genel bakış" action={<Car className="size-4 text-muted-foreground" />}>
       <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
         <Stat label="Servis durumu" value={AVAILABILITY_LABEL[q.data.availability]} />
         <Stat label="Yeni satın alma" value={q.data.checkout ? "Açık" : "Kapalı"} />
-        <Stat label="Sandbox ürünleri" value={String(s.data?.products.length ?? 0)} />
+        <Stat label="Sandbox ürünleri" value={`${parse(s.data?.rawJson).products.length} (${sum.variants} süre)`} />
         <Stat label="Sandbox ülkeleri" value={String(sum.countries.length)} />
       </div>
       <p className="mt-3 text-xs text-muted-foreground">Vignette henüz ticari olarak başlatılmadı. Tedarikçi verisi ayrı tutulur; storefront ürünleri ve fiyatları etkilenmez.</p>
@@ -104,7 +103,7 @@ function ApiTest() {
   if (s.isPending) return <AdminLoading />;
   if (s.error) return <AdminError error={s.error} />;
   const d = s.data;
-  const sum = summarize(d.products);
+  const sum = summarize(parse(d.rawJson).products);
   const last = run.data ?? (d.latest ? { ok: d.latest.ok, httpStatus: d.latest.http_status, error: d.latest.error, productCount: d.latest.product_count } : null);
   return (
     <AdminPanel title="API testi (Sandbox)">
@@ -122,8 +121,8 @@ function ApiTest() {
         <DataRow label="HTTP durumu" value={last?.httpStatus ?? "—"} />
         <DataRow label="Hata" value={last?.error ?? "—"} />
         <DataRow label="Son başarılı senkron" value={d.lastSuccessAt ? new Date(d.lastSuccessAt).toLocaleString("tr-TR") : "—"} />
-        <DataRow label="Ürün sayısı" value={last?.productCount ?? d.products.length} />
-        <DataRow label="Ülke sayısı" value={sum.countries.length} />
+        <DataRow label="Ürün sayısı" value={`${last?.productCount ?? 0} ürün · ${sum.variants} süre varyantı`} />
+        <DataRow label="Ülke sayısı" value={`${sum.countries.length} (${sum.countries.join(", ").toUpperCase()})`} />
         <DataRow label="Para birimleri" value={sum.currencies.join(", ") || "—"} />
       </div>
     </AdminPanel>
@@ -139,50 +138,47 @@ function Catalog() {
   const [vehicle, setVehicle] = useState("");
   const [duration, setDuration] = useState("");
   const [showRaw, setShowRaw] = useState(false);
-  const products = s.data?.products ?? [];
-  const cols = useMemo(() => COLUMNS.map((c) => ({ ...c, key: pickKey(products, c.keys) })), [products]);
-  const allKeys = useMemo(() => [...new Set(products.flatMap((p) => Object.keys(p)))], [products]);
-  const col = (label: string) => cols.find((c) => c.label === label)?.key ?? null;
-  const opts = (k: string | null) => (k ? [...new Set(products.map((p) => show(p[k])))].filter((x) => x !== "—").sort() : []);
-  const cK = col("Ülke kodu") ?? col("Ülke"), vK = col("Araç kategorisi"), dK = col("Geçerlilik");
-  const rows = products.filter((p) =>
-    (!country || (cK && show(p[cK]) === country)) &&
-    (!vehicle || (vK && show(p[vK]) === vehicle)) &&
-    (!duration || (dK && show(p[dK]) === duration)) &&
-    (!search || JSON.stringify(p).toLowerCase().includes(search.toLowerCase())));
+  const { raw, products } = useMemo(() => parse(s.data?.rawJson), [s.data?.rawJson]);
+  const variants = useMemo(() => flatten(products), [products]);
   if (s.isPending) return <AdminLoading />;
   if (s.error) return <AdminError error={s.error} />;
-  const priceMap = ["Resmî/baz fiyat", "Partner ücreti", "Toplam tedarik maliyeti", "Para birimi"].map((l) => [l, col(l)] as const);
-  const numericKeys = allKeys.filter((k) => products.some((p) => typeof p[k] === "number" || (typeof p[k] === "string" && /^\d+(\.\d+)?$/.test(p[k] as string))));
+  const uniq = (xs: string[]) => [...new Set(xs)].filter(Boolean);
+  const durations = uniq(variants.map((v) => v.duration)).sort((a, b) => Number(a) - Number(b));
+  const rows = variants.filter((v) => (!country || v.country === country) && (!vehicle || v.vehicle === vehicle) && (!duration || v.duration === duration) && (!search || `${v.name} ${v.title} ${v.country} ${COUNTRY[v.country] ?? ""}`.toLowerCase().includes(search.toLowerCase())));
+  const productKeys = uniq(products.flatMap((p) => Object.keys(p)));
+  const priceKeys = uniq(products.flatMap((p) => Object.values((p.price ?? {}) as Record<string, any>).flatMap((v) => Object.keys(v ?? {}))));
+  const extra = productKeys.filter((k) => !DOC_PRODUCT_KEYS.includes(k));
   return (
     <div className="grid gap-3">
-      <AdminPanel title={`Tedarikçi kataloğu (${products.length})`} action={<Button size="sm" variant="outline" disabled={refresh.isPending || !s.data.keyConfigured} onClick={() => refresh.mutate()}><RefreshCw className="size-4" />Yenile</Button>}>
-        <p className="text-xs text-muted-foreground">Kaynak: son başarılı Sandbox yenilemesi {s.data.catalogueAt ? `(${new Date(s.data.catalogueAt).toLocaleString("tr-TR")})` : "— henüz yok"}. Değerler API'den olduğu gibi gösterilir; eksik fiyat hesaplanmaz.</p>
+      <AdminPanel title={`Tedarikçi kataloğu (${products.length} ürün · ${variants.length} süre)`} action={<Button size="sm" variant="outline" disabled={refresh.isPending || !s.data.keyConfigured} onClick={() => refresh.mutate()}><RefreshCw className="size-4" />Yenile</Button>}>
+        <p className="text-xs text-muted-foreground">Kaynak: son başarılı Sandbox yenilemesi {s.data.catalogueAt ? `(${new Date(s.data.catalogueAt).toLocaleString("tr-TR")})` : "— henüz yok"}. Değerler API'den olduğu gibi gösterilir; hiçbir fiyat hesaplanmaz.</p>
         <div className="mt-3 grid gap-2 sm:grid-cols-4">
-          <Input placeholder="Ara" value={search} onChange={(e) => setSearch(e.target.value)} />
-          <Select label="Ülke" value={country} onChange={setCountry} options={opts(cK)} />
-          <Select label="Araç kategorisi" value={vehicle} onChange={setVehicle} options={opts(vK)} />
-          <Select label="Süre" value={duration} onChange={setDuration} options={opts(dK)} />
+          <Input placeholder="Ara (ürün, ülke)" value={search} onChange={(e) => setSearch(e.target.value)} />
+          <Select label="Ülke" value={country} onChange={setCountry} options={uniq(products.map((p) => String(p.country ?? ""))).sort()} />
+          <Select label="Araç kategorisi" value={vehicle} onChange={setVehicle} options={uniq(products.map((p) => String(p.vehicle_type ?? ""))).sort()} />
+          <Select label="Süre (gün)" value={duration} onChange={setDuration} options={durations} />
         </div>
-        {products.length === 0 ? <p className="mt-4 text-sm text-muted-foreground">Henüz ürün alınmadı. “Yenile” ile Sandbox kataloğunu çekin.</p> : (
+        {variants.length === 0 ? <p className="mt-4 text-sm text-muted-foreground">Henüz ürün alınmadı. “Yenile” ile Sandbox kataloğunu çekin.</p> : (
           <div className="mt-3 overflow-x-auto">
             <table className="w-full text-xs">
-              <thead><tr className="text-left text-muted-foreground">{cols.map((c) => <th key={c.label} className="whitespace-nowrap pr-3">{c.label}<span className="block font-mono text-[9px]">{c.key ?? "alan yok"}</span></th>)}</tr></thead>
-              <tbody>{rows.map((p, i) => <tr key={i} className="border-t border-border">{cols.map((c) => <td key={c.label} className="py-1.5 pr-3">{c.key ? show(p[c.key]) : "—"}</td>)}</tr>)}</tbody>
+              <thead><tr className="text-left text-muted-foreground">{[["Ülke", ""], ["Ülke kodu", "country"], ["Ürün adı", "title"], ["Tedarikçi ürün ID", "name"], ["Ürün tipi", "type"], ["Araç kategorisi", "vehicle_type"], ["Süre (gün)", "price.{key}"], ["Resmî fiyat", "government_price"], ["Partner ücreti", "partner_fee"], ["Toplam tedarik maliyeti", "total_price"], ["Para birimi", "currency"], ["Kısıt", "restrictions"]].map(([l, k]) => <th key={l} className="whitespace-nowrap pb-1 pr-3">{l}{k && <span className="block font-mono text-[9px]">{k}</span>}</th>)}</tr></thead>
+              <tbody>{rows.map((v) => <tr key={`${v.name}-${v.duration}`} className="border-t border-border"><td className="py-1.5 pr-3">{COUNTRY[v.country] ?? "—"}</td><td className="pr-3 uppercase">{v.country}</td><td className="pr-3">{v.title}</td><td className="pr-3 font-mono">{v.name}</td><td className="pr-3">{v.type}</td><td className="pr-3">{v.vehicle}</td><td className="pr-3">{v.duration}</td><td className="pr-3">{show(v.government_price)}</td><td className="pr-3">{show(v.partner_fee)}</td><td className="pr-3 font-semibold">{show(v.total_price)}</td><td className="pr-3">{show(v.currency)}</td><td className="pr-3">{show(v.restrictions)}</td></tr>)}</tbody>
             </table>
           </div>
         )}
       </AdminPanel>
       <AdminPanel title="Fiyat incelemesi">
-        <p className="text-xs text-muted-foreground">Aşağıda yalnızca API yanıtında gerçekten bulunan alan adları eşlenir. Eşleşme alan adına göredir; anlamı tedarikçi ile teyit edilmelidir.</p>
-        <div className="mt-2">{priceMap.map(([l, k]) => <DataRow key={l} label={l} value={k ? <code>{k}</code> : "API'de karşılık gelen alan bulunamadı"} />)}</div>
-        <p className="mt-3 text-xs font-semibold">Yanıttaki tüm alanlar</p>
-        <p className="mt-1 font-mono text-[11px]">{allKeys.join(", ") || "—"}</p>
-        <p className="mt-2 text-xs font-semibold">Sayısal alanlar</p>
-        <p className="mt-1 font-mono text-[11px]">{numericKeys.join(", ") || "—"}</p>
+        <DataRow label="A. Resmî / devlet vinyet fiyatı" value={<code>price.&#123;süre&#125;.government_price</code>} />
+        <DataRow label="B. Vignette ID / partner ücreti" value={<code>price.&#123;süre&#125;.partner_fee</code>} />
+        <DataRow label="C. Nihai tedarik maliyetimiz" value={<code>price.&#123;süre&#125;.total_price</code>} />
+        <DataRow label="Para birimi" value={<code>price.&#123;süre&#125;.currency</code>} />
+        <p className="mt-2 text-xs text-muted-foreground">Not: Sandbox verisinde total_price, government_price + partner_fee toplamından büyüktür; aradaki fark API'de ayrı bir alan olarak dönmez. Anlamı tedarikçiyle teyit edilmelidir.</p>
+        <p className="mt-3 text-xs font-semibold">Ürün alanları</p><p className="mt-1 font-mono text-[11px]">{productKeys.join(", ") || "—"}</p>
+        <p className="mt-2 text-xs font-semibold">Fiyat alanları</p><p className="mt-1 font-mono text-[11px]">{priceKeys.join(", ") || "—"}</p>
+        {extra.length > 0 && <p className="mt-2 text-xs font-semibold text-warning">Beklenmeyen alanlar: {extra.join(", ")}</p>}
       </AdminPanel>
       <AdminPanel title="Ham API yanıtı (temizlenmiş)" action={<Button size="sm" variant="ghost" onClick={() => setShowRaw((v) => !v)}>{showRaw ? "Gizle" : "Göster"}</Button>}>
-        {showRaw ? <pre className="max-h-[480px] overflow-auto rounded-md bg-secondary/40 p-3 text-[11px]">{JSON.stringify(s.data.raw, null, 2)}</pre> : <p className="text-xs text-muted-foreground">Kimlik bilgileri hiçbir zaman gösterilmez.</p>}
+        {showRaw ? <pre className="max-h-[480px] overflow-auto rounded-md bg-secondary/40 p-3 text-[11px]">{JSON.stringify(raw, null, 2)}</pre> : <p className="text-xs text-muted-foreground">Kimlik bilgileri hiçbir zaman gösterilmez.</p>}
       </AdminPanel>
     </div>
   );
