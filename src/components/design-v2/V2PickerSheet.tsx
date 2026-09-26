@@ -81,7 +81,14 @@ export function V2PickerSheet({
 
   const keyboardOpen = inputFocused && Boolean(visibleViewport && visibleViewport.width < 640);
   const keyboardStyle: CSSProperties | undefined = keyboardOpen && visibleViewport
-    ? { top: visibleViewport.top, bottom: "auto", height: visibleViewport.height, maxHeight: visibleViewport.height }
+    ? {
+        // Keep the title and close control clear of iOS browser chrome while
+        // continuing to size the results against the real visible viewport.
+        top: visibleViewport.top + 8,
+        bottom: "auto",
+        height: Math.max(0, visibleViewport.height - 16),
+        maxHeight: Math.max(0, visibleViewport.height - 16),
+      }
     : undefined;
 
   return (
@@ -117,13 +124,13 @@ export function V2PickerSheet({
             className="min-w-0 flex-1 bg-transparent text-sm text-foreground outline-none placeholder:text-muted-foreground"
           />
         </label>
-        <div className={`${keyboardOpen ? "mt-2 min-h-28 max-h-none flex-1" : "mt-3 max-h-[calc(88dvh-9.5rem)]"} overflow-y-auto overscroll-contain rounded-2xl border border-border bg-card`}>
+        <div className={`${keyboardOpen ? "mt-2 min-h-0 max-h-[calc(100%-10rem)] shrink-0" : "mt-3 max-h-[calc(88dvh-9.5rem)]"} overflow-y-auto overscroll-contain rounded-2xl border border-border bg-card`}>
           {items.length ? (
-            <ul className="divide-y divide-border">
+            <ul className="grid auto-rows-min content-start divide-y divide-border">
               {items.map((item) => {
                 const selected = item.id === selectedId;
                 return (
-                  <li key={item.id}>
+                  <li key={item.id} className="h-fit">
                     <Button
                       type="button"
                       variant="ghost"
