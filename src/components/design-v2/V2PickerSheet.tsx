@@ -38,8 +38,8 @@ export function V2PickerSheet({
 }) {
   const previousScroll = useRef<{ x: number; y: number } | null>(null);
   const inputRef = useRef<HTMLInputElement | null>(null);
-  const initialViewportHeight = useRef(0);
-  const [keyboardViewport, setKeyboardViewport] = useState<{ bottom: number; height: number } | null>(null);
+  const [inputFocused, setInputFocused] = useState(false);
+  const [visibleViewport, setVisibleViewport] = useState<{ top: number; height: number } | null>(null);
 
   // The sticky search opens the controlled sheet directly (not via its
   // trigger), so capture that path too before the dialog's focus effects.
@@ -49,23 +49,20 @@ export function V2PickerSheet({
 
   useLayoutEffect(() => {
     if (!open) {
-      initialViewportHeight.current = 0;
-      setKeyboardViewport(null);
+      setInputFocused(false);
+      setVisibleViewport(null);
       return;
     }
 
     const viewport = window.visualViewport;
-    initialViewportHeight.current = viewport?.height ?? window.innerHeight;
     const update = () => {
-      const visibleHeight = viewport?.height ?? window.innerHeight;
-      const offsetTop = viewport?.offsetTop ?? 0;
-      const keyboardVisible = document.activeElement === inputRef.current && window.innerWidth < 640 &&
-        (initialViewportHeight.current - visibleHeight > 120 || window.innerHeight - offsetTop - visibleHeight > 120);
-      const next = keyboardVisible
-        ? { bottom: Math.max(0, Math.round(window.innerHeight - offsetTop - visibleHeight)), height: Math.round(visibleHeight * 0.94) }
-        : null;
-      setKeyboardViewport((current) => current?.bottom === next?.bottom && current?.height === next?.height ? current : next);
+      const next = {
+        top: Math.max(0, Math.round(viewport?.offsetTop ?? 0)),
+        height: Math.max(0, Math.round(viewport?.height ?? window.innerHeight)),
+      };
+      setVisibleViewport((current) => current?.top === next.top && current?.height === next.height ? current : next);
     };
+    update();
     viewport?.addEventListener("resize", update);
     viewport?.addEventListener("scroll", update);
     window.addEventListener("resize", update);
@@ -81,8 +78,9 @@ export function V2PickerSheet({
     onOpenChange(nextOpen);
   };
 
-  const keyboardStyle: CSSProperties | undefined = keyboardViewport
-    ? { bottom: keyboardViewport.bottom, height: keyboardViewport.height, maxHeight: keyboardViewport.height }
+  const keyboardOpen = inputFocused && window.innerWidth < 640;
+  const keyboardStyle: CSSProperties | undefined = keyboardOpen && visibleViewport
+    ? { top: visibleViewport.top, bottom: "auto", height: visibleViewport.height, maxHeight: visibleViewport.height }
     : undefined;
 
   return (
@@ -101,22 +99,24 @@ export function V2PickerSheet({
           if (position) window.scrollTo(position.x, position.y);
           previousScroll.current = null;
         }}
-        className={`w-full max-h-[88dvh] rounded-t-3xl border-border bg-background pl-[max(1rem,env(safe-area-inset-left))] pr-[max(1rem,env(safe-area-inset-right))] pb-[calc(1rem+env(safe-area-inset-bottom))] pt-4 sm:left-1/2 sm:max-w-xl sm:-translate-x-1/2 sm:rounded-3xl sm:border ${keyboardViewport ? "flex flex-col overflow-hidden" : ""}`}
+        className={`w-full max-h-[88dvh] rounded-t-3xl border-border bg-background pl-[max(1rem,env(safe-area-inset-left))] pr-[max(1rem,env(safe-area-inset-right))] pb-[calc(1rem+env(safe-area-inset-bottom))] pt-4 sm:left-1/2 sm:max-w-xl sm:-translate-x-1/2 sm:rounded-3xl sm:border ${keyboardOpen ? "flex flex-col overflow-hidden !max-h-none" : ""}`}
       >
-        <div className="mx-auto mb-3 h-1 w-10 rounded-full bg-border sm:hidden" />
+        <div className={`mx-auto h-1 w-10 rounded-full bg-border sm:hidden ${keyboardOpen ? "mb-2" : "mb-3"}`} />
         <SheetTitle className="pr-12 font-display text-xl font-bold">{title}</SheetTitle>
-        <label className="mt-4 flex h-12 items-center gap-3 rounded-full border border-border bg-card px-4 focus-within:ring-2 focus-within:ring-ring">
+        <label className={`${keyboardOpen ? "mt-2" : "mt-4"} flex h-12 shrink-0 items-center gap-3 rounded-full border border-border bg-card px-4 focus-within:ring-2 focus-within:ring-ring`}>
           <Search className="size-5 shrink-0 text-muted-foreground" aria-hidden="true" />
           <input
             ref={inputRef}
             value={query}
             onChange={(event) => onQueryChange(event.target.value)}
+            onFocus={() => setInputFocused(true)}
+            onBlur={() => setInputFocused(false)}
             placeholder={searchLabel}
             aria-label={searchLabel}
             className="min-w-0 flex-1 bg-transparent text-sm text-foreground outline-none placeholder:text-muted-foreground"
           />
         </label>
-        <div className={`mt-3 overflow-y-auto overscroll-contain rounded-2xl border border-border bg-card ${keyboardViewport ? "min-h-0 max-h-none flex-1" : "max-h-[calc(88dvh-9.5rem)]"}`}>
+        <div className={`${keyboardOpen ? "mt-2 min-h-28 max-h-none flex-1" : "mt-3 max-h-[calc(88dvh-9.5rem)]"} overflow-y-auto overscroll-contain rounded-2xl border border-border bg-card`}>
           {items.length ? (
             <ul className="divide-y divide-border">
               {items.map((item) => {
