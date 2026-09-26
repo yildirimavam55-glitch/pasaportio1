@@ -52,12 +52,12 @@ export function EsimInstallationPage({ initialPlatform }: { initialPlatform: "io
   const [finished, setFinished] = useState(false);
   useEffect(() => { setPlatform(initialPlatform); setStep(0); setFinished(false); }, [initialPlatform]);
   const selected = c.steps[step];
-  const Illustration = iconMap[selected.visual];
   const changePlatform = (next: "ios" | "android") => {
     setPlatform(next); setStep(0); setFinished(false);
     void navigate({ to: "/esim/kurulum", search: { platform: next, brand: "" }, replace: true });
   };
   if (!selected) return null;
+  const Illustration = iconMap[selected.visual];
   return <V2Shell service="esim">
     <main className="mx-auto max-w-5xl pb-16">
       <Button asChild variant="ghost" size="sm" className="mt-2 -ml-2 text-primary"><Link to="/esim" search={{ country: "" }}><ArrowLeft className="size-4" />{c.back}</Link></Button>
