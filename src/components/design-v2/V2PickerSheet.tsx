@@ -163,18 +163,12 @@ export function V2PickerSheet({
                         // the rest of the tap before pointerup/click is delivered.
                         event.preventDefault();
                         pressRef.current = beginPickerPress(item.id, event.pointerId, event.clientX, event.clientY);
-                        event.currentTarget.setPointerCapture(event.pointerId);
                       }}
                       onPointerMove={(event) => {
                         pressRef.current = movePickerPress(pressRef.current, event.pointerId, event.clientX, event.clientY);
                       }}
                       onPointerCancel={finishPress}
-                      onPointerUp={(event) => {
-                        if (event.currentTarget.hasPointerCapture(event.pointerId)) {
-                          event.currentTarget.releasePointerCapture(event.pointerId);
-                        }
-                        commitPointerSelection(item.id, event.pointerId);
-                      }}
+                      onPointerUp={(event) => commitPointerSelection(item.id, event.pointerId)}
                       onClick={(event) => {
                         // Keyboard and assistive activations have no pointer
                         // click count and must always retain native behavior.
