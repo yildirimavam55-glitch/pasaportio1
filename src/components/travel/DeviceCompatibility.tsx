@@ -289,7 +289,7 @@ export function DeviceCheckSheet({ surface, trigger }: { surface: string; trigge
                     ))}
                   </ul>
                 ) : (
-                  <p className="py-4 text-sm text-muted-foreground">{copy.noResult}</p>
+                  <div role="status" className="flex gap-2 py-4 text-sm text-muted-foreground"><CircleHelp className="size-5 shrink-0 text-cta" aria-hidden="true" /><p><strong className="block text-foreground">{copy.statusUncertain}</strong>{copy.noResult}</p></div>
                 )}
               </div>}
             </>

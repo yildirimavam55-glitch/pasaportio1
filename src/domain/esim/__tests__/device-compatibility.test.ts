@@ -29,6 +29,11 @@ describe("device compatibility search", () => {
     expect(searchDevices(devices, "", "Google").map((d) => d.id)).toEqual(["3"]);
   });
 
+  it("does not mix brands when searching for a model within a chosen brand", () => {
+    expect(searchDevices(devices, "galaxy", "Apple")).toEqual([]);
+    expect(searchDevices(devices, "15", "Apple").map((d) => d.id)).toEqual(["1"]);
+  });
+
   it("falls back to UNCERTAIN for unknown status values", () => {
     expect(normalizeStatus("WHATEVER")).toBe("UNCERTAIN");
   });
