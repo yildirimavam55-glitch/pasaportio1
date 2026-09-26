@@ -1,5 +1,10 @@
 # Phase 1.3 Roadmap
 
+## V2 mobile search sheet viewport stability
+- [x] Keep shared eSIM/Lounge/Vignette picker width and storefront x-position fixed during scroll lock, focus, filtering, and close.
+- [x] Restore scroll after dismissal and verify Chromium/WebKit mobile widths plus 1280/1440 desktop widths.
+- [ ] Physical iPhone Safari keyboard verification requires a device; desktop WebKit focus was checked.
+
 ## V2 cart CTA state
 - [x] Show localized Add / Adding / In cart confirmation and Go to cart actions in the shared selected-product panel.
 - [x] Verify cart-store synchronization after removal and country/regional Standard/Unlimited journeys at mobile and desktop sizes.

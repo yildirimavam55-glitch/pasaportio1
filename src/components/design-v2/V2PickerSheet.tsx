@@ -1,5 +1,5 @@
 import { Check, Search } from "lucide-react";
-import type { ReactNode } from "react";
+import { useLayoutEffect, useRef, type ReactNode } from "react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 
@@ -36,13 +36,35 @@ export function V2PickerSheet({
   emptyLabel: string;
   children: ReactNode;
 }) {
+  const previousScroll = useRef<{ x: number; y: number } | null>(null);
+
+  // The sticky search opens the controlled sheet directly (not via its
+  // trigger), so capture that path too before the dialog's focus effects.
+  useLayoutEffect(() => {
+    if (open && !previousScroll.current) previousScroll.current = { x: window.scrollX, y: window.scrollY };
+  }, [open]);
+
+  const handleOpenChange = (nextOpen: boolean) => {
+    if (nextOpen) previousScroll.current = { x: window.scrollX, y: window.scrollY };
+    onOpenChange(nextOpen);
+  };
+
   return (
-    <Sheet open={open} onOpenChange={onOpenChange}>
+    <Sheet open={open} onOpenChange={handleOpenChange}>
       <SheetTrigger asChild>{children}</SheetTrigger>
       <SheetContent
+        data-v2-picker-sheet
         side="bottom"
         onOpenAutoFocus={(event) => event.preventDefault()}
-        className="max-h-[88dvh] rounded-t-3xl border-border bg-background px-4 pb-[calc(1rem+env(safe-area-inset-bottom))] pt-4 sm:left-1/2 sm:max-w-xl sm:-translate-x-1/2 sm:rounded-3xl sm:border"
+        onCloseAutoFocus={(event) => {
+          // The trigger may be far above the sticky search. Radix focusing it
+          // after close scrolls the storefront back to the hero.
+          event.preventDefault();
+          const position = previousScroll.current;
+          if (position) window.scrollTo(position.x, position.y);
+          previousScroll.current = null;
+        }}
+        className="w-full max-h-[88dvh] rounded-t-3xl border-border bg-background pl-[max(1rem,env(safe-area-inset-left))] pr-[max(1rem,env(safe-area-inset-right))] pb-[calc(1rem+env(safe-area-inset-bottom))] pt-4 sm:left-1/2 sm:max-w-xl sm:-translate-x-1/2 sm:rounded-3xl sm:border"
       >
         <div className="mx-auto mb-3 h-1 w-10 rounded-full bg-border sm:hidden" />
         <SheetTitle className="pr-12 font-display text-xl font-bold">{title}</SheetTitle>
