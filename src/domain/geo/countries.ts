@@ -93,21 +93,44 @@ export const POPULAR_COUNTRIES: Country[] = POPULAR_COUNTRY_ISOS.flatMap((iso) =
   return country ? [country] : [];
 });
 
-export function searchCountries(query: string, limit = 60): Country[] {
+/**
+ * Relevance tiers (lower wins): exact localized name, exact other name/alias,
+ * localized prefix, other prefix, ISO code, word prefix, substring, compact
+ * fuzzy. Two-letter queries treat an exact ISO code as near-exact.
+ * Ties prefer names whose original spelling (with diacritics) matches what was
+ * typed, then the shorter matched name, then the existing alphabetical order.
+ */
+export function searchCountries(query: string, limit = 60, locale: Locale = "tr"): Country[] {
   const needle = foldText(query);
   if (!needle) return COUNTRIES.slice(0, limit);
-  const scored: Array<{ country: Country; score: number }> = [];
-  for (const country of COUNTRIES) {
-    let score = Infinity;
+  const raw = query.trim().toLocaleLowerCase(locale);
+  const compact = needle.replace(/ /g, "");
+  const scored: Array<{ country: Country; tier: number; exactSpelling: number; length: number; index: number }> = [];
+  COUNTRIES.forEach((country, index) => {
+    const localized = foldText(country.name[locale] || country.name.tr);
+    const iso = country.iso.toLowerCase();
+    let best: { tier: number; length: number } | null = null;
+    const consider = (tier: number, length: number) => {
+      if (!best || tier < best.tier || (tier === best.tier && length < best.length)) best = { tier, length };
+    };
     for (const alias of country.aliases) {
-      if (alias === needle) score = Math.min(score, 0);
-      else if (alias.startsWith(needle)) score = Math.min(score, 1);
-      else if (alias.includes(needle)) score = Math.min(score, 2);
+      const isLocal = alias === localized;
+      if (alias === iso) { if (alias === needle) consider(needle.length === 2 ? 1 : 4, alias.length); continue; }
+      if (alias === needle) consider(isLocal ? 0 : 1, alias.length);
+      else if (alias.startsWith(needle)) consider(isLocal ? 2 : 3, alias.length);
+      else if (alias.split(" ").some((word) => word.startsWith(needle))) consider(5, alias.length);
+      else if (alias.includes(needle)) consider(6, alias.length);
+      else if (compact.length >= 3 && alias.replace(/ /g, "").includes(compact)) consider(7, alias.length);
     }
-    if (score !== Infinity) scored.push({ country, score });
-  }
+    if (!best) return;
+    const names = [country.name[locale], country.name.tr, country.name.de, country.name.en];
+    // Spelling only breaks ties when the customer typed diacritics (e.g. "Tür").
+    const exactSpelling = !/[^\x00-\x7f]/.test(raw) || names.some((name) => name?.toLocaleLowerCase(locale).startsWith(raw)) ? 0 : 1;
+    const found = best as { tier: number; length: number };
+    scored.push({ country, tier: found.tier, exactSpelling, length: found.length, index });
+  });
   return scored
-    .sort((a, b) => a.score - b.score || a.country.name.tr.localeCompare(b.country.name.tr, "tr"))
+    .sort((a, b) => a.tier - b.tier || a.exactSpelling - b.exactSpelling || a.length - b.length || a.index - b.index)
     .slice(0, limit)
     .map((entry) => entry.country);
 }
