@@ -5,11 +5,12 @@ import { Button } from "@/components/ui/button";
 import { useI18n } from "@/i18n";
 import { useDeviceCheck } from "@/domain/esim/device-check-session";
 import { V2Shell } from "./V2Shell";
+import { localize } from "@/i18n/overlay";
 
 type Platform = "ios" | "android";
 type Step = { label: string; title: string; ios: string; android: string; tip: string };
 
-const GUIDE = {
+const GUIDE = localize({
   tr: {
     back: "Geri", guideTitle: "Kurulum rehberi", titleFor: (d: string) => `${d} için eSIM kurulumu`, lead: "Aşağıdaki adımları takip ederek eSIM'inizi kolayca kurabilirsiniz.", iphone: "iOS (iPhone)", android: "Android", step: "Adım", tipLabel: "İpucu", previous: "Önceki", next: "Sonraki", verified: "eSIM uyumlu",
     doneTitle: "Kurulum tamamlandı!", doneBody: "Kurulum adımlarını tamamladınız. eSIM'inizi paketinizin aktivasyon koşullarına göre kullanabilirsiniz.", account: "eSIM'lerime git", support: "Yardım Merkezi", restart: "Baştan başla", sample: "Örnek görsel · taranamaz",
@@ -46,7 +47,7 @@ const GUIDE = {
       { label: "Done", title: "Done", ios: "", android: "", tip: "" },
     ] as Step[],
   },
-} as const;
+} as const);
 
 type Guide = (typeof GUIDE)[keyof typeof GUIDE];
 const LAST = 4;

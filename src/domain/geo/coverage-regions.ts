@@ -6,6 +6,7 @@
  */
 import type { Locale } from "@/domain/enums";
 import { getCountryByIso, type GeoRegion } from "./countries";
+import { localize } from "@/i18n/overlay";
 
 export type CoverageRegionKey =
   "GLOBAL" | "EUROPE" | "MIDDLE_EAST" | "ASIA" | "AMERICAS" | "AFRICA" | "OCEANIA" | "MULTI";
@@ -43,14 +44,14 @@ export const COVERAGE_REGION_ORDER: CoverageRegionKey[] = [
 ];
 
 export const COVERAGE_REGION_LABELS: Record<CoverageRegionKey, Record<Locale, string>> = {
-  GLOBAL: { tr: "Global", de: "Global", en: "Global" },
-  EUROPE: { tr: "Avrupa", de: "Europa", en: "Europe" },
-  MIDDLE_EAST: { tr: "Orta Doğu", de: "Naher Osten", en: "Middle East" },
-  ASIA: { tr: "Asya", de: "Asien", en: "Asia" },
-  AMERICAS: { tr: "Amerika", de: "Amerika", en: "Americas" },
-  AFRICA: { tr: "Afrika", de: "Afrika", en: "Africa" },
-  OCEANIA: { tr: "Okyanusya", de: "Ozeanien", en: "Oceania" },
-  MULTI: { tr: "Çoklu ülke", de: "Mehrere Länder", en: "Multi-country" },
+  GLOBAL: localize({ tr: "Global", de: "Global", en: "Global" }),
+  EUROPE: localize({ tr: "Avrupa", de: "Europa", en: "Europe" }),
+  MIDDLE_EAST: localize({ tr: "Orta Doğu", de: "Naher Osten", en: "Middle East" }),
+  ASIA: localize({ tr: "Asya", de: "Asien", en: "Asia" }),
+  AMERICAS: localize({ tr: "Amerika", de: "Amerika", en: "Americas" }),
+  AFRICA: localize({ tr: "Afrika", de: "Afrika", en: "Africa" }),
+  OCEANIA: localize({ tr: "Okyanusya", de: "Ozeanien", en: "Oceania" }),
+  MULTI: localize({ tr: "Çoklu ülke", de: "Mehrere Länder", en: "Multi-country" }),
 };
 
 const REGION_KEY: Record<GeoRegion, CoverageRegionKey> = {

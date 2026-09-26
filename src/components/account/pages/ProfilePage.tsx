@@ -27,9 +27,10 @@ import {
   requestAccountDeletion,
   updateCustomerProfile,
 } from "@/lib/customer-account.functions";
+import { localize } from "@/i18n/overlay";
 
 
-const LOCALE_LABELS: Record<Locale, string> = { tr: "Türkçe", de: "Deutsch", en: "English" };
+const LOCALE_LABELS: Record<Locale, string> = localize({ tr: "Türkçe", de: "Deutsch", en: "English" });
 
 export function ProfilePage() {
   const { locale, setLocale } = useI18n();

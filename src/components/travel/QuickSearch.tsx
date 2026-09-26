@@ -9,8 +9,9 @@ import { searchCountries, type Country } from "@/domain/geo/countries";
 import { searchAirports, type Airport } from "@/domain/geo/airports";
 import type { ServiceSlug } from "@/content/travel-content";
 import { CountryFlag } from "./CountryFlag";
+import { localize } from "@/i18n/overlay";
 
-const COPY = {
+const COPY = localize({
   tr: {
     esimPlaceholder: "Nereye gidiyorsun?",
     loungePlaceholder: "Hangi havalimanı?",
@@ -38,7 +39,7 @@ const COPY = {
     close: "Close search",
     empty: "No results.",
   },
-} as const;
+} as const);
 
 /**
  * Single service-aware entry field: country search for eSIM, airport search for

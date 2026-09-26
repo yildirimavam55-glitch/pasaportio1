@@ -37,8 +37,9 @@ import {
 import { useDeviceCheck } from "@/domain/esim/device-check-session";
 import { noopAnalyticsSink } from "@/domain/analytics";
 import type { Locale } from "@/domain/enums";
+import { localize } from "@/i18n/overlay";
 
-const COPY = {
+const COPY = localize({
   tr: {
     sectionTitle: "Telefonun eSIM uyumlu mu?",
     sectionLead: "Satın almadan önce birkaç saniyede kontrol et.",
@@ -160,7 +161,7 @@ const COPY = {
     checkedNot: "No eSIM support",
     productPrompt: "Does your phone support eSIM?",
   },
-} satisfies Record<Locale, Record<string, string>>;
+} satisfies Record<Locale, Record<string, string>>);
 
 type Copy = (typeof COPY)["tr"];
 
@@ -178,11 +179,11 @@ function StatusIcon({ status }: { status: CompatibilityStatus }) {
   return <CircleHelp className="size-5 shrink-0 text-cta" aria-hidden="true" />;
 }
 
-const EXTRA = {
+const EXTRA = localize({
   tr: { eyebrow: "CİHAZ UYUMLULUĞU", title: "Cihazınız eSIM ile uyumlu mu?", lead: "Marka ve modelinizi seçerek kolayca kontrol edin.", brandSelect: "Marka seçin", modelSelect: "Model seçin", checkCta: "Uyumluluğu kontrol et", okTitle: "Bu cihaz eSIM ile uyumlu ✓", okBody: (m: string) => `${m} cihazınız eSIM kullanımı için uygundur.`, notTitle: "Bu cihaz eSIM desteklemiyor", unknownTitle: "eSIM desteği doğrulanamadı", badge: "eSIM uyumlu" },
   de: { eyebrow: "GERÄTEKOMPATIBILITÄT", title: "Ist dein Gerät eSIM-fähig?", lead: "Wähle Marke und Modell und prüfe es ganz einfach.", brandSelect: "Marke wählen", modelSelect: "Modell wählen", checkCta: "Kompatibilität prüfen", okTitle: "Dieses Gerät ist eSIM-fähig ✓", okBody: (m: string) => `Dein ${m} ist für die eSIM-Nutzung geeignet.`, notTitle: "Dieses Gerät unterstützt keine eSIM", unknownTitle: "eSIM-Unterstützung nicht bestätigt", badge: "eSIM-fähig" },
   en: { eyebrow: "DEVICE COMPATIBILITY", title: "Is your device eSIM compatible?", lead: "Pick your brand and model to check in seconds.", brandSelect: "Select brand", modelSelect: "Select model", checkCta: "Check compatibility", okTitle: "This device is eSIM compatible ✓", okBody: (m: string) => `Your ${m} can use an eSIM.`, notTitle: "This device doesn't support eSIM", unknownTitle: "eSIM support not verified", badge: "eSIM compatible" },
-} as const;
+} as const);
 
 /** Generic, non-branded phone illustration (no manufacturer imagery). */
 function CheckerPhone({ badge }: { badge: string }) {

@@ -40,8 +40,9 @@ import destinationRouteAsset from "@/assets/destination-sila-yolu.jpg.asset.json
 import destinationTurkiyeAsset from "@/assets/destination-turkiye.jpg.asset.json";
 import esimCrossSellAsset from "@/assets/esim-cross-sell.jpg.asset.json";
 import loungeAsset from "@/assets/lounge-card.jpg.asset.json";
+import { localize } from "@/i18n/overlay";
 
-const COPY = {
+const COPY = localize({
   tr: {
     discover: "Keşfet",
     viewPackages: "Paketleri gör",
@@ -78,7 +79,7 @@ const COPY = {
     email: "Send by email",
     amenities: ["Wi-Fi", "Food", "Drinks", "Shower", "Quiet area"],
   },
-} as const;
+} as const);
 
 const DEFAULT_CARD_IMAGES: Record<string, string> = {
   tr: destinationTurkiyeAsset.url,
@@ -537,7 +538,7 @@ export function HowItWorks({ service, section }: { service: ServiceSlug } & Sect
   );
 }
 
-const ESIM_HOW_COPY = {
+const ESIM_HOW_COPY = localize({
   tr: {
     eyebrow: "eSIM nasıl çalışır?",
     headline: "3 adımda internete bağlan",
@@ -631,7 +632,7 @@ const ESIM_HOW_COPY = {
     },
     trust: ["Install in minutes", "No physical SIM needed", "Connect on arrival"],
   },
-} as const;
+} as const);
 
 function StepPhoneVisual({
   step,

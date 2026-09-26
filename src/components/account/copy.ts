@@ -1,7 +1,8 @@
 import type { Locale } from "@/domain/enums";
+import { localize } from "@/i18n/overlay";
 
 /** All customer-portal wording, reusing the app's existing locale set. */
-export const ACCOUNT_COPY = {
+export const ACCOUNT_COPY = localize({
   tr: {
     eyebrow: "Hesabım",
     nav: {
@@ -515,7 +516,7 @@ export const ACCOUNT_COPY = {
       noReference: "You have no order or eSIM yet.",
     },
   },
-} as const;
+} as const);
 
 export type AccountCopy = (typeof ACCOUNT_COPY)[Locale];
 

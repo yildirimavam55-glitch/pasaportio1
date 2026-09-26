@@ -1,4 +1,5 @@
 import type { Locale } from "@/domain/enums";
+import { localize } from "@/i18n/overlay";
 
 export type Localized<T> = Record<Locale, T>;
 export type ServiceSlug = "esim" | "lounge";
@@ -54,7 +55,7 @@ export type SharedHeroCopy = {
   trust: [string, string, string];
 };
 
-export const SHARED_HERO_CONTENT: Localized<SharedHeroCopy> = {
+export const SHARED_HERO_CONTENT: Localized<SharedHeroCopy> = localize({
   tr: {
     eyebrow: "Seyahatini kolaylaştır",
     headline: "Seyahatin için ihtiyacın olan her şey",
@@ -79,9 +80,9 @@ export const SHARED_HERO_CONTENT: Localized<SharedHeroCopy> = {
     cta: "Plan your trip",
     trust: ["Travel services in one place", "Fast and easy", "Secure checkout"],
   },
-};
+});
 
-export const GLOBAL_CONTENT: Localized<GlobalCopy> = {
+export const GLOBAL_CONTENT: Localized<GlobalCopy> = localize({
   tr: {
     nav: {
       esim: "eSIM",
@@ -138,9 +139,9 @@ export const GLOBAL_CONTENT: Localized<GlobalCopy> = {
     error: "This section could not be loaded.",
     retry: "Try again",
   },
-};
+});
 
-export const ESIM_CONTENT: Localized<ServiceCopy> = {
+export const ESIM_CONTENT: Localized<ServiceCopy> = localize({
   tr: {
     eyebrow: "Seyahat eSIM’i",
     headline: "Seyahatinde internetsiz kalma",
@@ -204,9 +205,9 @@ export const ESIM_CONTENT: Localized<ServiceCopy> = {
     crossSellTitle: "Relax before your flight",
     crossSellDescription: "When it fits your flight, add a Lounge to your journey.",
   },
-};
+});
 
-export const LOUNGE_CONTENT: Localized<ServiceCopy> = {
+export const LOUNGE_CONTENT: Localized<ServiceCopy> = localize({
   tr: {
     eyebrow: "Havalimanı Lounge",
     headline: "Seyahatinde konforu yanına al",
@@ -272,7 +273,7 @@ export const LOUNGE_CONTENT: Localized<ServiceCopy> = {
     crossSellTitle: "Be connected when you land",
     crossSellDescription: "A destination eSIM can make the rest of your journey easier.",
   },
-};
+});
 
 export function localized<T>(content: Localized<T>, locale: Locale): T {
   return mergeFallback(content.tr, content[locale]);

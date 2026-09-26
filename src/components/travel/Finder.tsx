@@ -57,8 +57,9 @@ import { activationNote } from "@/domain/esim/activation";
 import { useCart } from "@/domain/cart/store";
 import { CountryFlag } from "./CountryFlag";
 import { Reveal } from "./Reveal";
+import { localize } from "@/i18n/overlay";
 
-const COPY = {
+const COPY = localize({
   tr: {
     tripMode: "Seyahatin nasıl?",
     single: "Tek destinasyon",
@@ -263,9 +264,9 @@ const COPY = {
     remove: "Remove",
     route: "Your route",
   },
-} satisfies Record<Locale, Record<string, unknown>>;
+} satisfies Record<Locale, Record<string, unknown>>);
 
-const USAGE_LABELS: Record<Locale, Record<UsageKind, string>> = {
+const USAGE_LABELS: Record<Locale, Record<UsageKind, string>> = localize({
   tr: {
     MESSAGING: "Mesajlaşma",
     SOCIAL: "Sosyal medya",
@@ -293,7 +294,7 @@ const USAGE_LABELS: Record<Locale, Record<UsageKind, string>> = {
     GAMING: "Gaming",
     HOTSPOT: "Hotspot",
   },
-};
+});
 
 const USAGE_ITEMS: Array<{ key: UsageKind; icon: React.ReactNode }> = [
   { key: "MESSAGING", icon: <MessageCircle /> },

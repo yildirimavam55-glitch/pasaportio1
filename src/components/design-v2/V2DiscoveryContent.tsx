@@ -12,8 +12,9 @@ import { useI18n } from "@/i18n";
 import { listFeaturedGuides } from "@/lib/guides.functions";
 import { SectionTitle } from "./V2Shell";
 import { V2InstallAnimation } from "./V2InstallAnimation";
+import { localize } from "@/i18n/overlay";
 
-const COPY = {
+const COPY = localize({
   tr: {
     dataTitle: "Ne kadar internet kullanırım?",
     dataLead: "Kullanım kişiden kişiye değişir; bunlar karşılaştırma için yaklaşık göstergelerdir.",
@@ -116,7 +117,7 @@ const COPY = {
       ["Can I keep using my physical SIM?", "Many compatible devices can manage both lines. The model, regional variant, and carrier settings still matter."],
     ],
   },
-} as const;
+} as const);
 
 const usageIcons = [MessageCircle, Navigation, Smartphone, Play, PhoneCall];
 

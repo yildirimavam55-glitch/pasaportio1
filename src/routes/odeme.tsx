@@ -7,12 +7,13 @@ import { V2Card, V2PageTitle, V2State } from "@/components/design-v2/V2States";
 import { useCart } from "@/domain/cart/store";
 import { useI18n } from "@/i18n";
 import { CART_COPY, lineFacts, lineTitle } from "@/components/design-v2/cart-copy";
+import { localize } from "@/i18n/overlay";
 
-const COPY = {
+const COPY = localize({
   tr: { title: "Ödeme", back: "Sepete dön", summary: "Sipariş özeti", account: "Hesap", signedAs: "Giriş yapıldı", signIn: "Siparişi hesabına bağlamak için giriş yap", signInCta: "Giriş yap", payment: "Ödeme", notLive: "Ödeme henüz aktif değil", notLiveText: "Şu anda gerçek ödeme alınmıyor. Ödeme yöntemi bağlandığında siparişini buradan tamamlayabilirsin.", cta: "Ödeme entegrasyonu bekleniyor", empty: "Sepetin boş", browse: "eSIM paketlerine bak" },
   de: { title: "Kasse", back: "Zurück zum Warenkorb", summary: "Bestellübersicht", account: "Konto", signedAs: "Angemeldet", signIn: "Melde dich an, um die Bestellung deinem Konto zuzuordnen", signInCta: "Anmelden", payment: "Zahlung", notLive: "Zahlung noch nicht aktiv", notLiveText: "Derzeit wird keine echte Zahlung eingezogen. Sobald ein Zahlungsanbieter angebunden ist, schließt du hier ab.", cta: "Zahlungsintegration ausstehend", empty: "Dein Warenkorb ist leer", browse: "eSIM-Pakete ansehen" },
   en: { title: "Checkout", back: "Back to cart", summary: "Order summary", account: "Account", signedAs: "Signed in", signIn: "Sign in to link this order to your account", signInCta: "Sign in", payment: "Payment", notLive: "Payment is not active yet", notLiveText: "No real payment is taken right now. Once a payment provider is connected you can complete your order here.", cta: "Payment integration pending", empty: "Your cart is empty", browse: "Browse eSIM packages" },
-};
+});
 
 export const Route = createFileRoute("/odeme")({
   ssr: false,

@@ -9,6 +9,7 @@ import { waLink } from "@/lib/whatsapp";
 import { useCart } from "@/domain/cart/store";
 import { useI18n } from "@/i18n";
 import type { Locale } from "@/domain/enums";
+import { localize } from "@/i18n/overlay";
 
 export type V2Service = "esim" | "lounge" | "vignette";
 
@@ -100,11 +101,11 @@ export function V2StickySearchButton({ heroSearchVisible, label, onOpen }: { her
   );
 }
 
-export const NAV_LABELS = {
+export const NAV_LABELS = localize({
   tr: { cart: "Sepet", account: "Hesabım" },
   de: { cart: "Warenkorb", account: "Konto" },
   en: { cart: "Cart", account: "Account" },
-};
+});
 
 function useNavItems() {
   const { locale } = useI18n();
@@ -289,11 +290,11 @@ export function HowItWorks({ title, steps }: { title: string; steps: Array<{ t: 
   );
 }
 
-const DOCK = {
+const DOCK = localize({
   tr: { cart: "Sepete git", wa: "WhatsApp destek" },
   de: { cart: "Zum Warenkorb", wa: "WhatsApp-Support" },
   en: { cart: "Go to cart", wa: "WhatsApp support" },
-};
+});
 
 /**
  * One docked row above the bottom nav: existing cart CTA (when it has items) + WhatsApp.

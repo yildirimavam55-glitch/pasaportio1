@@ -5,6 +5,7 @@ import loungeMobileHero from "@/assets/lounge-hero-mobile.jpg";
 import { AIRPORTS, getAirport } from "@/domain/geo/airports";
 import { COUNTRIES, getCountryByIso } from "@/domain/geo/countries";
 import type { AirportRef, CountryRef, EsimServiceConfig, LoungeServiceConfig, SectionConfig } from "./types";
+import { localize } from "@/i18n/overlay";
 
 export const BRAND = { name: "travely", logoLabel: "travely", mark: "signal" } as const;
 
@@ -39,15 +40,15 @@ export const ESIM_SERVICE_CONFIG: EsimServiceConfig = {
     desktopSrc: esimDesktopHero,
     mobileSrc: esimMobileHero,
     fallbackSrc: esimDesktopHero,
-    alt: {
+    alt: localize({
       tr: "Akdeniz kıyısında telefonuyla seyahat eden gezgin",
       de: "Reisende mit Smartphone an der Mittelmeerküste",
       en: "Traveler using a smartphone on the Mediterranean coast",
-    },
+    }),
     focalPosition: "center",
   },
   routePresets: [
-    { id: "sila-yolu", icon: "route", active: true, featured: true, name: { tr: "Sıla Yolu", de: "Sıla Yolu", en: "Sıla Yolu" }, stops: SILA_STOPS },
+    { id: "sila-yolu", icon: "route", active: true, featured: true, name: localize({ tr: "Sıla Yolu", de: "Sıla Yolu", en: "Sıla Yolu" }), stops: SILA_STOPS },
   ],
   initialState: { tripMode: "single", destinationId: "country-tr", days: 10, travelers: 1, usage: ["MESSAGING", "SOCIAL", "MAPS"], intensity: "NORMAL", routeStops: [], presetId: null },
 };
@@ -63,11 +64,11 @@ export const LOUNGE_SERVICE_CONFIG: LoungeServiceConfig = {
     desktopSrc: loungeDesktopHero,
     mobileSrc: loungeMobileHero,
     fallbackSrc: loungeDesktopHero,
-    alt: {
+    alt: localize({
       tr: "Gün batımında havalimanı Lounge alanında dinlenen yolcu",
       de: "Reisende in einer Flughafen-Lounge bei Sonnenuntergang",
       en: "Traveler relaxing in an airport Lounge at sunset",
-    },
+    }),
     focalPosition: "center",
   },
   airports: airportRefs,

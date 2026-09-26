@@ -1,4 +1,6 @@
+import { translateString } from "@/i18n/overlay";
 import type { Locale } from "@/domain/enums";
+import { localize } from "@/i18n/overlay";
 
 /**
  * Controlled Section Registry for the no-code storefront editor.
@@ -233,8 +235,8 @@ export const FIELD_LABELS: Record<string, string> = {
   note2: "Not 2",
 };
 
-const text = (tr: string, de: string, en: string): LocaleText => ({ tr, de, en });
-const empty = (): LocaleText => ({ tr: "", de: "", en: "" });
+const text = (tr: string, de: string, en: string): LocaleText => localize(({ tr, de, en }));
+const empty = (): LocaleText => localize(({ tr: "", de: "", en: "" }));
 
 function section(
   input: Partial<StorefrontSection> & { id: string; type: SectionType },
@@ -1063,11 +1065,11 @@ const href = (value: unknown) => {
   if (!raw.startsWith("/") || raw.startsWith("//") || raw.startsWith("/admin")) return "";
   return raw;
 };
-const localeText = (value: unknown, max = 900): LocaleText => ({
+const localeText = (value: unknown, max = 900): LocaleText => localize(({
   tr: str((value as any)?.tr, max),
   de: str((value as any)?.de, max),
   en: str((value as any)?.en, max),
-});
+}));
 
 function sanitizeItem(raw: any, index: number): SectionItem {
   return {
@@ -1177,7 +1179,8 @@ export function tx(
 }
 
 export function itemText(value: LocaleText | undefined, locale: Locale, fallback = ""): string {
-  return (value?.[locale] || value?.tr || fallback).trim() || fallback;
+  const text = (value?.[locale] || value?.tr || fallback).trim() || fallback;
+  return locale === "en" ? translateString(text) : text;
 }
 
 export function missingLocales(config: StorefrontConfig, locale: "de" | "en"): number {

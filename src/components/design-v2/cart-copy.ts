@@ -1,12 +1,13 @@
 import type { CartLine } from "@/domain/cart/store";
 import type { Locale } from "@/domain/enums";
 import { customerCataloguePackageTitle } from "@/domain/esim/customer-presentation";
+import { localize } from "@/i18n/overlay";
 
-export const CART_COPY = {
+export const CART_COPY = localize({
   tr: { title: "Sepet", lead: "Seçtiğin paketleri kontrol et.", empty: "Sepetin boş", emptyText: "Bir ülke seç ve paketini ekle.", browse: "eSIM paketlerine bak", days: "gün", countries: "ülke", unit: "Birim", qty: "Adet", remove: "Kaldır", total: "Toplam", review: "Siparişi gözden geçir", dec: "Azalt", inc: "Artır", test: "TEST" },
   de: { title: "Warenkorb", lead: "Prüfe deine ausgewählten Pakete.", empty: "Dein Warenkorb ist leer", emptyText: "Wähle ein Land und füge ein Paket hinzu.", browse: "eSIM-Pakete ansehen", days: "Tage", countries: "Länder", unit: "Stück", qty: "Anzahl", remove: "Entfernen", total: "Gesamt", review: "Bestellung prüfen", dec: "Weniger", inc: "Mehr", test: "TEST" },
   en: { title: "Cart", lead: "Review your selected packages.", empty: "Your cart is empty", emptyText: "Pick a country and add a package.", browse: "Browse eSIM packages", days: "days", countries: "countries", unit: "Unit", qty: "Qty", remove: "Remove", total: "Total", review: "Review order", dec: "Decrease", inc: "Increase", test: "TEST" },
-};
+});
 
 /** Same line facts as the production cart, just laid out for V2. */
 export function lineFacts(line: CartLine, c: (typeof CART_COPY)["tr"]) {

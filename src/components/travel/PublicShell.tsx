@@ -41,36 +41,37 @@ import { CountryFlag } from "./CountryFlag";
 import { StickyQuickSearch } from "./StickyQuickSearch";
 import { useThemePreference, type ThemePreference } from "@/components/ThemePreference";
 import { useCart } from "@/domain/cart/store";
+import { localize } from "@/i18n/overlay";
 
 /** Flag shown next to each language (language, not location). */
-const LOCALE_FLAG: Record<UiLocale, string> = {
+const LOCALE_FLAG: Record<UiLocale, string> = localize({
   tr: "TR", de: "DE", en: "GB", fr: "FR", es: "ES", it: "IT", pt: "PT",
   nl: "NL", pl: "PL", ar: "SA", ru: "RU", ja: "JP", ko: "KR", zh: "CN",
-};
+});
 
-const ACCOUNT_COPY = {
+const ACCOUNT_COPY = localize({
   tr: { trips: "Seyahatlerim", signIn: "Giriş yap", signOut: "Çıkış yap" },
   de: { trips: "Meine Reisen", signIn: "Anmelden", signOut: "Abmelden" },
   en: { trips: "My trips", signIn: "Sign in", signOut: "Sign out" },
-} as const;
+} as const);
 
-const THEME_COPY = {
+const THEME_COPY = localize({
   tr: { title: "Görünüm", light: "Açık", dark: "Koyu", system: "Sistem" },
   de: { title: "Darstellung", light: "Hell", dark: "Dunkel", system: "System" },
   en: { title: "Appearance", light: "Light", dark: "Dark", system: "System" },
-} as const;
+} as const);
 
-const MENU_CLOSE_LABEL = {
+const MENU_CLOSE_LABEL = localize({
   tr: "Menüyü kapat",
   de: "Menü schließen",
   en: "Close menu",
-} as const;
+} as const);
 
-const WHATSAPP_LABEL = {
+const WHATSAPP_LABEL = localize({
   tr: "WhatsApp destek",
   de: "WhatsApp-Support",
   en: "WhatsApp support",
-} as const;
+} as const);
 
 function Brand() {
   return (

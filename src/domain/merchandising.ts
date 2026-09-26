@@ -1,4 +1,5 @@
 import { LOCALES, type Locale } from "@/domain/enums";
+import { localize } from "@/i18n/overlay";
 
 /**
  * Merchandising content shared by destinations, airports, route presets and
@@ -19,7 +20,7 @@ export type MarketingContent = {
 const strip = (value: unknown, max: number) =>
   String(value ?? "").replace(/<[^>]*>/g, "").slice(0, max).trim();
 
-export const emptyLocaleText = (): LocaleText => ({ tr: "", de: "", en: "" });
+export const emptyLocaleText = (): LocaleText => localize(({ tr: "", de: "", en: "" }));
 
 export function sanitizeLocaleText(raw: unknown, max = 400): LocaleText {
   const out = emptyLocaleText();

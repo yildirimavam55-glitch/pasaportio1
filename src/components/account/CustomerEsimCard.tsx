@@ -41,8 +41,9 @@ import {
   getCustomerEsimActivation,
   type CustomerEsimRecord,
 } from "@/lib/customer-account.functions";
+import { localize } from "@/i18n/overlay";
 
-const STATUS_LABELS: Record<Locale, Record<CustomerEsimStatus, string>> = {
+const STATUS_LABELS: Record<Locale, Record<CustomerEsimStatus, string>> = localize({
   tr: {
     PREPARING: "Hazırlanıyor",
     READY: "Kuruluma hazır",
@@ -70,7 +71,7 @@ const STATUS_LABELS: Record<Locale, Record<CustomerEsimStatus, string>> = {
     CANCELLED: "Cancelled",
     SUPPORT: "Issue occurred",
   },
-};
+});
 
 const STATUS_TONE: Record<CustomerEsimStatus, string> = {
   PREPARING: "border-info/20 bg-info/10 text-info",

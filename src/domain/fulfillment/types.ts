@@ -1,4 +1,5 @@
 import type { Locale } from "@/domain/enums";
+import { localize } from "@/i18n/overlay";
 
 /** Payment status and fulfillment status are deliberately separate domains. */
 export type CustomerPaymentState = "PAYMENT_PENDING" | "PAYMENT_CONFIRMED" | "PAYMENT_FAILED" | "REFUNDED";
@@ -91,7 +92,7 @@ export const FULFILLMENT_COPY: Record<
     deliveryEmailLabel: string;
     deliveryEmailHelp: string;
   }
-> = {
+> = localize({
   tr: {
     payment: { PAYMENT_PENDING: "Ödeme bekleniyor", PAYMENT_CONFIRMED: "Ödeme alındı", PAYMENT_FAILED: "Ödeme tamamlanmadı", REFUNDED: "İade edildi" },
     fulfillment: { FULFILLMENT_PROCESSING: "Hazırlanıyor", READY: "Hazır", DELIVERY_EMAIL_FAILED: "Hazır · e-posta gönderilemedi", FULFILLMENT_FAILED: "Destek gerekiyor" },
@@ -134,4 +135,4 @@ export const FULFILLMENT_COPY: Record<
     deliveryEmailLabel: "Delivery email",
     deliveryEmailHelp: "Your eSIM / Lounge delivery details go to this address.",
   },
-};
+});
