@@ -1,5 +1,20 @@
 import type { Locale } from "@/domain/enums";
 import { COUNTRY_ROWS, POPULAR_COUNTRY_ISOS } from "./country-data";
+import { getActiveUiLocale } from "@/i18n/overlay";
+import { LOCALE_REGISTRY, UI_LOCALES } from "@/i18n/locales";
+
+/** Localized display name from ISO code (presentation only; the ISO identity never changes). */
+const displayNames = new Map<string, Intl.DisplayNames | null>();
+function intlCountryName(iso: string, bcp47: string): string | undefined {
+  if (!displayNames.has(bcp47)) {
+    try { displayNames.set(bcp47, new Intl.DisplayNames([bcp47], { type: "region" })); } catch { displayNames.set(bcp47, null); }
+  }
+  try { const n = displayNames.get(bcp47)?.of(iso); return n && n !== iso ? n : undefined; } catch { return undefined; }
+}
+/** Names in the overlay languages (fr, es, …) so customers can search in their own language. */
+function overlayNames(iso: string): string[] {
+  return UI_LOCALES.filter((c) => LOCALE_REGISTRY[c].content !== c).flatMap((c) => intlCountryName(iso, LOCALE_REGISTRY[c].bcp47) ?? []);
+}
 
 export type GeoRegion = "EUROPE" | "ASIA" | "AMERICAS" | "AFRICA" | "OCEANIA";
 
@@ -70,8 +85,15 @@ export const COUNTRIES: Country[] = COUNTRY_ROWS.map((row) => {
     iso,
     flag: flagOf(iso),
     region: region as GeoRegion,
-    name: { tr, de, en },
-    aliases: [tr, de, en, iso, ...(EXTRA_ALIASES[iso] ?? [])].map(foldText),
+    name: {
+      tr, de,
+      // `.en` doubles as the display name for overlay languages (fr, es, …).
+      get en() {
+        const ui = getActiveUiLocale();
+        return LOCALE_REGISTRY[ui].content === "en" && ui !== "en" ? (intlCountryName(iso, LOCALE_REGISTRY[ui].bcp47) ?? en) : en;
+      },
+    },
+    aliases: [...new Set([tr, de, en, iso, ...(EXTRA_ALIASES[iso] ?? []), ...overlayNames(iso)].map(foldText))].filter(Boolean),
   };
 }).sort((a, b) => a.name.tr.localeCompare(b.name.tr, "tr"));
 
