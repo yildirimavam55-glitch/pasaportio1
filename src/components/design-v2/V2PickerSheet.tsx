@@ -2,6 +2,7 @@ import { Check, Search } from "lucide-react";
 import { useLayoutEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import { beginPickerPress, completePickerPress, isDuplicatePickerClick, movePickerPress, type PickerPress } from "./picker-interaction";
 
 export type V2PickerItem = {
   id: string;
@@ -38,6 +39,9 @@ export function V2PickerSheet({
 }) {
   const previousScroll = useRef<{ x: number; y: number } | null>(null);
   const inputRef = useRef<HTMLInputElement | null>(null);
+  const pressRef = useRef<PickerPress | null>(null);
+  const pendingViewportRef = useRef<{ top: number; height: number; width: number } | null>(null);
+  const lastPointerSelectionRef = useRef<{ id: string; at: number } | null>(null);
   const [inputFocused, setInputFocused] = useState(false);
   const [visibleViewport, setVisibleViewport] = useState<{ top: number; height: number; width: number } | null>(null);
 
@@ -61,6 +65,10 @@ export function V2PickerSheet({
         height: Math.max(0, Math.round(viewport?.height ?? window.innerHeight)),
         width: Math.max(0, Math.round(viewport?.width ?? window.innerWidth)),
       };
+      if (pressRef.current) {
+        pendingViewportRef.current = next;
+        return;
+      }
       setVisibleViewport((current) => current?.top === next.top && current?.height === next.height && current?.width === next.width ? current : next);
     };
     update();
@@ -77,6 +85,25 @@ export function V2PickerSheet({
   const handleOpenChange = (nextOpen: boolean) => {
     if (nextOpen) previousScroll.current = { x: window.scrollX, y: window.scrollY };
     onOpenChange(nextOpen);
+  };
+
+  const finishPress = () => {
+    pressRef.current = null;
+    const pendingViewport = pendingViewportRef.current;
+    pendingViewportRef.current = null;
+    if (pendingViewport) setVisibleViewport(pendingViewport);
+    setInputFocused(document.activeElement === inputRef.current);
+  };
+
+  const commitPointerSelection = (id: string, pointerId: number) => {
+    const selectedId = completePickerPress(pressRef.current, pointerId);
+    if (!selectedId || selectedId !== id) {
+      finishPress();
+      return;
+    }
+    lastPointerSelectionRef.current = { id, at: performance.now() };
+    pressRef.current = null;
+    onSelect(id);
   };
 
   const keyboardOpen = inputFocused && Boolean(visibleViewport && visibleViewport.width < 640);
@@ -118,7 +145,11 @@ export function V2PickerSheet({
             value={query}
             onChange={(event) => onQueryChange(event.target.value)}
             onFocus={() => setInputFocused(true)}
-            onBlur={() => setInputFocused(false)}
+            onBlur={() => {
+              // Keep the keyboard layout stable until a result tap or scroll
+              // gesture resolves. iOS can blur before dispatching its click.
+              if (!pressRef.current) setInputFocused(false);
+            }}
             placeholder={searchLabel}
             aria-label={searchLabel}
             className="min-w-0 flex-1 bg-transparent text-sm text-foreground outline-none placeholder:text-muted-foreground"
@@ -134,8 +165,25 @@ export function V2PickerSheet({
                     <Button
                       type="button"
                       variant="ghost"
-                      onClick={() => onSelect(item.id)}
-                      className="grid h-auto min-h-14 w-full grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 rounded-none px-3 py-2 text-left"
+                      onPointerDown={(event) => {
+                        pressRef.current = beginPickerPress(item.id, event.pointerId, event.clientX, event.clientY);
+                      }}
+                      onPointerMove={(event) => {
+                        pressRef.current = movePickerPress(pressRef.current, event.pointerId, event.clientX, event.clientY);
+                      }}
+                      onPointerCancel={finishPress}
+                      onPointerUp={(event) => commitPointerSelection(item.id, event.pointerId)}
+                      onClick={(event) => {
+                        // Keyboard and assistive activations have no pointer
+                        // click count and must always retain native behavior.
+                        if (event.detail === 0) {
+                          onSelect(item.id);
+                          return;
+                        }
+                        if (isDuplicatePickerClick(lastPointerSelectionRef.current, item.id, performance.now())) return;
+                        onSelect(item.id);
+                      }}
+                      className="grid h-auto min-h-14 w-full touch-pan-y grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 rounded-none px-3 py-2 text-left"
                     >
                       {item.leading && <span className="shrink-0">{item.leading}</span>}
                       <span className="min-w-0">
