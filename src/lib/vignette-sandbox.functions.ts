@@ -49,18 +49,22 @@ export const getVignetteSandbox = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     const db = await adminDb(context as AdminCtx);
-    const [latest, lastOk] = await Promise.all([
-      db.from("vignette_supplier_snapshots").select("id, http_status, ok, error, product_count, raw_response, created_at").order("created_at", { ascending: false }).limit(1).maybeSingle(),
+    const [latest, lastOk, catalogue] = await Promise.all([
+      db.from("vignette_supplier_snapshots").select("id, http_status, ok, error, product_count, created_at").order("created_at", { ascending: false }).limit(1).maybeSingle(),
       db.from("vignette_supplier_snapshots").select("created_at, product_count").eq("ok", true).order("created_at", { ascending: false }).limit(1).maybeSingle(),
+      db.from("vignette_supplier_snapshots").select("created_at, raw_response").eq("ok", true).not("raw_response", "is", null).order("created_at", { ascending: false }).limit(1).maybeSingle(),
     ]);
-    if (latest.error) throw new Error(latest.error.message);
-    if (lastOk.error) throw new Error(lastOk.error.message);
+    for (const q of [latest, lastOk, catalogue]) if (q.error) throw new Error(q.error.message);
+    const raw = catalogue.data?.raw_response ?? null;
     return {
       environment: "SANDBOX" as const,
       endpoint: `${SANDBOX_BASE}${PRODUCTS_PATH}`,
       keyConfigured: Boolean(process.env["VIGNETTE_ID_SANDBOX_API_KEY"]),
       latest: latest.data ?? null,
       lastSuccessAt: (lastOk.data?.created_at as string | undefined) ?? null,
+      catalogueAt: (catalogue.data?.created_at as string | undefined) ?? null,
+      raw,
+      products: extractProducts(raw),
     };
   });
 
