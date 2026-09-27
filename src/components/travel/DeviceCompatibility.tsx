@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, type ReactNode } from "react";
+import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import {
@@ -35,7 +35,7 @@ import {
   type DeviceRecord,
 } from "@/domain/esim/device-compatibility";
 import { useDeviceCheck } from "@/domain/esim/device-check-session";
-import { detectDeviceFromSignals, type DeviceDetection } from "@/domain/esim/device-detection";
+import { detectDeviceFromSignals, resolveCheckerPrefill, type DeviceDetection } from "@/domain/esim/device-detection";
 import { noopAnalyticsSink } from "@/domain/analytics";
 import type { Locale } from "@/domain/enums";
 import { localize } from "@/i18n/overlay";
@@ -602,7 +602,7 @@ export function DeviceCompatibilityProductCard() {
         {verified ? <StatusIcon status={result} /> : <Smartphone className="size-4" aria-hidden="true" />}
       </span>
       <span className="min-w-0"><strong className="block text-xs leading-4 text-foreground sm:text-sm">{title}</strong><span className="block text-[11px] leading-4 text-muted-foreground sm:text-xs">{lead}</span></span>
-      <DeviceCheckSheet surface="v2-country" trigger={<Button type="button" size="sm" className="h-auto min-h-9 max-w-[7.5rem] shrink-0 whitespace-normal rounded-full px-2.5 py-1 text-center text-[11px] leading-tight sm:max-w-none sm:px-3 sm:text-xs">{action}<ChevronRight className="size-3.5 shrink-0" /></Button>} />
+      <DeviceCheckSheet surface="v2-country" detection={detected} trigger={<Button type="button" size="sm" className="h-auto min-h-9 max-w-[7.5rem] shrink-0 whitespace-normal rounded-full px-2.5 py-1 text-center text-[11px] leading-tight sm:max-w-none sm:px-3 sm:text-xs">{action}<ChevronRight className="size-3.5 shrink-0" /></Button>} />
     </div>
   );
 }
