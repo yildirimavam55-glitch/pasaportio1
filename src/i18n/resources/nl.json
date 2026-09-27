@@ -132,7 +132,7 @@
   "Countries covered": "Gedekte landen",
   "Countries, validity periods and prices will appear here once products are published.": "Landen, geldigheidsperioden en prijzen verschijnen hier zodra producten zijn gepubliceerd.",
   "Country (2 letters)": "Land (2 letters)",
-  "Coverage": "Bereik",
+  "Coverage": "Dekking",
   "Create account": "Account aanmaken",
   "Create your travel account": "Maak je reisaccount aan",
   "Current password": "Huidig wachtwoord",
@@ -741,5 +741,16 @@
   "min stay": "min. verblijf",
   "or": "of",
   "total": "totaal",
-  "© Travel Platform": "© Travel Platform"
+  "© Travel Platform": "© Travel Platform",
+  "Information about your selected eSIM package.": "Informatie over je gekozen eSIM-pakket.",
+  "Total data available to use.": "Totaal beschikbare data.",
+  "Unlimited data package.": "Pakket met onbeperkte data.",
+  "How long the package is valid.": "Geldigheidsduur van het pakket.",
+  "Destination covered by this package.": "Bestemming die dit pakket dekt.",
+  "Countries covered by this package.": "Landen die dit pakket dekt.",
+  "See countries": "Landen bekijken",
+  "Hide list": "Lijst verbergen",
+  "Connection": "Verbinding",
+  "Supported network technology.": "Ondersteunde netwerktechnologie.",
+  "Available network technology may vary by location, device and local network conditions.": "Beschikbare netwerktechnologie kan variëren per locatie, toestel en lokaal netwerk."
 }
