@@ -4,7 +4,6 @@ import { ArrowRight, Car, Plane, Search, ShoppingBag, Smartphone, UserRound } fr
 import { Button } from "@/components/ui/button";
 import { V2Context } from "./v2-context";
 import { PublicShell } from "@/components/travel/PublicShell";
-import { WhatsAppLogo } from "@/components/travel/WhatsAppLogo";
 import { WhatsAppSupportWidget } from "@/components/travel/WhatsAppSupportWidget";
 import { useCart } from "@/domain/cart/store";
 import { useI18n } from "@/i18n";
