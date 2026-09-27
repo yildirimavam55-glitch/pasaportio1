@@ -107,6 +107,29 @@ function SettingsPage() {
               </div>
             </AdminPanel>
 
+            <AdminPanel
+              title="WhatsApp destek kartı"
+              action={<div className="flex gap-1">{LOCALES.map((value) => <Button key={value} size="sm" variant={locale === value ? "secondary" : "ghost"} onClick={() => setLocale(value)}>{LOCALE_LABEL[value]}</Button>)}</div>}
+            >
+              <p className="text-xs text-muted-foreground">Yüzen WhatsApp butonuna ilk dokunuşta açılan kart. WhatsApp numarası mevcut yapılandırmadan gelir. Boş bırakılan alanlarda varsayılan çevrili metin kullanılır.</p>
+              <label className="mt-3 flex items-center gap-2 text-xs font-semibold">
+                <input type="checkbox" checked={form.whatsappWidget.enabled} onChange={(event) => set({ whatsappWidget: { ...form.whatsappWidget, enabled: event.target.checked } })} />
+                Widget açık
+              </label>
+              <div className="mt-3 grid gap-3 sm:grid-cols-2">
+                {([
+                  ["title", "Başlık", "travely Destek"],
+                  ["cta", "Buton metni", "WhatsApp'ta destek al"],
+                  ["message", "Kart mesajı", ""],
+                  ["prefill", "WhatsApp'a hazır mesaj (müşteri kendisi gönderir)", "Merhaba, travely hakkında destek almak istiyorum."],
+                ] as const).map(([key, label, placeholder]) => (
+                  <Field key={key} label={label}>
+                    <textarea rows={key === "message" ? 3 : 1} className="admin-field mt-1 w-full" placeholder={placeholder} value={form.whatsappWidget[key][locale]} onChange={(event) => set({ whatsappWidget: { ...form.whatsappWidget, [key]: { ...form.whatsappWidget[key], [locale]: event.target.value } } })} />
+                  </Field>
+                ))}
+              </div>
+            </AdminPanel>
+
             <AdminPanel title="Güvenlik">
               <p className="flex items-start gap-2 text-xs text-muted-foreground"><ShieldCheck className="size-4 shrink-0 text-success" />Sağlayıcı anahtarları, ödeme anahtarları ve veritabanı erişim bilgileri bu ekranda tutulmaz ve hiçbir yönetim ekranında gösterilmez.</p>
             </AdminPanel>

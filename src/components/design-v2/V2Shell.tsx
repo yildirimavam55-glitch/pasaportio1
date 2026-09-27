@@ -4,8 +4,7 @@ import { ArrowRight, Car, Plane, Search, ShoppingBag, Smartphone, UserRound } fr
 import { Button } from "@/components/ui/button";
 import { V2Context } from "./v2-context";
 import { PublicShell } from "@/components/travel/PublicShell";
-import { WhatsAppLogo } from "@/components/travel/WhatsAppLogo";
-import { waLink } from "@/lib/whatsapp";
+import { WhatsAppSupportWidget } from "@/components/travel/WhatsAppSupportWidget";
 import { useCart } from "@/domain/cart/store";
 import { useI18n } from "@/i18n";
 import type { Locale } from "@/domain/enums";
@@ -317,18 +316,7 @@ function ActionDock({ showCart, showWhatsApp, purchaseSummary }: { showCart: boo
             <span className="grid h-7 min-w-7 shrink-0 place-items-center rounded-full bg-primary-foreground/15 px-2 text-xs">{count}</span>
           </Link>
         )}
-        {showWhatsApp && (
-          <a
-            href={waLink()}
-            target="_blank"
-            rel="noopener noreferrer"
-            aria-label={l.wa}
-            className="pointer-events-auto grid size-[3.25rem] shrink-0 place-items-center rounded-full shadow-lg hover:brightness-95"
-            style={{ backgroundColor: "#25D366", color: "#fff" }}
-          >
-            <WhatsAppLogo className="size-6" />
-          </a>
-        )}
+        {showWhatsApp && <WhatsAppSupportWidget surface="v2-dock" />}
       </div>
     </div>
   );

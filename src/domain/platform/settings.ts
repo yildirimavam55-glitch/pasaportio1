@@ -25,7 +25,17 @@ export type PlatformSettings = {
       checkoutMessage: SettingsText;
     }
   >;
+  /** Floating WhatsApp support preview. Empty texts fall back to built-in localized copy; the number stays in src/lib/whatsapp.ts. */
+  whatsappWidget: {
+    enabled: boolean;
+    title: SettingsText;
+    message: SettingsText;
+    cta: SettingsText;
+    prefill: SettingsText;
+  };
 };
+
+const EMPTY_TEXT = (): SettingsText => ({ tr: "", de: "", en: "" });
 
 const t = (tr: string, de: string, en: string): SettingsText => ({ tr, de, en });
 
@@ -75,6 +85,7 @@ export const DEFAULT_SETTINGS: PlatformSettings = {
       ),
     },
   },
+  whatsappWidget: { enabled: true, title: EMPTY_TEXT(), message: EMPTY_TEXT(), cta: EMPTY_TEXT(), prefill: EMPTY_TEXT() },
 };
 
 const clean = (value: unknown, max: number, fallback = ""): string => {
@@ -103,6 +114,14 @@ export function sanitizeSettings(raw: any): PlatformSettings {
       checkoutMessage: cleanText(value.checkoutMessage, fallback.checkoutMessage),
     };
   }
+  const wa = source?.whatsappWidget ?? {};
+  const whatsappWidget: PlatformSettings["whatsappWidget"] = {
+    enabled: wa.enabled === undefined ? true : Boolean(wa.enabled),
+    title: cleanText(wa.title, EMPTY_TEXT()),
+    message: cleanText(wa.message, EMPTY_TEXT()),
+    cta: cleanText(wa.cta, EMPTY_TEXT()),
+    prefill: cleanText(wa.prefill, EMPTY_TEXT()),
+  };
   const supportUrl = clean(source.supportUrl, 300);
   return {
     brandName: clean(source.brandName, 80, DEFAULT_SETTINGS.brandName),
@@ -113,6 +132,7 @@ export function sanitizeSettings(raw: any): PlatformSettings {
     senderName: clean(source.senderName, 80, DEFAULT_SETTINGS.senderName),
     timezone: clean(source.timezone, 60, DEFAULT_SETTINGS.timezone),
     maintenance,
+    whatsappWidget,
   };
 }
 
