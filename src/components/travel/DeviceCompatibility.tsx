@@ -80,6 +80,7 @@ const COPY = localize({
     checkedUncertain: "Kontrol gerekli",
     checkedNot: "eSIM desteği bulunamadı",
     productPrompt: "Telefonun eSIM destekliyor mu?",
+    productLead: "Birkaç saniyede öğren.",
     compactCheck: "Kontrol et",
     changeDevice: "Cihazı değiştir",
     detectedIphone: "iPhone algılandı — modeli kontrol et",
@@ -126,6 +127,7 @@ const COPY = localize({
     checkedUncertain: "Prüfen",
     checkedNot: "Keine eSIM-Unterstützung",
     productPrompt: "Unterstützt dein Handy eSIM?",
+    productLead: "In Sekunden prüfen.",
     compactCheck: "Gerät prüfen",
     changeDevice: "Gerät ändern",
     detectedIphone: "iPhone erkannt – Modell prüfen",
@@ -171,6 +173,7 @@ const COPY = localize({
     checkedUncertain: "Check device",
     checkedNot: "No eSIM support",
     productPrompt: "Does your phone support eSIM?",
+    productLead: "Check in seconds.",
     compactCheck: "Check device",
     changeDevice: "Change device",
     detectedIphone: "iPhone detected — check the model",
@@ -578,16 +581,16 @@ export function DeviceCompatibilityProductCard() {
   const result = manualVerified ? compatibilityResult : automaticDevice?.status ?? null;
   const verified = result === "COMPATIBLE" || result === "NOT_COMPATIBLE";
   const title = verified ? (result === "COMPATIBLE" ? copy.checked : copy.checkedNot) : copy.sectionTitle;
-  const lead = manualVerified ? deviceModel : automaticDevice?.model ?? partialDetectionLabel(copy, detected);
+  const lead = manualVerified ? deviceModel : automaticDevice?.model ?? (detected.kind === "partial" ? partialDetectionLabel(copy, detected) : copy.productLead);
   const action = verified ? (result === "NOT_COMPATIBLE" ? copy.ctaNot : copy.changeDevice) : copy.compactCheck;
 
   return (
-    <div data-testid="product-compatibility-card" className="grid min-h-[4.75rem] grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2 rounded-xl bg-primary-soft px-3 py-2 ring-1 ring-primary/10 sm:gap-3 sm:px-4">
-      <span className="grid size-8 shrink-0 place-items-center rounded-lg bg-card text-primary shadow-sm">
+    <div data-testid="product-compatibility-card" className={`grid min-h-16 grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2 rounded-full px-3 py-1.5 ring-1 sm:gap-3 sm:px-4 ${verified ? "bg-primary-soft ring-primary/10" : "bg-card ring-border"}`}>
+      <span className="grid size-8 shrink-0 place-items-center rounded-full bg-background text-primary ring-1 ring-border/60">
         {verified ? <StatusIcon status={result} /> : <Smartphone className="size-4" aria-hidden="true" />}
       </span>
-      <span className="min-w-0"><strong className="block text-[13px] leading-4 text-foreground sm:text-sm">{title}</strong><span className="mt-0.5 block text-[11px] leading-4 text-muted-foreground sm:text-xs">{lead}</span></span>
-      <DeviceCheckSheet surface="v2-country" trigger={<Button type="button" size="sm" className="h-9 shrink-0 whitespace-nowrap rounded-full px-2.5 text-[11px] sm:px-3 sm:text-xs">{action}<ChevronRight className="size-3.5" /></Button>} />
+      <span className="min-w-0"><strong className="block text-xs leading-4 text-foreground sm:text-sm">{title}</strong><span className="block text-[11px] leading-4 text-muted-foreground sm:text-xs">{lead}</span></span>
+      <DeviceCheckSheet surface="v2-country" trigger={<Button type="button" size="sm" className="h-auto min-h-9 max-w-[7.5rem] shrink-0 whitespace-normal rounded-full px-2.5 py-1 text-center text-[11px] leading-tight sm:max-w-none sm:px-3 sm:text-xs">{action}<ChevronRight className="size-3.5 shrink-0" /></Button>} />
     </div>
   );
 }

@@ -181,15 +181,15 @@ function CountryProductHero({ country, name, subtitle, changeLabel, onChange }: 
   const photo = countryPhotoRegistry[country.iso];
   return (
     <section className="relative -mx-4 overflow-hidden bg-muted sm:-mx-6 sm:mt-3 sm:rounded-3xl lg:mx-0 lg:mt-4">
-      <div className="relative h-[17.5rem] lg:h-[25rem]">
+       <div className="relative h-[13.25rem] lg:h-[25rem]">
         {photo && <img src={photo.heroImage} alt={photo.alt[locale]} fetchPriority="high" decoding="async" width={960} height={540} className="absolute inset-0 size-full object-cover" style={{ objectPosition: `${photo.focalX}% ${photo.focalY}%` }} />}
         <div className="absolute inset-0 bg-gradient-to-t from-[var(--v2-service)]/95 via-[var(--v2-service)]/30 to-transparent" />
         <Button type="button" variant="secondary" size="sm" onClick={onChange} className="absolute left-4 top-4 max-w-[calc(100%-6rem)] rounded-full bg-card/90 shadow-sm backdrop-blur lg:left-8 lg:top-8"><MapPin className="size-4 shrink-0 text-primary"/><span className="truncate">{REGION_LABELS[country.region][locale]}</span></Button>
         <span className="absolute right-4 top-4 grid size-14 place-items-center rounded-full bg-card/90 shadow-panel ring-1 ring-card/60 backdrop-blur lg:right-8 lg:top-8 lg:size-16"><CountryFlag iso={country.iso} label={name} className="h-8 w-11 lg:h-9 lg:w-12" /></span>
-        <div className="absolute inset-x-5 bottom-6 max-w-[22rem] text-primary-foreground lg:inset-x-10 lg:bottom-10 lg:max-w-xl">
-          <h1 className="font-display text-[2.2rem] font-bold leading-none lg:text-6xl">{name}<span className="mt-1 block text-[1.55rem] lg:text-4xl">eSIM</span></h1>
-          <p className="mt-2 max-w-[18rem] text-sm font-medium leading-snug opacity-95 lg:max-w-md lg:text-lg">{subtitle}</p>
-          <Button type="button" variant="link" size="sm" onClick={onChange} className="mt-2 h-auto p-0 text-primary-foreground underline-offset-4 hover:underline">{changeLabel}</Button>
+         <div className="absolute inset-x-5 bottom-3 max-w-[22rem] text-primary-foreground lg:inset-x-10 lg:bottom-10 lg:max-w-xl">
+           <h1 className="font-display text-[1.9rem] font-bold leading-none lg:text-6xl">{name}<span className="mt-0.5 block text-[1.35rem] lg:mt-1 lg:text-4xl">eSIM</span></h1>
+           <p className="mt-1 max-w-[18rem] text-sm font-medium leading-snug opacity-95 lg:mt-2 lg:max-w-md lg:text-lg">{subtitle}</p>
+           <Button type="button" variant="link" size="sm" onClick={onChange} className="mt-1 h-auto p-0 text-primary-foreground underline-offset-4 hover:underline lg:mt-2">{changeLabel}</Button>
         </div>
       </div>
     </section>
@@ -291,13 +291,13 @@ function Packages({ iso, name, c, selectedPackage, onSelectPackage }: { iso: str
   ];
   return (
     <>
-      <TrustRow items={[{ icon: <Zap />, label: c.setup }, { icon: <CheckCircle2 />, label: c.net }, { icon: <Box />, label: c.benefitDelivery }, { icon: <MessageCircle />, label: c.support }]} />
-      <div className="mt-4"><DeviceCompatibilityProductCard /></div>
-      <div className="mt-4 grid grid-cols-2 rounded-2xl bg-secondary p-1" role="tablist">
+       <TrustRow compact items={[{ icon: <Zap />, label: c.setup }, { icon: <CheckCircle2 />, label: c.net }, { icon: <Box />, label: c.benefitDelivery }, { icon: <MessageCircle />, label: c.support }]} />
+       <div className="mt-2 lg:mt-4"><DeviceCompatibilityProductCard /></div>
+       <div className="mt-3 grid grid-cols-2 rounded-2xl bg-secondary p-1 lg:mt-4" role="tablist">
         <Button type="button" variant={type === "standard" ? "default" : "ghost"} role="tab" aria-selected={type === "standard"} onClick={() => setType("standard")} className="min-w-0 rounded-xl text-xs uppercase sm:text-sm">{c.standard} · {standard.length}</Button>
         <Button type="button" variant={type === "unlimited" ? "default" : "ghost"} role="tab" aria-selected={type === "unlimited"} onClick={() => setType("unlimited")} className="min-w-0 rounded-xl text-xs uppercase sm:text-sm">{c.unlimited} · {unlimited.length}</Button>
       </div>
-      <div className="mt-4 lg:mt-8">
+       <div className="mt-3 lg:mt-8">
         <h2 className="font-display text-2xl font-bold text-foreground lg:text-3xl">{c.chooseTitle}</h2>
         <p className="mt-1 text-sm text-muted-foreground">{c.chooseLead}</p>
       </div>

@@ -211,13 +211,13 @@ export function HeroField({ icon, children }: { icon: ReactNode; children: React
 export const heroInputClass = "h-[3.35rem] w-full rounded-full bg-transparent pl-12 pr-14 text-sm text-foreground outline-hidden placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring lg:h-16 lg:text-base";
 
 /** Compact icon row with dividers (value props). */
-export function TrustRow({ items }: { items: Array<{ icon: ReactNode; label: string }> }) {
+export function TrustRow({ items, compact = false }: { items: Array<{ icon: ReactNode; label: string }>; compact?: boolean }) {
   if (!items.length) return null;
   return (
-    <ul className="mt-4 flex divide-x divide-border lg:-mt-1 lg:w-full lg:rounded-2xl lg:bg-card lg:px-5 lg:py-5 lg:shadow-card lg:ring-1 lg:ring-border">
+    <ul className={`${compact ? "mt-2" : "mt-4"} flex divide-x divide-border lg:-mt-1 lg:w-full lg:rounded-2xl lg:bg-card lg:px-5 lg:py-5 lg:shadow-card lg:ring-1 lg:ring-border`}>
       {items.map((item) => (
-        <li key={item.label} className="flex min-w-0 flex-1 flex-col items-center gap-1 px-1.5 text-center text-[10px] font-medium leading-tight text-foreground lg:flex-row lg:justify-center lg:gap-3 lg:px-5 lg:text-sm">
-          <span className="text-[var(--v2-service)] [&_svg]:size-5 lg:[&_svg]:size-6">{item.icon}</span>
+        <li key={item.label} className={`flex min-w-0 flex-1 flex-col items-center ${compact ? "gap-0.5 py-1" : "gap-1"} px-1.5 text-center text-[10px] font-medium leading-tight text-foreground lg:flex-row lg:justify-center lg:gap-3 lg:px-5 lg:text-sm`}>
+          <span className={`text-[var(--v2-service)] ${compact ? "[&_svg]:size-[18px]" : "[&_svg]:size-5"} lg:[&_svg]:size-6`}>{item.icon}</span>
           {item.label}
         </li>
       ))}
