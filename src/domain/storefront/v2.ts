@@ -186,7 +186,7 @@ function esimDefault(): V2Page {
     section("benefits", "BENEFIT_ROW", {
       items: [
         item("delivery", { icon: "Zap", title: from3(c, "benefitDelivery") }),
-        item("coverage", { icon: "Globe", title: from3(c, "benefitCoverage") }),
+        item("refund", { icon: "ShieldCheck", title: from3(c, "benefitRefund") }),
         item("setup", { icon: "Smartphone", title: from3(c, "setup") }),
         item("support", { icon: "Headphones", title: from3(c, "support") }),
       ],
