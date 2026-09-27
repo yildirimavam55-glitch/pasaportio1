@@ -643,3 +643,5 @@
 - [x] Reduce mobile country hero and trust spacing without changing country imagery or desktop proportions.
 - [x] Present unknown, verified, and incompatible device states in the same thin horizontal bar without changing detection.
 - [x] Verify 360/390/430 mobile layout, first-screen package visibility, and desktop; capture 390px before/after.
+- [x] Promotion banner + server-validated coupons (Admin → İndirimler / Kuponlar)
+- [ ] Coupon at checkout: revalidate + snapshot + redemption row (blocked: payments not enabled)
