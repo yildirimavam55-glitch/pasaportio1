@@ -645,3 +645,9 @@
 - [x] Verify 360/390/430 mobile layout, first-screen package visibility, and desktop; capture 390px before/after.
 - [x] Promotion banner + server-validated coupons (Admin → İndirimler / Kuponlar)
 - [ ] Coupon at checkout: revalidate + snapshot + redemption row (blocked: payments not enabled)
+
+## 14-day refund guarantee
+- [x] Trust elements, account request flow, admin review, DB guards, tests
+- [ ] Real refund/cancellation legal page URL (Admin setting) — waits on legal text
+- [ ] Provider usage verification — needs a live eSIM Go eSIM
+- [ ] Payment-provider refund integration (REFUNDED) — payments not live
