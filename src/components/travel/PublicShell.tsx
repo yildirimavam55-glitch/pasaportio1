@@ -66,6 +66,37 @@ const MENU_CLOSE_LABEL = localize({
   en: "Close menu",
 } as const);
 
+function Brand() {
+  return (
+    <Link
+      to="/"
+      search={{ service: "esim" }}
+      aria-label="Ana sayfa"
+      className="flex shrink-0 items-center gap-2 text-primary"
+    >
+      <span className="grid size-9 place-items-center rounded-xl bg-primary text-primary-foreground shadow-brand">
+        <Signal className="size-5" aria-hidden="true" />
+      </span>
+      <span className="font-display text-xl font-bold">{BRAND.name}</span>
+    </Link>
+  );
+}
+function LanguageMenu({
+  open,
+  onOpenChange,
+}: {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+}) {
+  const { locale, uiLocale, uiLocales, setLocale } = useI18n();
+  const navigate = useNavigate();
+  const copy = localized(GLOBAL_CONTENT, locale);
+  const choose = (code: UiLocale) => {
+    setLocale(code);
+    // Keep the equivalent page: a locale homepage maps to the new locale's homepage.
+    const path = window.location.pathname.replace(/\/+$/, "");
+    if (localeFromPath(path) && path.split("/").length === 2) {
+      void navigate({ to: "/$locale", params: { locale: code }, search: ((s: object) => s) as never });
     }
   };
   return (
