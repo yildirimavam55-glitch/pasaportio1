@@ -20,7 +20,7 @@ import { dedupeStorefrontPackages, sortStandardPackages, sortUnlimitedPackages }
 import { COVERAGE_REGION_LABELS } from "@/domain/geo/coverage-regions";
 import { getEsimUsageSettings } from "@/lib/esim-settings.functions";
 import type { UsageKind } from "@/domain/experience/types";
-import { RefundTrustCard, RefundTrustNote } from "@/components/refunds/RefundTrust";
+import { RefundTrustNote } from "@/components/refunds/RefundTrust";
 import { V2EsimFaq } from "@/components/design-v2/V2DiscoveryContent";
 import { mediaUrl, useV2Page, V2Sections, v2PageQuery } from "@/components/design-v2/V2Sections";
 import { v2Text, type V2Section } from "@/domain/storefront/v2";
@@ -170,7 +170,6 @@ export function EsimHomePage() {
       </V2Hero>
               ),
               destinations: (section) => <Popular c={c} section={section} onPick={choose} />,
-              afterBenefits: <RefundTrustCard />,
               regions: (section) => <RegionalDiscovery section={section} summaries={regionalSummaries.data ?? []} loading={regionalSummaries.isLoading} c={c} />,
             }}
           />
