@@ -176,7 +176,7 @@ export function EsimHomePage() {
   );
 }
 
-function CountryProductHero({ country, name, subtitle, changeLabel, onChange }: { country: NonNullable<ReturnType<typeof getCountryByIso>>; name: string; subtitle: string; changeLabel: string; onChange: () => void; trust: Array<{ icon: React.ReactNode; label: string }> }) {
+function CountryProductHero({ country, name, subtitle, changeLabel, onChange }: { country: NonNullable<ReturnType<typeof getCountryByIso>>; name: string; subtitle: string; changeLabel: string; onChange: () => void }) {
   const { locale } = useI18n();
   const photo = countryPhotoRegistry[country.iso];
   return (
