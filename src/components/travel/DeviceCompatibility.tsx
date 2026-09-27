@@ -80,6 +80,7 @@ const COPY = localize({
     checkedUncertain: "Kontrol gerekli",
     checkedNot: "eSIM desteği bulunamadı",
     productPrompt: "Telefonun eSIM destekliyor mu?",
+    productLead: "Birkaç saniyede öğren.",
     compactCheck: "Kontrol et",
     changeDevice: "Cihazı değiştir",
     detectedIphone: "iPhone algılandı — modeli kontrol et",
@@ -126,6 +127,7 @@ const COPY = localize({
     checkedUncertain: "Prüfen",
     checkedNot: "Keine eSIM-Unterstützung",
     productPrompt: "Unterstützt dein Handy eSIM?",
+    productLead: "In Sekunden prüfen.",
     compactCheck: "Gerät prüfen",
     changeDevice: "Gerät ändern",
     detectedIphone: "iPhone erkannt – Modell prüfen",
@@ -171,6 +173,7 @@ const COPY = localize({
     checkedUncertain: "Check device",
     checkedNot: "No eSIM support",
     productPrompt: "Does your phone support eSIM?",
+    productLead: "Check in seconds.",
     compactCheck: "Check device",
     changeDevice: "Change device",
     detectedIphone: "iPhone detected — check the model",
@@ -578,7 +581,7 @@ export function DeviceCompatibilityProductCard() {
   const result = manualVerified ? compatibilityResult : automaticDevice?.status ?? null;
   const verified = result === "COMPATIBLE" || result === "NOT_COMPATIBLE";
   const title = verified ? (result === "COMPATIBLE" ? copy.checked : copy.checkedNot) : copy.sectionTitle;
-  const lead = manualVerified ? deviceModel : automaticDevice?.model ?? partialDetectionLabel(copy, detected);
+  const lead = manualVerified ? deviceModel : automaticDevice?.model ?? (detected.kind === "partial" ? partialDetectionLabel(copy, detected) : copy.productLead);
   const action = verified ? (result === "NOT_COMPATIBLE" ? copy.ctaNot : copy.changeDevice) : copy.compactCheck;
 
   return (
