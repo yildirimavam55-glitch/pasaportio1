@@ -27,7 +27,7 @@ type Props = {
 export function PromoBannerEditor({ value, onChange, discountType, discountValue, code, showCode, visible }: Props) {
   const legacyRef = useRef<Record<string, string> | null>(isStructuredBanner(value) ? null : value);
   const structured = isStructuredBanner(value);
-  const tr = structured ? value.tr ?? "" : "";
+  const tr = structured ? value["tr"] ?? "" : "";
   const overrides = structured ? bannerOverrides(value) : [];
   const ready = structured ? TARGETS.filter((l) => (value[l] ?? "").trim()).length : 0;
   const source = value[BANNER_META.source] ?? "";
@@ -49,10 +49,10 @@ export function PromoBannerEditor({ value, onChange, discountType, discountValue
   };
 
   const translate = async (overwriteManual: boolean) => {
-    if (!tr.trim()) return;
+    if (!tr.trim()) return undefined;
     if (overwriteManual && !window.confirm("Manuel düzenlenmiş çeviriler de üzerine yazılacak. Emin misiniz?")) return;
     const targets = overwriteManual ? TARGETS : TARGETS.filter((l) => !overrides.includes(l));
-    if (!targets.length) return toast.info("Tüm diller manuel düzenlenmiş; korunuyor.");
+    if (!targets.length) { toast.info("Tüm diller manuel düzenlenmiş; korunuyor."); return undefined; }
     setBusy(true);
     try {
       const { translations } = await translateBannerText({ data: { text: tr.trim(), targets } });
