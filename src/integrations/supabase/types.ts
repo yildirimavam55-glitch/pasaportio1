@@ -1773,11 +1773,15 @@ export type Database = {
       }
       orders: {
         Row: {
+          coupon_code: string | null
           created_at: string
           currency: string
           customer_country_iso: string | null
           customer_id: string | null
           discount_total: number
+          discount_type: string | null
+          discount_value: number | null
+          final_subtotal: number | null
           fulfillment_status: Database["public"]["Enums"]["fulfillment_status"]
           fx_rate_to_eur: number | null
           gross_revenue: number
@@ -1787,8 +1791,10 @@ export type Database = {
           idempotency_key: string | null
           locale: Database["public"]["Enums"]["locale_code"]
           order_number: string
+          original_subtotal: number | null
           payment_fee: number
           payment_status: Database["public"]["Enums"]["payment_status"]
+          promotion_id: string | null
           provider_cost_total: number
           refunded_total: number
           status: Database["public"]["Enums"]["order_status"]
@@ -1797,11 +1803,15 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          coupon_code?: string | null
           created_at?: string
           currency?: string
           customer_country_iso?: string | null
           customer_id?: string | null
           discount_total?: number
+          discount_type?: string | null
+          discount_value?: number | null
+          final_subtotal?: number | null
           fulfillment_status?: Database["public"]["Enums"]["fulfillment_status"]
           fx_rate_to_eur?: number | null
           gross_revenue?: number
@@ -1811,8 +1821,10 @@ export type Database = {
           idempotency_key?: string | null
           locale?: Database["public"]["Enums"]["locale_code"]
           order_number: string
+          original_subtotal?: number | null
           payment_fee?: number
           payment_status?: Database["public"]["Enums"]["payment_status"]
+          promotion_id?: string | null
           provider_cost_total?: number
           refunded_total?: number
           status?: Database["public"]["Enums"]["order_status"]
@@ -1821,11 +1833,15 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          coupon_code?: string | null
           created_at?: string
           currency?: string
           customer_country_iso?: string | null
           customer_id?: string | null
           discount_total?: number
+          discount_type?: string | null
+          discount_value?: number | null
+          final_subtotal?: number | null
           fulfillment_status?: Database["public"]["Enums"]["fulfillment_status"]
           fx_rate_to_eur?: number | null
           gross_revenue?: number
@@ -1835,8 +1851,10 @@ export type Database = {
           idempotency_key?: string | null
           locale?: Database["public"]["Enums"]["locale_code"]
           order_number?: string
+          original_subtotal?: number | null
           payment_fee?: number
           payment_status?: Database["public"]["Enums"]["payment_status"]
+          promotion_id?: string | null
           provider_cost_total?: number
           refunded_total?: number
           status?: Database["public"]["Enums"]["order_status"]
@@ -1845,6 +1863,13 @@ export type Database = {
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "orders_promotion_id_fkey"
+            columns: ["promotion_id"]
+            isOneToOne: false
+            referencedRelation: "promotions"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "orders_trip_id_fkey"
             columns: ["trip_id"]
@@ -2058,6 +2083,138 @@ export type Database = {
           id?: string
           preferred_locale?: Database["public"]["Enums"]["locale_code"]
           updated_at?: string
+        }
+        Relationships: []
+      }
+      promotion_redemptions: {
+        Row: {
+          created_at: string
+          customer_id: string | null
+          discount_amount: number
+          id: string
+          order_id: string | null
+          promotion_id: string
+        }
+        Insert: {
+          created_at?: string
+          customer_id?: string | null
+          discount_amount: number
+          id?: string
+          order_id?: string | null
+          promotion_id: string
+        }
+        Update: {
+          created_at?: string
+          customer_id?: string | null
+          discount_amount?: number
+          id?: string
+          order_id?: string | null
+          promotion_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "promotion_redemptions_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "promotion_redemptions_promotion_id_fkey"
+            columns: ["promotion_id"]
+            isOneToOne: false
+            referencedRelation: "promotions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      promotions: {
+        Row: {
+          banner_show_code: boolean
+          banner_show_copy: boolean
+          banner_text: Json
+          banner_visible: boolean
+          code: string
+          country_isos: string[]
+          country_scope: string
+          created_at: string
+          created_by: string | null
+          currency: string
+          discount_type: string
+          discount_value: number
+          ends_at: string
+          id: string
+          min_order: number | null
+          name: string
+          package_scopes: string[]
+          package_type: string
+          per_customer_limit: number | null
+          product_ids: string[]
+          product_scope: string
+          services: string[]
+          starts_at: string
+          status: string
+          total_limit: number | null
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          banner_show_code?: boolean
+          banner_show_copy?: boolean
+          banner_text?: Json
+          banner_visible?: boolean
+          code: string
+          country_isos?: string[]
+          country_scope?: string
+          created_at?: string
+          created_by?: string | null
+          currency?: string
+          discount_type: string
+          discount_value: number
+          ends_at: string
+          id?: string
+          min_order?: number | null
+          name: string
+          package_scopes?: string[]
+          package_type?: string
+          per_customer_limit?: number | null
+          product_ids?: string[]
+          product_scope?: string
+          services?: string[]
+          starts_at: string
+          status?: string
+          total_limit?: number | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          banner_show_code?: boolean
+          banner_show_copy?: boolean
+          banner_text?: Json
+          banner_visible?: boolean
+          code?: string
+          country_isos?: string[]
+          country_scope?: string
+          created_at?: string
+          created_by?: string | null
+          currency?: string
+          discount_type?: string
+          discount_value?: number
+          ends_at?: string
+          id?: string
+          min_order?: number | null
+          name?: string
+          package_scopes?: string[]
+          package_type?: string
+          per_customer_limit?: number | null
+          product_ids?: string[]
+          product_scope?: string
+          services?: string[]
+          starts_at?: string
+          status?: string
+          total_limit?: number | null
+          updated_at?: string
+          updated_by?: string | null
         }
         Relationships: []
       }
@@ -3237,6 +3394,20 @@ export type Database = {
           _entity_type: string
         }
         Returns: string
+      }
+      public_promotion_banner: {
+        Args: never
+        Returns: {
+          banner_text: Json
+          code: string
+          currency: string
+          discount_type: string
+          discount_value: number
+          ends_at: string
+          id: string
+          show_code: boolean
+          show_copy: boolean
+        }[]
       }
       refresh_admin_invitation: {
         Args: { _id: string; _token_hash: string }

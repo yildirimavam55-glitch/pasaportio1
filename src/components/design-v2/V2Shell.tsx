@@ -10,6 +10,7 @@ import { useCart } from "@/domain/cart/store";
 import { useI18n } from "@/i18n";
 import type { Locale } from "@/domain/enums";
 import { localize } from "@/i18n/overlay";
+import { PromoBanner } from "./PromoBanner";
 
 export type V2Service = "esim" | "lounge" | "vignette";
 
@@ -58,6 +59,7 @@ export function V2Shell({
     <V2Context.Provider value={true}>
       <PublicShell hideStickySearch hideFloatingWhatsApp footerBottomSafe={purchaseSummary ? "purchase" : true} headerAccessory={stickySearch}>
         <div className={`mx-auto w-full ${width} ${serviceAccent} overflow-x-clip px-4 pb-8 sm:px-6 sm:pb-12 lg:pb-16`}>
+          <PromoBanner />
           <DesktopNav active={active} />
           {children}
         </div>
