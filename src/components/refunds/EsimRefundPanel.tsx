@@ -89,7 +89,7 @@ export function EsimRefundPanel({ esimId }: { esimId: string }) {
       )}
 
       <Sheet open={open} onOpenChange={setOpen}>
-        <SheetContent side="bottom" className="z-[70] max-h-[92dvh] overflow-y-auto rounded-t-3xl pb-[calc(1.25rem+env(safe-area-inset-bottom))] sm:mx-auto sm:max-w-lg">
+        <SheetContent side="bottom" className="max-h-[92dvh] overflow-y-auto rounded-t-3xl pb-[calc(1.25rem+env(safe-area-inset-bottom))] sm:mx-auto sm:max-w-lg">
           <SheetHeader className="text-left">
             <SheetTitle>{c.sheetTitle}</SheetTitle>
             <SheetDescription className="font-semibold text-foreground">{s.label}</SheetDescription>
