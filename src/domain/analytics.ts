@@ -16,6 +16,8 @@ export type AnalyticsEvent =
   | { name: "compatibility_checker_opened"; surface: string }
   | { name: "device_searched"; queryLength: number }
   | { name: "compatibility_result_viewed"; result: string; brand: string }
+  | { name: "whatsapp_widget_opened"; surface: string }
+  | { name: "whatsapp_cta_clicked"; surface: string }
   | { name: "checkout_started"; orderId?: string; serviceType: ServiceType }
   | { name: "purchase_completed"; orderId: string; currency: string; grossRevenue: number };
 
