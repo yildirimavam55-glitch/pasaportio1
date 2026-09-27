@@ -217,7 +217,7 @@ function CheckerPhone({ badge }: { badge: string }) {
   );
 }
 
-export function DeviceCheckSheet({ surface, trigger }: { surface: string; trigger: ReactNode }) {
+export function DeviceCheckSheet({ surface, trigger, detection }: { surface: string; trigger: ReactNode; detection?: DeviceDetection }) {
   const { locale } = useI18n();
   const copy = COPY[locale];
   const x = EXTRA[locale];
@@ -227,7 +227,8 @@ export function DeviceCheckSheet({ surface, trigger }: { surface: string; trigge
   const [listOpen, setListOpen] = useState(false);
   const [pending, setPending] = useState<DeviceRecord | null>(null);
   const [selected, setSelected] = useState<DeviceRecord | null>(null);
-  const { setResult, reset: resetResult } = useDeviceCheck();
+  const { setResult, reset: resetResult, compatibilityChecked, deviceModel, deviceBrand } = useDeviceCheck();
+  const prefilled = useRef(false);
 
   const { data: devices = [], isPending } = useQuery({
     queryKey: ["device-compatibility"],
@@ -236,6 +237,16 @@ export function DeviceCheckSheet({ surface, trigger }: { surface: string; trigge
     enabled: open,
   });
 
+  // Apply prefill once per opening; later user choices are never overwritten.
+  useEffect(() => {
+    if (!open || prefilled.current || devices.length === 0) return;
+    prefilled.current = true;
+    const manual = compatibilityChecked && deviceModel ? { model: deviceModel, ...(deviceBrand ? { brand: deviceBrand } : {}) } : null;
+    const prefill = resolveCheckerPrefill(devices, manual, detection ?? { kind: "unknown" });
+    if (prefill.brand) setBrand(prefill.brand);
+    if (prefill.device) setPending(prefill.device);
+  }, [open, devices, detection, compatibilityChecked, deviceModel, deviceBrand]);
+
   const brands = useMemo(() => [...new Set(devices.map((device) => device.brand))].sort(), [devices]);
   const results = useMemo(
     () => brand ? searchDevices(devices, query, brand) : [],
@@ -243,6 +254,7 @@ export function DeviceCheckSheet({ surface, trigger }: { surface: string; trigge
   );
 
   const reset = () => {
+    prefilled.current = false;
     setSelected(null);
     setPending(null);
     setQuery("");
