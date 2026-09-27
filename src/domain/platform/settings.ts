@@ -33,6 +33,14 @@ export type PlatformSettings = {
     cta: SettingsText;
     prefill: SettingsText;
   };
+  /** 14-day refund guarantee — presentation only. Refund records and account eligibility never depend on these switches. */
+  refundTrust: {
+    enabled: boolean;
+    homepage: boolean;
+    productPage: boolean;
+    /** Real refund/cancellation policy URL. Empty = legal page pending → no link is shown. */
+    policyUrl: string;
+  };
 };
 
 const EMPTY_TEXT = (): SettingsText => ({ tr: "", de: "", en: "" });
@@ -86,6 +94,7 @@ export const DEFAULT_SETTINGS: PlatformSettings = {
     },
   },
   whatsappWidget: { enabled: true, title: EMPTY_TEXT(), message: EMPTY_TEXT(), cta: EMPTY_TEXT(), prefill: EMPTY_TEXT() },
+  refundTrust: { enabled: true, homepage: true, productPage: true, policyUrl: "" },
 };
 
 const clean = (value: unknown, max: number, fallback = ""): string => {
@@ -122,6 +131,14 @@ export function sanitizeSettings(raw: any): PlatformSettings {
     cta: cleanText(wa.cta, EMPTY_TEXT()),
     prefill: cleanText(wa.prefill, EMPTY_TEXT()),
   };
+  const rt = source?.refundTrust ?? {};
+  const policyUrl = clean(rt.policyUrl, 300);
+  const refundTrust: PlatformSettings["refundTrust"] = {
+    enabled: rt.enabled === undefined ? true : Boolean(rt.enabled),
+    homepage: rt.homepage === undefined ? true : Boolean(rt.homepage),
+    productPage: rt.productPage === undefined ? true : Boolean(rt.productPage),
+    policyUrl: /^(https:\/\/|\/[^/])/.test(policyUrl) ? policyUrl : "",
+  };
   const supportUrl = clean(source.supportUrl, 300);
   return {
     brandName: clean(source.brandName, 80, DEFAULT_SETTINGS.brandName),
@@ -133,6 +150,7 @@ export function sanitizeSettings(raw: any): PlatformSettings {
     timezone: clean(source.timezone, 60, DEFAULT_SETTINGS.timezone),
     maintenance,
     whatsappWidget,
+    refundTrust,
   };
 }
 

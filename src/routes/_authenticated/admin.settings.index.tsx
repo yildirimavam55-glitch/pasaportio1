@@ -130,6 +130,19 @@ function SettingsPage() {
               </div>
             </AdminPanel>
 
+            <AdminPanel title="14 Gün İade Güvencesi (görünüm)">
+              <p className="text-xs text-muted-foreground">Sadece vitrindeki güven öğelerini açar/kapatır. Hesaptaki iade talebi ve sunucu tarafı iade kayıtları bu ayarlardan etkilenmez.</p>
+              <div className="mt-3 grid gap-2 text-xs font-semibold">
+                {([["enabled", "Güven öğesi açık"], ["homepage", "Ana sayfada göster"], ["productPage", "Paket sayfasında göster"]] as const).map(([key, label]) => (
+                  <label key={key} className="flex items-center gap-2"><input type="checkbox" checked={form.refundTrust[key]} onChange={(event) => set({ refundTrust: { ...form.refundTrust, [key]: event.target.checked } })} />{label}</label>
+                ))}
+              </div>
+              <Field label="İade / iptal politikası bağlantısı" hint="Boş bırakılırsa “İade koşullarını gör” bağlantısı gösterilmez. Yalnızca gerçek hukuki sayfa hazır olduğunda girin (https://… veya /yol).">
+                <input className="admin-field mt-1 w-full" placeholder="/iade-politikasi" value={form.refundTrust.policyUrl} onChange={(event) => set({ refundTrust: { ...form.refundTrust, policyUrl: event.target.value } })} />
+              </Field>
+              {!form.refundTrust.policyUrl && <p className="mt-2 text-xs font-semibold text-warning">Hukuki iade politikası sayfası henüz bağlı değil.</p>}
+            </AdminPanel>
+
             <AdminPanel title="Güvenlik">
               <p className="flex items-start gap-2 text-xs text-muted-foreground"><ShieldCheck className="size-4 shrink-0 text-success" />Sağlayıcı anahtarları, ödeme anahtarları ve veritabanı erişim bilgileri bu ekranda tutulmaz ve hiçbir yönetim ekranında gösterilmez.</p>
             </AdminPanel>

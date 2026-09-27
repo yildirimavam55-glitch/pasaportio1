@@ -59,6 +59,8 @@ export type V2Slots = {
   hero: (section: V2Section) => ReactNode;
   destinations?: (section: V2Section) => ReactNode;
   regions?: (section: V2Section) => ReactNode;
+  /** Rendered directly under the configured benefit row (e.g. refund trust card). */
+  afterBenefits?: ReactNode;
 };
 
 /** Renders the configured, visible sections in order through the approved V2 components. */
@@ -74,7 +76,7 @@ export function V2Sections({ config, media, slots, only }: { config: V2PageConfi
           case "SEARCH_HERO":
             return <V2Fragment key={s.id}>{slots.hero(s)}</V2Fragment>;
           case "BENEFIT_ROW":
-            return <TrustRow key={s.id} items={items.map((item) => ({ icon: <StorefrontIcon name={item.icon} className="size-6" />, label: v2ItemText(item.title, locale) }))} />;
+            return <V2Fragment key={s.id}><TrustRow items={items.map((item) => ({ icon: <StorefrontIcon name={item.icon} className="size-6" />, label: v2ItemText(item.title, locale) }))} />{slots.afterBenefits}</V2Fragment>;
           case "DESTINATION_CAROUSEL":
             return <V2Fragment key={s.id}>{slots.destinations?.(s)}</V2Fragment>;
           case "REGION_DISCOVERY":
