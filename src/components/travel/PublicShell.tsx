@@ -33,6 +33,7 @@ import { Sheet, SheetClose, SheetContent, SheetTitle, SheetTrigger } from "@/com
 import { BRAND } from "@/domain/experience/config";
 import { waLink } from "@/lib/whatsapp";
 import { WhatsAppLogo } from "./WhatsAppLogo";
+import { WhatsAppSupportWidget } from "./WhatsAppSupportWidget";
 
 import { useI18n, LOCALE_REGISTRY, localeFromPath, type UiLocale } from "@/i18n";
 import { GLOBAL_CONTENT, localized, type ServiceSlug } from "@/content/travel-content";
@@ -509,22 +510,7 @@ export function PublicShell({
       )}
       <main>{children}</main>
       <PublicFooter fallback={copy.footer} supportLabel={copy.nav.support} bottomSafe={footerBottomSafe} />
-      {!hideFloatingWhatsApp && <Button
-        asChild
-        size="lg"
-        className="fixed bottom-20 right-4 z-40 size-12 rounded-full p-0 shadow-lg sm:bottom-6 sm:right-6"
-        style={{ backgroundColor: "#25D366" }}
-      >
-        <a
-          href={waLink()}
-          target="_blank"
-          rel="noopener noreferrer"
-          aria-label={WHATSAPP_LABEL[locale]}
-          className="text-white hover:brightness-95"
-        >
-          <WhatsAppLogo className="size-6" />
-        </a>
-      </Button>}
+      {!hideFloatingWhatsApp && <WhatsAppSupportWidget surface="shell" placement="fixed" />}
 
     </div>
   );
