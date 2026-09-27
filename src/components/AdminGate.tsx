@@ -67,7 +67,7 @@ const groups: AdminGroup[] = [
   ]},
   { label: "Finans & Operasyon", links: [
     { to: "/admin/finance", label: "Finans", icon: CircleDollarSign },
-    { to: "/admin/refunds", label: "İadeler", icon: RotateCw },
+    { to: "/admin/refunds", label: "İade Talepleri", icon: RotateCw },
     { to: "/admin/alerts", label: "Operasyon uyarıları", icon: AlertTriangle },
   ]},
   { label: "Sistem", links: [

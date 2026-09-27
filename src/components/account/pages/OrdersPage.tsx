@@ -2,6 +2,7 @@ import { CLink as Link } from "@/components/design-v2/v2-context";
 import { useQuery } from "@tanstack/react-query";
 import { ChevronRight } from "lucide-react";
 
+import { RefundHistory } from "@/components/refunds/RefundHistory";
 import { AccountLayout } from "@/components/account/AccountLayout";
 import { ACCOUNT_COPY, formatDate, formatMoney } from "@/components/account/copy";
 import { Badge } from "@/components/ui/badge";
@@ -82,6 +83,7 @@ export function OrdersPage() {
           ))}
         </div>
       )}
+      <RefundHistory />
     </AccountLayout>
   );
 }

@@ -2849,50 +2849,161 @@ export type Database = {
           },
         ]
       }
+      refund_request_events: {
+        Row: {
+          actor_id: string | null
+          actor_type: string
+          created_at: string
+          event: string
+          from_status: string | null
+          id: string
+          note: string | null
+          order_id: string | null
+          order_item_id: string | null
+          refund_request_id: string
+          to_status: string | null
+        }
+        Insert: {
+          actor_id?: string | null
+          actor_type: string
+          created_at?: string
+          event: string
+          from_status?: string | null
+          id?: string
+          note?: string | null
+          order_id?: string | null
+          order_item_id?: string | null
+          refund_request_id: string
+          to_status?: string | null
+        }
+        Update: {
+          actor_id?: string | null
+          actor_type?: string
+          created_at?: string
+          event?: string
+          from_status?: string | null
+          id?: string
+          note?: string | null
+          order_id?: string | null
+          order_item_id?: string | null
+          refund_request_id?: string
+          to_status?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "refund_request_events_refund_request_id_fkey"
+            columns: ["refund_request_id"]
+            isOneToOne: false
+            referencedRelation: "refund_requests"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       refund_requests: {
         Row: {
           amount: number | null
+          amount_basis: Json
           audit: Json
           created_at: string
           currency: string
+          customer_esim_id: string | null
+          customer_message: string | null
           decided_at: string | null
           decided_by: string | null
+          discount_amount: number
+          eligibility: string
           id: string
-          order_id: string
+          is_open: boolean
+          is_test: boolean
+          list_amount: number | null
+          order_id: string | null
           order_item_id: string | null
+          payment_refund_reference: string | null
+          product_snapshot: Json
+          purchase_at: string | null
           reason: string | null
+          reason_code: string | null
           requested_by: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
           status: Database["public"]["Enums"]["refund_status"]
+          updated_at: string
+          usage_snapshot: Json
+          usage_verification: string
+          window_ends_at: string | null
         }
         Insert: {
           amount?: number | null
+          amount_basis?: Json
           audit?: Json
           created_at?: string
           currency?: string
+          customer_esim_id?: string | null
+          customer_message?: string | null
           decided_at?: string | null
           decided_by?: string | null
+          discount_amount?: number
+          eligibility?: string
           id?: string
-          order_id: string
+          is_open?: boolean
+          is_test?: boolean
+          list_amount?: number | null
+          order_id?: string | null
           order_item_id?: string | null
+          payment_refund_reference?: string | null
+          product_snapshot?: Json
+          purchase_at?: string | null
           reason?: string | null
+          reason_code?: string | null
           requested_by?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
           status?: Database["public"]["Enums"]["refund_status"]
+          updated_at?: string
+          usage_snapshot?: Json
+          usage_verification?: string
+          window_ends_at?: string | null
         }
         Update: {
           amount?: number | null
+          amount_basis?: Json
           audit?: Json
           created_at?: string
           currency?: string
+          customer_esim_id?: string | null
+          customer_message?: string | null
           decided_at?: string | null
           decided_by?: string | null
+          discount_amount?: number
+          eligibility?: string
           id?: string
-          order_id?: string
+          is_open?: boolean
+          is_test?: boolean
+          list_amount?: number | null
+          order_id?: string | null
           order_item_id?: string | null
+          payment_refund_reference?: string | null
+          product_snapshot?: Json
+          purchase_at?: string | null
           reason?: string | null
+          reason_code?: string | null
           requested_by?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
           status?: Database["public"]["Enums"]["refund_status"]
+          updated_at?: string
+          usage_snapshot?: Json
+          usage_verification?: string
+          window_ends_at?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "refund_requests_customer_esim_id_fkey"
+            columns: ["customer_esim_id"]
+            isOneToOne: false
+            referencedRelation: "customer_esims"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "refund_requests_order_id_fkey"
             columns: ["order_id"]
@@ -3498,7 +3609,14 @@ export type Database = {
         | "FAILED"
         | "RESULT_UNKNOWN"
         | "CANCELLED"
-      refund_status: "REQUESTED" | "APPROVED" | "REJECTED" | "PROCESSED"
+      refund_status:
+        | "REQUESTED"
+        | "APPROVED"
+        | "REJECTED"
+        | "PROCESSED"
+        | "UNDER_REVIEW"
+        | "REFUNDED"
+        | "CANCELLED"
       service_type: "ESIM" | "LOUNGE" | "CAR_RENTAL" | "TRANSFER" | "VIGNETTE"
       sync_status:
         | "PENDING"
@@ -3728,7 +3846,15 @@ export const Constants = {
         "RESULT_UNKNOWN",
         "CANCELLED",
       ],
-      refund_status: ["REQUESTED", "APPROVED", "REJECTED", "PROCESSED"],
+      refund_status: [
+        "REQUESTED",
+        "APPROVED",
+        "REJECTED",
+        "PROCESSED",
+        "UNDER_REVIEW",
+        "REFUNDED",
+        "CANCELLED",
+      ],
       service_type: ["ESIM", "LOUNGE", "CAR_RENTAL", "TRANSFER", "VIGNETTE"],
       sync_status: [
         "PENDING",

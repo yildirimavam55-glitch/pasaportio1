@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { Globe2, Search } from "lucide-react";
 
 import { AccountLayout } from "@/components/account/AccountLayout";
+import { EsimRefundPanel } from "@/components/refunds/EsimRefundPanel";
 import { EsimInstallGuide } from "@/components/account/EsimInstallGuide";
 import { esimStatusLabel, hasCapability } from "@/components/account/CustomerEsimCard";
 import { ACCOUNT_COPY, formatDate, formatMoney } from "@/components/account/copy";
@@ -264,6 +265,7 @@ export function EsimDetailPage({ id }: { id: string }) {
               )}
             </div>
           </section>
+          <EsimRefundPanel esimId={esim.id} />
           <section className="rounded-2xl border border-border bg-card p-5 shadow-card">
             {canTopUp ? (
               <Button variant="cta" className="min-h-11 w-full">
