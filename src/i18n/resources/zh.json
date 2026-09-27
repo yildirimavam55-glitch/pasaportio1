@@ -740,5 +740,16 @@
   "min stay": "最短停留",
   "or": "或",
   "total": "总计",
-  "© Travel Platform": "© Travel Platform"
+  "© Travel Platform": "© Travel Platform",
+  "Information about your selected eSIM package.": "所选 eSIM 套餐的信息。",
+  "Total data available to use.": "可用数据总量。",
+  "Unlimited data package.": "无限流量套餐。",
+  "How long the package is valid.": "套餐有效期。",
+  "Destination covered by this package.": "此套餐覆盖的目的地。",
+  "Countries covered by this package.": "此套餐覆盖的国家。",
+  "See countries": "查看国家",
+  "Hide list": "隐藏列表",
+  "Connection": "连接",
+  "Supported network technology.": "支持的网络技术。",
+  "Available network technology may vary by location, device and local network conditions.": "可用网络技术可能因位置、设备和当地网络状况而异。"
 }

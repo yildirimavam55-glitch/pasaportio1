@@ -741,5 +741,16 @@
   "min stay": "min. pobytu",
   "or": "lub",
   "total": "razem",
-  "© Travel Platform": "© Travel Platform"
+  "© Travel Platform": "© Travel Platform",
+  "Information about your selected eSIM package.": "Informacje o wybranym pakiecie eSIM.",
+  "Total data available to use.": "Łączna dostępna ilość danych.",
+  "Unlimited data package.": "Pakiet z nielimitowanymi danymi.",
+  "How long the package is valid.": "Okres ważności pakietu.",
+  "Destination covered by this package.": "Kierunek objęty tym pakietem.",
+  "Countries covered by this package.": "Kraje objęte tym pakietem.",
+  "See countries": "Zobacz kraje",
+  "Hide list": "Ukryj listę",
+  "Connection": "Połączenie",
+  "Supported network technology.": "Obsługiwana technologia sieci.",
+  "Available network technology may vary by location, device and local network conditions.": "Dostępna technologia sieci może się różnić w zależności od lokalizacji, urządzenia i sieci lokalnej."
 }

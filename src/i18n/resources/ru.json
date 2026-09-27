@@ -390,7 +390,7 @@
   "Our recommendation": "Наша рекомендация",
   "Overview": "Обзор",
   "Package": "Пакет",
-  "Package details": "Детали тарифа",
+  "Package details": "Детали пакета",
   "Password": "Пароль",
   "Password and security": "Пароль и безопасность",
   "Password could not be updated.": "Не удалось обновить пароль.",
@@ -741,5 +741,16 @@
   "min stay": "мин. пребывания",
   "or": "или",
   "total": "всего",
-  "© Travel Platform": "© Travel Platform"
+  "© Travel Platform": "© Travel Platform",
+  "Information about your selected eSIM package.": "Информация о выбранном пакете eSIM.",
+  "Total data available to use.": "Общий доступный объём данных.",
+  "Unlimited data package.": "Пакет с безлимитными данными.",
+  "How long the package is valid.": "Срок действия пакета.",
+  "Destination covered by this package.": "Направление, которое покрывает пакет.",
+  "Countries covered by this package.": "Страны, которые покрывает пакет.",
+  "See countries": "Показать страны",
+  "Hide list": "Скрыть список",
+  "Connection": "Связь",
+  "Supported network technology.": "Поддерживаемая технология сети.",
+  "Available network technology may vary by location, device and local network conditions.": "Доступная технология сети может зависеть от местоположения, устройства и местной сети."
 }
