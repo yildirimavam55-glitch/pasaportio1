@@ -65,3 +65,15 @@ describe("safe browser device detection", () => {
     expect(detectDeviceFromSignals([...devices, duplicate], { model: "s24", userAgent: "Android" }).kind).toBe("partial");
   });
 });
+
+import { resolveCheckerPrefill } from "../device-detection";
+describe("checker prefill", () => {
+  const rec = (id: string, brand: string, model: string) => ({ id, brand, family: null, model, aliases: [], status: "COMPATIBLE" as const, notes: null, regionVariantWarning: false, active: true, lastReviewed: "2026-01-01" });
+  const devices = [rec("1", "Samsung", "Galaxy S24"), rec("2", "Apple", "iPhone 15"), rec("3", "Google", "Pixel 9 Pro")];
+  it("prefills brand only for Samsung family", () => expect(resolveCheckerPrefill(devices, null, { kind: "partial", family: "samsung" })).toEqual({ brand: "Samsung", device: null }));
+  it("maps iPhone to Apple without model", () => expect(resolveCheckerPrefill(devices, null, { kind: "partial", family: "iphone" })).toEqual({ brand: "Apple", device: null }));
+  it("never guesses brand for Android", () => expect(resolveCheckerPrefill(devices, null, { kind: "partial", family: "android" })).toEqual({ brand: null, device: null }));
+  it("prefills exact device", () => expect(resolveCheckerPrefill(devices, null, { kind: "exact", device: devices[0]! }).device?.model).toBe("Galaxy S24"));
+  it("manual wins over detection", () => expect(resolveCheckerPrefill(devices, { brand: "Google", model: "Pixel 9 Pro" }, { kind: "partial", family: "samsung" }).device?.id).toBe("3"));
+  it("unknown gives nothing", () => expect(resolveCheckerPrefill(devices, null, { kind: "unknown" })).toEqual({ brand: null, device: null }));
+});
