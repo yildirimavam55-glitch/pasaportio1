@@ -638,3 +638,8 @@
 - [x] Connect country product page to regional discovery using existing regional inventory, photos, and region product routes.
 - [x] Search regions and actual published package coverage by country; show truthful counts and prices.
 - [x] Add product-aware coverage inspection and validate selection, cart, back navigation, language and responsive views.
+
+## V2 country product above-the-fold compaction
+- [ ] Reduce mobile country hero and trust spacing without changing country imagery or desktop proportions.
+- [ ] Present unknown, verified, and incompatible device states in the same thin horizontal bar without changing detection.
+- [ ] Verify 360/390/430 mobile layout, first-screen package visibility, and desktop; capture 390px before/after.
