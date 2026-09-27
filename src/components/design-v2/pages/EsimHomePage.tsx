@@ -131,7 +131,7 @@ export function EsimHomePage() {
 
       {selected ? (
         <>
-          <CountryProductHero country={selected} name={selected.name[locale]} subtitle={c.h} changeLabel={c.back} onChange={() => setPickerOpen(true)} />
+          <CountryProductHero country={selected} name={selected.name[locale]} subtitle={c.h} changeLabel={c.back} onChange={() => setPickerOpen(true)} trust={[{ icon: <Zap />, label: c.setup }, { icon: <CheckCircle2 />, label: c.net }, { icon: <Box />, label: c.benefitDelivery }, { icon: <MessageCircle />, label: c.support }]} />
           <V2PickerSheet open={pickerOpen} onOpenChange={(open) => { setPickerOpen(open); if (!open) setQuery(""); }} title={c.picker} searchLabel={c.ph} query={query} onQueryChange={setQuery} selectedId={selected.iso} emptyLabel={prices.isLoading ? "…" : c.empty} items={matches.map((item) => { const price = priceMap.get(item.iso); return { id: item.iso, label: item.name[locale], leading: <CountryFlag iso={item.iso} className="h-4 w-6 rounded-sm" />, ...(price ? { price: `${money(price.amount, price.currency)} ${c.from}` } : {}) }; })} onSelect={choose}><span /></V2PickerSheet>
           <Packages iso={selected.iso} name={selected.name[locale]} c={c} selectedPackage={selectedPackage} onSelectPackage={selectPackage} />
         </>
@@ -176,21 +176,28 @@ export function EsimHomePage() {
   );
 }
 
-function CountryProductHero({ country, name, subtitle, changeLabel, onChange }: { country: NonNullable<ReturnType<typeof getCountryByIso>>; name: string; subtitle: string; changeLabel: string; onChange: () => void }) {
+function CountryProductHero({ country, name, subtitle, changeLabel, onChange, trust }: { country: NonNullable<ReturnType<typeof getCountryByIso>>; name: string; subtitle: string; changeLabel: string; onChange: () => void; trust: Array<{ icon: React.ReactNode; label: string }> }) {
   const { locale } = useI18n();
   const photo = countryPhotoRegistry[country.iso];
   return (
     <section className="relative -mx-4 overflow-hidden bg-muted sm:-mx-6 sm:mt-3 sm:rounded-3xl lg:mx-0 lg:mt-4">
-       <div className="relative h-[13.25rem] lg:h-[25rem]">
+       <div className="relative h-[17rem] lg:h-[28rem]">
         {photo && <img src={photo.heroImage} alt={photo.alt[locale]} fetchPriority="high" decoding="async" width={960} height={540} className="absolute inset-0 size-full object-cover" style={{ objectPosition: `${photo.focalX}% ${photo.focalY}%` }} />}
-        <div className="absolute inset-0 bg-gradient-to-t from-[var(--v2-service)]/95 via-[var(--v2-service)]/30 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[var(--v2-service)]/95 via-[var(--v2-service)]/40 to-transparent" />
         <Button type="button" variant="secondary" size="sm" onClick={onChange} className="absolute left-4 top-4 max-w-[calc(100%-6rem)] rounded-full bg-card/90 shadow-sm backdrop-blur lg:left-8 lg:top-8"><MapPin className="size-4 shrink-0 text-primary"/><span className="truncate">{REGION_LABELS[country.region][locale]}</span></Button>
         <span className="absolute right-4 top-4 grid size-14 place-items-center rounded-full bg-card/90 shadow-panel ring-1 ring-card/60 backdrop-blur lg:right-8 lg:top-8 lg:size-16"><CountryFlag iso={country.iso} label={name} className="h-8 w-11 lg:h-9 lg:w-12" /></span>
-         <div className="absolute inset-x-5 bottom-3 max-w-[22rem] text-primary-foreground lg:inset-x-10 lg:bottom-10 lg:max-w-xl">
+         <div className="absolute inset-x-5 bottom-[6.1rem] max-w-[22rem] text-primary-foreground lg:inset-x-10 lg:bottom-36 lg:max-w-xl">
            <h1 className="font-display text-[1.9rem] font-bold leading-none lg:text-6xl">{name}<span className="mt-0.5 block text-[1.35rem] lg:mt-1 lg:text-4xl">eSIM</span></h1>
            <p className="mt-1 max-w-[18rem] text-sm font-medium leading-snug opacity-95 lg:mt-2 lg:max-w-md lg:text-lg">{subtitle}</p>
            <Button type="button" variant="link" size="sm" onClick={onChange} className="mt-1 h-auto p-0 text-primary-foreground underline-offset-4 hover:underline lg:mt-2">{changeLabel}</Button>
         </div>
+        <ul className="v2-glass absolute inset-x-3 bottom-3 flex rounded-2xl py-2.5 text-primary-foreground lg:inset-x-10 lg:bottom-8 lg:mx-auto lg:max-w-3xl lg:py-4">
+          {trust.map((item, i) => (
+            <li key={item.label} className={`flex min-w-0 flex-1 flex-col items-center gap-1 px-1 text-center text-[11px] font-medium leading-tight lg:flex-row lg:justify-center lg:gap-2.5 lg:text-sm ${i ? "border-l border-primary-foreground/20" : ""}`}>
+              <span className="[&_svg]:size-[22px] lg:[&_svg]:size-6">{item.icon}</span>{item.label}
+            </li>
+          ))}
+        </ul>
       </div>
     </section>
   );
@@ -291,8 +298,7 @@ function Packages({ iso, name, c, selectedPackage, onSelectPackage }: { iso: str
   ];
   return (
     <>
-       <TrustRow compact items={[{ icon: <Zap />, label: c.setup }, { icon: <CheckCircle2 />, label: c.net }, { icon: <Box />, label: c.benefitDelivery }, { icon: <MessageCircle />, label: c.support }]} />
-       <div className="mt-2 lg:mt-4"><DeviceCompatibilityProductCard /></div>
+       <div className="mt-3 lg:mt-6"><DeviceCompatibilityProductCard /></div>
        <div className="mt-3 grid grid-cols-2 rounded-2xl bg-secondary p-1 lg:mt-4" role="tablist">
         <Button type="button" variant={type === "standard" ? "default" : "ghost"} role="tab" aria-selected={type === "standard"} onClick={() => setType("standard")} className="min-w-0 rounded-xl text-xs uppercase sm:text-sm">{c.standard} · {standard.length}</Button>
         <Button type="button" variant={type === "unlimited" ? "default" : "ghost"} role="tab" aria-selected={type === "unlimited"} onClick={() => setType("unlimited")} className="min-w-0 rounded-xl text-xs uppercase sm:text-sm">{c.unlimited} · {unlimited.length}</Button>
