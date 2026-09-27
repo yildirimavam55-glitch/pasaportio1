@@ -43,11 +43,9 @@ export function RefundTrustNote() {
   if (!settings.refundTrust.enabled || !settings.refundTrust.productPage) return null;
   const c = REFUND_COPY[locale];
   return (
-    <p className="mt-3 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs text-muted-foreground">
-      <ShieldCheck className="size-4 shrink-0 text-primary" />
-      <strong className="font-semibold text-foreground">{c.title}</strong>
-      <span>· {c.productLead}</span>
-      <PolicyLink />
+    <p className="mt-3 flex items-start gap-2 text-xs text-muted-foreground">
+      <ShieldCheck className="mt-px size-4 shrink-0 text-primary" />
+      <span className="min-w-0"><strong className="font-semibold text-foreground">{c.title}</strong> <span className="whitespace-normal">{c.productLead}</span> <PolicyLink /></span>
     </p>
   );
 }
