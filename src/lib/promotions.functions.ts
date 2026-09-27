@@ -169,3 +169,45 @@ export const searchPromotionProducts = createServerFn({ method: "GET" })
     }
     return { selected, results };
   });
+
+/* --------------------------- Admin: banner translation --------------------------- */
+
+const translateInput = z.object({
+  text: z.string().trim().min(1).max(160),
+  targets: z.array(z.string().regex(/^[a-z]{2}$/)).min(1).max(20),
+});
+
+/**
+ * Admin-only. Translates the Turkish campaign tagline once at edit time; the result is
+ * stored on the promotion so the storefront never translates at runtime.
+ */
+export const translateBannerText = createServerFn({ method: "POST" })
+  .inputValidator((input: unknown) => translateInput.parse(input))
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context, data }) => {
+    await adminDb(context as AdminCtx);
+    const key = process.env["LOVABLE_API_KEY"];
+    if (!key) throw new Error("Çeviri servisi kullanılamıyor.");
+    const res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+      method: "POST",
+      headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
+      body: JSON.stringify({
+        model: "google/gemini-2.5-flash",
+        messages: [
+          { role: "system", content: "You translate short e-commerce promotion taglines for a travel eSIM store. Keep them short, natural and marketing-appropriate. Never translate or alter coupon codes, brand names (travely), numbers or currency amounts. Reply only via the tool." },
+          { role: "user", content: `Turkish source: ${JSON.stringify(data.text)}\nTarget language codes: ${data.targets.join(", ")}` },
+        ],
+        tools: [{ type: "function", function: { name: "translations", parameters: { type: "object", properties: Object.fromEntries(data.targets.map((t) => [t, { type: "string" }])), required: data.targets } } }],
+        tool_choice: { type: "function", function: { name: "translations" } },
+      }),
+    });
+    if (res.status === 429) throw new Error("Çeviri servisi yoğun, biraz sonra tekrar deneyin.");
+    if (res.status === 402) throw new Error("Çeviri kredisi tükendi.");
+    if (!res.ok) throw new Error("Çeviri başarısız oldu.");
+    const json: any = await res.json();
+    const args = json?.choices?.[0]?.message?.tool_calls?.[0]?.function?.arguments;
+    const parsed = typeof args === "string" ? JSON.parse(args) : args ?? {};
+    const out: Record<string, string> = {};
+    for (const t of data.targets) if (typeof parsed[t] === "string" && parsed[t].trim()) out[t] = parsed[t].trim().slice(0, 160);
+    return { translations: out };
+  });

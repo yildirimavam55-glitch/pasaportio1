@@ -9,8 +9,8 @@ import { adminHead } from "@/components/admin/AdminSectionPage";
 import { Button } from "@/components/ui/button";
 import { listPromotions, savePromotion, searchPromotionProducts, setPromotionStatus, type PromotionInput } from "@/lib/promotions.functions";
 import { COUNTRIES, foldText, getCountryByIso } from "@/domain/geo/countries";
-import { DEFAULT_BANNER_TEXT, formatDiscount } from "@/domain/promotions";
-import { UI_LOCALES } from "@/i18n/locales";
+import { formatDiscount } from "@/domain/promotions";
+import { PromoBannerEditor } from "@/components/admin/PromoBannerEditor";
 
 export const Route = createFileRoute("/_authenticated/admin/marketing/promotions")({
   head: () => adminHead("İndirimler", "Kupon kodları ve kampanya bannerı."),
@@ -31,7 +31,7 @@ function emptyDraft(): Draft {
     id: null, name: "", code: "", status: "PAUSED", startsAt: toLocalInput(start.toISOString()), endsAt: toLocalInput(end.toISOString()),
     discountType: "PERCENT", discountValue: "15", services: ["ESIM"], countryScope: "ALL", countryIsos: [], productScope: "ALL", productIds: [],
     packageType: "ALL", packageScopes: ["COUNTRY"], totalLimit: "", perCustomerLimit: "", minOrder: "",
-    bannerVisible: false, bannerText: { ...DEFAULT_BANNER_TEXT }, bannerShowCode: true, bannerShowCopy: true,
+    bannerVisible: false, bannerText: { _v: "2" }, bannerShowCode: true, bannerShowCopy: true,
   };
 }
 
@@ -197,10 +197,7 @@ function PromotionForm({ draft, setDraft, saving, onSave }: { draft: Draft; setD
         <label className="flex items-center gap-2 font-semibold"><input type="checkbox" checked={draft.bannerVisible} onChange={(e) => set({ bannerVisible: e.target.checked })} />Mağazada banner göster</label>
         <label className="flex items-center gap-2"><input type="checkbox" checked={draft.bannerShowCode} onChange={(e) => set({ bannerShowCode: e.target.checked })} />Kupon kodunu göster</label>
         <label className="flex items-center gap-2"><input type="checkbox" checked={draft.bannerShowCopy} disabled={!draft.bannerShowCode} onChange={(e) => set({ bannerShowCopy: e.target.checked })} />Kopyalama butonunu göster</label>
-        <p className="text-[10px] text-muted-foreground">Yer tutucular: {"{discount}"} ve {"{code}"}. Boş bırakılan dil İngilizce metni kullanır.</p>
-        {UI_LOCALES.map((l) => (
-          <Field key={l} label={`Banner metni (${l.toUpperCase()})`}><input className="admin-field mt-1 w-full" dir={l === "ar" ? "rtl" : "ltr"} value={draft.bannerText[l] ?? ""} onChange={(e) => set({ bannerText: { ...draft.bannerText, [l]: e.target.value } })} /></Field>
-        ))}
+        <PromoBannerEditor value={draft.bannerText} onChange={(bannerText) => set({ bannerText })} discountType={draft.discountType} discountValue={Number(draft.discountValue) || 0} code={draft.code} showCode={draft.bannerShowCode} visible={draft.bannerVisible} />
       </section>
       <section className="rounded-md border border-primary/20 bg-accent-soft p-3 text-[12px] leading-relaxed">
         <h3 className="admin-panel-title mb-1">Özet</h3>
