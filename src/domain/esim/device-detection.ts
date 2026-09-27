@@ -47,3 +47,35 @@ export function detectDeviceFromSignals(devices: DeviceRecord[], signals: Browse
   if (/Android/i.test(`${platform} ${ua}`)) return { kind: "partial", family: "android" };
   return { kind: "unknown" };
 }
+export type CheckerPrefill = { brand: string | null; device: DeviceRecord | null };
+
+const FAMILY_BRAND: Record<string, string> = { iphone: "apple", samsung: "samsung" };
+
+function canonicalBrand(devices: DeviceRecord[], wanted: string) {
+  const key = normalize(wanted).replace(/\s+electronics$/, "");
+  return devices.find((device) => normalize(device.brand) === key)?.brand ?? null;
+}
+
+/**
+ * Checker prefill from the SAME detection state the product card shows.
+ * Priority: manual confirmation > exact detection > detected brand > platform/unknown (nothing).
+ * Brands resolve only to an existing dataset brand; models only via exact unique record.
+ */
+export function resolveCheckerPrefill(
+  devices: DeviceRecord[],
+  manual: { brand?: string; model?: string } | null,
+  detection: DeviceDetection,
+): CheckerPrefill {
+  if (manual?.model) {
+    const brand = manual.brand ? canonicalBrand(devices, manual.brand) : null;
+    const matches = devices.filter((d) => normalize(d.model) === normalize(manual.model!) && (!brand || d.brand === brand));
+    const device = matches.length === 1 ? matches[0]! : null;
+    if (device || brand) return { brand: device?.brand ?? brand, device };
+  }
+  if (detection.kind === "exact") return { brand: detection.device.brand, device: detection.device };
+  if (detection.kind === "partial") {
+    const family = FAMILY_BRAND[detection.family];
+    return { brand: family ? canonicalBrand(devices, family) : null, device: null };
+  }
+  return { brand: null, device: null };
+}
