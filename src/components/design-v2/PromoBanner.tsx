@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Check, Copy, TicketPercent, X } from "lucide-react";
 import { toast } from "sonner";
 import { getPromotionBanner } from "@/lib/promotions.functions";
-import { bannerParts, DEFAULT_BANNER_TEXT, formatDiscount } from "@/domain/promotions";
+import { bannerHeadline, bannerParts, bannerTagline, formatDiscount, isStructuredBanner } from "@/domain/promotions";
 import { useI18n } from "@/i18n";
 import { getActiveUiLocale } from "@/i18n/overlay";
 const pick = <T,>(l: string, v: Record<string, T>): T => v[l] ?? v["tr"]!;
@@ -23,8 +23,9 @@ export function PromoBanner() {
   const data = banner.data;
   if (!data || dismissed === data.id) return null;
   const ui = getActiveUiLocale();
-  const template = data.text[ui] ?? data.text[locale] ?? data.text["en"] ?? DEFAULT_BANNER_TEXT[locale] ?? DEFAULT_BANNER_TEXT["en"]!;
-  const parts = bannerParts(template, formatDiscount(data.discountType, data.discountValue, locale, data.currency), data.code);
+  const template = bannerHeadline(data.text, ui, locale);
+  const parts = bannerParts(template, formatDiscount(data.discountType, data.discountValue, ui, data.currency), data.code);
+  const tagline = isStructuredBanner(data.text) ? bannerTagline(data.text, ui) : "";
 
   const onCopy = async () => {
     if (!data.code) return;
@@ -41,6 +42,7 @@ export function PromoBanner() {
         {parts.before}
         {parts.code && <strong className="font-display font-extrabold tracking-wide" translate="no">{parts.code}</strong>}
         {parts.after}
+        {tagline && <span className="block text-[12px] font-medium text-primary/80" dir="auto">{tagline}</span>}
       </p>
       {parts.code && data.showCopy && (
         <button type="button" onClick={onCopy} aria-label={copied ? c.copied : c.copy} className="grid size-9 shrink-0 place-items-center rounded-full hover:bg-primary/10">

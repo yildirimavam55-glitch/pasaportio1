@@ -165,3 +165,45 @@ export function bannerParts(template: string, discount: string, code: string | n
   const [before = "", ...rest] = filled.split("{code}");
   return { before, code, after: rest.join(code) };
 }
+
+/* ---------- Structured banner (v2): headline from campaign data + stored localized tagline ---------- */
+
+/** Standard headline per storefront locale; discount and code always come from campaign data. */
+export const PROMO_HEADLINE: Record<string, string> = {
+  tr: "{discount} İndirim | Kod: {code}",
+  en: "{discount} Off | Code: {code}",
+  de: "{discount} Rabatt | Code: {code}",
+  fr: "{discount} de réduction | Code : {code}",
+  es: "{discount} de descuento | Código: {code}",
+  it: "{discount} di sconto | Codice: {code}",
+  pt: "{discount} de desconto | Código: {code}",
+  nl: "{discount} korting | Code: {code}",
+  pl: "{discount} zniżki | Kod: {code}",
+  ar: "خصم {discount} | الرمز: {code}",
+  ru: "Скидка {discount} | Код: {code}",
+  ja: "{discount} オフ | コード: {code}",
+  ko: "{discount} 할인 | 코드: {code}",
+  zh: "{discount} 折扣 | 优惠码: {code}",
+};
+
+/** Meta keys stored alongside locale strings in `promotions.banner_text` (flat string map, no schema change). */
+export const BANNER_META = { version: "_v", source: "_source", overrides: "_overrides" } as const;
+
+export function isStructuredBanner(text: Record<string, string> | null | undefined): boolean {
+  return text?.[BANNER_META.version] === "2";
+}
+
+export function bannerOverrides(text: Record<string, string>): string[] {
+  return (text[BANNER_META.overrides] ?? "").split(",").filter(Boolean);
+}
+
+/** Localized tagline: selected locale → English → Turkish. Empty string when none stored. */
+export function bannerTagline(text: Record<string, string>, locale: string): string {
+  return (text[locale] ?? "").trim() || (text["en"] ?? "").trim() || (text["tr"] ?? "").trim();
+}
+
+/** Headline template for a locale; legacy campaigns keep their stored templates. */
+export function bannerHeadline(text: Record<string, string>, locale: string, fallbackLocale = "en"): string {
+  if (isStructuredBanner(text)) return PROMO_HEADLINE[locale] ?? PROMO_HEADLINE[fallbackLocale] ?? PROMO_HEADLINE["en"]!;
+  return text[locale] ?? text[fallbackLocale] ?? text["en"] ?? DEFAULT_BANNER_TEXT[locale] ?? DEFAULT_BANNER_TEXT["en"]!;
+}
