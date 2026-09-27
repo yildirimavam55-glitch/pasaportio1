@@ -1458,13 +1458,3 @@ html[data-quick-search-lock] body {
   50% { transform: translateY(5.5rem); }
 }
 
-/* V2 product hero frosted trust panel; opaque fallback keeps labels readable without backdrop-filter. */
-@utility v2-glass {
-  background: color-mix(in oklab, var(--v2-service, var(--primary)) 82%, transparent);
-  border: 1px solid color-mix(in oklab, var(--primary-foreground) 22%, transparent);
-  box-shadow: 0 12px 30px -14px color-mix(in oklab, var(--foreground) 55%, transparent);
-  @supports (backdrop-filter: blur(1px)) {
-    background: color-mix(in oklab, var(--v2-service, var(--primary)) 48%, transparent);
-    backdrop-filter: blur(14px) saturate(140%);
-  }
-}
