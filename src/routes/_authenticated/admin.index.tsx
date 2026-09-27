@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { AlertTriangle, ArrowRight, Boxes, CalendarDays, CircleDollarSign, ClipboardList, Plane, RadioTower, Users } from "lucide-react";
-import { AdminGate } from "@/components/AdminGate";
+import { AdminGate, useIsAdmin } from "@/components/AdminGate";
 import { AdminError, AdminLoading, AdminPanel, AdminTable, EmptyState, Metric, StatusBadge } from "@/components/admin/AdminUi";
 import { adminHead } from "@/components/admin/AdminSectionPage";
 import { Button } from "@/components/ui/button";
@@ -33,7 +33,8 @@ function Dashboard(){
   const [compare,setCompare]=useState(true); const [metric,setMetric]=useState<"revenue"|"grossContribution"|"orders">("revenue");
   const serviceType=service==="esim"?"ESIM":service==="lounge"?"LOUNGE":"ALL";
   const filters={from:range.from,to:range.to,serviceType:serviceType as "ALL"|"ESIM"|"LOUNGE",compare};
-  const q=useQuery({queryKey:["business-dashboard",filters],queryFn:()=>getBusinessDashboard({data:filters})}); const data=q.data; const k=data?.kpis; const currency=k?.currency??"EUR";
+  const isAdmin=useIsAdmin();
+  const q=useQuery({queryKey:["business-dashboard",filters],queryFn:()=>getBusinessDashboard({data:filters}),enabled:isAdmin}); const data=q.data; const k=data?.kpis; const currency=k?.currency??"EUR";
   const prev=data?.previousKpis; const delta=(now:number,old:number|undefined)=>!compare||!old?"Karşılaştırma verisi yok":`${now>=old?"+":""}${(((now-old)/old)*100).toFixed(1)}% önceki dönem`;
   const margin=k&&k.grossRevenue>0?k.grossContribution/k.grossRevenue:null;
   const serviceRow=data?.byService.find((row:any)=>row.serviceType===serviceType);

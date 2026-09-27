@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
-import { AdminGate } from "@/components/AdminGate";
+import { AdminGate, useIsAdmin } from "@/components/AdminGate";
 import { AdminError, AdminLoading, AdminPanel, AdminTable, EmptyState, Field, Metric, money } from "@/components/admin/AdminUi";
 import { adminHead } from "@/components/admin/AdminSectionPage";
 import { Button } from "@/components/ui/button";
@@ -20,8 +20,9 @@ function Analytics() {
     from: day(-29), to: day(0), serviceType: "ALL", customerCountry: "", destination: "",
     airport: "", providerId: "", source: "", campaign: "", locale: "", compare: true,
   });
-  const options = useQuery({ queryKey: ["analytics-options"], queryFn: () => getAnalyticsFilterOptions() });
-  const report = useQuery({ queryKey: ["analytics-report", filters], queryFn: () => getBusinessDashboard({ data: filters }) });
+  const isAdmin = useIsAdmin();
+  const options = useQuery({ queryKey: ["analytics-options"], queryFn: () => getAnalyticsFilterOptions(), enabled: isAdmin });
+  const report = useQuery({ queryKey: ["analytics-report", filters], queryFn: () => getBusinessDashboard({ data: filters }), enabled: isAdmin });
   const set = (patch: Partial<typeof filters>) => setFilters((current) => ({ ...current, ...patch }));
   const data = report.data;
   const currency = data?.kpis.currency ?? "EUR";

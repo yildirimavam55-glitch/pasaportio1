@@ -80,6 +80,12 @@ const groups: AdminGroup[] = [
 ];
 
 
+/** Shares AdminGate's access query so pages only fetch admin data once access is confirmed. */
+export function useIsAdmin(): boolean {
+  const { data } = useQuery({ queryKey: ["access"], queryFn: () => getMyAccess() });
+  return Boolean(data?.isAdmin);
+}
+
 export function AdminGate({ title, children }: { title: string; children: ReactNode }) {
   const { data, isPending } = useQuery({ queryKey: ["access"], queryFn: () => getMyAccess() });
   const [mobileOpen, setMobileOpen] = useState(false);
