@@ -9,7 +9,7 @@ import { adminHead } from "@/components/admin/AdminSectionPage";
 import { Button } from "@/components/ui/button";
 import { listPromotions, savePromotion, searchPromotionProducts, setPromotionStatus, type PromotionInput } from "@/lib/promotions.functions";
 import { COUNTRIES, foldText, getCountryByIso } from "@/domain/geo/countries";
-import { DEFAULT_BANNER_TEXT, formatDiscount } from "@/domain/promotions";
+import { formatDiscount } from "@/domain/promotions";
 import { PromoBannerEditor } from "@/components/admin/PromoBannerEditor";
 
 export const Route = createFileRoute("/_authenticated/admin/marketing/promotions")({
