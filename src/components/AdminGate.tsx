@@ -63,6 +63,7 @@ const groups: AdminGroup[] = [
     { to: "/admin/destinations", label: "Destinasyonlar", icon: MapPin },
     { to: "/admin/airports", label: "Havalimanları", icon: Plane },
     { to: "/admin/marketing/campaigns", label: "Kampanyalar", icon: Megaphone },
+    { to: "/admin/marketing/promotions", label: "İndirimler / Kuponlar", icon: Megaphone },
   ]},
   { label: "Finans & Operasyon", links: [
     { to: "/admin/finance", label: "Finans", icon: CircleDollarSign },

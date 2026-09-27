@@ -5,6 +5,7 @@ import { V2PageTitle, V2State } from "@/components/design-v2/V2States";
 import { useCart } from "@/domain/cart/store";
 import { CART_COPY, lineFacts, lineTitle } from "@/components/design-v2/cart-copy";
 import { useI18n } from "@/i18n";
+import { CartCoupon, CouponSummary, useCartCoupon } from "@/components/design-v2/CartCoupon";
 
 export const Route = createFileRoute("/sepet")({
   head: () => ({ meta: [{ title: "Sepet | travely" }, ...V2_NOINDEX] }),
@@ -18,6 +19,8 @@ function V2Cart() {
   const { lines, removeLine, updateQuantity } = useCart();
   const currency = lines[0]?.currency ?? "EUR";
   const total = lines.reduce((sum, line) => sum + (line.price ?? 0) * line.quantity, 0);
+  const coupon = useCartCoupon(lines);
+  const applied = coupon.result?.ok ? coupon.result : null;
 
   return (
     <V2Shell level="transaction" nav="cart">
@@ -59,9 +62,11 @@ function V2Cart() {
               ))}
             </ul>
             <aside className="mt-3 rounded-2xl border border-border bg-card p-4 shadow-card lg:sticky lg:top-24 lg:mt-0 lg:p-6">
+              <CartCoupon coupon={coupon} />
+              {applied && <CouponSummary result={applied} currency={currency} />}
               <div className="flex items-center justify-between bg-secondary px-4 py-3 rounded-xl">
                 <span className="text-sm font-semibold text-muted-foreground">{c.total}</span>
-                <strong className="font-display text-xl text-foreground">{money(total, currency)}</strong>
+                <strong className="font-display text-xl text-foreground">{money(applied ? applied.total : total, currency)}</strong>
               </div>
               <Link to="/odeme" className="mt-3 flex min-h-12 w-full items-center justify-center rounded-full bg-primary text-sm font-semibold text-primary-foreground">{c.review}</Link>
             </aside>

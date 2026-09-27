@@ -91,6 +91,7 @@ import { Route as AuthenticatedAdminEsimProviderImportRouteImport } from './rout
 import { Route as AuthenticatedAdminEsimRoutePresetsRouteImport } from './routes/_authenticated/admin.esim.route-presets'
 import { Route as AuthenticatedAdminLoungeBookingsRouteImport } from './routes/_authenticated/admin.lounge.bookings'
 import { Route as AuthenticatedAdminMarketingCampaignsRouteImport } from './routes/_authenticated/admin.marketing.campaigns'
+import { Route as AuthenticatedAdminMarketingPromotionsRouteImport } from './routes/_authenticated/admin.marketing.promotions'
 import { Route as AuthenticatedAdminSettingsIndexRouteImport } from './routes/_authenticated/admin.settings.index'
 import { Route as AuthenticatedAdminSettingsUsersRouteImport } from './routes/_authenticated/admin.settings.users'
 import { Route as AuthenticatedAdminSmartFindersEsimRouteImport } from './routes/_authenticated/admin.smart-finders.esim'
@@ -555,6 +556,12 @@ const AuthenticatedAdminMarketingCampaignsRoute =
     path: '/admin/marketing/campaigns',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedAdminMarketingPromotionsRoute =
+  AuthenticatedAdminMarketingPromotionsRouteImport.update({
+    id: '/admin/marketing/promotions',
+    path: '/admin/marketing/promotions',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedAdminSettingsIndexRoute =
   AuthenticatedAdminSettingsIndexRouteImport.update({
     id: '/admin/settings/',
@@ -788,6 +795,7 @@ export interface FileRoutesByFullPath {
   '/admin/esim/route-presets': typeof AuthenticatedAdminEsimRoutePresetsRoute
   '/admin/lounge/bookings': typeof AuthenticatedAdminLoungeBookingsRoute
   '/admin/marketing/campaigns': typeof AuthenticatedAdminMarketingCampaignsRoute
+  '/admin/marketing/promotions': typeof AuthenticatedAdminMarketingPromotionsRoute
   '/admin/settings/users': typeof AuthenticatedAdminSettingsUsersRoute
   '/admin/smart-finders/esim': typeof AuthenticatedAdminSmartFindersEsimRoute
   '/admin/storefront/home': typeof AuthenticatedAdminStorefrontHomeRoute
@@ -894,6 +902,7 @@ export interface FileRoutesByTo {
   '/admin/esim/route-presets': typeof AuthenticatedAdminEsimRoutePresetsRoute
   '/admin/lounge/bookings': typeof AuthenticatedAdminLoungeBookingsRoute
   '/admin/marketing/campaigns': typeof AuthenticatedAdminMarketingCampaignsRoute
+  '/admin/marketing/promotions': typeof AuthenticatedAdminMarketingPromotionsRoute
   '/admin/settings/users': typeof AuthenticatedAdminSettingsUsersRoute
   '/admin/smart-finders/esim': typeof AuthenticatedAdminSmartFindersEsimRoute
   '/admin/storefront/home': typeof AuthenticatedAdminStorefrontHomeRoute
@@ -1004,6 +1013,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/esim/route-presets': typeof AuthenticatedAdminEsimRoutePresetsRoute
   '/_authenticated/admin/lounge/bookings': typeof AuthenticatedAdminLoungeBookingsRoute
   '/_authenticated/admin/marketing/campaigns': typeof AuthenticatedAdminMarketingCampaignsRoute
+  '/_authenticated/admin/marketing/promotions': typeof AuthenticatedAdminMarketingPromotionsRoute
   '/_authenticated/admin/settings/users': typeof AuthenticatedAdminSettingsUsersRoute
   '/_authenticated/admin/smart-finders/esim': typeof AuthenticatedAdminSmartFindersEsimRoute
   '/_authenticated/admin/storefront/home': typeof AuthenticatedAdminStorefrontHomeRoute
@@ -1114,6 +1124,7 @@ export interface FileRouteTypes {
     | '/admin/esim/route-presets'
     | '/admin/lounge/bookings'
     | '/admin/marketing/campaigns'
+    | '/admin/marketing/promotions'
     | '/admin/settings/users'
     | '/admin/smart-finders/esim'
     | '/admin/storefront/home'
@@ -1220,6 +1231,7 @@ export interface FileRouteTypes {
     | '/admin/esim/route-presets'
     | '/admin/lounge/bookings'
     | '/admin/marketing/campaigns'
+    | '/admin/marketing/promotions'
     | '/admin/settings/users'
     | '/admin/smart-finders/esim'
     | '/admin/storefront/home'
@@ -1329,6 +1341,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/esim/route-presets'
     | '/_authenticated/admin/lounge/bookings'
     | '/_authenticated/admin/marketing/campaigns'
+    | '/_authenticated/admin/marketing/promotions'
     | '/_authenticated/admin/settings/users'
     | '/_authenticated/admin/smart-finders/esim'
     | '/_authenticated/admin/storefront/home'
@@ -1972,6 +1985,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminMarketingCampaignsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/admin/marketing/promotions': {
+      id: '/_authenticated/admin/marketing/promotions'
+      path: '/admin/marketing/promotions'
+      fullPath: '/admin/marketing/promotions'
+      preLoaderRoute: typeof AuthenticatedAdminMarketingPromotionsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/admin/settings/': {
       id: '/_authenticated/admin/settings/'
       path: '/admin/settings'
@@ -2247,6 +2267,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminEsimRoutePresetsRoute: typeof AuthenticatedAdminEsimRoutePresetsRoute
   AuthenticatedAdminLoungeBookingsRoute: typeof AuthenticatedAdminLoungeBookingsRoute
   AuthenticatedAdminMarketingCampaignsRoute: typeof AuthenticatedAdminMarketingCampaignsRoute
+  AuthenticatedAdminMarketingPromotionsRoute: typeof AuthenticatedAdminMarketingPromotionsRoute
   AuthenticatedAdminSettingsUsersRoute: typeof AuthenticatedAdminSettingsUsersRoute
   AuthenticatedAdminSmartFindersEsimRoute: typeof AuthenticatedAdminSmartFindersEsimRoute
   AuthenticatedAdminStorefrontHomeRoute: typeof AuthenticatedAdminStorefrontHomeRoute
@@ -2295,6 +2316,8 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminLoungeBookingsRoute: AuthenticatedAdminLoungeBookingsRoute,
   AuthenticatedAdminMarketingCampaignsRoute:
     AuthenticatedAdminMarketingCampaignsRoute,
+  AuthenticatedAdminMarketingPromotionsRoute:
+    AuthenticatedAdminMarketingPromotionsRoute,
   AuthenticatedAdminSettingsUsersRoute: AuthenticatedAdminSettingsUsersRoute,
   AuthenticatedAdminSmartFindersEsimRoute:
     AuthenticatedAdminSmartFindersEsimRoute,
