@@ -944,6 +944,9 @@ export type Database = {
           raw_validity_value: number | null
           region_id: string | null
           speed_after_fair_use: string | null
+          supplier_countries: Json | null
+          supplier_groups: Json | null
+          supplier_speed: Json | null
           supports_5g: boolean | null
           supports_hotspot: boolean | null
           topup_supported: boolean | null
@@ -975,6 +978,9 @@ export type Database = {
           raw_validity_value?: number | null
           region_id?: string | null
           speed_after_fair_use?: string | null
+          supplier_countries?: Json | null
+          supplier_groups?: Json | null
+          supplier_speed?: Json | null
           supports_5g?: boolean | null
           supports_hotspot?: boolean | null
           topup_supported?: boolean | null
@@ -1006,6 +1012,9 @@ export type Database = {
           raw_validity_value?: number | null
           region_id?: string | null
           speed_after_fair_use?: string | null
+          supplier_countries?: Json | null
+          supplier_groups?: Json | null
+          supplier_speed?: Json | null
           supports_5g?: boolean | null
           supports_hotspot?: boolean | null
           topup_supported?: boolean | null
