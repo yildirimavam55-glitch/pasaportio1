@@ -20,3 +20,13 @@ No secret values appear in this file. "Owner-approved" means an explicit owner-a
 | Kill switches | Server feature flags; Admin-only | Admins through the Admin UI (not AI) | ACTIVE | 2026-09-28 |
 | Security headers (CSP, framing, Permissions-Policy) | Server | Owner-approved change | NOT YET IMPLEMENTED (P2) | 2026-09-28 |
 | Webhook verification | Server route with signature and idempotency checks | Owner-approved change | NOT YET IMPLEMENTED (no payments) | 2026-09-28 |
+
+## Phase 2 controls (2026-09-28)
+| Control | Enforcement | Authorized changer | Status | Last verified |
+|---|---|---|---|---|
+| Security headers (CSP report-only, frame-ancestors, Permissions-Policy) | `src/security/headers.ts` via `src/server.ts` | Owner-approved dev | ACTIVE (CSP report-only) | 2026-09-28 |
+| Admin/account noindex | `X-Robots-Tag` + robots.txt | Owner-approved dev | ACTIVE | 2026-09-28 |
+| Admin DB functions not anonymous | EXECUTE grants | Owner-approved migration | ACTIVE | 2026-09-28 |
+| Public settings projection | `toPublicSettings` | Owner-approved dev | ACTIVE (table policy still public) | 2026-09-28 |
+| JSON-LD escaping | `safeJsonLd` | Owner-approved dev | ACTIVE | 2026-09-28 |
+| Payment launch gate | `PAYMENTS_LIVE` guard + test | Owner | ACTIVE | 2026-09-28 |
