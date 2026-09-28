@@ -43,7 +43,7 @@ export const getServiceAvailability = createServerFn({ method: "GET" }).handler(
     const client = publicClient();
     const [flags, settings] = await Promise.all([
       client.from("feature_flags").select("key, enabled"),
-      client.from("platform_settings").select("data").eq("id", "active").maybeSingle(),
+      client.rpc("public_platform_settings" as any, { _id: "active" } as any),
     ]);
     const on = (key: string) => {
       const row = (flags.data ?? []).find((flag: any) => flag.key === key);
@@ -52,7 +52,7 @@ export const getServiceAvailability = createServerFn({ method: "GET" }).handler(
     return {
       esim: { storefront: on("storefront.esim"), checkout: on("checkout.esim") },
       lounge: { storefront: on("storefront.lounge"), checkout: on("checkout.lounge") },
-      settings: toPublicSettings(sanitizeSettings(settings.data?.data)),
+      settings: toPublicSettings(sanitizeSettings((settings as any).data ?? undefined)),
     };
   } catch {
     return OPEN;
