@@ -10,9 +10,22 @@ export const Route = createFileRoute("/_authenticated/admin/esim/cost-analysis")
 const money = (n: number | null, c: string | null) => (n == null ? "—" : `${n.toFixed(2)} ${c ?? ""}`);
 
 function CostAnalysisPage() {
-  const { data, isPending, error } = useQuery({ queryKey: ["esim-10gb-cost"], queryFn: () => getEsim10GbCostAnalysis() });
   return (
-    <AdminGate title="10 GB maliyet analizi">
+    <AdminGate title="eSIM maliyet analizi">
+      <div className="space-y-8">
+        <h2 className="font-display text-lg font-bold">10 GB paketler</h2>
+        <CostSection kind="10GB" />
+        <h2 className="font-display text-lg font-bold">Limitsiz paketler (tüm süreler)</h2>
+        <CostSection kind="UNLIMITED" />
+      </div>
+    </AdminGate>
+  );
+}
+
+function CostSection({ kind }: { kind: "10GB" | "UNLIMITED" }) {
+  const { data, isPending, error } = useQuery({ queryKey: ["esim-cost", kind], queryFn: () => getEsim10GbCostAnalysis({ data: { kind } }) });
+  return (
+    <>
       {isPending ? (
         <p className="flex items-center gap-2 text-sm text-muted-foreground"><LoaderCircle className="animate-spin" /> Hesaplanıyor…</p>
       ) : error ? (
@@ -20,7 +33,7 @@ function CostAnalysisPage() {
       ) : data ? (
         <div className="space-y-5">
           <section className="rounded-card border border-border bg-card p-5">
-            <p className="text-sm text-muted-foreground">Yalnızca tedarikçi kataloğundaki aktif, yerel (tek ülke) 10 GB paketler. Sadece analiz — mağaza fiyatları değişmez.</p>
+            <p className="text-sm text-muted-foreground">Yalnızca tedarikçi kataloğundaki aktif, yerel (tek ülke) {kind === "UNLIMITED" ? "limitsiz" : "10 GB"} paketler. Sadece analiz — mağaza fiyatları değişmez.</p>
             <dl className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
               <div className="rounded-xl bg-secondary/60 p-3"><dt className="text-xs font-semibold uppercase text-muted-foreground">{data.countriesWithData} ülke ort. maliyet</dt><dd className="mt-1 text-lg font-bold">{money(data.avgOfAverages, data.currency)}</dd></div>
               <div className="rounded-xl bg-secondary/60 p-3"><dt className="text-xs font-semibold uppercase text-muted-foreground">Ort. en ucuz maliyet</dt><dd className="mt-1 text-lg font-bold">{money(data.avgOfCheapest, data.currency)}</dd></div>
@@ -50,6 +63,6 @@ function CostAnalysisPage() {
           </section>
         </div>
       ) : null}
-    </AdminGate>
+    </>
   );
 }
