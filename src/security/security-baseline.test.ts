@@ -16,7 +16,7 @@ const walk = (dir: string): string[] =>
     return statSync(p).isDirectory() ? walk(p) : [p];
   });
 const src = walk("src").filter((p) => /\.(ts|tsx)$/.test(p) && !p.endsWith(".test.ts") && !p.includes("routeTree.gen"));
-const clientCode = src.filter((p) => (p.startsWith("src/components") || p.startsWith("src/routes")) && !p.startsWith("src/routes/api"));
+const clientCode = src.filter((p) => (p.startsWith("src/components") || p.startsWith("src/routes")) && !p.startsWith("src/routes/api") && !p.endsWith(".xml.ts"));
 
 /** Body of a named createServerFn export (until the next top-level export). */
 function serverFn(file: string, name: string) {
