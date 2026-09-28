@@ -32,7 +32,7 @@ describe("secrets never reach the browser", () => {
     for (const f of clientCode) {
       const s = read(f);
       expect(s, f).not.toMatch(/from ["']@\/integrations\/supabase\/client\.server["']/);
-      expect(s, f).not.toMatch(/SUPABASE_SERVICE_ROLE_KEY|ESIM_GO_API_KEY/);
+      expect(s, f).not.toMatch(/process\.env|SUPABASE_SERVICE_ROLE_KEY/);
     }
   });
   it("no secret is exposed through a VITE_ variable", () => {
