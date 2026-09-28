@@ -173,7 +173,7 @@ export const getSeoPage = createServerFn({ method: "GET" })
         ? client.from("guides").select(LINK_SELECT).eq("country_iso", countryIso).eq("status", "PUBLISHED").limit(24)
         : Promise.resolve({ data: [] as any[] }),
       client.from("guides").select(LINK_SELECT).eq("content_type", "DESTINATION").eq("status", "PUBLISHED").limit(12),
-      client.from("platform_settings").select("data").eq("id", "seo").maybeSingle(),
+      client.rpc("public_platform_settings" as any, { _id: "seo" } as any).then((r: any) => ({ data: r.data ? { data: r.data } : null })),
       commercialForGuide(row.id).catch(() => ({ target: null, service: "GENERAL" })),
     ]);
 
@@ -251,7 +251,7 @@ export const getSeoPreview = createServerFn({ method: "GET" })
         ? client.from("guides").select(LINK_SELECT).eq("country_iso", countryIso).eq("status", "PUBLISHED").limit(24)
         : Promise.resolve({ data: [] as any[] }),
       client.from("guides").select(LINK_SELECT).eq("content_type", "DESTINATION").eq("status", "PUBLISHED").limit(12),
-      client.from("platform_settings").select("data").eq("id", "seo").maybeSingle(),
+      client.rpc("public_platform_settings" as any, { _id: "seo" } as any).then((r: any) => ({ data: r.data ? { data: r.data } : null })),
       commercialForDraft(db, row.id).catch(() => ({ target: null, service: "GENERAL" })),
     ]);
     const manualLinks = toLinks((manual as any).data ?? [], data.locale, row.id);
@@ -408,7 +408,7 @@ export const getSeoHub = createServerFn({ method: "GET" })
         )
         .eq("status", "PUBLISHED")
         .limit(500),
-      client.from("platform_settings").select("data").eq("id", "seo").maybeSingle(),
+      client.rpc("public_platform_settings" as any, { _id: "seo" } as any).then((r: any) => ({ data: r.data ? { data: r.data } : null })),
     ]);
     if (rowsResult.error) throw new Error(rowsResult.error.message);
     const settings = (settingsRow as any)?.data?.data ? settingsOf((settingsRow as any).data.data) : DEFAULT_SETTINGS;

@@ -45,6 +45,8 @@ export const getSecurityStatus = createServerFn({ method: "GET" })
         { key: "cost", label: "Tedarikçi maliyet koruması", state: ok(s["supplierCostProtection"]) },
         { key: "roles", label: "Admin rol koruması", state: ok(s["roleProtection"]) },
         { key: "rate", label: "İstek sınırlama", state: ok(s["rateLimiting"]) },
+        { key: "roleLookup", label: "Rol sorgusu yalnızca kendi hesabı için", state: ok(s["roleLookupSelfOnly"]) },
+        { key: "settingsTable", label: "Tam ayar kaydı yalnızca Admin", state: ok(s["settingsTablePrivate"]) },
         { key: "admin", label: "Sunucu tarafı Admin yetkisi", state: "ACTIVE" },
         { key: "qr", label: "QR / aktivasyon koruması", state: ok(s["customerIsolation"]) },
         { key: "payment", label: "Gerçek ödeme", state: "DISABLED" },
