@@ -64,3 +64,7 @@ Never edit or delete past entries. Never record secrets here.
 - **OWNER APPROVED #2 — platform_settings private**: dropped policy "platform settings public read"; revoked anon SELECT. Admin access via existing `is_admin()` policy. New `public_platform_settings(_id)` returns only allowlisted fields (`active`: brandName, supportEmail, supportUrl, maintenance, whatsappWidget, refundTrust; `seo`: organizationName, defaultOgImage, twitterHandle, hubs). Storefront/SEO server reads switched to it.
 - **Status page**: two deterministic checks added (`roleLookupSelfOnly`, `settingsTablePrivate`).
 - **Tests**: `src/security/security-phase2-1.test.ts` added. CSP remains report-only; no auth settings, rate limits or other controls changed.
+
+## 2026-09-28 — Auth Phase 3A (OWNER APPROVED: item 1 only)
+- Enabled built-in leaked-password protection (HIBP) in the auth provider. Verified: signup with a known-leaked password is rejected (`weak_password`, reason `pwned`). No application code receives or checks passwords.
+- Unchanged: signup enabled, email confirmation required, anonymous users off, MFA, redirect allowlist, provider rate limits, password length/complexity.
