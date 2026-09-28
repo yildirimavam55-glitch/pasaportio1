@@ -40,3 +40,19 @@ Never edit or delete past entries. Never record secrets here.
 - **New documents:** `docs/security/SECURITY_BASELINE.md` and `SECURITY_CONTROL_MATRIX.md`.
 - **Admin page:** read-only `/admin/security`, backed by the admin-only `security_baseline_status()` function. There are no write endpoints.
 - **Tests:** `src/security/security-baseline.test.ts`, 19 tests. Set `SECURITY_LIVE=1` to add the live anonymous probes. Everything passed.
+
+---
+
+## 2026-09-28T17:10Z — Phase 2 / P2 hardening
+**Approved by:** owner task "SECURITY PHASE 2 / P2 HARDENING".
+
+- **Security headers** (`src/security/headers.ts`, `src/server.ts`): CSP in report-only mode; enforced `frame-ancestors 'self'` + `X-Frame-Options: SAMEORIGIN` on production hosts, Lovable-editor-only framing on preview hosts; conservative Permissions-Policy; `X-Robots-Tag: noindex, nofollow` on admin/account/auth/api/cart/checkout paths. Existing edge headers are not overwritten.
+- **Admin DB functions** (migration): EXECUTE revoked from PUBLIC/anon on `accept_admin_invitation`, `cancel_admin_invitation`, `invite_admin`, `list_admin_users`, `log_admin_action`, `refresh_admin_invitation`, `revoke_admin`, `has_role`, `is_admin`; kept for authenticated (internal is_admin checks unchanged). `handle_new_user` no longer callable via the API. No RLS policy changed.
+- **Platform settings**: public availability response now returns only storefront fields; operational fields stay Admin-only. Direct table read policy unchanged (owner approval required).
+- **Dependency**: `js-yaml` overridden to 4.3.2 (build-time path via TanStack Start plugin → xmlbuilder2).
+- **Provider sync**: public 500 response is generic (`SYNC_FAILED`); details logged server-side only.
+- **Test payment**: `confirmTestPayment` also refuses when `PAYMENTS_LIVE=true`; launch-gate test added.
+- **JSON-LD**: all structured data serialized through `safeJsonLd` (escapes `<`, `>`, `&`, U+2028/2029).
+- **Robots**: `/admin`, `/account`, `/api/`, `/legacy-v1` disallowed (defence-in-depth only).
+- **Status page**: four read-only deterministic checks added.
+- **Tests**: `src/security/security-phase2.test.ts` added; existing baseline tests unchanged.
