@@ -8,7 +8,7 @@ import { DEFAULT_SETTINGS, PUBLIC_SETTINGS_FIELDS, toPublicSettings } from "@/do
 
 const read = (p: string) => readFileSync(p, "utf8");
 const migrations = readdirSync("supabase/migrations").sort().map((f) => read(`supabase/migrations/${f}`)).join("\n");
-const lastDef = (name: string) => migrations.slice(migrations.lastIndexOf(`FUNCTION public.${name}(`));
+const lastDef = (name: string) => migrations.slice(migrations.lastIndexOf(`CREATE OR REPLACE FUNCTION public.${name}(`));
 
 describe("role lookup is self-only", () => {
   it("has_role answers only for the caller (or service role)", () => {
@@ -22,7 +22,7 @@ describe("role lookup is self-only", () => {
   it("server code checks only the signed-in user's own role", () => {
     for (const f of readdirSync("src/lib").filter((n) => n.endsWith(".ts"))) {
       for (const m of read(`src/lib/${f}`).matchAll(/rpc\("has_role",\s*\{\s*_user_id:\s*([^,]+),/g)) {
-        expect(m[1].trim(), f).toMatch(/userId$/);
+        expect((m[1] ?? "").trim(), f).toMatch(/userId$/);
       }
     }
   });
