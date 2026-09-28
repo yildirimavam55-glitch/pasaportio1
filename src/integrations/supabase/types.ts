@@ -3547,6 +3547,7 @@ export type Database = {
         Returns: undefined
       }
       revoke_admin: { Args: { _user_id: string }; Returns: undefined }
+      security_baseline_status: { Args: never; Returns: Json }
     }
     Enums: {
       alert_status: "OPEN" | "ACKNOWLEDGED" | "RESOLVED"
