@@ -391,23 +391,26 @@ function ResultPanel({ device, copy, onAgain }: { device: DeviceRecord; copy: Co
   const iconTone = ok ? "bg-primary text-primary-foreground" : not ? "bg-destructive text-destructive-foreground" : "bg-cta text-cta-foreground";
 
   return (
-    <div role="status" className={`rounded-xl p-4 motion-safe:animate-in motion-safe:fade-in motion-safe:zoom-in-95 ${tone}`}>
-      <div className="flex items-start gap-3">
-        <span className={`grid size-11 shrink-0 place-items-center rounded-full ${iconTone}`}><Icon className="size-6" aria-hidden="true" /></span>
-        <div className="min-w-0">
-          <strong className="block font-display text-base sm:text-lg">{title}</strong>
-          <p className="mt-0.5 text-sm text-muted-foreground">{message}</p>
+    <div role="status" className={`min-w-0 rounded-xl p-3 motion-safe:animate-in motion-safe:fade-in motion-safe:zoom-in-95 ${tone}`}>
+      <div className="flex min-w-0 items-start gap-2.5">
+        <span className={`grid size-8 shrink-0 place-items-center rounded-full ${iconTone}`}><Icon className="size-[18px]" aria-hidden="true" /></span>
+        <div className="min-w-0 flex-1">
+          <strong className="block break-words font-display text-[15px] leading-snug">{title}</strong>
+          <p className="mt-0.5 break-words text-[13px] leading-snug text-muted-foreground">{message}</p>
           {!ok && <p className="mt-0.5 text-xs font-semibold text-muted-foreground">{device.model} — {statusLabel(copy, device.status)}</p>}
-          {device.notes && <p className="mt-1 text-sm text-muted-foreground">{device.notes}</p>}
-          {device.regionVariantWarning && <p className="mt-1 text-sm text-muted-foreground">{copy.regionNote}</p>}
+          {device.notes && <p className="mt-1 text-[13px] leading-snug text-muted-foreground">{device.notes}</p>}
+          {device.regionVariantWarning && <p className="mt-1 text-[13px] leading-snug text-muted-foreground">{copy.regionNote}</p>}
+          <div className="mt-2 flex min-w-0 flex-wrap items-center gap-x-4 gap-y-1">
+            {ok ? (
+              <Link to="/esim/kurulum" search={{ platform: device.brand === "Apple" ? "ios" : "android", brand: device.brand }} className="inline-flex min-h-11 min-w-0 max-w-full items-center gap-1 whitespace-normal break-words text-sm font-bold text-cta underline-offset-4 hover:underline">
+                <span className="min-w-0">{copy.guide}</span><ChevronRight className="size-4 shrink-0" aria-hidden="true" />
+              </Link>
+            ) : null}
+            <button type="button" onClick={onAgain} className="inline-flex min-h-11 items-center text-sm font-semibold text-muted-foreground underline underline-offset-4 hover:text-foreground">
+              {ok ? copy.changeDevice : not ? copy.ctaNot : copy.ctaUncertain}
+            </button>
+          </div>
         </div>
-      </div>
-      <div className="mt-4">
-        {ok ? (
-          <Button asChild variant="cta" size="lg" className="min-h-12 w-full"><Link to="/esim/kurulum" search={{ platform: device.brand === "Apple" ? "ios" : "android", brand: device.brand }}>{copy.guide}<ChevronRight className="size-4" /></Link></Button>
-        ) : (
-          <Button variant="outline" className="w-full sm:w-auto" onClick={onAgain}>{not ? copy.ctaNot : copy.ctaUncertain}</Button>
-        )}
       </div>
     </div>
   );
