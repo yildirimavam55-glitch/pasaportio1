@@ -296,7 +296,8 @@ export function DeviceCheckSheet({ surface, trigger, detection }: { surface: str
         </SheetHeader>
 
         <div className="space-y-4 px-4 pb-4 pt-2 sm:px-6">
-          <div className="rounded-2xl border border-border bg-card p-4 shadow-soft">
+          <div className="rounded-2xl border border-border bg-card p-3 shadow-soft sm:p-4">
+            {!selected && (<>
             <label htmlFor="device-brand" className="mb-1.5 block text-sm font-semibold">{x.brandSelect}</label>
             <select
               id="device-brand"
@@ -308,7 +309,7 @@ export function DeviceCheckSheet({ surface, trigger, detection }: { surface: str
               {brands.map((item) => <option key={item} value={item}>{item}</option>)}
             </select>
 
-            <p className="mb-1.5 mt-4 block text-sm font-semibold" id="device-model-label">{x.modelSelect}</p>
+            <p className="mb-1.5 mt-3 block text-sm font-semibold" id="device-model-label">{x.modelSelect}</p>
             <div className="flex flex-col gap-3 sm:flex-row sm:items-start">
               <div className="relative min-w-0 flex-1">
                 <button
@@ -350,8 +351,9 @@ export function DeviceCheckSheet({ surface, trigger, detection }: { surface: str
               </div>
               <Button size="lg" className="min-h-12 w-full sm:w-auto" disabled={!pending} onClick={runCheck}>{x.checkCta}<ArrowRightIcon /></Button>
             </div>
+            </>)}
 
-            {selected && <div className="mt-4"><ResultPanel device={selected} copy={copy} onAgain={() => { setSelected(null); setPending(null); setListOpen(true); }} /></div>}
+            {selected && <div><ResultPanel device={selected} copy={copy} onAgain={() => { setSelected(null); setPending(null); setListOpen(true); }} /></div>}
           </div>
 
           <Accordion type="single" collapsible className="rounded-xl border border-border bg-card px-4">
