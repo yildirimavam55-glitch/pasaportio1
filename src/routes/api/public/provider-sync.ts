@@ -22,7 +22,9 @@ export const Route = createFileRoute("/api/public/provider-sync")({
             headers: { "Content-Type": "application/json" },
           });
         } catch (error) {
-          return new Response(JSON.stringify({ ok: false, error: (error as Error).message }), {
+          // Details stay in server logs; the public response is always generic.
+          console.error("provider-sync failed", error);
+          return new Response(JSON.stringify({ ok: false, error: "SYNC_FAILED" }), {
             status: 500,
             headers: { "Content-Type": "application/json" },
           });
