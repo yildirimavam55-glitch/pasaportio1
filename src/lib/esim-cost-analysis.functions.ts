@@ -33,7 +33,7 @@ export const getEsim10GbCostAnalysis = createServerFn({ method: "GET" })
       // Local only: single-country coverage, no regional/global bundles.
       if (coverage.size !== 1 || (d?.package_kind && d.package_kind !== "COUNTRY")) continue;
       const currency = row.provider_currency ?? "EUR";
-      const entry = byIso.get(iso) ?? { costs: [], currency };
+      const entry: { costs: number[]; currency: string } = byIso.get(iso) ?? { costs: [], currency };
       if (entry.currency !== currency) continue; // never mix currencies silently
       entry.costs.push(Number(row.provider_cost));
       byIso.set(iso, entry);
