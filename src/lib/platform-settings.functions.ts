@@ -2,7 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { createClient } from "@supabase/supabase-js";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { adminDb, audit, type AdminCtx } from "@/lib/admin-guard";
-import { DEFAULT_SETTINGS, sanitizeSettings, type PlatformSettings } from "@/domain/platform/settings";
+import { DEFAULT_SETTINGS, sanitizeSettings, toPublicSettings, type PlatformSettings, type PublicPlatformSettings } from "@/domain/platform/settings";
 
 /**
  * Safe business settings + public service availability.
@@ -13,7 +13,7 @@ import { DEFAULT_SETTINGS, sanitizeSettings, type PlatformSettings } from "@/dom
 export type ServiceAvailability = {
   esim: { storefront: boolean; checkout: boolean };
   lounge: { storefront: boolean; checkout: boolean };
-  settings: PlatformSettings;
+  settings: PublicPlatformSettings;
 };
 
 function publicClient() {
@@ -34,7 +34,7 @@ function publicClient() {
 const OPEN: ServiceAvailability = {
   esim: { storefront: true, checkout: true },
   lounge: { storefront: true, checkout: true },
-  settings: DEFAULT_SETTINGS,
+  settings: toPublicSettings(DEFAULT_SETTINGS),
 };
 
 /** Public, never throws: a read failure keeps the storefront in its normal state. */
@@ -52,7 +52,7 @@ export const getServiceAvailability = createServerFn({ method: "GET" }).handler(
     return {
       esim: { storefront: on("storefront.esim"), checkout: on("checkout.esim") },
       lounge: { storefront: on("storefront.lounge"), checkout: on("checkout.lounge") },
-      settings: sanitizeSettings(settings.data?.data),
+      settings: toPublicSettings(sanitizeSettings(settings.data?.data)),
     };
   } catch {
     return OPEN;

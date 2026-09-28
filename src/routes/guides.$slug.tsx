@@ -1,3 +1,4 @@
+import { safeJsonLd } from "@/security/json-ld";
 import { createFileRoute, Link, notFound, redirect } from "@tanstack/react-router";
 import { getSeoPage } from "@/lib/seo-content.functions";
 import { useSuspenseQuery } from "@tanstack/react-query";
@@ -121,7 +122,7 @@ export const Route = createFileRoute("/guides/$slug")({
     const scripts = [
       {
         type: "application/ld+json",
-        children: JSON.stringify({
+        children: safeJsonLd({
           "@context": "https://schema.org",
           "@type": "Article",
           headline: guide.title,
@@ -135,7 +136,7 @@ export const Route = createFileRoute("/guides/$slug")({
       },
       {
         type: "application/ld+json",
-        children: JSON.stringify({
+        children: safeJsonLd({
           "@context": "https://schema.org",
           "@type": "BreadcrumbList",
           itemListElement: [
@@ -384,7 +385,7 @@ function GuideArticle({
               type="application/ld+json"
               // FAQ structured data mirrors exactly what the page shows.
               dangerouslySetInnerHTML={{
-                __html: JSON.stringify({
+                __html: safeJsonLd({
                   "@context": "https://schema.org",
                   "@type": "FAQPage",
                   mainEntity: guide.faq.map((item) => ({

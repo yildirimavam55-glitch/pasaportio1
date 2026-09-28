@@ -1,0 +1,13 @@
+/**
+ * Serialize structured data for an inline <script type="application/ld+json">.
+ * Escapes <, >, & and line separators so Admin-authored text such as
+ * "</script>" can never close the script block. Output stays valid JSON.
+ */
+export function safeJsonLd(value: unknown): string {
+  return JSON.stringify(value)
+    .replace(/</g, "\\u003c")
+    .replace(/>/g, "\\u003e")
+    .replace(/&/g, "\\u0026")
+    .replace(/\u2028/g, "\\u2028")
+    .replace(/\u2029/g, "\\u2029");
+}

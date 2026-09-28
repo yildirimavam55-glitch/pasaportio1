@@ -7,6 +7,9 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { assertAdminRole, type AdminCtx } from "@/lib/admin-guard";
+import { securityHeaders, NOINDEX_PATH } from "@/security/headers";
+import { safeJsonLd } from "@/security/json-ld";
+import { PUBLIC_SETTINGS_FIELDS } from "@/domain/platform/settings";
 
 export type ControlState = "ACTIVE" | "FAIL" | "DISABLED" | "ENABLED";
 export type SecurityStatus = {
@@ -29,6 +32,11 @@ export const getSecurityStatus = createServerFn({ method: "GET" })
       .maybeSingle();
     const ok = (v: unknown): ControlState => (v === true ? "ACTIVE" : "FAIL");
     const liveProvisioning = String(process.env["COMMERCE_LIVE_PROVISIONING"] ?? "").toLowerCase() === "true";
+    const prod = securityHeaders(new URL("https://example.invalid/"));
+    const headersOk = Boolean(prod["Content-Security-Policy-Report-Only"] && /frame-ancestors 'self'$/.test(prod["Content-Security-Policy"] ?? "") && prod["Permissions-Policy"]);
+    const noindexOk = NOINDEX_PATH.test("/admin") && NOINDEX_PATH.test("/account");
+    const settingsOk = !(PUBLIC_SETTINGS_FIELDS as readonly string[]).some((k) => ["senderName", "timezone", "reportingCurrency", "defaultLocale"].includes(k));
+    const jsonLdOk = !safeJsonLd({ x: "</script>" }).includes("<");
     return {
       checkedAt: String(s["checkedAt"] ?? new Date().toISOString()),
       controls: [
@@ -41,6 +49,10 @@ export const getSecurityStatus = createServerFn({ method: "GET" })
         { key: "qr", label: "QR / aktivasyon koruması", state: ok(s["customerIsolation"]) },
         { key: "payment", label: "Gerçek ödeme", state: "DISABLED" },
         { key: "testPayment", label: "Test ödeme modu", state: flag?.enabled ? "ENABLED" : "DISABLED" },
+        { key: "headers", label: "Güvenlik başlıkları (CSP rapor modu, çerçeve koruması, izin politikası)", state: headersOk ? "ACTIVE" : "FAIL" },
+        { key: "noindex", label: "Admin sayfaları arama motorlarından gizli", state: noindexOk ? "ACTIVE" : "FAIL" },
+        { key: "settings", label: "Genel / özel ayar ayrımı (sunucu yanıtı)", state: settingsOk ? "ACTIVE" : "FAIL" },
+        { key: "jsonld", label: "Yapılandırılmış veri güvenli kodlama", state: jsonLdOk ? "ACTIVE" : "FAIL" },
         { key: "provisioning", label: "Canlı eSIM tedariki", state: liveProvisioning ? "ENABLED" : "DISABLED" },
       ],
     };

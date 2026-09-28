@@ -1,3 +1,4 @@
+import { safeJsonLd } from "@/security/json-ld";
 import type { Locale } from "@/domain/enums";
 import { SEO_BASE_URL, GUIDE_FOLDER, type SeoFamily } from "@/domain/seo/paths";
 import { getSeoPage, type SeoPage } from "@/lib/seo-content.functions";
@@ -67,7 +68,7 @@ export function seoHead(page: SeoPage | null | undefined) {
   const scripts = [
     {
       type: "application/ld+json",
-      children: JSON.stringify({
+      children: safeJsonLd({
         "@context": "https://schema.org",
         "@type": articleType,
         headline: page.h1,
@@ -83,7 +84,7 @@ export function seoHead(page: SeoPage | null | undefined) {
     },
     {
       type: "application/ld+json",
-      children: JSON.stringify({
+      children: safeJsonLd({
         "@context": "https://schema.org",
         "@type": "BreadcrumbList",
         itemListElement: [

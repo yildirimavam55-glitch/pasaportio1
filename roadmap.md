@@ -651,3 +651,8 @@
 - [ ] Real refund/cancellation legal page URL (Admin setting) — waits on legal text
 - [ ] Provider usage verification — needs a live eSIM Go eSIM
 - [ ] Payment-provider refund integration (REFUNDED) — payments not live
+
+## Security Phase 2 (P2)
+- [x] Headers, noindex, DB function grants, settings projection, js-yaml, sync errors, JSON-LD, payment gate, status page, tests, changelog.
+- [ ] Owner approval: platform_settings public table policy; has_role other-user lookup; auth settings changes.
+- [ ] Live two-customer isolation test (needs two test customer accounts).

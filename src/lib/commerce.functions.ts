@@ -53,6 +53,10 @@ export const confirmTestPayment = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: { orderId: string }) => input)
   .handler(async ({ data, context }) => {
+    // Launch gate: the test path is unavailable whenever real payments are live.
+    if (String(process.env["PAYMENTS_LIVE"] ?? "").toLowerCase() === "true") {
+      return { ok: false as const, reason: "TEST_PAYMENTS_DISABLED" as const };
+    }
     const db = await adminDb(context as Ctx);
     const { data: flag } = await db
       .from("feature_flags")

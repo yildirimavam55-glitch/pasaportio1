@@ -158,3 +158,16 @@ export function settingsText(value: SettingsText | undefined, locale: Locale, fa
   if (!value) return fallback;
   return value[locale]?.trim() || value.tr?.trim() || fallback;
 }
+
+/**
+ * Storefront-safe subset. Only fields the public storefront renders leave the
+ * server; operational fields (sender name, timezone, reporting currency,
+ * default locale) stay Admin-only.
+ */
+export type PublicPlatformSettings = Pick<PlatformSettings, "brandName" | "supportEmail" | "supportUrl" | "maintenance" | "whatsappWidget" | "refundTrust">;
+export const PUBLIC_SETTINGS_FIELDS = ["brandName", "supportEmail", "supportUrl", "maintenance", "whatsappWidget", "refundTrust"] as const;
+
+export function toPublicSettings(settings: PlatformSettings): PublicPlatformSettings {
+  const { brandName, supportEmail, supportUrl, maintenance, whatsappWidget, refundTrust } = settings;
+  return { brandName, supportEmail, supportUrl, maintenance, whatsappWidget, refundTrust };
+}

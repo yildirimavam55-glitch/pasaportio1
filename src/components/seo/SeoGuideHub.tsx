@@ -1,3 +1,4 @@
+import { safeJsonLd } from "@/security/json-ld";
 import { useEffect, useMemo } from "react";
 
 import { PublicShell } from "@/components/travel/PublicShell";
@@ -97,7 +98,7 @@ export function seoHubHead(locale: Locale, data: SeoHubData | undefined) {
   const scripts = [
     {
       type: "application/ld+json",
-      children: JSON.stringify({
+      children: safeJsonLd({
         "@context": "https://schema.org",
         "@type": "BreadcrumbList",
         itemListElement: [
