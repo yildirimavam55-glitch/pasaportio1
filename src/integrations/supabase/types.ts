@@ -3537,6 +3537,7 @@ export type Database = {
         }
         Returns: string
       }
+      public_platform_settings: { Args: { _id: string }; Returns: Json }
       public_promotion_banner: {
         Args: never
         Returns: {
