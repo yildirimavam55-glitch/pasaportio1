@@ -84,6 +84,7 @@ import { Route as TrEsimSlugRouteImport } from './routes/tr.esim.$slug'
 import { Route as TrRehberIndexRouteImport } from './routes/tr.rehber.index'
 import { Route as TrRehberSlugRouteImport } from './routes/tr.rehber.$slug'
 import { Route as AuthenticatedAdminContentSeoRouteImport } from './routes/_authenticated/admin.content.seo'
+import { Route as AuthenticatedAdminEsimCostAnalysisRouteImport } from './routes/_authenticated/admin.esim.cost-analysis'
 import { Route as AuthenticatedAdminEsimCoverageRouteImport } from './routes/_authenticated/admin.esim.coverage'
 import { Route as AuthenticatedAdminEsimDevicesRouteImport } from './routes/_authenticated/admin.esim.devices'
 import { Route as AuthenticatedAdminEsimFulfillmentRouteImport } from './routes/_authenticated/admin.esim.fulfillment'
@@ -514,6 +515,12 @@ const AuthenticatedAdminContentSeoRoute =
     path: '/admin/content/seo',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedAdminEsimCostAnalysisRoute =
+  AuthenticatedAdminEsimCostAnalysisRouteImport.update({
+    id: '/admin/esim/cost-analysis',
+    path: '/admin/esim/cost-analysis',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedAdminEsimCoverageRoute =
   AuthenticatedAdminEsimCoverageRouteImport.update({
     id: '/admin/esim/coverage',
@@ -788,6 +795,7 @@ export interface FileRoutesByFullPath {
   '/esim/bolge/': typeof EsimBolgeIndexRoute
   '/tr/rehber/': typeof TrRehberIndexRoute
   '/admin/content/seo': typeof AuthenticatedAdminContentSeoRoute
+  '/admin/esim/cost-analysis': typeof AuthenticatedAdminEsimCostAnalysisRoute
   '/admin/esim/coverage': typeof AuthenticatedAdminEsimCoverageRoute
   '/admin/esim/devices': typeof AuthenticatedAdminEsimDevicesRoute
   '/admin/esim/fulfillment': typeof AuthenticatedAdminEsimFulfillmentRoute
@@ -895,6 +903,7 @@ export interface FileRoutesByTo {
   '/esim/bolge': typeof EsimBolgeIndexRoute
   '/tr/rehber': typeof TrRehberIndexRoute
   '/admin/content/seo': typeof AuthenticatedAdminContentSeoRoute
+  '/admin/esim/cost-analysis': typeof AuthenticatedAdminEsimCostAnalysisRoute
   '/admin/esim/coverage': typeof AuthenticatedAdminEsimCoverageRoute
   '/admin/esim/devices': typeof AuthenticatedAdminEsimDevicesRoute
   '/admin/esim/fulfillment': typeof AuthenticatedAdminEsimFulfillmentRoute
@@ -1006,6 +1015,7 @@ export interface FileRoutesById {
   '/esim/bolge/': typeof EsimBolgeIndexRoute
   '/tr/rehber/': typeof TrRehberIndexRoute
   '/_authenticated/admin/content/seo': typeof AuthenticatedAdminContentSeoRoute
+  '/_authenticated/admin/esim/cost-analysis': typeof AuthenticatedAdminEsimCostAnalysisRoute
   '/_authenticated/admin/esim/coverage': typeof AuthenticatedAdminEsimCoverageRoute
   '/_authenticated/admin/esim/devices': typeof AuthenticatedAdminEsimDevicesRoute
   '/_authenticated/admin/esim/fulfillment': typeof AuthenticatedAdminEsimFulfillmentRoute
@@ -1117,6 +1127,7 @@ export interface FileRouteTypes {
     | '/esim/bolge/'
     | '/tr/rehber/'
     | '/admin/content/seo'
+    | '/admin/esim/cost-analysis'
     | '/admin/esim/coverage'
     | '/admin/esim/devices'
     | '/admin/esim/fulfillment'
@@ -1224,6 +1235,7 @@ export interface FileRouteTypes {
     | '/esim/bolge'
     | '/tr/rehber'
     | '/admin/content/seo'
+    | '/admin/esim/cost-analysis'
     | '/admin/esim/coverage'
     | '/admin/esim/devices'
     | '/admin/esim/fulfillment'
@@ -1334,6 +1346,7 @@ export interface FileRouteTypes {
     | '/esim/bolge/'
     | '/tr/rehber/'
     | '/_authenticated/admin/content/seo'
+    | '/_authenticated/admin/esim/cost-analysis'
     | '/_authenticated/admin/esim/coverage'
     | '/_authenticated/admin/esim/devices'
     | '/_authenticated/admin/esim/fulfillment'
@@ -1936,6 +1949,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminContentSeoRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/admin/esim/cost-analysis': {
+      id: '/_authenticated/admin/esim/cost-analysis'
+      path: '/admin/esim/cost-analysis'
+      fullPath: '/admin/esim/cost-analysis'
+      preLoaderRoute: typeof AuthenticatedAdminEsimCostAnalysisRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/admin/esim/coverage': {
       id: '/_authenticated/admin/esim/coverage'
       path: '/admin/esim/coverage'
@@ -2260,6 +2280,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
   AuthenticatedHesabimIndexRoute: typeof AuthenticatedHesabimIndexRoute
   AuthenticatedAdminContentSeoRoute: typeof AuthenticatedAdminContentSeoRoute
+  AuthenticatedAdminEsimCostAnalysisRoute: typeof AuthenticatedAdminEsimCostAnalysisRoute
   AuthenticatedAdminEsimCoverageRoute: typeof AuthenticatedAdminEsimCoverageRoute
   AuthenticatedAdminEsimDevicesRoute: typeof AuthenticatedAdminEsimDevicesRoute
   AuthenticatedAdminEsimFulfillmentRoute: typeof AuthenticatedAdminEsimFulfillmentRoute
@@ -2305,6 +2326,8 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
   AuthenticatedHesabimIndexRoute: AuthenticatedHesabimIndexRoute,
   AuthenticatedAdminContentSeoRoute: AuthenticatedAdminContentSeoRoute,
+  AuthenticatedAdminEsimCostAnalysisRoute:
+    AuthenticatedAdminEsimCostAnalysisRoute,
   AuthenticatedAdminEsimCoverageRoute: AuthenticatedAdminEsimCoverageRoute,
   AuthenticatedAdminEsimDevicesRoute: AuthenticatedAdminEsimDevicesRoute,
   AuthenticatedAdminEsimFulfillmentRoute:
