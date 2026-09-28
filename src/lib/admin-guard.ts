@@ -1,14 +1,38 @@
 /** Shared admin guard + audit helper for admin-only server functions. */
 export type AdminCtx = { supabase: any; userId: string };
 
-export async function adminDb(context: AdminCtx) {
+/**
+ * SECURITY BASELINE (docs/security/SECURITY_BASELINE.md):
+ * Verifies the admin role server-side through the caller's own session, then
+ * returns a client whose table access runs server-side with full privileges
+ * (supplier cost columns are not readable by browser roles), while `.rpc()`
+ * keeps the caller's identity so audit/role functions still see auth.uid().
+ * Never call this before the role check; never expose the result to a client.
+ */
+export async function assertAdminRole(context: AdminCtx) {
   const { data, error } = await context.supabase.rpc("has_role", {
     _user_id: context.userId,
     _role: "admin",
   });
   if (error) throw new Error(error.message);
-  if (!data) throw new Error("Yönetici yetkisi gerekiyor.");
-  return context.supabase;
+  if (data !== true) throw new Error("Yönetici yetkisi gerekiyor.");
+}
+
+export async function privilegedAdminDb(context: AdminCtx) {
+  await assertAdminRole(context);
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const admin: any = supabaseAdmin;
+  return new Proxy(context.supabase, {
+    get(target, prop) {
+      if (prop === "from") return admin.from.bind(admin);
+      const value = target[prop];
+      return typeof value === "function" ? value.bind(target) : value;
+    },
+  });
+}
+
+export async function adminDb(context: AdminCtx) {
+  return privilegedAdminDb(context);
 }
 
 /** Keys whose values must never reach the audit log. */
