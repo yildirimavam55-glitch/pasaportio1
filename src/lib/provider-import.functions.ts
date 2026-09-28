@@ -1,3 +1,4 @@
+import { privilegedAdminDb } from "@/lib/admin-guard";
 import { createServerFn } from "@tanstack/react-start";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
@@ -23,6 +24,9 @@ async function assertAdmin(context: Ctx) {
   const { data, error } = await context.supabase.rpc("has_role", { _user_id: context.userId, _role: "admin" });
   if (error) throw new Error(error.message);
   if (!data) throw new Error("Yönetici yetkisi gerekiyor.");
+  // Security baseline: table access after the verified role check runs server-side
+  // (supplier cost columns are not readable by browser roles); rpc keeps the caller identity.
+  (context as any).supabase = await privilegedAdminDb(context as any);
 }
 
 function normalizePricing(input: any): PricingInput {

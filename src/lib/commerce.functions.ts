@@ -24,6 +24,9 @@ export const createEsimOrderRequest = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: { lines: OrderLinePayload[]; locale?: string; idempotencyKey?: string }) => input)
   .handler(async ({ data, context }) => {
+    // Security baseline P1-3: order creation abuse protection (fail closed).
+    const { enforceRateLimit } = await import("@/lib/rate-limit.server");
+    await enforceRateLimit("orderCreateUser", context.userId);
     const { createEsimOrder } = await import("@/lib/commerce.server");
     const lines = (data.lines ?? []).slice(0, 20).map((line) => ({
       productId: String(line.productId),

@@ -163,6 +163,9 @@ export const createRefundRequest = createServerFn({ method: "POST" })
     const state = await buildRefundState(context.supabase, context.userId, data.esimId, now);
     if (!state) throw new Error("REFUND_NOT_FOUND");
     if (!state.verdict.canRequest) throw new Error(`REFUND_${state.verdict.eligibility}`);
+    // Security baseline P1-3: refund request spam protection (fail closed).
+    const { enforceRateLimit } = await import("@/lib/rate-limit.server");
+    await enforceRateLimit("refundCreateUser", context.userId);
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const row = {

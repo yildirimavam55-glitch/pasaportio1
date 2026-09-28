@@ -944,6 +944,9 @@ export type Database = {
           raw_validity_value: number | null
           region_id: string | null
           speed_after_fair_use: string | null
+          supplier_countries: Json | null
+          supplier_groups: Json | null
+          supplier_speed: Json | null
           supports_5g: boolean | null
           supports_hotspot: boolean | null
           topup_supported: boolean | null
@@ -975,6 +978,9 @@ export type Database = {
           raw_validity_value?: number | null
           region_id?: string | null
           speed_after_fair_use?: string | null
+          supplier_countries?: Json | null
+          supplier_groups?: Json | null
+          supplier_speed?: Json | null
           supports_5g?: boolean | null
           supports_hotspot?: boolean | null
           topup_supported?: boolean | null
@@ -1006,6 +1012,9 @@ export type Database = {
           raw_validity_value?: number | null
           region_id?: string | null
           speed_after_fair_use?: string | null
+          supplier_countries?: Json | null
+          supplier_groups?: Json | null
+          supplier_speed?: Json | null
           supports_5g?: boolean | null
           supports_hotspot?: boolean | null
           topup_supported?: boolean | null
@@ -3104,6 +3113,24 @@ export type Database = {
           },
         ]
       }
+      security_rate_limits: {
+        Row: {
+          bucket: string
+          hits: number
+          window_start: string
+        }
+        Insert: {
+          bucket: string
+          hits?: number
+          window_start: string
+        }
+        Update: {
+          bucket?: string
+          hits?: number
+          window_start?: string
+        }
+        Relationships: []
+      }
       seo_authors: {
         Row: {
           avatar_url: string | null
@@ -3473,6 +3500,10 @@ export type Database = {
     Functions: {
       accept_admin_invitation: { Args: never; Returns: Json }
       cancel_admin_invitation: { Args: { _id: string }; Returns: undefined }
+      consume_rate_limit: {
+        Args: { _bucket: string; _limit: number; _window_seconds: number }
+        Returns: boolean
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -3525,6 +3556,7 @@ export type Database = {
         Returns: undefined
       }
       revoke_admin: { Args: { _user_id: string }; Returns: undefined }
+      security_baseline_status: { Args: never; Returns: Json }
     }
     Enums: {
       alert_status: "OPEN" | "ACKNOWLEDGED" | "RESOLVED"

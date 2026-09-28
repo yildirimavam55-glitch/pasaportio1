@@ -57,6 +57,10 @@ export const validateCoupon = createServerFn({ method: "POST" })
       const { data: user } = await supabaseAdmin.auth.getUser(token);
       customerId = user?.user?.id ?? null;
     }
+    // Security baseline P1-3: coupon brute-force protection (fail closed).
+    const { enforceRateLimit, clientIpSubject } = await import("@/lib/rate-limit.server");
+    await enforceRateLimit("couponValidateIp", await clientIpSubject());
+    if (customerId) await enforceRateLimit("couponValidateUser", customerId);
     const { validateCouponServer } = await import("@/lib/promotions.server");
     return validateCouponServer(supabaseAdmin, { code: data.code, lines: data.lines, customerId });
   });
