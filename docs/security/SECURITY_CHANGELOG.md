@@ -56,3 +56,11 @@ Never edit or delete past entries. Never record secrets here.
 - **Robots**: `/admin`, `/account`, `/api/`, `/legacy-v1` disallowed (defence-in-depth only).
 - **Status page**: four read-only deterministic checks added.
 - **Tests**: `src/security/security-phase2.test.ts` added; existing baseline tests unchanged.
+
+## 2026-09-28T17:15Z — Phase 2.1 — OWNER APPROVED items #1 and #2
+**Approved by:** owner task "OWNER APPROVAL / SECURITY PHASE 2.1" (items #1, #2 only; #3 read-only audit).
+
+- **OWNER APPROVED #1 — role lookup self-only**: `has_role` now answers only when `_user_id = auth.uid()` (or service role); any other lookup returns false. Anonymous EXECUTE remains revoked. RLS policies (`is_admin()` → `has_role(auth.uid(), …)`) and server guards (own `userId`) unchanged in behaviour.
+- **OWNER APPROVED #2 — platform_settings private**: dropped policy "platform settings public read"; revoked anon SELECT. Admin access via existing `is_admin()` policy. New `public_platform_settings(_id)` returns only allowlisted fields (`active`: brandName, supportEmail, supportUrl, maintenance, whatsappWidget, refundTrust; `seo`: organizationName, defaultOgImage, twitterHandle, hubs). Storefront/SEO server reads switched to it.
+- **Status page**: two deterministic checks added (`roleLookupSelfOnly`, `settingsTablePrivate`).
+- **Tests**: `src/security/security-phase2-1.test.ts` added. CSP remains report-only; no auth settings, rate limits or other controls changed.
