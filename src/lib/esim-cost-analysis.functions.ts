@@ -12,17 +12,19 @@ export type CostAnalysis = { rows: CostRow[]; countriesWithData: number; avgOfAv
 /** Read-only: supplier cost of active local 10 GB supplier products. Never writes. */
 export const getEsim10GbCostAnalysis = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .handler(async ({ context }): Promise<CostAnalysis> => {
+  .inputValidator((d: { kind?: "10GB" | "UNLIMITED" } | undefined) => ({ kind: d?.kind === "UNLIMITED" ? "UNLIMITED" : "10GB" }) as const)
+  .handler(async ({ context, data: input }): Promise<CostAnalysis> => {
     const db = await adminDb(context as any);
-    const { data, error } = await db
+    let q = db
       .from("service_products")
-      .select("provider_cost, provider_currency, esim_product_details!inner(data_gb, country_iso, coverage_country_isos, package_kind)")
+      .select("provider_cost, provider_currency, esim_product_details!inner(data_gb, data_type, unlimited_data, country_iso, coverage_country_isos, package_kind)")
       .eq("service_type", "ESIM")
       .eq("is_test", false)
       .eq("provider_available", true)
       .gt("provider_cost", 0)
-      .eq("esim_product_details.data_gb", 10)
       .in("esim_product_details.country_iso", [...COST_ANALYSIS_ISOS]);
+    q = input.kind === "UNLIMITED" ? q.or("data_type.eq.UNLIMITED,unlimited_data.eq.true", { referencedTable: "esim_product_details" }) : q.eq("esim_product_details.data_gb", 10);
+    const { data, error } = await q;
     if (error) throw new Error(error.message);
 
     const byIso = new Map<string, { costs: number[]; currency: string }>();
@@ -31,6 +33,8 @@ export const getEsim10GbCostAnalysis = createServerFn({ method: "GET" })
       const iso = String(d?.country_iso ?? "").toUpperCase();
       const coverage = new Set([...(d?.coverage_country_isos ?? []), iso].map((x: string) => String(x).toUpperCase()));
       // Local only: single-country coverage, no regional/global bundles.
+      const unl = d?.data_type === "UNLIMITED" || Boolean(d?.unlimited_data);
+      if (unl !== (input.kind === "UNLIMITED")) continue;
       if (coverage.size !== 1 || (d?.package_kind && d.package_kind !== "COUNTRY")) continue;
       const currency = row.provider_currency ?? "EUR";
       const entry: { costs: number[]; currency: string } = byIso.get(iso) ?? { costs: [], currency };
