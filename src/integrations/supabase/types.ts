@@ -3104,6 +3104,24 @@ export type Database = {
           },
         ]
       }
+      security_rate_limits: {
+        Row: {
+          bucket: string
+          hits: number
+          window_start: string
+        }
+        Insert: {
+          bucket: string
+          hits?: number
+          window_start: string
+        }
+        Update: {
+          bucket?: string
+          hits?: number
+          window_start?: string
+        }
+        Relationships: []
+      }
       seo_authors: {
         Row: {
           avatar_url: string | null
@@ -3473,6 +3491,10 @@ export type Database = {
     Functions: {
       accept_admin_invitation: { Args: never; Returns: Json }
       cancel_admin_invitation: { Args: { _id: string }; Returns: undefined }
+      consume_rate_limit: {
+        Args: { _bucket: string; _limit: number; _window_seconds: number }
+        Returns: boolean
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
