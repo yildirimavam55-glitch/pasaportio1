@@ -1,1 +1,0 @@
-CREATE INDEX IF NOT EXISTS service_products_public_esim_sort_idx ON public.service_products (sort_order, id) WHERE service_type = 'ESIM' AND lifecycle = 'PUBLISHED' AND customer_visible = true AND provider_available = true AND margin_flagged = false AND sale_price > 0;

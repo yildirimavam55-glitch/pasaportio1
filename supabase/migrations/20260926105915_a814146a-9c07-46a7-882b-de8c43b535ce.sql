@@ -1,1 +1,0 @@
-CREATE INDEX IF NOT EXISTS esim_product_details_coverage_country_isos_gin_idx ON public.esim_product_details USING gin (coverage_country_isos);
