@@ -39,6 +39,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { CountryFlag } from "./CountryFlag";
 import { StickyQuickSearch } from "./StickyQuickSearch";
 import { useThemePreference, type ThemePreference } from "@/components/ThemePreference";
+import { usePublishedTheme } from "@/components/PublishedTheme";
+import { useIsV2 } from "@/components/design-v2/v2-context";
 import { useCart } from "@/domain/cart/store";
 import { localize } from "@/i18n/overlay";
 
@@ -67,6 +69,7 @@ const MENU_CLOSE_LABEL = localize({
 } as const);
 
 function Brand() {
+  const theme = usePublishedTheme();
   return (
     <Link
       to="/"
@@ -74,10 +77,10 @@ function Brand() {
       aria-label="Ana sayfa"
       className="flex shrink-0 items-center gap-2 text-primary"
     >
-      <span className="grid size-9 place-items-center rounded-xl bg-primary text-primary-foreground shadow-brand">
-        <Signal className="size-5" aria-hidden="true" />
-      </span>
-      <span className="font-display text-xl font-bold">{BRAND.name}</span>
+      {theme.logoUrl ? <img src={theme.logoUrl} alt={BRAND.logoLabel} width={144} height={36} className="h-9 w-auto max-w-36 object-contain" /> : <>
+        <span className="grid size-9 place-items-center rounded-xl bg-primary text-primary-foreground shadow-brand"><Signal className="size-5" aria-hidden="true" /></span>
+        <span className="font-display text-xl font-bold">{BRAND.name}</span>
+      </>}
     </Link>
   );
 }
@@ -229,6 +232,8 @@ export function PublicShell({
   /** Pages with fixed mobile action rows keep the footer scrollable above them. */
   footerBottomSafe?: boolean | "purchase";
 }) {
+  const publishedTheme = usePublishedTheme();
+  const isV2 = useIsV2();
   const { locale } = useI18n();
   const copy = localized(GLOBAL_CONTENT, locale);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -265,7 +270,7 @@ export function PublicShell({
     }
   };
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <div className={`${isV2 ? "v2-theme theme-surface" : ""} min-h-screen bg-background text-foreground`} data-theme-button={isV2 ? publishedTheme.buttonStyle : undefined} data-theme-surface={isV2 ? publishedTheme.surface : undefined}>
       <header className="sticky top-0 z-50 border-b border-border/60 bg-background/95 backdrop-blur-lg">
         <div className="mx-auto grid min-h-14 max-w-site grid-cols-[minmax(0,1fr)_auto] items-center gap-2 px-3 sm:min-h-16 sm:gap-3 sm:px-6 lg:flex">
           <Brand />
