@@ -11,6 +11,8 @@ import { getThemeSettings, publishTheme, restoreThemeVersion, saveThemeDraft } f
 import { listMedia } from "@/lib/admin-media.functions";
 import { DEFAULT_THEME, type ThemeConfig } from "@/domain/theme/config";
 
+type ThemeVersion = { id: string; createdAt: string; action: string; actor: string };
+
 export const Route = createFileRoute("/_authenticated/admin/theme")({
   head: () => adminHead("Tema", "Marka ve görsel tema kontrolleri."),
   component: Theme,
@@ -109,7 +111,7 @@ function Theme() {
           </AdminPanel>
           <AdminPanel title="Sürüm geçmişi">
             <div className="grid max-h-96 gap-2 overflow-y-auto">
-              {(settings.data?.versions ?? []).map((version) => <div key={version.id} className="rounded-md border border-border p-3 text-xs"><div className="flex items-start justify-between gap-2"><span className="flex items-center gap-1 font-bold"><History className="size-3" /> {version.action === "publish" ? "Yayın" : version.action === "restore" ? "Taslağa geri yükleme" : "Taslak"}</span><Button size="sm" variant="ghost" disabled={restore.isPending} onClick={() => { if (window.confirm("Bu sürüm yalnızca taslağa geri yüklensin mi? Canlı mağaza değişmeyecek.")) restore.mutate(version.id); }}><RotateCcw /> Geri yükle</Button></div><p className="mt-1 text-muted-foreground">{new Date(version.createdAt).toLocaleString("tr-TR")}</p><p className="truncate text-muted-foreground" title={version.actor}>{version.actor}</p></div>)}
+              {((settings.data?.versions ?? []) as ThemeVersion[]).map((version) => <div key={version.id} className="rounded-md border border-border p-3 text-xs"><div className="flex items-start justify-between gap-2"><span className="flex items-center gap-1 font-bold"><History className="size-3" /> {version.action === "publish" ? "Yayın" : version.action === "restore" ? "Taslağa geri yükleme" : "Taslak"}</span><Button size="sm" variant="ghost" disabled={restore.isPending} onClick={() => { if (window.confirm("Bu sürüm yalnızca taslağa geri yüklensin mi? Canlı mağaza değişmeyecek.")) restore.mutate(version.id); }}><RotateCcw /> Geri yükle</Button></div><p className="mt-1 text-muted-foreground">{new Date(version.createdAt).toLocaleString("tr-TR")}</p><p className="truncate text-muted-foreground" title={version.actor}>{version.actor}</p></div>)}
               {!settings.data?.versions?.length && <p className="text-xs text-muted-foreground">Henüz tema sürümü yok.</p>}
             </div>
           </AdminPanel>
