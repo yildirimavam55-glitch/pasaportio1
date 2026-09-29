@@ -1,10 +1,11 @@
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { Link } from "@tanstack/react-router";
-import { Apple, ArrowRight, BookOpen, CheckCircle2, Headphones, MapPin, MessageCircle, Navigation, PhoneCall, Play, Smartphone, Sparkles } from "lucide-react";
+import { Apple, ArrowRight, BookOpen, CheckCircle2, ChevronDown, Globe2, Headphones, MapPin, MessageCircle, Navigation, PhoneCall, Play, Settings, Smartphone, Sparkles } from "lucide-react";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { DeviceCompatibilityPrompt } from "@/components/travel/DeviceCompatibility";
 import { SeoPathLink } from "@/components/seo/SeoPathLink";
 import { seoPath } from "@/domain/seo/paths";
@@ -211,6 +212,139 @@ export function V2EsimFaq({ compact = false, title, questions: custom }: { compa
     <section className="lg:grid lg:grid-cols-[minmax(15rem,0.38fr)_minmax(0,1fr)] lg:items-start lg:gap-12">
       <SectionTitle>{title || c.faq}</SectionTitle>
       <Accordion type="single" collapsible className="rounded-xl bg-card px-3 ring-1 ring-border">{questions.map(([question, answer], index) => <AccordionItem key={question} value={`faq-${index}`}><AccordionTrigger className="min-h-[3.25rem] py-3 text-left text-xs font-bold hover:no-underline">{question}</AccordionTrigger><AccordionContent className="text-xs leading-relaxed text-muted-foreground">{answer}</AccordionContent></AccordionItem>)}</Accordion>
+    </section>
+  );
+}
+
+const CATEGORIZED_FAQ = localize({
+  tr: {
+    title: "Sık sorulan sorular",
+    subtitle: "eSIM'lerimizle ilgili en önemli soruların hızlı yanıtlarını burada bulabilirsin.",
+    installationCta: "Kurulum rehberini incele",
+    categories: [
+      { id: "faq.category.general", title: "eSIM hakkında genel bilgiler", subtitle: "En önemli temel bilgiler bir arada", questions: [
+        { id: "faq.general.what_is_esim", question: "eSIM nedir?", answer: "eSIM, uyumlu bir cihaza dijital olarak eklenen mobil veri hattıdır." },
+        { id: "faq.general.delivery", question: "eSIM'imi nasıl alırım?", answer: "Satın alma ve tedarikçi işlemi tamamlandığında gerçek eSIM bilgilerin hesabında gösterilir." },
+        { id: "faq.general.validity", question: "Paketimin geçerliliği ne zaman başlar?", answer: "Aktivasyon koşulları pakete göre değişebilir. Satın almadan önce paket detaylarını kontrol et." },
+      ] },
+      { id: "faq.category.installation", title: "Kurulum ve ayarlar", subtitle: "eSIM'ini nasıl kurup kullanacağını öğren", questions: [
+        { id: "faq.installation.install", question: "eSIM'i nasıl kurarım?", answer: "Hesabındaki gerçek kurulum bilgilerini kullan. Adımlar iPhone veya Android sürümüne göre küçük farklılıklar gösterebilir.", installationLink: true },
+        { id: "faq.installation.physical_sim", question: "Fiziksel SIM kartımı açık tutabilir miyim?", answer: "Birçok uyumlu cihaz iki hattı yönetebilir; kesin özellik cihaz modeline ve bölgesel varyanta bağlıdır." },
+      ] },
+      { id: "faq.category.usage", title: "Yurt dışında kullanım", subtitle: "Şebeke, internet ve ek paketler", questions: [
+        { id: "faq.usage.network", question: "eSIM hangi şebekeleri kullanır?", answer: "Şebeke bilgisi pakete ve ülkeye bağlıdır. Varsa güncel bilgiyi paket detaylarında kontrol et." },
+        { id: "faq.usage.data_finished", question: "İnternetim biterse ne olur?", answer: "Paket koşulları ürüne göre değişir. İhtiyacın olursa yayınlanmış başka bir uygun paket satın alabilirsin." },
+        { id: "faq.usage.buy_another", question: "Başka bir paket satın alabilir miyim?", answer: "Evet, mevcut katalogda yayınlanmış uygun bir paketi ayrıca satın alabilirsin." },
+      ] },
+      { id: "faq.category.communication", title: "Uygulamalar ve iletişim", subtitle: "Yurt dışında alıştığın uygulamaları kullanmaya devam et", questions: [
+        { id: "faq.communication.whatsapp", question: "WhatsApp'ı normal numaramla kullanabilir miyim?", answer: "WhatsApp hesabın mevcut numaranla kalabilir; uygulama ve cihaz ayarlarını değiştirmeden önce kendi yapılandırmanı kontrol et." },
+      ] },
+    ],
+  },
+  de: {
+    title: "Häufig gestellte Fragen",
+    subtitle: "Hier finden Sie schnelle Antworten auf die wichtigsten Fragen rund um unsere eSIMs.",
+    installationCta: "Installationsanleitung ansehen",
+    categories: [
+      { id: "faq.category.general", title: "Allgemeines zur eSIM", subtitle: "Die wichtigsten Grundlagen auf einen Blick", questions: [
+        { id: "faq.general.what_is_esim", question: "Was ist eine eSIM?", answer: "Eine eSIM ist eine digitale mobile Datenleitung, die einem kompatiblen Gerät hinzugefügt wird." },
+        { id: "faq.general.delivery", question: "Wie erhalte ich meine eSIM?", answer: "Nach Kauf und abgeschlossener Anbieterbearbeitung erscheinen Ihre echten eSIM-Daten in Ihrem Konto." },
+        { id: "faq.general.validity", question: "Wann beginnt die Gültigkeit meines Pakets?", answer: "Die Aktivierungsbedingungen können je nach Paket variieren. Prüfen Sie vor dem Kauf die Paketdetails." },
+      ] },
+      { id: "faq.category.installation", title: "Installation & Einrichtung", subtitle: "So installieren und nutzen Sie Ihre eSIM", questions: [
+        { id: "faq.installation.install", question: "Wie installiere ich die eSIM?", answer: "Nutzen Sie nach dem Kauf die echten Einrichtungsdaten in Ihrem Konto. Einzelne Schritte können je nach iPhone- oder Android-Version leicht abweichen.", installationLink: true },
+        { id: "faq.installation.physical_sim", question: "Kann ich meine physische SIM aktiv lassen?", answer: "Viele kompatible Geräte verwalten beide Leitungen; die genaue Funktion hängt von Modell und regionaler Variante ab." },
+      ] },
+      { id: "faq.category.usage", title: "Nutzung im Ausland", subtitle: "Netzwerk, Daten und zusätzliche Pakete", questions: [
+        { id: "faq.usage.network", question: "Welche Netze nutzt die eSIM?", answer: "Netzangaben hängen von Paket und Land ab. Prüfen Sie die aktuellen Angaben, sofern vorhanden, in den Paketdetails." },
+        { id: "faq.usage.data_finished", question: "Was passiert, wenn mein Datenvolumen aufgebraucht ist?", answer: "Die Bedingungen unterscheiden sich je nach Produkt. Bei Bedarf können Sie ein weiteres passendes, veröffentlichtes Paket kaufen." },
+        { id: "faq.usage.buy_another", question: "Kann ich ein weiteres Paket kaufen?", answer: "Ja, Sie können ein weiteres passendes, veröffentlichtes Paket aus dem aktuellen Katalog kaufen." },
+      ] },
+      { id: "faq.category.communication", title: "Apps & Kommunikation", subtitle: "So nutzen Sie Ihre gewohnten Apps im Ausland", questions: [
+        { id: "faq.communication.whatsapp", question: "Kann ich WhatsApp mit meiner normalen Nummer nutzen?", answer: "Ihr WhatsApp-Konto kann mit Ihrer bisherigen Nummer bestehen bleiben. Prüfen Sie Ihre eigene App- und Gerätekonfiguration vor Änderungen." },
+      ] },
+    ],
+  },
+  en: {
+    title: "Frequently asked questions",
+    subtitle: "Here you’ll find quick answers to the most important questions about our eSIMs.",
+    installationCta: "View installation guide",
+    categories: [
+      { id: "faq.category.general", title: "General eSIM", subtitle: "The essentials at a glance", questions: [
+        { id: "faq.general.what_is_esim", question: "What is an eSIM?", answer: "An eSIM is a digital mobile data line added to a compatible phone." },
+        { id: "faq.general.delivery", question: "How do I receive my eSIM?", answer: "Your real QR code and setup details appear in your account after purchase and provisioning are complete." },
+        { id: "faq.general.validity", question: "When does my package validity begin?", answer: "Start timing may vary by country and product. We do not assume an activation time without product data." },
+      ] },
+      { id: "faq.category.installation", title: "Installation & setup", subtitle: "How to install and use your eSIM", questions: [
+        { id: "faq.installation.install", question: "How do I install the eSIM?", answer: "After purchase and provisioning, use the real setup details in your account. Steps may vary slightly by iPhone or Android version.", installationLink: true },
+        { id: "faq.installation.physical_sim", question: "Can I keep my physical SIM active?", answer: "Many compatible devices can manage both lines. The model, regional variant, and carrier settings still matter." },
+      ] },
+      { id: "faq.category.usage", title: "Using your eSIM abroad", subtitle: "Networks, data and additional packages", questions: [
+        { id: "faq.usage.network", question: "Which networks does the eSIM use?", answer: "Available network technology may vary by location, device and local network conditions." },
+        { id: "faq.usage.data_finished", question: "What happens when my data is used up?", answer: "Package conditions vary by product. You can buy another eligible published package if needed." },
+        { id: "faq.usage.buy_another", question: "Can I buy another package?", answer: "Yes. You can separately purchase another eligible published package from the current catalogue." },
+      ] },
+      { id: "faq.category.communication", title: "Apps & communication", subtitle: "How to keep using your usual apps abroad", questions: [
+        { id: "faq.communication.whatsapp", question: "Can I use WhatsApp with my normal number?", answer: "Your WhatsApp account can remain on your existing number. Check your own app and device setup before making changes." },
+      ] },
+    ],
+  },
+} as const);
+
+const FAQ_CATEGORY_STYLES = [
+  { icon: Smartphone, surface: "bg-faq-general" },
+  { icon: Settings, surface: "bg-faq-installation" },
+  { icon: Globe2, surface: "bg-faq-usage" },
+  { icon: MessageCircle, surface: "bg-faq-communication" },
+] as const;
+
+/** Stable-ID, locale-aware FAQ used by the eSIM discovery page. */
+export function V2CategorizedEsimFaq() {
+  const { locale, dir } = useI18n();
+  const copy = CATEGORIZED_FAQ[locale];
+  return (
+    <section aria-labelledby="esim-faq-title" className="mx-auto mb-6 mt-8 w-full max-w-4xl scroll-mt-24 pb-8 lg:mb-10 lg:mt-14 lg:pb-4">
+      <header className="mb-5 max-w-2xl lg:mb-7">
+        <h2 id="esim-faq-title" className="font-display text-2xl font-bold text-foreground sm:text-3xl">{copy.title}</h2>
+        <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground sm:text-base">{copy.subtitle}</p>
+      </header>
+      <div className="grid gap-4 lg:grid-cols-2 lg:items-start lg:gap-5">
+        {copy.categories.map((category, categoryIndex) => {
+          const style = FAQ_CATEGORY_STYLES[categoryIndex] ?? FAQ_CATEGORY_STYLES[0];
+          const Icon = style.icon;
+          return (
+            <Collapsible key={category.id} defaultOpen className="group overflow-hidden rounded-2xl bg-card shadow-soft ring-1 ring-border">
+              <CollapsibleTrigger className={`grid min-h-20 w-full grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 px-4 py-3 text-start ${style.surface} sm:px-5 [&[data-state=open]_.faq-category-chevron]:rotate-180`}>
+                <span className="grid size-12 shrink-0 place-items-center rounded-xl bg-card/70 text-foreground ring-1 ring-border/60"><Icon className="size-6" aria-hidden="true" /></span>
+                <span className="min-w-0">
+                  <span className="block font-display text-base font-bold leading-tight text-foreground sm:text-lg">{category.title}</span>
+                  <span className="mt-0.5 block text-xs leading-snug text-muted-foreground sm:text-sm">{category.subtitle}</span>
+                </span>
+                <ChevronDown className="faq-category-chevron size-5 shrink-0 text-foreground transition-transform duration-200 motion-reduce:transition-none" aria-hidden="true" />
+              </CollapsibleTrigger>
+              <CollapsibleContent className="overflow-hidden data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down motion-reduce:animate-none">
+                <Accordion type="single" collapsible className="px-4 sm:px-5" dir={dir}>
+                  {category.questions.map((item) => (
+                    <AccordionItem key={item.id} value={item.id} className="last:border-b-0">
+                      <AccordionTrigger className="min-h-12 gap-3 py-3 text-start text-sm font-semibold leading-snug hover:no-underline sm:text-base [&>svg]:size-4">
+                        <span className="min-w-0 flex-1">{item.question}</span>
+                      </AccordionTrigger>
+                      <AccordionContent className="pe-7 text-sm leading-relaxed text-muted-foreground">
+                        <p>{item.answer}</p>
+                        {"installationLink" in item && item.installationLink && (
+                          <Button asChild variant="link" size="sm" className="mt-2 h-auto min-h-11 p-0 font-semibold text-primary">
+                            <Link to="/esim/kurulum" search={{ platform: "ios", brand: "" }}>{copy.installationCta}<ArrowRight className="size-4 rtl:rotate-180" /></Link>
+                          </Button>
+                        )}
+                      </AccordionContent>
+                    </AccordionItem>
+                  ))}
+                </Accordion>
+              </CollapsibleContent>
+            </Collapsible>
+          );
+        })}
+      </div>
     </section>
   );
 }

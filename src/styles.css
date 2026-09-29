@@ -76,6 +76,10 @@
   --color-v2-esim: var(--v2-esim);
   --color-v2-lounge: var(--v2-lounge);
   --color-v2-vignette: var(--v2-vignette);
+  --color-faq-general: var(--faq-general);
+  --color-faq-installation: var(--faq-installation);
+  --color-faq-usage: var(--faq-usage);
+  --color-faq-communication: var(--faq-communication);
   --font-sans: "Manrope", sans-serif;
   --font-display: "Outfit", sans-serif;
   --radius-card: 1.25rem;
@@ -117,6 +121,10 @@
   --v2-esim: oklch(0.37 0.095 179);
   --v2-lounge: oklch(0.46 0.11 55);
   --v2-vignette: oklch(0.43 0.12 251);
+  --faq-general: oklch(0.955 0.035 158);
+  --faq-installation: oklch(0.96 0.035 78);
+  --faq-usage: oklch(0.955 0.025 230);
+  --faq-communication: oklch(0.96 0.025 18);
   --destructive: oklch(0.577 0.245 27.325);
   --destructive-foreground: oklch(0.984 0.003 247.858);
   --border: oklch(0.87 0.02 83);
@@ -186,6 +194,10 @@
   --v2-esim: oklch(0.72 0.09 174);
   --v2-lounge: oklch(0.72 0.11 65);
   --v2-vignette: oklch(0.7 0.11 245);
+  --faq-general: oklch(0.28 0.035 158);
+  --faq-installation: oklch(0.29 0.035 78);
+  --faq-usage: oklch(0.28 0.03 230);
+  --faq-communication: oklch(0.29 0.03 18);
 }
 
 html {

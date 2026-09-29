@@ -752,5 +752,18 @@
   "Hide list": "リストを閉じる",
   "Connection": "接続",
   "Supported network technology.": "対応ネットワーク技術。",
-  "Available network technology may vary by location, device and local network conditions.": "利用できるネットワーク技術は場所、端末、現地の回線状況により異なる場合があります。"
+  "Available network technology may vary by location, device and local network conditions.": "利用できるネットワーク技術は場所、端末、現地の回線状況により異なる場合があります。",
+  "Here you’ll find quick answers to the most important questions about our eSIMs.": "eSIMに関する重要な質問への回答をすぐにご確認いただけます。",
+  "General eSIM": "eSIMの基本情報",
+  "The essentials at a glance": "大切なポイントをひと目で確認",
+  "Installation & setup": "インストールと設定",
+  "How to install and use your eSIM": "eSIMのインストールと利用方法",
+  "Using your eSIM abroad": "海外での利用",
+  "Networks, data and additional packages": "ネットワーク、データ、追加パッケージ",
+  "Apps & communication": "アプリとコミュニケーション",
+  "How to keep using your usual apps abroad": "海外でもいつものアプリを使う方法",
+  "Can I keep my physical SIM active?": "物理SIMを有効なままにできますか？",
+  "Package conditions vary by product. You can buy another eligible published package if needed.": "条件は商品によって異なります。必要に応じて、公開中の別の対象パッケージを購入できます。",
+  "Yes. You can separately purchase another eligible published package from the current catalogue.": "はい。現在のカタログで公開されている別の対象パッケージを個別に購入できます。",
+  "Your WhatsApp account can remain on your existing number. Check your own app and device setup before making changes.": "WhatsAppアカウントは現在の電話番号のまま利用できます。変更する前に、アプリと端末の設定をご確認ください。"
 }

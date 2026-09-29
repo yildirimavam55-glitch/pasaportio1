@@ -751,5 +751,19 @@
   "Hide list": "隐藏列表",
   "Connection": "连接",
   "Supported network technology.": "支持的网络技术。",
-  "Available network technology may vary by location, device and local network conditions.": "可用网络技术可能因位置、设备和当地网络状况而异。"
+  "Available network technology may vary by location, device and local network conditions.": "可用网络技术可能因位置、设备和当地网络状况而异。",
+  "Frequently asked questions": "常见问题",
+  "Here you’ll find quick answers to the most important questions about our eSIMs.": "您可以在这里快速找到关于我们 eSIM 的重要问题答案。",
+  "General eSIM": "eSIM 基础知识",
+  "The essentials at a glance": "重要基础信息一目了然",
+  "Installation & setup": "安装与设置",
+  "How to install and use your eSIM": "如何安装和使用 eSIM",
+  "Using your eSIM abroad": "境外使用",
+  "Networks, data and additional packages": "网络、流量和附加套餐",
+  "Apps & communication": "应用与通讯",
+  "How to keep using your usual apps abroad": "在境外继续使用您常用的应用",
+  "Can I keep my physical SIM active?": "我可以保持实体 SIM 卡启用吗？",
+  "Package conditions vary by product. You can buy another eligible published package if needed.": "具体条件因产品而异。如有需要，您可以购买其他符合条件且已上架的套餐。",
+  "Yes. You can separately purchase another eligible published package from the current catalogue.": "可以。您可以另行购买当前目录中已上架的其他符合条件的套餐。",
+  "Your WhatsApp account can remain on your existing number. Check your own app and device setup before making changes.": "您的 WhatsApp 账户可以继续使用当前号码。更改前请检查应用和设备设置。"
 }
