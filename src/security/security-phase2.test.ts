@@ -86,7 +86,7 @@ describe("JSON-LD escaping", () => {
 
 describe("admin database functions are not anonymous", () => {
   it("a migration revokes anon EXECUTE from admin/role functions", () => {
-    const sql = walk("supabase/migrations").map(read).join("\n");
+    const sql = walk("drizzle/migrations").filter((p) => p.endsWith(".sql")).map(read).join("\n");
     expect(sql).toMatch(/REVOKE EXECUTE ON FUNCTION %s FROM PUBLIC, anon/);
     for (const fn of ["list_admin_users", "invite_admin", "revoke_admin", "has_role", "is_admin"]) expect(sql).toContain(`public.${fn}(`);
   });

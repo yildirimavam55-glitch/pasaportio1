@@ -57,7 +57,7 @@ describe("supplier cost protection (P1-1, P1-2)", () => {
     expect(type).not.toMatch(/cost|margin/i);
   });
   it("cost columns are revoked from browser roles in a migration", () => {
-    const sql = walk("supabase/migrations").map(read).join("\n");
+    const sql = walk("drizzle/migrations").filter((p) => p.endsWith(".sql")).map(read).join("\n");
     expect(sql).toMatch(/REVOKE SELECT ON public\.service_products FROM anon, authenticated/);
     expect(sql).toMatch(/REVOKE SELECT ON public\.esim_product_details FROM anon, authenticated/);
   });
@@ -104,7 +104,7 @@ describe("payments, refunds and provisioning authority", () => {
     expect(body).toMatch(/enforceRateLimit\("refundCreateUser"/);
   });
   it("REFUNDED requires a confirmed payment refund at database level", () => {
-    const sql = walk("supabase/migrations").map(read).join("\n");
+    const sql = walk("drizzle/migrations").filter((p) => p.endsWith(".sql")).map(read).join("\n");
     expect(sql).toMatch(/travely\.payment_refund_confirmed/);
   });
 });

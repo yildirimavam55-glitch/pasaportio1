@@ -7,7 +7,7 @@ import { describe, expect, it } from "vitest";
 import { DEFAULT_SETTINGS, PUBLIC_SETTINGS_FIELDS, toPublicSettings } from "@/domain/platform/settings";
 
 const read = (p: string) => readFileSync(p, "utf8");
-const migrations = readdirSync("supabase/migrations").sort().map((f) => read(`supabase/migrations/${f}`)).join("\n");
+const migrations = readdirSync("drizzle/migrations").filter((f) => f.endsWith(".sql")).sort().map((f) => read(`drizzle/migrations/${f}`)).join("\n");
 const lastDef = (name: string) => migrations.slice(migrations.lastIndexOf(`CREATE OR REPLACE FUNCTION public.${name}(`));
 
 describe("role lookup is self-only", () => {
