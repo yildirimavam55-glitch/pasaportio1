@@ -752,5 +752,18 @@
   "Hide list": "إخفاء القائمة",
   "Connection": "الاتصال",
   "Supported network technology.": "تقنية الشبكة المدعومة.",
-  "Available network technology may vary by location, device and local network conditions.": "قد تختلف تقنية الشبكة المتاحة حسب الموقع والجهاز وظروف الشبكة المحلية."
+  "Available network technology may vary by location, device and local network conditions.": "قد تختلف تقنية الشبكة المتاحة حسب الموقع والجهاز وظروف الشبكة المحلية.",
+  "Here you’ll find quick answers to the most important questions about our eSIMs.": "ستجد هنا إجابات سريعة عن أهم الأسئلة المتعلقة بشرائح eSIM لدينا.",
+  "General eSIM": "معلومات عامة عن eSIM",
+  "The essentials at a glance": "أهم الأساسيات في لمحة",
+  "Installation & setup": "التثبيت والإعداد",
+  "How to install and use your eSIM": "كيفية تثبيت شريحة eSIM واستخدامها",
+  "Using your eSIM abroad": "الاستخدام في الخارج",
+  "Networks, data and additional packages": "الشبكات والبيانات والباقات الإضافية",
+  "Apps & communication": "التطبيقات والتواصل",
+  "How to keep using your usual apps abroad": "واصل استخدام تطبيقاتك المعتادة في الخارج",
+  "Can I keep my physical SIM active?": "هل يمكنني إبقاء شريحة SIM الفعلية مفعّلة؟",
+  "Package conditions vary by product. You can buy another eligible published package if needed.": "تختلف الشروط حسب المنتج. يمكنك شراء باقة أخرى مؤهلة ومنشورة عند الحاجة.",
+  "Yes. You can separately purchase another eligible published package from the current catalogue.": "نعم. يمكنك شراء باقة مؤهلة أخرى بشكل منفصل من الباقات المنشورة في الكتالوج الحالي.",
+  "Your WhatsApp account can remain on your existing number. Check your own app and device setup before making changes.": "يمكن أن يبقى حساب واتساب مرتبطًا برقمك الحالي. تحقّق من إعدادات التطبيق والجهاز قبل إجراء أي تغييرات."
 }
