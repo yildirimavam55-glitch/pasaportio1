@@ -68,3 +68,10 @@ Never edit or delete past entries. Never record secrets here.
 ## 2026-09-28 — Auth Phase 3A (OWNER APPROVED: item 1 only)
 - Enabled built-in leaked-password protection (HIBP) in the auth provider. Verified: signup with a known-leaked password is rejected (`weak_password`, reason `pwned`). No application code receives or checks passwords.
 - Unchanged: signup enabled, email confirmation required, anonymous users off, MFA, redirect allowlist, provider rate limits, password length/complexity.
+
+## 2026-09-29 — OWNER APPROVED: restore 3 protections missing after remix
+- Migration `drizzle/migrations/0018_restore_security_protections.sql` (applied directly; remixed migration journal does not list 0000–0017).
+- 1: `provider_cost` / `provider_metadata` column SELECT revoked from anon/authenticated (column grants for all other columns).
+- 2: `has_role` self-only body re-asserted; EXECUTE on has_role, is_admin, list_admin_users, invite_admin, revoke_admin revoked from PUBLIC/anon.
+- 3: `guard_refund_request` re-asserted, `refund_requests_guard` trigger ensured, new `refund_requests_guard_insert` blocks inserting REFUNDED without confirmed payment refund.
+- Security tests now read `drizzle/migrations/*.sql` (assertions unchanged).
