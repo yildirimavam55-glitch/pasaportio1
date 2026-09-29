@@ -75,3 +75,6 @@ Never edit or delete past entries. Never record secrets here.
 - 2: `has_role` self-only body re-asserted; EXECUTE on has_role, is_admin, list_admin_users, invite_admin, revoke_admin revoked from PUBLIC/anon.
 - 3: `guard_refund_request` re-asserted, `refund_requests_guard` trigger ensured, new `refund_requests_guard_insert` blocks inserting REFUNDED without confirmed payment refund.
 - Security tests now read `drizzle/migrations/*.sql` (assertions unchanged).
+
+## 2026-09-29 — OWNER APPROVED: customer refund request insert hardening
+- New BEFORE INSERT trigger `refund_requests_force_initial_state` (file `drizzle/migrations/0020_refund_request_force_initial_state.sql`, applied directly): every new refund request starts REQUESTED; non-server callers cannot set requester or amount fields. Existing guard triggers, policies and server refund logic unchanged. No customer INSERT policy exists; customers create requests only through `createRefundRequest`.
