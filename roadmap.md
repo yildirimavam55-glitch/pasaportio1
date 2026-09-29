@@ -656,3 +656,9 @@
 - [x] Headers, noindex, DB function grants, settings projection, js-yaml, sync errors, JSON-LD, payment gate, status page, tests, changelog.
 - [ ] Owner approval: platform_settings public table policy; has_role other-user lookup; auth settings changes.
 - [ ] Live two-customer isolation test (needs two test customer accounts).
+
+## Storefront Editor Stage 1
+- [ ] Connect published Theme logo, fonts, buttons, surface, colors, radius, and shadow to V2 with current-design fallbacks.
+- [ ] Add isolated desktop/mobile Theme preview.
+- [ ] Add latest-30 Theme history and confirmed restore-to-draft.
+- [ ] Verify draft isolation, publish behavior, responsive Admin/public views, security tests, full tests, typecheck, and build without publishing.
