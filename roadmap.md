@@ -662,3 +662,5 @@
 - [ ] Add isolated desktop/mobile Theme preview.
 - [ ] Add latest-30 Theme history and confirmed restore-to-draft.
 - [ ] Verify draft isolation, publish behavior, responsive Admin/public views, security tests, full tests, typecheck, and build without publishing.
+
+- [ ] FAQ category redesign: match the supplied mobile reference while preserving Travely styling, localization, and existing behavior.
