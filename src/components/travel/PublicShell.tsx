@@ -91,8 +91,6 @@ function LanguageMenu({
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }) {
-  const publishedTheme = usePublishedTheme();
-  const isV2 = useIsV2();
   const { locale, uiLocale, uiLocales, setLocale } = useI18n();
   const navigate = useNavigate();
   const copy = localized(GLOBAL_CONTENT, locale);
@@ -234,6 +232,8 @@ export function PublicShell({
   /** Pages with fixed mobile action rows keep the footer scrollable above them. */
   footerBottomSafe?: boolean | "purchase";
 }) {
+  const publishedTheme = usePublishedTheme();
+  const isV2 = useIsV2();
   const { locale } = useI18n();
   const copy = localized(GLOBAL_CONTENT, locale);
   const [menuOpen, setMenuOpen] = useState(false);
