@@ -12,6 +12,8 @@ export type ThemeConfig = {
   surface: "light" | "soft" | "contrast";
 };
 
+export type PublishedThemeConfig = ThemeConfig & { logoUrl: string | null; faviconUrl: string | null };
+
 export const DEFAULT_THEME: ThemeConfig = {
   logoMediaId: null,
   faviconMediaId: null,
@@ -52,12 +54,27 @@ export function sanitizeTheme(input: unknown): ThemeConfig {
 }
 
 const RADIUS = { sharp: "0.35rem", soft: "0.75rem", round: "1.35rem" };
-const SHADOW = { none: "none", subtle: "0 6px 18px rgb(7 88 79 / 0.08)", raised: "0 16px 40px rgb(7 88 79 / 0.16)" };
+const SHADOW = {
+  none: { card: "none", panel: "none", brand: "none", cta: "none" },
+  subtle: {
+    card: "0 10px 28px color-mix(in oklab, var(--foreground) 8%, transparent)",
+    panel: "0 24px 60px color-mix(in oklab, var(--foreground) 12%, transparent)",
+    brand: "0 6px 20px color-mix(in oklab, var(--primary) 28%, transparent)",
+    cta: "0 8px 22px color-mix(in oklab, var(--cta) 30%, transparent)",
+  },
+  raised: {
+    card: "0 16px 38px color-mix(in oklab, var(--foreground) 13%, transparent)",
+    panel: "0 30px 72px color-mix(in oklab, var(--foreground) 18%, transparent)",
+    brand: "0 10px 28px color-mix(in oklab, var(--primary) 34%, transparent)",
+    cta: "0 12px 30px color-mix(in oklab, var(--cta) 36%, transparent)",
+  },
+} as const;
 
 /** CSS custom properties applied to the storefront root element. */
 export function themeCssVariables(theme: ThemeConfig): Record<string, string> {
   const isEmpty = !theme;
   if (isEmpty) return {};
+  const shadow = SHADOW[theme.shadow];
   return {
     "--primary": theme.colors.primary,
     "--cta": theme.colors.cta,
@@ -65,6 +82,17 @@ export function themeCssVariables(theme: ThemeConfig): Record<string, string> {
     "--warning": theme.colors.warning,
     "--info": theme.colors.info,
     "--radius": RADIUS[theme.radius],
-    "--theme-shadow": SHADOW[theme.shadow],
+    "--font-sans": `"${theme.bodyFont}", sans-serif`,
+    "--font-display": `"${theme.headingFont}", sans-serif`,
+    "--theme-shadow-card": shadow.card,
+    "--theme-shadow-panel": shadow.panel,
+    "--theme-shadow-brand": shadow.brand,
+    "--theme-shadow-cta": shadow.cta,
   };
+}
+
+export function themeFontUrl(theme: ThemeConfig): string {
+  const families = [...new Set([theme.headingFont, theme.bodyFont])];
+  const query = families.map((family) => `family=${encodeURIComponent(family).replace(/%20/g, "+")}:wght@400;500;600;700;800`).join("&");
+  return `https://fonts.googleapis.com/css2?${query}&display=swap`;
 }

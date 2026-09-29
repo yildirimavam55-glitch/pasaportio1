@@ -104,6 +104,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       {
         rel: "stylesheet",
         href: "https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Outfit:wght@500;600;700&display=swap",
+        "data-travely-fonts": "true",
       },
       {
         rel: "stylesheet",
@@ -144,14 +145,15 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       <ThemePreferenceProvider>
-        <PublishedTheme />
-        <I18nProvider>
-          <ServiceSwitchTransitionProvider>
-            {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-            <Outlet />
-            <Toaster richColors position="top-center" />
-          </ServiceSwitchTransitionProvider>
-        </I18nProvider>
+        <PublishedTheme>
+          <I18nProvider>
+            <ServiceSwitchTransitionProvider>
+              {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
+              <Outlet />
+              <Toaster richColors position="top-center" />
+            </ServiceSwitchTransitionProvider>
+          </I18nProvider>
+        </PublishedTheme>
       </ThemePreferenceProvider>
     </QueryClientProvider>
   );
