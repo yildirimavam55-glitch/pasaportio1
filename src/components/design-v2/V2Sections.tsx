@@ -1,7 +1,8 @@
 import { useEffect, useState, type ReactNode } from "react";
 import { queryOptions, useQuery } from "@tanstack/react-query";
-import { HowItWorks, PromoCard, TrustRow } from "@/components/design-v2/V2Shell";
+import { DesktopPromoCard, HowItWorks, PromoCard, TrustRow } from "@/components/design-v2/V2Shell";
 import { V2CategorizedEsimFaq, V2Compatibility, V2CompactFaq, V2GuidesRail, V2InfoGrid, V2Installation } from "@/components/design-v2/V2DiscoveryContent";
+import { DesktopDeviceCompatibilityBanner } from "@/components/travel/DeviceCompatibility";
 import { StorefrontIcon } from "@/domain/storefront/icons";
 import { defaultV2Page, isInWindow, sanitizeV2Page, v2ItemText, v2Text, type V2PageConfig, type V2PageId, type V2Section } from "@/domain/storefront/v2";
 import { getPublishedV2Page, type V2Media } from "@/lib/v2-storefront.functions";
@@ -11,6 +12,7 @@ import loungeHero from "@/assets/lounge-hero-mobile.jpg";
 import vignetteHero from "@/assets/v2-vignette-hero.jpg";
 import loungeCard from "@/assets/lounge-card.jpg.asset.json";
 import esimCrossSell from "@/assets/esim-cross-sell.jpg.asset.json";
+import vignetteRoadDesktop from "@/assets/vignette-road-desktop.jpg";
 
 export const V2_BUILTIN_URLS: Record<string, string> = {
   "builtin:esim-hero": esimHero,
@@ -92,8 +94,25 @@ export function V2Sections({ config, media, slots, only }: { config: V2PageConfi
           case "COMPATIBILITY": {
             const pairedPromo = sections[index + 1];
             if (pairedPromo?.type === "PROMO_BANNER" && pairedPromo.href === "/lounge" && isInWindow(pairedPromo)) {
-              const image = mediaUrl(pairedPromo.mediaId, media);
-              return <div key={`${s.id}-${pairedPromo.id}`} className="lg:grid lg:grid-cols-2 lg:items-stretch lg:gap-6"><V2Compatibility title={t("title")} desktopCard /><PromoCard image={image ?? ""} title={v2Text(pairedPromo, "title", locale)} {...(v2Text(pairedPromo, "subtitle", locale) ? { sub: v2Text(pairedPromo, "subtitle", locale) } : {})} to={pairedPromo.href} compactDesktop /></div>;
+              const loungeImage = mediaUrl(pairedPromo.mediaId, media);
+              const vignettePromo = sections.find((candidate) => candidate.type === "PROMO_BANNER" && candidate.href === "/vignette" && isInWindow(candidate));
+              return (
+                <div key={`${s.id}-${pairedPromo.id}`}>
+                  <div className="lg:hidden">
+                    <V2Compatibility title={t("title")} />
+                    <PromoCard image={loungeImage ?? ""} title={v2Text(pairedPromo, "title", locale)} {...(v2Text(pairedPromo, "subtitle", locale) ? { sub: v2Text(pairedPromo, "subtitle", locale) } : {})} to={pairedPromo.href} compactDesktop />
+                  </div>
+                  <div className="hidden lg:block">
+                    <DesktopDeviceCompatibilityBanner title={t("title")} />
+                    {vignettePromo && (
+                      <div className="mt-4 grid grid-cols-2 gap-4">
+                        <DesktopPromoCard image={loungeImage ?? ""} title={v2Text(pairedPromo, "title", locale)} cta={v2Text(pairedPromo, "subtitle", locale)} to="/lounge" imagePosition="center 56%" />
+                        <DesktopPromoCard image={vignetteRoadDesktop} title={v2Text(vignettePromo, "title", locale)} cta={v2Text(vignettePromo, "subtitle", locale)} to="/vignette" imagePosition="center 58%" />
+                      </div>
+                    )}
+                  </div>
+                </div>
+              );
             }
             return <V2Compatibility key={s.id} title={t("title")} />;
           }
@@ -102,7 +121,9 @@ export function V2Sections({ config, media, slots, only }: { config: V2PageConfi
             if (s.href === "/lounge" && previous?.type === "COMPATIBILITY") return null;
             const image = mediaUrl(s.mediaId, media);
             if (!isInWindow(s) || !t("title")) return null;
-            return <PromoCard key={s.id} image={image ?? ""} title={t("title")} {...(t("subtitle") ? { sub: t("subtitle") } : {})} to={s.href === "/esim/kurulum" ? "/esim" : s.href} />;
+            const pairedDesktopVignette = s.href === "/vignette" && sections.some((candidate, candidateIndex) => candidate.type === "COMPATIBILITY" && sections[candidateIndex + 1]?.href === "/lounge");
+            const promo = <PromoCard image={image ?? ""} title={t("title")} {...(t("subtitle") ? { sub: t("subtitle") } : {})} to={s.href === "/esim/kurulum" ? "/esim" : s.href} />;
+            return pairedDesktopVignette ? <div key={s.id} className="lg:hidden">{promo}</div> : <V2Fragment key={s.id}>{promo}</V2Fragment>;
           }
           case "GUIDE_CAROUSEL":
             return <V2GuidesRail key={s.id} title={t("title")} lead={t("lead")} allLabel={t("all")} />;

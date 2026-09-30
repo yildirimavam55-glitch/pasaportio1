@@ -274,6 +274,27 @@ export function PromoCard({ image, title, sub, to, compactDesktop = false }: { i
   );
 }
 
+/** Equal-height image promotion used only in the desktop eSIM cross-service row. */
+export function DesktopPromoCard({ image, title, cta, to, imagePosition = "center" }: { image: string; title: string; cta: string; to: "/lounge" | "/vignette"; imagePosition?: string }) {
+  return (
+    <Link to={to} search={(to === "/lounge" ? { iata: "" } : undefined) as never} className="group relative flex h-52 min-w-0 items-end overflow-hidden rounded-2xl text-primary-foreground shadow-sm ring-1 ring-border">
+      <img src={image} alt="" loading="lazy" decoding="async" width={1600} height={700} className="absolute inset-0 size-full object-cover transition-transform duration-500 motion-reduce:transition-none group-hover:scale-[1.015]" style={{ objectPosition: imagePosition }} />
+      <span className="absolute inset-0 bg-gradient-to-r from-foreground/90 via-foreground/55 to-transparent" />
+      <span className="relative flex w-full items-end justify-between gap-5 p-7">
+        <span className="min-w-0">
+          <strong className="block font-display text-2xl font-bold leading-tight">{title}</strong>
+          <span className="mt-4 inline-flex min-h-10 items-center gap-2 rounded-full bg-card px-5 text-sm font-semibold text-primary shadow-sm">
+            {cta}<ArrowRight className="size-4 rtl:rotate-180" />
+          </span>
+        </span>
+        <span className="grid size-10 shrink-0 place-items-center rounded-full bg-card/95 text-primary transition-transform group-hover:translate-x-0.5 rtl:group-hover:-translate-x-0.5">
+          <ArrowRight className="size-5 rtl:rotate-180" />
+        </span>
+      </span>
+    </Link>
+  );
+}
+
 export function HowItWorks({ title, steps }: { title: string; steps: Array<{ t: string; s: string }> }) {
   return (
     <>
