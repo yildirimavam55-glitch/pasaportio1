@@ -494,28 +494,25 @@ export function DeviceCompatibilityPrompt() {
   );
 }
 
-/** Desktop-only homepage tool banner; the checker and persisted result remain shared. */
+/** Desktop-only homepage utility card; the checker and persisted result remain shared. */
 export function DesktopDeviceCompatibilityBanner({ title }: { title?: string } = {}) {
   const { locale } = useI18n();
   const copy = COPY[locale];
   const { compatibilityChecked, deviceModel, compatibilityResult } = useDeviceCheck();
 
   return (
-    <section className="grid min-h-28 grid-cols-[5.5rem_minmax(0,1fr)_auto] items-center gap-6 overflow-hidden rounded-2xl border border-primary/15 bg-primary-soft px-7 shadow-soft">
-      <div className="relative flex h-full items-end justify-center" aria-hidden="true">
-        <span className="relative -bottom-3 grid h-24 w-14 place-items-center rounded-[1.15rem] border-[3px] border-foreground/80 bg-card shadow-panel">
-          <span className="absolute top-1.5 h-1 w-5 rounded-full bg-foreground/70" />
-          <span className="grid size-7 place-items-center rounded-md border-2 border-primary text-[9px] font-black tracking-tight text-primary">eSIM</span>
-        </span>
-        <span className="absolute bottom-4 right-0 grid size-9 place-items-center rounded-full bg-card text-primary shadow-card ring-1 ring-primary/10">
-          <Smartphone className="size-4" />
+    <section className="grid h-[92px] grid-cols-[3.75rem_minmax(0,1fr)_auto] items-center gap-5 rounded-2xl border border-border bg-card px-6">
+      <div className="flex items-center justify-center" aria-hidden="true">
+        <span className="relative grid h-14 w-9 place-items-center rounded-[0.7rem] border-2 border-foreground/75 bg-background">
+          <span className="absolute top-1 h-0.5 w-3 rounded-full bg-foreground/60" />
+          <span className="grid size-5 place-items-center rounded border border-primary/50 bg-primary-soft text-[7px] font-black tracking-tight text-primary">eSIM</span>
         </span>
       </div>
       <div className="min-w-0">
-        <h2 className="font-display text-2xl font-bold leading-tight text-foreground">{title || copy.sectionTitle}</h2>
-        <p className="mt-1 text-sm text-muted-foreground">{copy.sectionLead}</p>
+        <h2 className="font-display text-xl font-bold leading-tight text-foreground">{title || copy.sectionTitle}</h2>
+        <p className="mt-0.5 text-sm text-muted-foreground">{copy.sectionLead}</p>
         {compatibilityChecked && compatibilityResult && (
-          <p className="mt-1.5 flex items-center gap-1.5 text-sm font-semibold text-foreground">
+          <p className="mt-1 flex items-center gap-1.5 text-xs font-semibold text-foreground">
             <StatusIcon status={compatibilityResult} />
             <span className="truncate">{deviceModel} — {statusLabel(copy, compatibilityResult)}</span>
           </p>
@@ -524,7 +521,7 @@ export function DesktopDeviceCompatibilityBanner({ title }: { title?: string } =
       <DeviceCheckSheet
         surface="homepage-desktop"
         trigger={
-          <Button variant="default" size="lg" className="shrink-0 rounded-full px-6">
+          <Button variant="outline" size="sm" className="h-11 shrink-0 rounded-full border-primary/25 bg-background px-5 text-primary hover:bg-primary-soft">
             {compatibilityChecked ? copy.change : copy.recheck}
             <ChevronRight className="rtl:rotate-180" />
           </Button>
