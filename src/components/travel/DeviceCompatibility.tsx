@@ -494,6 +494,46 @@ export function DeviceCompatibilityPrompt() {
   );
 }
 
+/** Desktop-only homepage tool banner; the checker and persisted result remain shared. */
+export function DesktopDeviceCompatibilityBanner({ title }: { title?: string } = {}) {
+  const { locale } = useI18n();
+  const copy = COPY[locale];
+  const { compatibilityChecked, deviceModel, compatibilityResult } = useDeviceCheck();
+
+  return (
+    <section className="grid min-h-28 grid-cols-[5.5rem_minmax(0,1fr)_auto] items-center gap-6 overflow-hidden rounded-2xl border border-primary/15 bg-primary-soft px-7 shadow-soft">
+      <div className="relative flex h-full items-end justify-center" aria-hidden="true">
+        <span className="relative -bottom-3 grid h-24 w-14 place-items-center rounded-[1.15rem] border-[3px] border-foreground/80 bg-card shadow-panel">
+          <span className="absolute top-1.5 h-1 w-5 rounded-full bg-foreground/70" />
+          <span className="grid size-7 place-items-center rounded-md border-2 border-primary text-[9px] font-black tracking-tight text-primary">eSIM</span>
+        </span>
+        <span className="absolute bottom-4 right-0 grid size-9 place-items-center rounded-full bg-card text-primary shadow-card ring-1 ring-primary/10">
+          <Smartphone className="size-4" />
+        </span>
+      </div>
+      <div className="min-w-0">
+        <h2 className="font-display text-2xl font-bold leading-tight text-foreground">{title || copy.sectionTitle}</h2>
+        <p className="mt-1 text-sm text-muted-foreground">{copy.sectionLead}</p>
+        {compatibilityChecked && compatibilityResult && (
+          <p className="mt-1.5 flex items-center gap-1.5 text-sm font-semibold text-foreground">
+            <StatusIcon status={compatibilityResult} />
+            <span className="truncate">{deviceModel} — {statusLabel(copy, compatibilityResult)}</span>
+          </p>
+        )}
+      </div>
+      <DeviceCheckSheet
+        surface="homepage-desktop"
+        trigger={
+          <Button variant="default" size="lg" className="shrink-0 rounded-full px-6">
+            {compatibilityChecked ? copy.change : copy.recheck}
+            <ChevronRight className="rtl:rotate-180" />
+          </Button>
+        }
+      />
+    </section>
+  );
+}
+
 /** Compact product-page version shown next to the purchase CTA. */
 export function DeviceCompatibilityInline() {
   const { locale } = useI18n();
