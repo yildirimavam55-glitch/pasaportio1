@@ -176,13 +176,13 @@ const HERO_OVERLAY = {
 } as const;
 
 /** Full-bleed photo hero with the search floating over its bottom edge. Presets only — no free CSS. */
-export function V2Hero({ image, desktopImage, alt = "", eyebrow, title, subtitle, align = "left", height = "normal", overlay = "normal", children }: { image: string; desktopImage?: string | undefined; alt?: string; eyebrow?: string; title: string; subtitle?: string; align?: "left" | "center"; height?: keyof typeof HERO_HEIGHT; overlay?: keyof typeof HERO_OVERLAY; children?: ReactNode }) {
+export function V2Hero({ image, desktopImage, desktopFocus = "center", alt = "", eyebrow, title, subtitle, align = "left", height = "normal", overlay = "normal", children }: { image: string; desktopImage?: string | undefined; desktopFocus?: "center" | "phone"; alt?: string; eyebrow?: string; title: string; subtitle?: string; align?: "left" | "center"; height?: keyof typeof HERO_HEIGHT; overlay?: keyof typeof HERO_OVERLAY; children?: ReactNode }) {
   return (
     <section className="relative -mx-4 sm:-mx-6 lg:mx-0">
       <div className={`relative ${HERO_HEIGHT[height]} overflow-hidden text-primary-foreground sm:mx-4 sm:mt-3 sm:rounded-3xl lg:mx-0 lg:mt-4`}>
         <picture>
           {desktopImage && <source media="(min-width: 640px)" srcSet={desktopImage} />}
-          {image && <img src={image} alt={alt} fetchPriority="high" decoding="async" width={1024} height={768} className="absolute inset-0 size-full object-cover" />}
+          {image && <img src={image} alt={alt} fetchPriority="high" decoding="async" width={1024} height={768} className={`absolute inset-0 size-full object-cover ${desktopFocus === "phone" ? "lg:object-[50%_65%]" : ""}`} />}
         </picture>
         <div className={`absolute inset-0 bg-gradient-to-t ${HERO_OVERLAY[overlay]}`} />
         <div className={`absolute inset-x-5 bottom-10 max-w-[21rem] lg:inset-x-14 lg:bottom-24 lg:max-w-2xl ${align === "center" ? "mx-auto text-center" : ""}`}>
