@@ -23,11 +23,12 @@ import type { UsageKind } from "@/domain/experience/types";
 import { RefundTrustNote } from "@/components/refunds/RefundTrust";
 import { V2CategorizedEsimFaq } from "@/components/design-v2/V2DiscoveryContent";
 import { mediaUrl, useV2Page, V2Sections, v2PageQuery } from "@/components/design-v2/V2Sections";
-import { v2Text, type V2Section } from "@/domain/storefront/v2";
+import { v2ItemText, v2Text, type V2Section } from "@/domain/storefront/v2";
 import { V2EsimPackageDetails } from "@/components/design-v2/V2EsimPackageDetails";
 import { V2ProductSelectionCard, V2SelectedProductSummary } from "@/components/design-v2/V2ProductSelection";
 import { V2RegionCard } from "@/components/design-v2/V2RegionCard";
 import { localize } from "@/i18n/overlay";
+import { StorefrontIcon } from "@/domain/storefront/icons";
 
 /** Public home/eSIM search: optional country + legacy `service` hint (V1 links used `/?service=lounge`). */
 export const validateEsimSearch = (s: Record<string, unknown>): { country?: string; service?: "esim" | "lounge" } => ({
@@ -64,6 +65,8 @@ export function EsimHomePage() {
   const { heroSearchRef, heroSearchVisible } = useV2StickySearch();
   const { config, media } = useV2Page("esim");
   const heroSection = config.sections[0];
+  const benefitSection = config.sections.find((section) => section.type === "BENEFIT_ROW" && section.visible);
+  const desktopBenefits = benefitSection?.items.filter((item) => item.visible) ?? [];
   const stickyLabel = v2Text(heroSection, "sticky", locale) || v2Text(heroSection, "placeholder", locale) || c.stickyPh;
   const choose = (iso: string) => {
     setSelectedPackage(null);
@@ -140,7 +143,7 @@ export function EsimHomePage() {
             media={media}
             slots={{
               hero: (section) => (
-<V2Hero image={mediaUrl(section.mobileMediaId ?? section.mediaId, media) ?? ""} desktopImage={mediaUrl(section.mediaId, media)} desktopFocus="phone" eyebrow={v2Text(section, "eyebrow", locale)} title={v2Text(section, "title", locale)} subtitle={v2Text(section, "subtitle", locale)} align={section.align} height={section.height} overlay={section.overlay}>
+<V2Hero image={mediaUrl(section.mobileMediaId ?? section.mediaId, media) ?? ""} desktopImage={mediaUrl(section.mediaId, media)} desktopFocus="phone" eyebrow={v2Text(section, "eyebrow", locale)} title={v2Text(section, "title", locale)} subtitle={v2Text(section, "subtitle", locale)} align={section.align} height={section.height} overlay={section.overlay} desktopFooter={desktopBenefits.length ? <ul className="grid grid-cols-4 gap-5 border-t border-primary-foreground/25 pt-4">{desktopBenefits.map((item) => <li key={item.id} className="flex min-w-0 items-center gap-2 text-sm font-semibold text-primary-foreground"><StorefrontIcon name={item.icon} className="size-5 shrink-0" /><span className="truncate">{v2ItemText(item.title, locale)}</span></li>)}</ul> : undefined}>
         <div ref={heroSearchRef}><HeroField icon={<Search className="size-5" />}>
           <V2PickerSheet
             open={pickerOpen}
@@ -165,6 +168,7 @@ export function EsimHomePage() {
               ),
               destinations: (section) => <Popular c={c} section={section} onPick={choose} />,
               regions: (section) => <RegionalDiscovery section={section} summaries={regionalSummaries.data ?? []} loading={regionalSummaries.isLoading} c={c} />,
+              benefitsInDesktopHero: true,
             }}
           />
         </>

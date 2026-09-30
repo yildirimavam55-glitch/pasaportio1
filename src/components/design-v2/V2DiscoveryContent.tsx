@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { Link } from "@tanstack/react-router";
-import { Apple, ArrowRight, BookOpen, CheckCircle2, ChevronDown, Globe2, Headphones, MapPin, MessageCircle, Navigation, PhoneCall, Play, Settings, Smartphone, Sparkles } from "lucide-react";
+import { Apple, ArrowRight, BookOpen, CheckCircle2, ChevronDown, CreditCard, FileText, Globe2, Headphones, MapPin, MessageCircle, Navigation, PhoneCall, Play, Settings, Smartphone, Sparkles } from "lucide-react";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -14,6 +14,7 @@ import { listFeaturedGuides } from "@/lib/guides.functions";
 import { SectionTitle } from "./V2Shell";
 import { V2InstallAnimation } from "./V2InstallAnimation";
 import { localize } from "@/i18n/overlay";
+import faqTravelEsim from "@/assets/faq-travel-esim.jpg";
 
 const COPY = localize({
   tr: {
@@ -218,9 +219,16 @@ export function V2EsimFaq({ compact = false, title, questions: custom }: { compa
 
 const CATEGORIZED_FAQ = localize({
   tr: {
+    eyebrow: "SSS",
     title: "Sık sorulan sorular",
     subtitle: "eSIM'lerimizle ilgili en önemli soruların hızlı yanıtlarını burada bulabilirsin.",
+    helpPoints: ["Hızlı yanıtlar", "Tüm önemli bilgiler bir arada", "Diğer soruların için destek ekibimiz yanında"],
+    imageAlt: "Akdeniz kıyısında harita üzerinde seyahat telefonu",
     installationCta: "Kurulum rehberini incele",
+    supportEyebrow: "BAŞKA SORUN MU VAR?",
+    supportTitle: "Destek ekibimiz yanında",
+    supportText: "Sana hızlı ve kişisel olarak yardımcı olmaktan memnuniyet duyarız.",
+    supportCta: "Desteğe git",
     categories: [
       { id: "faq.category.general", title: "eSIM hakkında genel bilgiler", subtitle: "En önemli temel bilgiler bir arada", questions: [
         { id: "faq.general.what_is_esim", question: "eSIM nedir?", answer: "eSIM, uyumlu bir cihaza dijital olarak eklenen mobil veri hattıdır." },
@@ -236,15 +244,24 @@ const CATEGORIZED_FAQ = localize({
         { id: "faq.usage.data_finished", question: "İnternetim biterse ne olur?", answer: "Paket koşulları ürüne göre değişir. İhtiyacın olursa yayınlanmış başka bir uygun paket satın alabilirsin." },
         { id: "faq.usage.buy_another", question: "Başka bir paket satın alabilir miyim?", answer: "Evet, mevcut katalogda yayınlanmış uygun bir paketi ayrıca satın alabilirsin." },
       ] },
-      { id: "faq.category.communication", title: "Uygulamalar ve iletişim", subtitle: "Yurt dışında alıştığın uygulamaları kullanmaya devam et", questions: [
+      { id: "faq.category.payment", title: "Ödeme, sipariş ve diğerleri", subtitle: "Fiyatlar, ödeme yöntemleri ve diğer konular", questions: [
+        { id: "faq.payment.methods", question: "Nasıl ödeme yapabilirim?", answer: "Kullanılabilir ödeme yöntemleri güvenli ödeme adımında gösterilir." },
+        { id: "faq.payment.order", question: "Siparişimi ve eSIM bilgilerimi nerede bulabilirim?", answer: "Satın alma ve tedarikçi işlemi tamamlandıktan sonra sipariş durumunu ve gerçek eSIM bilgilerini hesabında görebilirsin." },
         { id: "faq.communication.whatsapp", question: "WhatsApp'ı normal numaramla kullanabilir miyim?", answer: "WhatsApp hesabın mevcut numaranla kalabilir; uygulama ve cihaz ayarlarını değiştirmeden önce kendi yapılandırmanı kontrol et." },
       ] },
     ],
   },
   de: {
+    eyebrow: "FAQ",
     title: "Häufig gestellte Fragen",
     subtitle: "Hier finden Sie schnelle Antworten auf die wichtigsten Fragen rund um unsere eSIMs.",
+    helpPoints: ["Schnelle Antworten", "Alles Wichtige an einem Ort", "Bei weiteren Fragen: unser Support hilft gerne"],
+    imageAlt: "Reise-Smartphone auf einer Karte an der Mittelmeerküste",
     installationCta: "Installationsanleitung ansehen",
+    supportEyebrow: "NOCH FRAGEN?",
+    supportTitle: "Unser Support ist für Sie da",
+    supportText: "Wir helfen Ihnen gerne weiter – schnell und persönlich.",
+    supportCta: "Zum Support",
     categories: [
       { id: "faq.category.general", title: "Allgemeines zur eSIM", subtitle: "Die wichtigsten Grundlagen auf einen Blick", questions: [
         { id: "faq.general.what_is_esim", question: "Was ist eine eSIM?", answer: "Eine eSIM ist eine digitale mobile Datenleitung, die einem kompatiblen Gerät hinzugefügt wird." },
@@ -260,15 +277,24 @@ const CATEGORIZED_FAQ = localize({
         { id: "faq.usage.data_finished", question: "Was passiert, wenn mein Datenvolumen aufgebraucht ist?", answer: "Die Bedingungen unterscheiden sich je nach Produkt. Bei Bedarf können Sie ein weiteres passendes, veröffentlichtes Paket kaufen." },
         { id: "faq.usage.buy_another", question: "Kann ich ein weiteres Paket kaufen?", answer: "Ja, Sie können ein weiteres passendes, veröffentlichtes Paket aus dem aktuellen Katalog kaufen." },
       ] },
-      { id: "faq.category.communication", title: "Apps & Kommunikation", subtitle: "So nutzen Sie Ihre gewohnten Apps im Ausland", questions: [
+      { id: "faq.category.payment", title: "Zahlung, Bestellung & Sonstiges", subtitle: "Preise, Zahlungsarten und weitere Themen", questions: [
+        { id: "faq.payment.methods", question: "Wie kann ich bezahlen?", answer: "Die verfügbaren Zahlungsarten werden Ihnen sicher im Checkout angezeigt." },
+        { id: "faq.payment.order", question: "Wo finde ich meine Bestellung und eSIM-Daten?", answer: "Nach Kauf und abgeschlossener Anbieterbearbeitung sehen Sie den Bestellstatus und Ihre echten eSIM-Daten in Ihrem Konto." },
         { id: "faq.communication.whatsapp", question: "Kann ich WhatsApp mit meiner normalen Nummer nutzen?", answer: "Ihr WhatsApp-Konto kann mit Ihrer bisherigen Nummer bestehen bleiben. Prüfen Sie Ihre eigene App- und Gerätekonfiguration vor Änderungen." },
       ] },
     ],
   },
   en: {
+    eyebrow: "FAQ",
     title: "Frequently asked questions",
     subtitle: "Here you’ll find quick answers to the most important questions about our eSIMs.",
+    helpPoints: ["Fast answers", "Everything important in one place", "For more questions, our support team is happy to help"],
+    imageAlt: "Travel smartphone on a map by the Mediterranean coast",
     installationCta: "View installation guide",
+    supportEyebrow: "STILL HAVE QUESTIONS?",
+    supportTitle: "Our support team is here for you",
+    supportText: "We’re happy to help—quickly and personally.",
+    supportCta: "Go to support",
     categories: [
       { id: "faq.category.general", title: "General eSIM", subtitle: "The essentials at a glance", questions: [
         { id: "faq.general.what_is_esim", question: "What is an eSIM?", answer: "An eSIM is a digital mobile data line added to a compatible phone." },
@@ -284,14 +310,16 @@ const CATEGORIZED_FAQ = localize({
         { id: "faq.usage.data_finished", question: "What happens when my data is used up?", answer: "Package conditions vary by product. You can buy another eligible published package if needed." },
         { id: "faq.usage.buy_another", question: "Can I buy another package?", answer: "Yes. You can separately purchase another eligible published package from the current catalogue." },
       ] },
-      { id: "faq.category.communication", title: "Apps & communication", subtitle: "How to keep using your usual apps abroad", questions: [
+      { id: "faq.category.payment", title: "Payment, orders & more", subtitle: "Prices, payment methods and other topics", questions: [
+        { id: "faq.payment.methods", question: "How can I pay?", answer: "The available payment methods are shown securely during checkout." },
+        { id: "faq.payment.order", question: "Where can I find my order and eSIM details?", answer: "After purchase and supplier processing are complete, you can view your order status and real eSIM details in your account." },
         { id: "faq.communication.whatsapp", question: "Can I use WhatsApp with my normal number?", answer: "Your WhatsApp account can remain on your existing number. Check your own app and device setup before making changes." },
       ] },
     ],
   },
 } as const);
 
-const FAQ_CATEGORY_ICONS = [Smartphone, Settings, Globe2, MessageCircle] as const;
+const FAQ_CATEGORY_ICONS = [FileText, Settings, Globe2, CreditCard] as const;
 
 /** Stable-ID, locale-aware FAQ used by the eSIM discovery page. All categories start collapsed; one open at a time. */
 export function V2CategorizedEsimFaq() {
@@ -299,18 +327,25 @@ export function V2CategorizedEsimFaq() {
   const copy = CATEGORIZED_FAQ[locale];
   const [openId, setOpenId] = useState<string | null>(null);
   return (
-    <section aria-labelledby="esim-faq-title" className="mx-auto mb-6 mt-8 w-full max-w-2xl scroll-mt-24 pb-24 lg:mb-10 lg:mt-14 lg:pb-4">
-      <header className="mb-4 lg:mb-6">
-        <h2 id="esim-faq-title" className="font-display text-2xl font-bold text-foreground sm:text-3xl">{copy.title}</h2>
-        <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground sm:text-base">{copy.subtitle}</p>
+    <section aria-labelledby="esim-faq-title" className="mx-auto mb-6 mt-8 w-full max-w-6xl scroll-mt-24 pb-28 lg:mb-10 lg:mt-14 lg:pb-4" dir={dir}>
+      <header className="mb-5 grid gap-5 lg:mb-7 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] lg:items-center lg:gap-12">
+        <div className="min-w-0">
+          <p className="text-xs font-bold uppercase text-primary">{copy.eyebrow}</p>
+          <h2 id="esim-faq-title" className="mt-1.5 max-w-xl font-display text-3xl font-bold leading-tight text-foreground lg:text-5xl">{copy.title}</h2>
+          <p className="mt-2 max-w-xl text-sm leading-relaxed text-muted-foreground sm:text-base lg:mt-3 lg:text-lg">{copy.subtitle}</p>
+          <ul className="mt-4 grid gap-2">
+            {copy.helpPoints.map((point) => <li key={point} className="grid grid-cols-[auto_minmax(0,1fr)] items-start gap-2 text-xs font-medium leading-relaxed text-foreground sm:text-sm"><CheckCircle2 className="mt-0.5 size-4 shrink-0 text-primary" aria-hidden="true" /><span>{point}</span></li>)}
+          </ul>
+        </div>
+        <img src={faqTravelEsim} alt={copy.imageAlt} loading="lazy" decoding="async" width={1600} height={900} className="h-40 w-full rounded-2xl object-cover ring-1 ring-border sm:h-52 lg:h-72 lg:rounded-3xl" />
       </header>
       <div className="grid gap-3">
         {copy.categories.map((category, categoryIndex) => {
           const Icon = FAQ_CATEGORY_ICONS[categoryIndex] ?? Smartphone;
           return (
-            <Collapsible key={category.id} open={openId === category.id} onOpenChange={(open) => setOpenId(open ? category.id : null)} className="overflow-hidden rounded-2xl bg-card shadow-soft ring-1 ring-border">
-              <CollapsibleTrigger className="grid min-h-16 w-full grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 px-4 py-3 text-start sm:px-5 [&[data-state=open]_.faq-category-chevron]:rotate-180">
-                <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-faq-general text-foreground"><Icon className="size-5" aria-hidden="true" /></span>
+            <Collapsible key={category.id} open={openId === category.id} onOpenChange={(open) => setOpenId(open ? category.id : null)} className="overflow-hidden rounded-2xl bg-card ring-1 ring-border">
+              <CollapsibleTrigger className="grid min-h-[4.5rem] w-full grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 px-4 py-3 text-start sm:px-5 lg:min-h-[5.25rem] lg:px-6 [&[data-state=open]_.faq-category-chevron]:rotate-180">
+                <span className="grid size-10 shrink-0 place-items-center rounded-full bg-primary-soft text-primary lg:size-11"><Icon className="size-5" aria-hidden="true" /></span>
                 <span className="min-w-0">
                   <span className="block font-display text-base font-bold leading-tight text-foreground">{category.title}</span>
                   <span className="mt-0.5 block text-xs leading-snug text-muted-foreground sm:text-sm">{category.subtitle}</span>
@@ -340,6 +375,17 @@ export function V2CategorizedEsimFaq() {
           );
         })}
       </div>
+      <aside className="mt-4 grid gap-4 rounded-2xl bg-primary-soft p-5 ring-1 ring-primary/10 sm:grid-cols-[auto_minmax(0,1fr)] sm:items-center lg:mt-5 lg:grid-cols-[auto_minmax(0,1fr)_auto] lg:px-7 lg:py-5">
+        <span className="grid size-12 shrink-0 place-items-center rounded-full bg-card text-primary ring-1 ring-primary/10"><Headphones className="size-6" aria-hidden="true" /></span>
+        <div className="min-w-0">
+          <p className="text-[10px] font-bold uppercase text-muted-foreground">{copy.supportEyebrow}</p>
+          <h3 className="mt-0.5 font-display text-lg font-bold text-foreground lg:text-xl">{copy.supportTitle}</h3>
+          <p className="mt-0.5 text-xs leading-relaxed text-muted-foreground sm:text-sm">{copy.supportText}</p>
+        </div>
+        <Button asChild className="min-h-11 w-full sm:col-span-2 lg:col-span-1 lg:w-auto">
+          <Link to="/destek">{copy.supportCta}<ArrowRight className="size-4 rtl:rotate-180" /></Link>
+        </Button>
+      </aside>
     </section>
   );
 }

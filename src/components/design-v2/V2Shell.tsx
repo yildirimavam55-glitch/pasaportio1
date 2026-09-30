@@ -92,9 +92,9 @@ export function useV2StickySearch() {
 
 export function V2StickySearchButton({ heroSearchVisible, label, onOpen }: { heroSearchVisible: boolean; label: string; onOpen: () => void }) {
   return (
-    <div aria-hidden={heroSearchVisible} className={`sticky top-14 z-40 h-0 transition-[opacity,transform] duration-200 sm:top-16 lg:top-[4.5rem] ${heroSearchVisible ? "pointer-events-none -translate-y-2 opacity-0" : "translate-y-0 opacity-100"}`}>
-      <div className="mx-auto max-w-site px-3 pt-1 sm:px-6">
-        <Button type="button" variant="outline" onClick={onOpen} className="mx-auto grid h-11 w-full max-w-finder grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2 rounded-xl bg-card px-3 text-left shadow-panel">
+    <div aria-hidden={heroSearchVisible} className={`sticky top-14 z-40 h-0 transition-[opacity,transform] duration-200 motion-reduce:transition-none sm:top-16 lg:top-16 ${heroSearchVisible ? "pointer-events-none -translate-y-2 opacity-0" : "translate-y-0 opacity-100"}`}>
+      <div className="mx-auto max-w-site px-3 pt-1 sm:px-6 lg:pt-2">
+        <Button type="button" variant="outline" onClick={onOpen} className="mx-auto grid h-11 w-full max-w-finder grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2 rounded-xl bg-card px-3 text-left shadow-panel lg:h-14 lg:max-w-3xl lg:px-5">
           <Search className="size-4 shrink-0 text-primary" /><span className="truncate text-sm text-muted-foreground">{label}</span><ArrowRight className="size-4 shrink-0" />
         </Button>
       </div>
@@ -176,7 +176,7 @@ const HERO_OVERLAY = {
 } as const;
 
 /** Full-bleed photo hero with the search floating over its bottom edge. Presets only — no free CSS. */
-export function V2Hero({ image, desktopImage, desktopFocus = "center", alt = "", eyebrow, title, subtitle, align = "left", height = "normal", overlay = "normal", children }: { image: string; desktopImage?: string | undefined; desktopFocus?: "center" | "phone"; alt?: string; eyebrow?: string; title: string; subtitle?: string; align?: "left" | "center"; height?: keyof typeof HERO_HEIGHT; overlay?: keyof typeof HERO_OVERLAY; children?: ReactNode }) {
+export function V2Hero({ image, desktopImage, desktopFocus = "center", alt = "", eyebrow, title, subtitle, align = "left", height = "normal", overlay = "normal", desktopFooter, children }: { image: string; desktopImage?: string | undefined; desktopFocus?: "center" | "phone"; alt?: string; eyebrow?: string; title: string; subtitle?: string; align?: "left" | "center"; height?: keyof typeof HERO_HEIGHT; overlay?: keyof typeof HERO_OVERLAY; desktopFooter?: ReactNode; children?: ReactNode }) {
   return (
     <section className="relative -mx-4 sm:-mx-6 lg:mx-0">
       <div className={`relative ${HERO_HEIGHT[height]} overflow-hidden text-primary-foreground sm:mx-4 sm:mt-3 sm:rounded-3xl lg:mx-0 lg:mt-4`}>
@@ -185,13 +185,14 @@ export function V2Hero({ image, desktopImage, desktopFocus = "center", alt = "",
           {image && <img src={image} alt={alt} fetchPriority="high" decoding="async" width={1024} height={768} className={`absolute inset-0 size-full object-cover ${desktopFocus === "phone" ? "lg:object-[50%_65%]" : ""}`} />}
         </picture>
         <div className={`absolute inset-0 bg-gradient-to-t ${HERO_OVERLAY[overlay]}`} />
-        <div className={`absolute inset-x-5 bottom-10 max-w-[21rem] lg:inset-x-14 lg:bottom-24 lg:max-w-2xl ${align === "center" ? "mx-auto text-center" : ""}`}>
+        <div className={`absolute inset-x-5 bottom-10 max-w-[21rem] lg:inset-x-14 lg:bottom-[13rem] lg:max-w-2xl ${align === "center" ? "mx-auto text-center" : ""}`}>
           {eyebrow && <p className="text-sm font-semibold opacity-95 lg:text-lg">{eyebrow}</p>}
           <h1 className="mt-0.5 font-display text-[1.85rem] font-bold leading-[1.04] lg:text-[3.35rem] xl:text-[3.65rem]">{title}</h1>
           {subtitle && <p className="mt-1.5 text-[13px] font-medium leading-snug opacity-90 lg:mt-3 lg:max-w-xl lg:text-xl">{subtitle}</p>}
         </div>
       </div>
-      {children && <div className="relative z-10 -mt-6 px-3.5 lg:mx-auto lg:-mt-8 lg:max-w-2xl lg:px-0">{children}</div>}
+      {children && <div className="relative z-10 -mt-6 px-3.5 lg:absolute lg:bottom-[7.25rem] lg:left-14 lg:mt-0 lg:w-[60%] lg:max-w-[40rem] lg:px-0">{children}</div>}
+      {desktopFooter && <div className="absolute inset-x-14 bottom-7 z-10 hidden lg:block">{desktopFooter}</div>}
     </section>
   );
 }
