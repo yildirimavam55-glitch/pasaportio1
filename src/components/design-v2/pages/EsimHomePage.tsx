@@ -23,13 +23,12 @@ import type { UsageKind } from "@/domain/experience/types";
 import { RefundTrustNote } from "@/components/refunds/RefundTrust";
 import { V2CategorizedEsimFaq } from "@/components/design-v2/V2DiscoveryContent";
 import { mediaUrl, useV2Page, V2Sections, v2PageQuery } from "@/components/design-v2/V2Sections";
-import { v2Text, type V2Section } from "@/domain/storefront/v2";
+import { v2ItemText, v2Text, type V2Section } from "@/domain/storefront/v2";
 import { V2EsimPackageDetails } from "@/components/design-v2/V2EsimPackageDetails";
 import { V2ProductSelectionCard, V2SelectedProductSummary } from "@/components/design-v2/V2ProductSelection";
 import { V2RegionCard } from "@/components/design-v2/V2RegionCard";
 import { localize } from "@/i18n/overlay";
 import { StorefrontIcon } from "@/domain/storefront/icons";
-import { v2ItemText } from "@/domain/storefront/v2";
 
 /** Public home/eSIM search: optional country + legacy `service` hint (V1 links used `/?service=lounge`). */
 export const validateEsimSearch = (s: Record<string, unknown>): { country?: string; service?: "esim" | "lounge" } => ({
