@@ -4,6 +4,7 @@
 - [x] Preserve the approved sub-1024 compatibility, Lounge, and Vignette presentation.
 - [x] Add the desktop full-width compatibility tool and equal Lounge/Vignette row using existing behavior and copy.
 - [x] Verify 1280/1440/1920 desktop and 390/430 mobile renders without publishing.
+- [x] Refine only the desktop compatibility surface into a compact cream utility card with lighter CTA and clear separation.
 
 ## V2 approved country product-page reference
 - [x] Recompose the selected-country page around the existing dynamic country imagery, catalogue, device checker, product cards, and cart state.

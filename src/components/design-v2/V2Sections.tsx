@@ -102,10 +102,10 @@ export function V2Sections({ config, media, slots, only }: { config: V2PageConfi
                     <V2Compatibility title={t("title")} />
                     <PromoCard image={loungeImage ?? ""} title={v2Text(pairedPromo, "title", locale)} {...(v2Text(pairedPromo, "subtitle", locale) ? { sub: v2Text(pairedPromo, "subtitle", locale) } : {})} to={pairedPromo.href} compactDesktop />
                   </div>
-                  <div className="hidden lg:block">
+                  <div className="hidden pt-6 lg:block">
                     <DesktopDeviceCompatibilityBanner title={t("title")} />
                     {vignettePromo && (
-                      <div className="mt-4 grid grid-cols-2 gap-4">
+                      <div className="mt-6 grid grid-cols-2 gap-4">
                         <DesktopPromoCard image={loungeImage ?? ""} title={v2Text(pairedPromo, "title", locale)} cta={v2Text(pairedPromo, "subtitle", locale)} to="/lounge" imagePosition="center 56%" />
                         <DesktopPromoCard image={vignetteRoadDesktop} title={v2Text(vignettePromo, "title", locale)} cta={v2Text(vignettePromo, "subtitle", locale)} to="/vignette" imagePosition="center 58%" />
                       </div>
