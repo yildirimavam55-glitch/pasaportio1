@@ -291,38 +291,33 @@ const CATEGORIZED_FAQ = localize({
   },
 } as const);
 
-const FAQ_CATEGORY_STYLES = [
-  { icon: Smartphone, surface: "bg-faq-general" },
-  { icon: Settings, surface: "bg-faq-installation" },
-  { icon: Globe2, surface: "bg-faq-usage" },
-  { icon: MessageCircle, surface: "bg-faq-communication" },
-] as const;
+const FAQ_CATEGORY_ICONS = [Smartphone, Settings, Globe2, MessageCircle] as const;
 
-/** Stable-ID, locale-aware FAQ used by the eSIM discovery page. */
+/** Stable-ID, locale-aware FAQ used by the eSIM discovery page. All categories start collapsed; one open at a time. */
 export function V2CategorizedEsimFaq() {
   const { locale, dir } = useI18n();
   const copy = CATEGORIZED_FAQ[locale];
+  const [openId, setOpenId] = useState<string | null>(null);
   return (
-    <section aria-labelledby="esim-faq-title" className="mx-auto mb-6 mt-8 w-full max-w-4xl scroll-mt-24 pb-8 lg:mb-10 lg:mt-14 lg:pb-4">
-      <header className="mb-5 max-w-2xl lg:mb-7">
+    <section aria-labelledby="esim-faq-title" className="mx-auto mb-6 mt-8 w-full max-w-2xl scroll-mt-24 pb-24 lg:mb-10 lg:mt-14 lg:pb-4">
+      <header className="mb-4 lg:mb-6">
         <h2 id="esim-faq-title" className="font-display text-2xl font-bold text-foreground sm:text-3xl">{copy.title}</h2>
         <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground sm:text-base">{copy.subtitle}</p>
       </header>
-      <div className="grid gap-4 lg:grid-cols-2 lg:items-start lg:gap-5">
+      <div className="grid gap-3">
         {copy.categories.map((category, categoryIndex) => {
-          const style = FAQ_CATEGORY_STYLES[categoryIndex] ?? FAQ_CATEGORY_STYLES[0];
-          const Icon = style.icon;
+          const Icon = FAQ_CATEGORY_ICONS[categoryIndex] ?? Smartphone;
           return (
-            <Collapsible key={category.id} defaultOpen className="group overflow-hidden rounded-2xl bg-card shadow-soft ring-1 ring-border">
-              <CollapsibleTrigger className={`grid min-h-20 w-full grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 px-4 py-3 text-start ${style.surface} sm:px-5 [&[data-state=open]_.faq-category-chevron]:rotate-180`}>
-                <span className="grid size-12 shrink-0 place-items-center rounded-xl bg-card/70 text-foreground ring-1 ring-border/60"><Icon className="size-6" aria-hidden="true" /></span>
+            <Collapsible key={category.id} open={openId === category.id} onOpenChange={(open) => setOpenId(open ? category.id : null)} className="overflow-hidden rounded-2xl bg-card shadow-soft ring-1 ring-border">
+              <CollapsibleTrigger className="grid min-h-16 w-full grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 px-4 py-3 text-start sm:px-5 [&[data-state=open]_.faq-category-chevron]:rotate-180">
+                <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-faq-general text-foreground"><Icon className="size-5" aria-hidden="true" /></span>
                 <span className="min-w-0">
-                  <span className="block font-display text-base font-bold leading-tight text-foreground sm:text-lg">{category.title}</span>
+                  <span className="block font-display text-base font-bold leading-tight text-foreground">{category.title}</span>
                   <span className="mt-0.5 block text-xs leading-snug text-muted-foreground sm:text-sm">{category.subtitle}</span>
                 </span>
-                <ChevronDown className="faq-category-chevron size-5 shrink-0 text-foreground transition-transform duration-200 motion-reduce:transition-none" aria-hidden="true" />
+                <ChevronDown className="faq-category-chevron size-5 shrink-0 text-muted-foreground transition-transform duration-200 motion-reduce:transition-none" aria-hidden="true" />
               </CollapsibleTrigger>
-              <CollapsibleContent className="overflow-hidden data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down motion-reduce:animate-none">
+              <CollapsibleContent className="overflow-hidden border-t border-border data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down motion-reduce:animate-none">
                 <Accordion type="single" collapsible className="px-4 sm:px-5" dir={dir}>
                   {category.questions.map((item) => (
                     <AccordionItem key={item.id} value={item.id} className="last:border-b-0">
