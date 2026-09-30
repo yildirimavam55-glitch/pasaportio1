@@ -670,3 +670,6 @@
 - [ ] Verify draft isolation, publish behavior, responsive Admin/public views, security tests, full tests, typecheck, and build without publishing.
 
 - [x] FAQ category redesign: match the supplied mobile reference while preserving Travely styling, localization, and existing behavior.
+- [ ] Finish the approved FAQ desktop/mobile introduction, category, support, localization, and responsive QA.
+- [ ] Move the existing desktop eSIM search and trust row inside the hero; add the same-state sticky search below the header after the hero leaves view.
+- [ ] Verify desktop hero/sticky search at 1280/1440/1920 and preserve the approved 390/430 mobile behavior.
