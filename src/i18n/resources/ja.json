@@ -765,5 +765,19 @@
   "Can I keep my physical SIM active?": "物理SIMを有効なままにできますか？",
   "Package conditions vary by product. You can buy another eligible published package if needed.": "条件は商品によって異なります。必要に応じて、公開中の別の対象パッケージを購入できます。",
   "Yes. You can separately purchase another eligible published package from the current catalogue.": "はい。現在のカタログで公開されている別の対象パッケージを個別に購入できます。",
-  "Your WhatsApp account can remain on your existing number. Check your own app and device setup before making changes.": "WhatsAppアカウントは現在の電話番号のまま利用できます。変更する前に、アプリと端末の設定をご確認ください。"
+  "Your WhatsApp account can remain on your existing number. Check your own app and device setup before making changes.": "WhatsAppアカウントは現在の電話番号のまま利用できます。変更する前に、アプリと端末の設定をご確認ください。",
+  "Fast answers": "すぐに見つかる回答",
+  "Everything important in one place": "重要な情報を一か所に集約",
+  "For more questions, our support team is happy to help": "その他のご質問もサポートチームがお手伝いします",
+  "Travel smartphone on a map by the Mediterranean coast": "地中海沿岸の地図の上に置かれた旅行用スマートフォン",
+  "STILL HAVE QUESTIONS?": "ほかにご質問はありますか？",
+  "Our support team is here for you": "サポートチームがお手伝いします",
+  "We’re happy to help—quickly and personally.": "迅速かつ丁寧にサポートいたします。",
+  "Go to support": "サポートへ",
+  "Payment, orders & more": "お支払い・ご注文・その他",
+  "Prices, payment methods and other topics": "料金、お支払い方法、その他のトピック",
+  "How can I pay?": "どのように支払えますか？",
+  "The available payment methods are shown securely during checkout.": "利用可能なお支払い方法は、購入手続き中に安全に表示されます。",
+  "Where can I find my order and eSIM details?": "注文とeSIM情報はどこで確認できますか？",
+  "After purchase and supplier processing are complete, you can view your order status and real eSIM details in your account.": "購入とプロバイダーの処理が完了すると、アカウントで注文状況と実際のeSIM情報を確認できます。"
 }
