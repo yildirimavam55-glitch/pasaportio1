@@ -183,7 +183,7 @@ function PublicFooter({ fallback, supportLabel, bottomSafe = false }: { fallback
   const text = itemText(data?.footerText, locale, fallback) || fallback;
   const links = (data?.footerLinks ?? []).filter((link) => link.visible && link.href);
   const copyright = itemText(data?.copyright, locale, "");
-  const footerCopy = FOOTER_COPY[uiLocale];
+  const footerCopy = FOOTER_COPY[locale];
   const groups = [
     { id: "services", title: footerCopy.services },
     { id: "help", title: footerCopy.help },
