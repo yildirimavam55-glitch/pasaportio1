@@ -206,14 +206,20 @@ function PublicFooter({ fallback, supportLabel, bottomSafe = false }: { fallback
           {groups.map((group) => {
             const groupLinks = links.filter((link) => (link.group ?? "help") === group.id);
             return <div key={group.id} className="border-t border-primary-foreground/15 pt-1 lg:border-0 lg:pt-0">
-              <details className="group lg:pointer-events-none [&>nav]:lg:grid">
+              <details className="group lg:hidden">
                 <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between text-sm font-bold lg:min-h-0 lg:cursor-default">
                   {group.title}<ChevronDown className="size-4 transition group-open:rotate-180 lg:hidden" />
                 </summary>
-                <nav aria-label={group.title} className="hidden gap-2 pb-3 pt-1.5 text-sm group-open:grid lg:!grid lg:pb-0 lg:pt-4">
+                <nav aria-label={group.title} className="hidden gap-2 pb-3 pt-1.5 text-sm group-open:grid">
                   {groupLinks.map((link) => <Link key={link.id} to={link.href} className="text-primary-foreground/68 transition hover:text-primary-foreground">{itemText(link.label, locale)}</Link>)}
                 </nav>
               </details>
+              <div className="hidden lg:block">
+                <h2 className="text-sm font-bold">{group.title}</h2>
+                <nav aria-label={group.title} className="mt-4 grid gap-2 text-sm">
+                  {groupLinks.map((link) => <Link key={link.id} to={link.href} className="text-primary-foreground/68 transition hover:text-primary-foreground">{itemText(link.label, locale)}</Link>)}
+                </nav>
+              </div>
             </div>;
           })}
         </div>
