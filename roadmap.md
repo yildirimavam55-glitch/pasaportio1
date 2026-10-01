@@ -681,7 +681,3 @@
 - [x] Add company completeness checks, 14-locale legal editing, RTL previews, safe structured text, and manual publish/unpublish.
 - [x] Keep newsletter capture disabled, payment logos hidden, and social links HTTPS-only until real systems are configured.
 - [ ] Real company identity, unresolved commercial terms, and final legal wording require owner/legal input before publication.
-- [ ] Extend existing CMS/storefront records for footer and legal drafts without migrations.
-- [ ] Build six localized legal routes and responsive public footer.
-- [ ] Add Admin footer/legal controls with draft, preview, and explicit publish.
-- [ ] Verify 14 locales, RTL, mobile/desktop layouts, and protected-system non-changes.

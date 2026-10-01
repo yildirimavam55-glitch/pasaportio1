@@ -206,7 +206,7 @@ function PublicFooter({ fallback, supportLabel, bottomSafe = false }: { fallback
           {groups.map((group) => {
             const groupLinks = links.filter((link) => (link.group ?? "help") === group.id);
             return <div key={group.id} className="border-t border-primary-foreground/15 pt-1 lg:border-0 lg:pt-0">
-              <details className="group lg:pointer-events-none lg:open" open>
+              <details className="group lg:pointer-events-none [&>nav]:lg:grid">
                 <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between text-sm font-bold lg:min-h-0 lg:cursor-default">
                   {group.title}<ChevronDown className="size-4 transition group-open:rotate-180 lg:hidden" />
                 </summary>
