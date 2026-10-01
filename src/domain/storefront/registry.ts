@@ -1149,13 +1149,15 @@ function sanitizeSection(raw: any, index: number): StorefrontSection | null {
 
 function sanitizeLinks(raw: any, fallback: NavigationLink[]): NavigationLink[] {
   if (!Array.isArray(raw)) return fallback.map((link) => ({ ...link }));
-  return raw.slice(0, 16).map((link: any, index: number) => ({
+  const configured = raw.slice(0, 24).map((link: any, index: number) => ({
     id: str(link?.id, 40) || `link-${index}`,
     href: href(link?.href),
     visible: link?.visible !== false,
     label: localeText(link?.label, 60),
     group: pick(link?.group, ["services", "help", "legal"] as const, fallback[index]?.group ?? "help"),
   }));
+  const ids = new Set(configured.map((link) => link.id));
+  return [...configured, ...fallback.filter((link) => !ids.has(link.id)).map((link) => ({ ...link }))].slice(0, 24);
 }
 
 const externalUrl = (value: unknown) => { try { const url = new URL(str(value, 300)); return url.protocol === "https:" ? url.toString() : ""; } catch { return ""; } };
