@@ -327,7 +327,7 @@ export function V2CategorizedEsimFaq() {
   const copy = CATEGORIZED_FAQ[locale];
   const [openId, setOpenId] = useState<string | null>(null);
   return (
-    <section aria-labelledby="esim-faq-title" className="mx-auto mb-6 mt-8 w-full max-w-6xl scroll-mt-24 pb-28 lg:mb-10 lg:mt-14 lg:pb-4" dir={dir}>
+    <section aria-labelledby="esim-faq-title" className="mx-auto mb-0 mt-8 w-full max-w-6xl scroll-mt-24 pb-0 lg:mb-10 lg:mt-14 lg:pb-4" dir={dir}>
       <header className="mb-5 grid gap-5 lg:mb-7 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] lg:items-center lg:gap-12">
         <div className="min-w-0">
           <p className="text-xs font-bold uppercase text-primary">{copy.eyebrow}</p>
