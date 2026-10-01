@@ -56,5 +56,33 @@ const docs:Record<LegalDocumentId,LegalDocument>={
 export const DEFAULT_LEGAL_CENTER:LegalCenterConfig={company,documents:docs};
 const clean=(v:unknown,max:number)=>String(v??"").replace(/<[^>]*>/g,"").slice(0,max).trim();
 const cleanMap=(v:unknown,max:number,f:LocaleMap)=>Object.fromEntries(UI_LOCALES.map(l=>[l,clean((v as Record<string,unknown>|null)?.[l],max)||f[l]])) as LocaleMap;
-export function sanitizeLegalCenter(raw:unknown):LegalCenterConfig{const x=raw&&typeof raw==="object"?raw as Record<string,unknown>:{};const c=x.company&&typeof x.company==="object"?x.company as Record<string,unknown>:{};const cc=Object.fromEntries(Object.keys(company).map(k=>[k,clean(c[k],240)])) as CompanyInformation;const rd=x.documents&&typeof x.documents==="object"?x.documents as Record<string,unknown>:{};const cd=Object.fromEntries(LEGAL_DOCUMENTS.map(id=>{const f=docs[id],i=rd[id]&&typeof rd[id]==="object"?rd[id] as Record<string,unknown>:{};const rs=Array.isArray(i.sections)?i.sections:f.sections;return[id,{id,status:i.status==="PUBLISHED"?"PUBLISHED":"DRAFT",title:cleanMap(i.title,160,f.title),lastUpdated:clean(i.lastUpdated,10),sections:rs.slice(0,30).map((row:unknown,n:number)=>{const r=row&&typeof row==="object"?row as Record<string,unknown>:{};const fb=f.sections[n]??f.sections[0];return{id:clean(r.id,60)||`${id}-${n}`,heading:cleanMap(r.heading,180,fb.heading),body:cleanMap(r.body,6000,fb.body),reviewRequired:r.reviewRequired!==false}})}]})) as Record<LegalDocumentId,LegalDocument>;return{company:cc,documents:cd}}
+export function sanitizeLegalCenter(raw: unknown): LegalCenterConfig {
+  const source = raw && typeof raw === "object" ? raw as Record<string, unknown> : {};
+  const companySource = source["company"] && typeof source["company"] === "object" ? source["company"] as Record<string, unknown> : {};
+  const cleanCompany = Object.fromEntries(Object.keys(company).map((key) => [key, clean(companySource[key], 240)])) as CompanyInformation;
+  const documentsSource = source["documents"] && typeof source["documents"] === "object" ? source["documents"] as Record<string, unknown> : {};
+  const cleanDocuments = Object.fromEntries(LEGAL_DOCUMENTS.map((id) => {
+    const fallback = docs[id];
+    const input = documentsSource[id] && typeof documentsSource[id] === "object" ? documentsSource[id] as Record<string, unknown> : {};
+    const sectionRows = Array.isArray(input["sections"]) ? input["sections"] : fallback.sections;
+    return [id, {
+      id,
+      status: input["status"] === "PUBLISHED" ? "PUBLISHED" : "DRAFT",
+      title: cleanMap(input["title"], 160, fallback.title),
+      lastUpdated: clean(input["lastUpdated"], 10),
+      sections: sectionRows.slice(0, 30).map((row: unknown, index: number) => {
+        const sectionSource = row && typeof row === "object" ? row as Record<string, unknown> : {};
+        const fallbackSection = fallback.sections[index] ?? fallback.sections[0];
+        if (!fallbackSection) throw new Error("Legal document requires at least one section.");
+        return {
+          id: clean(sectionSource["id"], 60) || `${id}-${index}`,
+          heading: cleanMap(sectionSource["heading"], 180, fallbackSection.heading),
+          body: cleanMap(sectionSource["body"], 6000, fallbackSection.body),
+          reviewRequired: sectionSource["reviewRequired"] !== false,
+        };
+      }),
+    }];
+  })) as Record<LegalDocumentId, LegalDocument>;
+  return { company: cleanCompany, documents: cleanDocuments };
+}
 export const REQUIRED_COMPANY_FIELDS:Array<keyof CompanyInformation>=["legalName","legalForm","representative","street","houseNumber","postalCode","city","country","email","responsibleContact","disputeResolutionStatus"];

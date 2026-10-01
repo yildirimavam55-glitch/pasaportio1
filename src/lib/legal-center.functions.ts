@@ -12,7 +12,7 @@ function publicClient() {
 export const getPublishedLegalCenter = createServerFn({ method: "GET" }).handler(async () => {
   try {
     const { data } = await publicClient().from("cms_documents").select("data").eq("key", KEY).eq("status", "PUBLISHED").eq("visible", true).maybeSingle();
-    const published = (data?.data as Record<string, unknown> | null)?.published;
+    const published = (data?.data as Record<string, unknown> | null)?.["published"];
     return published ? sanitizeLegalCenter(published) : DEFAULT_LEGAL_CENTER;
   } catch { return DEFAULT_LEGAL_CENTER; }
 });
@@ -20,12 +20,12 @@ export const getLegalCenterEditor = createServerFn({ method: "GET" }).middleware
   const db = await adminDb(context as AdminCtx);
   const { data } = await db.from("cms_documents").select("id,status,published_at,updated_at,data").eq("key", KEY).maybeSingle();
   const payload = data?.data as Record<string, unknown> | null;
-  return { draft: sanitizeLegalCenter(payload?.draft ?? payload?.published), published: payload?.published ? sanitizeLegalCenter(payload.published) : null, publishedAt: data?.published_at ?? null, updatedAt: data?.updated_at ?? null };
+  return { draft: sanitizeLegalCenter(payload?.["draft"] ?? payload?.["published"]), published: payload?.["published"] ? sanitizeLegalCenter(payload["published"]) : null, publishedAt: data?.published_at ?? null, updatedAt: data?.updated_at ?? null };
 });
 export const saveLegalCenter = createServerFn({ method: "POST" }).inputValidator((input: { config: LegalCenterConfig; publish?: boolean }) => input).middleware([requireSupabaseAuth]).handler(async ({ context, data }) => {
   const db = await adminDb(context as AdminCtx); const config = sanitizeLegalCenter(data.config);
   const { data: existing } = await db.from("cms_documents").select("id,data,published_at").eq("key", KEY).maybeSingle();
-  const old = existing?.data as Record<string, unknown> | null; const published = data.publish ? config : old?.published ?? null;
+  const old = existing?.data as Record<string, unknown> | null; const published = data.publish ? config : old?.["published"] ?? null;
   const payload = { key: KEY, kind: "LEGAL_CONTENT", status: published ? "PUBLISHED" : "DRAFT", visible: true, published_at: data.publish ? new Date().toISOString() : existing?.published_at ?? null, data: { draft: config, published } };
   let id = existing?.id as string | undefined;
   if (id) { const { error } = await db.from("cms_documents").update(payload).eq("id", id); if (error) throw new Error(error.message); }
@@ -36,7 +36,7 @@ export const saveLegalCenter = createServerFn({ method: "POST" }).inputValidator
 });
 export const unpublishLegalCenter = createServerFn({ method: "POST" }).middleware([requireSupabaseAuth]).handler(async ({ context }) => {
   const db = await adminDb(context as AdminCtx); const { data: row } = await db.from("cms_documents").select("id,data").eq("key", KEY).maybeSingle(); if (!row?.id) return { ok: true };
-  const payload = row.data as Record<string, unknown>; const draft = sanitizeLegalCenter(payload.draft ?? payload.published);
+  const payload = row.data as Record<string, unknown>; const draft = sanitizeLegalCenter(payload["draft"] ?? payload["published"]);
   const { error } = await db.from("cms_documents").update({ status: "DRAFT", published_at: null, data: { draft, published: null } }).eq("id", row.id); if (error) throw new Error(error.message);
   await audit(db, "legal.unpublish", "cms_document", row.id, null, null); return { ok: true };
 });
