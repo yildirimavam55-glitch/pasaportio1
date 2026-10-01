@@ -99,7 +99,7 @@ export function V2Sections({ config, media, slots, only }: { config: V2PageConfi
               const loungeImage = mediaUrl(pairedPromo.mediaId, media);
               const vignettePromo = sections.find((candidate) => candidate.type === "PROMO_BANNER" && candidate.href === "/vignette" && isInWindow(candidate));
               return (
-                <div key={`${s.id}-${pairedPromo.id}`}>
+                <div key={`${s.id}-${pairedPromo.id}`} id="device-compatibility" className="scroll-mt-24">
                   <div className="lg:hidden">
                     <V2Compatibility title={t("title")} />
                     <PromoCard image={loungeImage ?? ""} title={v2Text(pairedPromo, "title", locale)} {...(v2Text(pairedPromo, "subtitle", locale) ? { sub: v2Text(pairedPromo, "subtitle", locale) } : {})} to={pairedPromo.href} compactDesktop />
@@ -116,7 +116,7 @@ export function V2Sections({ config, media, slots, only }: { config: V2PageConfi
                 </div>
               );
             }
-            return <V2Compatibility key={s.id} title={t("title")} />;
+            return <div key={s.id} id="device-compatibility" className="scroll-mt-24"><V2Compatibility title={t("title")} /></div>;
           }
           case "PROMO_BANNER": {
             const previous = sections[index - 1];
