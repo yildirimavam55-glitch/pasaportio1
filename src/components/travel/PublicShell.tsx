@@ -211,13 +211,13 @@ function PublicFooter({ fallback, supportLabel, bottomSafe = false }: { fallback
                   {group.title}<ChevronDown className="size-4 transition group-open:rotate-180 lg:hidden" />
                 </summary>
                 <nav aria-label={group.title} className="hidden gap-2 pb-3 pt-1.5 text-sm group-open:grid">
-                  {groupLinks.map((link) => <Link key={link.id} to={link.href} className="text-primary-foreground/68 transition hover:text-primary-foreground">{itemText(link.label, locale)}</Link>)}
+                  {groupLinks.map((link) => <Link key={link.id} to={link.href.split("#")[0] || "/"} hash={link.href.split("#")[1]} className="text-primary-foreground/68 transition hover:text-primary-foreground">{itemText(link.label, locale)}</Link>)}
                 </nav>
               </details>
               <div className="hidden lg:block">
                 <h2 className="text-sm font-bold">{group.title}</h2>
                 <nav aria-label={group.title} className="mt-4 grid gap-2 text-sm">
-                  {groupLinks.map((link) => <Link key={link.id} to={link.href} className="text-primary-foreground/68 transition hover:text-primary-foreground">{itemText(link.label, locale)}</Link>)}
+                  {groupLinks.map((link) => <Link key={link.id} to={link.href.split("#")[0] || "/"} hash={link.href.split("#")[1]} className="text-primary-foreground/68 transition hover:text-primary-foreground">{itemText(link.label, locale)}</Link>)}
                 </nav>
               </div>
             </div>;
