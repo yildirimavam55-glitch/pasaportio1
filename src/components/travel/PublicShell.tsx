@@ -5,6 +5,8 @@ import { getPublishedStorefront } from "@/lib/storefront.functions";
 import { itemText } from "@/domain/storefront/registry";
 import {
   Check,
+  ChevronDown,
+  ExternalLink,
   Globe2,
   Headphones,
   LogIn,
@@ -66,6 +68,12 @@ const MENU_CLOSE_LABEL = localize({
   tr: "Menüyü kapat",
   de: "Menü schließen",
   en: "Close menu",
+} as const);
+
+const FOOTER_COPY = localize({
+  tr: { services: "Hizmetler", help: "Yardım", legal: "Yasal", newsletterUnavailable: "Abonelik yakında kullanıma açılacak.", social: "Sosyal medya" },
+  de: { services: "Services", help: "Hilfe", legal: "Rechtliches", newsletterUnavailable: "Die Anmeldung wird demnächst verfügbar.", social: "Soziale Medien" },
+  en: { services: "Services", help: "Help", legal: "Legal", newsletterUnavailable: "Subscription will be available soon.", social: "Social media" },
 } as const);
 
 function Brand() {
@@ -165,7 +173,7 @@ function ThemePreferenceMenu() {
 }
 /** Footer content is owned by the storefront editor; falls back to built-in copy. */
 function PublicFooter({ fallback, supportLabel, bottomSafe = false }: { fallback: string; supportLabel: string; bottomSafe?: boolean | "purchase" }) {
-  const { locale } = useI18n();
+  const { locale, uiLocale } = useI18n();
   const config = useQuery({
     queryKey: ["storefront", "global"],
     queryFn: () => getPublishedStorefront({ data: { service: "global" } }),
@@ -173,39 +181,49 @@ function PublicFooter({ fallback, supportLabel, bottomSafe = false }: { fallback
   });
   const data = config.data?.config;
   const text = itemText(data?.footerText, locale, fallback) || fallback;
-  const links = (data?.footerLinks ?? []).filter(
-    (link) =>
-      link.visible &&
-      !/support|destek/i.test(link.href) &&
-      !/destek|support|hilfe/i.test(itemText(link.label, locale)),
-  );
+  const links = (data?.footerLinks ?? []).filter((link) => link.visible && link.href);
   const copyright = itemText(data?.copyright, locale, "");
+  const footerCopy = FOOTER_COPY[uiLocale];
+  const groups = [
+    { id: "services", title: footerCopy.services },
+    { id: "help", title: footerCopy.help },
+    { id: "legal", title: footerCopy.legal },
+  ] as const;
+  const socials = (data?.footer.socials ?? []).filter((social) => social.active && social.url);
   return (
-    <footer id="support" className={`border-t border-border bg-secondary/50 pt-10 ${bottomSafe === "purchase" ? "pb-[calc(12.5rem+env(safe-area-inset-bottom))] sm:pb-10" : bottomSafe ? "pb-[calc(8.5rem+env(safe-area-inset-bottom))] sm:pb-10" : "pb-10"}`}>
-      <div className="mx-auto grid max-w-site gap-6 px-4 sm:px-6 md:grid-cols-2 lg:grid-cols-[0.75fr_1.25fr_1fr] lg:items-start lg:gap-10">
-        <Brand />
-        <p className="max-w-md text-sm text-muted-foreground">{text}</p>
-        <div className="grid gap-2">
-          {links.length > 0 && (
-            <nav
-              className="flex flex-wrap gap-x-4 gap-y-1 text-sm font-semibold"
-              aria-label="Alt bilgi menüsü"
-            >
-              {links.map((link) => (
-                <a
-                  key={link.id}
-                  href={link.href}
-                  className="text-muted-foreground hover:text-primary"
-                >
-                  {itemText(link.label, locale)}
-                </a>
-              ))}
-            </nav>
-          )}
-          <Link to="/destek" className="inline-flex items-center gap-2 text-sm font-semibold text-primary">
-            <Headphones className="size-4" /> {supportLabel}
-          </Link>
-          {copyright && <span className="text-xs text-muted-foreground">{copyright}</span>}
+    <footer id="support" className={`border-t border-primary-foreground/10 bg-primary text-primary-foreground ${bottomSafe === "purchase" ? "pb-[calc(12.5rem+env(safe-area-inset-bottom))] sm:pb-8" : bottomSafe ? "pb-[calc(8.5rem+env(safe-area-inset-bottom))] sm:pb-8" : "pb-8"}`}>
+      <div className="mx-auto max-w-site px-4 py-8 sm:px-6 sm:py-10">
+        <div className="grid gap-7 lg:grid-cols-[1.15fr_repeat(3,minmax(0,1fr))] lg:gap-10">
+          <div>
+            <div className="[&_a]:text-primary-foreground [&_a>span:first-of-type]:bg-primary-foreground [&_a>span:first-of-type]:text-primary">
+              <Brand />
+            </div>
+            <p className="mt-4 max-w-xs text-sm leading-6 text-primary-foreground/70">{text}</p>
+            <Link to="/destek" className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-primary-foreground">
+              <Headphones className="size-4" /> {supportLabel}
+            </Link>
+          </div>
+          {groups.map((group) => {
+            const groupLinks = links.filter((link) => (link.group ?? "help") === group.id);
+            return <div key={group.id} className="border-t border-primary-foreground/15 pt-1 lg:border-0 lg:pt-0">
+              <details className="group lg:pointer-events-none lg:open" open>
+                <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between text-sm font-bold lg:min-h-0 lg:cursor-default">
+                  {group.title}<ChevronDown className="size-4 transition group-open:rotate-180 lg:hidden" />
+                </summary>
+                <nav aria-label={group.title} className="grid gap-2 pb-3 pt-1.5 text-sm lg:pb-0 lg:pt-4">
+                  {groupLinks.map((link) => <Link key={link.id} to={link.href} className="text-primary-foreground/68 transition hover:text-primary-foreground">{itemText(link.label, locale)}</Link>)}
+                </nav>
+              </details>
+            </div>;
+          })}
+        </div>
+        {data?.footer.newsletterVisible && <div className="mt-8 grid gap-3 border-t border-primary-foreground/15 pt-6 md:grid-cols-[1fr_minmax(18rem,0.8fr)] md:items-center">
+          <div><h2 className="font-display text-lg font-bold">{itemText(data.footer.newsletterTitle, locale)}</h2><p className="mt-1 text-xs text-primary-foreground/65">{itemText(data.footer.newsletterDescription, locale)}</p></div>
+          <div><div className="flex gap-2"><input disabled aria-label={itemText(data.footer.newsletterPlaceholder, locale)} placeholder={itemText(data.footer.newsletterPlaceholder, locale)} className="min-h-11 min-w-0 flex-1 rounded-md border border-primary-foreground/20 bg-primary-foreground/10 px-3 text-sm placeholder:text-primary-foreground/50"/><Button disabled variant="secondary">{itemText(data.footer.newsletterCta, locale)}</Button></div><p className="mt-1.5 text-[10px] text-primary-foreground/55">{footerCopy.newsletterUnavailable}</p></div>
+        </div>}
+        <div className="mt-8 flex flex-col gap-4 border-t border-primary-foreground/15 pt-5 text-xs text-primary-foreground/60 sm:flex-row sm:items-center sm:justify-between">
+          <span>{copyright}</span>
+          {socials.length > 0 && <nav aria-label={footerCopy.social} className="flex flex-wrap gap-3">{socials.map((social) => <a key={social.id} href={social.url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 hover:text-primary-foreground"><ExternalLink className="size-3"/>{social.id}</a>)}</nav>}
         </div>
       </div>
     </footer>
