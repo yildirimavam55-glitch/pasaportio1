@@ -57,6 +57,7 @@ import { Route as AuthenticatedAdminDestinationsRouteImport } from './routes/_au
 import { Route as AuthenticatedAdminFinanceRouteImport } from './routes/_authenticated/admin.finance'
 import { Route as AuthenticatedAdminFlagsRouteImport } from './routes/_authenticated/admin.flags'
 import { Route as AuthenticatedAdminGuidesRouteImport } from './routes/_authenticated/admin.guides'
+import { Route as AuthenticatedAdminLegalRouteImport } from './routes/_authenticated/admin.legal'
 import { Route as AuthenticatedAdminMediaRouteImport } from './routes/_authenticated/admin.media'
 import { Route as AuthenticatedAdminOrdersRouteImport } from './routes/_authenticated/admin.orders'
 import { Route as AuthenticatedAdminPricingRulesRouteImport } from './routes/_authenticated/admin.pricing-rules'
@@ -372,6 +373,11 @@ const AuthenticatedAdminGuidesRoute =
     path: '/admin/guides',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedAdminLegalRoute = AuthenticatedAdminLegalRouteImport.update({
+  id: '/admin/legal',
+  path: '/admin/legal',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedAdminMediaRoute = AuthenticatedAdminMediaRouteImport.update({
   id: '/admin/media',
   path: '/admin/media',
@@ -810,6 +816,7 @@ export interface FileRoutesByFullPath {
   '/admin/finance': typeof AuthenticatedAdminFinanceRoute
   '/admin/flags': typeof AuthenticatedAdminFlagsRoute
   '/admin/guides': typeof AuthenticatedAdminGuidesRoute
+  '/admin/legal': typeof AuthenticatedAdminLegalRoute
   '/admin/media': typeof AuthenticatedAdminMediaRoute
   '/admin/orders': typeof AuthenticatedAdminOrdersRoute
   '/admin/pricing-rules': typeof AuthenticatedAdminPricingRulesRoute
@@ -925,6 +932,7 @@ export interface FileRoutesByTo {
   '/admin/finance': typeof AuthenticatedAdminFinanceRoute
   '/admin/flags': typeof AuthenticatedAdminFlagsRoute
   '/admin/guides': typeof AuthenticatedAdminGuidesRoute
+  '/admin/legal': typeof AuthenticatedAdminLegalRoute
   '/admin/media': typeof AuthenticatedAdminMediaRoute
   '/admin/orders': typeof AuthenticatedAdminOrdersRoute
   '/admin/pricing-rules': typeof AuthenticatedAdminPricingRulesRoute
@@ -1044,6 +1052,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/finance': typeof AuthenticatedAdminFinanceRoute
   '/_authenticated/admin/flags': typeof AuthenticatedAdminFlagsRoute
   '/_authenticated/admin/guides': typeof AuthenticatedAdminGuidesRoute
+  '/_authenticated/admin/legal': typeof AuthenticatedAdminLegalRoute
   '/_authenticated/admin/media': typeof AuthenticatedAdminMediaRoute
   '/_authenticated/admin/orders': typeof AuthenticatedAdminOrdersRoute
   '/_authenticated/admin/pricing-rules': typeof AuthenticatedAdminPricingRulesRoute
@@ -1163,6 +1172,7 @@ export interface FileRouteTypes {
     | '/admin/finance'
     | '/admin/flags'
     | '/admin/guides'
+    | '/admin/legal'
     | '/admin/media'
     | '/admin/orders'
     | '/admin/pricing-rules'
@@ -1278,6 +1288,7 @@ export interface FileRouteTypes {
     | '/admin/finance'
     | '/admin/flags'
     | '/admin/guides'
+    | '/admin/legal'
     | '/admin/media'
     | '/admin/orders'
     | '/admin/pricing-rules'
@@ -1396,6 +1407,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/finance'
     | '/_authenticated/admin/flags'
     | '/_authenticated/admin/guides'
+    | '/_authenticated/admin/legal'
     | '/_authenticated/admin/media'
     | '/_authenticated/admin/orders'
     | '/_authenticated/admin/pricing-rules'
@@ -1849,6 +1861,13 @@ declare module '@tanstack/react-router' {
       path: '/admin/guides'
       fullPath: '/admin/guides'
       preLoaderRoute: typeof AuthenticatedAdminGuidesRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/admin/legal': {
+      id: '/_authenticated/admin/legal'
+      path: '/admin/legal'
+      fullPath: '/admin/legal'
+      preLoaderRoute: typeof AuthenticatedAdminLegalRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/admin/media': {
@@ -2406,6 +2425,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminFinanceRoute: typeof AuthenticatedAdminFinanceRoute
   AuthenticatedAdminFlagsRoute: typeof AuthenticatedAdminFlagsRoute
   AuthenticatedAdminGuidesRoute: typeof AuthenticatedAdminGuidesRoute
+  AuthenticatedAdminLegalRoute: typeof AuthenticatedAdminLegalRoute
   AuthenticatedAdminMediaRoute: typeof AuthenticatedAdminMediaRoute
   AuthenticatedAdminOrdersRoute: typeof AuthenticatedAdminOrdersRoute
   AuthenticatedAdminPricingRulesRoute: typeof AuthenticatedAdminPricingRulesRoute
@@ -2452,6 +2472,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminFinanceRoute: AuthenticatedAdminFinanceRoute,
   AuthenticatedAdminFlagsRoute: AuthenticatedAdminFlagsRoute,
   AuthenticatedAdminGuidesRoute: AuthenticatedAdminGuidesRoute,
+  AuthenticatedAdminLegalRoute: AuthenticatedAdminLegalRoute,
   AuthenticatedAdminMediaRoute: AuthenticatedAdminMediaRoute,
   AuthenticatedAdminOrdersRoute: AuthenticatedAdminOrdersRoute,
   AuthenticatedAdminPricingRulesRoute: AuthenticatedAdminPricingRulesRoute,

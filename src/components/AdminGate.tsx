@@ -5,7 +5,7 @@ import {
   Globe,
   AlertTriangle, BarChart3, BookOpen, Boxes, BriefcaseBusiness, Building2, ChevronDown,
   CircleDollarSign, ClipboardList, CloudUpload, DatabaseZap, ExternalLink, Flag,
-  Image, LayoutDashboard, LayoutTemplate, LoaderCircle, LogOut, MapPin, Megaphone, Menu, MonitorCog, PanelLeftClose, Plane,
+  Image, LayoutDashboard, LayoutTemplate, LoaderCircle, LogOut, MapPin, Megaphone, Menu, MonitorCog, PanelLeftClose, Plane, Scale,
   PlugZap, RadioTower, ReceiptText, RotateCw, Route, Search, Settings, ShieldCheck,
   Car, Smartphone, Sparkles, ToggleLeft, Users, WalletCards, X,
 } from "lucide-react";
@@ -56,6 +56,7 @@ const groups: AdminGroup[] = [
     { to: "/admin/storefront", label: "Storefront", icon: LayoutTemplate },
     { to: "/legacy-v1", label: "Legacy V1 (geri dönüş)", icon: LayoutTemplate },
     { to: "/admin/storefront/navigation", label: "Menü & alt bilgi", icon: Menu },
+    { to: "/admin/legal", label: "Yasal", icon: Scale },
     { to: "/admin/cms", label: "Sayfalar / CMS", icon: MonitorCog },
     { to: "/admin/guides", label: "Rehberler", icon: BookOpen },
     { to: "/admin/content/seo", label: "İçerik → SEO", icon: Search },

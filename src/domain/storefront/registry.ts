@@ -99,7 +99,18 @@ export type StorefrontSection = {
   items: SectionItem[];
 };
 
-export type NavigationLink = { id: string; href: string; visible: boolean; label: LocaleText };
+export type FooterGroup = "services" | "help" | "legal";
+export type NavigationLink = { id: string; href: string; visible: boolean; label: LocaleText; group?: FooterGroup };
+export type FooterSocial = { id: string; url: string; active: boolean };
+export type FooterPresentation = {
+  socials: FooterSocial[];
+  newsletterVisible: boolean;
+  newsletterTitle: LocaleText;
+  newsletterDescription: LocaleText;
+  newsletterPlaceholder: LocaleText;
+  newsletterCta: LocaleText;
+  paymentIcons: Record<"visa" | "mastercard" | "paypal" | "applePay" | "googlePay", boolean>;
+};
 
 export type StorefrontConfig = {
   version: 2;
@@ -109,6 +120,7 @@ export type StorefrontConfig = {
   footerLinks: NavigationLink[];
   footerText: LocaleText;
   copyright: LocaleText;
+  footer: FooterPresentation;
 };
 
 /** Admin-facing metadata — no technical component names are exposed. */
@@ -1015,13 +1027,22 @@ const DEFAULT_NAVIGATION: NavigationLink[] = [
 ];
 
 const DEFAULT_FOOTER_LINKS: NavigationLink[] = [
-  { id: "footer-support", href: "#how", visible: true, label: text("Destek", "Hilfe", "Support") },
-  {
-    id: "footer-faq",
-    href: "#how",
-    visible: true,
-    label: text("Sık sorulan sorular", "FAQ", "FAQ"),
-  },
+  { id: "service-esim", group: "services", href: "/esim", visible: true, label: text("eSIM", "eSIM", "eSIM") },
+  { id: "service-lounge", group: "services", href: "/lounge", visible: true, label: text("Lounge", "Lounge", "Lounge") },
+  { id: "service-vignette", group: "services", href: "/vignette", visible: true, label: text("Vignette", "Vignette", "Vignette") },
+  { id: "service-destinations", group: "services", href: "/esim", visible: true, label: text("Destinasyonlar", "Reiseziele", "Destinations") },
+  { id: "help-center", group: "help", href: "/destek", visible: true, label: text("Yardım Merkezi", "Hilfe-Center", "Help Center") },
+  { id: "help-install", group: "help", href: "/esim", visible: true, label: text("eSIM Kurulum Rehberi", "eSIM-Installationshilfe", "eSIM Installation Guide") },
+  { id: "help-compatibility", group: "help", href: "/esim", visible: true, label: text("Cihaz Uyumluluğu", "Gerätekompatibilität", "Device Compatibility") },
+  { id: "help-refund", group: "help", href: "/legal/refund", visible: true, label: text("İade ve İptal", "Erstattung & Storno", "Refund & Cancellation") },
+  { id: "help-contact", group: "help", href: "/destek", visible: true, label: text("İletişim / Destek", "Kontakt / Support", "Contact / Support") },
+  { id: "help-faq", group: "help", href: "/destek", visible: true, label: text("Sık Sorulan Sorular", "FAQ", "FAQ") },
+  { id: "legal-imprint", group: "legal", href: "/legal/imprint", visible: true, label: text("Yasal Bilgiler / Impressum", "Impressum", "Legal Notice / Imprint") },
+  { id: "legal-privacy", group: "legal", href: "/legal/privacy", visible: true, label: text("Gizlilik Politikası", "Datenschutz", "Privacy Policy") },
+  { id: "legal-terms", group: "legal", href: "/legal/terms", visible: true, label: text("Kullanım ve Satış Koşulları", "AGB", "Terms & Conditions") },
+  { id: "legal-withdrawal", group: "legal", href: "/legal/withdrawal", visible: true, label: text("Cayma Hakkı", "Widerruf", "Withdrawal Information") },
+  { id: "legal-refund", group: "legal", href: "/legal/refund", visible: true, label: text("İade Politikası", "Erstattungsrichtlinie", "Refund Policy") },
+  { id: "legal-cookies", group: "legal", href: "/legal/cookies", visible: true, label: text("Çerez ve Gizlilik Ayarları", "Cookies & Datenschutz", "Cookie & Privacy Settings") },
 ];
 
 export function defaultStorefront(service: StorefrontService): StorefrontConfig {
@@ -1041,7 +1062,15 @@ export function defaultStorefront(service: StorefrontService): StorefrontConfig 
       "Der passende Reiseservice an einem Ort.",
       "The right travel service, all in one place.",
     ),
-    copyright: text("© Travel Platform", "© Travel Platform", "© Travel Platform"),
+    copyright: text("© 2026 Travely. Tüm hakları saklıdır.", "© 2026 Travely. Alle Rechte vorbehalten.", "© 2026 Travely. All rights reserved."),
+    footer: {
+      socials: [], newsletterVisible: false,
+      newsletterTitle: text("Yolculuk haberleri", "Reise-Updates", "Travel updates"),
+      newsletterDescription: text("Newsletter gönüllüdür. Abonelik sistemi henüz etkin değildir.", "Newsletter sind freiwillig. Die Anmeldung ist noch nicht aktiv.", "Newsletters are voluntary. Subscription is not active yet."),
+      newsletterPlaceholder: text("E-posta adresi", "E-Mail-Adresse", "Email address"),
+      newsletterCta: text("Abone ol", "Anmelden", "Subscribe"),
+      paymentIcons: { visa: false, mastercard: false, paypal: false, applePay: false, googlePay: false },
+    },
   };
 }
 
@@ -1125,8 +1154,11 @@ function sanitizeLinks(raw: any, fallback: NavigationLink[]): NavigationLink[] {
     href: href(link?.href),
     visible: link?.visible !== false,
     label: localeText(link?.label, 60),
+    group: pick(link?.group, ["services", "help", "legal"] as const, fallback[index]?.group ?? "help"),
   }));
 }
+
+const externalUrl = (value: unknown) => { try { const url = new URL(str(value, 300)); return url.protocol === "https:" ? url.toString() : ""; } catch { return ""; } };
 
 /** Never throws: invalid input degrades to the built-in defaults. */
 export function sanitizeStorefront(raw: any, service: StorefrontService): StorefrontConfig {
@@ -1145,6 +1177,15 @@ export function sanitizeStorefront(raw: any, service: StorefrontService): Storef
     footerLinks: sanitizeLinks(raw.footerLinks, fallback.footerLinks),
     footerText: localeText(raw.footerText ?? fallback.footerText, 300),
     copyright: localeText(raw.copyright ?? fallback.copyright, 160),
+    footer: {
+      socials: Array.isArray(raw.footer?.socials) ? raw.footer.socials.slice(0, 8).map((row: any, index: number) => ({ id: str(row?.id, 40) || `social-${index}`, url: externalUrl(row?.url), active: row?.active === true })) : fallback.footer.socials,
+      newsletterVisible: raw.footer?.newsletterVisible === true,
+      newsletterTitle: localeText(raw.footer?.newsletterTitle ?? fallback.footer.newsletterTitle, 120),
+      newsletterDescription: localeText(raw.footer?.newsletterDescription ?? fallback.footer.newsletterDescription, 300),
+      newsletterPlaceholder: localeText(raw.footer?.newsletterPlaceholder ?? fallback.footer.newsletterPlaceholder, 100),
+      newsletterCta: localeText(raw.footer?.newsletterCta ?? fallback.footer.newsletterCta, 80),
+      paymentIcons: { visa: false, mastercard: false, paypal: false, applePay: false, googlePay: false },
+    },
   };
 }
 
