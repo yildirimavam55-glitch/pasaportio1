@@ -35,6 +35,12 @@ import { Route as EsimPaketlerRouteImport } from './routes/esim.paketler'
 import { Route as EsimUlkelerRouteImport } from './routes/esim.ulkeler'
 import { Route as GuidesIndexRouteImport } from './routes/guides.index'
 import { Route as GuidesSlugRouteImport } from './routes/guides.$slug'
+import { Route as LegalCookiesRouteImport } from './routes/legal.cookies'
+import { Route as LegalImprintRouteImport } from './routes/legal.imprint'
+import { Route as LegalPrivacyRouteImport } from './routes/legal.privacy'
+import { Route as LegalRefundRouteImport } from './routes/legal.refund'
+import { Route as LegalTermsRouteImport } from './routes/legal.terms'
+import { Route as LegalWithdrawalRouteImport } from './routes/legal.withdrawal'
 import { Route as LoungeIndexRouteImport } from './routes/lounge.index'
 import { Route as LoungeSeceneklerRouteImport } from './routes/lounge.secenekler'
 import { Route as RehberlerIndexRouteImport } from './routes/rehberler.index'
@@ -247,6 +253,36 @@ const GuidesIndexRoute = GuidesIndexRouteImport.update({
 const GuidesSlugRoute = GuidesSlugRouteImport.update({
   id: '/guides/$slug',
   path: '/guides/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LegalCookiesRoute = LegalCookiesRouteImport.update({
+  id: '/legal/cookies',
+  path: '/legal/cookies',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LegalImprintRoute = LegalImprintRouteImport.update({
+  id: '/legal/imprint',
+  path: '/legal/imprint',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LegalPrivacyRoute = LegalPrivacyRouteImport.update({
+  id: '/legal/privacy',
+  path: '/legal/privacy',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LegalRefundRoute = LegalRefundRouteImport.update({
+  id: '/legal/refund',
+  path: '/legal/refund',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LegalTermsRoute = LegalTermsRouteImport.update({
+  id: '/legal/terms',
+  path: '/legal/terms',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LegalWithdrawalRoute = LegalWithdrawalRouteImport.update({
+  id: '/legal/withdrawal',
+  path: '/legal/withdrawal',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LoungeIndexRoute = LoungeIndexRouteImport.update({
@@ -746,6 +782,12 @@ export interface FileRoutesByFullPath {
   '/esim/paketler': typeof EsimPaketlerRoute
   '/esim/ulkeler': typeof EsimUlkelerRoute
   '/guides/$slug': typeof GuidesSlugRoute
+  '/legal/cookies': typeof LegalCookiesRoute
+  '/legal/imprint': typeof LegalImprintRoute
+  '/legal/privacy': typeof LegalPrivacyRoute
+  '/legal/refund': typeof LegalRefundRoute
+  '/legal/terms': typeof LegalTermsRoute
+  '/legal/withdrawal': typeof LegalWithdrawalRoute
   '/lounge/secenekler': typeof LoungeSeceneklerRoute
   '/sitemap/xml': typeof SitemapXmlRoute
   '/$locale/': typeof LocaleIndexRoute
@@ -855,6 +897,12 @@ export interface FileRoutesByTo {
   '/esim/paketler': typeof EsimPaketlerRoute
   '/esim/ulkeler': typeof EsimUlkelerRoute
   '/guides/$slug': typeof GuidesSlugRoute
+  '/legal/cookies': typeof LegalCookiesRoute
+  '/legal/imprint': typeof LegalImprintRoute
+  '/legal/privacy': typeof LegalPrivacyRoute
+  '/legal/refund': typeof LegalRefundRoute
+  '/legal/terms': typeof LegalTermsRoute
+  '/legal/withdrawal': typeof LegalWithdrawalRoute
   '/lounge/secenekler': typeof LoungeSeceneklerRoute
   '/sitemap/xml': typeof SitemapXmlRoute
   '/$locale': typeof LocaleIndexRoute
@@ -968,6 +1016,12 @@ export interface FileRoutesById {
   '/esim/paketler': typeof EsimPaketlerRoute
   '/esim/ulkeler': typeof EsimUlkelerRoute
   '/guides/$slug': typeof GuidesSlugRoute
+  '/legal/cookies': typeof LegalCookiesRoute
+  '/legal/imprint': typeof LegalImprintRoute
+  '/legal/privacy': typeof LegalPrivacyRoute
+  '/legal/refund': typeof LegalRefundRoute
+  '/legal/terms': typeof LegalTermsRoute
+  '/legal/withdrawal': typeof LegalWithdrawalRoute
   '/lounge/secenekler': typeof LoungeSeceneklerRoute
   '/sitemap/xml': typeof SitemapXmlRoute
   '/$locale/': typeof LocaleIndexRoute
@@ -1081,6 +1135,12 @@ export interface FileRouteTypes {
     | '/esim/paketler'
     | '/esim/ulkeler'
     | '/guides/$slug'
+    | '/legal/cookies'
+    | '/legal/imprint'
+    | '/legal/privacy'
+    | '/legal/refund'
+    | '/legal/terms'
+    | '/legal/withdrawal'
     | '/lounge/secenekler'
     | '/sitemap/xml'
     | '/$locale/'
@@ -1190,6 +1250,12 @@ export interface FileRouteTypes {
     | '/esim/paketler'
     | '/esim/ulkeler'
     | '/guides/$slug'
+    | '/legal/cookies'
+    | '/legal/imprint'
+    | '/legal/privacy'
+    | '/legal/refund'
+    | '/legal/terms'
+    | '/legal/withdrawal'
     | '/lounge/secenekler'
     | '/sitemap/xml'
     | '/$locale'
@@ -1302,6 +1368,12 @@ export interface FileRouteTypes {
     | '/esim/paketler'
     | '/esim/ulkeler'
     | '/guides/$slug'
+    | '/legal/cookies'
+    | '/legal/imprint'
+    | '/legal/privacy'
+    | '/legal/refund'
+    | '/legal/terms'
+    | '/legal/withdrawal'
     | '/lounge/secenekler'
     | '/sitemap/xml'
     | '/$locale/'
@@ -1410,6 +1482,12 @@ export interface RootRouteChildren {
   EsimPaketlerRoute: typeof EsimPaketlerRoute
   EsimUlkelerRoute: typeof EsimUlkelerRoute
   GuidesSlugRoute: typeof GuidesSlugRoute
+  LegalCookiesRoute: typeof LegalCookiesRoute
+  LegalImprintRoute: typeof LegalImprintRoute
+  LegalPrivacyRoute: typeof LegalPrivacyRoute
+  LegalRefundRoute: typeof LegalRefundRoute
+  LegalTermsRoute: typeof LegalTermsRoute
+  LegalWithdrawalRoute: typeof LegalWithdrawalRoute
   LoungeSeceneklerRoute: typeof LoungeSeceneklerRoute
   SitemapXmlRoute: typeof SitemapXmlRoute
   LocaleIndexRoute: typeof LocaleIndexRoute
@@ -1617,6 +1695,48 @@ declare module '@tanstack/react-router' {
       path: '/guides/$slug'
       fullPath: '/guides/$slug'
       preLoaderRoute: typeof GuidesSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/legal/cookies': {
+      id: '/legal/cookies'
+      path: '/legal/cookies'
+      fullPath: '/legal/cookies'
+      preLoaderRoute: typeof LegalCookiesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/legal/imprint': {
+      id: '/legal/imprint'
+      path: '/legal/imprint'
+      fullPath: '/legal/imprint'
+      preLoaderRoute: typeof LegalImprintRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/legal/privacy': {
+      id: '/legal/privacy'
+      path: '/legal/privacy'
+      fullPath: '/legal/privacy'
+      preLoaderRoute: typeof LegalPrivacyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/legal/refund': {
+      id: '/legal/refund'
+      path: '/legal/refund'
+      fullPath: '/legal/refund'
+      preLoaderRoute: typeof LegalRefundRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/legal/terms': {
+      id: '/legal/terms'
+      path: '/legal/terms'
+      fullPath: '/legal/terms'
+      preLoaderRoute: typeof LegalTermsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/legal/withdrawal': {
+      id: '/legal/withdrawal'
+      path: '/legal/withdrawal'
+      fullPath: '/legal/withdrawal'
+      preLoaderRoute: typeof LegalWithdrawalRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/lounge/': {
@@ -2423,6 +2543,12 @@ const rootRouteChildren: RootRouteChildren = {
   EsimPaketlerRoute: EsimPaketlerRoute,
   EsimUlkelerRoute: EsimUlkelerRoute,
   GuidesSlugRoute: GuidesSlugRoute,
+  LegalCookiesRoute: LegalCookiesRoute,
+  LegalImprintRoute: LegalImprintRoute,
+  LegalPrivacyRoute: LegalPrivacyRoute,
+  LegalRefundRoute: LegalRefundRoute,
+  LegalTermsRoute: LegalTermsRoute,
+  LegalWithdrawalRoute: LegalWithdrawalRoute,
   LoungeSeceneklerRoute: LoungeSeceneklerRoute,
   SitemapXmlRoute: SitemapXmlRoute,
   LocaleIndexRoute: LocaleIndexRoute,
