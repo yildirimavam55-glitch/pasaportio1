@@ -210,7 +210,7 @@ function PublicFooter({ fallback, supportLabel, bottomSafe = false }: { fallback
                 <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between text-sm font-bold lg:min-h-0 lg:cursor-default">
                   {group.title}<ChevronDown className="size-4 transition group-open:rotate-180 lg:hidden" />
                 </summary>
-                <nav aria-label={group.title} className="grid gap-2 pb-3 pt-1.5 text-sm lg:pb-0 lg:pt-4">
+                <nav aria-label={group.title} className="hidden gap-2 pb-3 pt-1.5 text-sm group-open:grid lg:!grid lg:pb-0 lg:pt-4">
                   {groupLinks.map((link) => <Link key={link.id} to={link.href} className="text-primary-foreground/68 transition hover:text-primary-foreground">{itemText(link.label, locale)}</Link>)}
                 </nav>
               </details>
