@@ -675,6 +675,12 @@
 - [x] Verify desktop hero/sticky search at 1280/1440/1920 and preserve the approved 390/430 mobile behavior.
 
 ## Professional footer and legal center
+- [x] Replace the shared minimal footer with compact premium desktop columns and mobile accordion groups.
+- [x] Add stable localized routes for imprint, privacy, terms, withdrawal, refund, and cookies.
+- [x] Add Admin → Yasal using the existing CMS JSON draft/publish/version system without a migration.
+- [x] Add company completeness checks, 14-locale legal editing, RTL previews, safe structured text, and manual publish/unpublish.
+- [x] Keep newsletter capture disabled, payment logos hidden, and social links HTTPS-only until real systems are configured.
+- [ ] Real company identity, unresolved commercial terms, and final legal wording require owner/legal input before publication.
 - [ ] Extend existing CMS/storefront records for footer and legal drafts without migrations.
 - [ ] Build six localized legal routes and responsive public footer.
 - [ ] Add Admin footer/legal controls with draft, preview, and explicit publish.
