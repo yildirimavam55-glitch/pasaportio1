@@ -673,3 +673,9 @@
 - [x] Finish the approved FAQ desktop/mobile introduction, category, support, localization, and responsive QA.
 - [x] Move the existing desktop eSIM search and trust row inside the hero; add the same-state sticky search below the header after the hero leaves view.
 - [x] Verify desktop hero/sticky search at 1280/1440/1920 and preserve the approved 390/430 mobile behavior.
+
+## Professional footer and legal center
+- [ ] Extend existing CMS/storefront records for footer and legal drafts without migrations.
+- [ ] Build six localized legal routes and responsive public footer.
+- [ ] Add Admin footer/legal controls with draft, preview, and explicit publish.
+- [ ] Verify 14 locales, RTL, mobile/desktop layouts, and protected-system non-changes.
