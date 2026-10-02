@@ -3,17 +3,16 @@ import { UI_LOCALES, type UiLocale } from "@/i18n/locales";
 export const LEGAL_DOCUMENTS = ["imprint", "privacy", "terms", "withdrawal", "refund", "cookies"] as const;
 export type LegalDocumentId = (typeof LEGAL_DOCUMENTS)[number];
 export type LocaleMap = Record<UiLocale, string>;
-export type LegalSection = { id: string; heading: LocaleMap; body: LocaleMap; reviewRequired: boolean };
-export type LegalDocument = { id: LegalDocumentId; status: "DRAFT" | "PUBLISHED"; title: LocaleMap; lastUpdated: string; sections: LegalSection[] };
+type LegalSection = { id: string; heading: LocaleMap; body: LocaleMap; reviewRequired: boolean };
+type LegalTemplate = { id: LegalDocumentId; status: "DRAFT" | "PUBLISHED"; title: LocaleMap; lastUpdated: string; sections: LegalSection[] };
 export type CompanyInformation = { legalName:string; brandName:string; legalForm:string; representative:string; street:string; houseNumber:string; postalCode:string; city:string; country:string; email:string; telephone:string; commercialRegister:string; registerCourt:string; registrationNumber:string; vatId:string; businessId:string; responsibleContact:string; disputeResolutionStatus:string; supervisoryAuthority:string };
-export type LegalCenterConfig = { company: CompanyInformation; documents: Record<LegalDocumentId, LegalDocument> };
 
 export const localeMap = (tr:string,de:string,en:string):LocaleMap => Object.fromEntries(UI_LOCALES.map(l=>[l,l==="tr"?tr:l==="de"?de:en])) as LocaleMap;
 const s=(id:string,tr:string,de:string,en:string,btr:string,bde:string,ben:string,reviewRequired=true):LegalSection=>({id,heading:localeMap(tr,de,en),body:localeMap(btr,bde,ben),reviewRequired});
 const company:CompanyInformation={legalName:"",brandName:"Travely",legalForm:"",representative:"",street:"",houseNumber:"",postalCode:"",city:"",country:"",email:"",telephone:"",commercialRegister:"",registerCourt:"",registrationNumber:"",vatId:"",businessId:"",responsibleContact:"",disputeResolutionStatus:"",supervisoryAuthority:""};
 const missing=localeMap("EKSİK YASAL BİLGİ","FEHLENDE RECHTLICHE ANGABEN","MISSING LEGAL INFORMATION");
 
-const docs:Record<LegalDocumentId,LegalDocument>={
+const docs:Record<LegalDocumentId,LegalTemplate>={
  imprint:{id:"imprint",status:"DRAFT",title:localeMap("Impressum / Yasal Bilgiler","Impressum","Legal Notice"),lastUpdated:"",sections:[
   s("provider","Hizmet sağlayıcı","Diensteanbieter","Service provider",missing.tr,missing.de,missing.en),
   s("contact","Adres ve iletişim","Anschrift und Kontakt","Address and contact","Şirket adresi, e-posta ve uygulanabilirse telefon bilgisi sahibi tarafından tamamlanmalıdır.","Anschrift, E-Mail und gegebenenfalls Telefon müssen vom Inhaber ergänzt werden.","Company address, email and, where applicable, telephone must be completed by the owner."),
@@ -53,36 +52,139 @@ const docs:Record<LegalDocumentId,LegalDocument>={
   s("marketing","Pazarlama","Marketing","Marketing","Varsayılan olarak kapalıdır. Newsletter gönüllüdür ve ayrı açık rıza gerektirir.","Standardmäßig aus. Newsletter sind freiwillig und erfordern separate Einwilligung.","Off by default. Newsletters are voluntary and require separate explicit consent."),
  ]},
 };
-export const DEFAULT_LEGAL_CENTER:LegalCenterConfig={company,documents:docs};
-const clean=(v:unknown,max:number)=>String(v??"").replace(/<[^>]*>/g,"").slice(0,max).trim();
-const cleanMap=(v:unknown,max:number,f:LocaleMap)=>Object.fromEntries(UI_LOCALES.map(l=>[l,clean((v as Record<string,unknown>|null)?.[l],max)||f[l]])) as LocaleMap;
-export function sanitizeLegalCenter(raw: unknown): LegalCenterConfig {
-  const source = raw && typeof raw === "object" ? raw as Record<string, unknown> : {};
-  const companySource = source["company"] && typeof source["company"] === "object" ? source["company"] as Record<string, unknown> : {};
-  const cleanCompany = Object.fromEntries(Object.keys(company).map((key) => [key, clean(companySource[key], 240)])) as CompanyInformation;
-  const documentsSource = source["documents"] && typeof source["documents"] === "object" ? source["documents"] as Record<string, unknown> : {};
-  const cleanDocuments = Object.fromEntries(LEGAL_DOCUMENTS.map((id) => {
-    const fallback = docs[id];
-    const input = documentsSource[id] && typeof documentsSource[id] === "object" ? documentsSource[id] as Record<string, unknown> : {};
-    const sectionRows = Array.isArray(input["sections"]) ? input["sections"] : fallback.sections;
-    return [id, {
-      id,
-      status: input["status"] === "PUBLISHED" ? "PUBLISHED" : "DRAFT",
-      title: cleanMap(input["title"], 160, fallback.title),
-      lastUpdated: clean(input["lastUpdated"], 10),
-      sections: sectionRows.slice(0, 30).map((row: unknown, index: number) => {
-        const sectionSource = row && typeof row === "object" ? row as Record<string, unknown> : {};
-        const fallbackSection = fallback.sections[index] ?? fallback.sections[0];
-        if (!fallbackSection) throw new Error("Legal document requires at least one section.");
-        return {
-          id: clean(sectionSource["id"], 60) || `${id}-${index}`,
-          heading: cleanMap(sectionSource["heading"], 180, fallbackSection.heading),
-          body: cleanMap(sectionSource["body"], 6000, fallbackSection.body),
-          reviewRequired: sectionSource["reviewRequired"] !== false,
-        };
-      }),
-    }];
-  })) as Record<LegalDocumentId, LegalDocument>;
-  return { company: cleanCompany, documents: cleanDocuments };
+
+/* ------------------------------------------------------------------ */
+/* Owner-editable legal content model (stored in the existing CMS rows). */
+/* ------------------------------------------------------------------ */
+
+export type TranslationStatus = "SOURCE" | "AUTO" | "MANUAL" | "EMPTY";
+export type TranslationMeta = { status: TranslationStatus; sourceHash: string };
+/** `body` uses a small safe text format (see LegalRichText) — never HTML. */
+export type LegalDocument = {
+  id: LegalDocumentId;
+  title: LocaleMap;
+  body: LocaleMap;
+  lastUpdated: string;
+  reviewRequired: boolean;
+  translations: Record<UiLocale, TranslationMeta>;
+};
+export type PublishedLegalDocument = LegalDocument & { publishedAt: string };
+export type LegalCenterConfig = { company: CompanyInformation; documents: Record<LegalDocumentId, LegalDocument> };
+export type PublishedLegalCenter = { company: CompanyInformation; documents: Partial<Record<LegalDocumentId, PublishedLegalDocument>> };
+
+export const LEGAL_DOCUMENT_LABELS: Record<LegalDocumentId, string> = {
+  imprint: "Impressum / Yasal Bilgiler", privacy: "Gizlilik Politikası", terms: "Kullanım ve Satış Koşulları",
+  withdrawal: "Cayma Hakkı", refund: "İade Politikası", cookies: "Çerezler ve Gizlilik",
+};
+export const LEGAL_ROUTES: Record<LegalDocumentId, string> = {
+  imprint: "/legal/imprint", privacy: "/legal/privacy", terms: "/legal/terms",
+  withdrawal: "/legal/withdrawal", refund: "/legal/refund", cookies: "/legal/cookies",
+};
+
+/** Stable short hash of the Turkish master text; used to detect outdated translations. */
+export function sourceHash(doc: Pick<LegalDocument, "title" | "body">) {
+  const input = `${doc.title.tr}\u0000${doc.body.tr}`;
+  let h = 5381;
+  for (let i = 0; i < input.length; i++) h = ((h << 5) + h + input.charCodeAt(i)) | 0;
+  return (h >>> 0).toString(36);
 }
-export const REQUIRED_COMPANY_FIELDS:Array<keyof CompanyInformation>=["legalName","legalForm","representative","street","houseNumber","postalCode","city","country","email","responsibleContact","disputeResolutionStatus"];
+export const isOutdated = (doc: LegalDocument, locale: UiLocale) =>
+  locale !== "tr" && doc.translations[locale].status !== "EMPTY" && doc.translations[locale].sourceHash !== sourceHash(doc);
+
+const templateBody = (t: LegalTemplate, l: UiLocale) =>
+  l === "tr" || l === "de" || l === "en" ? t.sections.map((s) => `## ${s.heading[l]}\n\n${s.body[l]}`).join("\n\n") : "";
+
+function templateDoc(t: LegalTemplate): LegalDocument {
+  const doc: LegalDocument = {
+    id: t.id, lastUpdated: "", reviewRequired: true,
+    title: Object.fromEntries(UI_LOCALES.map((l) => [l, l === "tr" || l === "de" || l === "en" ? t.title[l] : ""])) as LocaleMap,
+    body: Object.fromEntries(UI_LOCALES.map((l) => [l, templateBody(t, l)])) as LocaleMap,
+    translations: {} as Record<UiLocale, TranslationMeta>,
+  };
+  const hash = sourceHash(doc);
+  doc.translations = Object.fromEntries(UI_LOCALES.map((l) => [l, { status: l === "tr" ? "SOURCE" : doc.body[l] ? "MANUAL" : "EMPTY", sourceHash: l === "de" || l === "en" ? hash : "" }])) as Record<UiLocale, TranslationMeta>;
+  return doc;
+}
+
+/** Editable starter outline only — never rendered publicly until the owner publishes. */
+export const DEFAULT_LEGAL_CENTER: LegalCenterConfig = {
+  company,
+  documents: Object.fromEntries(LEGAL_DOCUMENTS.map((id) => [id, templateDoc(docs[id])])) as Record<LegalDocumentId, LegalDocument>,
+};
+export const EMPTY_PUBLISHED: PublishedLegalCenter = { company, documents: {} };
+
+const clean = (v: unknown, max: number) => String(v ?? "").replace(/<[^>]*>/g, "").replace(/\r\n/g, "\n").slice(0, max);
+const obj = (v: unknown) => (v && typeof v === "object" ? (v as Record<string, unknown>) : {});
+const cleanMap = (v: unknown, max: number, f: LocaleMap) => {
+  const src = obj(v);
+  return Object.fromEntries(UI_LOCALES.map((l) => [l, typeof src[l] === "string" ? clean(src[l], max) : f[l]])) as LocaleMap;
+};
+const cleanCompany = (v: unknown) => {
+  const src = obj(v);
+  return Object.fromEntries(Object.keys(company).map((k) => [k, typeof src[k] === "string" ? clean(src[k], 240).trim() : (company as Record<string, string>)[k]])) as CompanyInformation;
+};
+
+function sanitizeDocument(id: LegalDocumentId, raw: unknown): LegalDocument {
+  const fallback = DEFAULT_LEGAL_CENTER.documents[id];
+  const src = obj(raw);
+  if (!("body" in src)) return { ...fallback };
+  const meta = obj(src["translations"]);
+  return {
+    id,
+    title: cleanMap(src["title"], 200, fallback.title),
+    body: cleanMap(src["body"], 40000, fallback.body),
+    lastUpdated: /^\d{4}-\d{2}-\d{2}$/.test(String(src["lastUpdated"] ?? "")) ? String(src["lastUpdated"]) : "",
+    reviewRequired: src["reviewRequired"] !== false,
+    translations: Object.fromEntries(UI_LOCALES.map((l) => {
+      const m = obj(meta[l]);
+      const status = (["SOURCE", "AUTO", "MANUAL", "EMPTY"] as const).find((s) => s === m["status"]) ?? (l === "tr" ? "SOURCE" : "EMPTY");
+      return [l, { status: l === "tr" ? "SOURCE" : status, sourceHash: clean(m["sourceHash"], 20) }];
+    })) as Record<UiLocale, TranslationMeta>,
+  };
+}
+
+export function sanitizeLegalCenter(raw: unknown): LegalCenterConfig {
+  const src = obj(raw);
+  const documents = obj(src["documents"]);
+  return {
+    company: cleanCompany(src["company"]),
+    documents: Object.fromEntries(LEGAL_DOCUMENTS.map((id) => [id, sanitizeDocument(id, documents[id])])) as Record<LegalDocumentId, LegalDocument>,
+  };
+}
+
+export function sanitizePublishedLegalCenter(raw: unknown): PublishedLegalCenter {
+  const src = obj(raw);
+  const documents = obj(src["documents"]);
+  const out: Partial<Record<LegalDocumentId, PublishedLegalDocument>> = {};
+  for (const id of LEGAL_DOCUMENTS) {
+    const d = obj(documents[id]);
+    if (!("body" in d)) continue;
+    out[id] = { ...sanitizeDocument(id, d), publishedAt: clean(d["publishedAt"], 40) };
+  }
+  return { company: cleanCompany(src["company"]), documents: out };
+}
+
+export const REQUIRED_COMPANY_FIELDS: Array<keyof CompanyInformation> = ["legalName", "legalForm", "representative", "street", "houseNumber", "postalCode", "city", "country", "email", "responsibleContact", "disputeResolutionStatus"];
+export const MISSING_LABEL = "Eksik bilgi";
+
+/** Builds an editable Turkish Impressum outline from stored company data. Missing values stay marked, never invented. */
+export function impressumFromCompany(c: CompanyInformation) {
+  const v = (value: string) => value.trim() || `**${MISSING_LABEL}**`;
+  const email = c.email.trim() ? `[${c.email.trim()}](mailto:${c.email.trim()})` : `**${MISSING_LABEL}**`;
+  return [
+    "# Impressum / Yasal Bilgiler",
+    "## Hizmet sağlayıcı",
+    `${v(c.legalName)}${c.legalForm.trim() ? ` (${c.legalForm.trim()})` : ""}\nMarka: ${v(c.brandName)}`,
+    `${v(c.street)} ${c.houseNumber.trim() || `**${MISSING_LABEL}**`}\n${v(c.postalCode)} ${v(c.city)}\n${v(c.country)}`,
+    "## Temsil yetkilisi",
+    v(c.representative),
+    "## İletişim",
+    `- E-posta: ${email}\n- Telefon: ${v(c.telephone)}`,
+    "## Sicil ve vergi bilgileri",
+    `- Ticaret sicili: ${v(c.commercialRegister)}\n- Sicil mahkemesi: ${v(c.registerCourt)}\n- Kayıt numarası: ${v(c.registrationNumber)}\n- KDV kimliği / USt-IdNr.: ${v(c.vatId)}\n- İşletme / vergi kimliği: ${v(c.businessId)}`,
+    "## İçerikten sorumlu",
+    v(c.responsibleContact),
+    "## Tüketici uyuşmazlık çözümü",
+    v(c.disputeResolutionStatus),
+  ].join("\n\n");
+}

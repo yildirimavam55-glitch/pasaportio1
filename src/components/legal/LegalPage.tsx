@@ -3,6 +3,57 @@ import { AlertTriangle, CalendarDays } from "lucide-react";
 import { PublicShell } from "@/components/travel/PublicShell";
 import { getPublishedLegalCenter } from "@/lib/legal-center.functions";
 import { useI18n } from "@/i18n";
-import { type LegalDocumentId, REQUIRED_COMPANY_FIELDS } from "@/domain/legal/content";
-const COPY={tr:{missing:"EKSİK YASAL BİLGİ",draft:"Bu yasal belge henüz yayınlanmadı.",review:"Hukuk incelemesi gerekli",updated:"Son güncelleme"},de:{missing:"FEHLENDE RECHTLICHE ANGABEN",draft:"Dieses Rechtsdokument wurde noch nicht veröffentlicht.",review:"Rechtliche Prüfung erforderlich",updated:"Zuletzt aktualisiert"},en:{missing:"MISSING LEGAL INFORMATION",draft:"This legal document has not been published yet.",review:"Legal review required",updated:"Last updated"}} as const;
-export function LegalPage({documentId}:{documentId:LegalDocumentId}){const{uiLocale,locale}=useI18n();const query=useQuery({queryKey:["legal-center","published"],queryFn:()=>getPublishedLegalCenter(),staleTime:60_000});const config=query.data;const document=config?.documents[documentId];const copy=COPY[locale];const companyComplete=config?REQUIRED_COMPANY_FIELDS.every(field=>Boolean(config.company[field])):false;const published=document?.status==="PUBLISHED";return <PublicShell hideStickySearch><article className="mx-auto min-h-[55vh] max-w-4xl px-4 py-12 sm:px-6 sm:py-16" lang={uiLocale} dir={uiLocale==="ar"?"rtl":"ltr"}><header className="border-b border-border pb-7"><p className="text-xs font-bold uppercase text-primary">Travely · Legal</p><h1 className="mt-2 font-display text-3xl font-bold sm:text-4xl">{document?.title[uiLocale]??document?.title.en}</h1>{document?.lastUpdated&&<p className="mt-3 flex items-center gap-2 text-xs text-muted-foreground"><CalendarDays className="size-4"/>{copy.updated}: {document.lastUpdated}</p>}</header>{!published?<div className="mt-8 rounded-md border border-warning/40 bg-warning/10 p-5"><AlertTriangle className="size-6 text-warning"/><h2 className="mt-3 font-display text-xl font-bold">{copy.missing}</h2><p className="mt-2 text-sm text-muted-foreground">{copy.draft}</p></div>:<div className="mt-8 grid gap-8">{document.sections.map(section=><section key={section.id}><h2 className="font-display text-xl font-bold">{section.heading[uiLocale]||section.heading.en}</h2><p className="mt-3 whitespace-pre-line text-sm leading-7 text-muted-foreground">{section.body[uiLocale]||section.body.en}</p>{section.reviewRequired&&<span className="mt-3 inline-flex rounded-full bg-warning/15 px-2 py-1 text-[10px] font-bold uppercase">{copy.review}</span>}</section>)}{documentId==="imprint"&&!companyComplete&&<p className="border-t border-border pt-6 text-sm font-bold text-destructive">{copy.missing}</p>}</div>}</article></PublicShell>}
+import { LOCALE_REGISTRY, type UiLocale } from "@/i18n/locales";
+import type { LegalDocument, LegalDocumentId } from "@/domain/legal/content";
+import { LegalRichText } from "@/components/legal/LegalRichText";
+
+const COPY = {
+  tr: { missing: "EKSİK YASAL BİLGİ", draft: "Bu yasal belge henüz yayınlanmadı.", updated: "Son güncelleme" },
+  de: { missing: "FEHLENDE RECHTLICHE ANGABEN", draft: "Dieses Rechtsdokument wurde noch nicht veröffentlicht.", updated: "Zuletzt aktualisiert" },
+  en: { missing: "MISSING LEGAL INFORMATION", draft: "This legal document has not been published yet.", updated: "Last updated" },
+} as const;
+
+/** Picks the requested language, then English, then the Turkish master — never an empty page. */
+export function legalText(doc: Pick<LegalDocument, "title" | "body">, locale: UiLocale) {
+  const pick = (map: Record<UiLocale, string>) => map[locale]?.trim() ? { value: map[locale], locale } : map.en?.trim() ? { value: map.en, locale: "en" as UiLocale } : { value: map.tr, locale: "tr" as UiLocale };
+  return { title: pick(doc.title), body: pick(doc.body) };
+}
+
+/** Shared customer-facing document view — also used by the Admin preview. */
+export function LegalDocumentView({ doc, locale, lastUpdatedLabel }: { doc: LegalDocument; locale: UiLocale; lastUpdatedLabel: string }) {
+  const text = legalText(doc, locale);
+  const dir = LOCALE_REGISTRY[text.body.locale].dir;
+  return (
+    <article className="mx-auto min-h-[55vh] w-full max-w-4xl px-4 py-12 sm:px-6 sm:py-16" lang={text.body.locale} dir={dir}>
+      <header className="border-b border-border pb-7">
+        <p className="text-xs font-bold uppercase text-primary">Travely · Legal</p>
+        <h1 className="mt-2 font-display text-3xl font-bold [overflow-wrap:anywhere] sm:text-4xl">{text.title.value}</h1>
+        {doc.lastUpdated && <p className="mt-3 flex items-center gap-2 text-xs text-muted-foreground"><CalendarDays className="size-4" />{lastUpdatedLabel}: {doc.lastUpdated}</p>}
+      </header>
+      <div className="mt-8"><LegalRichText source={text.body.value} /></div>
+    </article>
+  );
+}
+
+export function LegalPage({ documentId }: { documentId: LegalDocumentId }) {
+  const { uiLocale, locale } = useI18n();
+  const query = useQuery({ queryKey: ["legal-center", "published"], queryFn: () => getPublishedLegalCenter(), staleTime: 60_000 });
+  const doc = query.data?.documents[documentId];
+  const copy = COPY[locale];
+  return (
+    <PublicShell hideStickySearch>
+      {doc ? <LegalDocumentView doc={doc} locale={uiLocale} lastUpdatedLabel={copy.updated} /> : (
+        <article className="mx-auto min-h-[55vh] max-w-4xl px-4 py-12 sm:px-6 sm:py-16" lang={uiLocale} dir={LOCALE_REGISTRY[uiLocale].dir}>
+          <p className="text-xs font-bold uppercase text-primary">Travely · Legal</p>
+          {!query.isPending && (
+            <div className="mt-6 rounded-md border border-warning/40 bg-warning/10 p-5">
+              <AlertTriangle className="size-6 text-warning" />
+              <h1 className="mt-3 font-display text-xl font-bold">{copy.missing}</h1>
+              <p className="mt-2 text-sm text-muted-foreground">{copy.draft}</p>
+            </div>
+          )}
+        </article>
+      )}
+    </PublicShell>
+  );
+}
