@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { UI_LOCALES, LOCALE_REGISTRY, type UiLocale } from "@/i18n/locales";
 import {
   LEGAL_DOCUMENTS, LEGAL_DOCUMENT_LABELS, LEGAL_ROUTES, MISSING_LABEL, REQUIRED_COMPANY_FIELDS,
-  impressumFromCompany, isOutdated, sanitizeLegalCenter, sourceHash,
+  impressumFromCompany, isOutdated, sourceHash,
   type CompanyInformation, type LegalCenterConfig, type LegalDocument, type LegalDocumentId,
 } from "@/domain/legal/content";
 import { getLegalCenterEditor, publishLegalDocument, saveLegalDraft, translateLegalDocument, unpublishLegalDocument } from "@/lib/legal-center.functions";
@@ -207,8 +207,8 @@ function DocumentEditor({ id, config, data, onChange, onSave, onPublish, onUnpub
   const translateAll = () => {
     const targets = UI_LOCALES.filter((l) => l !== "tr" && doc.translations[l].status !== "MANUAL");
     const skipped = UI_LOCALES.filter((l) => l !== "tr" && doc.translations[l].status === "MANUAL");
-    if (!doc.body.tr.trim()) return toast.error("Önce Türkçe metni yazın.");
-    if (!targets.length) return toast.info("Tüm diller elle düzenlenmiş; üzerine yazılmadı.");
+    if (!doc.body.tr.trim()) { toast.error("Önce Türkçe metni yazın."); return; }
+    if (!targets.length) { toast.info("Tüm diller elle düzenlenmiş; üzerine yazılmadı."); return; }
     if (!window.confirm(`${targets.length} dil çevrilecek.${skipped.length ? ` Elle düzenlenen ${skipped.length} dil (${skipped.join(", ").toUpperCase()}) korunacak.` : ""}`)) return;
     translate.mutate(targets);
   };
@@ -270,7 +270,7 @@ function DocumentEditor({ id, config, data, onChange, onSave, onPublish, onUnpub
                 <History className="size-3.5 text-muted-foreground" />
                 <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${v.event === "publish" ? "bg-success/15 text-success" : "bg-secondary"}`}>{v.event === "publish" ? "Yayın" : "Taslak"}</span>
                 <span className="flex-1">{new Date(v.createdAt).toLocaleString("tr-TR")}</span>
-                <Button size="sm" variant="outline" onClick={() => { if (window.confirm("Bu sürüm taslağa geri yüklensin mi? Kaydedip yayınlayana kadar müşteri sayfası değişmez.")) { const restored = sanitizeLegalCenter({ documents: { [id]: v.document } }).documents[id]; onChange(restored); toast.success("Sürüm taslağa yüklendi."); } }}><RotateCcw />Geri yükle</Button>
+                <Button size="sm" variant="outline" onClick={() => { if (window.confirm("Bu sürüm taslağa geri yüklensin mi? Kaydedip yayınlayana kadar müşteri sayfası değişmez.")) { if (v.document) onChange(v.document); toast.success("Sürüm taslağa yüklendi."); } }}><RotateCcw />Geri yükle</Button>
               </div>
             ))}
           </div>

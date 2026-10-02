@@ -5,7 +5,7 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { adminDb, audit, type AdminCtx } from "@/lib/admin-guard";
 import {
   DEFAULT_LEGAL_CENTER, EMPTY_PUBLISHED, LEGAL_DOCUMENTS, sanitizeLegalCenter, sanitizePublishedLegalCenter,
-  type LegalCenterConfig, type LegalDocumentId,
+  type LegalCenterConfig, type LegalDocument, type LegalDocumentId,
 } from "@/domain/legal/content";
 import { UI_LOCALES } from "@/i18n/locales";
 
@@ -56,10 +56,13 @@ export const getLegalCenterEditor = createServerFn({ method: "GET" }).middleware
   const { draftRow, publishedRow } = await readRows(db);
   const draft = draftRow ? sanitizeLegalCenter(draftRow.data?.["draft"]) : DEFAULT_LEGAL_CENTER;
   const published = publishedRow ? sanitizePublishedLegalCenter(publishedRow.data?.["published"]) : EMPTY_PUBLISHED;
-  let versions: Array<{ id: string; createdAt: string; event: string; documentId: string | null; document: unknown }> = [];
+  let versions: Array<{ id: string; createdAt: string; event: string; documentId: LegalDocumentId | null; document: LegalDocument | null }> = [];
   if (draftRow) {
     const { data } = await db.from("cms_versions").select("id,created_at,snapshot").eq("document_id", draftRow.id).order("created_at", { ascending: false }).limit(120);
-    versions = (data ?? []).map((v: any) => ({ id: v.id, createdAt: v.created_at, event: String(v.snapshot?.event ?? "draft"), documentId: v.snapshot?.documentId ?? null, document: v.snapshot?.document ?? null }));
+    versions = (data ?? []).map((v: any) => {
+      const documentId = (LEGAL_DOCUMENTS as readonly string[]).includes(v.snapshot?.documentId) ? (v.snapshot.documentId as LegalDocumentId) : null;
+      return { id: String(v.id), createdAt: String(v.created_at), event: v.snapshot?.event === "publish" ? "publish" : "draft", documentId, document: documentId && v.snapshot?.document ? sanitizeLegalCenter({ documents: { [documentId]: v.snapshot.document } }).documents[documentId] : null };
+    });
   }
   return { draft, published, draftSavedAt: draftRow?.updated_at ?? null, versions };
 });
