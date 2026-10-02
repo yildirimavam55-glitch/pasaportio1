@@ -169,7 +169,7 @@ export function EsimHomePage() {
               ),
               destinations: (section) => <Popular c={c} section={section} onPick={choose} />,
               regions: (section) => <RegionalDiscovery section={section} summaries={regionalSummaries.data ?? []} loading={regionalSummaries.isLoading} c={c} />,
-              afterRegions: <V2TrustStory />,
+              afterDestinations: <V2TrustStory />,
               benefitsInDesktopHero: true,
             }}
           />
