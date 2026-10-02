@@ -28,6 +28,7 @@ const COPY = localize({
     installCta: "Detaylı kurulum rehberi",
     installSub: "Sadece birkaç adımda bağlantıya hazır.",
     animSteps: ["QR kodunu al", "QR kodunu tara", "eSIM'i ekle", "Bağlantını aç"],
+    quickAnimSteps: ["Bağlantıyı aç", "Yüklemeye dokun", "eSIM'i ekle", "Kurulum hazır"],
     animReady: "eSIM hazır",
     animAdding: "eSIM ekleniyor...",
     quickLabel: "Link ile hızlı kurulum", quickDescription: "Tek dokunuşla kurulumu başlatın; QR kod gerekmez.", qrLabel: "QR kod ile kurulum", qrDescription: "Başka bir ekrandaki kodu telefonunuzla tarayın.",
@@ -63,6 +64,7 @@ const COPY = localize({
     installCta: "Ausführliche Installationshilfe",
     installSub: "In wenigen Schritten verbunden.",
     animSteps: ["QR-Code erhalten", "QR-Code scannen", "eSIM hinzufügen", "Verbindung aktivieren"],
+    quickAnimSteps: ["Link öffnen", "Installieren antippen", "eSIM hinzufügen", "Einrichtung bereit"],
     animReady: "eSIM bereit",
     animAdding: "eSIM wird hinzugefügt...",
     quickLabel: "Schnellinstallation per Link", quickDescription: "Starte die Installation mit einem Tippen – ohne QR-Code.", qrLabel: "Installation per QR-Code", qrDescription: "Scanne den Code auf einem anderen Bildschirm mit deinem Handy.",
@@ -98,6 +100,7 @@ const COPY = localize({
     installCta: "Detailed installation guide",
     installSub: "Ready to connect in just a few steps.",
     animSteps: ["Get QR code", "Scan QR code", "Add eSIM", "Enable connection"],
+    quickAnimSteps: ["Open the link", "Tap install", "Add eSIM", "Setup ready"],
     animReady: "eSIM ready",
     animAdding: "Adding eSIM...",
     quickLabel: "Quick Install by link", quickDescription: "Start installation with one tap—no QR code needed.", qrLabel: "Install with QR code", qrDescription: "Scan the code shown on another screen with your phone.",
@@ -157,17 +160,18 @@ export function V2Installation({ title, subtitle, steps, ready, adding, cta, hre
   const { locale } = useI18n();
   const c = COPY[locale];
   const stepList = steps?.length ? steps : [...c.animSteps];
-  const [activeStep, setActiveStep] = useState(0);
+  const [animationState, setAnimationState] = useState<{ method: "quick" | "qr"; phase: number }>({ method: "quick", phase: 0 });
+  const visibleSteps = animationState.method === "quick" ? c.quickAnimSteps : stepList;
   const search = (href === "/esim" ? { country: "" } : href === "/lounge" ? { iata: "" } : href === "/esim/kurulum" ? { platform: "ios", brand: "" } : undefined) as never;
   return (
     <section>
       <div className="lg:hidden"><SectionTitle>{title || c.install}</SectionTitle></div>
       <div className="lg:grid lg:min-h-[22rem] lg:grid-cols-[minmax(0,0.42fr)_minmax(0,0.58fr)] lg:items-center lg:gap-10 lg:rounded-3xl lg:bg-card lg:px-12 lg:py-6 lg:ring-1 lg:ring-border">
-        <div className="lg:flex lg:min-h-[20rem] lg:items-center lg:justify-center">{variant === "simple" ? <div className="lg:hidden"><InstallationSteps items={stepList} /></div> : <V2InstallAnimation steps={stepList} ready={ready || c.animReady} adding={adding || c.animAdding} quickLabel={c.quickLabel} quickDescription={c.quickDescription} qrLabel={c.qrLabel} qrDescription={c.qrDescription} onPhaseChange={setActiveStep} />}</div>
+        <div className="lg:flex lg:min-h-[20rem] lg:items-center lg:justify-center">{variant === "simple" ? <div className="lg:hidden"><InstallationSteps items={stepList} /></div> : <V2InstallAnimation quickSteps={c.quickAnimSteps} qrSteps={stepList} ready={ready || c.animReady} adding={adding || c.animAdding} quickLabel={c.quickLabel} quickDescription={c.quickDescription} qrLabel={c.qrLabel} qrDescription={c.qrDescription} onStateChange={(method, phase) => setAnimationState({ method, phase })} />}</div>
         <div className="lg:py-3">
           <h2 className="hidden font-display text-3xl font-bold text-foreground lg:block">{title || c.install}</h2>
           {(subtitle ?? c.installSub) && <p className="mb-3 text-xs leading-relaxed text-muted-foreground lg:mt-3 lg:text-base">{subtitle ?? c.installSub}</p>}
-          <div className="hidden lg:block"><InstallationSteps items={stepList} activeStep={activeStep} /></div>
+          <div className="hidden lg:block"><InstallationSteps items={visibleSteps} activeStep={animationState.phase} /></div>
           {(cta ?? c.installCta) && <Button asChild variant="outline" size="sm" className="mt-3 w-full lg:mt-6 lg:w-auto"><Link to={href} search={search}>{cta || c.installCta}<ArrowRight /></Link></Button>}
         </div>
       </div>

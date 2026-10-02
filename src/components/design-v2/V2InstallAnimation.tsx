@@ -6,17 +6,18 @@ const PHASE_MS = 1250;
 const PHASE_COUNT = 8;
 
 type InstallAnimationProps = {
-  steps: readonly string[];
+  quickSteps: readonly string[];
+  qrSteps: readonly string[];
   ready: string;
   adding: string;
   quickLabel: string;
   quickDescription: string;
   qrLabel: string;
   qrDescription: string;
-  onPhaseChange?: (phase: number) => void;
+  onStateChange?: (method: "quick" | "qr", phase: number) => void;
 };
 
-export function V2InstallAnimation({ steps, ready, adding, quickLabel, quickDescription, qrLabel, qrDescription, onPhaseChange }: InstallAnimationProps) {
+export function V2InstallAnimation({ quickSteps, qrSteps, ready, adding, quickLabel, quickDescription, qrLabel, qrDescription, onStateChange }: InstallAnimationProps) {
   const ref = useRef<HTMLDivElement | null>(null);
   const [visible, setVisible] = useState(false);
   const [reduced, setReduced] = useState(false);
@@ -44,7 +45,8 @@ export function V2InstallAnimation({ steps, ready, adding, quickLabel, quickDesc
   const method = current < 4 ? "quick" : "qr";
   const methodPhase = current % 4;
 
-  useEffect(() => { onPhaseChange?.(methodPhase); }, [methodPhase, onPhaseChange]);
+  useEffect(() => { onStateChange?.(method, methodPhase); }, [method, methodPhase, onStateChange]);
+  const visibleSteps = method === "quick" ? quickSteps : qrSteps;
 
   return (
     <div ref={ref} className="grid grid-cols-[6.5rem_minmax(0,1fr)] items-center gap-4 rounded-2xl bg-muted/50 p-4 ring-1 ring-border lg:flex lg:h-[20rem] lg:w-full lg:items-center lg:justify-center lg:p-6">
@@ -72,7 +74,7 @@ export function V2InstallAnimation({ steps, ready, adding, quickLabel, quickDesc
       <div className="min-w-0 lg:hidden" aria-live="polite">
         <span className="inline-flex items-center gap-1.5 text-xs font-bold text-foreground">{method === "quick" ? <Link2 className="size-4 text-primary" /> : <QrCode className="size-4 text-primary" />}{method === "quick" ? quickLabel : qrLabel}</span>
         <p className="mt-1 text-[10px] leading-relaxed text-muted-foreground">{method === "quick" ? quickDescription : qrDescription}</p>
-        <ol className="mt-3 grid gap-1.5">{steps.map((step, index) => <li key={step} className={`flex min-w-0 items-center gap-2 rounded-lg px-2 py-1 text-[10px] transition-colors ${index === methodPhase ? "bg-card font-bold text-foreground ring-1 ring-border" : "text-muted-foreground"}`}><span className={`grid size-4 shrink-0 place-items-center rounded-full text-[8px] font-bold ${index <= methodPhase ? "bg-[var(--v2-service)] text-primary-foreground" : "bg-card ring-1 ring-border"}`}>{index + 1}</span><span>{step}</span></li>)}</ol>
+        <ol className="mt-3 grid gap-1.5">{visibleSteps.map((step, index) => <li key={step} className={`flex min-w-0 items-center gap-2 rounded-lg px-2 py-1 text-[10px] transition-colors ${index === methodPhase ? "bg-card font-bold text-foreground ring-1 ring-border" : "text-muted-foreground"}`}><span className={`grid size-4 shrink-0 place-items-center rounded-full text-[8px] font-bold ${index <= methodPhase ? "bg-[var(--v2-service)] text-primary-foreground" : "bg-card ring-1 ring-border"}`}>{index + 1}</span><span>{step}</span></li>)}</ol>
       </div>
     </div>
   );
