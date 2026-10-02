@@ -81,6 +81,7 @@ type Story = {
   title: string;
   text: string;
   accent?: "refund" | "payment";
+  prominentMetric?: boolean;
 };
 
 /** A native-scroll, photography-led trust story. Each scene reveals once without pinning the page. */
@@ -91,7 +92,7 @@ export function V2TrustStory() {
   const stories: Story[] = [
     { id: "setup", image: setupPhoto, alt: c.setupTitle, metric: c.setupMetric, title: c.setupTitle, text: c.setupText },
     { id: "refund", image: refundPhoto, alt: c.refundTitle, metric: c.refundMetric, title: c.refundTitle, text: c.refundText, accent: "refund" },
-    { id: "saving", image: roamingPhoto, alt: c.savingTitle, metric: c.savingMetric, title: c.savingTitle, text: c.savingText },
+    { id: "saving", image: roamingPhoto, alt: c.savingTitle, metric: c.savingMetric, title: c.savingTitle, text: c.savingText, prominentMetric: true },
     { id: "payment", image: paymentPhoto, alt: c.payTitle, title: c.payTitle, text: c.payText, accent: "payment" },
   ];
   const closingSignals: [LucideIcon, string][] = [[Globe2, c.countries], [Headphones, c.support], [Zap, c.delivery]];
@@ -150,7 +151,7 @@ export function V2TrustStory() {
                   <div className="px-1 lg:col-span-5 lg:px-0">
                     {story.metric ? (
                       <Reveal className="trust-story-text-reveal">
-                        <p className="font-display text-[2.65rem] font-bold leading-none text-primary sm:text-6xl lg:text-7xl">{story.metric}</p>
+                        <p className={story.prominentMetric ? "font-display text-[2.65rem] font-bold leading-none text-primary sm:text-6xl lg:text-7xl" : "text-sm font-bold uppercase tracking-[0.12em] text-primary"}>{story.metric}</p>
                       </Reveal>
                     ) : null}
                     <Reveal delay={70} className="trust-story-text-reveal">
