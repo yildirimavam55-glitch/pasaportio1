@@ -63,6 +63,8 @@ export type V2Slots = {
   regions?: (section: V2Section) => ReactNode;
   /** Optional page-owned content placed immediately after regional discovery. */
   afterRegions?: ReactNode;
+  /** Optional page-owned content placed immediately after the destination carousel. */
+  afterDestinations?: ReactNode;
   /** Rendered directly under the configured benefit row (e.g. refund trust card). */
   afterBenefits?: ReactNode;
   /** eSIM desktop places benefits inside its hero while preserving the mobile row. */
@@ -84,7 +86,7 @@ export function V2Sections({ config, media, slots, only }: { config: V2PageConfi
           case "BENEFIT_ROW":
             return <V2Fragment key={s.id}><div className={slots.benefitsInDesktopHero ? "lg:hidden" : undefined}><TrustRow items={items.map((item) => ({ icon: <StorefrontIcon name={item.icon} className="size-6" />, label: v2ItemText(item.title, locale) }))} />{slots.afterBenefits}</div></V2Fragment>;
           case "DESTINATION_CAROUSEL":
-            return <V2Fragment key={s.id}>{slots.destinations?.(s)}</V2Fragment>;
+            return <V2Fragment key={s.id}>{slots.destinations?.(s)}{slots.afterDestinations}</V2Fragment>;
           case "REGION_DISCOVERY":
             return <V2Fragment key={s.id}>{slots.regions?.(s)}{slots.afterRegions}</V2Fragment>;
           case "NOTICE":
