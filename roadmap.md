@@ -681,3 +681,9 @@
 - [x] Add company completeness checks, 14-locale legal editing, RTL previews, safe structured text, and manual publish/unpublish.
 - [x] Keep newsletter capture disabled, payment logos hidden, and social links HTTPS-only until real systems are configured.
 - [ ] Real company identity, unresolved commercial terms, and final legal wording require owner/legal input before publication.
+
+## eSIM installation experience upgrade
+- [ ] Extend the existing homepage installation animation with Quick Install + QR in one compact loop.
+- [ ] Add the two-method detailed guide with reusable demo visuals and shared travel-use instructions.
+- [ ] Add all new strings to the existing 14-language overlay and verify Arabic RTL.
+- [ ] Verify 360/390/430/tablet/desktop, reduced motion, controls, CTA, and unchanged surrounding flows.
