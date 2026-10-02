@@ -1,8 +1,9 @@
 import { useEffect, useRef, useState } from "react";
 import { Link2, QrCode } from "lucide-react";
-import { DecorativeQr, InstallationMethodSelector, InstallationSuccess, type InstallationMethod } from "./InstallationExperience";
+import { DecorativeQr, InstallationMethodSelector, InstallationSuccess, TapIndicator, type InstallationMethod } from "./InstallationExperience";
 
-const PHASE_MS = 1250;
+const PHASE_MS = 2200;
+const SUCCESS_MS = 3000;
 const PHASE_COUNT = 8;
 
 type InstallAnimationProps = {
@@ -41,7 +42,7 @@ export function V2InstallAnimation({ quickSteps, qrSteps, ready, adding, quickLa
 
   useEffect(() => {
     if (reduced || !visible) return;
-    const timer = window.setTimeout(() => setPhase((current) => (current + 1) % PHASE_COUNT), PHASE_MS);
+    const timer = window.setTimeout(() => setPhase((current) => (current + 1) % PHASE_COUNT), phase % 4 === 3 ? SUCCESS_MS : PHASE_MS);
     return () => window.clearTimeout(timer);
   }, [phase, reduced, restartKey, visible]);
 
@@ -69,7 +70,7 @@ export function V2InstallAnimation({ quickSteps, qrSteps, ready, adding, quickLa
             <div className="rounded-xl bg-secondary p-2 text-center ring-1 ring-border lg:p-3">
               <span className="mx-auto grid size-7 place-items-center rounded-lg bg-primary-soft text-primary lg:size-10"><Link2 className="size-4 lg:size-5" /></span>
               <p className="mt-1 text-[8px] font-bold text-foreground lg:text-[11px]">{quickLabel}</p>
-              <div className="relative mt-2 rounded-lg bg-primary px-1.5 py-1 text-[6px] font-bold text-primary-foreground lg:text-[8px]">travely.link/install{methodPhase === 1 && <span className="absolute -bottom-2 -right-1 size-5 rounded-full border-2 border-cta bg-cta/30 motion-safe:animate-pulse" />}</div>
+              <div className={`relative mt-2 rounded-lg bg-primary px-1.5 py-1 text-[6px] font-bold text-primary-foreground lg:text-[8px] ${methodPhase === 1 ? "install-tap-target" : ""}`}>travely.link/install{methodPhase === 1 && <TapIndicator className="-bottom-3 -right-2" />}</div>
             </div>
           </div>
           <div className={`absolute inset-x-3 top-9 aspect-square transition-all duration-300 lg:inset-x-5 lg:top-14 ${method === "qr" && methodPhase < 2 ? "opacity-100" : "translate-y-2 scale-90 opacity-0"}`}>
