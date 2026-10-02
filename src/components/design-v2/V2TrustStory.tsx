@@ -47,7 +47,7 @@ const COPY = localize({
     payText: "Ödemeniz güvenli ödeme altyapısı üzerinden korunarak işlenir.",
     payment: "Ödeme",
     protectedPayment: "Korumalı ödeme adımı",
-    paymentPending: "Ödeme yöntemi ödeme adımında gösterilir",
+    paymentPending: "Canlı ödeme yöntemleri yakında burada gösterilecek.",
     closingTitle: "Seyahatin her anında yanınızda.",
     countries: "190+ ülkede bağlantı",
     support: "7/24 destek",
@@ -81,7 +81,7 @@ const COPY = localize({
     payText: "Deine Zahlung wird über eine sichere Zahlungsinfrastruktur verarbeitet.",
     payment: "Zahlung",
     protectedPayment: "Geschützter Zahlungsschritt",
-    paymentPending: "Zahlungsmethode wird beim Bezahlen angezeigt",
+    paymentPending: "Live-Zahlungsmethoden werden demnächst hier angezeigt.",
     closingTitle: "Auf jeder Reise an deiner Seite.",
     countries: "Verbindung in 190+ Ländern",
     support: "24/7 Support",
@@ -115,7 +115,7 @@ const COPY = localize({
     payText: "Your payment is processed through a secure payment infrastructure.",
     payment: "Payment",
     protectedPayment: "Protected payment step",
-    paymentPending: "Payment method is shown during checkout",
+    paymentPending: "Live payment methods will be shown here soon",
     closingTitle: "With you throughout your journey.",
     countries: "Connected in 190+ countries",
     support: "24/7 support",
@@ -174,8 +174,8 @@ function PaymentPanel({ c }: { c: Copy }) {
     <Reveal delay={80} className="trust-story-side-reveal absolute bottom-4 left-4 w-[11.5rem] sm:bottom-6 sm:left-6 sm:w-[13rem]">
       <div className="rounded-2xl border border-card/80 bg-card/95 p-3.5 shadow-panel backdrop-blur-sm">
         <div className="flex items-center justify-between gap-2"><strong className="text-sm text-foreground">{c.payment}</strong><LockKeyhole className="size-4 text-primary" aria-hidden="true" /></div>
-        <div className="mt-3 rounded-xl border border-border bg-secondary/60 px-3 py-2.5"><p className="text-[10px] font-bold text-foreground">{c.protectedPayment}</p><p className="mt-1 text-[9px] leading-snug text-muted-foreground">{c.paymentPending}</p></div>
-        <div className="mt-3 h-7 rounded-full bg-primary" aria-hidden="true" />
+        <div className="mt-3 rounded-xl border border-border bg-secondary/60 px-3 py-2.5"><p className="text-[10px] font-bold text-foreground">{c.protectedPayment}</p></div>
+        <p className="mt-3 border-t border-border pt-2.5 text-[9px] font-semibold leading-snug text-muted-foreground">{c.paymentPending}</p>
       </div>
     </Reveal>
   );
@@ -238,7 +238,7 @@ export function V2TrustStory() {
           <li data-trust-scene="payment" className="trust-story-flow relative pb-9 sm:pb-14 lg:pb-16">
             <div className="grid items-center gap-4 sm:gap-5 lg:grid-cols-12 lg:gap-12">
               <div className="relative lg:col-span-7"><Reveal className="trust-story-image-reveal"><div className="overflow-hidden rounded-hero"><img src={paymentPhoto} alt={c.payTitle} width={1408} height={1056} loading="lazy" decoding="async" className="aspect-[4/3] w-full object-cover" /></div></Reveal><PaymentPanel c={c} /></div>
-              <div className="px-1 lg:col-span-5"><Reveal delay={150} className="trust-story-side-reveal"><LockKeyhole className="size-6 text-primary" aria-hidden="true" /></Reveal><Reveal delay={210} className="trust-story-text-reveal"><h3 className="mt-3 font-display text-3xl font-bold leading-tight text-foreground sm:text-4xl">{c.payTitle}</h3></Reveal><Reveal delay={270} className="trust-story-text-reveal"><p className="mt-3 max-w-md text-base leading-relaxed text-muted-foreground sm:text-lg">{c.payText}</p></Reveal></div>
+              <div className="px-1 lg:col-span-5"><Reveal delay={150} className="trust-story-side-reveal"><LockKeyhole className="size-6 text-primary" aria-hidden="true" /></Reveal><Reveal delay={210} className="trust-story-text-reveal"><h3 className="mt-3 font-display text-3xl font-bold leading-tight text-foreground sm:text-4xl">{c.payTitle}</h3></Reveal><Reveal delay={270} className="trust-story-text-reveal"><p className="mt-3 max-w-md text-base leading-relaxed text-muted-foreground sm:text-lg">{c.payText}</p></Reveal><Reveal delay={330} className="trust-story-text-reveal"><p className="mt-4 inline-flex max-w-md items-center gap-2 rounded-lg border border-border bg-card px-3 py-2 text-xs font-semibold text-muted-foreground"><LockKeyhole className="size-3.5 shrink-0 text-primary" aria-hidden="true" />{c.paymentPending}</p></Reveal></div>
             </div>
           </li>
         </ol>
