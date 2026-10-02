@@ -10,28 +10,34 @@ export function InstallationMethodSelector({
   quickLabel,
   qrLabel,
   ariaLabel,
+  compact = false,
 }: {
   value: InstallationMethod;
   onChange: (method: InstallationMethod) => void;
   quickLabel: string;
   qrLabel: string;
   ariaLabel: string;
+  compact?: boolean;
 }) {
   const options = [
     { value: "quick" as const, label: quickLabel, icon: Link2 },
     { value: "qr" as const, label: qrLabel, icon: QrCode },
   ];
   return (
-    <div className="grid grid-cols-2 gap-1 rounded-2xl bg-secondary p-1" role="tablist" aria-label={ariaLabel}>
+    <div className={cn("grid grid-cols-2 gap-1 bg-secondary p-1", compact ? "rounded-full ring-1 ring-border" : "rounded-2xl")} role="tablist" aria-label={ariaLabel}>
       {options.map(({ value: method, label, icon: Icon }) => (
         <Button
           key={method}
           type="button"
           role="tab"
           aria-selected={value === method}
-          variant={value === method ? "default" : "ghost"}
+          variant={compact ? "ghost" : value === method ? "default" : "ghost"}
           onClick={() => onChange(method)}
-          className="min-h-11 min-w-0 rounded-xl px-2 text-xs sm:text-sm"
+          className={cn(
+            "min-w-0 px-2",
+            compact ? "h-8 min-h-8 rounded-full text-[10px] sm:px-3 sm:text-xs" : "min-h-11 rounded-xl text-xs sm:text-sm",
+            compact && value === method && "bg-primary-soft text-primary shadow-sm ring-1 ring-primary/20 hover:bg-primary-soft hover:text-primary",
+          )}
         >
           <Icon className="size-4 shrink-0" aria-hidden="true" />
           <span className="truncate">{label}</span>
