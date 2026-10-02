@@ -84,15 +84,15 @@ export function V2TrustStory() {
     <section aria-labelledby="trust-story-title" dir={dir} data-trust-story className="bg-background pb-20 pt-20 sm:pb-28 sm:pt-28 lg:pb-36 lg:pt-32">
       <div className="mx-auto max-w-site px-4 sm:px-6 lg:px-8">
         <header className="mx-auto max-w-3xl text-center">
-          <Reveal>
+          <Reveal className="trust-story-reveal">
             <p className="text-xs font-bold uppercase tracking-[0.18em] text-primary">{c.eyebrow}</p>
           </Reveal>
-          <Reveal delay={80}>
+          <Reveal delay={80} className="trust-story-reveal">
             <h2 id="trust-story-title" className="mt-4 text-balance font-display text-4xl font-bold leading-tight text-foreground sm:text-5xl lg:text-6xl">
               {c.title}
             </h2>
           </Reveal>
-          <Reveal delay={140}>
+          <Reveal delay={140} className="trust-story-reveal">
             <p className="mt-5 text-base leading-relaxed text-muted-foreground sm:text-lg">{c.lead}</p>
           </Reveal>
         </header>
@@ -100,7 +100,7 @@ export function V2TrustStory() {
         <ol className="mx-auto mt-16 max-w-6xl space-y-24 sm:mt-24 sm:space-y-32 lg:space-y-40">
           {stories.map((story, index) => (
             <li key={story.id}>
-              <Reveal>
+              <Reveal className="trust-story-reveal">
                 <article className={`grid items-center gap-8 lg:grid-cols-12 lg:gap-16 ${index % 2 ? "lg:[&>*:first-child]:order-2" : ""}`}>
                   <div className="relative overflow-hidden rounded-hero lg:col-span-7">
                     <img
