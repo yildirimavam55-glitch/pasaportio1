@@ -28,6 +28,7 @@ const COPY = localize({
     roaming: "Operatör Roaming",
     daily: "Günlük ücretler",
     esim: "Bizim eSIM",
+    esimPrice: "1,99 €'dan",
     packagesFrom: "başlayan paketler",
     supportTitle: "Gerçek destek",
     supportText: "Bir sorun olduğunda yalnız değilsin. WhatsApp üzerinden bize ulaşabilirsin.",
@@ -49,6 +50,7 @@ const COPY = localize({
     roaming: "Mobilfunk-Roaming",
     daily: "Tägliche Gebühren",
     esim: "Unsere eSIM",
+    esimPrice: "ab 1,99 €",
     packagesFrom: "Pakete ab",
     supportTitle: "Persönlicher Support",
     supportText: "Bei einem Problem bist du nicht allein. Du erreichst uns über WhatsApp.",
@@ -70,6 +72,7 @@ const COPY = localize({
     roaming: "Operator roaming",
     daily: "Daily charges",
     esim: "Our eSIM",
+    esimPrice: "from €1.99",
     packagesFrom: "packages from",
     supportTitle: "Real support",
     supportText: "You are not alone when something goes wrong. Reach us on WhatsApp.",
@@ -125,7 +128,7 @@ export function V2TrustStory() {
             icon={<CreditCard className="size-7" />}
             title={c.savingTitle}
             text={c.savingText}
-            visual={<PriceComparison roaming={c.roaming} daily={c.daily} esim={c.esim} packagesFrom={c.packagesFrom} />}
+            visual={<PriceComparison roaming={c.roaming} daily={c.daily} esim={c.esim} esimPrice={c.esimPrice} packagesFrom={c.packagesFrom} />}
           />
           <StoryStep
             reverse
@@ -176,7 +179,7 @@ function DeliveryVisual() {
   );
 }
 
-function PriceComparison({ roaming, daily, esim, packagesFrom }: { roaming: string; daily: string; esim: string; packagesFrom: string }) {
+function PriceComparison({ roaming, daily, esim, esimPrice, packagesFrom }: { roaming: string; daily: string; esim: string; esimPrice: string; packagesFrom: string }) {
   return (
     <div className="grid w-full max-w-sm grid-cols-2 gap-2">
       <div className="rounded-xl bg-secondary p-3 ring-1 ring-border">
@@ -186,7 +189,7 @@ function PriceComparison({ roaming, daily, esim, packagesFrom }: { roaming: stri
       </div>
       <div className="rounded-xl bg-primary-soft p-3 ring-1 ring-primary/15">
         <p className="text-xs font-bold text-primary">{esim}</p>
-        <strong className="mt-3 block font-display text-xl text-primary">1,99 €'dan</strong>
+        <strong className="mt-3 block font-display text-xl text-primary">{esimPrice}</strong>
         <p className="mt-0.5 text-[10px] text-foreground">{packagesFrom}</p>
       </div>
     </div>
