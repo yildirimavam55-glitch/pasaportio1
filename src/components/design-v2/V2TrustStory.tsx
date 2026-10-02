@@ -1,15 +1,16 @@
-import { Check, ShieldCheck } from "lucide-react";
+import { Check, Globe2, Headphones, ShieldCheck, Zap } from "lucide-react";
 import setupPhoto from "@/assets/trust-setup.jpg";
 import refundPhoto from "@/assets/trust-refund.jpg";
 import roamingPhoto from "@/assets/trust-roaming.jpg";
 import paymentPhoto from "@/assets/trust-payment.jpg";
+import closingPhoto from "@/assets/airport-istanbul.jpg.asset.json";
 import { Reveal } from "@/components/travel/Reveal";
 import { useI18n } from "@/i18n";
 import { localize } from "@/i18n/overlay";
 
 const COPY = localize({
   tr: {
-    eyebrow: "Neden biz?",
+    eyebrow: "Neden Travely?",
     title: "Seyahatte internet hiç bu kadar kolay olmamıştı.",
     lead: "Daha uygun, daha kolay, daha güvenli.",
     setupMetric: "60 saniye",
@@ -19,10 +20,14 @@ const COPY = localize({
     refundTitle: "14 gün iade güvencesi",
     refundText: "eSIM kullanılmadıysa 14 gün içinde koşulsuz iade.",
     savingMetric: "%60’a kadar",
-    savingTitle: "Roaming’e göre daha uygun",
-    savingText: "Yüksek roaming ücretleri yerine uygun eSIM paketleri.",
+    savingTitle: "Roaming’e göre %60’a kadar daha uygun",
+    savingText: "Yüksek roaming ücretleri yerine uygun eSIM paketleriyle tasarruf edin.",
     payTitle: "Güvenli ödeme",
     payText: "Ödemeniz güvenli ödeme altyapısı üzerinden korunarak işlenir.",
+    closingTitle: "Seyahatin her anında yanınızda.",
+    countries: "190+ ülkede bağlantı",
+    support: "7/24 destek",
+    delivery: "Anında dijital teslimat",
   },
   de: {
     eyebrow: "Warum wir?",
@@ -39,6 +44,10 @@ const COPY = localize({
     savingText: "Günstige eSIM-Pakete statt hoher Roaming-Gebühren.",
     payTitle: "Sichere Zahlung",
     payText: "Deine Zahlung wird über eine sichere Zahlungsinfrastruktur verarbeitet.",
+    closingTitle: "Auf jeder Reise an deiner Seite.",
+    countries: "Verbindung in 190+ Ländern",
+    support: "24/7 Support",
+    delivery: "Sofortige digitale Lieferung",
   },
   en: {
     eyebrow: "Why us?",
@@ -55,6 +64,10 @@ const COPY = localize({
     savingText: "Affordable eSIM packages instead of high roaming fees.",
     payTitle: "Secure payment",
     payText: "Your payment is processed through a secure payment infrastructure.",
+    closingTitle: "With you throughout your journey.",
+    countries: "Connected in 190+ countries",
+    support: "24/7 support",
+    delivery: "Instant digital delivery",
   },
 });
 
@@ -97,12 +110,12 @@ export function V2TrustStory() {
           </Reveal>
         </header>
 
-        <ol className="mx-auto mt-16 max-w-6xl space-y-24 sm:mt-24 sm:space-y-32 lg:space-y-40">
+        <ol className="mx-auto mt-14 max-w-6xl space-y-14 sm:mt-20 sm:space-y-20 lg:space-y-24">
           {stories.map((story, index) => (
-            <li key={story.id}>
-              <Reveal className="trust-story-reveal">
-                <article className={`grid items-center gap-8 lg:grid-cols-12 lg:gap-16 ${index % 2 ? "lg:[&>*:first-child]:order-2" : ""}`}>
-                  <div className="relative overflow-hidden rounded-hero lg:col-span-7">
+            <li key={story.id} className="relative">
+              <article className={`grid items-center gap-5 lg:grid-cols-12 lg:gap-14 ${index % 2 ? "lg:[&>*:first-child]:order-2" : ""}`}>
+                <Reveal className="trust-story-image-reveal lg:col-span-7">
+                  <div className="relative overflow-hidden rounded-hero">
                     <img
                       src={story.image}
                       alt={story.alt}
@@ -113,25 +126,46 @@ export function V2TrustStory() {
                       className="aspect-[4/3] w-full object-cover transition-transform duration-500 motion-safe:hover:scale-[1.015] motion-reduce:transition-none"
                     />
                   </div>
-
+                </Reveal>
                   <div className="px-1 lg:col-span-5 lg:px-0">
                     {story.metric ? (
-                      <p className="font-display text-5xl font-bold leading-none text-primary sm:text-6xl lg:text-7xl">
-                        {story.metric}
-                      </p>
+                      <Reveal className="trust-story-text-reveal">
+                        <p className="font-display text-[2.65rem] font-bold leading-none text-primary sm:text-6xl lg:text-7xl">{story.metric}</p>
+                      </Reveal>
                     ) : null}
-                    <div className={`${story.metric ? "mt-5" : "mt-0"} flex items-center gap-2`}>
-                      {story.accent === "refund" ? <ShieldCheck className="size-5 shrink-0 text-primary" aria-hidden="true" /> : null}
-                      {story.accent === "payment" ? <Check className="size-5 shrink-0 text-primary" aria-hidden="true" /> : null}
-                      <h3 className="font-display text-2xl font-bold leading-tight text-foreground sm:text-3xl">{story.title}</h3>
-                    </div>
-                    <p className="mt-4 max-w-md text-base leading-relaxed text-muted-foreground sm:text-lg">{story.text}</p>
+                    <Reveal delay={70} className="trust-story-text-reveal">
+                      <div className={`${story.metric ? "mt-4" : "mt-0"} flex items-center gap-2`}>
+                        {story.accent === "refund" ? <ShieldCheck className="size-5 shrink-0 text-primary" aria-hidden="true" /> : null}
+                        {story.accent === "payment" ? <Check className="size-5 shrink-0 text-primary" aria-hidden="true" /> : null}
+                        <h3 className="font-display text-2xl font-bold leading-tight text-foreground sm:text-3xl">{story.title}</h3>
+                      </div>
+                    </Reveal>
+                    <Reveal delay={130} className="trust-story-text-reveal">
+                      <p className="mt-3 max-w-md text-base leading-relaxed text-muted-foreground sm:text-lg">{story.text}</p>
+                    </Reveal>
                   </div>
-                </article>
-              </Reveal>
+              </article>
             </li>
           ))}
         </ol>
+
+        <Reveal className="trust-story-image-reveal mx-auto mt-16 max-w-6xl sm:mt-24">
+          <div className="relative isolate overflow-hidden rounded-hero">
+            <img src={closingPhoto.url} alt="" width={1400} height={900} loading="lazy" decoding="async" className="h-[25rem] w-full object-cover sm:h-[31rem] lg:h-[36rem]" />
+            <div className="absolute inset-0 bg-gradient-to-t from-[var(--v2-service)] via-[var(--v2-service)]/35 to-transparent" aria-hidden="true" />
+            <div className="absolute inset-x-0 bottom-0 px-5 pb-7 text-primary-foreground sm:px-10 sm:pb-10 lg:px-14 lg:pb-12">
+              <h3 className="max-w-xl font-display text-3xl font-bold leading-tight sm:text-5xl">{c.closingTitle}</h3>
+              <ul className="mt-6 grid grid-cols-3 gap-3 border-t border-primary-foreground/35 pt-5">
+                {[[Globe2, c.countries], [Headphones, c.support], [Zap, c.delivery]].map(([Icon, label]) => (
+                  <li key={label as string} className="flex min-w-0 flex-col gap-2 text-xs font-semibold leading-snug sm:flex-row sm:items-center sm:text-sm">
+                    <Icon className="size-5 shrink-0" aria-hidden="true" />
+                    <span>{label as string}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        </Reveal>
       </div>
     </section>
   );
