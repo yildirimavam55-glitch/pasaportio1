@@ -35,7 +35,7 @@ export function InstallationMethodSelector({
     { value: "qr" as const, label: qrLabel, icon: QrCode },
   ];
   return (
-    <div className={cn("grid grid-cols-2 gap-1 bg-secondary p-1 ring-1 ring-border", compact ? "rounded-full" : "rounded-2xl")} role="tablist" aria-label={ariaLabel}>
+    <div className={cn("grid gap-1 bg-secondary p-1 ring-1 ring-border", compact || !recommendedLabel ? "grid-cols-2" : "grid-cols-[1.15fr_0.85fr]", compact ? "rounded-full" : "rounded-2xl")} role="tablist" aria-label={ariaLabel}>
       {options.map(({ value: method, label, icon: Icon }) => (
         <Button
           key={method}
@@ -54,7 +54,7 @@ export function InstallationMethodSelector({
         >
           <Icon className="size-4 shrink-0" aria-hidden="true" />
           <span className="truncate">{label}</span>
-          {!compact && method === "quick" && recommendedLabel && <span className="shrink-0 rounded-full bg-primary px-1.5 py-0.5 text-[9px] font-bold text-primary-foreground">{recommendedLabel}</span>}
+          {!compact && method === "quick" && recommendedLabel && <span className="shrink-0 rounded-full bg-primary px-1 py-0.5 text-[8px] font-bold text-primary-foreground">{recommendedLabel}</span>}
         </Button>
       ))}
     </div>
