@@ -728,18 +728,21 @@ html.dark .destination-scene {
 .trust-story-text-reveal.reveal-item.is-revealed {
   transform: translate3d(0, 0, 0);
 }
-.trust-story-scene > .trust-story-image-reveal {
-  transition-property: opacity, transform;
+.trust-story-side-reveal.reveal-item {
+  transform: translate3d(18px, 0, 0);
+  transition-duration: 480ms;
+  transition-delay: 0ms;
 }
-.trust-story-scene.is-past > .trust-story-image-reveal {
-  opacity: 0.3;
-  transform: translate3d(0, -20px, 0) scale(0.985);
+.trust-story-side-reveal.reveal-item.is-revealed {
+  transform: translate3d(0, 0, 0);
 }
-@media (prefers-reduced-motion: reduce) {
-  .trust-story-scene.is-past > .trust-story-image-reveal {
-    opacity: 1;
-    transform: none;
-  }
+.trust-story-product-reveal.reveal-item {
+  transform: translate3d(0, 18px, 0) scale(0.96);
+  transition-duration: 500ms;
+  transition-delay: 0ms;
+}
+.trust-story-product-reveal.reveal-item.is-revealed {
+  transform: translate3d(0, 0, 0) scale(1);
 }
 .recommendation-reveal {
   transform: translate3d(0, 10px, 0);

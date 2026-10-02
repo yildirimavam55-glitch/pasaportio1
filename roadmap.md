@@ -712,3 +712,4 @@
 - [x] Keep native scrolling and one-time subtle reveals without pinning, carousels, or scroll calculations.
 - [x] Verify mobile, desktop, RTL, reduced motion, placement, and surrounding homepage continuity without publishing.
 - [x] Refine the approved photography into one compact, staggered scroll story and verify the final travel close.
+- [x] Match the approved storyboard with varied photography, product UI, comparison, and progressive reveals; verify mobile continuity.
