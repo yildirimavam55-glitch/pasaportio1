@@ -127,6 +127,20 @@
       "when": 1789810353037,
       "tag": "0017_catalogue_hardening",
       "breakpoints": true
+    },
+    {
+      "idx": 18,
+      "version": "7",
+      "when": 1790916550315,
+      "tag": "0018_restore_security_protections",
+      "breakpoints": true
+    },
+    {
+      "idx": 19,
+      "version": "7",
+      "when": 1790916550316,
+      "tag": "0020_refund_request_force_initial_state",
+      "breakpoints": true
     }
   ]
 }
