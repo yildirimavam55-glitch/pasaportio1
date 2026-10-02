@@ -20,6 +20,7 @@ export const V2_SECTION_TYPES = [
   "SEARCH_HERO",
   "BENEFIT_ROW",
   "DESTINATION_CAROUSEL",
+  "INFO_CAROUSEL",
   "REGION_DISCOVERY",
   "NOTICE",
   "INFO_GRID",
@@ -36,7 +37,7 @@ export type V2SectionType = (typeof V2_SECTION_TYPES)[number];
 /** Search hero carries the core search: editable copy/media, never hidden, removed or moved. */
 export const V2_PROTECTED: readonly V2SectionType[] = ["SEARCH_HERO"];
 /** Sections tied to live catalogue data or a single page capability — not duplicable. */
-export const V2_SINGLETON: readonly V2SectionType[] = ["SEARCH_HERO", "DESTINATION_CAROUSEL", "REGION_DISCOVERY", "COMPATIBILITY", "GUIDE_CAROUSEL"];
+export const V2_SINGLETON: readonly V2SectionType[] = ["SEARCH_HERO", "DESTINATION_CAROUSEL", "INFO_CAROUSEL", "REGION_DISCOVERY", "COMPATIBILITY", "GUIDE_CAROUSEL"];
 export const V2_ADDABLE: readonly V2SectionType[] = ["BENEFIT_ROW", "PROMO_BANNER", "NOTICE", "INFO_GRID", "HOW_IT_WORKS", "INSTALLATION_STEPS", "FAQ", "SPACER"];
 
 /** Internal destinations a CMS link may point to. Nothing else is accepted. */
@@ -66,6 +67,15 @@ export type V2Item = {
   entity: string;
   title: LT;
   text: LT;
+  internalKey: string;
+  cardType: string;
+  mediaId: string | null;
+  href: V2SafeLink | "";
+  labels: LT[];
+  cta: LT;
+  imageAlt: LT;
+  focalX: number;
+  focalY: number;
 };
 
 export type V2Section = {
@@ -85,6 +95,11 @@ export type V2Section = {
   endsAt: string;
   text: Record<string, LT>;
   items: V2Item[];
+  showDots: boolean;
+  showArrows: boolean;
+  cardGap: "compact" | "normal" | "wide";
+  mobilePreview: "compact" | "normal" | "wide";
+  claims: { countries: string; refundDays: string; savingPercent: string; setupSeconds: string };
 };
 
 export type V2PageConfig = { version: 1; page: V2PageId; sections: V2Section[] };
@@ -93,6 +108,7 @@ export const V2_SECTION_LABELS: Record<V2SectionType, string> = {
   SEARCH_HERO: "Arama hero",
   BENEFIT_ROW: "Avantaj satırı",
   DESTINATION_CAROUSEL: "Popüler destinasyonlar",
+  INFO_CAROUSEL: "eSIM bilgi kartları",
   REGION_DISCOVERY: "Bölgesel paketler",
   NOTICE: "Bilgi kutusu",
   INFO_GRID: "Bilgi kartları",
@@ -110,6 +126,7 @@ export const V2_TEXT_FIELDS: Record<V2SectionType, Array<[string, string]>> = {
   SEARCH_HERO: [["eyebrow", "Üst başlık"], ["title", "Başlık"], ["subtitle", "Alt başlık"], ["placeholder", "Arama metni"], ["sticky", "Sabit arama metni"]],
   BENEFIT_ROW: [],
   DESTINATION_CAROUSEL: [["title", "Başlık"]],
+  INFO_CAROUSEL: [["title", "Başlık"], ["subtitle", "Alt başlık"]],
   REGION_DISCOVERY: [["eyebrow", "Üst başlık"], ["title", "Başlık"], ["lead", "Açıklama"], ["worldwide", "Dünya bannerı"], ["cta", "Buton metni"]],
   NOTICE: [["title", "Başlık"], ["text", "Metin"]],
   INFO_GRID: [["title", "Başlık"]],
@@ -130,6 +147,7 @@ export const V2_ITEM_MODE: Partial<Record<V2SectionType, "benefit" | "card" | "f
   INSTALLATION_STEPS: "step",
   FAQ: "faq",
   DESTINATION_CAROUSEL: "destination",
+  INFO_CAROUSEL: "info",
 };
 
 const lt = (tr: string, de: string, en: string): LT => ({ tr, de, en });
@@ -154,11 +172,19 @@ function section(id: string, type: V2SectionType, patch: Partial<V2Section> = {}
     endsAt: "",
     text: {},
     items: [],
+    showDots: true,
+    showArrows: true,
+    cardGap: "normal",
+    mobilePreview: "normal",
+    claims: { countries: "190+", refundDays: "14", savingPercent: "60", setupSeconds: "60" },
     ...patch,
   };
 }
 
-const item = (id: string, patch: Partial<V2Item> = {}): V2Item => ({ id, visible: true, icon: "", entity: "", title: same(""), text: same(""), ...patch });
+const item = (id: string, patch: Partial<V2Item> = {}): V2Item => ({ id, visible: true, icon: "", entity: "", title: same(""), text: same(""), internalKey: id, cardType: "products", mediaId: null, href: "", labels: [], cta: same(""), imageAlt: same(""), focalX: 50, focalY: 50, ...patch });
+
+const infoCard = (id: string, cardType: string, mediaId: string, title: LT, text: LT, labels: LT[] = [], href: V2SafeLink | "" = "") =>
+  item(id, { internalKey: id, cardType, mediaId, title, text, labels, href, imageAlt: title });
 
 type Pair = readonly [string, string];
 function listItems(prefix: string, copy: Record<Locale, readonly unknown[]>, map: (value: any) => { title: string; text: string }): V2Item[] {
@@ -195,6 +221,21 @@ function esimDefault(): V2Page {
       variant: "country",
       text: { title: from3(c, "popular") },
       items: POPULAR_COUNTRIES.slice(0, 10).map((country) => item(`c-${country.iso}`, { entity: country.iso })),
+    }),
+    section("esim-info", "INFO_CAROUSEL", {
+      text: {
+        title: lt("eSIM hakkında merak ettiklerin", "Alles, was du über eSIM wissen solltest", "Everything you need to know about eSIM"),
+        subtitle: lt("Seyahatten önce bilmen gereken her şey. Kolay, güvenli ve hızlı.", "Alles Wichtige vor deiner Reise. Einfach, sicher und schnell.", "Everything you need before your trip. Simple, secure and fast."),
+      },
+      items: [
+        infoCard("products", "products", "builtin:info-products", lt("eSIM ürünlerimiz", "Unsere eSIM-Pakete", "Our eSIM plans"), lt("190+ ülkede internet, limitsiz paketler ve bölgesel paketlerle seyahatinde bağlantıda kal.", "Internet in über 190 Ländern – mit Datenpaketen, Unlimited-Optionen und regionalen Paketen.", "Stay connected in 190+ countries with data plans, unlimited options and regional packages."), [lt("190+ ülke", "190+ Länder", "190+ countries"), lt("Limitsiz paketler", "Unlimited-Pakete", "Unlimited plans"), lt("Bölgesel paketler", "Regionale Pakete", "Regional plans")]),
+        infoCard("refund", "refund", "builtin:trust-refund", lt("14 gün iade güvencesi", "14 Tage Rückgabegarantie", "14-day refund guarantee"), lt("Kullanılmamış eSIM’lerde 14 gün içinde koşulsuz iade. İade talebini profilinden kolayca oluştur.", "Ungenutzte eSIMs kannst du innerhalb von 14 Tagen zurückgeben. Die Rückgabe kannst du direkt in deinem Profil anfragen.", "Unused eSIMs can be refunded within 14 days. Request your refund directly from your profile."), [], "/account"),
+        infoCard("roaming", "roaming", "builtin:info-roaming", lt("Roaming’e göre daha uygun", "Günstiger als Roaming", "Save compared with roaming"), lt("Yurt dışında yüksek roaming ücretleri yerine eSIM ile %60’a kadar daha uygun fiyatlarla internet kullan.", "Nutze im Ausland eSIM-Daten und spare gegenüber klassischen Roaming-Kosten bis zu 60 %.", "Use eSIM data abroad and save up to 60% compared with traditional roaming costs."), [lt("%60’a kadar", "bis zu 60 %", "up to 60%")]),
+        infoCard("delivery", "delivery", "builtin:info-delivery", lt("Anında teslimat", "Sofort verfügbar", "Instant delivery"), lt("Satın alma tamamlandıktan sonra eSIM bilgilerin hemen profilinde hazır.", "Nach dem Kauf stehen deine eSIM-Daten sofort in deinem Profil bereit.", "Once your purchase is complete, your eSIM details are immediately available in your profile."), [lt("Profilinde hazır", "In deinem Profil verfügbar", "Ready in your profile")], "/account"),
+        infoCard("setup", "setup", "builtin:info-install", lt("Kolay kurulum", "Einfache Einrichtung", "Easy setup"), lt("QR kodunu tara veya kurulum linkini kullan. eSIM’ini yaklaşık 60 saniyede kur.", "Scanne den QR-Code oder nutze den Installationslink. Deine eSIM ist in etwa 60 Sekunden eingerichtet.", "Scan the QR code or use the installation link. Set up your eSIM in around 60 seconds."), [lt("QR kod ile kurulum", "QR-Code", "QR code"), lt("Link ile kurulum", "Installationslink", "Installation link"), lt("≈ 60 saniye", "≈ 60 Sekunden", "≈ 60 seconds")], "/esim/kurulum"),
+        infoCard("payment", "payment", "builtin:info-payment", lt("Güvenli ödeme", "Sicher bezahlen", "Secure payment"), lt("Ödemeniz güvenli ödeme altyapısı üzerinden korunarak işlenir.", "Deine Zahlung wird über eine sichere Zahlungsinfrastruktur geschützt verarbeitet.", "Your payment is securely processed through our protected payment infrastructure.")),
+        infoCard("support", "support", "builtin:info-support", lt("7/24 WhatsApp destek", "24/7 WhatsApp-Support", "24/7 WhatsApp support"), lt("Soruların mı var? Ekibimiz 7/24 WhatsApp üzerinden yanında.", "Du hast Fragen? Unser Team ist rund um die Uhr über WhatsApp für dich da.", "Have a question? Our team is available around the clock via WhatsApp."), [lt("7/24 destek", "24/7 Support", "24/7 support"), lt("Hızlı yanıt", "Schnelle Hilfe", "Quick help"), same("WhatsApp")]),
+      ],
     }),
     section("regions", "REGION_DISCOVERY", { text: { eyebrow: from3(c, "regionalEyebrow"), title: from3(c, "regionalTitle"), lead: from3(c, "regionalHomeLead"), worldwide: from3(c, "worldwideBanner"), cta: from3(c, "discoverPlans") } }),
     section("compatibility", "COMPATIBILITY", { text: { title: from3(DISCOVERY_COPY, "compatibility") } }),
@@ -301,6 +342,15 @@ function cleanItem(raw: any, index: number): V2Item {
     entity: ENTITY.test(String(raw?.entity ?? "").toUpperCase()) ? String(raw.entity).toUpperCase() : "",
     title: cleanLT(raw?.title, 200),
     text: cleanLT(raw?.text, 900),
+    internalKey: ID.test(String(raw?.internalKey)) ? String(raw.internalKey) : `item-${index + 1}`,
+    cardType: cleanText(raw?.cardType, 32).replace(/[^a-z-]/g, "") || "products",
+    mediaId: cleanMediaId(raw?.mediaId),
+    href: raw?.href === "" ? "" : pick(raw?.href, V2_SAFE_LINKS, "/esim"),
+    labels: Array.isArray(raw?.labels) ? raw.labels.slice(0, 4).map((value: unknown) => cleanLT(value, 80)) : [],
+    cta: cleanLT(raw?.cta, 80),
+    imageAlt: cleanLT(raw?.imageAlt, 240),
+    focalX: Math.min(100, Math.max(0, Number(raw?.focalX ?? 50))),
+    focalY: Math.min(100, Math.max(0, Number(raw?.focalY ?? 50))),
   };
 }
 
@@ -325,6 +375,16 @@ function cleanSection(raw: any): V2Section | null {
     endsAt: DATE.test(String(raw.endsAt)) ? String(raw.endsAt) : "",
     text,
     items: Array.isArray(raw.items) ? raw.items.slice(0, 30).map(cleanItem) : [],
+    showDots: raw.showDots !== false,
+    showArrows: raw.showArrows !== false,
+    cardGap: pick(raw.cardGap, ["compact", "normal", "wide"] as const, "normal"),
+    mobilePreview: pick(raw.mobilePreview, ["compact", "normal", "wide"] as const, "normal"),
+    claims: {
+      countries: cleanText(raw.claims?.countries, 12) || "190+",
+      refundDays: cleanText(raw.claims?.refundDays, 12) || "14",
+      savingPercent: cleanText(raw.claims?.savingPercent, 12) || "60",
+      setupSeconds: cleanText(raw.claims?.setupSeconds, 12) || "60",
+    },
   };
 }
 
@@ -382,6 +442,8 @@ export function missingV2Translations(config: V2PageConfig, locale: "de" | "en")
 
 export function collectV2MediaIds(config: V2PageConfig): string[] {
   const ids = new Set<string>();
-  for (const s of config.sections) for (const id of [s.mediaId, s.mobileMediaId]) if (id && UUID.test(id)) ids.add(id);
+  for (const s of config.sections) {
+    for (const id of [s.mediaId, s.mobileMediaId, ...s.items.map((item) => item.mediaId)]) if (id && UUID.test(id)) ids.add(id);
+  }
   return [...ids];
 }
