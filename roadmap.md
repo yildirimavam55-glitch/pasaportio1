@@ -702,7 +702,7 @@
 - [x] Verify the full responsive, keyboard, reduced-motion, timing, privacy, and surrounding-section regression matrix.
 
 ## Mobile-first trust and conversion story
-- [ ] Add one continuous trust story between regional discovery and device compatibility without changing existing sections.
-- [ ] Reveal refund, delivery, price comparison, and human support moments progressively with reduced-motion support.
-- [ ] Add the compact concluding trust strip and 14-locale presentation copy.
-- [ ] Verify mobile/desktop scrolling and all surrounding homepage regressions without publishing.
+- [x] Add one continuous trust story between regional discovery and device compatibility without changing existing sections.
+- [x] Reveal refund, delivery, price comparison, and human support moments progressively with reduced-motion support.
+- [x] Add the compact concluding trust strip and 14-locale presentation copy.
+- [x] Verify mobile/desktop scrolling and all surrounding homepage regressions without publishing.
