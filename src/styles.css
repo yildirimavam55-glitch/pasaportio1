@@ -729,7 +729,7 @@ html.dark .destination-scene {
   transform: translate3d(0, 0, 0);
 }
 .trust-story-side-reveal.reveal-item {
-  transform: translate3d(18px, 0, 0);
+  transform: translate3d(14px, 0, 0);
   transition-duration: 480ms;
   transition-delay: 0ms;
 }
