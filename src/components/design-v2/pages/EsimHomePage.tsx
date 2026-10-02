@@ -29,6 +29,7 @@ import { V2ProductSelectionCard, V2SelectedProductSummary } from "@/components/d
 import { V2RegionCard } from "@/components/design-v2/V2RegionCard";
 import { localize } from "@/i18n/overlay";
 import { StorefrontIcon } from "@/domain/storefront/icons";
+import { V2TrustStory } from "@/components/design-v2/V2TrustStory";
 
 /** Public home/eSIM search: optional country + legacy `service` hint (V1 links used `/?service=lounge`). */
 export const validateEsimSearch = (s: Record<string, unknown>): { country?: string; service?: "esim" | "lounge" } => ({
@@ -168,6 +169,7 @@ export function EsimHomePage() {
               ),
               destinations: (section) => <Popular c={c} section={section} onPick={choose} />,
               regions: (section) => <RegionalDiscovery section={section} summaries={regionalSummaries.data ?? []} loading={regionalSummaries.isLoading} c={c} />,
+              afterRegions: <V2TrustStory />,
               benefitsInDesktopHero: true,
             }}
           />
