@@ -1,4 +1,5 @@
 import { Check, Globe2, Headphones, ShieldCheck, Zap, type LucideIcon } from "lucide-react";
+import { useEffect, useRef } from "react";
 import setupPhoto from "@/assets/trust-setup.jpg";
 import refundPhoto from "@/assets/trust-refund.jpg";
 import roamingPhoto from "@/assets/trust-roaming.jpg";
@@ -85,6 +86,7 @@ type Story = {
 /** A native-scroll, photography-led trust story. Each scene reveals once without pinning the page. */
 export function V2TrustStory() {
   const { locale, dir } = useI18n();
+  const sectionRef = useRef<HTMLElement | null>(null);
   const c = COPY[locale] as Copy;
   const stories: Story[] = [
     { id: "setup", image: setupPhoto, alt: c.setupTitle, metric: c.setupMetric, title: c.setupTitle, text: c.setupText },
@@ -94,8 +96,25 @@ export function V2TrustStory() {
   ];
   const closingSignals: [LucideIcon, string][] = [[Globe2, c.countries], [Headphones, c.support], [Zap, c.delivery]];
 
+  useEffect(() => {
+    const section = sectionRef.current;
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (!section || reduced || typeof IntersectionObserver === "undefined") return;
+    const scenes = Array.from(section.querySelectorAll<HTMLElement>("[data-trust-scene]"));
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (!entry.isIntersecting) return;
+        const index = scenes.indexOf(entry.target as HTMLElement);
+        if (index <= 0) return;
+        scenes.slice(0, index).forEach((scene) => scene.classList.add("is-past"));
+      });
+    }, { rootMargin: "-20% 0px -42% 0px", threshold: 0.08 });
+    scenes.forEach((scene) => observer.observe(scene));
+    return () => observer.disconnect();
+  }, []);
+
   return (
-    <section aria-labelledby="trust-story-title" dir={dir} data-trust-story className="bg-background pb-20 pt-20 sm:pb-28 sm:pt-28 lg:pb-36 lg:pt-32">
+    <section ref={sectionRef} aria-labelledby="trust-story-title" dir={dir} data-trust-story className="bg-background pb-20 pt-20 sm:pb-28 sm:pt-28 lg:pb-36 lg:pt-32">
       <div className="mx-auto max-w-site px-4 sm:px-6 lg:px-8">
         <header className="mx-auto max-w-3xl text-center">
           <Reveal className="trust-story-reveal">
@@ -113,7 +132,7 @@ export function V2TrustStory() {
 
         <ol className="mx-auto mt-14 max-w-6xl space-y-14 sm:mt-20 sm:space-y-20 lg:space-y-24">
           {stories.map((story, index) => (
-            <li key={story.id} className="relative">
+            <li key={story.id} data-trust-scene className="trust-story-scene relative">
               <article className={`grid items-center gap-5 lg:grid-cols-12 lg:gap-14 ${index % 2 ? "lg:[&>*:first-child]:order-2" : ""}`}>
                 <Reveal className="trust-story-image-reveal lg:col-span-7">
                   <div className="relative overflow-hidden rounded-hero">

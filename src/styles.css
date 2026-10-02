@@ -728,6 +728,19 @@ html.dark .destination-scene {
 .trust-story-text-reveal.reveal-item.is-revealed {
   transform: translate3d(0, 0, 0);
 }
+.trust-story-scene > .trust-story-image-reveal {
+  transition-property: opacity, transform;
+}
+.trust-story-scene.is-past > .trust-story-image-reveal {
+  opacity: 0.3;
+  transform: translate3d(0, -20px, 0) scale(0.985);
+}
+@media (prefers-reduced-motion: reduce) {
+  .trust-story-scene.is-past > .trust-story-image-reveal {
+    opacity: 1;
+    transform: none;
+  }
+}
 .recommendation-reveal {
   transform: translate3d(0, 10px, 0);
   transition-duration: 0.5s;
