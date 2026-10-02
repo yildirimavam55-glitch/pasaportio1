@@ -1,4 +1,4 @@
-import { Check, Globe2, Headphones, ShieldCheck, Zap } from "lucide-react";
+import { Check, Globe2, Headphones, ShieldCheck, Zap, type LucideIcon } from "lucide-react";
 import setupPhoto from "@/assets/trust-setup.jpg";
 import refundPhoto from "@/assets/trust-refund.jpg";
 import roamingPhoto from "@/assets/trust-roaming.jpg";
@@ -92,6 +92,7 @@ export function V2TrustStory() {
     { id: "saving", image: roamingPhoto, alt: c.savingTitle, metric: c.savingMetric, title: c.savingTitle, text: c.savingText },
     { id: "payment", image: paymentPhoto, alt: c.payTitle, title: c.payTitle, text: c.payText, accent: "payment" },
   ];
+  const closingSignals: [LucideIcon, string][] = [[Globe2, c.countries], [Headphones, c.support], [Zap, c.delivery]];
 
   return (
     <section aria-labelledby="trust-story-title" dir={dir} data-trust-story className="bg-background pb-20 pt-20 sm:pb-28 sm:pt-28 lg:pb-36 lg:pt-32">
@@ -156,10 +157,10 @@ export function V2TrustStory() {
             <div className="absolute inset-x-0 bottom-0 px-5 pb-7 text-primary-foreground sm:px-10 sm:pb-10 lg:px-14 lg:pb-12">
               <h3 className="max-w-xl font-display text-3xl font-bold leading-tight sm:text-5xl">{c.closingTitle}</h3>
               <ul className="mt-6 grid grid-cols-3 gap-3 border-t border-primary-foreground/35 pt-5">
-                {[[Globe2, c.countries], [Headphones, c.support], [Zap, c.delivery]].map(([Icon, label]) => (
-                  <li key={label as string} className="flex min-w-0 flex-col gap-2 text-xs font-semibold leading-snug sm:flex-row sm:items-center sm:text-sm">
+                {closingSignals.map(([Icon, label]) => (
+                  <li key={label} className="flex min-w-0 flex-col gap-2 text-xs font-semibold leading-snug sm:flex-row sm:items-center sm:text-sm">
                     <Icon className="size-5 shrink-0" aria-hidden="true" />
-                    <span>{label as string}</span>
+                    <span>{label}</span>
                   </li>
                 ))}
               </ul>
