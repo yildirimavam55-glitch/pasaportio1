@@ -684,6 +684,7 @@
 
 ## eSIM installation experience upgrade
 - [x] Extend the existing homepage installation animation with Quick Install + QR in one compact loop.
+- [x] Add a compact homepage method selector with manual restart and autoplay synchronization.
 - [x] Add the two-method detailed guide with reusable demo visuals and shared travel-use instructions.
 - [x] Add all new strings to the existing 14-language overlay and verify Arabic RTL.
 - [x] Verify 360/390/430/tablet/desktop, reduced motion, controls, CTA, and unchanged surrounding flows.

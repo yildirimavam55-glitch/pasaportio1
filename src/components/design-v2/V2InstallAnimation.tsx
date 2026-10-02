@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Link2, QrCode } from "lucide-react";
-import { DecorativeQr, InstallationSuccess } from "./InstallationExperience";
+import { DecorativeQr, InstallationMethodSelector, InstallationSuccess, type InstallationMethod } from "./InstallationExperience";
 
 const PHASE_MS = 1250;
 const PHASE_COUNT = 8;
@@ -14,14 +14,18 @@ type InstallAnimationProps = {
   quickDescription: string;
   qrLabel: string;
   qrDescription: string;
+  selectorLabel: string;
+  quickSelectorLabel: string;
+  qrSelectorLabel: string;
   onStateChange?: (method: "quick" | "qr", phase: number) => void;
 };
 
-export function V2InstallAnimation({ quickSteps, qrSteps, ready, adding, quickLabel, quickDescription, qrLabel, qrDescription, onStateChange }: InstallAnimationProps) {
+export function V2InstallAnimation({ quickSteps, qrSteps, ready, adding, quickLabel, quickDescription, qrLabel, qrDescription, selectorLabel, quickSelectorLabel, qrSelectorLabel, onStateChange }: InstallAnimationProps) {
   const ref = useRef<HTMLDivElement | null>(null);
   const [visible, setVisible] = useState(false);
   const [reduced, setReduced] = useState(false);
   const [phase, setPhase] = useState(0);
+  const [restartKey, setRestartKey] = useState(0);
 
   useEffect(() => {
     const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -37,20 +41,28 @@ export function V2InstallAnimation({ quickSteps, qrSteps, ready, adding, quickLa
 
   useEffect(() => {
     if (reduced || !visible) return;
-    const timer = window.setInterval(() => setPhase((current) => (current + 1) % PHASE_COUNT), PHASE_MS);
-    return () => window.clearInterval(timer);
-  }, [reduced, visible]);
+    const timer = window.setTimeout(() => setPhase((current) => (current + 1) % PHASE_COUNT), PHASE_MS);
+    return () => window.clearTimeout(timer);
+  }, [phase, reduced, restartKey, visible]);
 
-  const current = reduced ? 3 : phase;
+  const current = reduced ? (phase < 4 ? 3 : 7) : phase;
   const method = current < 4 ? "quick" : "qr";
   const methodPhase = current % 4;
+  const selectMethod = (selected: InstallationMethod) => {
+    setPhase(selected === "quick" ? 0 : 4);
+    setRestartKey((currentKey) => currentKey + 1);
+  };
 
   useEffect(() => { onStateChange?.(method, methodPhase); }, [method, methodPhase, onStateChange]);
   const visibleSteps = method === "quick" ? quickSteps : qrSteps;
 
   return (
-    <div ref={ref} className="grid grid-cols-[6.5rem_minmax(0,1fr)] items-center gap-4 rounded-2xl bg-muted/50 p-4 ring-1 ring-border lg:flex lg:h-[20rem] lg:w-full lg:items-center lg:justify-center lg:p-6">
-      <div aria-hidden="true" className="relative mx-auto h-[12.5rem] w-[6.5rem] rounded-[1.4rem] bg-foreground/90 p-1.5 shadow-lg lg:h-[19rem] lg:w-[9.8rem] lg:rounded-[2rem] lg:p-2">
+    <div ref={ref} className="rounded-2xl bg-muted/50 p-4 ring-1 ring-border lg:h-[20rem] lg:w-full lg:p-5">
+      <div className="mx-auto mb-3 w-full max-w-[17rem] lg:mb-4">
+        <InstallationMethodSelector value={method} onChange={selectMethod} quickLabel={quickSelectorLabel} qrLabel={qrSelectorLabel} ariaLabel={selectorLabel} compact />
+      </div>
+      <div className="grid grid-cols-[6.5rem_minmax(0,1fr)] items-center gap-4 lg:flex lg:items-center lg:justify-center">
+      <div aria-hidden="true" className="relative mx-auto h-[12.5rem] w-[6.5rem] rounded-[1.4rem] bg-foreground/90 p-1.5 shadow-lg lg:h-[15.5rem] lg:w-[8rem] lg:rounded-[1.7rem] lg:p-2">
         <div className="relative h-full w-full overflow-hidden rounded-[1.05rem] bg-card">
           <div className="absolute left-1/2 top-1.5 z-20 h-1.5 w-8 -translate-x-1/2 rounded-full bg-foreground/80 lg:top-2 lg:h-2 lg:w-12" />
           <div className={`absolute inset-x-2 top-10 transition-all duration-300 lg:inset-x-3 lg:top-20 ${method === "quick" && methodPhase < 2 ? "opacity-100" : "translate-y-2 opacity-0"}`}>
@@ -75,6 +87,7 @@ export function V2InstallAnimation({ quickSteps, qrSteps, ready, adding, quickLa
         <span className="inline-flex items-center gap-1.5 text-xs font-bold text-foreground">{method === "quick" ? <Link2 className="size-4 text-primary" /> : <QrCode className="size-4 text-primary" />}{method === "quick" ? quickLabel : qrLabel}</span>
         <p className="mt-1 text-[10px] leading-relaxed text-muted-foreground">{method === "quick" ? quickDescription : qrDescription}</p>
         <ol className="mt-3 grid gap-1.5">{visibleSteps.map((step, index) => <li key={step} className={`flex min-w-0 items-center gap-2 rounded-lg px-2 py-1 text-[10px] transition-colors ${index === methodPhase ? "bg-card font-bold text-foreground ring-1 ring-border" : "text-muted-foreground"}`}><span className={`grid size-4 shrink-0 place-items-center rounded-full text-[8px] font-bold ${index <= methodPhase ? "bg-[var(--v2-service)] text-primary-foreground" : "bg-card ring-1 ring-border"}`}>{index + 1}</span><span>{step}</span></li>)}</ol>
+      </div>
       </div>
     </div>
   );
