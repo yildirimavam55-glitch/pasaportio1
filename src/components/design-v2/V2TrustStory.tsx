@@ -120,7 +120,7 @@ export function V2TrustStory() {
                         {story.metric}
                       </p>
                     ) : null}
-                    <div className={`mt-${story.metric ? "5" : "0"} flex items-center gap-2`}>
+                    <div className={`${story.metric ? "mt-5" : "mt-0"} flex items-center gap-2`}>
                       {story.accent === "refund" ? <ShieldCheck className="size-5 shrink-0 text-primary" aria-hidden="true" /> : null}
                       {story.accent === "payment" ? <Check className="size-5 shrink-0 text-primary" aria-hidden="true" /> : null}
                       <h3 className="font-display text-2xl font-bold leading-tight text-foreground sm:text-3xl">{story.title}</h3>
