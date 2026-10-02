@@ -8,6 +8,7 @@ import {
   UserRound,
   Zap,
 } from "lucide-react";
+import type { ReactNode } from "react";
 import { Reveal } from "@/components/travel/Reveal";
 import { WhatsAppLogo } from "@/components/travel/WhatsAppLogo";
 import { useI18n } from "@/i18n";
@@ -82,6 +83,12 @@ const COPY = localize({
 export function V2TrustStory() {
   const { locale, dir } = useI18n();
   const c = COPY[locale];
+  const trustItems = [
+    { icon: CreditCard, label: c.securePayment },
+    { icon: ShieldCheck, label: c.refundShort },
+    { icon: Zap, label: c.fastDelivery },
+    { icon: Headphones, label: c.whatsappSupport },
+  ];
   return (
     <section aria-labelledby="trust-story-title" className="relative my-8 border-y border-border py-4 lg:my-16 lg:py-8" dir={dir} data-trust-story>
       <div className="mx-auto max-w-4xl">
@@ -131,13 +138,8 @@ export function V2TrustStory() {
 
         <Reveal className="py-10 lg:py-12">
           <ul className="grid grid-cols-2 divide-x divide-y divide-border overflow-hidden rounded-2xl bg-card shadow-card ring-1 ring-border sm:grid-cols-4 sm:divide-y-0" aria-label={c.eyebrow}>
-            {[
-              [CreditCard, c.securePayment],
-              [ShieldCheck, c.refundShort],
-              [Zap, c.fastDelivery],
-              [Headphones, c.whatsappSupport],
-            ].map(([Icon, label]) => (
-              <li key={String(label)} className="flex min-h-20 items-center gap-2 px-3 py-3 text-xs font-semibold text-foreground sm:justify-center">
+            {trustItems.map(({ icon: Icon, label }) => (
+              <li key={label} className="flex min-h-20 items-center gap-2 px-3 py-3 text-xs font-semibold text-foreground sm:justify-center">
                 <Icon className="size-5 shrink-0 text-primary" aria-hidden="true" />
                 <span>{label}</span>
               </li>
@@ -149,7 +151,7 @@ export function V2TrustStory() {
   );
 }
 
-function StoryStep({ icon, title, text, visual, reverse = false }: { icon: React.ReactNode; title: string; text: string; visual: React.ReactNode; reverse?: boolean }) {
+function StoryStep({ icon, title, text, visual, reverse = false }: { icon: ReactNode; title: string; text: string; visual: ReactNode; reverse?: boolean }) {
   return (
     <Reveal className="relative flex min-h-[48svh] items-center py-10 ps-16 lg:min-h-[25rem] lg:ps-0">
       <article className={`grid w-full items-center gap-8 lg:grid-cols-2 lg:gap-16 ${reverse ? "lg:[&>*:first-child]:order-2" : ""}`}>
