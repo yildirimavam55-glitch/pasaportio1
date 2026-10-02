@@ -22,4 +22,4 @@ Public install help stays in V2; QR, activation credentials, and package policy 
 - The security baseline is owner-controlled; unapproved sensitive changes must stop, be logged, and never weaken baseline tests.
 - Product commercial columns stay hidden via column grants; Admin cost reads happen only after server role checks.
 - The eSIM homepage groups compatibility with Lounge/Vignette only at `lg`; sub-1024 keeps the configured mobile sequence and media.
-- Legal documents use the existing CMS JSON draft/publish record with structured plain text; public routes never render unpublished content or invented company identity.
+- Legal content uses two CMS rows: an Admin-only DRAFT row and a PUBLISHED row holding only explicitly published documents, so RLS never exposes drafts; text uses the safe LegalRichText markup, never HTML.
