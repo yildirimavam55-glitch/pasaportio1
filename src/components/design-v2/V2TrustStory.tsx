@@ -124,7 +124,6 @@ const COPY = localize({
   },
 });
 
-type StoryCopy = ReturnType<typeof localize<typeof COPY extends never ? never : never>>;
 type Copy = (typeof COPY)["en"];
 
 export function V2TrustStory() {
@@ -168,8 +167,8 @@ export function V2TrustStory() {
   ] as const;
 
   return (
-    <section ref={rootRef} aria-labelledby="trust-story-title" className="relative my-10 h-[400svh] border-y border-border lg:my-20 lg:h-[360vh]" dir={dir} data-trust-story>
-      <div className="sticky top-16 h-[calc(100svh-8rem)] min-h-[31rem] overflow-hidden bg-background lg:top-20 lg:h-[calc(100svh-5rem)]">
+    <section ref={rootRef} aria-label={c.eyebrow} className="relative my-10 h-[400svh] border-y border-border motion-reduce:h-auto lg:my-20 lg:h-[360vh] lg:motion-reduce:h-auto" dir={dir} data-trust-story>
+      <div className="sticky top-16 h-[calc(100svh-8rem)] min-h-[31rem] overflow-hidden bg-background motion-reduce:hidden lg:top-20 lg:h-[calc(100svh-5rem)]">
         <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-primary-soft/45 via-background to-background" aria-hidden="true" />
         <div className="relative mx-auto grid h-full max-w-6xl grid-rows-[minmax(0,1fr)_minmax(13rem,44%)] gap-2 px-5 py-7 sm:px-8 lg:grid-cols-[minmax(0,0.9fr)_minmax(22rem,1.1fr)] lg:grid-rows-1 lg:items-center lg:gap-16 lg:px-10 lg:py-12">
           <div className="relative min-h-0">
@@ -249,14 +248,14 @@ function StoryVisual({ activeScene, c, price }: { activeScene: number; c: Copy; 
       {activeScene === 1 && <div className="absolute font-display text-[9rem] font-bold leading-none text-primary/5 lg:text-[13rem]">14</div>}
       {activeScene === 1 && <ShieldCheck className="absolute size-56 text-primary/20 lg:size-80" strokeWidth={0.8} />}
 
-      <div className={`relative z-10 h-52 w-[7.25rem] rounded-[1.65rem] bg-card p-2 shadow-panel ring-1 ring-border transition-[transform] duration-700 motion-reduce:transition-none sm:h-60 sm:w-[8.25rem] lg:h-80 lg:w-44 ${activeScene === 1 ? "scale-95" : "scale-100"}`}>
+      <div className={`relative z-10 h-52 w-[7.25rem] rounded-[1.65rem] bg-card p-2 shadow-panel ring-1 ring-border transition-[transform] duration-700 motion-reduce:transition-none sm:h-60 sm:w-[8.25rem] lg:h-80 lg:w-44 ${activeScene === 1 ? "scale-95" : activeScene === 3 ? "-translate-y-12 scale-100" : "scale-100"}`}>
         <div className="relative h-full overflow-hidden rounded-[1.25rem] bg-background ring-1 ring-border">
           <div className="absolute start-1/2 top-2 h-1.5 w-8 -translate-x-1/2 rounded-full bg-foreground/20 rtl:translate-x-1/2" />
           <PhoneScreen activeScene={activeScene} c={c} />
         </div>
       </div>
 
-      <div className={`absolute inset-x-0 bottom-0 mx-auto max-w-sm transition-[opacity,transform] duration-700 motion-reduce:transition-none ${activeScene === 3 ? "translate-y-0 opacity-100" : "translate-y-5 opacity-0"}`}>
+      <div className={`absolute inset-x-0 bottom-0 z-20 mx-auto max-w-sm transition-[opacity,transform] duration-700 motion-reduce:transition-none ${activeScene === 3 ? "translate-y-0 opacity-100" : "translate-y-5 opacity-0"}`}>
         <PriceStory c={c} price={price} />
       </div>
     </div>
