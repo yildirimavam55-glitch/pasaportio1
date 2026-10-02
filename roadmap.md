@@ -694,3 +694,9 @@
 - [x] Add direct steps and compact Previous/Next controls to the 4-step Quick and 5-step QR guides.
 - [x] Reset one 3-second autoplay timer after every guide interaction; keep success for 4 seconds.
 - [x] Verify all requested guide/homepage timing, method-switch, responsive, and reduced-motion cases.
+
+## eSIM installation final polish
+- [x] Rebalance the existing desktop homepage installation presentation without changing section height or mobile sizing.
+- [x] Clarify method selection and add compact compatible-device Quick Install guidance to the detailed guide.
+- [x] Refine interactive step and Previous/Next hierarchy while preserving the single resettable timer model.
+- [ ] Verify the full responsive, keyboard, reduced-motion, timing, privacy, and surrounding-section regression matrix.

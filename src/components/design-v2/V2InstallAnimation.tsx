@@ -58,30 +58,30 @@ export function V2InstallAnimation({ quickSteps, qrSteps, ready, adding, quickLa
   const visibleSteps = method === "quick" ? quickSteps : qrSteps;
 
   return (
-    <div ref={ref} className="rounded-2xl bg-muted/50 p-4 ring-1 ring-border lg:h-[20rem] lg:w-full lg:p-5">
-      <div className="mx-auto mb-3 w-full max-w-[17rem] lg:mb-4">
+    <div ref={ref} className="rounded-2xl bg-muted/50 p-4 ring-1 ring-border lg:h-[20rem] lg:w-full lg:p-4">
+      <div className="mx-auto mb-3 w-full max-w-[17rem] lg:mb-3">
         <InstallationMethodSelector value={method} onChange={selectMethod} quickLabel={quickSelectorLabel} qrLabel={qrSelectorLabel} ariaLabel={selectorLabel} compact />
       </div>
       <div className="grid grid-cols-[6.5rem_minmax(0,1fr)] items-center gap-4 lg:flex lg:items-center lg:justify-center">
-      <div aria-hidden="true" className="relative mx-auto h-[12.5rem] w-[6.5rem] rounded-[1.4rem] bg-foreground/90 p-1.5 shadow-lg lg:h-[15.5rem] lg:w-[8rem] lg:rounded-[1.7rem] lg:p-2">
+      <div aria-hidden="true" className="relative mx-auto h-[12.5rem] w-[6.5rem] rounded-[1.4rem] bg-foreground/90 p-1.5 shadow-lg lg:h-[17.25rem] lg:w-[9.5rem] lg:rounded-[1.9rem] lg:p-2">
         <div className="relative h-full w-full overflow-hidden rounded-[1.05rem] bg-card">
-          <div className="absolute left-1/2 top-1.5 z-20 h-1.5 w-8 -translate-x-1/2 rounded-full bg-foreground/80 lg:top-2 lg:h-2 lg:w-12" />
-          <div className={`absolute inset-x-2 top-10 transition-all duration-300 lg:inset-x-3 lg:top-20 ${method === "quick" && methodPhase < 2 ? "opacity-100" : "translate-y-2 opacity-0"}`}>
+          <div className="absolute left-1/2 top-1.5 z-20 h-1.5 w-8 -translate-x-1/2 rounded-full bg-foreground/80 lg:top-2 lg:h-2 lg:w-14" />
+          <div className={`absolute inset-x-2 top-10 transition-all duration-300 lg:inset-x-4 lg:top-[5.25rem] ${method === "quick" && methodPhase < 2 ? "opacity-100" : "translate-y-2 opacity-0"}`}>
             <div className="rounded-xl bg-secondary p-2 text-center ring-1 ring-border lg:p-3">
               <span className="mx-auto grid size-7 place-items-center rounded-lg bg-primary-soft text-primary lg:size-10"><Link2 className="size-4 lg:size-5" /></span>
               <p className="mt-1 text-[8px] font-bold text-foreground lg:text-[11px]">{quickLabel}</p>
               <div className={`relative mt-2 rounded-lg bg-primary px-1.5 py-1 text-[6px] font-bold text-primary-foreground lg:text-[8px] ${methodPhase === 1 ? "install-tap-target" : ""}`}>travely.link/install{methodPhase === 1 && <TapIndicator className="-bottom-3 -right-2" />}</div>
             </div>
           </div>
-          <div className={`absolute inset-x-3 top-9 aspect-square transition-all duration-300 lg:inset-x-5 lg:top-14 ${method === "qr" && methodPhase < 2 ? "opacity-100" : "translate-y-2 scale-90 opacity-0"}`}>
+          <div className={`absolute inset-x-3 top-9 aspect-square transition-all duration-300 lg:inset-x-6 lg:top-16 ${method === "qr" && methodPhase < 2 ? "opacity-100" : "translate-y-2 scale-90 opacity-0"}`}>
             <DecorativeQr className="size-full" />
             {methodPhase === 1 && <span className="v2-scanline absolute inset-x-[-4px] top-0 h-0.5 rounded-full bg-[var(--v2-service)] shadow-[0_0_8px_var(--v2-service)]" />}
           </div>
-          <div className={`absolute inset-x-3 top-14 text-center transition-all duration-300 lg:inset-x-5 lg:top-28 ${methodPhase === 2 ? "opacity-100" : "translate-y-2 opacity-0"}`}>
+          <div className={`absolute inset-x-3 top-14 text-center transition-all duration-300 lg:inset-x-5 lg:top-32 ${methodPhase === 2 ? "opacity-100" : "translate-y-2 opacity-0"}`}>
             <span className="text-[9px] font-semibold text-foreground lg:text-xs">{adding}</span>
             <div className="mt-2 h-1 overflow-hidden rounded-full bg-muted"><div className="v2-progress h-full rounded-full bg-[var(--v2-service)]" /></div>
           </div>
-          <div className={`absolute inset-x-2 top-11 transition-all duration-300 lg:top-24 ${methodPhase === 3 ? "opacity-100" : "translate-y-2 opacity-0"}`}><InstallationSuccess label={ready} compact /></div>
+          <div className={`absolute inset-x-2 top-11 transition-all duration-300 lg:top-28 ${methodPhase === 3 ? "opacity-100" : "translate-y-2 opacity-0"}`}><InstallationSuccess label={ready} compact /></div>
         </div>
       </div>
       <div className="min-w-0 lg:hidden" aria-live="polite">
