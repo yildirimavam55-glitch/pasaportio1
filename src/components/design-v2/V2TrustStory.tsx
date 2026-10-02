@@ -201,10 +201,10 @@ export function V2TrustStory() {
   const closingSignals: [LucideIcon, string][] = [[Globe2, c.countries], [Headphones, c.support], [Zap, c.delivery]];
 
   return (
-    <section aria-labelledby="trust-story-title" dir={dir} data-trust-story className="overflow-clip bg-background pb-12 pt-10 sm:pb-20 sm:pt-16 lg:pb-24">
+    <section aria-labelledby="trust-story-title" dir={dir} data-trust-story className="overflow-clip bg-background pb-8 pt-7 sm:pb-16 sm:pt-14 lg:pb-20">
       <div className="mx-auto max-w-site px-4 sm:px-6 lg:px-8">
         <div data-trust-scene="intro" className="relative mx-auto max-w-6xl overflow-hidden rounded-hero">
-          <Reveal className="trust-story-image-reveal"><img src={introPhoto} alt="" width={1408} height={1056} loading="lazy" decoding="async" className="h-[27rem] w-full object-cover object-center sm:h-[33rem] lg:h-[38rem]" /></Reveal>
+          <Reveal className="trust-story-image-reveal"><img src={introPhoto} alt="" width={1408} height={1056} loading="lazy" decoding="async" className="h-[21.25rem] w-full object-cover object-center sm:h-[29rem] lg:h-[32.5rem]" /></Reveal>
           <div className="absolute inset-0 bg-gradient-to-t from-background via-background/65 to-transparent" aria-hidden="true" />
           <header className="absolute inset-x-0 bottom-0 px-5 pb-6 sm:px-10 sm:pb-9 lg:max-w-3xl lg:px-14 lg:pb-11">
             <Reveal className="trust-story-text-reveal"><p className="text-xs font-bold uppercase tracking-[0.18em] text-primary">{c.eyebrow}</p></Reveal>
@@ -214,30 +214,30 @@ export function V2TrustStory() {
         </div>
 
         <ol className="mx-auto max-w-6xl">
-          <li data-trust-scene="setup" className="trust-story-flow relative pt-8 sm:pt-12 lg:pt-16">
+          <li data-trust-scene="setup" className="trust-story-flow relative pt-6 sm:pt-10 lg:pt-12">
             <div className="grid items-center gap-4 sm:gap-5 lg:grid-cols-12 lg:gap-12">
-              <div className="relative lg:col-span-7"><Reveal className="trust-story-image-reveal"><div className="overflow-hidden rounded-hero"><img src={setupPhoto} alt={c.setupTitle} width={1408} height={1056} loading="lazy" decoding="async" className="aspect-[4/3] w-full object-cover" /></div></Reveal><SetupMetric label={c.setupMetric} /><SetupPanel c={c} /></div>
+              <div className="relative lg:col-span-7"><Reveal className="trust-story-image-reveal"><div className="overflow-hidden rounded-hero"><img src={setupPhoto} alt={c.setupTitle} width={1408} height={792} loading="lazy" decoding="async" className="aspect-video w-full object-cover" /></div></Reveal><SetupMetric label={c.setupMetric} /><SetupPanel c={c} /></div>
               <div className="px-1 lg:col-span-5"><Reveal delay={190} className="trust-story-text-reveal"><h3 className="font-display text-3xl font-bold leading-tight text-foreground sm:text-4xl">{c.setupTitle}</h3></Reveal><Reveal delay={250} className="trust-story-text-reveal"><p className="mt-3 max-w-md text-base leading-relaxed text-muted-foreground sm:text-lg">{c.setupText}</p></Reveal></div>
             </div>
           </li>
 
-          <li data-trust-scene="refund" className="trust-story-flow relative pt-9 sm:pt-12 lg:pt-16">
+          <li data-trust-scene="refund" className="trust-story-flow relative pt-7 sm:pt-10 lg:pt-12">
             <div className="grid items-center gap-4 sm:gap-5 lg:grid-cols-12 lg:gap-12">
-              <div className="relative lg:order-2 lg:col-span-7"><Reveal className="trust-story-side-reveal"><div className="overflow-hidden rounded-hero"><img src={refundPhoto} alt={c.refundTitle} width={1408} height={1056} loading="lazy" decoding="async" className="aspect-[4/3] w-full object-cover" /></div></Reveal><RefundPanel c={c} /></div>
+               <div className="relative lg:order-2 lg:col-span-7"><Reveal className="trust-story-side-reveal"><div className="overflow-hidden rounded-hero"><img src={refundPhoto} alt={c.refundTitle} width={1408} height={792} loading="lazy" decoding="async" className="aspect-video w-full object-cover" /></div></Reveal><RefundPanel c={c} /></div>
               <div className="px-1 lg:order-1 lg:col-span-5"><Reveal delay={130} className="trust-story-side-reveal"><p className="text-sm font-bold uppercase tracking-[0.12em] text-primary">{c.refundMetric}</p></Reveal><Reveal delay={190} className="trust-story-text-reveal"><h3 className="mt-3 flex items-center gap-2 font-display text-3xl font-bold leading-tight text-foreground sm:text-4xl"><RotateCcw className="size-5 shrink-0 text-primary" aria-hidden="true" />{c.refundTitle}</h3></Reveal><Reveal delay={250} className="trust-story-text-reveal"><p className="mt-3 max-w-md text-base leading-relaxed text-muted-foreground sm:text-lg">{c.refundText}</p></Reveal></div>
             </div>
           </li>
 
-          <li data-trust-scene="saving" className="trust-story-flow relative py-10 sm:py-14 lg:py-16">
+          <li data-trust-scene="saving" className="trust-story-flow relative py-8 sm:py-11 lg:py-12">
             <div className="grid gap-6 sm:gap-8 lg:grid-cols-12 lg:items-end lg:gap-12">
-              <div className="lg:col-span-6"><Reveal className="trust-story-side-reveal"><p className="text-sm font-bold uppercase tracking-[0.12em] text-primary">{c.savingMetric}</p></Reveal><Reveal delay={70} className="trust-story-text-reveal"><h3 className="mt-3 max-w-xl font-display text-4xl font-bold leading-tight text-foreground sm:text-5xl">{c.savingTitle}</h3></Reveal><Reveal delay={130} className="trust-story-text-reveal"><p className="mt-4 max-w-lg text-base leading-relaxed text-muted-foreground sm:text-lg">{c.savingText}</p></Reveal></div>
+              <div className="lg:col-span-6"><Reveal className="trust-story-side-reveal"><p className="text-sm font-bold uppercase tracking-[0.12em] text-primary">{c.savingMetric}</p></Reveal><Reveal delay={70} className="trust-story-text-reveal"><h3 className="mt-3 max-w-xl font-display text-3xl font-bold leading-tight text-foreground sm:text-5xl">{c.savingTitle}</h3></Reveal><Reveal delay={130} className="trust-story-text-reveal"><p className="mt-3 max-w-lg text-base leading-relaxed text-muted-foreground sm:text-lg">{c.savingText}</p></Reveal></div>
               <div className="relative rounded-hero bg-primary-soft/55 p-4 sm:p-6 lg:col-span-6"><div className="absolute right-5 top-4 font-display text-7xl text-primary/10" aria-hidden="true">%</div><Comparison c={c} /></div>
             </div>
           </li>
 
-          <li data-trust-scene="payment" className="trust-story-flow relative pb-9 sm:pb-14 lg:pb-16">
+          <li data-trust-scene="payment" className="trust-story-flow relative pb-7 sm:pb-11 lg:pb-12">
             <div className="grid items-center gap-4 sm:gap-5 lg:grid-cols-12 lg:gap-12">
-              <div className="relative lg:col-span-7"><Reveal className="trust-story-image-reveal"><div className="overflow-hidden rounded-hero"><img src={paymentPhoto} alt={c.payTitle} width={1408} height={1056} loading="lazy" decoding="async" className="aspect-[4/3] w-full object-cover" /></div></Reveal><PaymentPanel c={c} /></div>
+              <div className="relative lg:col-span-7"><Reveal className="trust-story-image-reveal"><div className="overflow-hidden rounded-hero"><img src={paymentPhoto} alt={c.payTitle} width={1408} height={792} loading="lazy" decoding="async" className="aspect-video w-full object-cover" /></div></Reveal><PaymentPanel c={c} /></div>
               <div className="px-1 lg:col-span-5"><Reveal delay={150} className="trust-story-side-reveal"><LockKeyhole className="size-6 text-primary" aria-hidden="true" /></Reveal><Reveal delay={210} className="trust-story-text-reveal"><h3 className="mt-3 font-display text-3xl font-bold leading-tight text-foreground sm:text-4xl">{c.payTitle}</h3></Reveal><Reveal delay={270} className="trust-story-text-reveal"><p className="mt-3 max-w-md text-base leading-relaxed text-muted-foreground sm:text-lg">{c.payText}</p></Reveal><Reveal delay={330} className="trust-story-text-reveal"><p className="mt-4 inline-flex max-w-md items-center gap-2 rounded-lg border border-border bg-card px-3 py-2 text-xs font-semibold text-muted-foreground"><LockKeyhole className="size-3.5 shrink-0 text-primary" aria-hidden="true" />{c.paymentPending}</p></Reveal></div>
             </div>
           </li>
@@ -245,7 +245,7 @@ export function V2TrustStory() {
 
         <Reveal className="trust-story-image-reveal mx-auto max-w-6xl">
           <div data-trust-scene="closing" className="relative isolate overflow-hidden rounded-hero">
-            <img src={closingPhoto.url} alt="" width={1400} height={900} loading="lazy" decoding="async" className="h-[21rem] w-full object-cover sm:h-[27rem] lg:h-[32rem]" />
+            <img src={closingPhoto.url} alt="" width={1400} height={900} loading="lazy" decoding="async" className="h-[16.875rem] w-full object-cover sm:h-[24rem] lg:h-[28.125rem]" />
             <div className="absolute inset-0 bg-gradient-to-t from-[var(--v2-service)] via-[var(--v2-service)]/30 to-transparent" aria-hidden="true" />
             <div className="absolute inset-x-0 bottom-0 px-5 pb-5 text-primary-foreground sm:px-10 sm:pb-8 lg:px-14 lg:pb-10">
               <h3 className="max-w-xl font-display text-3xl font-bold leading-tight sm:text-5xl">{c.closingTitle}</h3>
