@@ -711,3 +711,4 @@
 - [x] Replace the card grid with four calm, full photographic travel scenes while preserving the four approved messages.
 - [x] Keep native scrolling and one-time subtle reveals without pinning, carousels, or scroll calculations.
 - [x] Verify mobile, desktop, RTL, reduced motion, placement, and surrounding homepage continuity without publishing.
+- [x] Refine the approved photography into one compact, staggered scroll story and verify the final travel close.
