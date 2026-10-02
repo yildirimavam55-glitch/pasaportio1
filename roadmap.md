@@ -706,3 +706,8 @@
 - [x] Reveal refund, delivery, price comparison, and human support moments progressively with reduced-motion support.
 - [x] Add the compact concluding trust strip and 14-locale presentation copy.
 - [x] Verify mobile/desktop scrolling and all surrounding homepage regressions without publishing.
+
+## Photography-led Neden Biz story
+- [x] Replace the card grid with four calm, full photographic travel scenes while preserving the four approved messages.
+- [x] Keep native scrolling and one-time subtle reveals without pinning, carousels, or scroll calculations.
+- [x] Verify mobile, desktop, RTL, reduced motion, placement, and surrounding homepage continuity without publishing.
