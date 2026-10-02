@@ -120,25 +120,23 @@ export const translateLegalDocument = createServerFn({ method: "POST" }).inputVa
   const out: Record<string, { title: string; body: string }> = {};
   // One request per language keeps long legal texts within output limits.
   await Promise.all(targets.map(async (target) => {
-    const res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+    const res = await fetch("https://ai.gateway.lovable.dev/v1/responses", {
       method: "POST",
       headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
       body: JSON.stringify({
-        model: "google/gemini-2.5-flash",
-        messages: [
-          { role: "system", content: "You translate legal website documents from Turkish. Translate faithfully and formally; do not add, remove or invent facts, names, addresses, numbers or legal claims. Keep the exact lightweight markup: lines starting with '# ', '## ', '### ', '- ', '1. ', '---', **bold**, *italic*, [text](url). Never translate URLs, e-mail addresses, brand names (Travely) or the placeholder 'Eksik bilgi' marker meaning — translate 'Eksik bilgi' as 'missing information' in the target language. Reply only via the tool." },
-          { role: "user", content: `Target language code: ${target}\nTitle: ${JSON.stringify(data.title)}\nBody:\n${data.body}` },
-        ],
-        tools: [{ type: "function", function: { name: "translation", parameters: { type: "object", properties: { title: { type: "string" }, body: { type: "string" } }, required: ["title", "body"] } } }],
-        tool_choice: { type: "function", function: { name: "translation" } },
+        model: "openai/gpt-6-astra",
+        instructions: "You translate legal website documents from Turkish. Translate faithfully and formally; do not add, remove or invent facts, names, addresses, numbers or legal claims. Keep the exact lightweight markup: lines starting with '# ', '## ', '### ', '- ', '1. ', '---', **bold**, *italic*, [text](url). Never translate URLs, e-mail addresses or the brand name Travely. Translate the marker 'Eksik bilgi' as 'missing information' in the target language. Return JSON with keys title and body only.",
+        input: `Target language code: ${target}\nTitle: ${JSON.stringify(data.title)}\nBody:\n${data.body}`,
+        text: { format: { type: "json_schema", name: "translation", strict: true, schema: { type: "object", additionalProperties: false, properties: { title: { type: "string" }, body: { type: "string" } }, required: ["title", "body"] } } },
       }),
     });
     if (res.status === 429) throw new Error("Çeviri servisi yoğun, biraz sonra tekrar deneyin.");
     if (res.status === 402) throw new Error("Çeviri kredisi tükendi.");
     if (!res.ok) throw new Error("Çeviri başarısız oldu.");
     const json: any = await res.json();
-    const args = json?.choices?.[0]?.message?.tool_calls?.[0]?.function?.arguments;
-    const parsed = typeof args === "string" ? JSON.parse(args) : args ?? {};
+    const textOut: string = json?.output_text ?? (json?.output ?? []).flatMap((o: any) => o?.content ?? []).map((c: any) => c?.text ?? "").join("");
+    let parsed: any = {};
+    try { parsed = JSON.parse(textOut); } catch { throw new Error("Çeviri yanıtı okunamadı."); }
     if (typeof parsed.body === "string" && parsed.body.trim()) out[target] = { title: String(parsed.title ?? "").slice(0, 200), body: parsed.body.replace(/<[^>]*>/g, "").slice(0, 40000) };
   }));
   return { translations: out };
