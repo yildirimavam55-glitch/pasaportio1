@@ -744,14 +744,6 @@ html.dark .destination-scene {
 .trust-story-product-reveal.reveal-item.is-revealed {
   transform: translate3d(0, 0, 0) scale(1);
 }
-.trust-story-flow::before {
-  position: absolute;
-  inset-inline: 8%;
-  top: 1.5rem;
-  height: 1px;
-  content: "";
-  background: linear-gradient(90deg, transparent, var(--color-border), transparent);
-}
 .recommendation-reveal {
   transform: translate3d(0, 10px, 0);
   transition-duration: 0.5s;

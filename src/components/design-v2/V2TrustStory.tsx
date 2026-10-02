@@ -141,6 +141,17 @@ function SetupPanel({ c }: { c: Copy }) {
   );
 }
 
+function SetupMetric({ label }: { label: string }) {
+  return (
+    <Reveal delay={140} className="trust-story-product-reveal absolute left-4 top-4 sm:left-6 sm:top-6">
+      <div className="grid size-20 place-items-center rounded-full border border-card/70 bg-primary text-center text-primary-foreground shadow-panel">
+        <Zap className="size-4" aria-hidden="true" />
+        <strong className="-mt-2 max-w-14 text-[11px] leading-tight">{label}</strong>
+      </div>
+    </Reveal>
+  );
+}
+
 function RefundPanel({ c }: { c: Copy }) {
   return (
     <Reveal delay={60} className="trust-story-side-reveal absolute inset-x-4 bottom-4 sm:inset-x-auto sm:bottom-6 sm:right-6 sm:w-[18rem]">
@@ -205,8 +216,8 @@ export function V2TrustStory() {
         <ol className="mx-auto max-w-6xl">
           <li data-trust-scene="setup" className="trust-story-flow relative pt-14 sm:pt-20 lg:pt-24">
             <div className="grid items-center gap-6 lg:grid-cols-12 lg:gap-14">
-              <div className="relative lg:col-span-7"><Reveal className="trust-story-image-reveal"><div className="overflow-hidden rounded-hero"><img src={setupPhoto} alt={c.setupTitle} width={1408} height={1056} loading="lazy" decoding="async" className="aspect-[4/3] w-full object-cover" /></div></Reveal><SetupPanel c={c} /></div>
-              <div className="px-1 lg:col-span-5"><Reveal delay={130} className="trust-story-side-reveal"><p className="text-sm font-bold uppercase tracking-[0.12em] text-primary">{c.setupMetric}</p></Reveal><Reveal delay={190} className="trust-story-text-reveal"><h3 className="mt-3 font-display text-3xl font-bold leading-tight text-foreground sm:text-4xl">{c.setupTitle}</h3></Reveal><Reveal delay={250} className="trust-story-text-reveal"><p className="mt-3 max-w-md text-base leading-relaxed text-muted-foreground sm:text-lg">{c.setupText}</p></Reveal></div>
+              <div className="relative lg:col-span-7"><Reveal className="trust-story-image-reveal"><div className="overflow-hidden rounded-hero"><img src={setupPhoto} alt={c.setupTitle} width={1408} height={1056} loading="lazy" decoding="async" className="aspect-[4/3] w-full object-cover" /></div></Reveal><SetupMetric label={c.setupMetric} /><SetupPanel c={c} /></div>
+              <div className="px-1 lg:col-span-5"><Reveal delay={190} className="trust-story-text-reveal"><h3 className="font-display text-3xl font-bold leading-tight text-foreground sm:text-4xl">{c.setupTitle}</h3></Reveal><Reveal delay={250} className="trust-story-text-reveal"><p className="mt-3 max-w-md text-base leading-relaxed text-muted-foreground sm:text-lg">{c.setupText}</p></Reveal></div>
             </div>
           </li>
 
