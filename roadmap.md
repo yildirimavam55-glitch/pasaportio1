@@ -699,4 +699,4 @@
 - [x] Rebalance the existing desktop homepage installation presentation without changing section height or mobile sizing.
 - [x] Clarify method selection and add compact compatible-device Quick Install guidance to the detailed guide.
 - [x] Refine interactive step and Previous/Next hierarchy while preserving the single resettable timer model.
-- [ ] Verify the full responsive, keyboard, reduced-motion, timing, privacy, and surrounding-section regression matrix.
+- [x] Verify the full responsive, keyboard, reduced-motion, timing, privacy, and surrounding-section regression matrix.
