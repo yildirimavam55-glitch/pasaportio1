@@ -1,8 +1,17 @@
-import { Check, ChevronLeft, ChevronRight, Link2, QrCode, Signal, Smartphone } from "lucide-react";
+import { Check, ChevronLeft, ChevronRight, HandPointer, Link2, QrCode, Signal, Smartphone } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 export type InstallationMethod = "quick" | "qr";
+
+/** Neutral educational pointer; never contains or reveals installation data. */
+export function TapIndicator({ className }: { className?: string }) {
+  return (
+    <span className={cn("install-tap-indicator pointer-events-none absolute z-20 text-foreground/75", className)} aria-hidden="true">
+      <HandPointer className="size-5 fill-card stroke-[1.8]" />
+    </span>
+  );
+}
 
 export function InstallationMethodSelector({
   value,
@@ -80,21 +89,23 @@ export function StepNavigation({
   onPrevious,
   onNext,
   previousDisabled,
+  compact = false,
 }: {
   previous: string;
   next: string;
   onPrevious: () => void;
   onNext: () => void;
   previousDisabled: boolean;
+  compact?: boolean;
 }) {
   return (
-    <div className="flex gap-3">
-      <Button variant="outline" size="lg" onClick={onPrevious} disabled={previousDisabled} className="min-h-12 lg:flex-1" aria-label={previous}>
+    <div className={cn("flex gap-3", compact && "justify-between")}>
+      <Button type="button" variant="outline" size={compact ? "icon" : "lg"} onClick={onPrevious} disabled={previousDisabled} className={cn("min-h-11", !compact && "lg:flex-1")} aria-label={previous}>
         <ChevronLeft className="size-4 rtl:rotate-180" />
-        <span className="hidden lg:inline">{previous}</span>
+        {!compact && <span className="hidden lg:inline">{previous}</span>}
       </Button>
-      <Button variant="cta" size="lg" onClick={onNext} className="min-h-12 flex-1">
-        {next}
+      <Button type="button" variant={compact ? "outline" : "cta"} size={compact ? "icon" : "lg"} onClick={onNext} className={cn("min-h-11", !compact && "flex-1")} aria-label={next}>
+        {!compact && next}
         <ChevronRight className="size-4 rtl:rotate-180" />
       </Button>
     </div>

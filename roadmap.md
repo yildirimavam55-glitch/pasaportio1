@@ -688,3 +688,9 @@
 - [x] Add the two-method detailed guide with reusable demo visuals and shared travel-use instructions.
 - [x] Add all new strings to the existing 14-language overlay and verify Arabic RTL.
 - [x] Verify 360/390/430/tablet/desktop, reduced motion, controls, CTA, and unchanged surrounding flows.
+
+## eSIM installation animation and navigation fix
+- [x] Replace red/orange click markers with one shared neutral tap interaction.
+- [x] Add direct steps and compact Previous/Next controls to the 4-step Quick and 5-step QR guides.
+- [x] Reset one 3-second autoplay timer after every guide interaction; keep success for 4 seconds.
+- [ ] Verify all requested guide/homepage timing, method-switch, responsive, and reduced-motion cases.

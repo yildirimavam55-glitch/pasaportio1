@@ -1194,6 +1194,10 @@ html[data-quick-search-lock] body {
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .install-tap-indicator,
+  .install-tap-target {
+    animation: none !important;
+  }
   .esim-how-rail {
     scroll-behavior: auto;
   }
