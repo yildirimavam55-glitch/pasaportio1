@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { Apple, ArrowRight, BookOpen, CheckCircle2, ChevronDown, CreditCard, FileText, Globe2, Headphones, MapPin, MessageCircle, Navigation, PhoneCall, Play, Settings, Smartphone, Sparkles } from "lucide-react";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
@@ -162,12 +162,15 @@ export function V2Installation({ title, subtitle, steps, ready, adding, cta, hre
   const stepList = steps?.length ? steps : [...c.animSteps];
   const [animationState, setAnimationState] = useState<{ method: "quick" | "qr"; phase: number }>({ method: "quick", phase: 0 });
   const visibleSteps = animationState.method === "quick" ? c.quickAnimSteps : stepList;
+  const handleAnimationState = useCallback((method: "quick" | "qr", phase: number) => {
+    setAnimationState((current) => current.method === method && current.phase === phase ? current : { method, phase });
+  }, []);
   const search = (href === "/esim" ? { country: "" } : href === "/lounge" ? { iata: "" } : href === "/esim/kurulum" ? { platform: "ios", brand: "" } : undefined) as never;
   return (
     <section>
       <div className="lg:hidden"><SectionTitle>{title || c.install}</SectionTitle></div>
       <div className="lg:grid lg:min-h-[22rem] lg:grid-cols-[minmax(0,0.42fr)_minmax(0,0.58fr)] lg:items-center lg:gap-10 lg:rounded-3xl lg:bg-card lg:px-12 lg:py-6 lg:ring-1 lg:ring-border">
-        <div className="lg:flex lg:min-h-[20rem] lg:items-center lg:justify-center">{variant === "simple" ? <div className="lg:hidden"><InstallationSteps items={stepList} /></div> : <V2InstallAnimation quickSteps={c.quickAnimSteps} qrSteps={stepList} ready={ready || c.animReady} adding={adding || c.animAdding} quickLabel={c.quickLabel} quickDescription={c.quickDescription} qrLabel={c.qrLabel} qrDescription={c.qrDescription} onStateChange={(method, phase) => setAnimationState({ method, phase })} />}</div>
+        <div className="lg:flex lg:min-h-[20rem] lg:items-center lg:justify-center">{variant === "simple" ? <div className="lg:hidden"><InstallationSteps items={stepList} /></div> : <V2InstallAnimation quickSteps={c.quickAnimSteps} qrSteps={stepList} ready={ready || c.animReady} adding={adding || c.animAdding} quickLabel={c.quickLabel} quickDescription={c.quickDescription} qrLabel={c.qrLabel} qrDescription={c.qrDescription} onStateChange={handleAnimationState} />}</div>
         <div className="lg:py-3">
           <h2 className="hidden font-display text-3xl font-bold text-foreground lg:block">{title || c.install}</h2>
           {(subtitle ?? c.installSub) && <p className="mb-3 text-xs leading-relaxed text-muted-foreground lg:mt-3 lg:text-base">{subtitle ?? c.installSub}</p>}
