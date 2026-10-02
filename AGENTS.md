@@ -23,3 +23,4 @@ Public install help stays in V2; QR, activation credentials, and package policy 
 - Product commercial columns stay hidden via column grants; Admin cost reads happen only after server role checks.
 - The eSIM homepage groups compatibility with Lounge/Vignette only at `lg`; sub-1024 keeps the configured mobile sequence and media.
 - Legal content uses two CMS rows: an Admin-only DRAFT row and a PUBLISHED row holding only explicitly published documents, so RLS never exposes drafts; text uses the safe LegalRichText markup, never HTML.
+- Public eSIM installation education shares presentation-only method, phone, QR, success, and travel-use components; protected real install data remains account-only so public demos can never expose credentials.

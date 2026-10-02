@@ -1,106 +1,81 @@
 import { useEffect, useRef, useState } from "react";
-import { Check } from "lucide-react";
+import { Link2, QrCode } from "lucide-react";
+import { DecorativeQr, InstallationSuccess } from "./InstallationExperience";
 
-/** Decorative, intentionally non-scannable QR-like pattern (no timing patterns, no encoded data). */
-const CELLS = [
-  "0010110", "1101001", "0110100", "1001011", "0101101", "1010010", "0111001",
-];
+const PHASE_MS = 1250;
+const PHASE_COUNT = 8;
 
-function FakeQr() {
-  const finder = (x: number, y: number) => (
-    <g key={`${x}-${y}`}>
-      <rect x={x} y={y} width="7" height="7" rx="1.5" className="fill-foreground" />
-      <rect x={x + 1} y={y + 1} width="5" height="5" rx="1" className="fill-card" />
-      <rect x={x + 2} y={y + 2} width="3" height="3" rx="0.6" className="fill-foreground" />
-    </g>
-  );
-  return (
-    <svg viewBox="0 0 21 21" aria-hidden className="size-full">
-      {finder(0, 0)}
-      {finder(14, 0)}
-      {finder(0, 14)}
-      {CELLS.map((row, r) =>
-        row.split("").map((v, c) => (v === "1" ? <rect key={`${r}-${c}`} x={8 + (c % 6)} y={8 + r * 1.8} width="1" height="1" rx="0.3" className="fill-foreground/70" /> : null)),
-      )}
-      <rect x="15" y="15" width="1.2" height="1.2" rx="0.3" className="fill-foreground/70" />
-      <rect x="17.5" y="17" width="1.2" height="1.2" rx="0.3" className="fill-foreground/70" />
-    </svg>
-  );
-}
+type InstallAnimationProps = {
+  quickSteps: readonly string[];
+  qrSteps: readonly string[];
+  ready: string;
+  adding: string;
+  quickLabel: string;
+  quickDescription: string;
+  qrLabel: string;
+  qrDescription: string;
+  onStateChange?: (method: "quick" | "qr", phase: number) => void;
+};
 
-const MOBILE_STEP_MS = 1500;
-const DESKTOP_STEP_MS = 2400;
-
-export function V2InstallAnimation({ steps, ready, adding, onPhaseChange }: { steps: readonly string[]; ready: string; adding: string; onPhaseChange?: (phase: number) => void }) {
+export function V2InstallAnimation({ quickSteps, qrSteps, ready, adding, quickLabel, quickDescription, qrLabel, qrDescription, onStateChange }: InstallAnimationProps) {
   const ref = useRef<HTMLDivElement | null>(null);
   const [visible, setVisible] = useState(false);
   const [reduced, setReduced] = useState(false);
   const [phase, setPhase] = useState(0);
 
   useEffect(() => {
-    const mq = window.matchMedia?.("(prefers-reduced-motion: reduce)");
-    setReduced(!!mq?.matches);
+    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const updateMotion = () => setReduced(mq.matches);
+    updateMotion();
+    mq.addEventListener("change", updateMotion);
     const node = ref.current;
-    if (!node || typeof IntersectionObserver === "undefined") return;
-    const io = new IntersectionObserver(([e]) => setVisible(!!e?.isIntersecting), { threshold: 0.35 });
-    io.observe(node);
-    return () => io.disconnect();
+    if (!node || typeof IntersectionObserver === "undefined") return () => mq.removeEventListener("change", updateMotion);
+    const observer = new IntersectionObserver(([entry]) => setVisible(Boolean(entry?.isIntersecting)), { threshold: 0.35 });
+    observer.observe(node);
+    return () => { observer.disconnect(); mq.removeEventListener("change", updateMotion); };
   }, []);
 
   useEffect(() => {
     if (reduced || !visible) return;
-    const stepMs = window.matchMedia("(min-width: 1024px)").matches ? DESKTOP_STEP_MS : MOBILE_STEP_MS;
-    const id = window.setInterval(() => setPhase((p) => (p + 1) % 4), stepMs);
-    return () => window.clearInterval(id);
-  }, [visible, reduced]);
+    const timer = window.setInterval(() => setPhase((current) => (current + 1) % PHASE_COUNT), PHASE_MS);
+    return () => window.clearInterval(timer);
+  }, [reduced, visible]);
 
-  const p = reduced ? 3 : phase;
+  const current = reduced ? 3 : phase;
+  const method = current < 4 ? "quick" : "qr";
+  const methodPhase = current % 4;
 
-  useEffect(() => {
-    onPhaseChange?.(p);
-  }, [onPhaseChange, p]);
+  useEffect(() => { onStateChange?.(method, methodPhase); }, [method, methodPhase, onStateChange]);
+  const visibleSteps = method === "quick" ? quickSteps : qrSteps;
 
   return (
     <div ref={ref} className="grid grid-cols-[6.5rem_minmax(0,1fr)] items-center gap-4 rounded-2xl bg-muted/50 p-4 ring-1 ring-border lg:flex lg:h-[20rem] lg:w-full lg:items-center lg:justify-center lg:p-6">
-      <div aria-hidden className="relative mx-auto h-[12.5rem] w-[6.5rem] rounded-[1.4rem] bg-foreground/90 p-1.5 shadow-lg lg:h-[19rem] lg:w-[9.8rem] lg:rounded-[2rem] lg:p-2">
+      <div aria-hidden="true" className="relative mx-auto h-[12.5rem] w-[6.5rem] rounded-[1.4rem] bg-foreground/90 p-1.5 shadow-lg lg:h-[19rem] lg:w-[9.8rem] lg:rounded-[2rem] lg:p-2">
         <div className="relative h-full w-full overflow-hidden rounded-[1.05rem] bg-card">
-          <div className="absolute left-1/2 top-1.5 h-1.5 w-8 -translate-x-1/2 rounded-full bg-foreground/80 lg:top-2 lg:h-2 lg:w-12" />
-          {/* QR */}
-          <div className={`absolute inset-x-3 top-9 aspect-square transition-all duration-500 lg:inset-x-5 lg:top-14 ${p <= 1 ? "translate-y-0 scale-100 opacity-100" : "translate-y-2 scale-90 opacity-0"}`}>
-            <FakeQr />
-            {p === 1 && <span className="v2-scanline absolute inset-x-[-4px] top-0 h-0.5 rounded-full bg-[var(--v2-service)] shadow-[0_0_8px_var(--v2-service)]" />}
+          <div className="absolute left-1/2 top-1.5 z-20 h-1.5 w-8 -translate-x-1/2 rounded-full bg-foreground/80 lg:top-2 lg:h-2 lg:w-12" />
+          <div className={`absolute inset-x-2 top-10 transition-all duration-300 lg:inset-x-3 lg:top-20 ${method === "quick" && methodPhase < 2 ? "opacity-100" : "translate-y-2 opacity-0"}`}>
+            <div className="rounded-xl bg-secondary p-2 text-center ring-1 ring-border lg:p-3">
+              <span className="mx-auto grid size-7 place-items-center rounded-lg bg-primary-soft text-primary lg:size-10"><Link2 className="size-4 lg:size-5" /></span>
+              <p className="mt-1 text-[8px] font-bold text-foreground lg:text-[11px]">{quickLabel}</p>
+              <div className="relative mt-2 rounded-lg bg-primary px-1.5 py-1 text-[6px] font-bold text-primary-foreground lg:text-[8px]">travely.link/install{methodPhase === 1 && <span className="absolute -bottom-2 -right-1 size-5 rounded-full border-2 border-cta bg-cta/30 motion-safe:animate-pulse" />}</div>
+            </div>
           </div>
-          {/* Adding */}
-          <div className={`absolute inset-x-3 top-14 text-center transition-all duration-500 lg:inset-x-5 lg:top-28 ${p === 2 ? "translate-y-0 opacity-100" : "translate-y-2 opacity-0"}`}>
+          <div className={`absolute inset-x-3 top-9 aspect-square transition-all duration-300 lg:inset-x-5 lg:top-14 ${method === "qr" && methodPhase < 2 ? "opacity-100" : "translate-y-2 scale-90 opacity-0"}`}>
+            <DecorativeQr className="size-full" />
+            {methodPhase === 1 && <span className="v2-scanline absolute inset-x-[-4px] top-0 h-0.5 rounded-full bg-[var(--v2-service)] shadow-[0_0_8px_var(--v2-service)]" />}
+          </div>
+          <div className={`absolute inset-x-3 top-14 text-center transition-all duration-300 lg:inset-x-5 lg:top-28 ${methodPhase === 2 ? "opacity-100" : "translate-y-2 opacity-0"}`}>
             <span className="text-[9px] font-semibold text-foreground lg:text-xs">{adding}</span>
-            <div className="mt-2 h-1 overflow-hidden rounded-full bg-muted">
-              <div className={`h-full rounded-full bg-[var(--v2-service)] ${p === 2 ? "v2-progress" : "w-0"}`} />
-            </div>
+            <div className="mt-2 h-1 overflow-hidden rounded-full bg-muted"><div className="v2-progress h-full rounded-full bg-[var(--v2-service)]" /></div>
           </div>
-          {/* Ready */}
-          <div className={`absolute inset-x-2 top-10 flex flex-col items-center transition-all duration-500 lg:top-20 ${p === 3 ? "translate-y-0 opacity-100" : "translate-y-2 opacity-0"}`}>
-            <div className="flex h-8 items-end gap-1 lg:h-14 lg:gap-1.5">
-              {[0, 1, 2, 3].map((i) => (
-                <span key={i} className="w-1.5 rounded-sm bg-[var(--v2-service)] transition-all duration-300 lg:w-2" style={{ height: p === 3 ? `${(i + 1) * 25}%` : "10%", transitionDelay: reduced ? "0ms" : `${i * 150}ms` }} />
-              ))}
-            </div>
-            <span className="mt-3 inline-flex items-center gap-1 rounded-full bg-[var(--v2-service)]/12 px-2 py-1 text-[9px] font-bold text-[var(--v2-service)] lg:px-3 lg:py-1.5 lg:text-xs">
-              <Check className="size-3" />{ready}
-            </span>
-          </div>
+          <div className={`absolute inset-x-2 top-11 transition-all duration-300 lg:top-24 ${methodPhase === 3 ? "opacity-100" : "translate-y-2 opacity-0"}`}><InstallationSuccess label={ready} compact /></div>
         </div>
       </div>
-      <ol className="grid gap-2 lg:hidden">
-        {steps.map((step, i) => {
-          const on = i === p;
-          return (
-            <li key={step} className={`flex min-w-0 items-center gap-2 rounded-xl px-2 py-1.5 text-xs transition-colors duration-300 ${on ? "bg-card font-bold text-foreground shadow-sm ring-1 ring-[var(--v2-service)]/40" : "text-muted-foreground"}`}>
-              <span className={`grid size-5 shrink-0 place-items-center rounded-full text-[10px] font-bold transition-colors ${on || (reduced && i <= p) ? "bg-[var(--v2-service)] text-primary-foreground" : "bg-card text-muted-foreground ring-1 ring-border"}`}>{i + 1}</span>
-              <span className="min-w-0 leading-tight">{step}</span>
-            </li>
-          );
-        })}
-      </ol>
+      <div className="min-w-0 lg:hidden" aria-live="polite">
+        <span className="inline-flex items-center gap-1.5 text-xs font-bold text-foreground">{method === "quick" ? <Link2 className="size-4 text-primary" /> : <QrCode className="size-4 text-primary" />}{method === "quick" ? quickLabel : qrLabel}</span>
+        <p className="mt-1 text-[10px] leading-relaxed text-muted-foreground">{method === "quick" ? quickDescription : qrDescription}</p>
+        <ol className="mt-3 grid gap-1.5">{visibleSteps.map((step, index) => <li key={step} className={`flex min-w-0 items-center gap-2 rounded-lg px-2 py-1 text-[10px] transition-colors ${index === methodPhase ? "bg-card font-bold text-foreground ring-1 ring-border" : "text-muted-foreground"}`}><span className={`grid size-4 shrink-0 place-items-center rounded-full text-[8px] font-bold ${index <= methodPhase ? "bg-[var(--v2-service)] text-primary-foreground" : "bg-card ring-1 ring-border"}`}>{index + 1}</span><span>{step}</span></li>)}</ol>
+      </div>
     </div>
   );
 }
