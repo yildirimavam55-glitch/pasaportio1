@@ -30,6 +30,7 @@ const COPY = localize({
     animSteps: ["QR kodunu al", "QR kodunu tara", "eSIM'i ekle", "Bağlantını aç"],
     animReady: "eSIM hazır",
     animAdding: "eSIM ekleniyor...",
+    quickLabel: "Link ile hızlı kurulum", quickDescription: "Tek dokunuşla kurulumu başlatın; QR kod gerekmez.", qrLabel: "QR kod ile kurulum", qrDescription: "Başka bir ekrandaki kodu telefonunuzla tarayın.",
     iphone: "iPhone",
     android: "Android",
     iphoneSteps: ["Hesabındaki gerçek QR kodunu başka bir ekranda aç.", "Ayarlar → Hücresel → eSIM Ekle bölümüne git.", "QR kodunu tara ve ekrandaki adımları tamamla.", "Paket bilgilerine göre mobil veri hattını ayarla."],
@@ -64,6 +65,7 @@ const COPY = localize({
     animSteps: ["QR-Code erhalten", "QR-Code scannen", "eSIM hinzufügen", "Verbindung aktivieren"],
     animReady: "eSIM bereit",
     animAdding: "eSIM wird hinzugefügt...",
+    quickLabel: "Schnellinstallation per Link", quickDescription: "Starte die Installation mit einem Tippen – ohne QR-Code.", qrLabel: "Installation per QR-Code", qrDescription: "Scanne den Code auf einem anderen Bildschirm mit deinem Handy.",
     iphone: "iPhone",
     android: "Android",
     iphoneSteps: ["Öffne den echten QR-Code aus deinem Konto auf einem anderen Bildschirm.", "Öffne Einstellungen → Mobilfunk → eSIM hinzufügen.", "Scanne den QR-Code und folge den angezeigten Schritten.", "Richte die mobile Datenleitung gemäß den Paketangaben ein."],
@@ -98,6 +100,7 @@ const COPY = localize({
     animSteps: ["Get QR code", "Scan QR code", "Add eSIM", "Enable connection"],
     animReady: "eSIM ready",
     animAdding: "Adding eSIM...",
+    quickLabel: "Quick Install by link", quickDescription: "Start installation with one tap—no QR code needed.", qrLabel: "Install with QR code", qrDescription: "Scan the code shown on another screen with your phone.",
     iphone: "iPhone",
     android: "Android",
     iphoneSteps: ["Open the real QR code from your account on another screen.", "Go to Settings → Cellular → Add eSIM.", "Scan the QR code and follow the on-screen steps.", "Set the mobile data line according to your package details."],
@@ -160,7 +163,7 @@ export function V2Installation({ title, subtitle, steps, ready, adding, cta, hre
     <section>
       <div className="lg:hidden"><SectionTitle>{title || c.install}</SectionTitle></div>
       <div className="lg:grid lg:min-h-[22rem] lg:grid-cols-[minmax(0,0.42fr)_minmax(0,0.58fr)] lg:items-center lg:gap-10 lg:rounded-3xl lg:bg-card lg:px-12 lg:py-6 lg:ring-1 lg:ring-border">
-        <div className="lg:flex lg:min-h-[20rem] lg:items-center lg:justify-center">{variant === "simple" ? <div className="lg:hidden"><InstallationSteps items={stepList} /></div> : <V2InstallAnimation steps={stepList} ready={ready || c.animReady} adding={adding || c.animAdding} onPhaseChange={setActiveStep} />}</div>
+        <div className="lg:flex lg:min-h-[20rem] lg:items-center lg:justify-center">{variant === "simple" ? <div className="lg:hidden"><InstallationSteps items={stepList} /></div> : <V2InstallAnimation steps={stepList} ready={ready || c.animReady} adding={adding || c.animAdding} quickLabel={c.quickLabel} quickDescription={c.quickDescription} qrLabel={c.qrLabel} qrDescription={c.qrDescription} onPhaseChange={setActiveStep} />}</div>
         <div className="lg:py-3">
           <h2 className="hidden font-display text-3xl font-bold text-foreground lg:block">{title || c.install}</h2>
           {(subtitle ?? c.installSub) && <p className="mb-3 text-xs leading-relaxed text-muted-foreground lg:mt-3 lg:text-base">{subtitle ?? c.installSub}</p>}
