@@ -19,6 +19,7 @@ export function InstallationMethodSelector({
   quickLabel,
   qrLabel,
   ariaLabel,
+  recommendedLabel,
   compact = false,
 }: {
   value: InstallationMethod;
@@ -26,6 +27,7 @@ export function InstallationMethodSelector({
   quickLabel: string;
   qrLabel: string;
   ariaLabel: string;
+  recommendedLabel?: string;
   compact?: boolean;
 }) {
   const options = [
@@ -33,7 +35,7 @@ export function InstallationMethodSelector({
     { value: "qr" as const, label: qrLabel, icon: QrCode },
   ];
   return (
-    <div className={cn("grid grid-cols-2 gap-1 bg-secondary p-1", compact ? "rounded-full ring-1 ring-border" : "rounded-2xl")} role="tablist" aria-label={ariaLabel}>
+    <div className={cn("grid gap-1 bg-secondary p-1 ring-1 ring-border", compact || !recommendedLabel ? "grid-cols-2" : "grid-cols-[1.15fr_0.85fr]", compact ? "rounded-full" : "rounded-2xl")} role="tablist" aria-label={ariaLabel}>
       {options.map(({ value: method, label, icon: Icon }) => (
         <Button
           key={method}
@@ -43,13 +45,16 @@ export function InstallationMethodSelector({
           variant={compact ? "ghost" : value === method ? "default" : "ghost"}
           onClick={() => onChange(method)}
           className={cn(
-            "min-w-0 px-2",
+            "min-w-0 cursor-pointer px-2 transition-colors",
             compact ? "h-8 min-h-8 rounded-full text-[10px] sm:px-3 sm:text-xs" : "min-h-11 rounded-xl text-xs sm:text-sm",
-            compact && value === method && "bg-primary-soft text-primary shadow-sm ring-1 ring-primary/20 hover:bg-primary-soft hover:text-primary",
+            value === method
+              ? "bg-primary-soft text-primary shadow-sm ring-1 ring-primary/25 hover:bg-primary-soft hover:text-primary"
+              : "text-muted-foreground hover:bg-card hover:text-foreground",
           )}
         >
           <Icon className="size-4 shrink-0" aria-hidden="true" />
           <span className="truncate">{label}</span>
+          {!compact && method === "quick" && recommendedLabel && <span className="shrink-0 rounded-full bg-primary px-1 py-0.5 text-[8px] font-bold text-primary-foreground">{recommendedLabel}</span>}
         </Button>
       ))}
     </div>
@@ -104,7 +109,7 @@ export function StepNavigation({
         <ChevronLeft className="size-4 rtl:rotate-180" />
         {!compact && <span className="hidden lg:inline">{previous}</span>}
       </Button>
-      <Button type="button" variant={compact ? "outline" : "cta"} size={compact ? "icon" : "lg"} onClick={onNext} className={cn("min-h-11", !compact && "flex-1")} aria-label={next}>
+      <Button type="button" variant="default" size={compact ? "icon" : "lg"} onClick={onNext} className={cn("min-h-11", !compact && "flex-1")} aria-label={next}>
         {!compact && next}
         <ChevronRight className="size-4 rtl:rotate-180" />
       </Button>

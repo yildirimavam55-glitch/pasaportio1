@@ -172,7 +172,7 @@ export function V2Installation({ title, subtitle, steps, ready, adding, cta, hre
   return (
     <section>
       <div className="lg:hidden"><SectionTitle>{title || c.install}</SectionTitle></div>
-      <div className="lg:grid lg:min-h-[22rem] lg:grid-cols-[minmax(0,0.42fr)_minmax(0,0.58fr)] lg:items-center lg:gap-10 lg:rounded-3xl lg:bg-card lg:px-12 lg:py-6 lg:ring-1 lg:ring-border">
+      <div className="lg:grid lg:min-h-[22rem] lg:grid-cols-[minmax(0,0.46fr)_minmax(0,0.54fr)] lg:items-center lg:gap-8 lg:rounded-3xl lg:bg-card lg:px-10 lg:py-6 lg:ring-1 lg:ring-border">
         <div className="lg:flex lg:min-h-[20rem] lg:items-center lg:justify-center">{variant === "simple" ? <div className="lg:hidden"><InstallationSteps items={stepList} /></div> : <V2InstallAnimation quickSteps={c.quickAnimSteps} qrSteps={stepList} ready={ready || c.animReady} adding={adding || c.animAdding} quickLabel={c.quickLabel} quickDescription={c.quickDescription} qrLabel={c.qrLabel} qrDescription={c.qrDescription} selectorLabel={c.installMethod} quickSelectorLabel={c.quickSelector} qrSelectorLabel={c.qrSelector} onStateChange={handleAnimationState} />}</div>
         <div className="lg:py-3">
           <h2 className="hidden font-display text-3xl font-bold text-foreground lg:block">{title || c.install}</h2>
