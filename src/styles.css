@@ -1193,10 +1193,35 @@ html[data-quick-search-lock] body {
   }
 }
 
+@keyframes install-tap-pointer {
+  0%, 20% { opacity: 0; transform: translate3d(0.4rem, 0.4rem, 0) scale(0.96); }
+  36%, 56% { opacity: 1; transform: translate3d(0, 0, 0) scale(0.92); }
+  72% { opacity: 0.75; transform: translate3d(0.15rem, 0.15rem, 0) scale(1); }
+  100% { opacity: 0; transform: translate3d(0.35rem, 0.35rem, 0) scale(1); }
+}
+
+@keyframes install-tap-target {
+  0%, 34%, 62%, 100% { transform: scale(1); }
+  42%, 54% { transform: scale(0.96); }
+}
+
+.install-tap-indicator {
+  opacity: 0;
+  animation: install-tap-pointer 2.35s ease-in-out 0.25s 1 both;
+}
+
+.install-tap-target {
+  transform-origin: center;
+  animation: install-tap-target 2.35s ease-in-out 0.25s 1 both;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .install-tap-indicator,
   .install-tap-target {
     animation: none !important;
+  }
+  .install-tap-indicator {
+    display: none;
   }
   .esim-how-rail {
     scroll-behavior: auto;

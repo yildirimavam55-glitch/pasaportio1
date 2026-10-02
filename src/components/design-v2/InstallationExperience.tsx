@@ -1,4 +1,4 @@
-import { Check, ChevronLeft, ChevronRight, HandPointer, Link2, QrCode, Signal, Smartphone } from "lucide-react";
+import { Check, ChevronLeft, ChevronRight, Link2, Pointer, QrCode, Signal, Smartphone } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -8,7 +8,7 @@ export type InstallationMethod = "quick" | "qr";
 export function TapIndicator({ className }: { className?: string }) {
   return (
     <span className={cn("install-tap-indicator pointer-events-none absolute z-20 text-foreground/75", className)} aria-hidden="true">
-      <HandPointer className="size-5 fill-card stroke-[1.8]" />
+      <Pointer className="size-5 fill-card stroke-[1.8]" />
     </span>
   );
 }
@@ -99,7 +99,7 @@ export function StepNavigation({
   compact?: boolean;
 }) {
   return (
-    <div className={cn("flex gap-3", compact && "justify-between")}>
+    <div className={cn("flex gap-3", compact && "w-full justify-between")}>
       <Button type="button" variant="outline" size={compact ? "icon" : "lg"} onClick={onPrevious} disabled={previousDisabled} className={cn("min-h-11", !compact && "lg:flex-1")} aria-label={previous}>
         <ChevronLeft className="size-4 rtl:rotate-180" />
         {!compact && <span className="hidden lg:inline">{previous}</span>}
