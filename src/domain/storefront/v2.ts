@@ -58,7 +58,15 @@ export const V2_SAFE_LINKS = [
 export type V2SafeLink = (typeof V2_SAFE_LINKS)[number];
 
 /** Images bundled with the app, referenced as `builtin:<key>`. */
-export const V2_BUILTIN_MEDIA = ["esim-hero", "lounge-hero", "vignette-hero", "lounge-card", "esim-cross-sell", "info-products", "info-roaming", "info-delivery", "info-install", "info-payment", "info-support", "trust-refund", "trust-traveler", "trust-demo-giulia", "trust-demo-haruto", "trust-demo-emily"] as const;
+export const V2_BUILTIN_MEDIA = ["esim-hero", "lounge-hero", "vignette-hero", "lounge-card", "esim-cross-sell", "info-products", "info-roaming", "info-delivery", "info-install", "info-payment", "info-support", "trust-refund", "trust-traveler", "trust-demo-giulia", "trust-demo-haruto", "trust-demo-emily", "trust-benefit-globe", "trust-benefit-refund", "trust-benefit-install", "trust-benefit-payment"] as const;
+
+/** Existing trust cards from before image editing receive their approved visuals once on read. */
+const TRUST_BENEFIT_MEDIA: Record<string, string> = {
+  "trust-countries": "builtin:trust-benefit-globe",
+  "trust-refund": "builtin:trust-benefit-refund",
+  "trust-install": "builtin:trust-benefit-install",
+  "trust-payment": "builtin:trust-benefit-payment",
+};
 
 export const V2_HEIGHTS = ["compact", "normal", "tall"] as const;
 export const V2_OVERLAYS = ["light", "normal", "strong"] as const;
@@ -75,6 +83,7 @@ export type V2Item = {
   internalKey: string;
   cardType: string;
   mediaId: string | null;
+  visualMode?: "ICON" | "CUSTOM_IMAGE";
   position?: "top-right" | "middle-left" | "bottom-right";
   href: V2SafeLink | "";
   labels: LT[];
@@ -317,10 +326,10 @@ function esimDefault(): V2Page {
         item("chip-setup", { cardType: "chip", position: "top-right", icon: "Zap", title: lt("60 saniyede kurulum", "In 60 Sekunden installiert", "Installed in 60 seconds"), text: lt("Doğrudan cihazında", "Direkt auf deinem Gerät", "Directly on your device") }),
         item("chip-plans", { cardType: "chip", position: "middle-left", icon: "Globe2", title: lt("Esnek paketler", "Flexible Pakete", "Flexible plans"), text: lt("Her yolculuk için", "Für jede Reise", "For every trip") }),
         item("chip-travel", { cardType: "chip", position: "bottom-right", icon: "Sparkles", title: lt("Tatil, iş ve daha fazlası için", "Für Urlaub, Business & mehr", "For holidays, business & more") }),
-        item("trust-countries", { cardType: "trust", icon: "Globe2", title: lt("190+ ülke", "190+ Länder", "190+ countries"), text: lt("Dünya çapında bağlantı", "Weltweit verbunden", "Connected worldwide") }),
-        item("trust-refund", { cardType: "trust", icon: "RotateCcw", title: lt("14 gün iade güvencesi", "14 Tage Rückgabegarantie", "14-Day Refund Guarantee"), text: lt("Kullanılmamış eSIM’lerde, satın almadan itibaren 14 gün", "Für ungenutzte eSIMs, 14 Tage ab Kauf", "For unused eSIMs, within 14 days of purchase") }),
-        item("trust-install", { cardType: "trust", icon: "Zap", title: lt("60 saniyede kurulum", "In 60 Sekunden installiert", "Installed in 60 seconds"), text: lt("Doğrudan cihazında", "Direkt auf deinem Gerät", "Directly on your device") }),
-        item("trust-payment", { cardType: "trust", icon: "LockKeyhole", title: lt("Güvenli ödeme", "Sicher bezahlen", "Secure payment"), text: lt("Güvenilir ödeme yöntemleri", "Vertrauenswürdige Zahlungsmethoden", "Trusted payment methods") }),
+        item("trust-countries", { cardType: "trust", icon: "Globe2", visualMode: "CUSTOM_IMAGE", mediaId: TRUST_BENEFIT_MEDIA["trust-countries"], title: lt("190+ ülke", "190+ Länder", "190+ countries"), text: lt("Dünya çapında bağlantı", "Weltweit verbunden", "Connected worldwide") }),
+        item("trust-refund", { cardType: "trust", icon: "RotateCcw", visualMode: "CUSTOM_IMAGE", mediaId: TRUST_BENEFIT_MEDIA["trust-refund"], title: lt("14 gün iade güvencesi", "14 Tage Rückgabegarantie", "14-Day Refund Guarantee"), text: lt("Kullanılmamış eSIM’lerde, satın almadan itibaren 14 gün", "Für ungenutzte eSIMs, 14 Tage ab Kauf", "For unused eSIMs, within 14 days of purchase") }),
+        item("trust-install", { cardType: "trust", icon: "Zap", visualMode: "CUSTOM_IMAGE", mediaId: TRUST_BENEFIT_MEDIA["trust-install"], title: lt("60 saniyede kurulum", "In 60 Sekunden installiert", "Installed in 60 seconds"), text: lt("Doğrudan cihazında", "Direkt auf deinem Gerät", "Directly on your device") }),
+        item("trust-payment", { cardType: "trust", icon: "LockKeyhole", visualMode: "CUSTOM_IMAGE", mediaId: TRUST_BENEFIT_MEDIA["trust-payment"], title: lt("Güvenli ödeme", "Sicher bezahlen", "Secure payment"), text: lt("Güvenilir ödeme yöntemleri", "Vertrauenswürdige Zahlungsmethoden", "Trusted payment methods") }),
         ...editorialReviewCards(),
       ],
     })),
@@ -446,7 +455,8 @@ function cleanItem(raw: any, index: number): V2Item {
     text: cleanLT(raw?.text, 900),
     internalKey: ID.test(String(raw?.internalKey)) ? String(raw.internalKey) : `item-${index + 1}`,
     cardType: cleanText(raw?.cardType, 32).replace(/[^a-z-]/g, "") || "products",
-    mediaId: cleanMediaId(raw?.mediaId),
+    mediaId: cleanMediaId(raw?.mediaId) ?? (raw?.cardType === "trust" && raw?.visualMode == null ? TRUST_BENEFIT_MEDIA[String(raw?.id)] ?? null : null),
+    ...(raw?.cardType === "trust" ? { visualMode: raw?.visualMode === "ICON" ? "ICON" as const : raw?.visualMode === "CUSTOM_IMAGE" || raw?.mediaId || TRUST_BENEFIT_MEDIA[String(raw?.id)] ? "CUSTOM_IMAGE" as const : "ICON" as const } : {}),
     ...(raw?.cardType === "chip" ? { position: pick(raw?.position, ["top-right", "middle-left", "bottom-right"] as const, "top-right") } : {}),
     href: raw?.href === "" ? "" : pick(raw?.href, V2_SAFE_LINKS, "/esim"),
     labels: Array.isArray(raw?.labels) ? raw.labels.slice(0, 4).map((value: unknown) => cleanLT(value, 80)) : [],

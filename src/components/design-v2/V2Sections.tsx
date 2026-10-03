@@ -26,6 +26,10 @@ import trustTraveler from "@/assets/trust-traveler.jpg";
 import demoGiulia from "@/assets/trust-demo-giulia.jpg";
 import demoHaruto from "@/assets/trust-demo-haruto.jpg";
 import demoEmily from "@/assets/trust-demo-emily.jpg";
+import trustBenefitGlobe from "@/assets/trust-benefit-globe.webp";
+import trustBenefitRefund from "@/assets/trust-benefit-refund.webp";
+import trustBenefitInstall from "@/assets/trust-benefit-install.webp";
+import trustBenefitPayment from "@/assets/trust-benefit-payment.webp";
 
 export const V2_BUILTIN_URLS: Record<string, string> = {
   "builtin:esim-hero": esimHero,
@@ -44,6 +48,10 @@ export const V2_BUILTIN_URLS: Record<string, string> = {
   "builtin:trust-demo-giulia": demoGiulia,
   "builtin:trust-demo-haruto": demoHaruto,
   "builtin:trust-demo-emily": demoEmily,
+  "builtin:trust-benefit-globe": trustBenefitGlobe,
+  "builtin:trust-benefit-refund": trustBenefitRefund,
+  "builtin:trust-benefit-install": trustBenefitInstall,
+  "builtin:trust-benefit-payment": trustBenefitPayment,
 };
 
 export const V2_PREVIEW_WINDOW = "v2-cms-preview";
