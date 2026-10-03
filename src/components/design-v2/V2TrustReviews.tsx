@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Star, Users } from "lucide-react";
+import { ImagePlus, Star, Users } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { StorefrontIcon } from "@/domain/storefront/icons";
 import { Reveal } from "@/components/travel/Reveal";
@@ -15,6 +15,7 @@ import type { Locale } from "@/domain/enums";
 import globeVisual from "@/assets/trust-globe.jpg";
 import returnVisual from "@/assets/trust-return.jpg";
 import installVisual from "@/assets/trust-install.jpg";
+import travelerFallback from "@/assets/trust-traveler.jpg";
 
 const LABELS = localize({
   tr: { rating: "5 üzerinden {rating} yıldız", reviews: "Müşteri yorumları", real: "Gerçek müşteri yorumlarına dayalı", demo: "DEMO / TEST — gerçek müşteri yorumu değildir", editorial: "Editoryal örnekler · gerçek müşteri yorumu değildir", slide: "Yorum {index}", country: "Ülke", previewRating: "Müşteri deneyimlerine göre", paymentPreview: "DEMO / ÖNİZLEME — ödeme henüz aktif değil" },
@@ -28,7 +29,7 @@ export function V2TrustReviews({ section, media, preview = false }: { section: V
   const labels = LABELS[locale];
   const settings = section.trust;
   const chips = section.items.filter((item) => item.cardType === "chip" && item.visible);
-  const photo = mediaUrl(section.mediaId, media);
+  const photo = mediaUrl(section.mediaId, media) ?? (!preview ? travelerFallback : undefined);
   const rail = useRef<HTMLDivElement>(null);
   const [active, setActive] = useState(0);
   const reviews = section.items.filter((item) => item.visible && item.cardType === "review" && Boolean((item.reviewType === "EDITORIAL" ? v2ItemText(item.text, locale) : item.text[item.originalLanguage ?? "en"])?.trim()) && (item.reviewType === "REAL" && item.verified && item.published && item.reviewStatus === "PUBLISHED" || preview && section.showDemoReviews && (item.reviewType === "DEMO" || item.reviewType === "EDITORIAL") && item.reviewStatus !== "ARCHIVED"));
@@ -59,19 +60,18 @@ export function V2TrustReviews({ section, media, preview = false }: { section: V
   }, [settings?.autoplay, displayReviews.length]);
 
   return <section aria-labelledby={`${section.id}-title`} className={`trust-story relative -mx-4 mt-5 overflow-hidden rounded-[2rem] px-6 pb-5 pt-5 sm:mx-0 sm:mt-8 sm:px-7 sm:pt-8 lg:px-10 ${settings?.background === "white" ? "bg-card" : settings?.background === "cream" ? "bg-secondary" : "bg-petrol-soft"}`}>
-    <div className="trust-story-main relative min-h-[25rem] sm:min-h-[29rem] lg:grid lg:min-h-[27rem] lg:grid-cols-[minmax(0,1fr)_minmax(0,0.9fr)] lg:items-center lg:gap-6">
+    <div className="trust-story-main relative lg:grid lg:grid-cols-[minmax(0,1fr)_minmax(0,0.9fr)] lg:items-center lg:gap-6">
       <div className="trust-story-copy relative z-10 min-w-0 lg:py-8">
         <Reveal className="trust-section-reveal"><p className="inline-flex max-w-full items-center gap-2 rounded-full bg-primary-soft px-3 py-2 text-xs font-bold text-primary"><Users className="size-4 shrink-0" aria-hidden /><span>{v2Text(section, "eyebrow", locale)}</span></p></Reveal>
         <Reveal delay={70} className="trust-section-reveal"><h2 id={`${section.id}-title`} className="mt-5 font-display text-[1.625rem] font-bold leading-[1.08] text-foreground sm:text-5xl"><span className="block">{v2Text(section, "title", locale)}</span><span className="block text-success">{v2Text(section, "accent", locale)}</span></h2></Reveal>
-        <Reveal delay={140} className="trust-section-reveal"><p className="mt-4 max-w-[55%] text-[13px] leading-[1.5] text-muted-foreground sm:max-w-[52%] sm:text-base lg:max-w-lg">{v2Text(section, "subtitle", locale)}</p></Reveal>
+        <Reveal delay={140} className="trust-section-reveal"><p className="mt-4 max-w-xl text-[13px] leading-[1.5] text-muted-foreground sm:text-base">{v2Text(section, "subtitle", locale)}</p></Reveal>
       </div>
-      <Reveal delay={210} className="trust-section-reveal trust-story-visual pointer-events-none absolute inset-0 lg:relative lg:h-[27rem]">
-        <div className="trust-phone-stage relative h-full w-full">
-          <div className="trust-phone absolute bottom-[2%] right-[3%] top-[3%] w-[43%] overflow-hidden rounded-[2rem] border-[6px] border-foreground bg-foreground shadow-panel sm:right-[10%] sm:w-[43%] lg:inset-y-2 lg:right-[14%] lg:w-[58%] rtl:right-auto rtl:left-[3%] sm:rtl:left-[10%] lg:rtl:left-[14%]">
-            {photo && <img src={photo} alt={v2Text(section, "imageAlt", locale)} loading="lazy" decoding="async" width={1408} height={1104} sizes="(max-width: 640px) 48vw, (max-width: 1024px) 43vw, 30vw" className={`h-full w-full object-cover ${settings?.focal === "left" ? "object-left" : settings?.focal === "center" ? "object-center" : "object-right"}`} />}
-            <span aria-hidden className="absolute left-1/2 top-0 h-2 w-12 -translate-x-1/2 rounded-b-full bg-foreground" />
+      <Reveal delay={210} className="trust-section-reveal trust-story-visual pointer-events-none relative mt-5 pb-7 pt-6 lg:mt-0 lg:py-8">
+        <div className="relative mx-auto w-[min(100%,34rem)] lg:w-full">
+          <div className="aspect-[4/3] w-full overflow-hidden rounded-2xl bg-card shadow-panel lg:aspect-[5/4]">
+            {photo ? <img src={photo} alt={v2Text(section, "imageAlt", locale)} loading="lazy" decoding="async" width={1408} height={1104} sizes="(max-width: 640px) 100vw, (max-width: 1024px) 540px, 42vw" className={`h-full w-full object-cover ${settings?.focal === "left" ? "object-left" : settings?.focal === "center" ? "object-center" : "object-right"}`} /> : <div className="flex h-full flex-col items-center justify-center gap-2 text-muted-foreground" aria-label="Social Proof görseli ekle"><ImagePlus className="size-9" aria-hidden /><span className="text-sm font-semibold">Social Proof görseli ekle</span></div>}
           </div>
-          {chips.map((chip, index) => <Reveal key={chip.id} delay={280 + index * 70} className={`trust-section-chip absolute z-20 w-[min(42vw,10rem)] lg:w-44 ${chip.position === "middle-left" ? "bottom-[28%] left-[1%] rtl:left-auto rtl:right-[1%]" : chip.position === "bottom-right" ? "bottom-[7%] right-0 rtl:right-auto rtl:left-0" : "right-0 top-[10%] rtl:right-auto rtl:left-0"}`}><BenefitChip icon={mediaUrl(chip.mediaId, media) ? <img src={mediaUrl(chip.mediaId, media)} alt="" className="size-4 object-contain" /> : <StorefrontIcon name={chip.icon} className="size-4" />} title={v2ItemText(chip.title, locale)} text={v2ItemText(chip.text, locale)} /></Reveal>)}
+          {chips.map((chip, index) => <Reveal key={chip.id} delay={280 + index * 70} className={`trust-section-chip absolute z-20 w-[min(41vw,10rem)] lg:w-44 ${chip.position === "middle-left" ? "bottom-[26%] left-0 rtl:left-auto rtl:right-0" : chip.position === "bottom-right" ? "-bottom-4 right-0 rtl:right-auto rtl:left-0" : "right-0 -top-4 rtl:right-auto rtl:left-0"}`}><BenefitChip icon={mediaUrl(chip.mediaId, media) ? <img src={mediaUrl(chip.mediaId, media)} alt="" className="size-4 object-contain" /> : <StorefrontIcon name={chip.icon} className="size-4" />} title={v2ItemText(chip.title, locale)} text={v2ItemText(chip.text, locale)} /></Reveal>)}
         </div>
       </Reveal>
     </div>
