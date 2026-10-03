@@ -738,3 +738,8 @@
 - [x] Add eight explicitly editorial starter cards without customer/order verification or public leakage.
 - [x] Complete 14-locale trust content and Admin language editing while preserving fixed layout.
 - [x] Check requested mobile/desktop, RTL/CJK, swipe, image and review editor preview paths without publishing. Authenticated Admin editing remains unverified because this project has no Admin account.
+
+## Social Proof Admin-managed lifestyle photo
+- [x] Replace the fixed phone mask with a responsive photo area while preserving independent floating chips.
+- [x] Keep image selection, replacement, removal, preview, alt text, and focal control in the existing Admin media workflow.
+- [ ] Verify the Admin editor and mobile/desktop preview without publishing.
