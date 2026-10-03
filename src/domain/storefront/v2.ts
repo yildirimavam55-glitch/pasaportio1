@@ -187,7 +187,7 @@ const from3 = <K extends string>(copy: Record<Locale, Record<K, unknown>>, key: 
   lt(String(copy.tr[key] ?? ""), String(copy.de[key] ?? ""), String(copy.en[key] ?? ""));
 const same = (value: string): LT => lt(value, value, value);
 
-const defaultTrust = () => ({ background: "mint" as const, focal: "right" as const, ratingMode: "manual" as const, manualRating: 4.8, maxRating: 5, manualCaption: lt("Önizleme puanı", "Vorschau-Bewertung", "Preview rating"), autoplay: false, whyEnabled: true, comparisonEnabled: false, comparisonPreviewOnly: true, illustrationId: null });
+const defaultTrust = () => ({ background: "mint" as const, focal: "right" as const, ratingMode: "manual" as const, manualRating: 4.8, maxRating: 5, manualCaption: lt("Örnek puan · müşteri değerlendirmesi değildir", "Beispielbewertung · keine Kundenbewertung", "Sample rating · not a customer rating"), autoplay: false, whyEnabled: true, comparisonEnabled: false, comparisonPreviewOnly: true, illustrationId: null });
 
 function section(id: string, type: V2SectionType, patch: Partial<V2Section> = {}): V2Section {
   return {
@@ -324,6 +324,7 @@ function esimDefault(): V2Page {
         ...editorialReviewCards(),
       ],
     })),
+    section("regions", "REGION_DISCOVERY", { text: { eyebrow: from3(c, "regionalEyebrow"), title: from3(c, "regionalTitle"), lead: from3(c, "regionalHomeLead"), worldwide: from3(c, "worldwideBanner"), cta: from3(c, "discoverPlans") } }),
     section("esim-info", "INFO_CAROUSEL", {
       text: {
         title: lt("eSIM hakkında merak ettiklerin", "Alles, was du über eSIM wissen solltest", "Everything you need to know about eSIM"),
@@ -339,7 +340,6 @@ function esimDefault(): V2Page {
         infoCard("support", "support", "builtin:info-support", lt("7/24 WhatsApp destek", "24/7 WhatsApp-Support", "24/7 WhatsApp support"), lt("Soruların mı var? Ekibimiz 7/24 WhatsApp üzerinden yanında.", "Du hast Fragen? Unser Team ist rund um die Uhr über WhatsApp für dich da.", "Have a question? Our team is available around the clock via WhatsApp."), [lt("7/24 destek", "24/7 Support", "24/7 support"), lt("Hızlı yanıt", "Schnelle Hilfe", "Quick help"), same("WhatsApp")]),
       ],
     }),
-    section("regions", "REGION_DISCOVERY", { text: { eyebrow: from3(c, "regionalEyebrow"), title: from3(c, "regionalTitle"), lead: from3(c, "regionalHomeLead"), worldwide: from3(c, "worldwideBanner"), cta: from3(c, "discoverPlans") } }),
     section("compatibility", "COMPATIBILITY", { text: { title: from3(DISCOVERY_COPY, "compatibility") } }),
     section("promo-lounge", "PROMO_BANNER", { mediaId: "builtin:lounge-card", href: "/lounge", text: { title: from3(c, "promo"), subtitle: from3(c, "promoSub") } }),
     section("installation", "INSTALLATION_STEPS", {
