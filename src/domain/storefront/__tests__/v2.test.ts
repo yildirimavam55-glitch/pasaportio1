@@ -16,6 +16,24 @@ describe("V2 storefront config", () => {
     for (const page of V2_PAGES) expect(sanitizeV2Page(defaultV2Page(page), page)).toEqual(defaultV2Page(page));
   });
 
+  it("keeps fictional reviews separate and respects an explicitly disabled preview switch", () => {
+    const original = defaultV2Page("esim");
+    const section = original.sections.find((entry) => entry.type === "TRUST_REVIEWS");
+    expect(section?.items.filter((entry) => entry.cardType === "review")).toMatchObject([
+      { reviewType: "DEMO", verified: false, published: false, countryCode: "IT", originalLanguage: "de" },
+      { reviewType: "DEMO", verified: false, published: false, countryCode: "JP", originalLanguage: "de" },
+      { reviewType: "DEMO", verified: false, published: false, countryCode: "US", originalLanguage: "de" },
+    ]);
+    const disabled = structuredClone(original);
+    const disabledSection = disabled.sections.find((entry) => entry.type === "TRUST_REVIEWS");
+    if (!disabledSection) throw new Error("Missing trust section");
+    disabledSection.showDemoReviews = false;
+    disabledSection.items = disabledSection.items.filter((entry) => entry.reviewType !== "DEMO");
+    const cleaned = sanitizeV2Page(disabled, "esim").sections.find((entry) => entry.type === "TRUST_REVIEWS");
+    expect(cleaned?.showDemoReviews).toBe(false);
+    expect(cleaned?.items.some((entry) => entry.reviewType === "DEMO")).toBe(false);
+  });
+
   it("keeps the search hero first, visible and present", () => {
     const d = defaultV2Page("lounge");
     const [hero, ...rest] = d.sections;
