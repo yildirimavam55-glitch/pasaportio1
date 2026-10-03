@@ -284,7 +284,7 @@ function ImageField({ label, value, onChange }: { label: string; value: string |
   const builtin = value && V2_BUILTIN_URLS[value];
   return (
     <div className="space-y-1">
-      {builtin && <div className="flex items-center gap-2 rounded-md border border-border p-2 text-xs"><img src={builtin} alt="" className="size-12 rounded object-cover" /><span className="flex-1">Onaylı varsayılan görsel</span></div>}
+      {builtin && <div className="flex items-center gap-2 rounded-md border border-border p-2 text-xs"><img src={builtin} alt="" className="size-12 rounded object-cover" /><span className="flex-1">Onaylı varsayılan görsel</span><Button type="button" size="icon" variant="ghost" className="size-9" aria-label="Görseli kaldır" onClick={() => onChange(null)}><X className="size-4" /></Button></div>}
       <MediaField label={label} value={builtin ? null : value} onChange={onChange} hint="Medya kütüphanesinden seç veya yükle. Kaldırırsan görsel alanı boş kalır." />
     </div>
   );
