@@ -73,6 +73,7 @@ export type V2Item = {
   internalKey: string;
   cardType: string;
   mediaId: string | null;
+  position?: "top-right" | "middle-left" | "bottom-right";
   href: V2SafeLink | "";
   labels: LT[];
   cta: LT;
@@ -114,6 +115,19 @@ export type V2Section = {
   mobilePreview: "compact" | "normal" | "wide";
   claims: { countries: string; refundDays: string; savingPercent: string; setupSeconds: string };
   showDemoReviews?: boolean;
+  trust?: {
+    background: "mint" | "cream" | "white";
+    focal: "left" | "center" | "right";
+    ratingMode: "real" | "manual" | "off";
+    manualRating: number;
+    maxRating: number;
+    manualCaption: LT;
+    autoplay: boolean;
+    whyEnabled: boolean;
+    comparisonEnabled: boolean;
+    comparisonPreviewOnly: boolean;
+    illustrationId: string | null;
+  };
 };
 
 export type V2PageConfig = { version: 1; page: V2PageId; sections: V2Section[] };
@@ -141,7 +155,7 @@ export const V2_TEXT_FIELDS: Record<V2SectionType, Array<[string, string]>> = {
   SEARCH_HERO: [["eyebrow", "Üst başlık"], ["title", "Başlık"], ["subtitle", "Alt başlık"], ["placeholder", "Arama metni"], ["sticky", "Sabit arama metni"]],
   BENEFIT_ROW: [],
   DESTINATION_CAROUSEL: [["title", "Başlık"]],
-  TRUST_REVIEWS: [["eyebrow", "Güven etiketi"], ["title", "Başlık"], ["accent", "Yeşil başlık satırı"], ["subtitle", "Açıklama"], ["imageAlt", "Seyahat görseli alt metni"], ["chipOneTitle", "Kurulum etiketi"], ["chipOneText", "Kurulum açıklaması"], ["chipTwoTitle", "Paket etiketi"], ["chipTwoText", "Paket açıklaması"], ["chipThreeTitle", "Seyahat etiketi"]],
+  TRUST_REVIEWS: [["eyebrow", "Güven etiketi"], ["title", "Başlık"], ["accent", "Yeşil başlık satırı"], ["subtitle", "Açıklama"], ["imageAlt", "Seyahat görseli alt metni"], ["cta", "Buton metni"], ["whyEyebrow", "Neden Travely üst başlığı"], ["whyTitle", "Neden Travely başlığı"], ["whyDescription", "Neden Travely açıklaması"], ["statistic", "Ana istatistik"], ["statisticLabel", "İstatistik etiketi"], ["comparisonTitle", "Karşılaştırma başlığı"], ["comparisonALabel", "Birinci fiyat etiketi"], ["comparisonAValue", "Birinci fiyat"], ["comparisonBLabel", "İkinci fiyat etiketi"], ["comparisonBValue", "İkinci fiyat"], ["comparisonHighlight", "Karşılaştırma vurgusu"], ["comparisonFootnote", "Karşılaştırma dipnotu"]],
   INFO_CAROUSEL: [["title", "Başlık"], ["subtitle", "Alt başlık"]],
   REGION_DISCOVERY: [["eyebrow", "Üst başlık"], ["title", "Başlık"], ["lead", "Açıklama"], ["worldwide", "Dünya bannerı"], ["cta", "Buton metni"]],
   NOTICE: [["title", "Başlık"], ["text", "Metin"]],
@@ -171,6 +185,8 @@ const from3 = <K extends string>(copy: Record<Locale, Record<K, unknown>>, key: 
   lt(String(copy.tr[key] ?? ""), String(copy.de[key] ?? ""), String(copy.en[key] ?? ""));
 const same = (value: string): LT => lt(value, value, value);
 
+const defaultTrust = () => ({ background: "mint" as const, focal: "right" as const, ratingMode: "real" as const, manualRating: 4.8, maxRating: 5, manualCaption: lt("Önizleme puanı", "Vorschau-Bewertung", "Preview rating"), autoplay: false, whyEnabled: true, comparisonEnabled: false, comparisonPreviewOnly: true, illustrationId: null });
+
 function section(id: string, type: V2SectionType, patch: Partial<V2Section> = {}): V2Section {
   return {
     id,
@@ -194,6 +210,7 @@ function section(id: string, type: V2SectionType, patch: Partial<V2Section> = {}
     mobilePreview: "normal",
     claims: { countries: "190+", refundDays: "14", savingPercent: "60", setupSeconds: "60" },
     showDemoReviews: false,
+    ...(type === "TRUST_REVIEWS" ? { trust: defaultTrust() } : {}),
     ...patch,
   };
 }
@@ -253,19 +270,24 @@ function esimDefault(): V2Page {
     section("trust-reviews", "TRUST_REVIEWS", {
       mediaId: "builtin:trust-traveler",
       showDemoReviews: true,
+      trust: defaultTrust(),
       text: {
         eyebrow: lt("Seyahat edenler için geliştirildi", "Für Reisende entwickelt", "Built for travellers"),
         title: lt("Gerçek yolculuklar.", "Echte Reisende.", "Real travellers."),
         accent: lt("Gerçek deneyimler.", "Echte Erfahrungen.", "Real experiences."),
         subtitle: lt("Şehir gezisi, sırt çantalı yolculuk veya iş seyahati — eSIM’lerimiz 190’dan fazla ülkede yolculuğuna eşlik eder.", "Ob Städtetrip, Backpacking oder Geschäftsreise – unsere eSIMs begleiten Reisende in über 190 Ländern.", "From city breaks and backpacking to business travel, our eSIMs keep travellers connected in over 190 countries."),
         imageAlt: lt("Akdeniz kıyısındaki şehri seyreden gezgin", "Reisende mit Blick auf eine mediterrane Küstenstadt", "Traveller overlooking a Mediterranean coastal city"),
-        chipOneTitle: lt("60 saniyede kurulum", "In 60 Sekunden installiert", "Installed in 60 seconds"),
-        chipOneText: lt("Doğrudan cihazında", "Direkt auf deinem Gerät", "Directly on your device"),
-        chipTwoTitle: lt("Esnek paketler", "Flexible Pakete", "Flexible plans"),
-        chipTwoText: lt("Her yolculuk için", "Für jede Reise", "For every trip"),
-        chipThreeTitle: lt("Tatil, iş ve daha fazlası için", "Für Urlaub, Business & mehr", "For holidays, business & more"),
+        cta: lt("Seyahat noktası seç", "Reiseziel wählen", "Choose destination"),
+        whyEyebrow: lt("Neden Travely?", "Warum Travely?", "Why Travely?"),
+        whyTitle: lt("Daha az risk. Daha uygun internet. Daha kolay seyahat.", "Weniger Risiko. Günstigeres Internet. Einfacher reisen.", "Less risk. Better-value internet. Easier travel."),
+        whyDescription: lt("eSIM paketini seç, fiyatını baştan gör ve birkaç adımda bağlantıya hazır ol.", "eSIM-Paket wählen, den Preis vorab sehen und in wenigen Schritten verbunden sein.", "Choose an eSIM plan, see the price up front and get connected in a few steps."),
+        comparisonTitle: lt("Roaming’e alternatif", "Die Alternative zum Roaming", "An alternative to roaming"),
+        comparisonFootnote: same(""), statistic: same(""), statisticLabel: same(""), comparisonALabel: same(""), comparisonAValue: same(""), comparisonBLabel: same(""), comparisonBValue: same(""), comparisonHighlight: same(""),
       },
       items: [
+        item("chip-setup", { cardType: "chip", position: "top-right", icon: "Zap", title: lt("60 saniyede kurulum", "In 60 Sekunden installiert", "Installed in 60 seconds"), text: lt("Doğrudan cihazında", "Direkt auf deinem Gerät", "Directly on your device") }),
+        item("chip-plans", { cardType: "chip", position: "middle-left", icon: "Globe2", title: lt("Esnek paketler", "Flexible Pakete", "Flexible plans"), text: lt("Her yolculuk için", "Für jede Reise", "For every trip") }),
+        item("chip-travel", { cardType: "chip", position: "bottom-right", icon: "Sparkles", title: lt("Tatil, iş ve daha fazlası için", "Für Urlaub, Business & mehr", "For holidays, business & more") }),
         item("trust-countries", { cardType: "trust", icon: "Globe2", title: lt("190+ ülke", "190+ Länder", "190+ countries"), text: lt("Dünya çapında bağlantı", "Weltweit verbunden", "Connected worldwide") }),
         item("trust-refund", { cardType: "trust", icon: "RotateCcw", title: lt("14 gün iade güvencesi", "14 Tage Rückgabegarantie", "14-Day Refund Guarantee"), text: lt("Kullanılmamış eSIM’lerde, satın almadan itibaren 14 gün", "Für ungenutzte eSIMs, 14 Tage ab Kauf", "For unused eSIMs, within 14 days of purchase") }),
         item("trust-install", { cardType: "trust", icon: "Zap", title: lt("60 saniyede kurulum", "In 60 Sekunden installiert", "Installed in 60 seconds"), text: lt("Doğrudan cihazında", "Direkt auf deinem Gerät", "Directly on your device") }),
@@ -396,6 +418,7 @@ function cleanItem(raw: any, index: number): V2Item {
     internalKey: ID.test(String(raw?.internalKey)) ? String(raw.internalKey) : `item-${index + 1}`,
     cardType: cleanText(raw?.cardType, 32).replace(/[^a-z-]/g, "") || "products",
     mediaId: cleanMediaId(raw?.mediaId),
+    ...(raw?.cardType === "chip" ? { position: pick(raw?.position, ["top-right", "middle-left", "bottom-right"] as const, "top-right") } : {}),
     href: raw?.href === "" ? "" : pick(raw?.href, V2_SAFE_LINKS, "/esim"),
     labels: Array.isArray(raw?.labels) ? raw.labels.slice(0, 4).map((value: unknown) => cleanLT(value, 80)) : [],
     cta: cleanLT(raw?.cta, 80),
@@ -449,6 +472,19 @@ function cleanSection(raw: any): V2Section | null {
       setupSeconds: cleanText(raw.claims?.setupSeconds, 12) || "60",
     },
     showDemoReviews: raw.showDemoReviews === true,
+    ...(type === "TRUST_REVIEWS" ? { trust: {
+      background: pick(raw.trust?.background, ["mint", "cream", "white"] as const, "mint"),
+      focal: pick(raw.trust?.focal, ["left", "center", "right"] as const, "right"),
+      ratingMode: pick(raw.trust?.ratingMode, ["real", "manual", "off"] as const, "real"),
+      manualRating: Math.min(5, Math.max(0, Number(raw.trust?.manualRating ?? 4.8) || 0)),
+      maxRating: 5,
+      manualCaption: cleanLT(raw.trust?.manualCaption, 160),
+      autoplay: raw.trust?.autoplay === true,
+      whyEnabled: raw.trust?.whyEnabled !== false,
+      comparisonEnabled: raw.trust?.comparisonEnabled === true,
+      comparisonPreviewOnly: raw.trust?.comparisonPreviewOnly !== false,
+      illustrationId: cleanMediaId(raw.trust?.illustrationId),
+    } } : {}),
   };
 }
 
@@ -485,6 +521,9 @@ export function sanitizeV2Page(raw: any, page: V2PageId): V2PageConfig {
   if (page === "esim") {
     const trust = sections.find((s) => s.type === "TRUST_REVIEWS");
     const sourceTrust = raw.sections.find((s: V2Section) => s?.type === "TRUST_REVIEWS");
+    if (trust && sourceTrust && !sourceTrust.trust && !trust.items.some((i) => i.cardType === "chip")) {
+      trust.items = [...fallback.sections.find((s) => s.type === "TRUST_REVIEWS")!.items.filter((i) => i.cardType === "chip"), ...trust.items];
+    }
     if (trust && sourceTrust && !("showDemoReviews" in sourceTrust) && !trust.items.some((i) => i.cardType === "review" && i.reviewType === "DEMO")) {
       trust.items = [...trust.items, ...trustDemoReviews.map(demoReview)];
       trust.showDemoReviews = true;
@@ -540,7 +579,7 @@ export function missingV2Translations(config: V2PageConfig, locale: "de" | "en")
 export function collectV2MediaIds(config: V2PageConfig): string[] {
   const ids = new Set<string>();
   for (const s of config.sections) {
-    for (const id of [s.mediaId, s.mobileMediaId, ...s.items.map((item) => item.mediaId)]) if (id && UUID.test(id)) ids.add(id);
+    for (const id of [s.mediaId, s.mobileMediaId, s.trust?.illustrationId, ...s.items.map((item) => item.mediaId)]) if (id && UUID.test(id)) ids.add(id);
   }
   return [...ids];
 }
