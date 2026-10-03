@@ -735,6 +735,6 @@
 - [ ] Verify authenticated Admin preview/editing and real purchase continuity after an Admin account and live payment provider are available.
 
 ## Social Proof completion
-- [ ] Add eight explicitly editorial starter cards without customer/order verification or public leakage.
-- [ ] Complete 14-locale trust content and Admin language editing while preserving fixed layout.
-- [ ] Check requested mobile/desktop, RTL/CJK, swipe, image and review editor preview paths without publishing.
+- [x] Add eight explicitly editorial starter cards without customer/order verification or public leakage.
+- [x] Complete 14-locale trust content and Admin language editing while preserving fixed layout.
+- [ ] Check requested mobile/desktop, RTL/CJK, swipe, image and review editor preview paths without publishing; authenticated Admin editing requires an Admin account.
