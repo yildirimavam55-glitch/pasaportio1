@@ -283,11 +283,6 @@ function esimDefault(): V2Page {
         whyDescription: lt("eSIM paketini seç, fiyatını baştan gör ve birkaç adımda bağlantıya hazır ol.", "eSIM-Paket wählen, den Preis vorab sehen und in wenigen Schritten verbunden sein.", "Choose an eSIM plan, see the price up front and get connected in a few steps."),
         comparisonTitle: lt("Roaming’e alternatif", "Die Alternative zum Roaming", "An alternative to roaming"),
         comparisonFootnote: same(""), statistic: same(""), statisticLabel: same(""), comparisonALabel: same(""), comparisonAValue: same(""), comparisonBLabel: same(""), comparisonBValue: same(""), comparisonHighlight: same(""),
-        chipOneTitle: lt("60 saniyede kurulum", "In 60 Sekunden installiert", "Installed in 60 seconds"),
-        chipOneText: lt("Doğrudan cihazında", "Direkt auf deinem Gerät", "Directly on your device"),
-        chipTwoTitle: lt("Esnek paketler", "Flexible Pakete", "Flexible plans"),
-        chipTwoText: lt("Her yolculuk için", "Für jede Reise", "For every trip"),
-        chipThreeTitle: lt("Tatil, iş ve daha fazlası için", "Für Urlaub, Business & mehr", "For holidays, business & more"),
       },
       items: [
         item("chip-setup", { cardType: "chip", position: "top-right", icon: "Zap", title: lt("60 saniyede kurulum", "In 60 Sekunden installiert", "Installed in 60 seconds"), text: lt("Doğrudan cihazında", "Direkt auf deinem Gerät", "Directly on your device") }),
