@@ -251,7 +251,7 @@ export function withEditorialStarters(config: V2PageConfig): V2PageConfig {
   return { ...config, sections: config.sections.map((section) => section !== trust ? section : {
     ...localizeTrustSection(section),
     ...(trust.items.some((entry) => entry.reviewType === "DEMO") && !trust.items.some((entry) => entry.reviewType === "EDITORIAL")
-      ? { items: [...localizeTrustSection(section).items.filter((entry) => entry.reviewType !== "DEMO"), showDemoReviews: true,
+      ? { items: [...localizeTrustSection(section).items.filter((entry) => entry.reviewType !== "DEMO"), ...editorialReviewCards()], showDemoReviews: true,
           trust: { ...section.trust, ratingMode: "manual", manualRating: 4.8, manualCaption: withTrustLocales(defaultTrust().manualCaption) } as NonNullable<V2Section["trust"]> }
       : {}),
   }) };
