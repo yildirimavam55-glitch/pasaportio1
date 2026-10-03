@@ -20,6 +20,14 @@ const LABELS = localize({
   en: { rating: "{rating} out of 5 stars", reviews: "Customer reviews", real: "Based on real customer reviews", demo: "DEMO / TEST — not a real customer review", editorial: "Editorial examples · not customer reviews", slide: "Review {index}", country: "Country", previewRating: "Based on customer experiences", paymentPreview: "DEMO / PREVIEW — payment not yet available" },
 });
 
+const BENEFIT_IMAGE_SIZE: Record<80 | 100 | 120 | 140 | 160, string> = {
+  80: "size-[min(100%,3.8rem)] sm:size-[min(100%,5.6rem)]",
+  100: "size-[min(100%,4.75rem)] sm:size-[min(100%,7rem)]",
+  120: "size-[min(100%,5.7rem)] sm:size-[min(100%,8rem)]",
+  140: "size-[min(100%,6.65rem)] sm:size-[min(100%,8rem)]",
+  160: "size-[min(100%,7.6rem)] sm:size-[min(100%,8rem)]",
+};
+
 /** Public reviews are additionally filtered on the server; demos can only appear in the Admin iframe. */
 export function V2TrustReviews({ section, media, preview = false }: { section: V2Section; media: V2Media; preview?: boolean }) {
   const { locale, uiLocale } = useI18n();
@@ -84,7 +92,7 @@ export function V2TrustReviews({ section, media, preview = false }: { section: V
 
      {trustItems.length > 0 && <Reveal delay={210} className="trust-section-reveal mt-5"><ul className={`grid overflow-hidden rounded-2xl bg-card shadow-soft ring-1 ring-border ${trustItems.length === 3 ? "grid-cols-3" : "grid-cols-4"}`}>
        {trustItems.map((item, index) => <li key={item.id} className={`flex min-w-0 flex-col items-center border-border px-1 pb-4 pt-2 text-center sm:px-4 ${index > 0 ? "border-l" : ""}`}>
-         <span className="grid h-20 w-full place-items-center sm:h-32">{item.visualMode !== "ICON" && mediaUrl(item.mediaId, media) ? <img src={mediaUrl(item.mediaId, media)} alt={v2ItemText(item.imageAlt, locale) || media[item.mediaId ?? ""]?.alt || ""} loading="lazy" decoding="async" width={320} height={320} className="size-[min(100%,4.75rem)] object-contain sm:size-28" /> : <StorefrontIcon name={item.icon} className="size-10 text-success sm:size-14" />}</span>
+          <span className="grid h-20 w-full min-w-0 place-items-center sm:h-32">{item.visualMode !== "ICON" && mediaUrl(item.mediaId, media) ? <img src={mediaUrl(item.mediaId, media)} alt={v2ItemText(item.imageAlt, locale) || media[item.mediaId ?? ""]?.alt || ""} loading="lazy" decoding="async" width={320} height={320} className={`${BENEFIT_IMAGE_SIZE[item.imageScale ?? (item.id === "trust-payment" ? 140 : 100)] ?? BENEFIT_IMAGE_SIZE[100]} max-h-full max-w-full object-contain`} /> : <StorefrontIcon name={item.icon} className="size-10 text-success sm:size-14" />}</span>
          <strong className="text-[10px] leading-tight text-foreground sm:text-base">{v2ItemText(item.title, locale)}</strong><span className="mt-1 text-[9px] leading-snug text-muted-foreground sm:text-sm">{v2ItemText(item.text, locale)}</span>
          {preview && item.id === "trust-payment" && <span className="mt-1 text-[8px] font-bold leading-tight text-muted-foreground">{labels.paymentPreview}</span>}
       </li>)}
