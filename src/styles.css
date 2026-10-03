@@ -1523,6 +1523,11 @@ html[data-quick-search-lock] body {
 
 /* The traveler photo sits inside a physical phone; the three labels float over its edges. */
 .trust-phone { transform: rotate(5deg); transform-origin: center; }
+@media (max-width: 639px) {
+  .trust-story-main:has(.trust-story-copy [role="img"]) { min-height: 38rem; }
+  .trust-story-copy:has([role="img"]) > .trust-section-reveal:last-child { position: absolute; top: 34rem; left: 0; z-index: 11; max-width: 100%; }
+  [dir="rtl"] .trust-story-copy:has([role="img"]) > .trust-section-reveal:last-child { left: auto; right: 0; }
+}
 @media (max-width: 380px) {
   .trust-story h2 { font-size: 1.75rem; }
   .trust-phone { right: 4%; }

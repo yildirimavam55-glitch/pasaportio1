@@ -23,6 +23,9 @@ import infoPayment from "@/assets/info-payment.jpg";
 import infoSupport from "@/assets/info-support.jpg";
 import trustRefund from "@/assets/trust-refund.jpg";
 import trustTraveler from "@/assets/trust-traveler.jpg";
+import demoGiulia from "@/assets/trust-demo-giulia.jpg";
+import demoHaruto from "@/assets/trust-demo-haruto.jpg";
+import demoEmily from "@/assets/trust-demo-emily.jpg";
 
 export const V2_BUILTIN_URLS: Record<string, string> = {
   "builtin:esim-hero": esimHero,
@@ -38,6 +41,9 @@ export const V2_BUILTIN_URLS: Record<string, string> = {
   "builtin:info-support": infoSupport,
   "builtin:trust-refund": trustRefund,
   "builtin:trust-traveler": trustTraveler,
+  "builtin:trust-demo-giulia": demoGiulia,
+  "builtin:trust-demo-haruto": demoHaruto,
+  "builtin:trust-demo-emily": demoEmily,
 };
 
 export const V2_PREVIEW_WINDOW = "v2-cms-preview";

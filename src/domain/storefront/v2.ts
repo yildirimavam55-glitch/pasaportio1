@@ -56,7 +56,7 @@ export const V2_SAFE_LINKS = [
 export type V2SafeLink = (typeof V2_SAFE_LINKS)[number];
 
 /** Images bundled with the app, referenced as `builtin:<key>`. */
-export const V2_BUILTIN_MEDIA = ["esim-hero", "lounge-hero", "vignette-hero", "lounge-card", "esim-cross-sell", "info-products", "info-roaming", "info-delivery", "info-install", "info-payment", "info-support", "trust-refund", "trust-traveler"] as const;
+export const V2_BUILTIN_MEDIA = ["esim-hero", "lounge-hero", "vignette-hero", "lounge-card", "esim-cross-sell", "info-products", "info-roaming", "info-delivery", "info-install", "info-payment", "info-support", "trust-refund", "trust-traveler", "trust-demo-giulia", "trust-demo-haruto", "trust-demo-emily"] as const;
 
 export const V2_HEIGHTS = ["compact", "normal", "tall"] as const;
 export const V2_OVERLAYS = ["light", "normal", "strong"] as const;
@@ -200,6 +200,17 @@ function section(id: string, type: V2SectionType, patch: Partial<V2Section> = {}
 
 const item = (id: string, patch: Partial<V2Item> = {}): V2Item => ({ id, visible: true, icon: "", entity: "", title: same(""), text: same(""), internalKey: id, cardType: "products", mediaId: null, href: "", labels: [], cta: same(""), imageAlt: same(""), focalX: 50, focalY: 50, rating: 5, verified: false, published: false, ...patch });
 
+/** Fictional records for the Admin iframe only; the public loader removes them even from published CMS data. */
+const trustDemoReviews = [
+  ["giulia", "IT", "Giulia R.", "Die Einrichtung war schnell erledigt und für meine Reise sehr unkompliziert."],
+  ["haruto", "JP", "Haruto S.", "Nach dem Kauf konnte ich die eSIM direkt einrichten. Für meine Reise durch Japan sehr praktisch."],
+  ["emily", "US", "Emily C.", "Einfach eingerichtet und auf meiner Reise sehr praktisch."],
+] as const;
+
+function demoReview([id, countryCode, name, text]: typeof trustDemoReviews[number]): V2Item {
+  return item(`review-demo-${id}`, { cardType: "review", mediaId: `builtin:trust-demo-${id}`, title: { tr: "", en: "", de: name }, text: { tr: "", en: "", de: text }, reviewType: "DEMO", reviewStatus: "DRAFT", originalLanguage: "de", countryCode, rating: 5, verified: false, published: false, reviewDate: "", createdAt: "", updatedAt: "" });
+}
+
 const infoCard = (id: string, cardType: string, mediaId: string, title: LT, text: LT, labels: LT[] = [], href: V2SafeLink | "" = "") =>
   item(id, { internalKey: id, cardType, mediaId, title, text, labels, href, imageAlt: title });
 
@@ -241,6 +252,7 @@ function esimDefault(): V2Page {
     }),
     section("trust-reviews", "TRUST_REVIEWS", {
       mediaId: "builtin:trust-traveler",
+      showDemoReviews: true,
       text: {
         eyebrow: lt("Seyahat edenler için geliştirildi", "Für Reisende entwickelt", "Built for travellers"),
         title: lt("Gerçek yolculuklar.", "Echte Reisende.", "Real travellers."),
@@ -258,6 +270,7 @@ function esimDefault(): V2Page {
         item("trust-refund", { cardType: "trust", icon: "RotateCcw", title: lt("14 gün iade", "14 Tage Rückgabe", "14-day return"), text: lt("Kullanılmamış eSIM’leri kolayca iade et", "Unbenutzte eSIMs problemlos zurückgeben", "Easily return unused eSIMs") }),
         item("trust-install", { cardType: "trust", icon: "Zap", title: lt("60 saniyede kurulum", "In 60 Sekunden installiert", "Installed in 60 seconds"), text: lt("Doğrudan cihazında", "Direkt auf deinem Gerät", "Directly on your device") }),
         item("trust-payment", { cardType: "trust", icon: "LockKeyhole", title: lt("Güvenli ödeme", "Sicher bezahlen", "Secure payment"), text: lt("Güvenilir ödeme yöntemleri", "Vertrauenswürdige Zahlungsmethoden", "Trusted payment methods") }),
+        ...trustDemoReviews.map(demoReview),
       ],
     }),
     section("esim-info", "INFO_CAROUSEL", {
@@ -466,6 +479,16 @@ export function sanitizeV2Page(raw: any, page: V2PageId): V2PageConfig {
       }
     }
     sections.splice(insertAt, 0, fallbackSection);
+  }
+  // Existing CMS pages can predate the demo fixture. Only add it to the editor
+  // configuration; public reads always strip DEMO records before returning data.
+  if (page === "esim") {
+    const trust = sections.find((s) => s.type === "TRUST_REVIEWS");
+    const sourceTrust = raw.sections.find((s: V2Section) => s?.type === "TRUST_REVIEWS");
+    if (trust && sourceTrust && !("showDemoReviews" in sourceTrust) && !trust.items.some((i) => i.cardType === "review" && i.reviewType === "DEMO")) {
+      trust.items = [...trust.items, ...trustDemoReviews.map(demoReview)];
+      trust.showDemoReviews = true;
+    }
   }
   // The search hero is core: always present and always first.
   const heroIndex = sections.findIndex((s) => s.type === "SEARCH_HERO");

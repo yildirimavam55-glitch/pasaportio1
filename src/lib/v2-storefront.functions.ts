@@ -64,8 +64,7 @@ export const getPublishedV2Page = createServerFn({ method: "GET" })
     try {
       const { data: row } = await publicClient().from("cms_documents").select("data").eq("key", keyFor(data.page)).eq("status", "PUBLISHED").maybeSingle();
       const published = (row?.data as any)?.published;
-      if (!published) return { config: defaultV2Page(data.page), media: {} };
-      const sanitized = sanitizeV2Page(published, data.page);
+      const sanitized = sanitizeV2Page(published ?? defaultV2Page(data.page), data.page);
       const config = {
         ...sanitized,
         sections: sanitized.sections.map((section) => section.type === "TRUST_REVIEWS"
@@ -74,7 +73,8 @@ export const getPublishedV2Page = createServerFn({ method: "GET" })
       };
       return { config, media: await resolveMedia(collectV2MediaIds(config)) };
     } catch {
-      return { config: defaultV2Page(data.page), media: {} };
+      const fallback = defaultV2Page(data.page);
+      return { config: { ...fallback, sections: fallback.sections.map((section) => section.type === "TRUST_REVIEWS" ? { ...section, showDemoReviews: false, items: section.items.filter((item) => item.cardType !== "review") } : section) }, media: {} };
     }
   });
 
