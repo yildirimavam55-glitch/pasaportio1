@@ -18,7 +18,8 @@ const A11Y = localize({
 export function V2TrustReviews({ section, media }: { section: V2Section; media: V2Media }) {
   const { locale } = useI18n();
   const photo = mediaUrl(section.mediaId, media);
-  const trustItems = section.items.filter((item) => item.visible && item.cardType === "trust").slice(0, 4);
+  // Checkout currently takes no real payments; do not advertise payment security as a live benefit.
+  const trustItems = section.items.filter((item) => item.visible && item.cardType === "trust" && item.id !== "trust-payment").slice(0, 4);
   const reviews = section.items.filter((item) => item.visible && item.cardType === "review" && item.verified && item.published && v2ItemText(item.title, locale) && v2ItemText(item.text, locale));
 
   return (
