@@ -101,8 +101,9 @@ export function V2Sections({ config, media, slots, only }: { config: V2PageConfi
   const [isPreview, setIsPreview] = useState(false);
   const [visualTest, setVisualTest] = useState(false);
   useEffect(() => {
-    setIsPreview(window.parent !== window && window.name === V2_PREVIEW_WINDOW);
-    setVisualTest(window.parent === window && (window.location.hostname === "localhost" || window.location.hostname.startsWith("id-preview--")));
+    const previewHost = window.location.hostname === "localhost" || window.location.hostname.startsWith("id-preview--");
+    setIsPreview(previewHost && window.parent !== window && window.name === V2_PREVIEW_WINDOW);
+    setVisualTest(previewHost && (window.parent === window || window.name === V2_PREVIEW_WINDOW));
   }, []);
   const sections = config.sections.filter((s) => s.visible && (!only || only(s)));
   return (
