@@ -742,4 +742,5 @@
 ## Social Proof Admin-managed lifestyle photo
 - [x] Replace the fixed phone mask with a responsive photo area while preserving independent floating chips.
 - [x] Keep image selection, replacement, removal, preview, alt text, and focal control in the existing Admin media workflow.
-- [ ] Verify the Admin editor and mobile/desktop preview without publishing.
+- [x] Verify mobile/desktop photo geometry, chip independence, and zero horizontal overflow without publishing.
+- [ ] Verify authenticated Admin upload/replace/remove in the editor; the available preview session does not belong to the designated Admin account.
