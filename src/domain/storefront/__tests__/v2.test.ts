@@ -4,7 +4,7 @@ import { defaultV2Page, isInWindow, missingV2Translations, sanitizeV2Page, V2_PA
 describe("V2 storefront config", () => {
   it("default pages mirror the approved V2 order", () => {
     expect(defaultV2Page("esim").sections.map((s) => s.type)).toEqual([
-      "SEARCH_HERO", "BENEFIT_ROW", "DESTINATION_CAROUSEL", "INFO_CAROUSEL", "REGION_DISCOVERY", "COMPATIBILITY", "PROMO_BANNER", "INSTALLATION_STEPS", "PROMO_BANNER", "GUIDE_CAROUSEL", "FAQ",
+      "SEARCH_HERO", "BENEFIT_ROW", "DESTINATION_CAROUSEL", "TRUST_REVIEWS", "INFO_CAROUSEL", "REGION_DISCOVERY", "COMPATIBILITY", "PROMO_BANNER", "INSTALLATION_STEPS", "PROMO_BANNER", "GUIDE_CAROUSEL", "FAQ",
     ]);
     const esim = defaultV2Page("esim");
     expect(esim.sections[1]!.items.map((i) => i.title.tr)).toEqual(["Hızlı teslim", "14 gün iade", "Kolay kurulum", "WhatsApp destek"]);

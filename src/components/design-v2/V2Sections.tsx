@@ -2,6 +2,7 @@ import { useEffect, useState, type ReactNode } from "react";
 import { queryOptions, useQuery } from "@tanstack/react-query";
 import { DesktopPromoCard, HowItWorks, PromoCard, TrustRow } from "@/components/design-v2/V2Shell";
 import { V2InfoCarousel } from "@/components/design-v2/V2InfoCarousel";
+import { V2TrustReviews } from "@/components/design-v2/V2TrustReviews";
 import { V2CategorizedEsimFaq, V2Compatibility, V2CompactFaq, V2GuidesRail, V2InfoGrid, V2Installation } from "@/components/design-v2/V2DiscoveryContent";
 import { DesktopDeviceCompatibilityBanner } from "@/components/travel/DeviceCompatibility";
 import { StorefrontIcon } from "@/domain/storefront/icons";
@@ -21,6 +22,7 @@ import infoInstall from "@/assets/info-install.jpg";
 import infoPayment from "@/assets/info-payment.jpg";
 import infoSupport from "@/assets/info-support.jpg";
 import trustRefund from "@/assets/trust-refund.jpg";
+import trustTraveler from "@/assets/trust-traveler.jpg";
 
 export const V2_BUILTIN_URLS: Record<string, string> = {
   "builtin:esim-hero": esimHero,
@@ -35,6 +37,7 @@ export const V2_BUILTIN_URLS: Record<string, string> = {
   "builtin:info-payment": infoPayment,
   "builtin:info-support": infoSupport,
   "builtin:trust-refund": trustRefund,
+  "builtin:trust-traveler": trustTraveler,
 };
 
 export const V2_PREVIEW_WINDOW = "v2-cms-preview";
@@ -102,6 +105,8 @@ export function V2Sections({ config, media, slots, only }: { config: V2PageConfi
             return <V2Fragment key={s.id}><div className={slots.benefitsInDesktopHero ? "lg:hidden" : undefined}><TrustRow items={items.map((item) => ({ icon: <StorefrontIcon name={item.icon} className="size-6" />, label: v2ItemText(item.title, locale) }))} />{slots.afterBenefits}</div></V2Fragment>;
           case "DESTINATION_CAROUSEL":
             return <V2Fragment key={s.id}>{slots.destinations?.(s)}{slots.afterDestinations}</V2Fragment>;
+          case "TRUST_REVIEWS":
+            return <V2TrustReviews key={s.id} section={s} media={media} />;
           case "REGION_DISCOVERY":
             return <V2Fragment key={s.id}>{slots.regions?.(s)}{slots.afterRegions}</V2Fragment>;
           case "NOTICE":
