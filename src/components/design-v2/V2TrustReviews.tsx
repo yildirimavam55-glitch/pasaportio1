@@ -31,7 +31,7 @@ export function V2TrustReviews({ section, media, preview = false }: { section: V
   const photo = mediaUrl(section.mediaId, media);
   const rail = useRef<HTMLDivElement>(null);
   const [active, setActive] = useState(0);
-  const reviews = section.items.filter((item) => item.visible && item.cardType === "review" && Boolean(item.text[item.originalLanguage ?? "en"]?.trim()) && (item.reviewType === "REAL" && item.verified && item.published && item.reviewStatus === "PUBLISHED" || preview && section.showDemoReviews && (item.reviewType === "DEMO" || item.reviewType === "EDITORIAL") && item.reviewStatus !== "ARCHIVED"));
+  const reviews = section.items.filter((item) => item.visible && item.cardType === "review" && Boolean((item.reviewType === "EDITORIAL" ? v2ItemText(item.text, locale) : item.text[item.originalLanguage ?? "en"])?.trim()) && (item.reviewType === "REAL" && item.verified && item.published && item.reviewStatus === "PUBLISHED" || preview && section.showDemoReviews && (item.reviewType === "DEMO" || item.reviewType === "EDITORIAL") && item.reviewStatus !== "ARCHIVED"));
   const realReviews = reviews.filter((item) => item.reviewType === "REAL" && item.verified && item.published && item.reviewStatus === "PUBLISHED");
   const displayReviews = reviews;
   const rating = realReviews.length ? (realReviews.reduce((sum, item) => sum + item.rating, 0) / realReviews.length).toFixed(1).replace(".", uiLocale === "en" ? "." : ",") : null;
@@ -119,7 +119,7 @@ function BenefitChip({ icon, title, text }: { icon: React.ReactNode; title: stri
 }
 
 function ReviewCard({ review, media, locale, uiLocale, ratingLabel, demoLabel }: { review: V2Item; media: V2Media; locale: Locale; uiLocale: keyof typeof LOCALE_REGISTRY; ratingLabel: string; demoLabel: string }) {
-  const name = review.title[review.originalLanguage ?? "en"] || v2ItemText(review.title, locale);
+  const name = review.reviewType === "EDITORIAL" ? v2ItemText(review.title, locale) : review.title[review.originalLanguage ?? "en"] || v2ItemText(review.title, locale);
   const original = review.reviewType === "EDITORIAL" ? v2ItemText(review.text, locale) : review.text[review.originalLanguage ?? "en"] || "";
   const country = review.countryCode ? new Intl.DisplayNames([LOCALE_REGISTRY[uiLocale].bcp47], { type: "region" }).of(review.countryCode) : v2ItemText(review.cta, locale);
   return <article className="w-[min(55%,12rem)] shrink-0 snap-start rounded-2xl bg-card p-3 shadow-soft ring-1 ring-border sm:w-[32%] lg:w-[30%]">
