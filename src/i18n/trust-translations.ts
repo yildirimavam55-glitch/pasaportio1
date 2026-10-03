@@ -41,6 +41,31 @@ const rows: Partial<Record<UiLocale, readonly string[]>> = {
   zh: ["为旅行者打造", "真实旅人。", "真实体验。", "无论城市短途游、背包旅行还是商务出行，我们的 eSIM 陪伴旅人前往 190 多个国家。", "旅人眺望地中海沿岸城市", "灵活套餐", "适合每段旅程", "度假、 商务及更多", "190 多个国家", "全球保持连接", "14 天退还", "轻松退还未使用的 eSIM", "60 秒即可安装", "直接安装到您的设备", "安全支付", "可信赖的支付方式", "已验证的客户评价", "满分 5 星中的 {rating} 星", "客户评价", "基于真实客户评价", "演示 / 测试 — 非真实客户评价", "评价 {index}", "国家"],
 };
 
+const extraSource = [
+  "Why Travely?", "Less risk. Better-value internet. Easier travel.",
+  "Choose an eSIM plan, see the price up front and get connected in a few steps.",
+  "An alternative to roaming", "Choose destination", "For unused eSIMs, within 14 days of purchase",
+  "Editorial examples · not customer reviews", "Flexible plans", "Installed in 60 seconds",
+  "14-Day Refund Guarantee", "Sample rating · not a customer rating",
+] as const;
+
+const extraRows: Partial<Record<UiLocale, readonly string[]>> = {
+  fr: ["Pourquoi Travely ?", "Moins de risques. Internet à prix avantageux. Voyager plus simplement.", "Choisissez un forfait eSIM, découvrez le prix à l’avance et connectez-vous en quelques étapes.", "Une alternative au roaming", "Choisir une destination", "Pour les eSIM non utilisées, dans les 14 jours suivant l’achat", "Exemples éditoriaux · pas des avis clients", "Forfaits flexibles", "Installation en 60 secondes", "Garantie de remboursement sous 14 jours", "Note d’exemple · pas une note client"],
+  es: ["¿Por qué Travely?", "Menos riesgos. Internet a mejor precio. Viajes más sencillos.", "Elige un plan eSIM, consulta el precio por adelantado y conéctate en pocos pasos.", "Una alternativa al roaming", "Elegir destino", "Para eSIM sin usar, durante los 14 días posteriores a la compra", "Ejemplos editoriales · no son opiniones de clientes", "Planes flexibles", "Instalación en 60 segundos", "Garantía de devolución de 14 días", "Valoración de ejemplo · no es una valoración de clientes"],
+  it: ["Perché Travely?", "Meno rischi. Internet conveniente. Viaggi più semplici.", "Scegli un piano eSIM, conosci il prezzo in anticipo e connettiti in pochi passaggi.", "Un’alternativa al roaming", "Scegli la destinazione", "Per le eSIM non utilizzate, entro 14 giorni dall’acquisto", "Esempi editoriali · non sono recensioni dei clienti", "Piani flessibili", "Installazione in 60 secondi", "Garanzia di rimborso entro 14 giorni", "Valutazione di esempio · non una valutazione dei clienti"],
+  pt: ["Porquê Travely?", "Menos riscos. Internet com melhor preço. Viajar sem complicações.", "Escolhe um plano eSIM, vê o preço antecipadamente e liga-te em poucos passos.", "Uma alternativa ao roaming", "Escolher destino", "Para eSIM não utilizados, até 14 dias após a compra", "Exemplos editoriais · não são avaliações de clientes", "Planos flexíveis", "Instalação em 60 segundos", "Garantia de reembolso em 14 dias", "Avaliação de exemplo · não é avaliação de clientes"],
+  nl: ["Waarom Travely?", "Minder risico. Voordeliger internet. Makkelijker reizen.", "Kies een eSIM-bundel, zie vooraf de prijs en maak in een paar stappen verbinding.", "Een alternatief voor roaming", "Bestemming kiezen", "Voor ongebruikte eSIMs, binnen 14 dagen na aankoop", "Redactionele voorbeelden · geen klantbeoordelingen", "Flexibele bundels", "Installatie in 60 seconden", "14 dagen terugbetalingsgarantie", "Voorbeeldscore · geen klantbeoordeling"],
+  pl: ["Dlaczego Travely?", "Mniej ryzyka. Internet w korzystniejszej cenie. Łatwiejsze podróże.", "Wybierz pakiet eSIM, poznaj cenę z góry i połącz się w kilku krokach.", "Alternatywa dla roamingu", "Wybierz kierunek", "Dla niewykorzystanych eSIM, w ciągu 14 dni od zakupu", "Przykłady redakcyjne · nie są opiniami klientów", "Elastyczne pakiety", "Instalacja w 60 sekund", "14-dniowa gwarancja zwrotu", "Przykładowa ocena · nie jest oceną klientów"],
+  ru: ["Почему Travely?", "Меньше рисков. Выгоднее интернет. Проще путешествовать.", "Выберите тариф eSIM, узнайте цену заранее и подключитесь за несколько шагов.", "Альтернатива роумингу", "Выбрать направление", "Для неиспользованных eSIM, в течение 14 дней после покупки", "Редакционные примеры · не отзывы клиентов", "Гибкие тарифы", "Установка за 60 секунд", "Гарантия возврата в течение 14 дней", "Пример оценки · не оценка клиентов"],
+  ar: ["لماذا Travely؟", "مخاطر أقل. إنترنت بقيمة أفضل. سفر أسهل.", "اختر باقة eSIM واطّلع على السعر مقدمًا واتصل في خطوات قليلة.", "بديل للتجوال", "اختر وجهتك", "لشرائح eSIM غير المستخدمة، خلال 14 يومًا من الشراء", "أمثلة تحريرية · ليست آراء عملاء", "باقات مرنة", "التثبيت في 60 ثانية", "ضمان استرداد خلال 14 يومًا", "تقييم تجريبي · ليس تقييم عملاء"],
+  ja: ["Travelyを選ぶ理由", "リスクを減らし、通信費を抑えて、もっと気軽な旅を。", "eSIMプランを選び、料金を事前に確認して、数ステップで接続できます。", "ローミングに代わる選択肢", "旅行先を選ぶ", "未使用のeSIMは購入から14日以内", "編集用サンプル · お客様の声ではありません", "柔軟なプラン", "60秒でインストール", "14日間の返金保証", "サンプル評価 · お客様の評価ではありません"],
+  ko: ["왜 Travely인가요?", "위험은 줄이고, 인터넷은 합리적으로, 여행은 더 쉽게.", "eSIM 요금제를 고르고 가격을 미리 확인한 뒤 몇 단계만 거치면 연결할 수 있어요.", "로밍을 대신할 선택지", "여행지 선택", "미사용 eSIM은 구매 후 14일 이내", "편집용 예시 · 고객 후기가 아닙니다", "유연한 요금제", "60초 만에 설치", "14일 환불 보장", "예시 평점 · 고객 평점이 아닙니다"],
+  zh: ["为什么选择 Travely？", "风险更少。流量更划算。旅行更轻松。", "选择 eSIM 套餐，提前查看价格，只需几步即可连接。", "漫游之外的选择", "选择目的地", "未使用的 eSIM，可在购买后 14 天内申请", "编辑示例 · 非真实客户评价", "灵活套餐", "60 秒即可安装", "14 天退款保障", "示例评分 · 非客户评分"],
+};
+
 export const TRUST_TRANSLATIONS: Partial<Record<UiLocale, Record<string, string>>> = Object.fromEntries(
-  Object.entries(rows).map(([locale, values]) => [locale, Object.fromEntries(source.map((key, index) => [key, values[index]]))]),
+  Object.entries(rows).map(([locale, values]) => [locale, {
+    ...Object.fromEntries(source.map((key, index) => [key, values[index]])),
+    ...Object.fromEntries(extraSource.map((key, index) => [key, extraRows[locale as UiLocale]?.[index]])),
+  }]),
 );

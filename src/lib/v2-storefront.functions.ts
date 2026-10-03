@@ -7,6 +7,7 @@ import {
   defaultV2Page,
   missingV2Translations,
   sanitizeV2Page,
+  withEditorialStarters,
   V2_PAGES,
   type V2PageConfig,
   type V2PageId,
@@ -125,7 +126,7 @@ export const getV2PageEditor = createServerFn({ method: "GET" })
     const draftRaw = (row?.data as any)?.draft ?? publishedRaw;
     return {
       page: data.page,
-      draft: sanitizeV2Page(draftRaw, data.page),
+      draft: data.page === "esim" ? withEditorialStarters(sanitizeV2Page(draftRaw, data.page)) : sanitizeV2Page(draftRaw, data.page),
       published: publishedRaw ? sanitizeV2Page(publishedRaw, data.page) : null,
       hasDraftChanges: JSON.stringify(draftRaw ?? null) !== JSON.stringify(publishedRaw ?? null),
       publishedAt: row?.published_at ?? null,

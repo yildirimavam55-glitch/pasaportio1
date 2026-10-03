@@ -1,10 +1,11 @@
 import { describe, expect, it } from "vitest";
 import { defaultV2Page, isInWindow, missingV2Translations, sanitizeV2Page, V2_PAGES } from "@/domain/storefront/v2";
+import { UI_LOCALES } from "@/i18n/locales";
 
 describe("V2 storefront config", () => {
   it("default pages mirror the approved V2 order", () => {
     expect(defaultV2Page("esim").sections.map((s) => s.type)).toEqual([
-      "SEARCH_HERO", "BENEFIT_ROW", "DESTINATION_CAROUSEL", "TRUST_REVIEWS", "INFO_CAROUSEL", "REGION_DISCOVERY", "COMPATIBILITY", "PROMO_BANNER", "INSTALLATION_STEPS", "PROMO_BANNER", "GUIDE_CAROUSEL", "FAQ",
+      "SEARCH_HERO", "BENEFIT_ROW", "DESTINATION_CAROUSEL", "TRUST_REVIEWS", "REGION_DISCOVERY", "INFO_CAROUSEL", "COMPATIBILITY", "PROMO_BANNER", "INSTALLATION_STEPS", "PROMO_BANNER", "GUIDE_CAROUSEL", "FAQ",
     ]);
     const esim = defaultV2Page("esim");
     expect(esim.sections[1]!.items.map((i) => i.title.tr)).toEqual(["Hızlı teslim", "14 gün iade", "Kolay kurulum", "WhatsApp destek"]);
@@ -19,19 +20,21 @@ describe("V2 storefront config", () => {
   it("keeps fictional reviews separate and respects an explicitly disabled preview switch", () => {
     const original = defaultV2Page("esim");
     const section = original.sections.find((entry) => entry.type === "TRUST_REVIEWS");
-    expect(section?.items.filter((entry) => entry.cardType === "review")).toMatchObject([
-      { reviewType: "DEMO", verified: false, published: false, countryCode: "IT", originalLanguage: "de" },
-      { reviewType: "DEMO", verified: false, published: false, countryCode: "JP", originalLanguage: "de" },
-      { reviewType: "DEMO", verified: false, published: false, countryCode: "US", originalLanguage: "de" },
-    ]);
+    const starters = section?.items.filter((entry) => entry.cardType === "review") ?? [];
+    expect(starters).toHaveLength(8);
+    expect(starters.map((entry) => entry.countryCode)).toEqual(["IT", "JP", "US", "CA", "ES", "TR", "TH", "AE"]);
+    for (const entry of starters) {
+      expect(entry).toMatchObject({ reviewType: "EDITORIAL", verified: false, published: false });
+      for (const locale of UI_LOCALES) expect(entry.text[locale]?.trim()).toBeTruthy();
+    }
     const disabled = structuredClone(original);
     const disabledSection = disabled.sections.find((entry) => entry.type === "TRUST_REVIEWS");
     if (!disabledSection) throw new Error("Missing trust section");
     disabledSection.showDemoReviews = false;
-    disabledSection.items = disabledSection.items.filter((entry) => entry.reviewType !== "DEMO");
+    disabledSection.items = disabledSection.items.filter((entry) => entry.reviewType !== "EDITORIAL");
     const cleaned = sanitizeV2Page(disabled, "esim").sections.find((entry) => entry.type === "TRUST_REVIEWS");
     expect(cleaned?.showDemoReviews).toBe(false);
-    expect(cleaned?.items.some((entry) => entry.reviewType === "DEMO")).toBe(false);
+    expect(cleaned?.items.some((entry) => entry.reviewType === "EDITORIAL")).toBe(false);
   });
 
   it("keeps the search hero first, visible and present", () => {
