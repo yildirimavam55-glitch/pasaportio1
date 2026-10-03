@@ -11,6 +11,8 @@ import { IconPicker } from "@/components/admin/IconPicker";
 import { Button } from "@/components/ui/button";
 import { StorefrontIcon } from "@/domain/storefront/icons";
 import { listMedia } from "@/lib/admin-media.functions";
+import { translateReview } from "@/lib/review-translate.functions";
+import { useServerFn } from "@tanstack/react-start";
 import { discardV2Draft, getV2PageEditor, restoreV2Version, saveV2Page } from "@/lib/v2-storefront.functions";
 import { V2_BUILTIN_URLS, V2_PREVIEW_WINDOW } from "@/components/design-v2/V2Sections";
 import {
@@ -391,7 +393,7 @@ function TrustReviewsEditor({ section, lang, uiLang, onUiLang, onChange }: { sec
            <Field label="Orijinal dil"><select className="admin-field mt-1 w-full" value={review.originalLanguage ?? "en"} onChange={(event) => setItem(review.id, { originalLanguage: event.target.value as UiLocale })}>{UI_LOCALES.map((code) => <option key={code} value={code}>{LOCALE_REGISTRY[code].nativeName}</option>)}</select></Field>
            <LTInput label="Ad ve soyad baş harfi (orijinal)" value={review.title} lang={lang} uiLang={review.originalLanguage ?? "en"} onChange={(title) => setItem(review.id, { title })} />
            <Field label="Ülke / bayrak"><select className="admin-field mt-1 w-full" value={review.countryCode ?? ""} onChange={(event) => setItem(review.id, { countryCode: event.target.value })}><option value="">Ülke seç</option>{reviewCountries.map((code) => <option key={code} value={code}>{countryLabel(code)} ({code})</option>)}</select></Field>
-           <div className="sm:col-span-2"><LTInput label="Orijinal yorum (otomatik çeviri yapılmaz)" value={review.text} lang={lang} uiLang={review.originalLanguage ?? "en"} multiline onChange={(text) => setItem(review.id, { text })} /></div>
+           <div className="sm:col-span-2"><LTInput label="Orijinal yorum (mağazada yalnız orijinal metin gösterilir)" value={review.text} lang={lang} uiLang={review.originalLanguage ?? "en"} multiline onChange={(text) => setItem(review.id, { text })} /><ReviewTranslator review={review} onChange={(text) => setItem(review.id, { text })} /></div>
            <MediaField label="Müşteri avatarı" value={review.mediaId} onChange={(mediaId) => setItem(review.id, { mediaId })} category="GLOBAL" />
            <Field label="Puan"><select className="admin-field mt-1 w-full" value={review.rating} onChange={(event) => setItem(review.id, { rating: Number(event.target.value) })}>{[5,4,3,2,1].map((rating) => <option key={rating} value={rating}>{rating} / 5</option>)}</select></Field>
            <Field label="Yorum tarihi"><input type="date" className="admin-field mt-1 w-full" value={review.reviewDate ?? ""} onChange={(event) => setItem(review.id, { reviewDate: event.target.value })} /></Field>
@@ -457,4 +459,21 @@ function ItemsEditor({ mode, page, items, lang, onChange }: { mode: NonNullable<
       )}
     </div>
   );
+}
+
+/** Admin-only AI translations (TR/DE/EN) for review management; the storefront still renders the original language only. */
+function ReviewTranslator({ review, onChange }: { review: V2Item; onChange: (text: V2Item["text"]) => void }) {
+  const run = useServerFn(translateReview);
+  const original = review.originalLanguage ?? "en";
+  const source = review.text[original] ?? "";
+  const mutation = useMutation({
+    mutationFn: () => run({ data: { text: source, language: original } }),
+    onSuccess: (t) => { const next = { ...review.text }; (["tr", "de", "en"] as const).forEach((code) => { if (code !== original) next[code] = t[code]; }); onChange(next); toast.success("Çeviriler oluşturuldu"); },
+    onError: (e) => toast.error(e instanceof Error ? e.message : "Çeviri başarısız"),
+  });
+  const targets = (["tr", "de", "en"] as const).filter((code) => code !== original);
+  return <div className="mt-2 rounded-md bg-secondary p-2">
+    <div className="flex flex-wrap items-center justify-between gap-2"><span className="text-[10px] text-muted-foreground">Yönetim için AI çevirisi (TR / DE / EN) — müşteriye gösterilmez.</span><Button size="sm" variant="outline" disabled={!source.trim() || mutation.isPending} onClick={() => mutation.mutate()}>{mutation.isPending ? "Çevriliyor…" : "AI ile çevir"}</Button></div>
+    {targets.some((code) => review.text[code]) && <dl className="mt-2 space-y-1 text-xs">{targets.map((code) => review.text[code] ? <div key={code}><dt className="inline font-bold uppercase">{code}: </dt><dd className="inline text-muted-foreground">{review.text[code]}</dd></div> : null)}</dl>}
+  </div>;
 }
