@@ -6,6 +6,7 @@ import { useI18n } from "@/i18n";
 import { localize } from "@/i18n/overlay";
 import { v2ItemText, v2Text, type V2Item, type V2Section } from "@/domain/storefront/v2";
 import type { V2Media } from "@/lib/v2-storefront.functions";
+import type { Locale } from "@/domain/enums";
 
 const A11Y = localize({
   tr: { rating: "5 üzerinden {rating} yıldız", reviews: "Doğrulanmış müşteri yorumları" },
@@ -86,17 +87,17 @@ function BenefitChip({ icon, title, text }: { icon: React.ReactNode; title: stri
   return <div className="flex items-center gap-2 rounded-2xl bg-card/95 px-3 py-2.5 text-foreground shadow-card ring-1 ring-card/70 backdrop-blur-sm"><span className="grid size-8 shrink-0 place-items-center rounded-full bg-primary-soft text-primary [&>svg]:size-4">{icon}</span><span className="text-[11px] leading-tight"><strong className="block">{title}</strong>{text}</span></div>;
 }
 
-function ReviewCard({ review, media, locale }: { review: V2Item; media: V2Media; locale: "tr" | "de" | "en" | string }) {
+function ReviewCard({ review, media, locale }: { review: V2Item; media: V2Media; locale: Locale }) {
   const avatar = mediaUrl(review.mediaId, media);
-  const ratingLabel = A11Y[locale as keyof typeof A11Y].rating.replace("{rating}", String(review.rating));
+  const ratingLabel = A11Y[locale].rating.replace("{rating}", String(review.rating));
   return (
     <article className="w-[82%] shrink-0 snap-start rounded-2xl bg-card p-4 shadow-soft ring-1 ring-border sm:w-auto">
       <div className="grid grid-cols-[auto_minmax(0,1fr)] items-center gap-3">
-        <span className="grid size-11 shrink-0 place-items-center overflow-hidden rounded-full bg-primary-soft text-sm font-bold text-primary">{avatar ? <img src={avatar} alt="" loading="lazy" className="size-full object-cover" /> : v2ItemText(review.title, locale as any).slice(0, 1)}</span>
-        <div className="min-w-0"><strong className="block truncate text-sm text-foreground">{v2ItemText(review.title, locale as any)}</strong><span className="block truncate text-xs text-muted-foreground">{v2ItemText(review.cta, locale as any)}</span></div>
+        <span className="grid size-11 shrink-0 place-items-center overflow-hidden rounded-full bg-primary-soft text-sm font-bold text-primary">{avatar ? <img src={avatar} alt="" loading="lazy" className="size-full object-cover" /> : v2ItemText(review.title, locale).slice(0, 1)}</span>
+        <div className="min-w-0"><strong className="block truncate text-sm text-foreground">{v2ItemText(review.title, locale)}</strong><span className="block truncate text-xs text-muted-foreground">{v2ItemText(review.cta, locale)}</span></div>
       </div>
       <div className="mt-3 flex gap-0.5 text-primary" role="img" aria-label={ratingLabel}>{Array.from({ length: 5 }, (_, index) => <Star key={index} className="size-4" fill={index < review.rating ? "currentColor" : "none"} aria-hidden />)}</div>
-      <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{v2ItemText(review.text, locale as any)}</p>
+      <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{v2ItemText(review.text, locale)}</p>
     </article>
   );
 }
