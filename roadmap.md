@@ -715,3 +715,8 @@
 - [x] Match the approved storyboard with varied photography, product UI, comparison, and progressive reveals; verify mobile continuity.
 - [x] Compact the full story by 25–35% without blank scroll distance and recheck mobile continuity.
 - [x] Keep payment methods truthful to the production checkout configuration; never render unsupported brand marks.
+
+## eSIM bilgi karuseli (tamamlandı)
+- [x] Eski uzun "Neden Travely?" hikâyesi kaldırıldı; yerine Popüler Ülkeler ile Bölgesel Paketler arasına 7 kartlı INFO_CAROUSEL eklendi (TR/DE/EN, scroll-snap, noktalar, masaüstü okları, RTL, azaltılmış hareket).
+- [x] Yayınlanmış eski sayfa yapılandırmalarına eksik tekil bölümler varsayılandan tamamlanıyor.
+- [ ] Admin: bilgi kartları için etiket/CTA/görsel alanlarının editörde genişletilmesi (mevcut V2 editörü başlık/metin düzenliyor).

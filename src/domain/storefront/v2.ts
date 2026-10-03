@@ -53,7 +53,7 @@ export const V2_SAFE_LINKS = [
 export type V2SafeLink = (typeof V2_SAFE_LINKS)[number];
 
 /** Images bundled with the app, referenced as `builtin:<key>`. */
-export const V2_BUILTIN_MEDIA = ["esim-hero", "lounge-hero", "vignette-hero", "lounge-card", "esim-cross-sell"] as const;
+export const V2_BUILTIN_MEDIA = ["esim-hero", "lounge-hero", "vignette-hero", "lounge-card", "esim-cross-sell", "info-products", "info-roaming", "info-delivery", "info-install", "info-payment", "info-support", "trust-refund"] as const;
 
 export const V2_HEIGHTS = ["compact", "normal", "tall"] as const;
 export const V2_OVERLAYS = ["light", "normal", "strong"] as const;
@@ -140,7 +140,7 @@ export const V2_TEXT_FIELDS: Record<V2SectionType, Array<[string, string]>> = {
 };
 
 /** How items of a section are edited: title-only, title+text, question/answer, destination. */
-export const V2_ITEM_MODE: Partial<Record<V2SectionType, "benefit" | "card" | "faq" | "destination" | "step">> = {
+export const V2_ITEM_MODE: Partial<Record<V2SectionType, "benefit" | "card" | "faq" | "destination" | "step" | "info">> = {
   BENEFIT_ROW: "benefit",
   INFO_GRID: "card",
   HOW_IT_WORKS: "card",
@@ -400,6 +400,21 @@ export function sanitizeV2Page(raw: any, page: V2PageId): V2PageConfig {
     if (V2_SINGLETON.includes(clean.type) && sections.some((s) => s.type === clean.type)) continue;
     seen.add(clean.id);
     sections.push(clean);
+  }
+  // Singleton sections introduced after a page was published are filled in from the
+  // built-in defaults at their designed position, so older published configs stay complete.
+  for (const fallbackSection of fallback.sections) {
+    if (!V2_SINGLETON.includes(fallbackSection.type) || sections.some((s) => s.type === fallbackSection.type)) continue;
+    const fallbackIndex = fallback.sections.indexOf(fallbackSection);
+    let insertAt = sections.length;
+    for (let i = fallbackIndex + 1; i < fallback.sections.length; i++) {
+      const nextIndex = sections.findIndex((s) => s.type === fallback.sections[i]!.type);
+      if (nextIndex >= 0) {
+        insertAt = nextIndex;
+        break;
+      }
+    }
+    sections.splice(insertAt, 0, fallbackSection);
   }
   // The search hero is core: always present and always first.
   const heroIndex = sections.findIndex((s) => s.type === "SEARCH_HERO");
