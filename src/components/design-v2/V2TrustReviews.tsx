@@ -131,7 +131,7 @@ function PreviewReviewCard({ review, uiLocale, ratingLabel }: { review: typeof P
       {"avatar" in review && review.avatar ? <img src={review.avatar} alt="" loading="lazy" className="size-9 shrink-0 rounded-full object-cover" /> : <span aria-hidden className="grid size-9 shrink-0 place-items-center rounded-full bg-primary-soft text-sm font-bold text-primary">{review.name[0]}</span>}
       <div className="min-w-0"><strong className="block truncate text-xs text-foreground">{review.name}</strong><span className="flex items-center gap-1 text-[11px] text-muted-foreground"><CountryFlag iso={review.countryCode} className="h-3 w-4" /><span className="truncate">{country}</span></span></div>
     </div>
-    <div className="mt-2 flex gap-0.5 text-success" role="img" aria-label={ratingLabel.replace("{rating}", String(review.rating))}>{Array.from({ length: 5 }, (_, index) => <Star key={index} className="size-3" fill={index < review.rating ? "currentColor" : "none" aria-hidden />)}</div>
+    <div className="mt-2 flex gap-0.5 text-success" role="img" aria-label={ratingLabel.replace("{rating}", String(review.rating))}>{Array.from({ length: 5 }, (_, index) => <Star key={index} className="size-3" fill={index < review.rating ? "currentColor" : "none"} aria-hidden />)}</div>
     <p lang="de" className="mt-2 text-xs leading-snug text-muted-foreground">{review.text}</p>
   </article>;
 }
