@@ -53,7 +53,7 @@ export const V2_SAFE_LINKS = [
 export type V2SafeLink = (typeof V2_SAFE_LINKS)[number];
 
 /** Images bundled with the app, referenced as `builtin:<key>`. */
-export const V2_BUILTIN_MEDIA = ["esim-hero", "lounge-hero", "vignette-hero", "lounge-card", "esim-cross-sell"] as const;
+export const V2_BUILTIN_MEDIA = ["esim-hero", "lounge-hero", "vignette-hero", "lounge-card", "esim-cross-sell", "info-products", "info-roaming", "info-delivery", "info-install", "info-payment", "info-support", "trust-refund"] as const;
 
 export const V2_HEIGHTS = ["compact", "normal", "tall"] as const;
 export const V2_OVERLAYS = ["light", "normal", "strong"] as const;
