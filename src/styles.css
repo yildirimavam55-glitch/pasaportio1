@@ -713,6 +713,21 @@ html.dark .destination-scene {
 .recommendation-reveal.is-revealed {
   transform: translate3d(0, 0, 0);
 }
+.trust-section-reveal {
+  transform: translate3d(0, 20px, 0);
+  transition-duration: 0.55s;
+  transition-delay: 0s;
+  transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+}
+.trust-section-reveal.is-revealed,
+.trust-section-chip.is-revealed {
+  transform: translate3d(0, 0, 0);
+}
+.trust-section-chip {
+  transform: translate3d(0, 14px, 0);
+  transition-duration: 0.5s;
+  transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+}
 .finder-result-reveal {
   animation: finder-result-in 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
 }

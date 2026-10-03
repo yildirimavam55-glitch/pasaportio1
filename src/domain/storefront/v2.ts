@@ -20,6 +20,7 @@ export const V2_SECTION_TYPES = [
   "SEARCH_HERO",
   "BENEFIT_ROW",
   "DESTINATION_CAROUSEL",
+  "TRUST_REVIEWS",
   "INFO_CAROUSEL",
   "REGION_DISCOVERY",
   "NOTICE",
@@ -37,7 +38,7 @@ export type V2SectionType = (typeof V2_SECTION_TYPES)[number];
 /** Search hero carries the core search: editable copy/media, never hidden, removed or moved. */
 export const V2_PROTECTED: readonly V2SectionType[] = ["SEARCH_HERO"];
 /** Sections tied to live catalogue data or a single page capability — not duplicable. */
-export const V2_SINGLETON: readonly V2SectionType[] = ["SEARCH_HERO", "DESTINATION_CAROUSEL", "INFO_CAROUSEL", "REGION_DISCOVERY", "COMPATIBILITY", "GUIDE_CAROUSEL"];
+export const V2_SINGLETON: readonly V2SectionType[] = ["SEARCH_HERO", "DESTINATION_CAROUSEL", "TRUST_REVIEWS", "INFO_CAROUSEL", "REGION_DISCOVERY", "COMPATIBILITY", "GUIDE_CAROUSEL"];
 export const V2_ADDABLE: readonly V2SectionType[] = ["BENEFIT_ROW", "PROMO_BANNER", "NOTICE", "INFO_GRID", "HOW_IT_WORKS", "INSTALLATION_STEPS", "FAQ", "SPACER"];
 
 /** Internal destinations a CMS link may point to. Nothing else is accepted. */
@@ -53,7 +54,7 @@ export const V2_SAFE_LINKS = [
 export type V2SafeLink = (typeof V2_SAFE_LINKS)[number];
 
 /** Images bundled with the app, referenced as `builtin:<key>`. */
-export const V2_BUILTIN_MEDIA = ["esim-hero", "lounge-hero", "vignette-hero", "lounge-card", "esim-cross-sell", "info-products", "info-roaming", "info-delivery", "info-install", "info-payment", "info-support", "trust-refund"] as const;
+export const V2_BUILTIN_MEDIA = ["esim-hero", "lounge-hero", "vignette-hero", "lounge-card", "esim-cross-sell", "info-products", "info-roaming", "info-delivery", "info-install", "info-payment", "info-support", "trust-refund", "trust-traveler"] as const;
 
 export const V2_HEIGHTS = ["compact", "normal", "tall"] as const;
 export const V2_OVERLAYS = ["light", "normal", "strong"] as const;
@@ -76,6 +77,9 @@ export type V2Item = {
   imageAlt: LT;
   focalX: number;
   focalY: number;
+  rating: number;
+  verified: boolean;
+  published: boolean;
 };
 
 export type V2Section = {
@@ -108,6 +112,7 @@ export const V2_SECTION_LABELS: Record<V2SectionType, string> = {
   SEARCH_HERO: "Arama hero",
   BENEFIT_ROW: "Avantaj satırı",
   DESTINATION_CAROUSEL: "Popüler destinasyonlar",
+  TRUST_REVIEWS: "Güven ve yorumlar",
   INFO_CAROUSEL: "eSIM bilgi kartları",
   REGION_DISCOVERY: "Bölgesel paketler",
   NOTICE: "Bilgi kutusu",
@@ -126,6 +131,7 @@ export const V2_TEXT_FIELDS: Record<V2SectionType, Array<[string, string]>> = {
   SEARCH_HERO: [["eyebrow", "Üst başlık"], ["title", "Başlık"], ["subtitle", "Alt başlık"], ["placeholder", "Arama metni"], ["sticky", "Sabit arama metni"]],
   BENEFIT_ROW: [],
   DESTINATION_CAROUSEL: [["title", "Başlık"]],
+  TRUST_REVIEWS: [["eyebrow", "Güven etiketi"], ["title", "Başlık"], ["accent", "Yeşil başlık satırı"], ["subtitle", "Açıklama"], ["imageAlt", "Seyahat görseli alt metni"], ["chipOneTitle", "İlk görsel etiketi"], ["chipOneText", "İlk görsel etiketi açıklaması"], ["chipTwoTitle", "İkinci görsel etiketi"], ["chipTwoText", "İkinci görsel etiketi açıklaması"]],
   INFO_CAROUSEL: [["title", "Başlık"], ["subtitle", "Alt başlık"]],
   REGION_DISCOVERY: [["eyebrow", "Üst başlık"], ["title", "Başlık"], ["lead", "Açıklama"], ["worldwide", "Dünya bannerı"], ["cta", "Buton metni"]],
   NOTICE: [["title", "Başlık"], ["text", "Metin"]],
@@ -181,7 +187,7 @@ function section(id: string, type: V2SectionType, patch: Partial<V2Section> = {}
   };
 }
 
-const item = (id: string, patch: Partial<V2Item> = {}): V2Item => ({ id, visible: true, icon: "", entity: "", title: same(""), text: same(""), internalKey: id, cardType: "products", mediaId: null, href: "", labels: [], cta: same(""), imageAlt: same(""), focalX: 50, focalY: 50, ...patch });
+const item = (id: string, patch: Partial<V2Item> = {}): V2Item => ({ id, visible: true, icon: "", entity: "", title: same(""), text: same(""), internalKey: id, cardType: "products", mediaId: null, href: "", labels: [], cta: same(""), imageAlt: same(""), focalX: 50, focalY: 50, rating: 5, verified: false, published: false, ...patch });
 
 const infoCard = (id: string, cardType: string, mediaId: string, title: LT, text: LT, labels: LT[] = [], href: V2SafeLink | "" = "") =>
   item(id, { internalKey: id, cardType, mediaId, title, text, labels, href, imageAlt: title });
@@ -221,6 +227,26 @@ function esimDefault(): V2Page {
       variant: "country",
       text: { title: from3(c, "popular") },
       items: POPULAR_COUNTRIES.slice(0, 10).map((country) => item(`c-${country.iso}`, { entity: country.iso })),
+    }),
+    section("trust-reviews", "TRUST_REVIEWS", {
+      mediaId: "builtin:trust-traveler",
+      text: {
+        eyebrow: lt("Seyahat edenler için geliştirildi", "Für Reisende entwickelt", "Built for travellers"),
+        title: lt("Gerçek yolculuklar.", "Echte Reisende.", "Real travellers."),
+        accent: lt("Gerçek deneyimler.", "Echte Erfahrungen.", "Real experiences."),
+        subtitle: lt("Şehir gezisi, sırt çantalı yolculuk veya iş seyahati — eSIM’lerimiz 190’dan fazla ülkede yolculuğuna eşlik eder.", "Ob Städtetrip, Backpacking oder Geschäftsreise – unsere eSIMs begleiten Reisende in über 190 Ländern.", "From city breaks and backpacking to business travel, our eSIMs keep travellers connected in over 190 countries."),
+        imageAlt: lt("Akdeniz kıyısındaki şehri seyreden gezgin", "Reisende mit Blick auf eine mediterrane Küstenstadt", "Traveller overlooking a Mediterranean coastal city"),
+        chipOneTitle: lt("Esnek paketler", "Flexible Pakete", "Flexible plans"),
+        chipOneText: lt("her yolculuk için", "für jede Reise", "for every trip"),
+        chipTwoTitle: lt("Tatil, iş", "Für Urlaub,", "For holidays,"),
+        chipTwoText: lt("ve daha fazlası", "Business & mehr", "business and more"),
+      },
+      items: [
+        item("trust-countries", { cardType: "trust", icon: "Globe2", title: lt("190+ ülke", "190+ Länder", "190+ countries"), text: lt("Dünya çapında bağlantı", "Weltweit verbunden", "Connected worldwide") }),
+        item("trust-refund", { cardType: "trust", icon: "RotateCcw", title: lt("14 gün iade", "14 Tage Rückgabe", "14-day return"), text: lt("Kullanılmamış eSIM’leri kolayca iade et", "Unbenutzte eSIMs problemlos zurückgeben", "Easily return unused eSIMs") }),
+        item("trust-install", { cardType: "trust", icon: "Zap", title: lt("Yaklaşık 60 saniyede kurulum", "In etwa 60 Sekunden installiert", "Set up in around 60 seconds"), text: lt("Doğrudan cihazında", "Direkt auf deinem Gerät", "Directly on your device") }),
+        item("trust-payment", { cardType: "trust", icon: "LockKeyhole", title: lt("Güvenli ödeme", "Sicher bezahlen", "Secure payment"), text: lt("Korunan ödeme altyapısı", "Geschützte Zahlungsinfrastruktur", "Protected payment infrastructure") }),
+      ],
     }),
     section("esim-info", "INFO_CAROUSEL", {
       text: {
@@ -351,6 +377,9 @@ function cleanItem(raw: any, index: number): V2Item {
     imageAlt: cleanLT(raw?.imageAlt, 240),
     focalX: Math.min(100, Math.max(0, Number(raw?.focalX ?? 50))),
     focalY: Math.min(100, Math.max(0, Number(raw?.focalY ?? 50))),
+    rating: Math.min(5, Math.max(1, Math.round(Number(raw?.rating ?? 5)))),
+    verified: raw?.verified === true,
+    published: raw?.published === true,
   };
 }
 
@@ -450,7 +479,7 @@ export function missingV2Translations(config: V2PageConfig, locale: "de" | "en")
   const check = (value: LT | undefined) => { if (value?.tr?.trim() && !value[locale]?.trim()) missing += 1; };
   for (const s of config.sections) {
     Object.values(s.text).forEach(check);
-    for (const it of s.items) { check(it.title); check(it.text); }
+    for (const it of s.items) { check(it.title); check(it.text); it.labels.forEach(check); check(it.cta); check(it.imageAlt); }
   }
   return missing;
 }
