@@ -28,3 +28,4 @@ Public install help stays in V2; QR, activation credentials, and package policy 
 - Fictional editorial review fixtures and inactive payment visuals render only in the V2 CMS preview iframe; public V2 reads strip editorial/demo reviews and never imply unavailable payment methods are active.
 - The V2 Social Proof main media is a CMS-selected lifestyle photo in a fixed responsive frame, never a phone mask; keep its chips as independent editable items so image replacement needs no code change.
 - Trust benefit visuals resolve each item's existing CMS media ID or selected icon through the shared V2 media registry; preserve per-item Admin editing rather than embedding card-specific assets in the rendering component.
+- Trust benefit custom images use an optional per-item CMS scale and contained rendering; this compensates for differing artwork proportions without altering shared card dimensions or uploaded media.

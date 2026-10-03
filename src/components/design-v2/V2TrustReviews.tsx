@@ -21,11 +21,11 @@ const LABELS = localize({
 });
 
 const BENEFIT_IMAGE_SIZE: Record<80 | 100 | 120 | 140 | 160, string> = {
-  80: "size-[min(100%,3.8rem)] sm:size-[min(100%,5.6rem)]",
-  100: "size-[min(100%,4.75rem)] sm:size-[min(100%,7rem)]",
-  120: "size-[min(100%,5.7rem)] sm:size-[min(100%,8rem)]",
-  140: "size-[min(100%,6.65rem)] sm:size-[min(100%,8rem)]",
-  160: "size-[min(100%,7.6rem)] sm:size-[min(100%,8rem)]",
+  80: "size-[min(100%,3.8rem)] sm:size-[min(100%,5.6rem)] data-[wide=true]:w-[5.5rem] sm:data-[wide=true]:w-[9rem]",
+  100: "size-[min(100%,4.75rem)] sm:size-[min(100%,7rem)] data-[wide=true]:w-[6.875rem] sm:data-[wide=true]:w-[11.25rem]",
+  120: "size-[min(100%,5.7rem)] sm:size-[min(100%,8rem)] data-[wide=true]:w-[8.25rem] sm:data-[wide=true]:w-[13.5rem]",
+  140: "size-[min(100%,6.65rem)] sm:size-[min(100%,8rem)] data-[wide=true]:w-[9.625rem] sm:data-[wide=true]:w-[15.75rem]",
+  160: "size-[min(100%,7.6rem)] sm:size-[min(100%,8rem)] data-[wide=true]:w-[11rem] sm:data-[wide=true]:w-[18rem]",
 };
 
 /** Public reviews are additionally filtered on the server; demos can only appear in the Admin iframe. */
@@ -92,7 +92,7 @@ export function V2TrustReviews({ section, media, preview = false }: { section: V
 
      {trustItems.length > 0 && <Reveal delay={210} className="trust-section-reveal mt-5"><ul className={`grid overflow-hidden rounded-2xl bg-card shadow-soft ring-1 ring-border ${trustItems.length === 3 ? "grid-cols-3" : "grid-cols-4"}`}>
        {trustItems.map((item, index) => <li key={item.id} className={`flex min-w-0 flex-col items-center border-border px-1 pb-4 pt-2 text-center sm:px-4 ${index > 0 ? "border-l" : ""}`}>
-          <span className="grid h-20 w-full min-w-0 place-items-center sm:h-32">{item.visualMode !== "ICON" && mediaUrl(item.mediaId, media) ? <img src={mediaUrl(item.mediaId, media)} alt={v2ItemText(item.imageAlt, locale) || media[item.mediaId ?? ""]?.alt || ""} loading="lazy" decoding="async" width={320} height={320} className={`${BENEFIT_IMAGE_SIZE[item.imageScale ?? (item.id === "trust-payment" ? 140 : 100)] ?? BENEFIT_IMAGE_SIZE[100]} max-h-full max-w-full object-contain`} /> : <StorefrontIcon name={item.icon} className="size-10 text-success sm:size-14" />}</span>
+          <span className="flex h-20 w-full min-w-0 items-center justify-center overflow-hidden sm:h-32">{item.visualMode !== "ICON" && mediaUrl(item.mediaId, media) ? <img src={mediaUrl(item.mediaId, media)} alt={v2ItemText(item.imageAlt, locale) || media[item.mediaId ?? ""]?.alt || ""} loading="lazy" decoding="async" width={320} height={320} onLoad={(event) => { event.currentTarget.dataset['wide'] = String(event.currentTarget.naturalWidth / event.currentTarget.naturalHeight >= 2); }} className={`${BENEFIT_IMAGE_SIZE[item.imageScale ?? (item.id === "trust-payment" ? 160 : 100)] ?? BENEFIT_IMAGE_SIZE[100]} max-h-full shrink-0 object-contain data-[wide=true]:max-w-none`} /> : <StorefrontIcon name={item.icon} className="size-10 text-success sm:size-14" />}</span>
          <strong className="text-[10px] leading-tight text-foreground sm:text-base">{v2ItemText(item.title, locale)}</strong><span className="mt-1 text-[9px] leading-snug text-muted-foreground sm:text-sm">{v2ItemText(item.text, locale)}</span>
          {preview && item.id === "trust-payment" && <span className="mt-1 text-[8px] font-bold leading-tight text-muted-foreground">{labels.paymentPreview}</span>}
       </li>)}
