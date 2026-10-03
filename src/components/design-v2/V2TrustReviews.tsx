@@ -90,6 +90,7 @@ export function V2TrustReviews({ section, media, preview = false }: { section: V
        {trustItems.map((item, index) => <li key={item.id} className={`flex min-w-0 flex-col items-center border-border px-1 pb-4 pt-2 text-center sm:px-4 ${index > 0 ? "border-l" : ""}`}>
          {(mediaUrl(item.mediaId, media) ?? visuals[item.id]) ? <img src={mediaUrl(item.mediaId, media) ?? visuals[item.id]} alt="" loading="lazy" decoding="async" width={816} height={816} className="h-20 w-20 max-w-full object-contain sm:h-32 sm:w-32" /> : <StorefrontIcon name={item.icon} className="my-5 size-10 text-success sm:my-12" />}
          <strong className="text-[10px] leading-tight text-foreground sm:text-base">{v2ItemText(item.title, locale)}</strong><span className="mt-1 text-[9px] leading-snug text-muted-foreground sm:text-sm">{v2ItemText(item.text, locale)}</span>
+         {preview && item.id === "trust-payment" && <span className="mt-1 text-[8px] font-bold leading-tight text-muted-foreground">{labels.paymentPreview}</span>}
       </li>)}
     </ul></Reveal>}
 
