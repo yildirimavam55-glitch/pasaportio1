@@ -752,4 +752,4 @@
 
 ## Payment benefit illustration scale
 - [x] Add an optional per-card custom-image scale to existing V2 content without a migration; default 100%, payment 160%.
-- [ ] Verify at 390px that the payment artwork is proportionate, uncropped, contained, and adjustable in Admin preview.
+- [x] Verify at 390px that the payment artwork is proportionate, uncropped, contained, and adjustable in Admin preview.
