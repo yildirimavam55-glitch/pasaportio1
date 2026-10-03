@@ -401,6 +401,21 @@ export function sanitizeV2Page(raw: any, page: V2PageId): V2PageConfig {
     seen.add(clean.id);
     sections.push(clean);
   }
+  // Singleton sections introduced after a page was published are filled in from the
+  // built-in defaults at their designed position, so older published configs stay complete.
+  for (const fallbackSection of fallback.sections) {
+    if (!V2_SINGLETON.includes(fallbackSection.type) || sections.some((s) => s.type === fallbackSection.type)) continue;
+    const fallbackIndex = fallback.sections.indexOf(fallbackSection);
+    let insertAt = sections.length;
+    for (let i = fallbackIndex + 1; i < fallback.sections.length; i++) {
+      const nextIndex = sections.findIndex((s) => s.type === fallback.sections[i]!.type);
+      if (nextIndex >= 0) {
+        insertAt = nextIndex;
+        break;
+      }
+    }
+    sections.splice(insertAt, 0, fallbackSection);
+  }
   // The search hero is core: always present and always first.
   const heroIndex = sections.findIndex((s) => s.type === "SEARCH_HERO");
   const hero = heroIndex >= 0 ? sections.splice(heroIndex, 1)[0]! : fallback.sections[0]!;
