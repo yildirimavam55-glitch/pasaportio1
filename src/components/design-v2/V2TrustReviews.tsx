@@ -45,7 +45,7 @@ export function V2TrustReviews({ section, media }: { section: V2Section; media: 
         <Reveal delay={100} className="trust-section-reveal">
           <div className="relative mx-auto max-w-2xl pb-8 sm:px-7 sm:pb-5">
             <div className="relative h-[20rem] overflow-hidden rounded-3xl bg-muted shadow-panel sm:h-[25rem]">
-              {photo && <img src={photo} alt="" loading="lazy" decoding="async" width={1400} height={1100} className="size-full object-cover" style={{ objectPosition: `${section.claims.countries === "190+" ? 58 : 50}% 50%` }} />}
+              {photo && <img src={photo} alt={v2Text(section, "imageAlt", locale)} loading="lazy" decoding="async" width={1400} height={1100} className="size-full object-cover" />}
               <div className="absolute inset-0 bg-gradient-to-t from-foreground/20 via-transparent to-transparent" aria-hidden />
             </div>
             <Reveal delay={210} className="trust-section-chip absolute -bottom-1 left-3 max-w-[10.5rem] sm:bottom-3 sm:left-0">
