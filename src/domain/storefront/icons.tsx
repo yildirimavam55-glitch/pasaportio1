@@ -3,7 +3,7 @@ import {
   Gauge, Globe2, Headphones, HelpCircle, Hotel, Info, Languages, LifeBuoy, Luggage, Mail, MapPin, Medal,
   MessageCircle, Monitor, Navigation, Phone, Plane, PlaneLanding, PlaneTakeoff, QrCode, Route, Settings,
   ShieldCheck, ShoppingBag, ShowerHead, Signal, Smartphone, Sparkles, Star, Tag, TicketCheck, Timer, Utensils,
-  Wallet, Wifi, Zap, Globe, Sofa, CalendarCheck, LockKeyhole, FileCheck2, Map as MapIcon,
+  Wallet, Wifi, Zap, Globe, Sofa, CalendarCheck, LockKeyhole, RotateCcw, FileCheck2, Map as MapIcon,
   type LucideIcon,
 } from "lucide-react";
 
@@ -13,7 +13,7 @@ export const ICON_LIBRARY: Record<string, string[]> = {
   Bağlantı: ["Signal", "Wifi", "Smartphone", "QrCode", "Zap", "Monitor", "Languages"],
   Havalimanı: ["Building2", "Coffee", "Utensils", "ShowerHead", "TicketCheck", "Clock", "Timer", "Sofa", "CalendarCheck"],
   Destek: ["Headphones", "LifeBuoy", "MessageCircle", "Phone", "Mail", "HelpCircle", "Info"],
-  Güven: ["ShieldCheck", "BadgeCheck", "CheckCircle2", "Star", "Medal", "Bell", "LockKeyhole", "FileCheck2"],
+  Güven: ["ShieldCheck", "BadgeCheck", "CheckCircle2", "Star", "Medal", "Bell", "LockKeyhole", "RotateCcw", "FileCheck2"],
   Ticaret: ["CreditCard", "Wallet", "ShoppingBag", "Tag", "Gauge", "Globe2", "Sparkles", "Settings", "ArrowRight"],
 };
 
@@ -22,7 +22,7 @@ const ICONS: Record<string, LucideIcon> = {
   Gauge, Globe2, Headphones, HelpCircle, Hotel, Info, Languages, LifeBuoy, Luggage, Mail, MapPin, Medal,
   MessageCircle, Monitor, Navigation, Phone, Plane, PlaneLanding, PlaneTakeoff, QrCode, Route, Settings,
   ShieldCheck, ShoppingBag, ShowerHead, Signal, Smartphone, Sparkles, Star, Tag, TicketCheck, Timer, Utensils,
-  Wallet, Wifi, Zap, Globe, Sofa, CalendarCheck, LockKeyhole, FileCheck2, Map: MapIcon,
+  Wallet, Wifi, Zap, Globe, Sofa, CalendarCheck, LockKeyhole, RotateCcw, FileCheck2, Map: MapIcon,
 };
 
 export function StorefrontIcon({ name, className }: { name: string | undefined; className?: string }) {
