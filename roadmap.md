@@ -749,3 +749,7 @@
 - [x] Expose each of the four benefit visuals through existing CMS item media, icon mode, alt text, and Admin media controls.
 - [x] Verify signed-in image replacement → immediate preview → draft save → reload → preview persistence; discard the temporary test draft without publishing.
 - [ ] Verify an actual file upload only when adding a media record is authorized; the existing upload control is present.
+
+## Payment benefit illustration scale
+- [x] Add an optional per-card custom-image scale to existing V2 content without a migration; default 100%, payment 140%.
+- [ ] Verify at 390px that the payment artwork is proportionate, uncropped, contained, and adjustable in Admin preview.
