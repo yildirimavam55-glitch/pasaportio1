@@ -187,7 +187,7 @@ const from3 = <K extends string>(copy: Record<Locale, Record<K, unknown>>, key: 
   lt(String(copy.tr[key] ?? ""), String(copy.de[key] ?? ""), String(copy.en[key] ?? ""));
 const same = (value: string): LT => lt(value, value, value);
 
-const defaultTrust = () => ({ background: "mint" as const, focal: "right" as const, ratingMode: "real" as const, manualRating: 4.8, maxRating: 5, manualCaption: lt("Önizleme puanı", "Vorschau-Bewertung", "Preview rating"), autoplay: false, whyEnabled: true, comparisonEnabled: false, comparisonPreviewOnly: true, illustrationId: null });
+const defaultTrust = () => ({ background: "mint" as const, focal: "right" as const, ratingMode: "manual" as const, manualRating: 4.8, maxRating: 5, manualCaption: lt("Önizleme puanı", "Vorschau-Bewertung", "Preview rating"), autoplay: false, whyEnabled: true, comparisonEnabled: false, comparisonPreviewOnly: true, illustrationId: null });
 
 function section(id: string, type: V2SectionType, patch: Partial<V2Section> = {}): V2Section {
   return {
@@ -251,7 +251,8 @@ export function withEditorialStarters(config: V2PageConfig): V2PageConfig {
   return { ...config, sections: config.sections.map((section) => section !== trust ? section : {
     ...localizeTrustSection(section),
     ...(trust.items.some((entry) => entry.reviewType === "DEMO") && !trust.items.some((entry) => entry.reviewType === "EDITORIAL")
-      ? { items: [...localizeTrustSection(section).items.filter((entry) => entry.reviewType !== "DEMO"), ...editorialReviewCards()], showDemoReviews: true }
+      ? { items: [...localizeTrustSection(section).items.filter((entry) => entry.reviewType !== "DEMO"), showDemoReviews: true,
+          trust: { ...section.trust, ratingMode: "manual", manualRating: 4.8, manualCaption: withTrustLocales(defaultTrust().manualCaption) } as NonNullable<V2Section["trust"]> }
       : {}),
   }) };
 }
