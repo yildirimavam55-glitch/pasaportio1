@@ -41,7 +41,7 @@ const PREVIEW_REVIEWS = [
 ] as const;
 
 /** Public reviews are additionally filtered on the server; demos can only appear in the Admin iframe. */
-export function V2TrustReviews({ section, media, preview = false }: { section: V2Section; media: V2Media; preview?: boolean }) {
+export function V2TrustReviews({ section, media, preview = false, visualTest = false }: { section: V2Section; media: V2Media; preview?: boolean; visualTest?: boolean }) {
   const { locale, uiLocale } = useI18n();
   const labels = LABELS[locale];
   const why = WHY[locale];
@@ -50,11 +50,12 @@ export function V2TrustReviews({ section, media, preview = false }: { section: V
   const [active, setActive] = useState(0);
   const reviews = section.items.filter((item) => item.visible && item.cardType === "review" && Boolean(item.text[item.originalLanguage ?? "en"]?.trim()) && (item.reviewType === "REAL" && item.verified && item.published && item.reviewStatus === "PUBLISHED" || preview && section.showDemoReviews && item.reviewType === "DEMO" && item.reviewStatus !== "ARCHIVED"));
   const realReviews = reviews.filter((item) => item.reviewType === "REAL" && item.verified && item.published && item.reviewStatus === "PUBLISHED");
-  const displayReviews = preview && section.showDemoReviews ? PREVIEW_REVIEWS : reviews;
+  const showTest = visualTest || (preview && section.showDemoReviews);
+  const displayReviews = showTest ? PREVIEW_REVIEWS : reviews;
   const rating = realReviews.length ? (realReviews.reduce((sum, item) => sum + item.rating, 0) / realReviews.length).toFixed(1).replace(".", uiLocale === "en" ? "." : ",") : null;
   const trustItems = section.items.filter((item) => item.visible && item.cardType === "trust" && item.id !== "trust-payment");
   const visuals: Record<string, string> = { "trust-countries": globeVisual, "trust-refund": returnVisual, "trust-install": installVisual };
-  const displayRating = preview && section.showDemoReviews ? (uiLocale === "en" ? "4.8" : "4,8") : rating;
+  const displayRating = showTest ? (uiLocale === "en" ? "4.8" : "4,8") : rating;
   const scrollTo = (index: number) => rail.current?.children[index]?.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "start" });
 
   return <section aria-labelledby={`${section.id}-title`} className="trust-story relative -mx-4 mt-5 overflow-hidden rounded-[2rem] bg-petrol-soft px-6 pb-5 pt-5 sm:mx-0 sm:mt-8 sm:px-7 sm:pt-8 lg:px-10">
@@ -78,8 +79,8 @@ export function V2TrustReviews({ section, media, preview = false }: { section: V
     </div>
 
     {displayReviews.length > 0 && <Reveal delay={140} className="trust-section-reveal mt-2">
-      {displayRating && <div className="mb-4 flex flex-wrap items-start gap-x-3 gap-y-1"><span className="flex gap-0.5 text-success" role="img" aria-label={labels.rating.replace("{rating}", displayRating)}>{Array.from({ length: 5 }, (_, i) => <Star key={i} size={18} fill="currentColor" aria-hidden />)}</span><div><strong className="text-sm text-foreground">{displayRating} {uiLocale === "de" ? "von" : "/"} 5</strong><p className="text-xs text-muted-foreground">{preview && section.showDemoReviews ? labels.previewRating : labels.real}</p></div></div>}
-      {preview && section.showDemoReviews && <p className="mb-2 text-[10px] font-bold text-muted-foreground">{labels.demo}</p>}
+      {displayRating && <div className="mb-4 flex flex-wrap items-start gap-x-3 gap-y-1"><span className="flex gap-0.5 text-success" role="img" aria-label={labels.rating.replace("{rating}", displayRating)}>{Array.from({ length: 5 }, (_, i) => <Star key={i} size={18} fill="currentColor" aria-hidden />)}</span><div><strong className="text-sm text-foreground">{displayRating} {uiLocale === "de" ? "von" : "/"} 5</strong><p className="text-xs text-muted-foreground">{showTest ? labels.previewRating : labels.real}</p></div></div>}
+      {showTest && <p className="mb-2 text-[10px] font-bold text-muted-foreground">{labels.demo}</p>}
       <div ref={rail} role="region" aria-label={labels.reviews} tabIndex={displayReviews.length > 1 ? 0 : undefined} onScroll={(event) => { const node = event.currentTarget; const first = node.firstElementChild as HTMLElement | null; if (first) setActive(Math.min(displayReviews.length - 1, Math.round(Math.abs(node.scrollLeft) / (first.offsetWidth + 12)))); }} className="-mx-4 flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-2 [scrollbar-width:none] sm:mx-0 sm:px-0 lg:mx-0 lg:px-0 [&::-webkit-scrollbar]:hidden">
         {displayReviews.map((review) => "avatar" in review ? <PreviewReviewCard key={review.name} review={review} uiLocale={uiLocale} ratingLabel={labels.rating} /> : <ReviewCard key={review.id} review={review} media={media} locale={locale} uiLocale={uiLocale} ratingLabel={labels.rating} demoLabel={labels.demo} />)}
       </div>
@@ -98,7 +99,7 @@ export function V2TrustReviews({ section, media, preview = false }: { section: V
         <p className="text-xs font-bold uppercase tracking-wide text-success">{why.eyebrow}</p>
         <h3 id={`${section.id}-why`} className="mt-2 font-display text-xl font-bold leading-tight text-foreground sm:text-3xl">{why.title.map((line) => <span key={line} className="block">{line}</span>)}</h3>
         <p className="mt-2 max-w-xl text-[13px] leading-relaxed text-muted-foreground sm:text-base">{why.body}</p>
-        {preview && <div className="mt-4 border-y border-border py-4 text-primary"><span className="block text-xs font-bold uppercase">{why.offerTop}</span><strong className="block font-display text-5xl leading-none sm:text-6xl">{uiLocale === "tr" ? "%50'YE VARAN" : uiLocale === "de" ? "50 %" : "50%"}</strong><span className="block text-sm font-bold uppercase">{why.offerLabel}</span><span className="mt-2 block text-xs text-muted-foreground">{why.offerBottom}</span><p className="mt-3 max-w-lg text-[11px] leading-relaxed text-muted-foreground">{why.footnote}</p></div>}
+        {(preview || visualTest) && <div className="mt-4 border-y border-border py-4 text-primary"><span className="block text-xs font-bold uppercase">{why.offerTop}</span><strong className="block font-display text-5xl leading-none sm:text-6xl">{uiLocale === "tr" ? "%50'YE VARAN" : uiLocale === "de" ? "50 %" : "50%"}</strong><span className="block text-sm font-bold uppercase">{why.offerLabel}</span><span className="mt-2 block text-xs text-muted-foreground">{why.offerBottom}</span><p className="mt-3 max-w-lg text-[11px] leading-relaxed text-muted-foreground">{why.footnote}</p></div>}
         <div className="mt-4 flex items-center gap-3 rounded-2xl bg-card p-4 shadow-soft ring-1 ring-border">
           <span className="grid size-10 shrink-0 place-items-center rounded-full bg-primary-soft text-success"><Wallet className="size-5" aria-hidden /></span>
           <div className="min-w-0"><strong className="block text-sm text-foreground">{why.roamingTitle}</strong><span className="block text-xs leading-snug text-muted-foreground">{why.roamingText}</span></div>
