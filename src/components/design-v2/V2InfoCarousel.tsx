@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { ArrowLeft, ArrowRight, Check, Globe2, Headphones, LockKeyhole, QrCode, RotateCcw, Wallet, Zap } from "lucide-react";
-import { Reveal } from "@/components/design-v2/Reveal";
+import { Reveal } from "@/components/travel/Reveal";
 import { WhatsAppLogo } from "@/components/travel/WhatsAppLogo";
 import { mediaUrl } from "@/components/design-v2/V2Sections";
 import type { V2Media } from "@/lib/v2-storefront.functions";

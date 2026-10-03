@@ -1,6 +1,7 @@
 import { useEffect, useState, type ReactNode } from "react";
 import { queryOptions, useQuery } from "@tanstack/react-query";
 import { DesktopPromoCard, HowItWorks, PromoCard, TrustRow } from "@/components/design-v2/V2Shell";
+import { V2InfoCarousel } from "@/components/design-v2/V2InfoCarousel";
 import { V2CategorizedEsimFaq, V2Compatibility, V2CompactFaq, V2GuidesRail, V2InfoGrid, V2Installation } from "@/components/design-v2/V2DiscoveryContent";
 import { DesktopDeviceCompatibilityBanner } from "@/components/travel/DeviceCompatibility";
 import { StorefrontIcon } from "@/domain/storefront/icons";
@@ -13,6 +14,13 @@ import vignetteHero from "@/assets/v2-vignette-hero.jpg";
 import loungeCard from "@/assets/lounge-card.jpg.asset.json";
 import esimCrossSell from "@/assets/esim-cross-sell.jpg.asset.json";
 import vignetteRoadDesktop from "@/assets/vignette-road-desktop.jpg";
+import infoProducts from "@/assets/info-products.jpg";
+import infoRoaming from "@/assets/info-roaming.jpg";
+import infoDelivery from "@/assets/info-delivery.jpg";
+import infoInstall from "@/assets/info-install.jpg";
+import infoPayment from "@/assets/info-payment.jpg";
+import infoSupport from "@/assets/info-support.jpg";
+import trustRefund from "@/assets/trust-refund.jpg";
 
 export const V2_BUILTIN_URLS: Record<string, string> = {
   "builtin:esim-hero": esimHero,
@@ -20,6 +28,13 @@ export const V2_BUILTIN_URLS: Record<string, string> = {
   "builtin:vignette-hero": vignetteHero,
   "builtin:lounge-card": loungeCard.url,
   "builtin:esim-cross-sell": esimCrossSell.url,
+  "builtin:info-products": infoProducts,
+  "builtin:info-roaming": infoRoaming,
+  "builtin:info-delivery": infoDelivery,
+  "builtin:info-install": infoInstall,
+  "builtin:info-payment": infoPayment,
+  "builtin:info-support": infoSupport,
+  "builtin:trust-refund": trustRefund,
 };
 
 export const V2_PREVIEW_WINDOW = "v2-cms-preview";
@@ -131,6 +146,8 @@ export function V2Sections({ config, media, slots, only }: { config: V2PageConfi
             const promo = <PromoCard image={image ?? ""} title={t("title")} {...(t("subtitle") ? { sub: t("subtitle") } : {})} to={s.href === "/esim/kurulum" ? "/esim" : s.href} />;
             return pairedDesktopVignette ? <div key={s.id} className="lg:hidden">{promo}</div> : <V2Fragment key={s.id}>{promo}</V2Fragment>;
           }
+          case "INFO_CAROUSEL":
+            return <V2InfoCarousel key={s.id} section={s} media={media} />;
           case "GUIDE_CAROUSEL":
             return <V2GuidesRail key={s.id} title={t("title")} lead={t("lead")} allLabel={t("all")} />;
           case "FAQ": {
