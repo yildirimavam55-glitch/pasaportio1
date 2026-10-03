@@ -1,4 +1,4 @@
-import { Globe2, LockKeyhole, RotateCcw, Star, Users, Zap } from "lucide-react";
+import { Globe2, Heart, Star, Users } from "lucide-react";
 import { Reveal } from "@/components/travel/Reveal";
 import { StorefrontIcon } from "@/domain/storefront/icons";
 import { mediaUrl } from "@/components/design-v2/V2Sections";
@@ -19,12 +19,12 @@ export function V2TrustReviews({ section, media }: { section: V2Section; media: 
   const { locale } = useI18n();
   const photo = mediaUrl(section.mediaId, media);
   const trustItems = section.items.filter((item) => item.visible && item.cardType === "trust").slice(0, 4);
-  const reviews = section.items.filter((item) => item.visible && item.cardType === "review" && item.verified && item.published);
+  const reviews = section.items.filter((item) => item.visible && item.cardType === "review" && item.verified && item.published && v2ItemText(item.title, locale) && v2ItemText(item.text, locale));
 
   return (
-    <section aria-labelledby={`${section.id}-title`} className="mt-10 overflow-hidden rounded-3xl bg-petrol-soft px-4 py-7 sm:mt-14 sm:px-7 sm:py-10 lg:px-10 lg:py-12">
-      <div className="grid items-center gap-7 lg:grid-cols-[minmax(0,0.9fr)_minmax(25rem,1.1fr)] lg:gap-10">
-        <div className="min-w-0">
+    <section aria-labelledby={`${section.id}-title`} className="trust-story mt-8 overflow-hidden rounded-3xl bg-petrol-soft px-4 py-7 sm:mt-12 sm:px-7 sm:py-9 lg:px-10 lg:py-11">
+      <div className="relative min-h-[28rem] sm:min-h-[32rem] lg:grid lg:min-h-0 lg:grid-cols-[minmax(0,0.92fr)_minmax(0,1.08fr)] lg:items-center lg:gap-10">
+        <div className="relative z-10 min-w-0 lg:py-8">
           <Reveal className="trust-section-reveal">
             <p className="inline-flex max-w-full items-center gap-2 rounded-full bg-primary-soft px-3 py-2 text-xs font-bold text-primary">
               <Users className="size-4 shrink-0" aria-hidden />
@@ -32,27 +32,26 @@ export function V2TrustReviews({ section, media }: { section: V2Section; media: 
             </p>
           </Reveal>
           <Reveal delay={70} className="trust-section-reveal">
-            <h2 id={`${section.id}-title`} className="mt-5 font-display text-[2.15rem] font-bold leading-[1.03] text-foreground sm:text-5xl">
+            <h2 id={`${section.id}-title`} className="mt-5 font-display text-[2rem] font-bold leading-[1.07] text-foreground sm:text-5xl lg:text-5xl">
               {v2Text(section, "title", locale)}
               <span className="mt-1 block text-primary">{v2Text(section, "accent", locale)}</span>
             </h2>
           </Reveal>
           <Reveal delay={140} className="trust-section-reveal">
-            <p className="mt-4 max-w-xl text-sm leading-relaxed text-muted-foreground sm:text-base">{v2Text(section, "subtitle", locale)}</p>
+            <p className="mt-6 max-w-[45%] text-[13px] leading-relaxed text-muted-foreground sm:max-w-[40%] sm:text-base lg:mt-5 lg:max-w-xl">{v2Text(section, "subtitle", locale)}</p>
           </Reveal>
         </div>
 
-        <Reveal delay={100} className="trust-section-reveal">
-          <div className="relative mx-auto max-w-2xl pb-8 sm:px-7 sm:pb-5">
-            <div className="relative h-[20rem] overflow-hidden rounded-3xl bg-muted shadow-panel sm:h-[25rem]">
-              {photo && <img src={photo} alt={v2Text(section, "imageAlt", locale)} loading="lazy" decoding="async" width={1400} height={1100} className="size-full object-cover" />}
-              <div className="absolute inset-0 bg-gradient-to-t from-foreground/20 via-transparent to-transparent" aria-hidden />
+        <Reveal delay={100} className="trust-section-reveal absolute inset-x-0 top-[9.5rem] bottom-0 sm:top-[10rem] lg:relative lg:inset-auto">
+          <div className="relative ml-auto h-full w-[52%] sm:w-[55%] lg:mx-auto lg:h-auto lg:w-full lg:max-w-2xl lg:px-7 lg:pb-5 rtl:ml-0 rtl:mr-auto">
+            <div className="relative h-full min-h-[17rem] overflow-hidden rounded-3xl bg-muted shadow-panel lg:h-[25rem]">
+              {photo && <img src={photo} alt={v2Text(section, "imageAlt", locale)} loading="lazy" decoding="async" width={1408} height={1104} className="size-full object-cover object-[65%_center] lg:object-center" />}
             </div>
-            <Reveal delay={210} className="trust-section-chip absolute -bottom-1 left-3 max-w-[10.5rem] sm:bottom-3 sm:left-0">
+            <Reveal delay={210} className="trust-section-chip absolute bottom-2 -left-12 w-36 sm:bottom-5 sm:-left-16 sm:w-44 lg:bottom-3 lg:left-0">
               <BenefitChip icon={<Globe2 />} title={v2Text(section, "chipOneTitle", locale)} text={v2Text(section, "chipOneText", locale)} />
             </Reveal>
-            <Reveal delay={280} className="trust-section-chip absolute bottom-10 right-2 max-w-[10.5rem] sm:bottom-14 sm:right-0">
-              <BenefitChip icon={<Star />} title={v2Text(section, "chipTwoTitle", locale)} text={v2Text(section, "chipTwoText", locale)} />
+            <Reveal delay={280} className="trust-section-chip absolute right-0 top-4 w-36 sm:w-44 lg:right-0 lg:top-auto lg:bottom-14">
+              <BenefitChip icon={<Heart />} title={v2Text(section, "chipTwoTitle", locale)} text={v2Text(section, "chipTwoText", locale)} />
             </Reveal>
           </div>
         </Reveal>
@@ -60,7 +59,7 @@ export function V2TrustReviews({ section, media }: { section: V2Section; media: 
 
       {reviews.length > 0 && (
         <Reveal delay={140} className="trust-section-reveal mt-8 sm:mt-10">
-          <div role="region" aria-label={A11Y[locale].reviews} tabIndex={0} className="-mx-4 flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-2 [scrollbar-width:none] sm:mx-0 sm:grid sm:grid-cols-2 sm:px-0 lg:grid-cols-3 [&::-webkit-scrollbar]:hidden">
+          <div role="region" aria-label={A11Y[locale].reviews} tabIndex={reviews.length > 1 ? 0 : undefined} className={reviews.length > 1 ? "-mx-4 flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-2 [scrollbar-width:none] sm:mx-0 sm:grid sm:grid-cols-2 sm:px-0 lg:grid-cols-3 [&::-webkit-scrollbar]:hidden" : "grid gap-3 sm:max-w-md"}>
             {reviews.map((review) => <ReviewCard key={review.id} review={review} media={media} locale={locale} />)}
           </div>
         </Reveal>
@@ -70,10 +69,10 @@ export function V2TrustReviews({ section, media }: { section: V2Section; media: 
         <Reveal delay={210} className="trust-section-reveal mt-8 sm:mt-10">
           <ul className="grid grid-cols-2 overflow-hidden rounded-2xl bg-card shadow-soft ring-1 ring-border lg:grid-cols-4">
             {trustItems.map((item, index) => (
-              <li key={item.id} className={`flex min-w-0 flex-col items-center px-3 py-5 text-center ${index % 2 ? "border-l border-border" : ""} ${index > 1 ? "border-t border-border lg:border-t-0" : ""} ${index > 0 ? "lg:border-l lg:border-border" : ""}`}>
+              <li key={item.id} className={`flex min-w-0 flex-col items-center px-2 py-4 text-center sm:px-3 sm:py-5 ${index % 2 ? "border-l border-border" : ""} ${index > 1 ? "border-t border-border lg:border-t-0" : ""} ${index > 0 ? "lg:border-l lg:border-border" : ""}`}>
                 <span className="grid size-10 place-items-center rounded-full bg-primary-soft text-primary"><StorefrontIcon name={item.icon} className="size-5" /></span>
                 <strong className="mt-2 text-sm leading-tight text-foreground">{v2ItemText(item.title, locale)}</strong>
-                <span className="mt-1 text-[11px] leading-snug text-muted-foreground sm:text-xs">{v2ItemText(item.text, locale)}</span>
+                <span className="mt-1 text-xs leading-snug text-muted-foreground">{v2ItemText(item.text, locale)}</span>
               </li>
             ))}
           </ul>
@@ -84,7 +83,7 @@ export function V2TrustReviews({ section, media }: { section: V2Section; media: 
 }
 
 function BenefitChip({ icon, title, text }: { icon: React.ReactNode; title: string; text: string }) {
-  return <div className="flex items-center gap-2 rounded-2xl bg-card/95 px-3 py-2.5 text-foreground shadow-card ring-1 ring-card/70 backdrop-blur-sm"><span className="grid size-8 shrink-0 place-items-center rounded-full bg-primary-soft text-primary [&>svg]:size-4">{icon}</span><span className="text-[11px] leading-tight"><strong className="block">{title}</strong>{text}</span></div>;
+  return <div className="flex items-center gap-2 rounded-2xl bg-card/95 px-2 py-2 text-foreground shadow-card ring-1 ring-card/70 backdrop-blur-sm sm:px-3 sm:py-2.5"><span className="grid size-8 shrink-0 place-items-center rounded-full bg-primary-soft text-primary [&>svg]:size-4">{icon}</span><span className="min-w-0 text-[11px] leading-tight"><strong className="block">{title}</strong>{text}</span></div>;
 }
 
 function ReviewCard({ review, media, locale }: { review: V2Item; media: V2Media; locale: Locale }) {

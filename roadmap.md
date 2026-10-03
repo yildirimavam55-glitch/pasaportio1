@@ -720,3 +720,8 @@
 - [x] Eski uzun "Neden Travely?" hikâyesi kaldırıldı; yerine Popüler Ülkeler ile Bölgesel Paketler arasına 7 kartlı INFO_CAROUSEL eklendi (TR/DE/EN, scroll-snap, noktalar, masaüstü okları, RTL, azaltılmış hareket).
 - [x] Yayınlanmış eski sayfa yapılandırmalarına eksik tekil bölümler varsayılandan tamamlanıyor.
 - [ ] Admin: bilgi kartları için etiket/CTA/görsel alanlarının editörde genişletilmesi (mevcut V2 editörü başlık/metin düzenliyor).
+
+## Premium trust and social proof
+- [x] Reuse the existing V2 trust section and approved travel image without changing the surrounding homepage.
+- [x] Keep public reviews gated by verification and publication; retain localized CMS editing, avatar, rating, and order controls.
+- [ ] Verify mobile/desktop, languages, motion, review states, Admin preview, search, and purchase continuity without publishing.

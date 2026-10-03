@@ -1,5 +1,6 @@
 import { LOCALE_REGISTRY, type UiLocale } from "./locales";
 import { RESOURCES } from "./resources";
+import { TRUST_TRANSLATIONS } from "./trust-translations";
 
 /**
  * Presentation-layer translation overlay.
@@ -23,7 +24,7 @@ const cache = new Map<UiLocale, WeakMap<object, unknown>>();
 
 export function translateString(s: string, code: UiLocale = active): string {
   if (LOCALE_REGISTRY[code].content !== "en" || code === "en") return s;
-  const hit = RESOURCES[code]?.[s];
+  const hit = TRUST_TRANSLATIONS[code]?.[s] ?? RESOURCES[code]?.[s];
   if (hit) return hit;
   if (import.meta.env?.DEV && s.trim() && /\s|[a-z]{3}/i.test(s) && !warned.has(code + s)) {
     warned.add(code + s);

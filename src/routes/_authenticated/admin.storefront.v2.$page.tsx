@@ -341,12 +341,13 @@ function TrustReviewsEditor({ section, lang, onChange }: { section: V2Section; l
     const nextReviews = [...reviews];
     const [row] = nextReviews.splice(index, 1);
     nextReviews.splice(target, 0, row!);
-    onChange({ items: [...trustItems, ...nextReviews] });
+    onChange({ items: [...section.items.filter((item) => item.cardType !== "review"), ...nextReviews] });
   };
   const addReview = () => onChange({ items: [...section.items, { id: `review-${Math.random().toString(36).slice(2, 8)}`, visible: true, icon: "", entity: "", title: { tr: "", de: "", en: "" }, text: { tr: "", de: "", en: "" }, internalKey: `review-${Date.now()}`, cardType: "review", mediaId: null, href: "", labels: [], cta: { tr: "", de: "", en: "" }, imageAlt: { tr: "", de: "", en: "" }, focalX: 50, focalY: 50, rating: 5, verified: false, published: false }] });
 
   return <div className="space-y-4">
     <ImageField label="Ana seyahat görseli" value={section.mediaId} onChange={(mediaId) => onChange({ mediaId })} />
+    <label className="flex items-center gap-2 text-xs font-semibold"><input type="checkbox" checked={section.visible} onChange={(event) => onChange({ visible: event.target.checked })} />Bölüm mağazada görünür</label>
     <div className="rounded-md border border-border p-3">
       <p className="text-xs font-bold">Güven çubuğu</p>
       <p className="mt-1 text-[10px] text-muted-foreground">Kurulum iddiası dahil tüm metinler yayınlanmadan önce içerik onayı gerektirir.</p>
