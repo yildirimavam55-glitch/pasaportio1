@@ -292,7 +292,7 @@ function esimDefault(): V2Page {
       items: [
         item("chip-setup", { cardType: "chip", position: "top-right", icon: "Zap", title: lt("60 saniyede kurulum", "In 60 Sekunden installiert", "Installed in 60 seconds"), text: lt("Doğrudan cihazında", "Direkt auf deinem Gerät", "Directly on your device") }),
         item("chip-plans", { cardType: "chip", position: "middle-left", icon: "Globe2", title: lt("Esnek paketler", "Flexible Pakete", "Flexible plans"), text: lt("Her yolculuk için", "Für jede Reise", "For every trip") }),
-        item("chip-travel", { cardType: "chip", position: "bottom-right", icon: "Heart", title: lt("Tatil, iş ve daha fazlası için", "Für Urlaub, Business & mehr", "For holidays, business & more") }),
+        item("chip-travel", { cardType: "chip", position: "bottom-right", icon: "Sparkles", title: lt("Tatil, iş ve daha fazlası için", "Für Urlaub, Business & mehr", "For holidays, business & more") }),
         item("trust-countries", { cardType: "trust", icon: "Globe2", title: lt("190+ ülke", "190+ Länder", "190+ countries"), text: lt("Dünya çapında bağlantı", "Weltweit verbunden", "Connected worldwide") }),
         item("trust-refund", { cardType: "trust", icon: "RotateCcw", title: lt("14 gün iade güvencesi", "14 Tage Rückgabegarantie", "14-Day Refund Guarantee"), text: lt("Kullanılmamış eSIM’lerde, satın almadan itibaren 14 gün", "Für ungenutzte eSIMs, 14 Tage ab Kauf", "For unused eSIMs, within 14 days of purchase") }),
         item("trust-install", { cardType: "trust", icon: "Zap", title: lt("60 saniyede kurulum", "In 60 Sekunden installiert", "Installed in 60 seconds"), text: lt("Doğrudan cihazında", "Direkt auf deinem Gerät", "Directly on your device") }),
@@ -423,7 +423,7 @@ function cleanItem(raw: any, index: number): V2Item {
     internalKey: ID.test(String(raw?.internalKey)) ? String(raw.internalKey) : `item-${index + 1}`,
     cardType: cleanText(raw?.cardType, 32).replace(/[^a-z-]/g, "") || "products",
     mediaId: cleanMediaId(raw?.mediaId),
-    position: pick(raw?.position, ["top-right", "middle-left", "bottom-right"] as const, "top-right"),
+    ...(raw?.cardType === "chip" ? { position: pick(raw?.position, ["top-right", "middle-left", "bottom-right"] as const, "top-right") } : {}),
     href: raw?.href === "" ? "" : pick(raw?.href, V2_SAFE_LINKS, "/esim"),
     labels: Array.isArray(raw?.labels) ? raw.labels.slice(0, 4).map((value: unknown) => cleanLT(value, 80)) : [],
     cta: cleanLT(raw?.cta, 80),
