@@ -722,6 +722,9 @@
 - [ ] Admin: bilgi kartları için etiket/CTA/görsel alanlarının editörde genişletilmesi (mevcut V2 editörü başlık/metin düzenliyor).
 
 ## Premium trust and social proof
+- [x] Add three explicitly DEMO-labeled German sample reviews, fictional portraits, and a swipeable Admin-preview carousel with preview-only rating.
+- [x] Expose the existing V2 review editor from Admin content navigation and keep the editable preview-demo toggle.
+- [x] Add a fourth illustration to the existing benefit strip only in Admin preview while payments remain inactive.
 - [x] Align the existing mobile trust composition more closely with the final reference: edge-to-edge mint surface, overlaid tilted phone, three chips, and one-row benefit strip.
 - [x] Reuse the existing V2 trust section and approved travel image without changing the surrounding homepage.
 - [x] Keep public reviews gated by verification and publication; retain localized CMS editing, avatar, rating, and order controls.

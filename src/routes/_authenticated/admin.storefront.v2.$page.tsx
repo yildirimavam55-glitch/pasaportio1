@@ -70,6 +70,12 @@ function Editor({ page }: { page: V2PageId }) {
   const frame = useRef<HTMLIFrameElement | null>(null);
 
   useEffect(() => { if (editor.data && !dirty) setDraft(editor.data.draft); }, [editor.data, dirty]);
+  useEffect(() => {
+    const selectHash = () => { if (window.location.hash === "#reviews") setSelectedId("trust-reviews"); };
+    selectHash();
+    window.addEventListener("hashchange", selectHash);
+    return () => window.removeEventListener("hashchange", selectHash);
+  }, []);
 
   const media = useMemo(() => Object.fromEntries((mediaList.data ?? []).filter((m) => m.url).map((m) => [m.id, { url: m.url as string, alt: m.altText ?? "" }])), [mediaList.data]);
   const pushPreview = useCallback(() => {
@@ -353,9 +359,9 @@ function TrustReviewsEditor({ section, lang, uiLang, onUiLang, onChange }: { sec
     return { id, visible: true, icon: "", entity: "", title: { tr: "", de: "", en: "", [code]: name }, text: { tr: "", de: "", en: "", [code]: body }, internalKey: id, cardType: "review", mediaId: null, href: "", labels: [], cta: { tr: "", de: "", en: "" }, imageAlt: { tr: "", de: "", en: "" }, focalX: 50, focalY: 50, rating: 5, verified: false, published: false, reviewType: type, reviewStatus: "DRAFT", originalLanguage: code, countryCode, reviewDate: "", createdAt: now, updatedAt: now };
   };
   const demoExamples = [
-    ["IT", "it", "Giulia R.", "L'installazione è stata semplice e veloce. Comoda da usare durante il viaggio."],
-    ["JP", "ja", "Haruto S.", "設定は簡単で、旅行中も便利に使えました。"],
-    ["US", "en", "Emily C.", "Setup was easy, and having the eSIM ready for my trip was convenient."],
+    ["IT", "de", "Giulia R.", "Die Einrichtung war schnell erledigt und für meine Reise sehr unkompliziert."],
+    ["JP", "de", "Haruto S.", "Nach dem Kauf konnte ich die eSIM direkt einrichten. Für meine Reise durch Japan sehr praktisch."],
+    ["US", "de", "Emily C.", "Einfach eingerichtet und auf meiner Reise sehr praktisch."],
     ["TR", "tr", "Elif Y.", "Kurulum çok kolaydı. Seyahatim boyunca eSIM'i rahatça kullanabildim."],
     ["FR", "fr", "Camille D.", "Installation simple et rapide. Très pratique pour mon voyage."],
     ["ES", "es", "Lucía M.", "La instalación fue muy sencilla y resultó muy práctico durante mi viaje."],
@@ -372,7 +378,7 @@ function TrustReviewsEditor({ section, lang, uiLang, onUiLang, onChange }: { sec
     <div className="rounded-md border border-border p-3">
       <p className="text-xs font-bold">Güven çubuğu</p>
       <p className="mt-1 text-[10px] text-muted-foreground">Kurulum iddiası dahil tüm metinler yayınlanmadan önce içerik onayı gerektirir.</p>
-      <div className="mt-3 space-y-3">{trustItems.map((item) => <div key={item.id} className="grid gap-2 rounded-md bg-secondary/40 p-2 sm:grid-cols-2"><IconPicker value={item.icon} onChange={(icon) => setItem(item.id, { icon })} /><LTInput label="Başlık" value={item.title} lang={lang} uiLang={uiLang} onChange={(title) => setItem(item.id, { title })} /><div className="sm:col-span-2"><LTInput label="Açıklama" value={item.text} lang={lang} uiLang={uiLang} onChange={(text) => setItem(item.id, { text })} /></div></div>)}</div>
+       <div className="mt-3 space-y-3">{trustItems.map((item) => <div key={item.id} className="grid gap-2 rounded-md bg-secondary/40 p-2 sm:grid-cols-2"><IconPicker value={item.icon} onChange={(icon) => setItem(item.id, { icon })} /><LTInput label="Başlık" value={item.title} lang={lang} uiLang={uiLang} onChange={(title) => setItem(item.id, { title })} /><div className="sm:col-span-2"><LTInput label="Açıklama" value={item.text} lang={lang} uiLang={uiLang} onChange={(text) => setItem(item.id, { text })} /></div>{item.id === "trust-payment" && <p className="sm:col-span-2 text-[10px] text-muted-foreground">Ödeme sağlayıcısı etkin değil; bu görsel yalnız yönetici önizlemesinde görünür, müşteriye gösterilmez.</p>}</div>)}</div>
     </div>
     <div className="rounded-md border border-border p-3">
        <div className="flex items-center justify-between gap-2"><div><p className="text-xs font-bold">Müşteri yorumları</p><p className="mt-1 text-[10px] text-muted-foreground">Mağaza yalnız GERÇEK + DOĞRULANMIŞ + YAYINDA yorumları gösterir. Demo yorumları sadece bu editörün önizlemesinde görünür.</p></div><Button size="sm" variant="outline" onClick={() => onChange({ items: [...section.items, makeReview("REAL")] })}><Plus />Yorum ekle</Button></div>
