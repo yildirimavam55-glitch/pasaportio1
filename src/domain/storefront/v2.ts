@@ -82,6 +82,13 @@ export type V2Item = {
   rating: number;
   verified: boolean;
   published: boolean;
+  reviewType?: "REAL" | "DEMO";
+  reviewStatus?: "DRAFT" | "PUBLISHED" | "ARCHIVED";
+  originalLanguage?: UiLocale;
+  countryCode?: string;
+  reviewDate?: string;
+  createdAt?: string;
+  updatedAt?: string;
 };
 
 export type V2Section = {
@@ -106,6 +113,7 @@ export type V2Section = {
   cardGap: "compact" | "normal" | "wide";
   mobilePreview: "compact" | "normal" | "wide";
   claims: { countries: string; refundDays: string; savingPercent: string; setupSeconds: string };
+  showDemoReviews?: boolean;
 };
 
 export type V2PageConfig = { version: 1; page: V2PageId; sections: V2Section[] };
@@ -185,6 +193,7 @@ function section(id: string, type: V2SectionType, patch: Partial<V2Section> = {}
     cardGap: "normal",
     mobilePreview: "normal",
     claims: { countries: "190+", refundDays: "14", savingPercent: "60", setupSeconds: "60" },
+    showDemoReviews: false,
     ...patch,
   };
 }
@@ -383,6 +392,15 @@ function cleanItem(raw: any, index: number): V2Item {
     rating: Math.min(5, Math.max(1, Math.round(Number(raw?.rating ?? 5)))),
     verified: raw?.verified === true,
     published: raw?.published === true,
+    ...(raw?.cardType === "review" ? {
+      reviewType: raw?.reviewType === "REAL" ? "REAL" as const : "DEMO" as const,
+      reviewStatus: raw?.reviewStatus === "PUBLISHED" || raw?.reviewStatus === "ARCHIVED" ? raw.reviewStatus as "PUBLISHED" | "ARCHIVED" : "DRAFT" as const,
+      originalLanguage: (UI_LOCALES as readonly string[]).includes(raw?.originalLanguage) ? raw.originalLanguage as UiLocale : "en" as const,
+      countryCode: /^[A-Z]{2}$/.test(String(raw?.countryCode)) ? raw.countryCode as string : "",
+      reviewDate: DATE.test(String(raw?.reviewDate)) ? raw.reviewDate as string : "",
+      createdAt: typeof raw?.createdAt === "string" ? cleanText(raw.createdAt, 40) : "",
+      updatedAt: typeof raw?.updatedAt === "string" ? cleanText(raw.updatedAt, 40) : "",
+    } : {}),
   };
 }
 
@@ -417,6 +435,7 @@ function cleanSection(raw: any): V2Section | null {
       savingPercent: cleanText(raw.claims?.savingPercent, 12) || "60",
       setupSeconds: cleanText(raw.claims?.setupSeconds, 12) || "60",
     },
+    showDemoReviews: raw.showDemoReviews === true,
   };
 }
 

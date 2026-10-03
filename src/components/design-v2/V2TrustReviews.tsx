@@ -1,116 +1,92 @@
+import { useRef, useState } from "react";
 import { Globe2, Heart, Star, Users, Zap } from "lucide-react";
 import { Reveal } from "@/components/travel/Reveal";
-import { StorefrontIcon } from "@/domain/storefront/icons";
+import { CountryFlag } from "@/components/travel/CountryFlag";
+import { Button } from "@/components/ui/button";
 import { mediaUrl } from "@/components/design-v2/V2Sections";
 import { useI18n } from "@/i18n";
+import { LOCALE_REGISTRY } from "@/i18n/locales";
 import { localize } from "@/i18n/overlay";
 import { v2ItemText, v2Text, type V2Item, type V2Section } from "@/domain/storefront/v2";
 import type { V2Media } from "@/lib/v2-storefront.functions";
 import type { Locale } from "@/domain/enums";
+import globeVisual from "@/assets/trust-globe.jpg";
+import returnVisual from "@/assets/trust-return.jpg";
+import installVisual from "@/assets/trust-install.jpg";
 
-const A11Y = localize({
-  tr: { rating: "5 üzerinden {rating} yıldız", reviews: "Doğrulanmış müşteri yorumları" },
-  de: { rating: "{rating} von 5 Sternen", reviews: "Verifizierte Kundenbewertungen" },
-  en: { rating: "{rating} out of 5 stars", reviews: "Verified customer reviews" },
+const LABELS = localize({
+  tr: { rating: "5 üzerinden {rating} yıldız", reviews: "Müşteri yorumları", real: "Gerçek müşteri yorumlarına dayalı", demo: "DEMO / TEST — gerçek müşteri yorumu değildir", slide: "Yorum {index}", country: "Ülke" },
+  de: { rating: "{rating} von 5 Sternen", reviews: "Kundenbewertungen", real: "Basierend auf echten Kundenbewertungen", demo: "DEMO / TEST — keine echte Kundenbewertung", slide: "Bewertung {index}", country: "Land" },
+  en: { rating: "{rating} out of 5 stars", reviews: "Customer reviews", real: "Based on real customer reviews", demo: "DEMO / TEST — not a real customer review", slide: "Review {index}", country: "Country" },
 });
 
-/** CMS-managed trust and social-proof section. Unverified or unpublished reviews never render. */
-export function V2TrustReviews({ section, media }: { section: V2Section; media: V2Media }) {
+/** Public reviews are additionally filtered on the server; demos can only appear in the Admin iframe. */
+export function V2TrustReviews({ section, media, preview = false }: { section: V2Section; media: V2Media; preview?: boolean }) {
   const { locale, uiLocale } = useI18n();
-  const a11y = A11Y[locale];
+  const labels = LABELS[locale];
   const photo = mediaUrl(section.mediaId, media);
-  // Checkout currently takes no real payments; do not advertise payment security as a live benefit.
-  const trustItems = section.items.filter((item) => item.visible && item.cardType === "trust" && item.id !== "trust-payment").slice(0, 4);
-  const reviews = section.items.filter((item) => item.visible && item.cardType === "review" && item.verified && item.published && v2ItemText(item.title, locale) && Boolean(item.text[uiLocale]?.trim()));
-  const rating = reviews.length ? (reviews.reduce((sum, review) => sum + review.rating, 0) / reviews.length).toFixed(1).replace(".", uiLocale === "en" ? "." : ",") : null;
+  const rail = useRef<HTMLDivElement>(null);
+  const [active, setActive] = useState(0);
+  const reviews = section.items.filter((item) => item.visible && item.cardType === "review" && Boolean(item.text[item.originalLanguage ?? "en"]?.trim()) && (item.reviewType === "REAL" && item.verified && item.published && item.reviewStatus === "PUBLISHED" || preview && section.showDemoReviews && item.reviewType === "DEMO" && item.reviewStatus !== "ARCHIVED"));
+  const realReviews = reviews.filter((item) => item.reviewType === "REAL" && item.verified);
+  const demoReviews = reviews.filter((item) => item.reviewType === "DEMO");
+  const rating = realReviews.length ? (realReviews.reduce((sum, item) => sum + item.rating, 0) / realReviews.length).toFixed(1).replace(".", uiLocale === "en" ? "." : ",") : null;
+  // There is no production payment provider yet. Keep payment copy editable but do not claim it is available.
+  const trustItems = section.items.filter((item) => item.visible && item.cardType === "trust" && item.id !== "trust-payment");
+  const visuals = [globeVisual, returnVisual, installVisual];
+  const scrollTo = (index: number) => rail.current?.children[index]?.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "start" });
 
-  return (
-    <section aria-labelledby={`${section.id}-title`} className="trust-story relative mt-7 overflow-hidden rounded-3xl bg-petrol-soft px-4 py-7 sm:mt-10 sm:px-7 sm:py-9 lg:px-10 lg:py-11">
-      <div className="relative min-h-[29rem] sm:min-h-[31rem] lg:grid lg:min-h-0 lg:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)] lg:items-center lg:gap-6">
-        <div className="relative z-10 min-w-0 lg:py-9">
-          <Reveal className="trust-section-reveal">
-            <p className="inline-flex max-w-full items-center gap-2 rounded-full bg-primary-soft px-3 py-2 text-xs font-bold text-primary">
-              <Users className="size-4 shrink-0" aria-hidden />
-              <span>{v2Text(section, "eyebrow", locale)}</span>
-            </p>
-          </Reveal>
-          <Reveal delay={70} className="trust-section-reveal">
-            <h2 id={`${section.id}-title`} className="mt-5 font-display text-[2rem] font-bold leading-[1.07] text-foreground sm:text-5xl lg:text-5xl">
-              {v2Text(section, "title", locale)}
-              <span className="mt-1 block text-success">{v2Text(section, "accent", locale)}</span>
-            </h2>
-          </Reveal>
-          <Reveal delay={140} className="trust-section-reveal">
-            <p className="mt-5 max-w-[42%] text-[13px] leading-relaxed text-muted-foreground sm:max-w-[43%] sm:text-base lg:max-w-xl">{v2Text(section, "subtitle", locale)}</p>
-          </Reveal>
-          {rating && <Reveal delay={210} className="trust-section-reveal mt-5 max-w-[52%] lg:max-w-none">
-            <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
-              <span className="flex gap-0.5 text-primary" role="img" aria-label={a11y.rating.replace("{rating}", rating)}>{Array.from({ length: 5 }, (_, index) => <Star key={index} className="size-4" fill={index < Math.round(Number(rating.replace(",", "."))) ? "currentColor" : "none"} aria-hidden />)}</span>
-              <strong className="text-sm text-foreground">{rating} / 5</strong>
-            </div>
-            <p className="mt-1 text-xs text-muted-foreground">{a11y.reviews}</p>
-          </Reveal>}
-        </div>
-
-        <Reveal delay={140} className="trust-section-reveal absolute inset-x-0 top-[11rem] bottom-0 sm:top-[10rem] lg:relative lg:inset-auto">
-          <div className="relative ml-auto h-full w-[52%] sm:w-[55%] lg:mx-auto lg:h-auto lg:w-full lg:max-w-2xl lg:px-8 lg:py-4 rtl:ml-0 rtl:mr-auto">
-            <div className="relative h-full min-h-[17rem] overflow-hidden rounded-[2rem] bg-muted shadow-panel ring-[4px] ring-foreground lg:h-[27rem]">
-              {photo && <img src={photo} alt={v2Text(section, "imageAlt", locale)} loading="lazy" decoding="async" width={1408} height={1104} sizes="(max-width: 640px) 50vw, (max-width: 1024px) 55vw, 42vw" className="size-full object-cover object-[66%_center] lg:object-center" />}
-              <span aria-hidden className="absolute left-1/2 top-0 h-2 w-12 -translate-x-1/2 rounded-b-full bg-foreground" />
-            </div>
-            <Reveal delay={210} className="trust-section-chip absolute right-0 top-4 w-[min(44vw,10rem)] lg:right-0 lg:top-8 lg:w-48">
-              <BenefitChip icon={<Zap />} title={v2Text(section, "chipOneTitle", locale)} text={v2Text(section, "chipOneText", locale)} />
-            </Reveal>
-            <Reveal delay={280} className="trust-section-chip absolute bottom-20 -left-12 w-[min(44vw,10rem)] sm:-left-16 lg:bottom-24 lg:left-0 lg:w-48 rtl:left-auto rtl:-right-12 sm:rtl:-right-16 lg:rtl:right-0">
-              <BenefitChip icon={<Globe2 />} title={v2Text(section, "chipTwoTitle", locale)} text={v2Text(section, "chipTwoText", locale)} />
-            </Reveal>
-            <Reveal delay={350} className="trust-section-chip absolute right-0 bottom-3 w-[min(44vw,10rem)] lg:right-0 lg:bottom-7 lg:w-48">
-              <BenefitChip icon={<Heart />} title={v2Text(section, "chipThreeTitle", locale)} />
-            </Reveal>
-          </div>
-        </Reveal>
+  return <section aria-labelledby={`${section.id}-title`} className="trust-story relative mt-5 overflow-hidden rounded-[2rem] bg-petrol-soft px-4 pb-6 pt-5 sm:mt-8 sm:px-7 sm:pt-8 lg:px-10">
+    <div className="relative lg:grid lg:min-h-[26rem] lg:grid-cols-[minmax(0,1fr)_minmax(0,0.9fr)] lg:items-center lg:gap-6">
+      <div className="relative z-10 min-w-0 lg:py-8">
+        <Reveal className="trust-section-reveal"><p className="inline-flex max-w-full items-center gap-2 rounded-full bg-primary-soft px-3 py-2 text-xs font-bold text-primary"><Users className="size-4 shrink-0" aria-hidden /><span>{v2Text(section, "eyebrow", locale)}</span></p></Reveal>
+        <Reveal delay={70} className="trust-section-reveal"><h2 id={`${section.id}-title`} className="mt-4 font-display text-[2rem] font-bold leading-[1.08] text-foreground sm:text-5xl"><span className="block">{v2Text(section, "title", locale)}</span><span className="block text-success">{v2Text(section, "accent", locale)}</span></h2></Reveal>
+        <Reveal delay={140} className="trust-section-reveal"><p className="mt-4 max-w-lg text-[13px] leading-[1.45] text-muted-foreground sm:text-base">{v2Text(section, "subtitle", locale)}</p></Reveal>
+        {rating && <Reveal delay={210} className="trust-section-reveal mt-4 max-w-[50%] lg:max-w-none"><div className="flex flex-wrap items-center gap-x-3 gap-y-1"><span className="flex gap-0.5 text-success" role="img" aria-label={labels.rating.replace("{rating}", rating)}>{Array.from({ length: 5 }, (_, i) => <Star key={i} size={18} fill={i < Math.round(Number(rating.replace(",", "."))) ? "currentColor" : "none"} aria-hidden />)}</span><strong className="text-sm text-foreground">{rating} / 5</strong></div><p className="mt-1 text-xs text-muted-foreground">{labels.real}</p></Reveal>}
       </div>
-
-      {reviews.length > 0 && (
-        <Reveal delay={140} className="trust-section-reveal mt-7 sm:mt-9">
-          <div role="region" aria-label={a11y.reviews} tabIndex={reviews.length > 1 ? 0 : undefined} className={reviews.length > 1 ? "-mx-4 flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-2 [scrollbar-width:none] sm:mx-0 sm:grid sm:grid-cols-2 sm:px-0 lg:grid-cols-3 [&::-webkit-scrollbar]:hidden" : "grid gap-3 sm:max-w-md"}>
-            {reviews.map((review) => <ReviewCard key={review.id} review={review} media={media} locale={locale} ratingLabel={a11y.rating} />)}
+      <Reveal delay={210} className="trust-section-reveal pointer-events-none relative mt-3 h-[19rem] sm:h-[25rem] lg:mt-0 lg:h-[27rem]">
+        <div className="trust-phone-stage relative h-full w-full">
+          <div className="trust-phone absolute inset-y-2 right-[7%] w-[48%] overflow-hidden rounded-[2rem] border-[6px] border-foreground bg-foreground shadow-panel sm:right-[12%] sm:w-[43%] lg:right-[14%] lg:w-[58%] rtl:right-auto rtl:left-[7%] sm:rtl:left-[12%] lg:rtl:left-[14%]">
+            {photo && <img src={photo} alt={v2Text(section, "imageAlt", locale)} loading="lazy" decoding="async" width={1408} height={1104} sizes="(max-width: 640px) 48vw, (max-width: 1024px) 43vw, 30vw" className="h-full w-full object-cover object-[68%_center]" />}
+            <span aria-hidden className="absolute left-1/2 top-0 h-2 w-12 -translate-x-1/2 rounded-b-full bg-foreground" />
           </div>
-        </Reveal>
-      )}
+          <Reveal delay={280} className="trust-section-chip absolute right-0 top-[12%] z-10 w-[min(42vw,10rem)] lg:right-[2%] lg:w-44 rtl:right-auto rtl:left-0 lg:rtl:left-[2%]"><BenefitChip icon={<Zap />} title={v2Text(section, "chipOneTitle", locale)} text={v2Text(section, "chipOneText", locale)} /></Reveal>
+          <Reveal delay={350} className="trust-section-chip absolute bottom-[28%] left-[1%] z-10 w-[min(40vw,10rem)] lg:left-[6%] lg:w-44 rtl:left-auto rtl:right-[1%] lg:rtl:right-[6%]"><BenefitChip icon={<Globe2 />} title={v2Text(section, "chipTwoTitle", locale)} text={v2Text(section, "chipTwoText", locale)} /></Reveal>
+          <Reveal delay={420} className="trust-section-chip absolute bottom-[10%] right-0 z-10 w-[min(42vw,10rem)] lg:right-[2%] lg:w-44 rtl:right-auto rtl:left-0 lg:rtl:left-[2%]"><BenefitChip icon={<Heart />} title={v2Text(section, "chipThreeTitle", locale)} /></Reveal>
+        </div>
+      </Reveal>
+    </div>
 
-      {trustItems.length > 0 && (
-        <Reveal delay={210} className="trust-section-reveal mt-7 sm:mt-9">
-          <ul className={`grid grid-cols-2 overflow-hidden rounded-2xl bg-card shadow-soft ring-1 ring-border ${trustItems.length === 3 ? "lg:grid-cols-3" : "lg:grid-cols-4"}`}>
-            {trustItems.map((item, index) => (
-              <li key={item.id} className={`flex min-w-0 flex-col items-center px-2 py-4 text-center sm:px-3 sm:py-5 ${index % 2 ? "border-l border-border" : ""} ${index > 1 ? "border-t border-border lg:border-t-0" : ""} ${index > 0 ? "lg:border-l lg:border-border" : ""} ${trustItems.length === 3 && index === 2 ? "col-span-2 lg:col-span-1 lg:border-l" : ""}`}>
-                <span className="grid size-10 place-items-center rounded-full bg-primary-soft text-primary"><StorefrontIcon name={item.icon} className="size-5" /></span>
-                <strong className="mt-2 text-sm leading-tight text-foreground">{v2ItemText(item.title, locale)}</strong>
-                <span className="mt-1 text-xs leading-snug text-muted-foreground">{v2ItemText(item.text, locale)}</span>
-              </li>
-            ))}
-          </ul>
-        </Reveal>
-      )}
-    </section>
-  );
+    {reviews.length > 0 && <Reveal delay={140} className="trust-section-reveal mt-5">
+      {demoReviews.length > 0 && <p className="mb-2 text-xs font-bold text-muted-foreground">{labels.demo}</p>}
+      <div ref={rail} role="region" aria-label={labels.reviews} tabIndex={reviews.length > 1 ? 0 : undefined} onScroll={(event) => { const node = event.currentTarget; const first = node.firstElementChild as HTMLElement | null; if (first) setActive(Math.min(reviews.length - 1, Math.round(Math.abs(node.scrollLeft) / (first.offsetWidth + 12)))); }} className="-mx-4 flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-2 [scrollbar-width:none] sm:mx-0 sm:px-0 lg:grid lg:grid-cols-3 [&::-webkit-scrollbar]:hidden">
+        {reviews.map((review) => <ReviewCard key={review.id} review={review} media={media} locale={locale} uiLocale={uiLocale} ratingLabel={labels.rating} demoLabel={labels.demo} />)}
+      </div>
+      {reviews.length > 1 && <div className="mt-2 flex justify-center gap-2 lg:hidden">{reviews.map((review, index) => <Button key={review.id} type="button" variant="ghost" size="icon" onClick={() => scrollTo(index)} aria-label={labels.slide.replace("{index}", String(index + 1))} aria-current={active === index ? "true" : undefined} className="size-7 rounded-full p-0"><span className={`block size-2 rounded-full ${active === index ? "bg-success" : "bg-border"}`} /></Button>)}</div>}
+    </Reveal>}
+
+    {trustItems.length > 0 && <Reveal delay={210} className="trust-section-reveal mt-5"><ul className="grid grid-cols-2 overflow-hidden rounded-2xl bg-card shadow-soft ring-1 ring-border md:grid-cols-4">
+      {trustItems.map((item, index) => <li key={item.id} className={`flex min-w-0 flex-col items-center border-border px-2 pb-4 pt-2 text-center sm:px-4 ${trustItems.length === 3 && index === 2 ? "col-span-2 flex-row justify-center gap-4 border-t md:col-span-1 md:flex-col md:gap-0 md:border-t-0" : index % 2 ? "border-l" : ""} ${index > 1 && trustItems.length !== 3 ? "border-t md:border-t-0" : ""} ${index > 0 ? "md:border-l" : ""}`}>
+        <img src={visuals[index] ?? globeVisual} alt="" loading="lazy" decoding="async" width={816} height={816} className="h-24 w-24 object-contain sm:h-32 sm:w-32" />
+        <strong className="text-sm leading-tight text-foreground sm:text-base">{v2ItemText(item.title, locale)}</strong><span className="mt-1 text-xs leading-snug text-muted-foreground sm:text-sm">{v2ItemText(item.text, locale)}</span>
+      </li>)}
+    </ul></Reveal>}
+  </section>;
 }
 
 function BenefitChip({ icon, title, text }: { icon: React.ReactNode; title: string; text?: string }) {
-  return <div className="flex items-center gap-2 rounded-2xl bg-card/95 px-2 py-2 text-foreground shadow-card ring-1 ring-card/70 backdrop-blur-sm sm:px-3 sm:py-2.5"><span className="grid size-8 shrink-0 place-items-center rounded-full bg-primary-soft text-primary [&>svg]:size-4">{icon}</span><span className="min-w-0 text-[11px] leading-tight"><strong className="block">{title}</strong>{text && <span className="block">{text}</span>}</span></div>;
+  return <div className="flex items-center gap-1.5 rounded-2xl bg-card/95 px-2 py-2 text-foreground shadow-card ring-1 ring-border/50 backdrop-blur-sm sm:gap-2 sm:px-3"><span className="grid size-8 shrink-0 place-items-center rounded-full bg-primary-soft text-success [&>svg]:size-4">{icon}</span><span className="min-w-0 text-[10px] leading-tight sm:text-xs"><strong className="block">{title}</strong>{text && <span className="block">{text}</span>}</span></div>;
 }
 
-function ReviewCard({ review, media, locale, ratingLabel }: { review: V2Item; media: V2Media; locale: Locale; ratingLabel: string }) {
+function ReviewCard({ review, media, locale, uiLocale, ratingLabel, demoLabel }: { review: V2Item; media: V2Media; locale: Locale; uiLocale: keyof typeof LOCALE_REGISTRY; ratingLabel: string; demoLabel: string }) {
   const avatar = mediaUrl(review.mediaId, media);
-  const label = ratingLabel.replace("{rating}", String(review.rating));
-  return (
-    <article className="w-[82%] shrink-0 snap-start rounded-2xl bg-card p-4 shadow-soft ring-1 ring-border sm:w-auto">
-      <div className="grid grid-cols-[auto_minmax(0,1fr)] items-center gap-3">
-        <span className="grid size-11 shrink-0 place-items-center overflow-hidden rounded-full bg-primary-soft text-sm font-bold text-primary">{avatar ? <img src={avatar} alt="" loading="lazy" className="size-full object-cover" /> : v2ItemText(review.title, locale).slice(0, 1)}</span>
-        <div className="min-w-0"><strong className="block truncate text-sm text-foreground">{v2ItemText(review.title, locale)}</strong><span className="block truncate text-xs text-muted-foreground">{v2ItemText(review.cta, locale)}</span></div>
-      </div>
-      <div className="mt-3 flex gap-0.5 text-primary" role="img" aria-label={label}>{Array.from({ length: 5 }, (_, index) => <Star key={index} className="size-4" fill={index < review.rating ? "currentColor" : "none"} aria-hidden />)}</div>
-      <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{v2ItemText(review.text, locale)}</p>
-    </article>
-  );
+  const name = review.title[review.originalLanguage ?? "en"] || v2ItemText(review.title, locale);
+  const original = review.text[review.originalLanguage ?? "en"] || "";
+  const country = review.countryCode ? new Intl.DisplayNames([LOCALE_REGISTRY[uiLocale].bcp47], { type: "region" }).of(review.countryCode) : v2ItemText(review.cta, locale);
+  return <article className="w-[83%] shrink-0 snap-start rounded-2xl bg-card p-4 shadow-soft ring-1 ring-border sm:w-[46%] lg:w-auto">
+    <div className="grid grid-cols-[auto_minmax(0,1fr)] items-center gap-3"><span className="grid size-11 shrink-0 place-items-center overflow-hidden rounded-full bg-primary-soft text-sm font-bold text-primary">{avatar ? <img src={avatar} alt="" loading="lazy" className="size-full object-cover" /> : name.slice(0, 1)}</span><div className="min-w-0"><strong className="block truncate text-sm text-foreground">{name}</strong><span className="flex items-center gap-1 text-xs text-muted-foreground">{review.countryCode && <CountryFlag iso={review.countryCode} className="h-3 w-4 shrink-0 rounded-sm" />}<span className="truncate">{country}</span></span></div></div>
+    <div className="mt-3 flex gap-0.5 text-success" role="img" aria-label={ratingLabel.replace("{rating}", String(review.rating))}>{Array.from({ length: 5 }, (_, index) => <Star key={index} className="size-4" fill={index < review.rating ? "currentColor" : "none"} aria-hidden />)}</div>
+    <p lang={review.originalLanguage} className="mt-2 text-sm leading-relaxed text-muted-foreground">{original}</p>
+    {review.reviewType === "DEMO" && <p className="mt-2 text-[10px] font-bold text-muted-foreground">{demoLabel}</p>}
+  </article>;
 }

@@ -1520,3 +1520,14 @@ html[data-quick-search-lock] body {
   50% { transform: translateY(5.5rem); }
 }
 
+
+/* The traveler photo sits inside a physical phone; the three labels float over its edges. */
+.trust-phone { transform: rotate(5deg); transform-origin: center; }
+@media (max-width: 380px) {
+  .trust-story h2 { font-size: 1.75rem; }
+  .trust-phone { right: 4%; }
+  [dir="rtl"] .trust-phone { left: 4%; right: auto; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .trust-phone { transform: none; }
+}

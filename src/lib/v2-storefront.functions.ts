@@ -69,7 +69,7 @@ export const getPublishedV2Page = createServerFn({ method: "GET" })
       const config = {
         ...sanitized,
         sections: sanitized.sections.map((section) => section.type === "TRUST_REVIEWS"
-          ? { ...section, items: section.items.filter((item) => item.cardType !== "review" || (item.verified && item.published)) }
+          ? { ...section, showDemoReviews: false, items: section.items.filter((item) => item.cardType !== "review" || (item.reviewType === "REAL" && item.verified && item.published && item.reviewStatus === "PUBLISHED")) }
           : section),
       };
       return { config, media: await resolveMedia(collectV2MediaIds(config)) };
