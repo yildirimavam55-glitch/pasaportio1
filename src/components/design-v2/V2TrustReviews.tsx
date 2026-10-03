@@ -13,7 +13,6 @@ import type { Locale } from "@/domain/enums";
 import globeVisual from "@/assets/trust-globe.jpg";
 import returnVisual from "@/assets/trust-return.jpg";
 import installVisual from "@/assets/trust-install.jpg";
-import paymentVisual from "@/assets/trust-payment.jpg";
 import giuliaAvatar from "@/assets/trust-demo-giulia.jpg";
 import harutoAvatar from "@/assets/trust-demo-haruto.jpg";
 import emilyAvatar from "@/assets/trust-demo-emily.jpg";
@@ -53,10 +52,8 @@ export function V2TrustReviews({ section, media, preview = false }: { section: V
   const realReviews = reviews.filter((item) => item.reviewType === "REAL" && item.verified && item.published && item.reviewStatus === "PUBLISHED");
   const displayReviews = preview && section.showDemoReviews ? PREVIEW_REVIEWS : reviews;
   const rating = realReviews.length ? (realReviews.reduce((sum, item) => sum + item.rating, 0) / realReviews.length).toFixed(1).replace(".", uiLocale === "en" ? "." : ",") : null;
-  // Checkout currently has no production-enabled payment methods. No logos are eligible.
-  const activePaymentMethods: readonly string[] = [];
-  const trustItems = section.items.filter((item) => item.visible && item.cardType === "trust" && (item.id !== "trust-payment" || preview || activePaymentMethods.length > 0));
-  const visuals: Record<string, string> = { "trust-countries": globeVisual, "trust-refund": returnVisual, "trust-install": installVisual, "trust-payment": paymentVisual };
+  const trustItems = section.items.filter((item) => item.visible && item.cardType === "trust" && item.id !== "trust-payment");
+  const visuals: Record<string, string> = { "trust-countries": globeVisual, "trust-refund": returnVisual, "trust-install": installVisual };
   const displayRating = preview && section.showDemoReviews ? (uiLocale === "en" ? "4.8" : "4,8") : rating;
   const scrollTo = (index: number) => rail.current?.children[index]?.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "start" });
 
@@ -92,7 +89,7 @@ export function V2TrustReviews({ section, media, preview = false }: { section: V
      {trustItems.length > 0 && <Reveal delay={210} className="trust-section-reveal mt-5"><ul className={`grid overflow-hidden rounded-2xl bg-card shadow-soft ring-1 ring-border ${trustItems.length === 3 ? "grid-cols-3" : "grid-cols-4"}`}>
        {trustItems.map((item, index) => <li key={item.id} className={`flex min-w-0 flex-col items-center border-border px-1 pb-4 pt-2 text-center sm:px-4 ${index > 0 ? "border-l" : ""}`}>
          <img src={visuals[item.id] ?? globeVisual} alt="" loading="lazy" decoding="async" width={816} height={816} className="h-20 w-20 max-w-full object-contain sm:h-32 sm:w-32" />
-         <strong className="text-[10px] leading-tight text-foreground sm:text-base">{v2ItemText(item.title, locale)}</strong><span className="mt-1 text-[9px] leading-snug text-muted-foreground sm:text-sm">{v2ItemText(item.text, locale)}</span>{item.id === "trust-payment" && preview && activePaymentMethods.length === 0 && <span className="mt-1 text-[9px] font-bold leading-tight text-muted-foreground">{labels.paymentPreview}</span>}
+         <strong className="text-[10px] leading-tight text-foreground sm:text-base">{v2ItemText(item.title, locale)}</strong><span className="mt-1 text-[9px] leading-snug text-muted-foreground sm:text-sm">{v2ItemText(item.text, locale)}</span>
       </li>)}
     </ul></Reveal>}
 

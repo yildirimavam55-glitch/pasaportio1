@@ -722,6 +722,8 @@
 - [ ] Admin: bilgi kartları için etiket/CTA/görsel alanlarının editörde genişletilmesi (mevcut V2 editörü başlık/metin düzenliyor).
 
 ## Premium trust and social proof
+- [x] Preview-only six fictional testimonials, compact swipe row, test rating and 50% comparison footnote; keep public claims and real review statistics separate.
+- [x] Keep three illustrated benefits and the existing phone composition; test responsive preview flow without publication.
 - [x] Add three explicitly DEMO-labeled German sample reviews, fictional portraits, and a swipeable Admin-preview carousel with preview-only rating.
 - [x] Expose the existing V2 review editor from Admin content navigation and keep the editable preview-demo toggle.
 - [x] Add a fourth illustration to the existing benefit strip only in Admin preview while payments remain inactive.

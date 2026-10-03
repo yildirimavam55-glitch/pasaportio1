@@ -99,7 +99,7 @@ export type V2Slots = {
 export function V2Sections({ config, media, slots, only }: { config: V2PageConfig; media: V2Media; slots: V2Slots; only?: (section: V2Section) => boolean }) {
   const { locale } = useI18n();
   const [isPreview, setIsPreview] = useState(false);
-  useEffect(() => setIsPreview(window.parent !== window && window.name === V2_PREVIEW_WINDOW), []);
+  useEffect(() => setIsPreview((window.parent !== window && window.name === V2_PREVIEW_WINDOW) || window.location.hostname === "localhost" || window.location.hostname.startsWith("id-preview--")), []);
   const sections = config.sections.filter((s) => s.visible && (!only || only(s)));
   return (
     <>
