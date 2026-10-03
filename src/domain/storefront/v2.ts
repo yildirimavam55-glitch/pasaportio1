@@ -203,10 +203,6 @@ const item = (id: string, patch: Partial<V2Item> = {}): V2Item => ({ id, visible
 const infoCard = (id: string, cardType: string, mediaId: string, title: LT, text: LT, labels: LT[] = [], href: V2SafeLink | "" = "") =>
   item(id, { internalKey: id, cardType, mediaId, title, text, labels, href, imageAlt: title });
 
-/** Clearly marked, non-verified design examples; never included in public results or ratings. */
-const demoReview = (id: string, countryCode: string, language: UiLocale, name: string, review: string) =>
-  item(id, { cardType: "review", reviewType: "DEMO", reviewStatus: "PUBLISHED", verified: false, published: true, countryCode, originalLanguage: language, title: { ...same(""), [language]: name }, text: { ...same(""), [language]: review } });
-
 type Pair = readonly [string, string];
 function listItems(prefix: string, copy: Record<Locale, readonly unknown[]>, map: (value: any) => { title: string; text: string }): V2Item[] {
   return copy.tr.map((_, index) => {
@@ -262,12 +258,6 @@ function esimDefault(): V2Page {
         item("trust-refund", { cardType: "trust", icon: "RotateCcw", title: lt("14 gün iade", "14 Tage Rückgabe", "14-day return"), text: lt("Kullanılmamış eSIM’leri kolayca iade et", "Unbenutzte eSIMs problemlos zurückgeben", "Easily return unused eSIMs") }),
         item("trust-install", { cardType: "trust", icon: "Zap", title: lt("60 saniyede kurulum", "In 60 Sekunden installiert", "Installed in 60 seconds"), text: lt("Doğrudan cihazında", "Direkt auf deinem Gerät", "Directly on your device") }),
         item("trust-payment", { cardType: "trust", icon: "LockKeyhole", title: lt("Güvenli ödeme", "Sicher bezahlen", "Secure payment"), text: lt("Güvenilir ödeme yöntemleri", "Vertrauenswürdige Zahlungsmethoden", "Trusted payment methods") }),
-        demoReview("demo-italy", "IT", "it", "Giulia R.", "L'installazione è stata semplice e veloce. Comoda da usare durante il viaggio."),
-        demoReview("demo-japan", "JP", "ja", "Haruto S.", "設定は簡単で、旅行中も便利に使えました。"),
-        demoReview("demo-usa", "US", "en", "Emily C.", "Setup was easy, and having the eSIM ready for my trip was convenient."),
-        demoReview("demo-turkey", "TR", "tr", "Elif Y.", "Kurulum çok kolaydı. Seyahatim boyunca eSIM'i rahatça kullanabildim."),
-        demoReview("demo-france", "FR", "fr", "Camille D.", "Installation simple et rapide. Très pratique pour mon voyage."),
-        demoReview("demo-spain", "ES", "es", "Lucía M.", "La instalación fue muy sencilla y resultó muy práctico durante mi viaje."),
       ],
     }),
     section("esim-info", "INFO_CAROUSEL", {
