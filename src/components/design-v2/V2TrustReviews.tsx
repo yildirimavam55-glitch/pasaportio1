@@ -22,18 +22,10 @@ const LABELS = localize({
   en: { rating: "{rating} out of 5 stars", reviews: "Customer reviews", real: "Based on real customer reviews", demo: "DEMO / TEST — not a real customer review", slide: "Review {index}", country: "Country", previewRating: "Based on customer experiences", paymentPreview: "DEMO / PREVIEW — payment not yet available" },
 });
 
-/** Only the authenticated CMS iframe displays the unverified comparison test. */
-const WHY = localize({
-  tr: { eyebrow: "Neden Travely?", title: ["Daha az risk.", "Daha uygun internet.", "Daha kolay seyahat."], body: "eSIM paketini seç, fiyatını baştan gör ve birkaç adımda bağlantıya hazır ol.", roamingTitle: "Roaming'e alternatif", roamingText: "Roaming'e alternatif, seyahatinize uygun eSIM paketlerini keşfedin.", offerTop: "ROAMING'E KIYASLA", offerLabel: "FİYAT AVANTAJI*", offerBottom: "Seçili roaming tekliflerine kıyasla", footnote: "*Tasarım testi için önizleme değeridir. Nihai fiyat avantajı, yayın öncesinde doğrulanmış Travely ve roaming fiyatlarıyla belirlenecektir." },
-  de: { eyebrow: "Warum Travely?", title: ["Weniger Risiko.", "Günstigeres Internet.", "Einfacher reisen."], body: "eSIM-Paket wählen, den Preis vorab sehen und in wenigen Schritten verbunden sein.", roamingTitle: "Die Alternative zum Roaming", roamingText: "Entdecke als Alternative zum Roaming eSIM-Pakete, die zu deiner Reise passen.", offerTop: "BIS ZU", offerLabel: "PREISVORTEIL", offerBottom: "gegenüber ausgewählten Roaming-Angeboten*", footnote: "*Vorschauwert für den Design-Test. Der endgültige Preisvorteil wird vor Veröffentlichung anhand verifizierter Travely- und Roamingpreise festgelegt." },
-  en: { eyebrow: "Why Travely?", title: ["Less risk.", "Better-value internet.", "Easier travel."], body: "Choose an eSIM plan, see the price up front and get connected in a few steps.", roamingTitle: "An alternative to roaming", roamingText: "Discover eSIM plans that suit your trip as an alternative to roaming.", offerTop: "UP TO", offerLabel: "PRICE ADVANTAGE", offerBottom: "compared with selected roaming offers*", footnote: "*Preview value for design testing. The final price advantage will be determined from verified Travely and roaming prices before publication." },
-});
-
 /** Public reviews are additionally filtered on the server; demos can only appear in the Admin iframe. */
 export function V2TrustReviews({ section, media, preview = false }: { section: V2Section; media: V2Media; preview?: boolean }) {
   const { locale, uiLocale } = useI18n();
   const labels = LABELS[locale];
-  const why = WHY[locale];
   const settings = section.trust;
   const chips = section.items.filter((item) => item.cardType === "chip" && item.visible);
   const photo = mediaUrl(section.mediaId, media);
@@ -103,9 +95,9 @@ export function V2TrustReviews({ section, media, preview = false }: { section: V
 
     {settings?.whyEnabled !== false && <Reveal delay={140} className="trust-section-reveal mt-6 border-t border-border/70 pt-5">
       <div aria-labelledby={`${section.id}-why`}>
-        <p className="text-xs font-bold uppercase tracking-wide text-success">{v2Text(section, "whyEyebrow", locale) || why.eyebrow}</p>
-        <h3 id={`${section.id}-why`} className="mt-2 font-display text-xl font-bold leading-tight text-foreground sm:text-3xl">{v2Text(section, "whyTitle", locale) || why.title.join(" ")}</h3>
-        <p className="mt-2 max-w-xl text-[13px] leading-relaxed text-muted-foreground sm:text-base">{v2Text(section, "whyDescription", locale) || why.body}</p>
+        <p className="text-xs font-bold uppercase tracking-wide text-success">{v2Text(section, "whyEyebrow", locale)}</p>
+        <h3 id={`${section.id}-why`} className="mt-2 font-display text-xl font-bold leading-tight text-foreground sm:text-3xl">{v2Text(section, "whyTitle", locale)}</h3>
+        <p className="mt-2 max-w-xl text-[13px] leading-relaxed text-muted-foreground sm:text-base">{v2Text(section, "whyDescription", locale)}</p>
         {settings?.illustrationId && mediaUrl(settings.illustrationId, media) && <img src={mediaUrl(settings.illustrationId, media)} alt="" loading="lazy" className="mt-3 h-24 w-auto object-contain" />}
         {settings?.comparisonEnabled && (!settings.comparisonPreviewOnly || preview) && <div className="mt-4 rounded-2xl bg-card p-4 shadow-soft ring-1 ring-border">
           <p className="text-sm font-bold text-foreground">{v2Text(section, "comparisonTitle", locale)}</p>
@@ -114,9 +106,9 @@ export function V2TrustReviews({ section, media, preview = false }: { section: V
           <p className="text-xs text-muted-foreground">{v2Text(section, "statisticLabel", locale)} {v2Text(section, "comparisonHighlight", locale)}</p>
           <p className="mt-2 text-[11px] text-muted-foreground">{v2Text(section, "comparisonFootnote", locale)}</p>
         </div>}
-        {v2Text(section, "cta", locale) && <Button asChild className="mt-4"><Link to={section.href}>{v2Text(section, "cta", locale)}</Link></Button>}
       </div>
     </Reveal>}
+    {v2Text(section, "cta", locale) && <Button asChild className="mt-4"><Link to={section.href}>{v2Text(section, "cta", locale)}</Link></Button>}
 
   </section>;
 }
