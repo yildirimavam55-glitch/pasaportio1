@@ -37,14 +37,14 @@ export function V2TrustReviews({ section, media, preview = false }: { section: V
   const scrollTo = (index: number) => rail.current?.children[index]?.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "start" });
 
   return <section aria-labelledby={`${section.id}-title`} className="trust-story relative mt-5 overflow-hidden rounded-[2rem] bg-petrol-soft px-4 pb-6 pt-5 sm:mt-8 sm:px-7 sm:pt-8 lg:px-10">
-    <div className="relative min-h-[28rem] sm:min-h-[30rem] lg:grid lg:min-h-[26rem] lg:grid-cols-[minmax(0,1fr)_minmax(0,0.9fr)] lg:items-center lg:gap-6">
+    <div className="relative lg:grid lg:min-h-[26rem] lg:grid-cols-[minmax(0,1fr)_minmax(0,0.9fr)] lg:items-center lg:gap-6">
       <div className="relative z-10 min-w-0 lg:py-8">
         <Reveal className="trust-section-reveal"><p className="inline-flex max-w-full items-center gap-2 rounded-full bg-primary-soft px-3 py-2 text-xs font-bold text-primary"><Users className="size-4 shrink-0" aria-hidden /><span>{v2Text(section, "eyebrow", locale)}</span></p></Reveal>
         <Reveal delay={70} className="trust-section-reveal"><h2 id={`${section.id}-title`} className="mt-4 font-display text-[2rem] font-bold leading-[1.08] text-foreground sm:text-5xl"><span className="block">{v2Text(section, "title", locale)}</span><span className="block text-success">{v2Text(section, "accent", locale)}</span></h2></Reveal>
-        <Reveal delay={140} className="trust-section-reveal"><p className="mt-4 max-w-[49%] text-[13px] leading-[1.45] text-muted-foreground sm:max-w-[46%] sm:text-base lg:max-w-lg">{v2Text(section, "subtitle", locale)}</p></Reveal>
+        <Reveal delay={140} className="trust-section-reveal"><p className="mt-4 max-w-lg text-[13px] leading-[1.45] text-muted-foreground sm:text-base">{v2Text(section, "subtitle", locale)}</p></Reveal>
         {rating && <Reveal delay={210} className="trust-section-reveal mt-4 max-w-[50%] lg:max-w-none"><div className="flex flex-wrap items-center gap-x-3 gap-y-1"><span className="flex gap-0.5 text-success" role="img" aria-label={labels.rating.replace("{rating}", rating)}>{Array.from({ length: 5 }, (_, i) => <Star key={i} size={18} fill={i < Math.round(Number(rating.replace(",", "."))) ? "currentColor" : "none"} aria-hidden />)}</span><strong className="text-sm text-foreground">{rating} / 5</strong></div><p className="mt-1 text-xs text-muted-foreground">{labels.real}</p></Reveal>}
       </div>
-      <Reveal delay={210} className="trust-section-reveal pointer-events-none absolute inset-x-0 bottom-0 top-[10rem] sm:top-[8rem] lg:relative lg:inset-auto lg:h-[27rem]">
+      <Reveal delay={210} className="trust-section-reveal pointer-events-none relative mt-3 h-[19rem] sm:h-[25rem] lg:mt-0 lg:h-[27rem]">
         <div className="trust-phone-stage relative h-full w-full">
           <div className="trust-phone absolute inset-y-2 right-[7%] w-[48%] overflow-hidden rounded-[2rem] border-[6px] border-foreground bg-foreground shadow-panel sm:right-[12%] sm:w-[43%] lg:right-[14%] lg:w-[58%] rtl:right-auto rtl:left-[7%] sm:rtl:left-[12%] lg:rtl:left-[14%]">
             {photo && <img src={photo} alt={v2Text(section, "imageAlt", locale)} loading="lazy" decoding="async" width={1408} height={1104} sizes="(max-width: 640px) 48vw, (max-width: 1024px) 43vw, 30vw" className="h-full w-full object-cover object-[68%_center]" />}
@@ -66,7 +66,7 @@ export function V2TrustReviews({ section, media, preview = false }: { section: V
     </Reveal>}
 
     {trustItems.length > 0 && <Reveal delay={210} className="trust-section-reveal mt-5"><ul className="grid grid-cols-2 overflow-hidden rounded-2xl bg-card shadow-soft ring-1 ring-border md:grid-cols-4">
-      {trustItems.map((item, index) => <li key={item.id} className={`flex min-w-0 flex-col items-center border-border px-2 pb-4 pt-2 text-center sm:px-4 ${index % 2 ? "border-l" : ""} ${index > 1 ? "border-t md:border-t-0" : ""} ${index > 0 ? "md:border-l" : ""}`}>
+      {trustItems.map((item, index) => <li key={item.id} className={`flex min-w-0 flex-col items-center border-border px-2 pb-4 pt-2 text-center sm:px-4 ${trustItems.length === 3 && index === 2 ? "col-span-2 flex-row justify-center gap-4 border-t md:col-span-1 md:flex-col md:gap-0 md:border-t-0" : index % 2 ? "border-l" : ""} ${index > 1 && trustItems.length !== 3 ? "border-t md:border-t-0" : ""} ${index > 0 ? "md:border-l" : ""}`}>
         <img src={visuals[index] ?? globeVisual} alt="" loading="lazy" decoding="async" width={816} height={816} className="h-24 w-24 object-contain sm:h-32 sm:w-32" />
         <strong className="text-sm leading-tight text-foreground sm:text-base">{v2ItemText(item.title, locale)}</strong><span className="mt-1 text-xs leading-snug text-muted-foreground sm:text-sm">{v2ItemText(item.text, locale)}</span>
       </li>)}
