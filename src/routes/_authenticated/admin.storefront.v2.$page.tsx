@@ -30,6 +30,7 @@ import {
   V2_SECTION_LABELS,
   V2_SINGLETON,
   V2_TEXT_FIELDS,
+  editorialReviewCards,
   type LT,
   type V2Item,
   type V2PageConfig,
@@ -360,21 +361,13 @@ function TrustReviewsEditor({ section, lang, uiLang, onUiLang, onChange }: { sec
     nextReviews.splice(target, 0, row);
     onChange({ items: [...section.items.filter((item) => item.cardType !== "review"), ...nextReviews] });
   };
-  const makeReview = (type: "REAL" | "DEMO", code: UiLocale = uiLang, countryCode = "", name = "", body = ""): V2Item => {
+  const makeReview = (type: "REAL" | "EDITORIAL", code: UiLocale = uiLang, countryCode = "", name = "", body = ""): V2Item => {
     const id = `review-${Math.random().toString(36).slice(2, 10)}`;
     const now = new Date().toISOString();
     return { id, visible: true, icon: "", entity: "", title: { tr: "", de: "", en: "", [code]: name }, text: { tr: "", de: "", en: "", [code]: body }, internalKey: id, cardType: "review", mediaId: null, href: "", labels: [], cta: { tr: "", de: "", en: "" }, imageAlt: { tr: "", de: "", en: "" }, focalX: 50, focalY: 50, rating: 5, verified: false, published: false, reviewType: type, reviewStatus: "DRAFT", originalLanguage: code, countryCode, reviewDate: "", createdAt: now, updatedAt: now };
   };
-  const demoExamples = [
-    ["IT", "de", "Giulia R.", "Die Einrichtung war schnell erledigt und für meine Reise sehr unkompliziert."],
-    ["JP", "de", "Haruto S.", "Nach dem Kauf konnte ich die eSIM direkt einrichten. Für meine Reise durch Japan sehr praktisch."],
-    ["US", "de", "Emily C.", "Einfach eingerichtet und auf meiner Reise sehr praktisch."],
-    ["TR", "tr", "Elif Y.", "Kurulum çok kolaydı. Seyahatim boyunca eSIM'i rahatça kullanabildim."],
-    ["FR", "fr", "Camille D.", "Installation simple et rapide. Très pratique pour mon voyage."],
-    ["ES", "es", "Lucía M.", "La instalación fue muy sencilla y resultó muy práctico durante mi viaje."],
-  ] as const;
-  const addExamples = () => onChange({ items: [...section.items, ...demoExamples.filter(([, , name]) => !reviews.some((review) => review.reviewType === "DEMO" && review.title[review.originalLanguage ?? "en"] === name)).slice(0, Math.max(0, 30 - section.items.length)).map(([country, language, name, text]) => makeReview("DEMO", language, country, name, text))] });
-  const reviewCountries = ["TR", "DE", "IT", "JP", "US", "FR", "ES", "GB", "NL", "PT", "PL", "AE", "CH", "AT"];
+  const addExamples = () => onChange({ items: [...section.items, ...editorialReviewCards().filter((entry) => !reviews.some((review) => review.id === entry.id)).slice(0, Math.max(0, 30 - section.items.length))], showDemoReviews: true });
+  const reviewCountries = ["TR", "DE", "IT", "JP", "US", "CA", "TH", "FR", "ES", "GB", "NL", "PT", "PL", "AE", "CH", "AT"];
   const countryLabel = (code: string) => new Intl.DisplayNames([LOCALE_REGISTRY[uiLang].bcp47], { type: "region" }).of(code) ?? code;
 
   return <div className="space-y-4">
@@ -393,16 +386,16 @@ function TrustReviewsEditor({ section, lang, uiLang, onUiLang, onChange }: { sec
     </div>
     <div className="rounded-md border border-border p-3">
        <div className="flex items-center justify-between gap-2"><div><p className="text-xs font-bold">Müşteri yorumları</p><p className="mt-1 text-[10px] text-muted-foreground">Mağaza yalnız GERÇEK + DOĞRULANMIŞ + YAYINDA yorumları gösterir. Demo yorumları sadece bu editörün önizlemesinde görünür.</p></div><Button size="sm" variant="outline" onClick={() => onChange({ items: [...section.items, makeReview("REAL")] })}><Plus />Yorum ekle</Button></div>
-       <div className="mt-3 flex flex-wrap items-center gap-2"><Button size="sm" variant="outline" onClick={addExamples} disabled={section.items.length >= 30}>DEMO / TEST örnekleri ekle</Button><label className="flex items-center gap-2 text-xs"><input type="checkbox" checked={section.showDemoReviews === true} onChange={(event) => onChange({ showDemoReviews: event.target.checked })} />Demoları önizlemede göster</label><Button size="sm" variant="outline" onClick={() => onChange({ showDemoReviews: false })}>Tüm demoları gizle</Button></div>
+       <div className="mt-3 flex flex-wrap items-center gap-2"><Button size="sm" variant="outline" onClick={addExamples} disabled={section.items.length >= 30}>8 editoryal örnek ekle</Button><Button size="sm" variant="outline" onClick={() => onChange({ items: [...section.items, makeReview("EDITORIAL")] })}>Editoryal kart ekle</Button><label className="flex items-center gap-2 text-xs"><input type="checkbox" checked={section.showDemoReviews === true} onChange={(event) => onChange({ showDemoReviews: event.target.checked })} />Örnekleri önizlemede göster</label><Button size="sm" variant="outline" onClick={() => onChange({ showDemoReviews: false })}>Tüm örnekleri gizle</Button></div>
       {!reviews.length && <p className="mt-3 rounded-md bg-secondary p-3 text-xs text-muted-foreground">Henüz yorum yok. Mağazada yorum kartları otomatik olarak gizlenir.</p>}
       <ul className="mt-3 space-y-3">{reviews.map((review, index) => <li key={review.id} className="rounded-md border border-border bg-background p-3">
-         <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2"><div className="min-w-0"><strong className="block truncate text-xs">{review.title[review.originalLanguage ?? "en"] || "Yeni yorum"} <span className="text-muted-foreground">· {review.reviewType === "REAL" ? "GERÇEK" : "DEMO / TEST"}</span></strong><span className="text-[10px] text-muted-foreground">{review.reviewStatus ?? "DRAFT"} · Sıra {index + 1} · {review.verified ? "Doğrulandı" : "Doğrulama bekliyor"}</span></div><div className="flex"><Button size="icon" variant="ghost" className="size-7" aria-label="Yorumu yukarı taşı" disabled={index === 0} onClick={() => moveReview(review.id, -1)}><ArrowUp /></Button><Button size="icon" variant="ghost" className="size-7" aria-label="Yorumu aşağı taşı" disabled={index === reviews.length - 1} onClick={() => moveReview(review.id, 1)}><ArrowDown /></Button><Button size="icon" variant="ghost" className="size-7 text-destructive" aria-label="Yorumu sil" onClick={() => { if (window.confirm("Yorum silinsin mi?")) onChange({ items: section.items.filter((item) => item.id !== review.id) }); }}><Trash2 /></Button></div></div>
+         <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2"><div className="min-w-0"><strong className="block truncate text-xs">{review.title[review.originalLanguage ?? "en"] || "Yeni yorum"} <span className="text-muted-foreground">· {review.reviewType === "REAL" ? "GERÇEK" : review.reviewType === "EDITORIAL" ? "EDİTORYAL / ÖRNEK" : "DEMO / TEST"}</span></strong><span className="text-[10px] text-muted-foreground">{review.reviewStatus ?? "DRAFT"} · Sıra {index + 1} · {review.verified ? "Doğrulandı" : "Doğrulama bekliyor"}</span></div><div className="flex"><Button size="icon" variant="ghost" className="size-7" aria-label="Yorumu yukarı taşı" disabled={index === 0} onClick={() => moveReview(review.id, -1)}><ArrowUp /></Button><Button size="icon" variant="ghost" className="size-7" aria-label="Yorumu aşağı taşı" disabled={index === reviews.length - 1} onClick={() => moveReview(review.id, 1)}><ArrowDown /></Button><Button size="icon" variant="ghost" className="size-7 text-destructive" aria-label="Yorumu sil" onClick={() => { if (window.confirm("Yorum silinsin mi?")) onChange({ items: section.items.filter((item) => item.id !== review.id) }); }}><Trash2 /></Button></div></div>
          <div className="mt-3 grid gap-3 sm:grid-cols-2">
-           <Field label="Tür"><select className="admin-field mt-1 w-full" value={review.reviewType ?? "DEMO"} onChange={(event) => setItem(review.id, { reviewType: event.target.value as "REAL" | "DEMO", verified: false, published: false, reviewStatus: "DRAFT" })}><option value="REAL">GERÇEK</option><option value="DEMO">DEMO / TEST</option></select></Field>
+           <Field label="Tür"><select className="admin-field mt-1 w-full" value={review.reviewType ?? "DEMO"} onChange={(event) => setItem(review.id, { reviewType: event.target.value as "REAL" | "DEMO" | "EDITORIAL", verified: false, published: false, reviewStatus: "DRAFT" })}><option value="REAL">GERÇEK</option><option value="EDITORIAL">EDİTORYAL / ÖRNEK</option><option value="DEMO">DEMO / TEST</option></select></Field>
            <Field label="Orijinal dil"><select className="admin-field mt-1 w-full" value={review.originalLanguage ?? "en"} onChange={(event) => setItem(review.id, { originalLanguage: event.target.value as UiLocale })}>{UI_LOCALES.map((code) => <option key={code} value={code}>{LOCALE_REGISTRY[code].nativeName}</option>)}</select></Field>
            <LTInput label="Ad ve soyad baş harfi (orijinal)" value={review.title} lang={lang} uiLang={review.originalLanguage ?? "en"} onChange={(title) => setItem(review.id, { title })} />
            <Field label="Ülke / bayrak"><select className="admin-field mt-1 w-full" value={review.countryCode ?? ""} onChange={(event) => setItem(review.id, { countryCode: event.target.value })}><option value="">Ülke seç</option>{reviewCountries.map((code) => <option key={code} value={code}>{countryLabel(code)} ({code})</option>)}</select></Field>
-           <div className="sm:col-span-2"><LTInput label="Orijinal yorum (mağazada yalnız orijinal metin gösterilir)" value={review.text} lang={lang} uiLang={review.originalLanguage ?? "en"} multiline onChange={(text) => setItem(review.id, { text })} /><ReviewTranslator review={review} onChange={(text) => setItem(review.id, { text })} /></div>
+           <div className="sm:col-span-2"><LTInput label={review.reviewType === "EDITORIAL" ? "Editoryal metin" : "Orijinal yorum (mağazada yalnız orijinal metin gösterilir)"} value={review.text} lang={lang} uiLang={review.reviewType === "EDITORIAL" ? uiLang : review.originalLanguage ?? "en"} multiline onChange={(text) => setItem(review.id, { text })} />{review.reviewType !== "EDITORIAL" && <ReviewTranslator review={review} onChange={(text) => setItem(review.id, { text })} />}</div>
            <MediaField label="Müşteri avatarı" value={review.mediaId} onChange={(mediaId) => setItem(review.id, { mediaId })} category="GLOBAL" />
            <Field label="Puan"><select className="admin-field mt-1 w-full" value={review.rating} onChange={(event) => setItem(review.id, { rating: Number(event.target.value) })}>{[5,4,3,2,1].map((rating) => <option key={rating} value={rating}>{rating} / 5</option>)}</select></Field>
            <Field label="Yorum tarihi"><input type="date" className="admin-field mt-1 w-full" value={review.reviewDate ?? ""} onChange={(event) => setItem(review.id, { reviewDate: event.target.value })} /></Field>

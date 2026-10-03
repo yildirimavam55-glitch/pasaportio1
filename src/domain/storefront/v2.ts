@@ -12,6 +12,8 @@ import { ICON_NAMES } from "@/domain/storefront/icons";
 import { POPULAR_COUNTRIES } from "@/domain/geo/countries";
 import { getAirport, POPULAR_AIRPORT_IDS } from "@/domain/geo/airports";
 import { DISCOVERY_COPY, ESIM_COPY, LOUNGE_COPY, VIGNETTE_COPY } from "@/domain/storefront/v2-copy";
+import { TRUST_EDITORIAL } from "./trust-editorial";
+import { TRUST_TRANSLATIONS } from "@/i18n/trust-translations";
 
 export const V2_PAGES = ["esim", "lounge", "vignette"] as const;
 export type V2PageId = (typeof V2_PAGES)[number];
@@ -83,7 +85,7 @@ export type V2Item = {
   rating: number;
   verified: boolean;
   published: boolean;
-  reviewType?: "REAL" | "DEMO";
+  reviewType?: "REAL" | "DEMO" | "EDITORIAL";
   reviewStatus?: "DRAFT" | "PUBLISHED" | "ARCHIVED";
   originalLanguage?: UiLocale;
   countryCode?: string;
@@ -217,15 +219,41 @@ function section(id: string, type: V2SectionType, patch: Partial<V2Section> = {}
 
 const item = (id: string, patch: Partial<V2Item> = {}): V2Item => ({ id, visible: true, icon: "", entity: "", title: same(""), text: same(""), internalKey: id, cardType: "products", mediaId: null, href: "", labels: [], cta: same(""), imageAlt: same(""), focalX: 50, focalY: 50, rating: 5, verified: false, published: false, ...patch });
 
-/** Fictional records for the Admin iframe only; the public loader removes them even from published CMS data. */
-const trustDemoReviews = [
-  ["giulia", "IT", "Giulia R.", "Die Einrichtung war schnell erledigt und für meine Reise sehr unkompliziert."],
-  ["haruto", "JP", "Haruto S.", "Nach dem Kauf konnte ich die eSIM direkt einrichten. Für meine Reise durch Japan sehr praktisch."],
-  ["emily", "US", "Emily C.", "Einfach eingerichtet und auf meiner Reise sehr praktisch."],
-] as const;
+export function editorialReviewCards(): V2Item[] {
+  return TRUST_EDITORIAL.map((entry) => item(`editorial-${entry.id}`, {
+    cardType: "review", title: same(entry.name), text: entry.text, countryCode: entry.country,
+    rating: entry.rating, originalLanguage: "en", reviewType: "EDITORIAL", reviewStatus: "PUBLISHED",
+    verified: false, published: false, reviewDate: "", createdAt: "", updatedAt: "",
+  }));
+}
 
-function demoReview([id, countryCode, name, text]: typeof trustDemoReviews[number]): V2Item {
-  return item(`review-demo-${id}`, { cardType: "review", mediaId: null, title: { tr: "", en: "", de: name }, text: { tr: "", en: "", de: text }, reviewType: "DEMO", reviewStatus: "DRAFT", originalLanguage: "de", countryCode, rating: 5, verified: false, published: false, reviewDate: "", createdAt: "", updatedAt: "" });
+const withTrustLocales = (value: LT): LT => {
+  const translated = { ...value };
+  for (const locale of UI_LOCALES) {
+    if (locale === "tr" || locale === "de" || locale === "en" || translated[locale]?.trim()) continue;
+    const fallback = TRUST_TRANSLATIONS[locale]?.[value.en];
+    if (fallback) translated[locale] = fallback;
+  }
+  return translated;
+};
+
+const localizeTrustSection = (section: V2Section): V2Section => ({
+  ...section,
+  text: Object.fromEntries(Object.entries(section.text).map(([key, value]) => [key, withTrustLocales(value)])),
+  items: section.items.map((entry) => ({ ...entry, title: withTrustLocales(entry.title), text: entry.reviewType === "EDITORIAL" ? entry.text : withTrustLocales(entry.text) })),
+  ...(section.trust ? { trust: { ...section.trust, manualCaption: withTrustLocales(section.trust.manualCaption) } } : {}),
+});
+
+/** Editor-only upgrade of legacy demo fixtures; saved deletions are never re-seeded. */
+export function withEditorialStarters(config: V2PageConfig): V2PageConfig {
+  const trust = config.sections.find((section) => section.type === "TRUST_REVIEWS");
+  if (!trust) return config;
+  return { ...config, sections: config.sections.map((section) => section !== trust ? section : {
+    ...localizeTrustSection(section),
+    ...(trust.items.some((entry) => entry.reviewType === "DEMO") && !trust.items.some((entry) => entry.reviewType === "EDITORIAL")
+      ? { items: [...localizeTrustSection(section).items.filter((entry) => entry.reviewType !== "DEMO"), ...editorialReviewCards()], showDemoReviews: true }
+      : {}),
+  }) };
 }
 
 const infoCard = (id: string, cardType: string, mediaId: string, title: LT, text: LT, labels: LT[] = [], href: V2SafeLink | "" = "") =>
@@ -267,7 +295,7 @@ function esimDefault(): V2Page {
       text: { title: from3(c, "popular") },
       items: POPULAR_COUNTRIES.slice(0, 10).map((country) => item(`c-${country.iso}`, { entity: country.iso })),
     }),
-    section("trust-reviews", "TRUST_REVIEWS", {
+    localizeTrustSection(section("trust-reviews", "TRUST_REVIEWS", {
       mediaId: "builtin:trust-traveler",
       showDemoReviews: true,
       trust: defaultTrust(),
@@ -292,9 +320,9 @@ function esimDefault(): V2Page {
         item("trust-refund", { cardType: "trust", icon: "RotateCcw", title: lt("14 gün iade güvencesi", "14 Tage Rückgabegarantie", "14-Day Refund Guarantee"), text: lt("Kullanılmamış eSIM’lerde, satın almadan itibaren 14 gün", "Für ungenutzte eSIMs, 14 Tage ab Kauf", "For unused eSIMs, within 14 days of purchase") }),
         item("trust-install", { cardType: "trust", icon: "Zap", title: lt("60 saniyede kurulum", "In 60 Sekunden installiert", "Installed in 60 seconds"), text: lt("Doğrudan cihazında", "Direkt auf deinem Gerät", "Directly on your device") }),
         item("trust-payment", { cardType: "trust", icon: "LockKeyhole", title: lt("Güvenli ödeme", "Sicher bezahlen", "Secure payment"), text: lt("Güvenilir ödeme yöntemleri", "Vertrauenswürdige Zahlungsmethoden", "Trusted payment methods") }),
-        ...trustDemoReviews.map(demoReview),
+        ...editorialReviewCards(),
       ],
-    }),
+    })),
     section("esim-info", "INFO_CAROUSEL", {
       text: {
         title: lt("eSIM hakkında merak ettiklerin", "Alles, was du über eSIM wissen solltest", "Everything you need to know about eSIM"),
@@ -429,7 +457,7 @@ function cleanItem(raw: any, index: number): V2Item {
     verified: raw?.verified === true,
     published: raw?.published === true,
     ...(raw?.cardType === "review" ? {
-      reviewType: raw?.reviewType === "REAL" ? "REAL" as const : "DEMO" as const,
+      reviewType: raw?.reviewType === "REAL" ? "REAL" as const : raw?.reviewType === "EDITORIAL" ? "EDITORIAL" as const : "DEMO" as const,
       reviewStatus: raw?.reviewStatus === "PUBLISHED" || raw?.reviewStatus === "ARCHIVED" ? raw.reviewStatus as "PUBLISHED" | "ARCHIVED" : "DRAFT" as const,
       originalLanguage: (UI_LOCALES as readonly string[]).includes(raw?.originalLanguage) ? raw.originalLanguage as UiLocale : "en" as const,
       countryCode: /^[A-Z]{2}$/.test(String(raw?.countryCode)) ? raw.countryCode as string : "",
@@ -516,17 +544,11 @@ export function sanitizeV2Page(raw: any, page: V2PageId): V2PageConfig {
     }
     sections.splice(insertAt, 0, fallbackSection);
   }
-  // Existing CMS pages can predate the demo fixture. Only add it to the editor
-  // configuration; public reads always strip DEMO records before returning data.
   if (page === "esim") {
     const trust = sections.find((s) => s.type === "TRUST_REVIEWS");
     const sourceTrust = raw.sections.find((s: V2Section) => s?.type === "TRUST_REVIEWS");
     if (trust && sourceTrust && !sourceTrust.trust && !trust.items.some((i) => i.cardType === "chip")) {
       trust.items = [...fallback.sections.find((s) => s.type === "TRUST_REVIEWS")!.items.filter((i) => i.cardType === "chip"), ...trust.items];
-    }
-    if (trust && sourceTrust && !("showDemoReviews" in sourceTrust) && !trust.items.some((i) => i.cardType === "review" && i.reviewType === "DEMO")) {
-      trust.items = [...trust.items, ...trustDemoReviews.map(demoReview)];
-      trust.showDemoReviews = true;
     }
   }
   // The search hero is core: always present and always first.

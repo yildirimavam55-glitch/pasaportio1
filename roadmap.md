@@ -733,3 +733,8 @@
 - [x] Check 360/390/430, tablet, desktop and RTL layouts, translated copy, reduced motion, section placement, and zero-review storefront without publishing.
 - [x] Hide the payment trust claim while checkout cannot accept real payments; keep it editable for future content review.
 - [ ] Verify authenticated Admin preview/editing and real purchase continuity after an Admin account and live payment provider are available.
+
+## Social Proof completion
+- [ ] Add eight explicitly editorial starter cards without customer/order verification or public leakage.
+- [ ] Complete 14-locale trust content and Admin language editing while preserving fixed layout.
+- [ ] Check requested mobile/desktop, RTL/CJK, swipe, image and review editor preview paths without publishing.
