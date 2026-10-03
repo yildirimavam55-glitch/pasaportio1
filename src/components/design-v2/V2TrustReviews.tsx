@@ -36,7 +36,7 @@ export function V2TrustReviews({ section, media, preview = false }: { section: V
   const activePaymentMethods: readonly string[] = [];
   const trustItems = section.items.filter((item) => item.visible && item.cardType === "trust" && (item.id !== "trust-payment" || preview || activePaymentMethods.length > 0));
   const visuals: Record<string, string> = { "trust-countries": globeVisual, "trust-refund": returnVisual, "trust-install": installVisual, "trust-payment": paymentVisual };
-  const displayRating = rating ?? (preview && demoReviews.length > 0 ? "4,8" : null);
+  const displayRating = rating ?? (preview && demoReviews.length > 0 ? uiLocale === "en" ? "4.8" : "4,8" : null);
   const scrollTo = (index: number) => rail.current?.children[index]?.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "start" });
 
   return <section aria-labelledby={`${section.id}-title`} className="trust-story relative -mx-4 mt-5 overflow-hidden rounded-[2rem] bg-petrol-soft px-6 pb-5 pt-5 sm:mx-0 sm:mt-8 sm:px-7 sm:pt-8 lg:px-10">
