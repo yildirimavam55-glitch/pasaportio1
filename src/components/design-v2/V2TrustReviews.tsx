@@ -12,9 +12,10 @@ import { localize } from "@/i18n/overlay";
 import { v2ItemText, v2Text, type V2Item, type V2Section } from "@/domain/storefront/v2";
 import type { V2Media } from "@/lib/v2-storefront.functions";
 import type { Locale } from "@/domain/enums";
-import globeVisual from "@/assets/trust-globe.jpg";
-import returnVisual from "@/assets/trust-return.jpg";
-import installVisual from "@/assets/trust-install.jpg";
+import globeVisual from "@/assets/trust-benefit-globe.webp";
+import returnVisual from "@/assets/trust-benefit-refund.webp";
+import installVisual from "@/assets/trust-benefit-install.webp";
+import paymentVisual from "@/assets/trust-benefit-payment.webp";
 import travelerFallback from "@/assets/trust-traveler.jpg";
 
 const LABELS = localize({
@@ -37,7 +38,7 @@ export function V2TrustReviews({ section, media, preview = false }: { section: V
   const displayReviews = reviews;
   const rating = realReviews.length ? (realReviews.reduce((sum, item) => sum + item.rating, 0) / realReviews.length).toFixed(1).replace(".", uiLocale === "en" ? "." : ",") : null;
   const trustItems = section.items.filter((item) => item.visible && item.cardType === "trust" && (item.id !== "trust-payment" || preview));
-  const visuals: Record<string, string> = { "trust-countries": globeVisual, "trust-refund": returnVisual, "trust-install": installVisual };
+  const visuals: Record<string, string> = { "trust-countries": globeVisual, "trust-refund": returnVisual, "trust-install": installVisual, "trust-payment": paymentVisual };
   const manual = settings?.ratingMode === "manual";
   const displayRating = settings?.ratingMode === "off" ? null : preview && manual ? settings.manualRating.toFixed(1).replace(".", uiLocale === "en" ? "." : ",") : rating;
   const scrollTo = (index: number) => rail.current?.children[index]?.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "start" });
@@ -88,7 +89,7 @@ export function V2TrustReviews({ section, media, preview = false }: { section: V
 
      {trustItems.length > 0 && <Reveal delay={210} className="trust-section-reveal mt-5"><ul className={`grid overflow-hidden rounded-2xl bg-card shadow-soft ring-1 ring-border ${trustItems.length === 3 ? "grid-cols-3" : "grid-cols-4"}`}>
        {trustItems.map((item, index) => <li key={item.id} className={`flex min-w-0 flex-col items-center border-border px-1 pb-4 pt-2 text-center sm:px-4 ${index > 0 ? "border-l" : ""}`}>
-         {(mediaUrl(item.mediaId, media) ?? visuals[item.id]) ? <img src={mediaUrl(item.mediaId, media) ?? visuals[item.id]} alt="" loading="lazy" decoding="async" width={816} height={816} className="h-20 w-20 max-w-full object-contain sm:h-32 sm:w-32" /> : <StorefrontIcon name={item.icon} className="my-5 size-10 text-success sm:my-12" />}
+         <span className="grid h-20 w-full place-items-center sm:h-32">{(mediaUrl(item.mediaId, media) ?? visuals[item.id]) ? <img src={mediaUrl(item.mediaId, media) ?? visuals[item.id]} alt="" loading="lazy" decoding="async" width={320} height={320} className="size-[min(100%,4.75rem)] object-contain sm:size-28" /> : <StorefrontIcon name={item.icon} className="size-10 text-success sm:size-14" />}</span>
          <strong className="text-[10px] leading-tight text-foreground sm:text-base">{v2ItemText(item.title, locale)}</strong><span className="mt-1 text-[9px] leading-snug text-muted-foreground sm:text-sm">{v2ItemText(item.text, locale)}</span>
          {preview && item.id === "trust-payment" && <span className="mt-1 text-[8px] font-bold leading-tight text-muted-foreground">{labels.paymentPreview}</span>}
       </li>)}
