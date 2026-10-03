@@ -27,7 +27,7 @@ export function V2TrustReviews({ section, media, preview = false }: { section: V
   const photo = mediaUrl(section.mediaId, media);
   const rail = useRef<HTMLDivElement>(null);
   const [active, setActive] = useState(0);
-  const reviews = section.items.filter((item) => item.visible && item.cardType === "review" && item.reviewStatus === "PUBLISHED" && (item.reviewType === "REAL" && item.verified || preview && section.showDemoReviews && item.reviewType === "DEMO"));
+  const reviews = section.items.filter((item) => item.visible && item.cardType === "review" && Boolean(item.text[item.originalLanguage ?? "en"]?.trim()) && (item.reviewType === "REAL" && item.verified && item.published && item.reviewStatus === "PUBLISHED" || preview && section.showDemoReviews && item.reviewType === "DEMO" && item.reviewStatus !== "ARCHIVED"));
   const realReviews = reviews.filter((item) => item.reviewType === "REAL" && item.verified);
   const demoReviews = reviews.filter((item) => item.reviewType === "DEMO");
   const rating = realReviews.length ? (realReviews.reduce((sum, item) => sum + item.rating, 0) / realReviews.length).toFixed(1).replace(".", uiLocale === "en" ? "." : ",") : null;

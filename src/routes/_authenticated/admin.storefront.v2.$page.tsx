@@ -353,14 +353,14 @@ function TrustReviewsEditor({ section, lang, uiLang, onUiLang, onChange }: { sec
     return { id, visible: true, icon: "", entity: "", title: { tr: "", de: "", en: "", [code]: name }, text: { tr: "", de: "", en: "", [code]: body }, internalKey: id, cardType: "review", mediaId: null, href: "", labels: [], cta: { tr: "", de: "", en: "" }, imageAlt: { tr: "", de: "", en: "" }, focalX: 50, focalY: 50, rating: 5, verified: false, published: false, reviewType: type, reviewStatus: "DRAFT", originalLanguage: code, countryCode, reviewDate: "", createdAt: now, updatedAt: now };
   };
   const demoExamples = [
-    ["IT", "de", "Giulia R.", "Die Einrichtung war schnell erledigt und während meiner Reise sehr unkompliziert."],
-    ["JP", "de", "Haruto S.", "Nach dem Kauf konnte ich die eSIM direkt einrichten. Für meine Reise durch Japan sehr praktisch."],
-    ["US", "de", "Emily C.", "Einfach eingerichtet und auf meiner Reise sehr praktisch. Besonders der schnelle Zugang zur eSIM hat mir gefallen."],
+    ["IT", "it", "Giulia R.", "L'installazione è stata semplice e veloce. Comoda da usare durante il viaggio."],
+    ["JP", "ja", "Haruto S.", "設定は簡単で、旅行中も便利に使えました。"],
+    ["US", "en", "Emily C.", "Setup was easy, and having the eSIM ready for my trip was convenient."],
     ["TR", "tr", "Elif Y.", "Kurulum çok kolaydı. Seyahatim boyunca eSIM'i rahatça kullanabildim."],
     ["FR", "fr", "Camille D.", "Installation simple et rapide. Très pratique pour mon voyage."],
     ["ES", "es", "Lucía M.", "La instalación fue muy sencilla y resultó muy práctico durante mi viaje."],
   ] as const;
-  const addExamples = () => onChange({ items: [...section.items, ...demoExamples.slice(0, Math.max(0, 30 - section.items.length)).map(([country, language, name, text]) => makeReview("DEMO", language, country, name, text))] });
+  const addExamples = () => onChange({ items: [...section.items, ...demoExamples.filter(([, , name]) => !reviews.some((review) => review.reviewType === "DEMO" && review.title[review.originalLanguage ?? "en"] === name)).slice(0, Math.max(0, 30 - section.items.length)).map(([country, language, name, text]) => makeReview("DEMO", language, country, name, text))] });
   const reviewCountries = ["TR", "DE", "IT", "JP", "US", "FR", "ES", "GB", "NL", "PT", "PL", "AE", "CH", "AT"];
   const countryLabel = (code: string) => new Intl.DisplayNames([LOCALE_REGISTRY[uiLang].bcp47], { type: "region" }).of(code) ?? code;
 
