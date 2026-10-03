@@ -744,3 +744,8 @@
 - [x] Keep image selection, replacement, removal, preview, alt text, and focal control in the existing Admin media workflow.
 - [x] Verify mobile/desktop photo geometry, chip independence, and zero horizontal overflow without publishing.
 - [ ] Verify authenticated Admin upload/replace/remove in the editor; the available preview session does not belong to the designated Admin account.
+
+## Trust benefit image editing
+- [x] Expose each of the four benefit visuals through existing CMS item media, icon mode, alt text, and Admin media controls.
+- [x] Verify signed-in image replacement → immediate preview → draft save → reload → preview persistence; discard the temporary test draft without publishing.
+- [ ] Verify an actual file upload only when adding a media record is authorized; the existing upload control is present.
