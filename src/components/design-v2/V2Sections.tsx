@@ -106,7 +106,7 @@ export function V2Sections({ config, media, slots, only }: { config: V2PageConfi
           case "DESTINATION_CAROUSEL":
             return <V2Fragment key={s.id}>{slots.destinations?.(s)}{slots.afterDestinations}</V2Fragment>;
           case "TRUST_REVIEWS":
-            return <V2TrustReviews key={s.id} section={s} media={media} />;
+            return <V2TrustReviews key={s.id} section={s} media={media} preview={typeof window !== "undefined" && window.name === V2_PREVIEW_WINDOW} />;
           case "REGION_DISCOVERY":
             return <V2Fragment key={s.id}>{slots.regions?.(s)}{slots.afterRegions}</V2Fragment>;
           case "NOTICE":
