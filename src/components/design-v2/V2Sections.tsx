@@ -8,7 +8,7 @@ import { DesktopDeviceCompatibilityBanner } from "@/components/travel/DeviceComp
 import { StorefrontIcon } from "@/domain/storefront/icons";
 import { defaultV2Page, isInWindow, sanitizeV2Page, v2ItemText, v2Text, type V2PageConfig, type V2PageId, type V2Section } from "@/domain/storefront/v2";
 import { getPublishedV2Page, type V2Media } from "@/lib/v2-storefront.functions";
-import { useI18n } from "@/i18n";
+import { useI18n, isUiLocale } from "@/i18n";
 import esimHero from "@/assets/esim-hero-mobile.jpg";
 import loungeHero from "@/assets/lounge-hero-mobile.jpg";
 import vignetteHero from "@/assets/v2-vignette-hero.jpg";
@@ -57,7 +57,7 @@ export function mediaUrl(id: string | null | undefined, media: V2Media): string 
  */
 export function useV2Page(page: V2PageId): { config: V2PageConfig; media: V2Media } {
   const published = useQuery(v2PageQuery(page));
-  const { locale, setLocale } = useI18n();
+  const { uiLocale, setLocale } = useI18n();
   const [preview, setPreview] = useState<{ config: V2PageConfig; media: V2Media } | null>(null);
   useEffect(() => {
     if (window.parent === window || window.name !== V2_PREVIEW_WINDOW) return;
@@ -65,13 +65,13 @@ export function useV2Page(page: V2PageId): { config: V2PageConfig; media: V2Medi
       if (event.origin !== window.location.origin || event.source !== window.parent) return;
       const msg = event.data;
       if (msg?.type !== "v2-cms-preview" || msg.page !== page) return;
-      if (["tr", "de", "en"].includes(msg.locale) && msg.locale !== locale) setLocale(msg.locale);
+      if (isUiLocale(msg.locale) && msg.locale !== uiLocale) setLocale(msg.locale, { persist: false });
       setPreview({ config: sanitizeV2Page(msg.config, page), media: msg.media && typeof msg.media === "object" ? msg.media : {} });
     };
     window.addEventListener("message", onMessage);
     window.parent.postMessage({ type: "v2-cms-ready", page }, window.location.origin);
     return () => window.removeEventListener("message", onMessage);
-  }, [page, locale, setLocale]);
+  }, [page, uiLocale, setLocale]);
   return preview ?? published.data ?? { config: defaultV2Page(page), media: {} };
 }
 
