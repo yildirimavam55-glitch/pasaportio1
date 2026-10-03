@@ -724,4 +724,6 @@
 ## Premium trust and social proof
 - [x] Reuse the existing V2 trust section and approved travel image without changing the surrounding homepage.
 - [x] Keep public reviews gated by verification and publication; retain localized CMS editing, avatar, rating, and order controls.
-- [ ] Verify mobile/desktop, languages, motion, review states, Admin preview, search, and purchase continuity without publishing.
+- [x] Check 360/390/430, tablet, desktop and RTL layouts, translated copy, reduced motion, section placement, and zero-review storefront without publishing.
+- [x] Hide the payment trust claim while checkout cannot accept real payments; keep it editable for future content review.
+- [ ] Verify authenticated Admin preview/editing and real purchase continuity after an Admin account and live payment provider are available.
