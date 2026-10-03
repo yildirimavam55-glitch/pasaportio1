@@ -37,6 +37,7 @@ import {
 import { getCountryByIso, searchCountries } from "@/domain/geo/countries";
 import { getAirportByIata, searchAirports } from "@/domain/geo/airports";
 import type { Locale } from "@/domain/enums";
+import { LOCALE_REGISTRY, UI_LOCALES, type UiLocale } from "@/i18n/locales";
 
 const PAGE_LABEL: Record<V2PageId, string> = { esim: "eSIM ana sayfası", lounge: "Lounge ana sayfası", vignette: "Vignette ana sayfası" };
 const LINK_LABEL: Record<string, string> = { "/esim": "eSIM", "/lounge": "Lounge", "/vignette": "Vignette", "/destek": "Destek / kurulum rehberi", "/sepet": "Sepet", "/account": "Hesabım" };
@@ -62,6 +63,7 @@ function Editor({ page }: { page: V2PageId }) {
   const [dirty, setDirty] = useState(false);
   const [selectedId, setSelectedId] = useState<string>("hero");
   const [lang, setLang] = useState<Locale>("tr");
+  const [trustPreviewLocale, setTrustPreviewLocale] = useState<UiLocale | null>(null);
   const [device, setDevice] = useState<(typeof DEVICES)[number]["id"]>("390");
   const [dragId, setDragId] = useState<string | null>(null);
   const [showHistory, setShowHistory] = useState(false);
@@ -72,8 +74,8 @@ function Editor({ page }: { page: V2PageId }) {
   const media = useMemo(() => Object.fromEntries((mediaList.data ?? []).filter((m) => m.url).map((m) => [m.id, { url: m.url as string, alt: m.altText ?? "" }])), [mediaList.data]);
   const pushPreview = useCallback(() => {
     if (!draft || !frame.current?.contentWindow) return;
-    frame.current.contentWindow.postMessage({ type: "v2-cms-preview", page, config: draft, media, locale: lang }, window.location.origin);
-  }, [draft, media, page, lang]);
+    frame.current.contentWindow.postMessage({ type: "v2-cms-preview", page, config: draft, media, locale: selectedId === "trust-reviews" ? trustPreviewLocale ?? lang : lang }, window.location.origin);
+  }, [draft, media, page, lang, selectedId, trustPreviewLocale]);
   useEffect(() => { pushPreview(); }, [pushPreview]);
   useEffect(() => {
     const onReady = (event: MessageEvent) => { if (event.origin === window.location.origin && event.data?.type === "v2-cms-ready" && event.data.page === page) pushPreview(); };
@@ -223,7 +225,7 @@ function Editor({ page }: { page: V2PageId }) {
             <span className="ml-2 text-[10px] text-muted-foreground">Boş DE/EN alanlarda Türkçe metin gösterilir.</span>
           </div>
           {V2_PROTECTED.includes(selected.type) && <p className="mb-3 rounded-md bg-secondary p-2 text-[11px] text-muted-foreground">Arama mantığı kodda korunur. Burada yalnızca metin, görsel ve görünüm ön ayarları değişir; bölüm gizlenemez veya taşınamaz.</p>}
-          <SectionForm section={selected} lang={lang} page={page} onChange={(patch) => patchSection(selected.id, patch)} />
+          <SectionForm section={selected} lang={lang} page={page} trustPreviewLocale={trustPreviewLocale} onTrustLocale={setTrustPreviewLocale} onChange={(patch) => patchSection(selected.id, patch)} />
         </AdminPanel>
 
         <AdminPanel title="Önizleme (taslak)" className="xl:w-[27rem]" action={
@@ -246,14 +248,15 @@ function Editor({ page }: { page: V2PageId }) {
   );
 }
 
-function LTInput({ label, value, lang, onChange, multiline = false }: { label: string; value: LT | undefined; lang: Locale; onChange: (v: LT) => void; multiline?: boolean }) {
+function LTInput({ label, value, lang, onChange, multiline = false, uiLang }: { label: string; value: LT | undefined; lang: Locale; onChange: (v: LT) => void; multiline?: boolean; uiLang?: UiLocale }) {
+  const code = uiLang ?? lang;
   const current = value ?? { tr: "", de: "", en: "" };
   const cls = "mt-1 w-full rounded-md border border-border bg-background px-2 py-1.5 text-sm font-normal";
   return (
-    <Field label={`${label} · ${lang.toUpperCase()}`} {...(lang !== "tr" && current.tr ? { hint: `TR: ${current.tr}` } : {})}>
+    <Field label={`${label} · ${code.toUpperCase()}`} {...(code !== "tr" && current.tr ? { hint: `TR: ${current.tr}` } : {})}>
       {multiline
-        ? <textarea rows={3} className={cls} value={current[lang]} onChange={(e) => onChange({ ...current, [lang]: e.target.value })} />
-        : <input className={cls} value={current[lang]} onChange={(e) => onChange({ ...current, [lang]: e.target.value })} />}
+        ? <textarea rows={3} className={cls} value={current[code] ?? ""} onChange={(e) => onChange({ ...current, [code]: e.target.value })} />
+        : <input className={cls} value={current[code] ?? ""} onChange={(e) => onChange({ ...current, [code]: e.target.value })} />}
     </Field>
   );
 }
@@ -278,13 +281,13 @@ function ImageField({ label, value, onChange }: { label: string; value: string |
   );
 }
 
-function SectionForm({ section: s, lang, page, onChange }: { section: V2Section; lang: Locale; page: V2PageId; onChange: (patch: Partial<V2Section>) => void }) {
+function SectionForm({ section: s, lang, page, trustPreviewLocale, onTrustLocale, onChange }: { section: V2Section; lang: Locale; page: V2PageId; trustPreviewLocale: UiLocale | null; onTrustLocale: (code: UiLocale) => void; onChange: (patch: Partial<V2Section>) => void }) {
   const setText = (key: string, value: LT) => onChange({ text: { ...s.text, [key]: value } });
   const mode = V2_ITEM_MODE[s.type];
   return (
     <div className="space-y-3">
       <div className="grid gap-3 sm:grid-cols-2">
-        {V2_TEXT_FIELDS[s.type].map(([key, label]) => <LTInput key={key} label={label} lang={lang} value={s.text[key]} onChange={(v) => setText(key, v)} multiline={key === "text" || key === "lead"} />)}
+        {s.type !== "TRUST_REVIEWS" && V2_TEXT_FIELDS[s.type].map(([key, label]) => <LTInput key={key} label={label} lang={lang} value={s.text[key]} onChange={(v) => setText(key, v)} multiline={key === "text" || key === "lead"} />)}
       </div>
 
       {s.type === "SEARCH_HERO" && (
@@ -319,7 +322,7 @@ function SectionForm({ section: s, lang, page, onChange }: { section: V2Section;
       {s.type === "SPACER" && <Select label="Boşluk" value={s.height} options={V2_HEIGHTS} onChange={(height) => onChange({ height })} />}
       {s.type === "DESTINATION_CAROUSEL" && <p className="rounded-md bg-secondary p-2 text-[11px] text-muted-foreground">Fiyatlar her zaman gerçek katalogdan gelir; yalnız yayınlanmış fiyatı olan destinasyonlar müşteriye görünür.</p>}
       {s.type === "REGION_DISCOVERY" && <p className="rounded-md bg-secondary p-2 text-[11px] text-muted-foreground">Bölgeler, ülke sayıları ve fiyatlar gerçek katalogdan otomatik gelir; burada yalnız metinler düzenlenir.</p>}
-      {s.type === "TRUST_REVIEWS" && <TrustReviewsEditor section={s} lang={lang} onChange={onChange} />}
+      {s.type === "TRUST_REVIEWS" && <TrustReviewsEditor section={s} lang={lang} uiLang={trustPreviewLocale ?? lang} onUiLang={onTrustLocale} onChange={onChange} />}
       {page === "lounge" && !V2_PROTECTED.includes(s.type) && s.type !== "DESTINATION_CAROUSEL" && (
         <label className="flex items-center gap-2 text-xs font-semibold"><input type="checkbox" checked={s.showOnResults} onChange={(e) => onChange({ showOnResults: e.target.checked })} />Havalimanı sonuçlarının altında da göster</label>
       )}
@@ -329,7 +332,7 @@ function SectionForm({ section: s, lang, page, onChange }: { section: V2Section;
   );
 }
 
-function TrustReviewsEditor({ section, lang, onChange }: { section: V2Section; lang: Locale; onChange: (patch: Partial<V2Section>) => void }) {
+function TrustReviewsEditor({ section, lang, uiLang, onUiLang, onChange }: { section: V2Section; lang: Locale; uiLang: UiLocale; onUiLang: (code: UiLocale) => void; onChange: (patch: Partial<V2Section>) => void }) {
   const trustItems = section.items.filter((item) => item.cardType === "trust");
   const reviews = section.items.filter((item) => item.cardType === "review");
   const setItem = (id: string, patch: Partial<V2Item>) => onChange({ items: section.items.map((item) => item.id === id ? { ...item, ...patch } : item) });
@@ -347,19 +350,21 @@ function TrustReviewsEditor({ section, lang, onChange }: { section: V2Section; l
   const addReview = () => onChange({ items: [...section.items, { id: `review-${Math.random().toString(36).slice(2, 8)}`, visible: true, icon: "", entity: "", title: { tr: "", de: "", en: "" }, text: { tr: "", de: "", en: "" }, internalKey: `review-${Date.now()}`, cardType: "review", mediaId: null, href: "", labels: [], cta: { tr: "", de: "", en: "" }, imageAlt: { tr: "", de: "", en: "" }, focalX: 50, focalY: 50, rating: 5, verified: false, published: false }] });
 
   return <div className="space-y-4">
+    <Field label="Trust & Reviews dili"><select className="admin-field mt-1 w-full" value={uiLang} onChange={(event) => onUiLang(event.target.value as UiLocale)}>{UI_LOCALES.map((code) => <option key={code} value={code}>{LOCALE_REGISTRY[code].nativeName}</option>)}</select></Field>
+    <div className="grid gap-2 sm:grid-cols-2">{V2_TEXT_FIELDS.TRUST_REVIEWS.map(([key, label]) => <LTInput key={key} label={label} lang={lang} uiLang={uiLang} value={section.text[key]} onChange={(value) => onChange({ text: { ...section.text, [key]: value } })} />)}</div>
     <ImageField label="Ana seyahat görseli" value={section.mediaId} onChange={(mediaId) => onChange({ mediaId })} />
     <label className="flex items-center gap-2 text-xs font-semibold"><input type="checkbox" checked={section.visible} onChange={(event) => onChange({ visible: event.target.checked })} />Bölüm mağazada görünür</label>
     <div className="rounded-md border border-border p-3">
       <p className="text-xs font-bold">Güven çubuğu</p>
       <p className="mt-1 text-[10px] text-muted-foreground">Kurulum iddiası dahil tüm metinler yayınlanmadan önce içerik onayı gerektirir.</p>
-      <div className="mt-3 space-y-3">{trustItems.map((item) => <div key={item.id} className="grid gap-2 rounded-md bg-secondary/40 p-2 sm:grid-cols-2"><IconPicker value={item.icon} onChange={(icon) => setItem(item.id, { icon })} /><LTInput label="Başlık" value={item.title} lang={lang} onChange={(title) => setItem(item.id, { title })} /><div className="sm:col-span-2"><LTInput label="Açıklama" value={item.text} lang={lang} onChange={(text) => setItem(item.id, { text })} /></div></div>)}</div>
+      <div className="mt-3 space-y-3">{trustItems.map((item) => <div key={item.id} className="grid gap-2 rounded-md bg-secondary/40 p-2 sm:grid-cols-2"><IconPicker value={item.icon} onChange={(icon) => setItem(item.id, { icon })} /><LTInput label="Başlık" value={item.title} lang={lang} uiLang={uiLang} onChange={(title) => setItem(item.id, { title })} /><div className="sm:col-span-2"><LTInput label="Açıklama" value={item.text} lang={lang} uiLang={uiLang} onChange={(text) => setItem(item.id, { text })} /></div></div>)}</div>
     </div>
     <div className="rounded-md border border-border p-3">
-      <div className="flex items-center justify-between gap-2"><div><p className="text-xs font-bold">Müşteri yorumları</p><p className="mt-1 text-[10px] text-muted-foreground">Yalnız hem doğrulanmış hem yayınlanmış yorumlar mağazada görünür.</p></div><Button size="sm" variant="outline" onClick={addReview}><Plus />Yorum ekle</Button></div>
+      <div className="flex items-center justify-between gap-2"><div><p className="text-xs font-bold">Müşteri yorumları</p><p className="mt-1 text-[10px] text-muted-foreground">Yalnız hem doğrulanmış hem yayınlanmış yorumlar mağazada görünür. Çevrilmiş yorumlar yalnız açıkça girildiği dillerde gösterilir.</p></div><Button size="sm" variant="outline" onClick={addReview}><Plus />Yorum ekle</Button></div>
       {!reviews.length && <p className="mt-3 rounded-md bg-secondary p-3 text-xs text-muted-foreground">Henüz yorum yok. Mağazada yorum kartları otomatik olarak gizlenir.</p>}
       <ul className="mt-3 space-y-3">{reviews.map((review, index) => <li key={review.id} className="rounded-md border border-border bg-background p-3">
         <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2"><div className="min-w-0"><strong className="block truncate text-xs">{review.title[lang] || review.title.tr || "Yeni yorum"}</strong><span className="text-[10px] text-muted-foreground">{review.verified ? "Doğrulandı" : "Doğrulama bekliyor"} · {review.published ? "Yayına hazır" : "Yayında değil"}</span></div><div className="flex"><Button size="icon" variant="ghost" className="size-7" aria-label="Yorumu yukarı taşı" disabled={index === 0} onClick={() => moveReview(review.id, -1)}><ArrowUp /></Button><Button size="icon" variant="ghost" className="size-7" aria-label="Yorumu aşağı taşı" disabled={index === reviews.length - 1} onClick={() => moveReview(review.id, 1)}><ArrowDown /></Button><Button size="icon" variant="ghost" className="size-7 text-destructive" aria-label="Yorumu sil" onClick={() => onChange({ items: section.items.filter((item) => item.id !== review.id) })}><Trash2 /></Button></div></div>
-        <div className="mt-3 grid gap-3 sm:grid-cols-2"><LTInput label="Ad ve soyad baş harfi" value={review.title} lang={lang} onChange={(title) => setItem(review.id, { title })} /><LTInput label="Destinasyon / ülke" value={review.cta} lang={lang} onChange={(cta) => setItem(review.id, { cta })} /><div className="sm:col-span-2"><LTInput label="Yorum" value={review.text} lang={lang} multiline onChange={(text) => setItem(review.id, { text })} /></div><MediaField label="Müşteri avatarı" value={review.mediaId} onChange={(mediaId) => setItem(review.id, { mediaId })} category="GLOBAL" /><Field label="Puan"><select className="admin-field mt-1 w-full" value={review.rating} onChange={(event) => setItem(review.id, { rating: Number(event.target.value) })}>{[5,4,3,2,1].map((rating) => <option key={rating} value={rating}>{rating} / 5</option>)}</select></Field></div>
+        <div className="mt-3 grid gap-3 sm:grid-cols-2"><LTInput label="Ad ve soyad baş harfi" value={review.title} lang={lang} uiLang={uiLang} onChange={(title) => setItem(review.id, { title })} /><LTInput label="Destinasyon / ülke" value={review.cta} lang={lang} uiLang={uiLang} onChange={(cta) => setItem(review.id, { cta })} /><div className="sm:col-span-2"><LTInput label="Yorum" value={review.text} lang={lang} uiLang={uiLang} multiline onChange={(text) => setItem(review.id, { text })} /></div><MediaField label="Müşteri avatarı" value={review.mediaId} onChange={(mediaId) => setItem(review.id, { mediaId })} category="GLOBAL" /><Field label="Puan"><select className="admin-field mt-1 w-full" value={review.rating} onChange={(event) => setItem(review.id, { rating: Number(event.target.value) })}>{[5,4,3,2,1].map((rating) => <option key={rating} value={rating}>{rating} / 5</option>)}</select></Field></div>
         <div className="mt-3 flex flex-wrap gap-4"><label className="flex items-center gap-2 text-xs font-semibold"><input type="checkbox" checked={review.verified} onChange={(event) => setItem(review.id, { verified: event.target.checked, published: event.target.checked ? review.published : false })} />Doğrulandı</label><label className="flex items-center gap-2 text-xs font-semibold"><input type="checkbox" checked={review.published} disabled={!review.verified} onChange={(event) => setItem(review.id, { published: event.target.checked })} />Mağazada yayınla</label></div>
       </li>)}</ul>
     </div>

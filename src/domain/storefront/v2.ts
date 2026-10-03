@@ -1,4 +1,6 @@
 import { translateString } from "@/i18n/overlay";
+import { getActiveUiLocale } from "@/i18n/overlay";
+import { UI_LOCALES, type UiLocale } from "@/i18n/locales";
 import { designV2ToPublic } from "./public-routes";
 /**
  * V2 storefront builder — presentation-only configuration for the V2 service homepages.
@@ -14,7 +16,7 @@ import { DISCOVERY_COPY, ESIM_COPY, LOUNGE_COPY, VIGNETTE_COPY } from "@/domain/
 export const V2_PAGES = ["esim", "lounge", "vignette"] as const;
 export type V2PageId = (typeof V2_PAGES)[number];
 export const V2_LOCALES = ["tr", "de", "en"] as const;
-export type LT = Record<Locale, string>;
+export type LT = Record<Locale, string> & Partial<Record<UiLocale, string>>;
 
 export const V2_SECTION_TYPES = [
   "SEARCH_HERO",
@@ -131,7 +133,7 @@ export const V2_TEXT_FIELDS: Record<V2SectionType, Array<[string, string]>> = {
   SEARCH_HERO: [["eyebrow", "Üst başlık"], ["title", "Başlık"], ["subtitle", "Alt başlık"], ["placeholder", "Arama metni"], ["sticky", "Sabit arama metni"]],
   BENEFIT_ROW: [],
   DESTINATION_CAROUSEL: [["title", "Başlık"]],
-  TRUST_REVIEWS: [["eyebrow", "Güven etiketi"], ["title", "Başlık"], ["accent", "Yeşil başlık satırı"], ["subtitle", "Açıklama"], ["imageAlt", "Seyahat görseli alt metni"], ["chipOneTitle", "İlk görsel etiketi"], ["chipOneText", "İlk görsel etiketi açıklaması"], ["chipTwoTitle", "İkinci görsel etiketi"], ["chipTwoText", "İkinci görsel etiketi açıklaması"]],
+  TRUST_REVIEWS: [["eyebrow", "Güven etiketi"], ["title", "Başlık"], ["accent", "Yeşil başlık satırı"], ["subtitle", "Açıklama"], ["imageAlt", "Seyahat görseli alt metni"], ["chipOneTitle", "Kurulum etiketi"], ["chipOneText", "Kurulum açıklaması"], ["chipTwoTitle", "Paket etiketi"], ["chipTwoText", "Paket açıklaması"], ["chipThreeTitle", "Seyahat etiketi"]],
   INFO_CAROUSEL: [["title", "Başlık"], ["subtitle", "Alt başlık"]],
   REGION_DISCOVERY: [["eyebrow", "Üst başlık"], ["title", "Başlık"], ["lead", "Açıklama"], ["worldwide", "Dünya bannerı"], ["cta", "Buton metni"]],
   NOTICE: [["title", "Başlık"], ["text", "Metin"]],
@@ -236,16 +238,17 @@ function esimDefault(): V2Page {
         accent: lt("Gerçek deneyimler.", "Echte Erfahrungen.", "Real experiences."),
         subtitle: lt("Şehir gezisi, sırt çantalı yolculuk veya iş seyahati — eSIM’lerimiz 190’dan fazla ülkede yolculuğuna eşlik eder.", "Ob Städtetrip, Backpacking oder Geschäftsreise – unsere eSIMs begleiten Reisende in über 190 Ländern.", "From city breaks and backpacking to business travel, our eSIMs keep travellers connected in over 190 countries."),
         imageAlt: lt("Akdeniz kıyısındaki şehri seyreden gezgin", "Reisende mit Blick auf eine mediterrane Küstenstadt", "Traveller overlooking a Mediterranean coastal city"),
-        chipOneTitle: lt("Esnek paketler", "Flexible Pakete", "Flexible plans"),
-        chipOneText: lt("her yolculuk için", "für jede Reise", "for every trip"),
-        chipTwoTitle: lt("Tatil, iş", "Für Urlaub,", "For holidays,"),
-        chipTwoText: lt("ve daha fazlası", "Business & mehr", "business and more"),
+        chipOneTitle: lt("60 saniyede kurulum", "In 60 Sekunden installiert", "Installed in 60 seconds"),
+        chipOneText: lt("Doğrudan cihazında", "Direkt auf deinem Gerät", "Directly on your device"),
+        chipTwoTitle: lt("Esnek paketler", "Flexible Pakete", "Flexible plans"),
+        chipTwoText: lt("Her yolculuk için", "Für jede Reise", "For every trip"),
+        chipThreeTitle: lt("Tatil, iş ve daha fazlası için", "Für Urlaub, Business & mehr", "For holidays, business & more"),
       },
       items: [
         item("trust-countries", { cardType: "trust", icon: "Globe2", title: lt("190+ ülke", "190+ Länder", "190+ countries"), text: lt("Dünya çapında bağlantı", "Weltweit verbunden", "Connected worldwide") }),
         item("trust-refund", { cardType: "trust", icon: "RotateCcw", title: lt("14 gün iade", "14 Tage Rückgabe", "14-day return"), text: lt("Kullanılmamış eSIM’leri kolayca iade et", "Unbenutzte eSIMs problemlos zurückgeben", "Easily return unused eSIMs") }),
-        item("trust-install", { cardType: "trust", icon: "Zap", title: lt("Yaklaşık 60 saniyede kurulum", "In etwa 60 Sekunden installiert", "Set up in around 60 seconds"), text: lt("Doğrudan cihazında", "Direkt auf deinem Gerät", "Directly on your device") }),
-        item("trust-payment", { cardType: "trust", icon: "LockKeyhole", title: lt("Güvenli ödeme", "Sicher bezahlen", "Secure payment"), text: lt("Korunan ödeme altyapısı", "Geschützte Zahlungsinfrastruktur", "Protected payment infrastructure") }),
+        item("trust-install", { cardType: "trust", icon: "Zap", title: lt("60 saniyede kurulum", "In 60 Sekunden installiert", "Installed in 60 seconds"), text: lt("Doğrudan cihazında", "Direkt auf deinem Gerät", "Directly on your device") }),
+        item("trust-payment", { cardType: "trust", icon: "LockKeyhole", title: lt("Güvenli ödeme", "Sicher bezahlen", "Secure payment"), text: lt("Güvenilir ödeme yöntemleri", "Vertrauenswürdige Zahlungsmethoden", "Trusted payment methods") }),
       ],
     }),
     section("esim-info", "INFO_CAROUSEL", {
@@ -349,7 +352,7 @@ const DATE = /^\d{4}-\d{2}-\d{2}$/;
 export const cleanText = (value: unknown, max = 600) =>
   String(value ?? "").replace(/<[^>]*>/g, "").replace(/[<>]/g, "").slice(0, max);
 
-const cleanLT = (value: any, max = 600): LT => ({ tr: cleanText(value?.tr, max), de: cleanText(value?.de, max), en: cleanText(value?.en, max) });
+const cleanLT = (value: any, max = 600): LT => Object.fromEntries(UI_LOCALES.filter((code) => code === "tr" || code === "de" || code === "en" || value?.[code] !== undefined).map((code) => [code, cleanText(value?.[code], max)])) as LT;
 const pick = <T extends string>(value: unknown, allowed: readonly T[], fallback: T): T =>
   (allowed as readonly string[]).includes(String(value)) ? (String(value) as T) : fallback;
 
@@ -460,11 +463,19 @@ function overlayText(text: string, locale: Locale): string {
 
 export function v2Text(section: V2Section | undefined, key: string, locale: Locale): string {
   const value = section?.text?.[key];
-  return overlayText((value?.[locale] || value?.tr || "").trim(), locale);
+  const active = getActiveUiLocale();
+  if (active !== "tr" && active !== "de" && active !== "en") {
+    return value?.[active]?.trim() || overlayText((value?.en || value?.tr || "").trim(), "en");
+  }
+  return value?.[active]?.trim() || (value?.[locale] || value?.tr || "").trim();
 }
 
 export function v2ItemText(value: LT | undefined, locale: Locale): string {
-  return overlayText((value?.[locale] || value?.tr || "").trim(), locale);
+  const active = getActiveUiLocale();
+  if (active !== "tr" && active !== "de" && active !== "en") {
+    return value?.[active]?.trim() || overlayText((value?.en || value?.tr || "").trim(), "en");
+  }
+  return value?.[active]?.trim() || (value?.[locale] || value?.tr || "").trim();
 }
 
 /** Promo date window, evaluated on the viewer's calendar day. */
