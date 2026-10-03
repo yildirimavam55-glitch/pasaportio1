@@ -35,8 +35,6 @@ export function V2TrustReviews({ section, media, preview = false }: { section: V
   // Checkout currently has no production-enabled payment methods. No logos are eligible.
   const activePaymentMethods: readonly string[] = [];
   const trustItems = section.items.filter((item) => item.visible && item.cardType === "trust" && (item.id !== "trust-payment" || preview || activePaymentMethods.length > 0));
-  const paymentSlot = section.items.find((item) => item.id === "trust-payment" && item.visible && item.cardType === "trust");
-  const benefitItems = !preview && activePaymentMethods.length === 0 && paymentSlot ? [...trustItems, paymentSlot] : trustItems;
   const visuals: Record<string, string> = { "trust-countries": globeVisual, "trust-refund": returnVisual, "trust-install": installVisual, "trust-payment": paymentVisual };
   const displayRating = rating ?? (preview && demoReviews.length > 0 ? uiLocale === "en" ? "4.8" : "4,8" : null);
   const scrollTo = (index: number) => rail.current?.children[index]?.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "start" });
@@ -70,9 +68,10 @@ export function V2TrustReviews({ section, media, preview = false }: { section: V
        {reviews.length > 1 && <div className="mt-2 flex justify-center gap-2 lg:hidden">{reviews.map((review, index) => <Button key={review.id} type="button" variant="ghost" size="icon" onClick={() => scrollTo(index)} aria-label={labels.slide.replace("{index}", String(index + 1))} aria-current={active === index ? "true" : undefined} className="size-7 rounded-full p-0"><span className={`block size-2 rounded-full ${active === index ? "bg-success" : "bg-border"}`} /></Button>)}</div>}
     </Reveal>}
 
-     {benefitItems.length > 0 && <Reveal delay={210} className="trust-section-reveal mt-5"><ul className={`grid overflow-hidden rounded-2xl bg-card shadow-soft ring-1 ring-border ${benefitItems.length === 3 ? "grid-cols-3" : "grid-cols-4"}`}>
-       {benefitItems.map((item, index) => <li key={item.id} className={`flex min-w-0 flex-col items-center border-border px-1 pb-4 pt-2 text-center sm:px-4 ${index > 0 ? "border-l" : ""}`}>
-         {item.id === "trust-payment" && !preview && activePaymentMethods.length === 0 ? <><span aria-hidden className="block h-20 sm:h-32" /><strong className="text-[10px] leading-tight text-foreground sm:text-base">{labels.paymentPreview}</strong></> : <><img src={visuals[item.id] ?? globeVisual} alt="" loading="lazy" decoding="async" width={816} height={816} className="h-20 w-20 max-w-full object-contain sm:h-32 sm:w-32" /><strong className="text-[10px] leading-tight text-foreground sm:text-base">{v2ItemText(item.title, locale)}</strong><span className="mt-1 text-[9px] leading-snug text-muted-foreground sm:text-sm">{v2ItemText(item.text, locale)}</span>{item.id === "trust-payment" && preview && activePaymentMethods.length === 0 && <span className="mt-1 text-[9px] font-bold leading-tight text-muted-foreground">{labels.paymentPreview}</span>}</>}
+     {trustItems.length > 0 && <Reveal delay={210} className="trust-section-reveal mt-5"><ul className={`grid overflow-hidden rounded-2xl bg-card shadow-soft ring-1 ring-border ${trustItems.length === 3 ? "grid-cols-3" : "grid-cols-4"}`}>
+       {trustItems.map((item, index) => <li key={item.id} className={`flex min-w-0 flex-col items-center border-border px-1 pb-4 pt-2 text-center sm:px-4 ${index > 0 ? "border-l" : ""}`}>
+         <img src={visuals[item.id] ?? globeVisual} alt="" loading="lazy" decoding="async" width={816} height={816} className="h-20 w-20 max-w-full object-contain sm:h-32 sm:w-32" />
+         <strong className="text-[10px] leading-tight text-foreground sm:text-base">{v2ItemText(item.title, locale)}</strong><span className="mt-1 text-[9px] leading-snug text-muted-foreground sm:text-sm">{v2ItemText(item.text, locale)}</span>{item.id === "trust-payment" && preview && activePaymentMethods.length === 0 && <span className="mt-1 text-[9px] font-bold leading-tight text-muted-foreground">{labels.paymentPreview}</span>}
       </li>)}
     </ul></Reveal>}
   </section>;
