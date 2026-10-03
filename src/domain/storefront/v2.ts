@@ -140,7 +140,7 @@ export const V2_TEXT_FIELDS: Record<V2SectionType, Array<[string, string]>> = {
 };
 
 /** How items of a section are edited: title-only, title+text, question/answer, destination. */
-export const V2_ITEM_MODE: Partial<Record<V2SectionType, "benefit" | "card" | "faq" | "destination" | "step">> = {
+export const V2_ITEM_MODE: Partial<Record<V2SectionType, "benefit" | "card" | "faq" | "destination" | "step" | "info">> = {
   BENEFIT_ROW: "benefit",
   INFO_GRID: "card",
   HOW_IT_WORKS: "card",

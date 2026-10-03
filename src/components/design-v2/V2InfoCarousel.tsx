@@ -7,6 +7,7 @@ import { mediaUrl } from "@/components/design-v2/V2Sections";
 import type { V2Media } from "@/lib/v2-storefront.functions";
 import { v2ItemText, v2Text, type V2Item, type V2Section } from "@/domain/storefront/v2";
 import { useI18n } from "@/i18n";
+import type { Locale } from "@/domain/enums";
 import { waLink } from "@/lib/whatsapp";
 import { cn } from "@/lib/utils";
 
@@ -132,7 +133,7 @@ export function V2InfoCarousel({ section, media }: { section: V2Section; media: 
   );
 }
 
-function InfoCard({ card, index, section, media, locale }: { card: V2Item; index: number; section: V2Section; media: V2Media; locale: string }) {
+function InfoCard({ card, index, section, media, locale }: { card: V2Item; index: number; section: V2Section; media: V2Media; locale: Locale }) {
   const image = mediaUrl(card.mediaId, media);
   const Icon = CARD_ICONS[card.cardType] ?? Globe2;
   const labels = card.labels.map((label) => v2ItemText(label, locale)).filter(Boolean);

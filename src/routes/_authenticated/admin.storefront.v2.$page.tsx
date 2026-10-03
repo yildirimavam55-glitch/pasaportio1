@@ -339,7 +339,7 @@ function ItemsEditor({ mode, page, items, lang, onChange }: { mode: NonNullable<
     next.splice(target, 0, row!);
     onChange(next);
   };
-  const blank = (): V2Item => ({ id: `item-${Math.random().toString(36).slice(2, 8)}`, visible: true, icon: mode === "benefit" ? "CheckCircle2" : "", entity: "", title: { tr: "", de: "", en: "" }, text: { tr: "", de: "", en: "" } });
+  const blank = (): V2Item => ({ id: `item-${Math.random().toString(36).slice(2, 8)}`, visible: true, icon: mode === "benefit" ? "CheckCircle2" : "", entity: "", title: { tr: "", de: "", en: "" }, text: { tr: "", de: "", en: "" }, internalKey: "", cardType: "products", mediaId: null, href: "", labels: [], cta: { tr: "", de: "", en: "" }, imageAlt: { tr: "", de: "", en: "" }, focalX: 50, focalY: 50 });
   const isAirport = page === "lounge";
   const results = mode === "destination" && query.trim()
     ? (isAirport ? searchAirports(query, 8).map((a) => ({ code: a.iata, label: `${a.city.tr} (${a.iata})` })) : searchCountries(query, 8).map((c) => ({ code: c.iso, label: c.name.tr })))
