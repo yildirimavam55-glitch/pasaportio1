@@ -346,7 +346,7 @@ function ItemsEditor({ mode, page, items, lang, onChange }: { mode: NonNullable<
       .filter((r) => !items.some((it) => it.entity === r.code))
     : [];
   const entityLabel = (code: string) => (isAirport ? (() => { const a = getAirportByIata(code); return a ? `${a.city.tr} (${a.iata})` : code; })() : getCountryByIso(code)?.name.tr ?? code);
-  const title = { benefit: "Avantajlar", card: "Kartlar", faq: "Sorular", destination: isAirport ? "Havalimanları" : "Ülkeler", step: "Adımlar" }[mode];
+  const title = { benefit: "Avantajlar", card: "Kartlar", faq: "Sorular", destination: isAirport ? "Havalimanları" : "Ülkeler", step: "Adımlar", info: "Bilgi kartları" }[mode];
 
   return (
     <div className="rounded-md border border-border p-2">
