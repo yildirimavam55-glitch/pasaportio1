@@ -106,7 +106,7 @@ export function V2TrustReviews({ section, media, preview = false, onDestinationS
         {settings?.comparisonEnabled && <RoamingComparison section={section} preview={preview} locale={locale} uiLocale={uiLocale} onDestinationSearch={onDestinationSearch} />}
       </div>
     </Reveal>}
-    {v2Text(section, "cta", locale) && (onDestinationSearch ? <Button type="button" className="mt-4" onClick={onDestinationSearch}>{v2Text(section, "cta", locale)}</Button> : <Button asChild className="mt-4"><Link to={section.href}>{v2Text(section, "cta", locale)}</Link></Button>)}
+    {v2Text(section, "cta", locale) && !(settings?.whyEnabled !== false && settings?.comparisonEnabled) && (onDestinationSearch ? <Button type="button" className="mt-4" onClick={onDestinationSearch}>{v2Text(section, "cta", locale)}</Button> : <Button asChild className="mt-4"><Link to={section.href}>{v2Text(section, "cta", locale)}</Link></Button>)}
 
   </section>;
 }
