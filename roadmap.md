@@ -760,4 +760,5 @@
 
 ## Trust translations and destination CTA
 - [x] Add Admin-only translation generation for Trust/Social Proof CMS fields, preserving manual locale values without a migration.
-- [ ] Verify the destination CTA opens the primary country picker at 390px and 1440px across TR/DE/EN; check RTL, overflow, and CMS preview translation rendering.
+- [x] Verify the destination CTA opens the primary country picker at 390px and 1440px across TR/DE/EN/AR; focused input, one panel, RTL, and no horizontal overflow.
+- [ ] Verify a Turkish CMS edit translates into all 13 other locales and survives Admin draft/preview; blocked by the available account's missing Admin role.
