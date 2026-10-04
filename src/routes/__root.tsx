@@ -1,3 +1,4 @@
+import { promotionBannerQuery } from "@/lib/promotion-banner-query";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import {
   Outlet,
@@ -80,6 +81,8 @@ function ErrorComponent({ error, reset }: { error: unknown; reset: () => void })
 }
 
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
+  // Banner state is known before first paint, so it never inserts late and pushes the Hero.
+  loader: ({ context }) => context.queryClient.ensureQueryData(promotionBannerQuery).catch(() => null),
   head: () => ({
     meta: [
       { charSet: "utf-8" },
