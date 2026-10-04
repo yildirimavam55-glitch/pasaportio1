@@ -103,7 +103,7 @@ export function V2TrustReviews({ section, media, preview = false, onDestinationS
         <p className="text-xs font-bold uppercase tracking-wide text-success">{v2Text(section, "whyEyebrow", locale)}</p>
         <h3 id={`${section.id}-why`} className="mt-2 font-display text-xl font-bold leading-tight text-foreground sm:text-3xl">{v2Text(section, "whyTitle", locale)}</h3>
         <p className="mt-2 max-w-xl text-[13px] leading-relaxed text-muted-foreground sm:text-base">{v2Text(section, "whyDescription", locale)}</p>
-        {settings?.comparisonEnabled && <RoamingComparison section={section} preview={preview} locale={locale} uiLocale={uiLocale} onDestinationSearch={onDestinationSearch} />}
+        {(settings?.comparisonEnabled || preview && settings?.comparisonStatus !== "HIDDEN") && <RoamingComparison section={section} preview={preview} locale={locale} uiLocale={uiLocale} onDestinationSearch={onDestinationSearch} />}
       </div>
     </Reveal>}
     {v2Text(section, "cta", locale) && !(settings?.whyEnabled !== false && settings?.comparisonEnabled) && (onDestinationSearch ? <Button type="button" className="mt-4" onClick={onDestinationSearch}>{v2Text(section, "cta", locale)}</Button> : <Button asChild className="mt-4"><Link to={section.href}>{v2Text(section, "cta", locale)}</Link></Button>)}
@@ -129,12 +129,13 @@ function ReviewCard({ review, media, locale, uiLocale, ratingLabel, demoLabel }:
 
 
 const COMPARE = localize({
-  tr: { eyebrow: "Roaming'e göre daha avantajlı", pre: "En fazla", post: "fiyat avantajı*", desc: "eSIM fiyatlarını seçili roaming teklifleriyle karşılaştırın.", cta: "eSIM fiyatlarını gör", roaming: "Operatör Roaming", travely: "Travely eSIM", save: "Tasarrufunuz", demo: "DEMO / ÖNİZLEME — doğrulanmış karşılaştırma verisi değildir" },
-  de: { eyebrow: "Die Alternative zum Roaming", pre: "Bis zu", post: "günstiger*", desc: "Vergleiche eSIM-Preise mit ausgewählten Roaming-Angeboten.", cta: "eSIM-Preise ansehen", roaming: "Mobilfunk-Roaming", travely: "Travely eSIM", save: "Du sparst", demo: "DEMO / VORSCHAU — keine verifizierten Vergleichsdaten" },
-  en: { eyebrow: "The alternative to roaming", pre: "Save up to", post: "vs. roaming*", desc: "Compare eSIM prices with selected roaming offers.", cta: "See eSIM prices", roaming: "Carrier roaming", travely: "Travely eSIM", save: "You save", demo: "DEMO / PREVIEW — not verified comparison data" },
+  tr: { eyebrow: "Roaming'e göre daha avantajlı", pre: "En fazla", post: "fiyat avantajı*", desc: "eSIM fiyatlarını seçili roaming teklifleriyle karşılaştırın.", cta: "eSIM fiyatlarını gör", roaming: "Operatör Roaming", travely: "Travely eSIM", save: "Tasarrufunuz", advantage: "Fiyat avantajı", demo: "DEMO / ÖNİZLEME — doğrulanmış karşılaştırma verisi değildir", unavailable: "Doğrulanmış fiyat karşılaştırması henüz mevcut değil." },
+  de: { eyebrow: "Die Alternative zum Roaming", pre: "Bis zu", post: "günstiger*", desc: "Vergleiche eSIM-Preise mit ausgewählten Roaming-Angeboten.", cta: "eSIM-Preise ansehen", roaming: "Mobilfunk-Roaming", travely: "Travely eSIM", save: "Du sparst", advantage: "Preisvorteil", demo: "DEMO / VORSCHAU — keine verifizierten Vergleichsdaten", unavailable: "Noch kein verifizierter Preisvergleich verfügbar." },
+  en: { eyebrow: "The alternative to roaming", pre: "Save up to", post: "vs. roaming*", desc: "Compare eSIM prices with selected roaming offers.", cta: "See eSIM prices", roaming: "Carrier roaming", travely: "Travely eSIM", save: "You save", advantage: "Price advantage", demo: "DEMO / PREVIEW — not verified comparison data", unavailable: "No verified price comparison is available yet." },
 });
 
 const amount = (value: string) => { const n = Number(value.replace(/[^\d.,]/g, "").replace(/\.(?=\d{3}\b)/g, "").replace(",", ".")); return Number.isFinite(n) && n > 0 ? n : null; };
+const percentage = (value: string) => { const n = Number(value.replace(/[^\d.,]/g, "").replace(",", ".")); return Number.isFinite(n) && n > 0 && n < 100 ? n : null; };
 
 /** Public numbers render only from Admin-entered, non-preview data; preview-only shows marked demo values. */
 function RoamingComparison({ section, preview, locale, uiLocale, onDestinationSearch }: { section: V2Section; preview: boolean; locale: Locale; uiLocale: keyof typeof LOCALE_REGISTRY; onDestinationSearch?: (() => void) | undefined }) {
@@ -142,28 +143,32 @@ function RoamingComparison({ section, preview, locale, uiLocale, onDestinationSe
   const t = (key: string) => v2Text(section, key, locale);
   const fmt = (n: number) => new Intl.NumberFormat(LOCALE_REGISTRY[uiLocale].bcp47, { style: "currency", currency: "EUR" }).format(n);
   const entered = { stat: t("statistic"), a: t("comparisonAValue"), b: t("comparisonBValue") };
-  const verified = !section.trust?.comparisonPreviewOnly && Boolean(entered.stat && amount(entered.a) && amount(entered.b));
-  const demo = !verified && preview;
-  const data = verified ? entered : demo ? { stat: new Intl.NumberFormat(LOCALE_REGISTRY[uiLocale].bcp47, { style: "percent" }).format(0.5), a: fmt(21.99), b: fmt(10.99) } : null;
+  const enteredA = amount(entered.a);
+  const enteredB = amount(entered.b);
+  const enteredPercent = percentage(entered.stat);
+  const verified = section.trust?.comparisonStatus === "VERIFIED" && section.trust?.comparisonPreviewOnly === false && Boolean(section.trust.comparisonVerifiedAt && t("comparisonFootnote") && t("comparisonDestination") && t("comparisonAllowance") && t("comparisonValidity") && enteredA && enteredB && enteredA > enteredB && enteredPercent && Math.abs((1 - enteredB / enteredA) * 100 - enteredPercent) < 1);
+  const demo = !verified && preview && section.trust?.comparisonStatus !== "HIDDEN";
+  const data = verified ? { ...entered, stat: `${enteredPercent}%` } : demo ? { stat: "50 %", a: fmt(21.99), b: fmt(10.99) } : null;
   const a = data ? amount(data.a) : null;
   const b = data ? amount(data.b) : null;
-  const saving = verified ? t("comparisonHighlight") || (a && b && a > b ? fmt(a - b) : "") : demo ? fmt(11) : "";
+  const saving = verified && a && b ? fmt(a - b) : demo ? fmt(11) : "";
   const cta = t("comparisonCta") || c.cta;
   const ctaClass = "mt-4 inline-flex items-center gap-1.5";
-  return <div className={`mt-5 grid overflow-hidden rounded-3xl bg-card shadow-soft ring-1 ring-border ${data ? "lg:grid-cols-[2fr_3fr]" : ""}`}>
+  return <div className={`mt-4 grid min-w-0 overflow-hidden rounded-2xl bg-card shadow-soft ring-1 ring-border ${data ? "lg:grid-cols-[2fr_3fr]" : ""}`}>
     <div className={`min-w-0 p-5 sm:p-7 ${data ? "" : "lg:grid lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end lg:gap-x-8 [&>p]:lg:col-start-1 [&>button]:lg:col-start-2 [&>button]:lg:row-start-1 [&>button]:lg:row-span-2 [&>button]:lg:self-center [&>button]:lg:mt-0 [&>a]:lg:col-start-2 [&>a]:lg:row-start-1 [&>a]:lg:row-span-2 [&>a]:lg:self-center [&>a]:lg:mt-0"}`}>
+      {demo && <p className="mb-3 inline-block rounded-full bg-primary-soft px-2.5 py-1 text-[10px] font-bold text-primary">{c.demo}</p>}
       <p className="text-xs font-bold uppercase tracking-wide text-success">{t("comparisonTitle") || c.eyebrow}</p>
-      {data && <p className="mt-2 text-foreground"><span className="block text-sm font-semibold sm:text-base">{t("statisticLabel") ? "" : c.pre}</span><strong className="block font-display text-6xl font-bold leading-none text-primary sm:text-7xl">{data.stat}</strong><span className="mt-1 block font-display text-xl font-bold sm:text-2xl">{t("statisticLabel") || c.post}</span></p>}
+      {data ? <p className="mt-3 text-foreground"><span className="block text-sm font-semibold sm:text-base">{c.pre}</span><strong className="block font-display text-6xl font-bold leading-none text-primary sm:text-7xl">{data.stat}</strong><span className="mt-1 block font-display text-xl font-bold sm:text-2xl">{t("statisticLabel") || c.post}</span></p> : <p className="mt-3 text-sm text-muted-foreground">{c.unavailable}</p>}
       <p className="mt-3 max-w-sm text-sm leading-relaxed text-muted-foreground sm:text-base">{t("comparisonDescription") || c.desc}</p>
       {onDestinationSearch ? <Button type="button" className={ctaClass} onClick={onDestinationSearch}>{cta}<ArrowRight className="size-4 rtl:rotate-180" /></Button> : <Button asChild className={ctaClass}><Link to="/esim">{cta}<ArrowRight className="size-4 rtl:rotate-180" /></Link></Button>}
     </div>
     {data && a && b && <div className="min-w-0 border-t border-border bg-secondary/40 p-5 sm:p-7 lg:border-s lg:border-t-0">
-      {demo && <p className="mb-3 inline-block rounded-full bg-card px-2.5 py-1 text-[10px] font-bold text-muted-foreground ring-1 ring-border">{c.demo}</p>}
+      {(t("comparisonDestination") || demo) && <p className="mb-3 text-xs font-semibold text-muted-foreground">{demo ? c.demo : t("comparisonDestination")} · {t("comparisonAllowance") || (demo ? "1 GB" : "")} · {t("comparisonValidity") || (demo ? "7 Tage" : "")}</p>}
       <div className="space-y-4">
         <div><div className="flex items-baseline justify-between gap-3 text-sm"><span className="min-w-0 font-semibold text-muted-foreground">{t("comparisonALabel") || c.roaming}</span><bdi className="shrink-0 font-display text-xl font-bold text-foreground">{data.a}</bdi></div><div className="mt-1.5 h-4 rounded-full bg-muted-foreground/25" /></div>
         <div><div className="flex items-baseline justify-between gap-3 text-sm"><span className="min-w-0 font-bold text-primary">{t("comparisonBLabel") || c.travely}</span><bdi className="shrink-0 font-display text-2xl font-bold text-primary">{data.b}</bdi></div><div className="mt-1.5 h-4 rounded-full bg-muted"><div className="h-full rounded-full bg-primary" style={{ width: `${Math.max(8, Math.min(100, (b / a) * 100))}%` }} /></div></div>
       </div>
-      {saving && <p className="mt-5 flex flex-wrap items-baseline gap-x-2 rounded-2xl bg-primary-soft px-4 py-3 text-sm font-semibold text-foreground">{c.save}<bdi className="font-display text-2xl font-bold text-primary">{saving}</bdi></p>}
+      {saving && <div className="mt-5 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 rounded-2xl bg-primary-soft px-4 py-3 text-sm font-semibold text-foreground"><p className="min-w-0">{t("comparisonSavingLabel") || c.save}<bdi className="block font-display text-2xl font-bold text-primary">{saving}</bdi></p><p className="text-end text-xs text-primary"><strong className="block font-display text-xl">{data.stat}</strong>{t("comparisonAdvantageLabel") || c.advantage}</p></div>}
       {t("comparisonFootnote") && <p className="mt-3 text-[11px] leading-snug text-muted-foreground">{t("comparisonFootnote")}</p>}
     </div>}
   </div>;
