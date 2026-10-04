@@ -202,7 +202,7 @@ const from3 = <K extends string>(copy: Record<Locale, Record<K, unknown>>, key: 
   lt(String(copy.tr[key] ?? ""), String(copy.de[key] ?? ""), String(copy.en[key] ?? ""));
 const same = (value: string): LT => lt(value, value, value);
 
-const defaultTrust = () => ({ background: "mint" as const, focal: "right" as const, ratingMode: "manual" as const, manualRating: 4.8, maxRating: 5, manualCaption: lt("Örnek puan · müşteri değerlendirmesi değildir", "Beispielbewertung · keine Kundenbewertung", "Sample rating · not a customer rating"), autoplay: false, whyEnabled: true, comparisonEnabled: false, comparisonPreviewOnly: true, illustrationId: null });
+const defaultTrust = () => ({ background: "mint" as const, focal: "right" as const, ratingMode: "manual" as const, manualRating: 4.8, maxRating: 5, manualCaption: lt("Örnek puan · müşteri değerlendirmesi değildir", "Beispielbewertung · keine Kundenbewertung", "Sample rating · not a customer rating"), autoplay: false, whyEnabled: true, comparisonEnabled: true, comparisonPreviewOnly: true, comparisonStatus: "DRAFT" as const, illustrationId: null });
 
 function section(id: string, type: V2SectionType, patch: Partial<V2Section> = {}): V2Section {
   return {

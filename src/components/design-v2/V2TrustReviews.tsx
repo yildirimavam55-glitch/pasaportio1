@@ -103,10 +103,10 @@ export function V2TrustReviews({ section, media, preview = false, onDestinationS
         <p className="text-xs font-bold uppercase tracking-wide text-success">{v2Text(section, "whyEyebrow", locale)}</p>
         <h3 id={`${section.id}-why`} className="mt-2 font-display text-xl font-bold leading-tight text-foreground sm:text-3xl">{v2Text(section, "whyTitle", locale)}</h3>
         <p className="mt-2 max-w-xl text-[13px] leading-relaxed text-muted-foreground sm:text-base">{v2Text(section, "whyDescription", locale)}</p>
-        {settings?.comparisonStatus !== "HIDDEN" && (settings?.comparisonEnabled || preview) && <RoamingComparison section={section} preview={preview} locale={locale} uiLocale={uiLocale} onDestinationSearch={onDestinationSearch} />}
+         {settings?.comparisonStatus !== "HIDDEN" && <RoamingComparison section={section} preview={preview} locale={locale} uiLocale={uiLocale} onDestinationSearch={onDestinationSearch} />}
       </div>
     </Reveal>}
-    {v2Text(section, "cta", locale) && !(settings?.whyEnabled !== false && settings?.comparisonEnabled) && (onDestinationSearch ? <Button type="button" className="mt-4" onClick={onDestinationSearch}>{v2Text(section, "cta", locale)}</Button> : <Button asChild className="mt-4"><Link to={section.href}>{v2Text(section, "cta", locale)}</Link></Button>)}
+     {v2Text(section, "cta", locale) && !(settings?.whyEnabled !== false && settings?.comparisonStatus !== "HIDDEN") && (onDestinationSearch ? <Button type="button" className="mt-4" onClick={onDestinationSearch}>{v2Text(section, "cta", locale)}</Button> : <Button asChild className="mt-4"><Link to={section.href}>{v2Text(section, "cta", locale)}</Link></Button>)}
 
   </section>;
 }
