@@ -85,7 +85,7 @@ function Editor({ page }: { page: V2PageId }) {
     return () => window.removeEventListener("hashchange", selectHash);
   }, []);
 
-  const media = useMemo(() => Object.fromEntries((mediaList.data ?? []).filter((m) => m.url).map((m) => [m.id, { url: m.url as string, alt: m.altText ?? "" }])), [mediaList.data]);
+  const media = useMemo(() => Object.fromEntries((mediaList.data ?? []).filter((m) => m.url).map((m) => [m.id, { url: m.url as string, alt: m.altText ?? "", ...(m.width && m.height ? { width: m.width, height: m.height } : {}) }])), [mediaList.data]);
   const pushPreview = useCallback(() => {
     if (!draft || !frame.current?.contentWindow) return;
     frame.current.contentWindow.postMessage({ type: "v2-cms-preview", page, config: draft, media, locale: selectedId === "trust-reviews" ? trustPreviewLocale ?? lang : lang }, window.location.origin);

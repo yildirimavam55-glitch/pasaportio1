@@ -155,12 +155,16 @@ function RoamingComparison({ section, media, preview, locale, uiLocale, onDestin
   if (trust?.comparisonMode === "IMAGE") {
     const desktop = mediaUrl(trust.comparisonImageId ?? null, media);
     const mobile = mediaUrl(trust.comparisonMobileImageId ?? null, media) ?? desktop;
+    // Intrinsic dimensions reserve the exact box before the (lazy) image arrives, per breakpoint.
+    const desktopAsset = media[trust.comparisonImageId ?? ""];
+    const mobileAsset = trust.comparisonMobileImageId ? media[trust.comparisonMobileImageId] : undefined;
+    const dims = (asset?: { width?: number; height?: number }) => asset?.width && asset.height ? { width: asset.width, height: asset.height } : {};
     const imageVerified = trust.comparisonStatus === "VERIFIED" && Boolean(trust.comparisonVerifiedAt);
     if (!desktop || (!imageVerified && !preview)) return null;
     const alt = v2ItemText(trust.comparisonImageAlt ?? { tr: "", de: "", en: "" }, locale) || media[trust.comparisonImageId ?? ""]?.alt || "";
     return <div className="mt-4 min-w-0 overflow-hidden rounded-2xl">
       {preview && !imageVerified && <p className="mb-2 inline-block rounded-full bg-primary-soft px-2.5 py-1 text-[10px] font-bold text-primary">{c.demo}</p>}
-      <picture><source media="(max-width: 639px)" srcSet={mobile} /><img src={desktop} alt={alt} loading="lazy" decoding="async" className="mx-auto block h-auto w-full max-w-5xl rounded-2xl object-contain" /></picture>
+      <picture><source media="(max-width: 639px)" srcSet={mobile} {...dims(mobileAsset ?? desktopAsset)} /><img src={desktop} alt={alt} loading="lazy" decoding="async" {...dims(desktopAsset)} className="mx-auto block h-auto w-full max-w-5xl rounded-2xl object-contain" /></picture>
     </div>;
   }
   const money = (n: number) => new Intl.NumberFormat(bcp47, { style: "currency", currency: "EUR" }).format(n);
