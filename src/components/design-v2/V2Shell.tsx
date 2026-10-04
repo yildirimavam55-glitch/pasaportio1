@@ -182,9 +182,11 @@ export function V2Hero({ image, desktopImage, desktopFocus = "center", imageDisp
   const mobile = mobileImageDisplay ?? DEFAULT_IMAGE_DISPLAY;
   const imageStyle = {
     "--hero-mobile-position": `${mobile.x}% ${mobile.y}%`,
+    "--hero-mobile-origin": `${mobile.x}% ${mobile.y}%`,
     "--hero-mobile-scale": mobile.zoom / 100,
     "--hero-mobile-fit": mobile.fit,
     "--hero-desktop-position": `${desktop.x}% ${desktop.y}%`,
+    "--hero-desktop-origin": `${desktop.x}% ${desktop.y}%`,
     "--hero-desktop-scale": desktop.zoom / 100,
     "--hero-desktop-fit": desktop.fit,
   } as CSSProperties;

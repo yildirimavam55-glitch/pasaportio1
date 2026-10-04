@@ -1226,7 +1226,7 @@ html[data-quick-search-lock] body {
 }
 
 .install-tap-target {
-  transform-origin: center;
+  transform-origin: var(--hero-mobile-origin, center);
   animation: install-tap-target 2.35s ease-in-out 0.25s 1 both;
 }
 
@@ -1532,6 +1532,7 @@ html[data-quick-search-lock] body {
     object-fit: var(--hero-desktop-fit, cover);
     object-position: var(--hero-desktop-position, 50% 50%);
     transform: scale(var(--hero-desktop-scale, 1));
+    transform-origin: var(--hero-desktop-origin, center);
   }
 }
 
