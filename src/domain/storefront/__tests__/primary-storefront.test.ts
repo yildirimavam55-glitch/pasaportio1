@@ -11,10 +11,12 @@ const read = (p: string) => readFileSync(`src/routes/${p}`, "utf8");
 
 describe("V2 is the primary storefront", () => {
   it("public home/locale/eSIM routes render the V2 eSIM page", () => {
-    for (const f of ["index.tsx", "tr.index.tsx", "de.index.tsx", "en.index.tsx", "esim.index.tsx"]) {
+    // Locale homepages are children of the shared _home layout, which renders the page once.
+    for (const f of ["_home.tsx", "_home.index.tsx", "_home.tr.index.tsx", "_home.de.index.tsx", "_home.en.index.tsx", "_home.$locale.index.tsx", "esim.index.tsx"]) {
       expect(read(f)).toContain("EsimHomePage");
       expect(read(f)).not.toContain("TravelExperience");
     }
+    expect(read("_home.tsx")).toContain("<Outlet />");
   });
   it("Lounge, Vignette, cart, support, auth and account use V2 components", () => {
     expect(read("lounge.index.tsx")).toContain("V2Shell");
