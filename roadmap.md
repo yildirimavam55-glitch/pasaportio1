@@ -764,6 +764,8 @@
 - [ ] Verify a Turkish CMS edit translates into all 13 other locales and survives Admin draft/preview; blocked by the available account's missing Admin role.
 
 ## Connected Trust & Social Proof comparison
+- [x] Add the owner-approved comparison graphic to the existing Trust section, with mobile art direction and Admin replace/remove controls; leave the published site unchanged.
+- [ ] Verify authenticated Admin replace/remove/preview and draft save; blocked by the available account's missing Admin role.
 - [x] Keep reviews, benefits, Why Travely, and the comparison inside the single Trust section; stack benefits readably on mobile and keep one unified mint background.
 - [x] Organize the existing Admin Trust editor into five groups and reuse its translate-all action for copy while excluding numeric values.
 - [x] Store comparison status, verification date, matched destination/allowance/validity, source note, and labels in the existing JSON CMS model without a migration.
