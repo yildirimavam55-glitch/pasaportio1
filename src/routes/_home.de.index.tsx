@@ -1,13 +1,11 @@
 import { createFileRoute, Navigate } from "@tanstack/react-router";
 import { useEffect } from "react";
 import { useI18n } from "@/i18n";
-import { EsimHomePage, validateEsimSearch } from "@/components/design-v2/pages/EsimHomePage";
-import { v2PageQuery } from "@/components/design-v2/V2Sections";
+import { validateEsimSearch } from "@/components/design-v2/pages/EsimHomePage";
 
 // Primary storefront (V2). Legacy V1 lives at /legacy-v1 (admin-only, noindex).
-export const Route = createFileRoute("/de/")({
+export const Route = createFileRoute("/_home/de/")({
   validateSearch: (s) => validateEsimSearch(s),
-  loader: ({ context }) => context.queryClient.ensureQueryData(v2PageQuery("esim")),
   head: () => ({
     meta: [
       { title: "Travely | eSIM & Flughafen-Lounge" },
@@ -29,5 +27,6 @@ function Page() {
   useEffect(() => { if (locale !== "de") setLocale("de", { persist: false }); }, []);
   const { service } = Route.useSearch();
   if (service === "lounge") return <Navigate to="/lounge" replace />;
-  return <EsimHomePage />;
+  // The page itself lives in the shared _home layout so a language switch never remounts it.
+  return null;
 }
