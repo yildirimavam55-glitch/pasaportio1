@@ -1,6 +1,6 @@
 import { Link, useNavigate, useSearch } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { useMemo, useRef, useState } from "react";
+import { useMemo, useRef, useState, type ReactNode } from "react";
 import { ArrowRight, BarChart3, BookOpen, Box, CheckCircle2, Globe2, Infinity as InfinityIcon, MapPin, MessageCircle, Search, Share2, Smartphone, Sparkles, Video, Zap } from "lucide-react";
 import { DeviceCompatibilityProductCard } from "@/components/travel/DeviceCompatibility";
 import { CartBar, HeroField, heroInputClass, money, PhotoCard, PhotoRail, pick, SectionTitle, TrustRow, useV2StickySearch, V2Hero, V2Shell, V2StickySearchButton } from "@/components/design-v2/V2Shell";
@@ -275,7 +275,7 @@ const HELP = localize({
   en: { title: "Let us help you decide", lead: "Pick the right plan and check your phone's compatibility.", assistantLead: "Get a plan suggestion based on your usage.", find: "Find my plan", compatTitle: "Is my phone eSIM compatible?", compatLead: "Check your device in seconds.", compatCta: "Check compatibility" },
 });
 
-function Packages({ iso, name, c, selectedPackage, onSelectPackage, desktopAfter }: { desktopAfter?: React.ReactNode; iso: string; name: string; c: (typeof T)["tr"]; selectedPackage: EsimPackage | null; onSelectPackage: (pkg: EsimPackage) => void }) {
+function Packages({ iso, name, c, selectedPackage, onSelectPackage, desktopAfter }: { desktopAfter?: ReactNode; iso: string; name: string; c: (typeof T)["tr"]; selectedPackage: EsimPackage | null; onSelectPackage: (pkg: EsimPackage) => void }) {
   const { locale } = useI18n();
   const h = pick(locale, HELP);
   const { lines } = useCart();
