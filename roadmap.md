@@ -753,3 +753,7 @@
 ## Payment benefit illustration scale
 - [x] Add an optional per-card custom-image scale to existing V2 content without a migration; default 100%, payment 160%.
 - [x] Verify at 390px that the payment artwork is proportionate, uncropped, contained, and adjustable in Admin preview.
+
+## V2 eSIM Hero image display
+- [x] Add reusable bounded crop controls to the existing Admin Hero editor, with independent mobile settings and live draft preview.
+- [ ] Verify zoom, position, fit, and preview/storefront matching at 360/390/430/desktop without publishing.

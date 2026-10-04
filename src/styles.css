@@ -1520,4 +1520,19 @@ html[data-quick-search-lock] body {
   50% { transform: translateY(5.5rem); }
 }
 
+/* Image display is presentation-only: keep the photo inside the existing Hero frame. */
+.v2-hero-image {
+  object-fit: var(--hero-mobile-fit, cover);
+  object-position: var(--hero-mobile-position, 50% 50%);
+  transform: scale(var(--hero-mobile-scale, 1));
+  transform-origin: center;
+}
+@media (min-width: 640px) {
+  .v2-hero-image {
+    object-fit: var(--hero-desktop-fit, cover);
+    object-position: var(--hero-desktop-position, 50% 50%);
+    transform: scale(var(--hero-desktop-scale, 1));
+  }
+}
+
 

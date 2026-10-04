@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import { Link } from "@tanstack/react-router";
 import { ArrowRight, Car, Plane, Search, ShoppingBag, Smartphone, UserRound } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -187,7 +187,7 @@ export function V2Hero({ image, desktopImage, desktopFocus = "center", imageDisp
     "--hero-desktop-position": `${desktop.x}% ${desktop.y}%`,
     "--hero-desktop-scale": desktop.zoom / 100,
     "--hero-desktop-fit": desktop.fit,
-  } as React.CSSProperties;
+  } as CSSProperties;
   return (
     <section className="relative -mx-4 sm:-mx-6 lg:mx-0">
       <div className={`relative ${HERO_HEIGHT[height]} overflow-hidden bg-[var(--v2-service)] text-primary-foreground sm:mx-4 sm:mt-3 sm:rounded-3xl lg:mx-0 lg:mt-4`}>
