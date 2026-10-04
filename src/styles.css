@@ -1525,7 +1525,7 @@ html[data-quick-search-lock] body {
   object-fit: var(--hero-mobile-fit, cover);
   object-position: var(--hero-mobile-position, 50% 50%);
   transform: scale(var(--hero-mobile-scale, 1));
-  transform-origin: center;
+  transform-origin: var(--hero-mobile-origin, center);
 }
 @media (min-width: 640px) {
   .v2-hero-image {
