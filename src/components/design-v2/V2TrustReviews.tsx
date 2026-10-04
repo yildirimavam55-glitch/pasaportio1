@@ -142,16 +142,17 @@ function RoamingComparison({ section, preview, locale, uiLocale, onDestinationSe
   const c = COMPARE[locale];
   const t = (key: string) => v2Text(section, key, locale);
   const fmt = (n: number) => new Intl.NumberFormat(LOCALE_REGISTRY[uiLocale].bcp47, { style: "currency", currency: "EUR" }).format(n);
-  const entered = { stat: section.text['statistic']?.tr ?? "", a: section.text['comparisonAValue']?.tr ?? "", b: section.text['comparisonBValue']?.tr ?? "" };
+  const entered = { stat: section.text['statistic']?.tr ?? "", a: section.text['comparisonAValue']?.tr ?? "", b: section.text['comparisonBValue']?.tr ?? "", saving: section.text['comparisonHighlight']?.tr ?? "" };
   const enteredA = amount(entered.a);
   const enteredB = amount(entered.b);
   const enteredPercent = percentage(entered.stat);
-  const verified = section.trust?.comparisonStatus === "VERIFIED" && section.trust?.comparisonPreviewOnly === false && Boolean(section.trust.comparisonVerifiedAt && t("comparisonFootnote") && t("comparisonDestination") && t("comparisonAllowance") && t("comparisonValidity") && enteredA && enteredB && enteredA > enteredB && enteredPercent && Math.abs((1 - enteredB / enteredA) * 100 - enteredPercent) < 1);
+  const enteredSaving = amount(entered.saving);
+  const verified = section.trust?.comparisonStatus === "VERIFIED" && section.trust?.comparisonPreviewOnly === false && Boolean(section.trust.comparisonVerifiedAt && t("comparisonFootnote") && t("comparisonDestination") && t("comparisonAllowance") && t("comparisonValidity") && enteredA && enteredB && enteredA > enteredB && enteredSaving && Math.abs(enteredA - enteredB - enteredSaving) < 0.011 && enteredPercent && Math.abs((1 - enteredB / enteredA) * 100 - enteredPercent) < 1);
   const demo = !verified && preview && section.trust?.comparisonStatus !== "HIDDEN";
   const data = verified ? { stat: `${enteredPercent}%`, a: fmt(enteredA!), b: fmt(enteredB!) } : demo ? { stat: "50 %", a: fmt(21.99), b: fmt(10.99) } : null;
   const a = verified ? enteredA : demo ? 21.99 : null;
   const b = verified ? enteredB : demo ? 10.99 : null;
-  const saving = verified && a && b ? fmt(a - b) : demo ? fmt(11) : "";
+  const saving = verified && enteredSaving ? fmt(enteredSaving) : demo ? fmt(11) : "";
   const cta = t("comparisonCta") || c.cta;
   const ctaClass = "mt-4 inline-flex items-center gap-1.5";
   return <div className={`mt-4 grid min-w-0 overflow-hidden rounded-2xl bg-card shadow-soft ring-1 ring-border ${data ? "lg:grid-cols-[2fr_3fr]" : ""}`}>
