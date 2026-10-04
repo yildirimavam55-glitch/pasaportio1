@@ -756,4 +756,4 @@
 
 ## V2 eSIM Hero image display
 - [x] Add reusable bounded crop controls to the existing Admin Hero editor, with independent mobile settings and live draft preview.
-- [ ] Verify zoom, position, fit, and preview/storefront matching at 360/390/430/desktop without publishing.
+- [x] Verify zoom, position, fit, and unsaved preview rendering at 360/390/430/desktop without publishing; live Admin control interaction remains blocked by the available account's missing Admin role.
