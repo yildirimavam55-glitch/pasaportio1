@@ -99,7 +99,20 @@ function Editor({ page }: { page: V2PageId }) {
 
   const refresh = () => { setDirty(false); void queryClient.invalidateQueries({ queryKey: ["v2-editor", page] }); void queryClient.invalidateQueries({ queryKey: ["v2-storefront", page] }); };
   const save = useMutation({
-    mutationFn: (publish: boolean) => saveV2Page({ data: { page, config: draft, publish } }),
+    mutationFn: async (publish: boolean) => {
+      let config = draft!;
+      // Save draft = auto-translate changed Turkish source into the other locales first (draft only, never publishes).
+      if (!publish) {
+        setTranslatingTrust(true);
+        try {
+          let count = 0;
+          for (const section of config.sections) { const result = await translateSection(page, config, section.id); config = result.config; count += result.count; }
+          if (count) { setDraft(config); toast.success(`${count} metin 13 dile otomatik çevrildi.`); }
+        } catch (error) { toast.warning(`Otomatik çeviri yapılamadı; taslak çevirisiz kaydedildi. ${error instanceof Error ? error.message : ""}`); }
+        finally { setTranslatingTrust(false); }
+      }
+      return saveV2Page({ data: { page, config, publish } });
+    },
     onSuccess: (_r, publish) => { toast.success(publish ? "Yayınlandı." : "Taslak kaydedildi."); refresh(); },
     onError: (e) => toast.error(e instanceof Error ? e.message : "Kaydedilemedi."),
   });
@@ -115,47 +128,13 @@ function Editor({ page }: { page: V2PageId }) {
 
   const update = (next: V2PageConfig) => { setDraft(next); setDirty(true); };
   const translateTrust = async () => {
-    const current = draft.sections.find((section) => section.id === selectedId) ?? draft.sections[0];
-    const trust = current?.type === "TRUST_REVIEWS" ? current : current ?? draft.sections.find((section) => section.type === "TRUST_REVIEWS");
-    if (!trust || translatingTrust) return;
-    const defaults = defaultV2Page(page).sections;
-    const defaultTrust = defaults.find((section) => section.id === trust.id) ?? defaults.find((section) => section.type === trust.type);
-    const translatable = (item: V2Item) => trust.type === "TRUST_REVIEWS" ? item.cardType === "trust" || item.cardType === "chip" : item.cardType !== "review";
-    const entries: Record<string, string> = {};
-    const collect = (id: string, value: LT | undefined, original?: LT) => {
-      if (!value?.tr?.trim()) return;
-      if (UI_LOCALES.some((code) => code !== "tr" && (!value[code]?.trim() || value._auto?.[code] === value[code] || (value.tr !== original?.tr && value[code] === original?.[code])))) entries[id] = value.tr.trim();
-    };
-    for (const key of Object.keys(trust.text)) if (!["statistic", "comparisonAValue", "comparisonBValue", "comparisonHighlight"].includes(key)) collect(`text:${key}`, trust.text[key], defaultTrust?.text[key]);
-    for (const item of trust.items.filter(translatable)) {
-      const original = defaultTrust?.items.find((row) => row.id === item.id);
-      for (const field of ["title", "text", "imageAlt", "cta"] as const) collect(`item:${item.id}:${field}`, item[field], original?.[field]);
-      item.labels.forEach((label, index) => collect(`item:${item.id}:label:${index}`, label, original?.labels[index]));
-    }
-    collect("trust:manualCaption", trust.trust?.manualCaption, defaultTrust?.trust?.manualCaption);
-    collect("trust:comparisonImageAlt", trust.trust?.comparisonImageAlt, defaultTrust?.trust?.comparisonImageAlt);
-    if (!Object.keys(entries).length) { toast.info("Çevrilecek yeni Türkçe metin yok."); return; }
+    const target = draft.sections.find((section) => section.id === selectedId) ?? draft.sections.find((section) => section.type === "TRUST_REVIEWS");
+    if (!target || translatingTrust) return;
     setTranslatingTrust(true);
     try {
-      const translations = await translateTrustCopy({ data: { entries } });
-      const merge = (id: string, value: LT, original?: LT): LT => {
-        const translated = translations[id];
-        if (!translated) return value;
-        const next = { ...value, _auto: { ...value._auto } };
-        for (const code of UI_LOCALES) {
-          if (code === "tr" || !translated[code]) continue;
-          if (value[code]?.trim() && value._auto?.[code] !== value[code] && !(value.tr !== original?.tr && value[code] === original?.[code])) continue;
-          next[code] = translated[code];
-          next._auto[code] = translated[code];
-        }
-        return next;
-      };
-      const next = { ...trust, text: Object.fromEntries(Object.entries(trust.text).map(([key, value]) => [key, ["statistic", "comparisonAValue", "comparisonBValue", "comparisonHighlight"].includes(key) ? value : merge(`text:${key}`, value, defaultTrust?.text[key])])), items: trust.items.map((item) => {
-        if (!translatable(item)) return item;
-        const original = defaultTrust?.items.find((row) => row.id === item.id);
-        return { ...item, title: merge(`item:${item.id}:title`, item.title, original?.title), text: merge(`item:${item.id}:text`, item.text, original?.text), imageAlt: merge(`item:${item.id}:imageAlt`, item.imageAlt, original?.imageAlt), cta: merge(`item:${item.id}:cta`, item.cta, original?.cta), labels: item.labels.map((label, index) => merge(`item:${item.id}:label:${index}`, label, original?.labels[index])) };
-      }), ...(trust.trust ? { trust: { ...trust.trust, manualCaption: merge("trust:manualCaption", trust.trust.manualCaption, defaultTrust?.trust?.manualCaption), ...(trust.trust.comparisonImageAlt ? { comparisonImageAlt: merge("trust:comparisonImageAlt", trust.trust.comparisonImageAlt, defaultTrust?.trust?.comparisonImageAlt) } : {}) } } : {}) };
-      update({ ...draft, sections: draft.sections.map((section) => section.id === trust.id ? next : section) });
+      const result = await translateSection(page, draft, target.id);
+      if (!result.count) { toast.info("Çevrilecek yeni Türkçe metin yok."); return; }
+      update(result.config);
       toast.success("Çeviriler taslağa eklendi. Önizleyip kaydedebilir veya yayınlayabilirsiniz.");
     } catch (error) { toast.error(error instanceof Error ? error.message : "Çeviri başarısız oldu."); }
     finally { setTranslatingTrust(false); }
@@ -285,7 +264,8 @@ function Editor({ page }: { page: V2PageId }) {
             <span className="ml-2 text-[10px] text-muted-foreground">Boş DE/EN alanlarda Türkçe metin gösterilir.</span>
           </div>
           {V2_PROTECTED.includes(selected.type) && <p className="mb-3 rounded-md bg-secondary p-2 text-[11px] text-muted-foreground">Arama mantığı kodda korunur. Burada yalnızca metin, görsel ve görünüm ön ayarları değişir; bölüm gizlenemez veya taşınamaz.</p>}
-           {<div className="mb-3 flex items-center gap-2"><Button type="button" size="sm" variant="outline" disabled={translatingTrust} onClick={() => void translateTrust()}>{translatingTrust ? "Çevriliyor…" : "Tüm dillere çevir"}</Button><span className="text-xs text-muted-foreground">Türkçe kaynak 13 dile çevrilir; elle düzenlenen çeviriler korunur. Önce taslakta görünür.</span></div>}
+           {<div className="mb-3 flex items-center gap-2"><Button type="button" size="sm" variant="outline" disabled={translatingTrust} onClick={() => void translateTrust()}>{translatingTrust ? "Çevriliyor…" : "Tüm dillere çevir"}</Button><span className="text-xs text-muted-foreground">Türkçe kaynak 13 dile çevrilir; elle düzenlenen çeviriler korunur. "Taslağı kaydet" değişen Türkçe metni otomatik çevirir; yayınlamaz.</span></div>}
+          <LocaleStatusRow section={selected} />
           <SectionForm section={selected} lang={lang} page={page} trustPreviewLocale={trustPreviewLocale} onTrustLocale={setTrustPreviewLocale} onTrustSourceBlur={() => void translateTrust()} onChange={(patch) => patchSection(selected.id, patch)} />
         </AdminPanel>
 
@@ -309,15 +289,95 @@ function Editor({ page }: { page: V2PageId }) {
   );
 }
 
+const NUMERIC_TEXT = ["statistic", "comparisonAValue", "comparisonBValue", "comparisonHighlight"];
+type LTRef = { id: string; value: LT | undefined; original?: LT | undefined };
+function sectionLTs(section: V2Section, defaultSection?: V2Section): LTRef[] {
+  const refs: LTRef[] = [];
+  for (const key of Object.keys(section.text)) if (!NUMERIC_TEXT.includes(key)) refs.push({ id: `text:${key}`, value: section.text[key], original: defaultSection?.text[key] });
+  const translatable = (item: V2Item) => section.type === "TRUST_REVIEWS" ? item.cardType === "trust" || item.cardType === "chip" : item.cardType !== "review";
+  for (const item of section.items.filter(translatable)) {
+    const original = defaultSection?.items.find((row) => row.id === item.id);
+    for (const field of ["title", "text", "imageAlt", "cta"] as const) refs.push({ id: `item:${item.id}:${field}`, value: item[field], original: original?.[field] });
+    item.labels.forEach((label, index) => refs.push({ id: `item:${item.id}:label:${index}`, value: label, original: original?.labels[index] }));
+  }
+  if (section.trust) {
+    refs.push({ id: "trust:manualCaption", value: section.trust.manualCaption, original: defaultSection?.trust?.manualCaption });
+    if (section.trust.comparisonImageAlt) refs.push({ id: "trust:comparisonImageAlt", value: section.trust.comparisonImageAlt, original: defaultSection?.trust?.comparisonImageAlt });
+  }
+  return refs;
+}
+/** True when this locale may be (re)generated: missing, AUTO_TRANSLATED with a changed source, or an untouched built-in default whose Turkish changed. Manual/outdated values never qualify. */
+function needsTranslation(value: LT, code: UiLocale, original?: LT) {
+  const status = ltStatus(value, code);
+  if (status === "MISSING") return true;
+  if (status === "AUTO_TRANSLATED") return value._src?.[code] !== value.tr;
+  return value.tr !== original?.tr && value[code] === original?.[code] && value._src?.[code] === undefined;
+}
+async function translateSection(page: V2PageId, config: V2PageConfig, sectionId: string): Promise<{ config: V2PageConfig; count: number }> {
+  const section = config.sections.find((row) => row.id === sectionId);
+  if (!section) return { config, count: 0 };
+  const defaults = defaultV2Page(page).sections;
+  const defaultSection = defaults.find((row) => row.id === section.id) ?? defaults.find((row) => row.type === section.type);
+  const entries: Record<string, string> = {};
+  for (const ref of sectionLTs(section, defaultSection)) {
+    const value = ref.value;
+    if (value?.tr?.trim() && UI_LOCALES.some((code) => code !== "tr" && needsTranslation(value, code, ref.original))) entries[ref.id] = value.tr.trim();
+  }
+  const ids = Object.keys(entries);
+  if (!ids.length) return { config, count: 0 };
+  const translations: Record<string, Record<string, string>> = {};
+  for (let index = 0; index < ids.length; index += 60) Object.assign(translations, await translateTrustCopy({ data: { entries: Object.fromEntries(ids.slice(index, index + 60).map((id) => [id, entries[id]!])) } }));
+  const merge = (id: string, value: LT | undefined, original?: LT): any => {
+    const translated = translations[id];
+    if (!value || !translated) return value;
+    const next: LT = { ...value, _auto: { ...value._auto }, _src: { ...value._src } };
+    for (const code of UI_LOCALES) {
+      if (code === "tr" || !translated[code] || !needsTranslation(value, code, original)) continue;
+      next[code] = translated[code];
+      next._auto![code] = translated[code];
+      next._src![code] = value.tr;
+    }
+    return next;
+  };
+  const orig = (key: string) => defaultSection?.text[key];
+  const translatable = (item: V2Item) => section.type === "TRUST_REVIEWS" ? item.cardType === "trust" || item.cardType === "chip" : item.cardType !== "review";
+  const next: V2Section = {
+    ...section,
+    text: Object.fromEntries(Object.entries(section.text).map(([key, value]) => [key, NUMERIC_TEXT.includes(key) ? value : merge(`text:${key}`, value, orig(key))])),
+    items: section.items.map((item) => {
+      if (!translatable(item)) return item;
+      const original = defaultSection?.items.find((row) => row.id === item.id);
+      return { ...item, title: merge(`item:${item.id}:title`, item.title, original?.title), text: merge(`item:${item.id}:text`, item.text, original?.text), imageAlt: merge(`item:${item.id}:imageAlt`, item.imageAlt, original?.imageAlt), cta: merge(`item:${item.id}:cta`, item.cta, original?.cta), labels: item.labels.map((label, index) => merge(`item:${item.id}:label:${index}`, label, original?.labels[index])) };
+    }),
+    ...(section.trust ? { trust: { ...section.trust, manualCaption: merge("trust:manualCaption", section.trust.manualCaption, defaultSection?.trust?.manualCaption), ...(section.trust.comparisonImageAlt ? { comparisonImageAlt: merge("trust:comparisonImageAlt", section.trust.comparisonImageAlt, defaultSection?.trust?.comparisonImageAlt) } : {}) } } : {}),
+  };
+  return { config: { ...config, sections: config.sections.map((row) => row.id === section.id ? next : row) }, count: ids.length };
+}
+function LocaleStatusRow({ section }: { section: V2Section }) {
+  const refs = sectionLTs(section).filter((ref) => ref.value?.tr?.trim());
+  if (!refs.length) return null;
+  const rank = ["MISSING", "OUTDATED", "MANUALLY_EDITED", "AUTO_TRANSLATED", "SOURCE"] as const;
+  return (
+    <div className="mb-3 flex flex-wrap gap-1" aria-label="Dil durumları">
+      {UI_LOCALES.map((code) => {
+        const status = rank.find((s) => refs.some((ref) => ltStatus(ref.value, code) === s)) ?? "SOURCE";
+        const label = status === "MISSING" ? "EKSİK" : status === "OUTDATED" ? "OUTDATED / MANUALLY_EDITED" : status;
+        const tone = status === "MISSING" || status === "OUTDATED" ? "bg-warning/20" : status === "MANUALLY_EDITED" ? "bg-secondary" : "bg-primary/10";
+        return <span key={code} data-locale-status={status} className={`rounded px-1.5 py-0.5 text-[10px] ${tone}`}>{code.toUpperCase()} {label}{status === "SOURCE" || status === "AUTO_TRANSLATED" ? " ✓" : ""}</span>;
+      })}
+    </div>
+  );
+}
+
 function LTInput({ label, value, lang, onChange, multiline = false, uiLang, onSourceBlur }: { label: string; value: LT | undefined; lang: Locale; onChange: (v: LT) => void; multiline?: boolean; uiLang?: UiLocale; onSourceBlur?: () => void }) {
   const code = uiLang ?? lang;
   const current = value ?? { tr: "", de: "", en: "" };
   const cls = "mt-1 w-full rounded-md border border-border bg-background px-2 py-1.5 text-sm font-normal";
   return (
-    <Field label={`${label} · ${code.toUpperCase()}${onSourceBlur ? ` · ${code === "tr" ? "SOURCE" : !current[code]?.trim() ? "EKSİK" : current._auto?.[code] === current[code] ? "AUTO_TRANSLATED" : "MANUALLY_EDITED"}` : ""}`} {...(code !== "tr" && current.tr ? { hint: `TR: ${current.tr}` } : {})}>
+    <Field label={`${label} · ${code.toUpperCase()}${onSourceBlur ? ` · ${{ SOURCE: "SOURCE", MISSING: "EKSİK", AUTO_TRANSLATED: "AUTO_TRANSLATED", MANUALLY_EDITED: "MANUALLY_EDITED", OUTDATED: "OUTDATED / MANUALLY_EDITED" }[ltStatus(current, code)]}` : ""}`} {...(code !== "tr" && current.tr ? { hint: `TR: ${current.tr}` } : {})}>
       {multiline
-        ? <textarea rows={3} className={cls} value={current[code] ?? ""} onBlur={code === "tr" ? onSourceBlur : undefined} onChange={(e) => onChange({ ...current, [code]: e.target.value })} />
-        : <input className={cls} value={current[code] ?? ""} onBlur={code === "tr" ? onSourceBlur : undefined} onChange={(e) => onChange({ ...current, [code]: e.target.value })} />}
+        ? <textarea rows={3} className={cls} value={current[code] ?? ""} onBlur={code === "tr" ? onSourceBlur : undefined} onChange={(e) => onChange(code === "tr" ? { ...current, tr: e.target.value } : { ...current, [code]: e.target.value, _src: { ...current._src, [code]: current.tr } })} />
+        : <input className={cls} value={current[code] ?? ""} onBlur={code === "tr" ? onSourceBlur : undefined} onChange={(e) => onChange(code === "tr" ? { ...current, tr: e.target.value } : { ...current, [code]: e.target.value, _src: { ...current._src, [code]: current.tr } })} />}
     </Field>
   );
 }
