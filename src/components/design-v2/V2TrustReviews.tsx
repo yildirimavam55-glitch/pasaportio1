@@ -177,7 +177,7 @@ function RoamingComparison({ section, media, preview, locale, uiLocale, onDestin
     }, { threshold: 0.3 });
     observer.observe(node);
     return () => { observer.disconnect(); cancelAnimationFrame(frame); };
-  }, [data, trust?.comparisonMode]);
+  }, [data?.roaming, data?.travely, trust?.comparisonMode]);
   const ease = (value: number) => 1 - Math.pow(1 - Math.min(1, Math.max(0, value)), 3);
   const redProgress = instant ? 1 : ease(elapsed / 1250);
   const tealProgress = instant ? 1 : ease((elapsed - 200) / 1050);
