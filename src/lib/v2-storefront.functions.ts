@@ -20,7 +20,7 @@ import {
  */
 
 /** expiresAt (ms) lets the client keep an unchanged signed URL stable across refetches. */
-export type V2Media = Record<string, { url: string; alt: string; expiresAt?: number }>;
+export type V2Media = Record<string, { url: string; alt: string; expiresAt?: number; width?: number; height?: number }>;
 const KIND = "V2_STOREFRONT";
 const keyFor = (page: V2PageId) => `storefront_v2_${page}`;
 const pageOf = (value: unknown): V2PageId => ((V2_PAGES as readonly string[]).includes(String(value)) ? (value as V2PageId) : "esim");
@@ -29,7 +29,7 @@ async function resolveMedia(ids: string[]): Promise<V2Media> {
   if (!ids.length) return {};
   try {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { data: rows } = await supabaseAdmin.from("media_assets").select("id, storage_path, alt_text").in("id", ids);
+    const { data: rows } = await supabaseAdmin.from("media_assets").select("id, storage_path, alt_text, width, height").in("id", ids);
     if (!rows?.length) return {};
     const { data: urls } = await supabaseAdmin.storage.from("media").createSignedUrls(rows.map((row: any) => row.storage_path), 60 * 60 * 6);
     const byPath = new Map((urls ?? []).map((row: any) => [row.path, row.signedUrl]));
@@ -37,7 +37,7 @@ async function resolveMedia(ids: string[]): Promise<V2Media> {
     const expiresAt = Date.now() + 60 * 60 * 6 * 1000;
     for (const row of rows as any[]) {
       const url = byPath.get(row.storage_path);
-      if (url) map[row.id] = { url, alt: row.alt_text ?? "", expiresAt };
+      if (url) map[row.id] = { url, alt: row.alt_text ?? "", expiresAt, ...(row.width && row.height ? { width: row.width, height: row.height } : {}) };
     }
     return map;
   } catch {

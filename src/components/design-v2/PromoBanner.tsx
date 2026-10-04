@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Check, Copy, TicketPercent, X } from "lucide-react";
 import { toast } from "sonner";
-import { getPromotionBanner } from "@/lib/promotions.functions";
+import { promotionBannerQuery } from "@/lib/promotion-banner-query";
 import { bannerHeadline, bannerParts, bannerTagline, formatDiscount, isStructuredBanner } from "@/domain/promotions";
 import { useI18n } from "@/i18n";
 import { getActiveUiLocale } from "@/i18n/overlay";
@@ -15,7 +15,7 @@ const DISMISS_KEY = "travely.promo.dismissed";
 export function PromoBanner() {
   const { locale } = useI18n();
   const c = pick(locale, PROMO_COPY);
-  const banner = useQuery({ queryKey: ["promotion-banner"], queryFn: () => getPromotionBanner(), staleTime: 60_000 });
+  const banner = useQuery(promotionBannerQuery);
   const [dismissed, setDismissed] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
   useEffect(() => { try { setDismissed(window.sessionStorage.getItem(DISMISS_KEY)); } catch { /* ignore */ } }, []);

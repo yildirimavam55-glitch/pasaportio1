@@ -9,8 +9,8 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
+import { Route as HomeRouteImport } from './routes/_home'
 import { Route as AccountRouteImport } from './routes/account'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as DestekRouteImport } from './routes/destek'
@@ -18,17 +18,15 @@ import { Route as KayitRouteImport } from './routes/kayit'
 import { Route as OdemeRouteImport } from './routes/odeme'
 import { Route as SepetRouteImport } from './routes/sepet'
 import { Route as VignetteRouteImport } from './routes/vignette'
-import { Route as LocaleIndexRouteImport } from './routes/$locale.index'
 import { Route as AuthenticatedLegacyV1RouteImport } from './routes/_authenticated/legacy-v1'
+import { Route as HomeIndexRouteImport } from './routes/_home.index'
 import { Route as AccountIndexRouteImport } from './routes/account.index'
 import { Route as AccountNotificationsRouteImport } from './routes/account.notifications'
 import { Route as AccountProfileRouteImport } from './routes/account.profile'
 import { Route as AccountSecurityRouteImport } from './routes/account.security'
 import { Route as AccountSupportRouteImport } from './routes/account.support'
-import { Route as DeIndexRouteImport } from './routes/de.index'
 import { Route as DesignV2IndexRouteImport } from './routes/design-v2.index'
 import { Route as DesignV2SplatRouteImport } from './routes/design-v2.$'
-import { Route as EnIndexRouteImport } from './routes/en.index'
 import { Route as EsimIndexRouteImport } from './routes/esim.index'
 import { Route as EsimKurulumRouteImport } from './routes/esim.kurulum'
 import { Route as EsimPaketlerRouteImport } from './routes/esim.paketler'
@@ -45,7 +43,6 @@ import { Route as LoungeIndexRouteImport } from './routes/lounge.index'
 import { Route as LoungeSeceneklerRouteImport } from './routes/lounge.secenekler'
 import { Route as RehberlerIndexRouteImport } from './routes/rehberler.index'
 import { Route as SitemapXmlRouteImport } from './routes/sitemap.xml'
-import { Route as TrIndexRouteImport } from './routes/tr.index'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin.index'
 import { Route as AuthenticatedAdminAirportsRouteImport } from './routes/_authenticated/admin.airports'
 import { Route as AuthenticatedAdminAlertsRouteImport } from './routes/_authenticated/admin.alerts'
@@ -75,6 +72,10 @@ import { Route as AuthenticatedLegacyV1IndexRouteImport } from './routes/_authen
 import { Route as AuthenticatedLegacyV1AuthRouteImport } from './routes/_authenticated/legacy-v1.auth'
 import { Route as AuthenticatedLegacyV1DestekRouteImport } from './routes/_authenticated/legacy-v1.destek'
 import { Route as AuthenticatedLegacyV1SepetRouteImport } from './routes/_authenticated/legacy-v1.sepet'
+import { Route as HomeLocaleIndexRouteImport } from './routes/_home.$locale.index'
+import { Route as HomeDeIndexRouteImport } from './routes/_home.de.index'
+import { Route as HomeEnIndexRouteImport } from './routes/_home.en.index'
+import { Route as HomeTrIndexRouteImport } from './routes/_home.tr.index'
 import { Route as AccountEsimsIndexRouteImport } from './routes/account.esims.index'
 import { Route as AccountEsimsIdRouteImport } from './routes/account.esims.$id'
 import { Route as AccountOrdersIndexRouteImport } from './routes/account.orders.index'
@@ -127,13 +128,12 @@ import { Route as AuthenticatedLegacyV1AccountEsimsIdRouteImport } from './route
 import { Route as AuthenticatedLegacyV1AccountOrdersIndexRouteImport } from './routes/_authenticated/legacy-v1.account.orders.index'
 import { Route as AuthenticatedLegacyV1AccountOrdersIdRouteImport } from './routes/_authenticated/legacy-v1.account.orders.$id'
 
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
   id: '/_authenticated',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HomeRoute = HomeRouteImport.update({
+  id: '/_home',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AccountRoute = AccountRouteImport.update({
@@ -171,15 +171,15 @@ const VignetteRoute = VignetteRouteImport.update({
   path: '/vignette',
   getParentRoute: () => rootRouteImport,
 } as any)
-const LocaleIndexRoute = LocaleIndexRouteImport.update({
-  id: '/$locale/',
-  path: '/$locale/',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const AuthenticatedLegacyV1Route = AuthenticatedLegacyV1RouteImport.update({
   id: '/legacy-v1',
   path: '/legacy-v1',
   getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const HomeIndexRoute = HomeIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => HomeRoute,
 } as any)
 const AccountIndexRoute = AccountIndexRouteImport.update({
   id: '/',
@@ -206,11 +206,6 @@ const AccountSupportRoute = AccountSupportRouteImport.update({
   path: '/support',
   getParentRoute: () => AccountRoute,
 } as any)
-const DeIndexRoute = DeIndexRouteImport.update({
-  id: '/de/',
-  path: '/de/',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const DesignV2IndexRoute = DesignV2IndexRouteImport.update({
   id: '/design-v2/',
   path: '/design-v2/',
@@ -219,11 +214,6 @@ const DesignV2IndexRoute = DesignV2IndexRouteImport.update({
 const DesignV2SplatRoute = DesignV2SplatRouteImport.update({
   id: '/design-v2/$',
   path: '/design-v2/$',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const EnIndexRoute = EnIndexRouteImport.update({
-  id: '/en/',
-  path: '/en/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const EsimIndexRoute = EsimIndexRouteImport.update({
@@ -304,11 +294,6 @@ const RehberlerIndexRoute = RehberlerIndexRouteImport.update({
 const SitemapXmlRoute = SitemapXmlRouteImport.update({
   id: '/sitemap/xml',
   path: '/sitemap/xml',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const TrIndexRoute = TrIndexRouteImport.update({
-  id: '/tr/',
-  path: '/tr/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedAdminIndexRoute = AuthenticatedAdminIndexRouteImport.update({
@@ -478,6 +463,26 @@ const AuthenticatedLegacyV1SepetRoute =
     path: '/sepet',
     getParentRoute: () => AuthenticatedLegacyV1Route,
   } as any)
+const HomeLocaleIndexRoute = HomeLocaleIndexRouteImport.update({
+  id: '/$locale/',
+  path: '/$locale/',
+  getParentRoute: () => HomeRoute,
+} as any)
+const HomeDeIndexRoute = HomeDeIndexRouteImport.update({
+  id: '/de/',
+  path: '/de/',
+  getParentRoute: () => HomeRoute,
+} as any)
+const HomeEnIndexRoute = HomeEnIndexRouteImport.update({
+  id: '/en/',
+  path: '/en/',
+  getParentRoute: () => HomeRoute,
+} as any)
+const HomeTrIndexRoute = HomeTrIndexRouteImport.update({
+  id: '/tr/',
+  path: '/tr/',
+  getParentRoute: () => HomeRoute,
+} as any)
 const AccountEsimsIndexRoute = AccountEsimsIndexRouteImport.update({
   id: '/esims/',
   path: '/esims/',
@@ -770,7 +775,7 @@ const AuthenticatedLegacyV1AccountOrdersIdRoute =
   } as any)
 
 export interface FileRoutesByFullPath {
-  '/': typeof IndexRoute
+  '/': typeof HomeIndexRoute
   '/account': typeof AccountRouteWithChildren
   '/auth': typeof AuthRoute
   '/destek': typeof DestekRoute
@@ -796,16 +801,12 @@ export interface FileRoutesByFullPath {
   '/legal/withdrawal': typeof LegalWithdrawalRoute
   '/lounge/secenekler': typeof LoungeSeceneklerRoute
   '/sitemap/xml': typeof SitemapXmlRoute
-  '/$locale/': typeof LocaleIndexRoute
   '/account/': typeof AccountIndexRoute
-  '/de/': typeof DeIndexRoute
   '/design-v2/': typeof DesignV2IndexRoute
-  '/en/': typeof EnIndexRoute
   '/esim/': typeof EsimIndexRoute
   '/guides/': typeof GuidesIndexRoute
   '/lounge/': typeof LoungeIndexRoute
   '/rehberler/': typeof RehberlerIndexRoute
-  '/tr/': typeof TrIndexRoute
   '/admin/airports': typeof AuthenticatedAdminAirportsRoute
   '/admin/alerts': typeof AuthenticatedAdminAlertsRoute
   '/admin/analytics': typeof AuthenticatedAdminAnalyticsRoute
@@ -845,6 +846,10 @@ export interface FileRoutesByFullPath {
   '/admin/': typeof AuthenticatedAdminIndexRoute
   '/hesabim/': typeof AuthenticatedHesabimIndexRoute
   '/legacy-v1/': typeof AuthenticatedLegacyV1IndexRoute
+  '/$locale/': typeof HomeLocaleIndexRoute
+  '/de/': typeof HomeDeIndexRoute
+  '/en/': typeof HomeEnIndexRoute
+  '/tr/': typeof HomeTrIndexRoute
   '/account/esims/': typeof AccountEsimsIndexRoute
   '/account/orders/': typeof AccountOrdersIndexRoute
   '/de/ratgeber/': typeof DeRatgeberIndexRoute
@@ -888,7 +893,7 @@ export interface FileRoutesByFullPath {
   '/legacy-v1/account/orders/': typeof AuthenticatedLegacyV1AccountOrdersIndexRoute
 }
 export interface FileRoutesByTo {
-  '/': typeof IndexRoute
+  '/': typeof HomeIndexRoute
   '/auth': typeof AuthRoute
   '/destek': typeof DestekRoute
   '/kayit': typeof KayitRoute
@@ -912,16 +917,12 @@ export interface FileRoutesByTo {
   '/legal/withdrawal': typeof LegalWithdrawalRoute
   '/lounge/secenekler': typeof LoungeSeceneklerRoute
   '/sitemap/xml': typeof SitemapXmlRoute
-  '/$locale': typeof LocaleIndexRoute
   '/account': typeof AccountIndexRoute
-  '/de': typeof DeIndexRoute
   '/design-v2': typeof DesignV2IndexRoute
-  '/en': typeof EnIndexRoute
   '/esim': typeof EsimIndexRoute
   '/guides': typeof GuidesIndexRoute
   '/lounge': typeof LoungeIndexRoute
   '/rehberler': typeof RehberlerIndexRoute
-  '/tr': typeof TrIndexRoute
   '/admin/airports': typeof AuthenticatedAdminAirportsRoute
   '/admin/alerts': typeof AuthenticatedAdminAlertsRoute
   '/admin/analytics': typeof AuthenticatedAdminAnalyticsRoute
@@ -961,6 +962,10 @@ export interface FileRoutesByTo {
   '/admin': typeof AuthenticatedAdminIndexRoute
   '/hesabim': typeof AuthenticatedHesabimIndexRoute
   '/legacy-v1': typeof AuthenticatedLegacyV1IndexRoute
+  '/$locale': typeof HomeLocaleIndexRoute
+  '/de': typeof HomeDeIndexRoute
+  '/en': typeof HomeEnIndexRoute
+  '/tr': typeof HomeTrIndexRoute
   '/account/esims': typeof AccountEsimsIndexRoute
   '/account/orders': typeof AccountOrdersIndexRoute
   '/de/ratgeber': typeof DeRatgeberIndexRoute
@@ -1005,8 +1010,8 @@ export interface FileRoutesByTo {
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
-  '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
+  '/_home': typeof HomeRouteWithChildren
   '/account': typeof AccountRouteWithChildren
   '/auth': typeof AuthRoute
   '/destek': typeof DestekRoute
@@ -1032,16 +1037,13 @@ export interface FileRoutesById {
   '/legal/withdrawal': typeof LegalWithdrawalRoute
   '/lounge/secenekler': typeof LoungeSeceneklerRoute
   '/sitemap/xml': typeof SitemapXmlRoute
-  '/$locale/': typeof LocaleIndexRoute
+  '/_home/': typeof HomeIndexRoute
   '/account/': typeof AccountIndexRoute
-  '/de/': typeof DeIndexRoute
   '/design-v2/': typeof DesignV2IndexRoute
-  '/en/': typeof EnIndexRoute
   '/esim/': typeof EsimIndexRoute
   '/guides/': typeof GuidesIndexRoute
   '/lounge/': typeof LoungeIndexRoute
   '/rehberler/': typeof RehberlerIndexRoute
-  '/tr/': typeof TrIndexRoute
   '/_authenticated/admin/airports': typeof AuthenticatedAdminAirportsRoute
   '/_authenticated/admin/alerts': typeof AuthenticatedAdminAlertsRoute
   '/_authenticated/admin/analytics': typeof AuthenticatedAdminAnalyticsRoute
@@ -1081,6 +1083,10 @@ export interface FileRoutesById {
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
   '/_authenticated/hesabim/': typeof AuthenticatedHesabimIndexRoute
   '/_authenticated/legacy-v1/': typeof AuthenticatedLegacyV1IndexRoute
+  '/_home/$locale/': typeof HomeLocaleIndexRoute
+  '/_home/de/': typeof HomeDeIndexRoute
+  '/_home/en/': typeof HomeEnIndexRoute
+  '/_home/tr/': typeof HomeTrIndexRoute
   '/account/esims/': typeof AccountEsimsIndexRoute
   '/account/orders/': typeof AccountOrdersIndexRoute
   '/de/ratgeber/': typeof DeRatgeberIndexRoute
@@ -1152,16 +1158,12 @@ export interface FileRouteTypes {
     | '/legal/withdrawal'
     | '/lounge/secenekler'
     | '/sitemap/xml'
-    | '/$locale/'
     | '/account/'
-    | '/de/'
     | '/design-v2/'
-    | '/en/'
     | '/esim/'
     | '/guides/'
     | '/lounge/'
     | '/rehberler/'
-    | '/tr/'
     | '/admin/airports'
     | '/admin/alerts'
     | '/admin/analytics'
@@ -1201,6 +1203,10 @@ export interface FileRouteTypes {
     | '/admin/'
     | '/hesabim/'
     | '/legacy-v1/'
+    | '/$locale/'
+    | '/de/'
+    | '/en/'
+    | '/tr/'
     | '/account/esims/'
     | '/account/orders/'
     | '/de/ratgeber/'
@@ -1268,16 +1274,12 @@ export interface FileRouteTypes {
     | '/legal/withdrawal'
     | '/lounge/secenekler'
     | '/sitemap/xml'
-    | '/$locale'
     | '/account'
-    | '/de'
     | '/design-v2'
-    | '/en'
     | '/esim'
     | '/guides'
     | '/lounge'
     | '/rehberler'
-    | '/tr'
     | '/admin/airports'
     | '/admin/alerts'
     | '/admin/analytics'
@@ -1317,6 +1319,10 @@ export interface FileRouteTypes {
     | '/admin'
     | '/hesabim'
     | '/legacy-v1'
+    | '/$locale'
+    | '/de'
+    | '/en'
+    | '/tr'
     | '/account/esims'
     | '/account/orders'
     | '/de/ratgeber'
@@ -1360,8 +1366,8 @@ export interface FileRouteTypes {
     | '/legacy-v1/account/orders'
   id:
     | '__root__'
-    | '/'
     | '/_authenticated'
+    | '/_home'
     | '/account'
     | '/auth'
     | '/destek'
@@ -1387,16 +1393,13 @@ export interface FileRouteTypes {
     | '/legal/withdrawal'
     | '/lounge/secenekler'
     | '/sitemap/xml'
-    | '/$locale/'
+    | '/_home/'
     | '/account/'
-    | '/de/'
     | '/design-v2/'
-    | '/en/'
     | '/esim/'
     | '/guides/'
     | '/lounge/'
     | '/rehberler/'
-    | '/tr/'
     | '/_authenticated/admin/airports'
     | '/_authenticated/admin/alerts'
     | '/_authenticated/admin/analytics'
@@ -1436,6 +1439,10 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/'
     | '/_authenticated/hesabim/'
     | '/_authenticated/legacy-v1/'
+    | '/_home/$locale/'
+    | '/_home/de/'
+    | '/_home/en/'
+    | '/_home/tr/'
     | '/account/esims/'
     | '/account/orders/'
     | '/de/ratgeber/'
@@ -1480,8 +1487,8 @@ export interface FileRouteTypes {
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
-  IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
+  HomeRoute: typeof HomeRouteWithChildren
   AccountRoute: typeof AccountRouteWithChildren
   AuthRoute: typeof AuthRoute
   DestekRoute: typeof DestekRoute
@@ -1502,15 +1509,11 @@ export interface RootRouteChildren {
   LegalWithdrawalRoute: typeof LegalWithdrawalRoute
   LoungeSeceneklerRoute: typeof LoungeSeceneklerRoute
   SitemapXmlRoute: typeof SitemapXmlRoute
-  LocaleIndexRoute: typeof LocaleIndexRoute
-  DeIndexRoute: typeof DeIndexRoute
   DesignV2IndexRoute: typeof DesignV2IndexRoute
-  EnIndexRoute: typeof EnIndexRoute
   EsimIndexRoute: typeof EsimIndexRoute
   GuidesIndexRoute: typeof GuidesIndexRoute
   LoungeIndexRoute: typeof LoungeIndexRoute
   RehberlerIndexRoute: typeof RehberlerIndexRoute
-  TrIndexRoute: typeof TrIndexRoute
   ApiPublicProviderSyncRoute: typeof ApiPublicProviderSyncRoute
   DeEsimSlugRoute: typeof DeEsimSlugRoute
   DeRatgeberSlugRoute: typeof DeRatgeberSlugRoute
@@ -1527,18 +1530,18 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/_authenticated': {
       id: '/_authenticated'
       path: ''
       fullPath: '/'
       preLoaderRoute: typeof AuthenticatedRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_home': {
+      id: '/_home'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof HomeRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/account': {
@@ -1590,19 +1593,19 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof VignetteRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/$locale/': {
-      id: '/$locale/'
-      path: '/$locale'
-      fullPath: '/$locale/'
-      preLoaderRoute: typeof LocaleIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/_authenticated/legacy-v1': {
       id: '/_authenticated/legacy-v1'
       path: '/legacy-v1'
       fullPath: '/legacy-v1'
       preLoaderRoute: typeof AuthenticatedLegacyV1RouteImport
       parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_home/': {
+      id: '/_home/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof HomeIndexRouteImport
+      parentRoute: typeof HomeRoute
     }
     '/account/': {
       id: '/account/'
@@ -1639,13 +1642,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AccountSupportRouteImport
       parentRoute: typeof AccountRoute
     }
-    '/de/': {
-      id: '/de/'
-      path: '/de'
-      fullPath: '/de/'
-      preLoaderRoute: typeof DeIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/design-v2/': {
       id: '/design-v2/'
       path: '/design-v2'
@@ -1658,13 +1654,6 @@ declare module '@tanstack/react-router' {
       path: '/design-v2/$'
       fullPath: '/design-v2/$'
       preLoaderRoute: typeof DesignV2SplatRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/en/': {
-      id: '/en/'
-      path: '/en'
-      fullPath: '/en/'
-      preLoaderRoute: typeof EnIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/esim/': {
@@ -1777,13 +1766,6 @@ declare module '@tanstack/react-router' {
       path: '/sitemap/xml'
       fullPath: '/sitemap/xml'
       preLoaderRoute: typeof SitemapXmlRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/tr/': {
-      id: '/tr/'
-      path: '/tr'
-      fullPath: '/tr/'
-      preLoaderRoute: typeof TrIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated/admin/': {
@@ -1988,6 +1970,34 @@ declare module '@tanstack/react-router' {
       fullPath: '/legacy-v1/sepet'
       preLoaderRoute: typeof AuthenticatedLegacyV1SepetRouteImport
       parentRoute: typeof AuthenticatedLegacyV1Route
+    }
+    '/_home/$locale/': {
+      id: '/_home/$locale/'
+      path: '/$locale'
+      fullPath: '/$locale/'
+      preLoaderRoute: typeof HomeLocaleIndexRouteImport
+      parentRoute: typeof HomeRoute
+    }
+    '/_home/de/': {
+      id: '/_home/de/'
+      path: '/de'
+      fullPath: '/de/'
+      preLoaderRoute: typeof HomeDeIndexRouteImport
+      parentRoute: typeof HomeRoute
+    }
+    '/_home/en/': {
+      id: '/_home/en/'
+      path: '/en'
+      fullPath: '/en/'
+      preLoaderRoute: typeof HomeEnIndexRouteImport
+      parentRoute: typeof HomeRoute
+    }
+    '/_home/tr/': {
+      id: '/_home/tr/'
+      path: '/tr'
+      fullPath: '/tr/'
+      preLoaderRoute: typeof HomeTrIndexRouteImport
+      parentRoute: typeof HomeRoute
     }
     '/account/esims/': {
       id: '/account/esims/'
@@ -2522,6 +2532,24 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
 const AuthenticatedRouteRouteWithChildren =
   AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
 
+interface HomeRouteChildren {
+  HomeIndexRoute: typeof HomeIndexRoute
+  HomeLocaleIndexRoute: typeof HomeLocaleIndexRoute
+  HomeDeIndexRoute: typeof HomeDeIndexRoute
+  HomeEnIndexRoute: typeof HomeEnIndexRoute
+  HomeTrIndexRoute: typeof HomeTrIndexRoute
+}
+
+const HomeRouteChildren: HomeRouteChildren = {
+  HomeIndexRoute: HomeIndexRoute,
+  HomeLocaleIndexRoute: HomeLocaleIndexRoute,
+  HomeDeIndexRoute: HomeDeIndexRoute,
+  HomeEnIndexRoute: HomeEnIndexRoute,
+  HomeTrIndexRoute: HomeTrIndexRoute,
+}
+
+const HomeRouteWithChildren = HomeRoute._addFileChildren(HomeRouteChildren)
+
 interface AccountRouteChildren {
   AccountNotificationsRoute: typeof AccountNotificationsRoute
   AccountProfileRoute: typeof AccountProfileRoute
@@ -2550,8 +2578,8 @@ const AccountRouteWithChildren =
   AccountRoute._addFileChildren(AccountRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
-  IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
+  HomeRoute: HomeRouteWithChildren,
   AccountRoute: AccountRouteWithChildren,
   AuthRoute: AuthRoute,
   DestekRoute: DestekRoute,
@@ -2572,15 +2600,11 @@ const rootRouteChildren: RootRouteChildren = {
   LegalWithdrawalRoute: LegalWithdrawalRoute,
   LoungeSeceneklerRoute: LoungeSeceneklerRoute,
   SitemapXmlRoute: SitemapXmlRoute,
-  LocaleIndexRoute: LocaleIndexRoute,
-  DeIndexRoute: DeIndexRoute,
   DesignV2IndexRoute: DesignV2IndexRoute,
-  EnIndexRoute: EnIndexRoute,
   EsimIndexRoute: EsimIndexRoute,
   GuidesIndexRoute: GuidesIndexRoute,
   LoungeIndexRoute: LoungeIndexRoute,
   RehberlerIndexRoute: RehberlerIndexRoute,
-  TrIndexRoute: TrIndexRoute,
   ApiPublicProviderSyncRoute: ApiPublicProviderSyncRoute,
   DeEsimSlugRoute: DeEsimSlugRoute,
   DeRatgeberSlugRoute: DeRatgeberSlugRoute,
