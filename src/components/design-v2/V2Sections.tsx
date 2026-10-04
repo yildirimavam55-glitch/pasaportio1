@@ -3,7 +3,7 @@ import { queryOptions, replaceEqualDeep, useQuery } from "@tanstack/react-query"
 import { DesktopPromoCard, HowItWorks, PromoCard, TrustRow } from "@/components/design-v2/V2Shell";
 import { V2InfoCarousel } from "@/components/design-v2/V2InfoCarousel";
 import { V2TrustReviews } from "@/components/design-v2/V2TrustReviews";
-import { V2CategorizedEsimFaq, V2Compatibility, V2CompactFaq, V2GuidesRail, V2InfoGrid, V2Installation } from "@/components/design-v2/V2DiscoveryContent";
+import { V2Compatibility, V2CompactFaq, V2GuidesRail, V2InfoGrid, V2Installation } from "@/components/design-v2/V2DiscoveryContent";
 import { DesktopDeviceCompatibilityBanner } from "@/components/travel/DeviceCompatibility";
 import { StorefrontIcon } from "@/domain/storefront/icons";
 import { defaultV2Page, isInWindow, sanitizeV2Page, v2ItemText, v2Text, type V2PageConfig, type V2PageId, type V2Section } from "@/domain/storefront/v2";
@@ -203,7 +203,7 @@ export function V2Sections({ config, media, slots, only, onDestinationSearch }: 
             return <V2GuidesRail key={s.id} title={t("title")} lead={t("lead")} allLabel={t("all")} />;
           case "FAQ": {
             const questions = items.map((item) => [v2ItemText(item.title, locale), v2ItemText(item.text, locale)] as const);
-            return s.variant === "comfortable" ? <V2CategorizedEsimFaq key={s.id} /> : <V2CompactFaq key={s.id} title={t("title")} questions={questions} />;
+            return <V2CompactFaq key={s.id} title={t("title")} questions={questions} relaxed={s.variant === "comfortable"} />;
           }
           case "SPACER":
             return <div key={s.id} aria-hidden className={s.height === "tall" ? "h-10" : s.height === "normal" ? "h-6" : "h-3"} />;
