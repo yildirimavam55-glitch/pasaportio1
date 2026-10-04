@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { ArrowRight, ImagePlus, Star, Users } from "lucide-react";
+import { ArrowRight, ImagePlus, RadioTower, Search, Signal, Star, Users } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { StorefrontIcon } from "@/domain/storefront/icons";
 import { Reveal } from "@/components/travel/Reveal";
@@ -151,6 +151,37 @@ function RoamingComparison({ section, media, preview, locale, uiLocale, onDestin
   const demo = !verified && preview && trust?.comparisonStatus !== "HIDDEN";
   const data = verified ? figures : demo ? (figures ?? SAMPLE_FIGURES) : null;
   const bcp47 = LOCALE_REGISTRY[uiLocale].bcp47;
+  const comparisonRef = useRef<HTMLDivElement>(null);
+  const played = useRef(false);
+  const [elapsed, setElapsed] = useState(0);
+  const [instant, setInstant] = useState(false);
+  useEffect(() => {
+    if (trust?.comparisonMode === "IMAGE" || !data || played.current) return;
+    const node = comparisonRef.current;
+    if (!node) return;
+    const motion = window.matchMedia("(prefers-reduced-motion: reduce)");
+    if (motion.matches) { played.current = true; setInstant(true); return; }
+    let frame = 0;
+    let start = 0;
+    const observer = new IntersectionObserver(([entry]) => {
+      if (!entry?.isIntersecting || played.current) return;
+      played.current = true;
+      observer.disconnect();
+      const tick = (now: number) => {
+        if (!start) start = now;
+        const next = Math.min(1600, now - start);
+        setElapsed(next);
+        if (next < 1600) frame = requestAnimationFrame(tick);
+      };
+      frame = requestAnimationFrame(tick);
+    }, { threshold: 0.3 });
+    observer.observe(node);
+    return () => { observer.disconnect(); cancelAnimationFrame(frame); };
+  }, [data, trust?.comparisonMode]);
+  const ease = (value: number) => 1 - Math.pow(1 - Math.min(1, Math.max(0, value)), 3);
+  const redProgress = instant ? 1 : ease(elapsed / 1250);
+  const tealProgress = instant ? 1 : ease((elapsed - 200) / 1050);
+  const revealed = instant || elapsed >= 1100;
   // IMAGE mode: one finished graphic replaces the structured card. Same verification gate — public only when VERIFIED.
   if (trust?.comparisonMode === "IMAGE") {
     const desktop = mediaUrl(trust.comparisonImageId ?? null, media);
@@ -170,39 +201,34 @@ function RoamingComparison({ section, media, preview, locale, uiLocale, onDestin
   const money = (n: number) => new Intl.NumberFormat(bcp47, { style: "currency", currency: "EUR" }).format(n);
   const pct = (n: number) => new Intl.NumberFormat(bcp47, { style: "percent", maximumFractionDigits: 0 }).format(n / 100);
   const cta = t("comparisonCta") || c.cta;
-  const ctaClass = "mt-5 inline-flex min-h-11 items-center gap-1.5";
+  const ctaClass = "mt-5 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-primary text-primary-foreground shadow-soft transition-[transform,filter] duration-200 hover:-translate-y-0.5 hover:brightness-110 active:translate-y-0 motion-reduce:transition-none";
   const ctaNode = onDestinationSearch && section.href === "/esim"
-    ? <Button type="button" className={ctaClass} onClick={onDestinationSearch}>{cta}<ArrowRight className="size-4 rtl:rotate-180" /></Button>
-    : <Button asChild className={ctaClass}><Link to={section.href}>{cta}<ArrowRight className="size-4 rtl:rotate-180" /></Link></Button>;
+    ? <Button type="button" className={ctaClass} onClick={onDestinationSearch}><Search className="size-4 shrink-0" aria-hidden />{cta}<ArrowRight className="size-4 shrink-0 rtl:rotate-180" aria-hidden /></Button>
+    : <Button asChild className={ctaClass}><Link to={section.href}><Search className="size-4 shrink-0" aria-hidden />{cta}<ArrowRight className="size-4 shrink-0 rtl:rotate-180" aria-hidden /></Link></Button>;
   const reference = [t("comparisonDestination"), t("comparisonAllowance"), t("comparisonValidity")].filter(Boolean).join(" · ");
 
-  return <div className={`mt-4 grid min-w-0 overflow-hidden rounded-2xl bg-card shadow-soft ring-1 ring-border ${data ? "lg:grid-cols-[minmax(0,2fr)_minmax(0,3fr)]" : ""}`}>
-    <div className="min-w-0 p-5 sm:p-7 lg:p-9">
+  return <div ref={comparisonRef} data-roaming-comparison className="mx-auto mt-5 min-w-0 max-w-4xl overflow-hidden rounded-2xl border border-border bg-secondary p-4 shadow-soft sm:p-6 lg:p-8">
+    {!data ? <div className="min-w-0">
       {demo && <p className="mb-3 inline-block rounded-full bg-primary-soft px-2.5 py-1 text-[10px] font-bold text-primary">{c.demo}</p>}
-      <p className="inline-flex max-w-full rounded-full bg-primary-soft px-3 py-1.5 text-xs font-bold uppercase tracking-wide text-primary">{t("comparisonTitle") || c.eyebrow}</p>
-      {data
-        ? <p className="mt-4 text-foreground"><span className="block font-display text-2xl font-bold leading-tight lg:text-3xl">{t("statisticPrefix") || c.pre}</span><bdi className="block font-display text-[clamp(3.75rem,16vw,6rem)] font-bold leading-[0.95] text-primary">{pct(data.percent)}</bdi><span className="block font-display text-2xl font-bold leading-tight lg:text-3xl">{t("statisticLabel") || c.post}</span></p>
-        : <>{preview && <p className="mt-3 inline-block rounded-full bg-muted px-2.5 py-1 text-[10px] font-bold text-muted-foreground">{c.unavailable}</p>}<p className="mt-3 max-w-md font-display text-2xl font-bold leading-tight text-foreground">{c.fbHead}</p></>}
-      <p className="mt-3 max-w-sm text-sm leading-relaxed text-muted-foreground sm:text-base">{data ? (t("comparisonDescription") || c.desc) : c.fbDesc}</p>
+      {preview && <p className="mt-3 inline-block rounded-full bg-muted px-2.5 py-1 text-[10px] font-bold text-muted-foreground">{c.unavailable}</p>}
+      <p className="max-w-md font-display text-2xl font-bold leading-tight text-foreground">{c.fbHead}</p>
+      <p className="mt-3 max-w-sm text-sm leading-relaxed text-muted-foreground sm:text-base">{c.fbDesc}</p>
       {ctaNode}
-    </div>
-    {data && <div className="min-w-0 border-t border-border bg-secondary/30 p-5 sm:p-7 lg:border-s lg:border-t-0 lg:p-9" role="group" aria-label={c.chart}>
-      {reference && <p className="mb-3 text-xs font-semibold text-muted-foreground">{reference}</p>}
-      <div className="space-y-4">
-        <div>
-          <div className="flex items-baseline justify-between gap-3"><span className="min-w-0 text-sm font-semibold text-foreground sm:text-base">{t("comparisonALabel") || c.roaming}</span><bdi className="shrink-0 font-display text-2xl font-bold text-foreground sm:text-3xl">{money(data.roaming)}</bdi></div>
-          <div className="mt-2 h-3.5 w-full overflow-hidden rounded-full bg-muted"><div className="h-full w-full rounded-full bg-destructive/70" /></div>
-        </div>
-        <div>
-          <div className="flex items-baseline justify-between gap-3"><span className="min-w-0 text-sm font-bold text-primary sm:text-base">{t("comparisonBLabel") || c.travely}</span><bdi className="shrink-0 font-display text-2xl font-bold text-primary sm:text-3xl">{money(data.travely)}</bdi></div>
-          <div className="mt-2 h-3.5 w-full overflow-hidden rounded-full bg-muted"><div className="h-full rounded-full bg-primary" style={{ width: `${Math.max(6, Math.min(100, (data.travely / data.roaming) * 100))}%` }} /></div>
-        </div>
+    </div> : <div role="group" aria-label={c.chart} className="min-w-0">
+      {demo && <p className="mb-3 inline-block rounded-full bg-primary-soft px-2.5 py-1 text-[10px] font-bold text-primary">{c.demo}</p>}
+      <div className="space-y-2.5 sm:space-y-3">
+        {([{"key": "roaming", "label": t("comparisonALabel") || c.roaming, "support": t("comparisonASupport"), "price": data.roaming, "progress": redProgress, "ratio": data.roaming / Math.max(data.roaming, data.travely), "Icon": RadioTower, "tone": "bg-comparison-coral text-comparison-coral"}, {"key": "travely", "label": t("comparisonBLabel") || c.travely, "support": t("comparisonBSupport"), "price": data.travely, "progress": tealProgress, "ratio": data.travely / Math.max(data.roaming, data.travely), "Icon": Signal, "tone": "bg-primary text-primary"}] as const).map((row) => <div key={row.key} data-comparison-row={row.key} className="min-w-0 rounded-xl border border-border/60 bg-card px-4 py-4 sm:px-6 sm:py-5">
+          <div className="flex min-w-0 items-center gap-3 sm:gap-4"><span className={`grid size-10 shrink-0 place-items-center rounded-full ${row.key === "roaming" ? "bg-comparison-coral/10 text-comparison-coral" : "bg-primary-soft text-primary"}`}><row.Icon className="size-5" aria-hidden /></span><div className="min-w-0 flex-1"><p className="break-words text-sm font-bold leading-tight text-foreground sm:text-base">{row.label}</p>{row.support && <p className="mt-0.5 break-words text-xs leading-snug text-muted-foreground sm:text-sm">{row.support}</p>}</div><div className="min-w-0 shrink-0 text-end"><span className="sr-only">{money(row.price)}</span><bdi aria-hidden="true" className="font-display text-xl font-bold tabular-nums text-foreground sm:text-3xl">{money(Math.round(row.price * row.progress * 100) / 100)}</bdi></div></div>
+          <div className="mt-3 h-3 w-full overflow-hidden rounded-full bg-muted sm:h-3.5"><div data-price-bar={row.key} className={`h-full w-full origin-left rounded-full rtl:origin-right ${row.key === "roaming" ? "bg-comparison-coral" : "bg-primary"}`} style={{ transform: `scaleX(${row.ratio * row.progress})` }} aria-hidden /></div>
+        </div>)}
       </div>
-      <div className="mt-5 grid grid-cols-2 gap-3">
-        <div className="min-w-0 rounded-xl bg-card px-4 py-3 ring-1 ring-border"><p className="text-xs font-semibold text-muted-foreground sm:text-sm">{t("comparisonSavingLabel") || c.save}</p><bdi className="block font-display text-xl font-bold text-foreground sm:text-2xl">{money(data.saving)}</bdi></div>
-        <div className="min-w-0 rounded-xl bg-primary px-4 py-3 text-primary-foreground"><bdi className="block font-display text-xl font-bold sm:text-2xl">{pct(data.percent)}</bdi><p className="text-xs font-semibold opacity-90 sm:text-sm">{t("comparisonAdvantageLabel") || c.advantage}</p></div>
+      <div data-savings className={`mt-3 grid min-h-28 grid-cols-2 items-center gap-2 rounded-xl border border-border/60 bg-petrol-soft px-4 py-4 sm:px-7 ${revealed ? "translate-y-0 opacity-100" : "translate-y-1.5 opacity-0"} transition-[opacity,transform] duration-500 motion-reduce:transition-none`}>
+        <div className="min-w-0 border-e border-border pe-3"><p className="break-words text-[11px] font-bold uppercase text-muted-foreground sm:text-xs">{t("comparisonSavingLabel") || c.save}</p><bdi className="mt-1 block font-display text-2xl font-bold tabular-nums text-foreground sm:text-4xl">{money(data.saving)}</bdi></div>
+        <div className="min-w-0 ps-2"><bdi className="block font-display text-3xl font-bold tabular-nums text-primary sm:text-4xl">{pct(data.percent)}</bdi><p className="break-words text-xs font-semibold text-muted-foreground sm:text-sm">{t("comparisonAdvantageLabel") || c.advantage}</p></div>
       </div>
-      <p className="mt-4 text-[11px] leading-snug text-muted-foreground">{t("comparisonFootnote") || c.sample}</p>
+      <div className="mt-5 px-1 sm:mt-6"><h4 className="font-display text-xl font-bold leading-tight text-foreground sm:text-3xl">{t("comparisonTitle") || c.fbHead}</h4><p className="mt-1 text-sm leading-relaxed text-muted-foreground sm:text-base">{t("comparisonDescription") || c.desc}</p>{ctaNode}</div>
+      {reference && <p className="mt-4 text-xs font-semibold text-muted-foreground">{reference}</p>}
+      <p className="mt-3 text-[11px] leading-snug text-muted-foreground">{t("comparisonFootnote") || c.sample}</p>
     </div>}
   </div>;
 }
