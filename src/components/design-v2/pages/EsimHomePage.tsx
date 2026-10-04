@@ -51,6 +51,7 @@ export function EsimHomePage() {
   const navigate = (opts: { search: { country: string } }) => navigateRaw({ to: ".", search: (prev: Record<string, unknown>) => ({ ...prev, ...opts.search }) } as never);
   const [query, setQuery] = useState("");
   const [pickerOpen, setPickerOpen] = useState(false);
+  const [focusHeroPicker, setFocusHeroPicker] = useState(false);
   const { lines, addLine, updateQuantity, count } = useCart();
   const [selectedPackage, setSelectedPackage] = useState<EsimPackage | null>(null);
   const [selectionQuantity, setSelectionQuantity] = useState(1);
@@ -69,6 +70,7 @@ export function EsimHomePage() {
       const top = target.getBoundingClientRect().top + window.scrollY - Math.max(96, Math.round(window.innerHeight * 0.25));
       window.scrollTo({ top: Math.max(0, top), behavior: "instant" });
     }
+    setFocusHeroPicker(true);
     requestAnimationFrame(() => setPickerOpen(true));
   };
   const { config, media } = useV2Page("esim");
@@ -156,8 +158,8 @@ export function EsimHomePage() {
         <div ref={heroSearchRef}><HeroField icon={<Search className="size-5" />}>
           <V2PickerSheet
             open={pickerOpen}
-            autoFocusSearch
-            onOpenChange={(open) => { setPickerOpen(open); if (!open) setQuery(""); }}
+            autoFocusSearch={focusHeroPicker}
+            onOpenChange={(open) => { setPickerOpen(open); if (!open) { setQuery(""); setFocusHeroPicker(false); } }}
             title={c.picker}
             searchLabel={c.ph}
             query={query}
