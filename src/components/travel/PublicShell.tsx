@@ -267,7 +267,7 @@ export function PublicShell({
 }) {
   const publishedTheme = usePublishedTheme();
   const isV2 = useIsV2();
-  const { locale } = useI18n();
+  const { locale, uiLocale } = useI18n();
   const copy = localized(GLOBAL_CONTENT, locale);
   const [menuOpen, setMenuOpen] = useState(false);
   const [languageOpen, setLanguageOpen] = useState(false);
