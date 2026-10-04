@@ -80,6 +80,7 @@
   --color-faq-installation: var(--faq-installation);
   --color-faq-usage: var(--faq-usage);
   --color-faq-communication: var(--faq-communication);
+  --color-comparison-coral: var(--comparison-coral);
   --font-sans: "Manrope", sans-serif;
   --font-display: "Outfit", sans-serif;
   --radius-card: 1.25rem;
@@ -125,6 +126,7 @@
   --faq-installation: oklch(0.96 0.035 78);
   --faq-usage: oklch(0.955 0.025 230);
   --faq-communication: oklch(0.96 0.025 18);
+  --comparison-coral: oklch(0.63 0.14 24);
   --destructive: oklch(0.577 0.245 27.325);
   --destructive-foreground: oklch(0.984 0.003 247.858);
   --border: oklch(0.87 0.02 83);
@@ -198,6 +200,7 @@
   --faq-installation: oklch(0.29 0.035 78);
   --faq-usage: oklch(0.28 0.03 230);
   --faq-communication: oklch(0.29 0.03 18);
+  --comparison-coral: oklch(0.75 0.12 24);
 }
 
 html {
