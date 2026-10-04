@@ -146,6 +146,11 @@ export type V2Section = {
     /** Structured, locale-independent comparison prices (EUR). Saving and percentage are derived. */
     comparisonRoamingPrice?: number | null;
     comparisonTravelyPrice?: number | null;
+    /** Presentation only. Structured fields stay stored while IMAGE is active. */
+    comparisonMode?: "STRUCTURED" | "IMAGE";
+    comparisonImageId?: string | null;
+    comparisonMobileImageId?: string | null;
+    comparisonImageAlt?: LT;
     illustrationId: string | null;
   };
 };
@@ -567,6 +572,10 @@ function cleanSection(raw: any): V2Section | null {
       autoplay: raw.trust?.autoplay === true,
       whyEnabled: raw.trust?.whyEnabled !== false,
       ...cleanComparison(raw.trust),
+      comparisonMode: raw.trust?.comparisonMode === "IMAGE" ? "IMAGE" : "STRUCTURED",
+      comparisonImageId: cleanMediaId(raw.trust?.comparisonImageId),
+      comparisonMobileImageId: cleanMediaId(raw.trust?.comparisonMobileImageId),
+      comparisonImageAlt: cleanLT(raw.trust?.comparisonImageAlt, 160),
       illustrationId: cleanMediaId(raw.trust?.illustrationId),
     } } : {}),
   };
@@ -657,7 +666,7 @@ export function missingV2Translations(config: V2PageConfig, locale: "de" | "en")
 export function collectV2MediaIds(config: V2PageConfig): string[] {
   const ids = new Set<string>();
   for (const s of config.sections) {
-    for (const id of [s.mediaId, s.mobileMediaId, s.trust?.illustrationId, ...s.items.map((item) => item.mediaId)]) if (id && UUID.test(id)) ids.add(id);
+    for (const id of [s.mediaId, s.mobileMediaId, s.trust?.illustrationId, s.trust?.comparisonImageId, s.trust?.comparisonMobileImageId, ...s.items.map((item) => item.mediaId)]) if (id && UUID.test(id)) ids.add(id);
   }
   return [...ids];
 }
