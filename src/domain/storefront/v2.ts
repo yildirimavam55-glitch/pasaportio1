@@ -19,7 +19,7 @@ import { DEFAULT_IMAGE_DISPLAY, ESIM_DESKTOP_IMAGE_DISPLAY, sanitizeImageDisplay
 export const V2_PAGES = ["esim", "lounge", "vignette"] as const;
 export type V2PageId = (typeof V2_PAGES)[number];
 export const V2_LOCALES = ["tr", "de", "en"] as const;
-export type LT = Record<Locale, string> & Partial<Record<UiLocale, string>>;
+export type LT = Record<Locale, string> & Partial<Record<UiLocale, string>> & { _auto?: Partial<Record<UiLocale, string>> };
 
 export const V2_SECTION_TYPES = [
   "SEARCH_HERO",
@@ -438,7 +438,10 @@ const DATE = /^\d{4}-\d{2}-\d{2}$/;
 export const cleanText = (value: unknown, max = 600) =>
   String(value ?? "").replace(/<[^>]*>/g, "").replace(/[<>]/g, "").slice(0, max);
 
-const cleanLT = (value: any, max = 600): LT => Object.fromEntries(UI_LOCALES.filter((code) => code === "tr" || code === "de" || code === "en" || value?.[code] !== undefined).map((code) => [code, cleanText(value?.[code], max)])) as LT;
+const cleanLT = (value: any, max = 600): LT => ({
+  ...Object.fromEntries(UI_LOCALES.filter((code) => code === "tr" || code === "de" || code === "en" || value?.[code] !== undefined).map((code) => [code, cleanText(value?.[code], max)])),
+  ...(value?._auto && typeof value._auto === "object" ? { _auto: Object.fromEntries(UI_LOCALES.filter((code) => code !== "tr" && typeof value._auto[code] === "string" && value._auto[code] === value[code]).map((code) => [code, cleanText(value._auto[code], max)])) } : {}),
+}) as LT;
 const pick = <T extends string>(value: unknown, allowed: readonly T[], fallback: T): T =>
   (allowed as readonly string[]).includes(String(value)) ? (String(value) as T) : fallback;
 
