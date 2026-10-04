@@ -148,9 +148,9 @@ function RoamingComparison({ section, preview, locale, uiLocale, onDestinationSe
   const enteredPercent = percentage(entered.stat);
   const verified = section.trust?.comparisonStatus === "VERIFIED" && section.trust?.comparisonPreviewOnly === false && Boolean(section.trust.comparisonVerifiedAt && t("comparisonFootnote") && t("comparisonDestination") && t("comparisonAllowance") && t("comparisonValidity") && enteredA && enteredB && enteredA > enteredB && enteredPercent && Math.abs((1 - enteredB / enteredA) * 100 - enteredPercent) < 1);
   const demo = !verified && preview && section.trust?.comparisonStatus !== "HIDDEN";
-  const data = verified ? { ...entered, stat: `${enteredPercent}%` } : demo ? { stat: "50 %", a: fmt(21.99), b: fmt(10.99) } : null;
-  const a = data ? amount(data.a) : null;
-  const b = data ? amount(data.b) : null;
+  const data = verified ? { stat: `${enteredPercent}%`, a: fmt(enteredA!), b: fmt(enteredB!) } : demo ? { stat: "50 %", a: fmt(21.99), b: fmt(10.99) } : null;
+  const a = verified ? enteredA : demo ? 21.99 : null;
+  const b = verified ? enteredB : demo ? 10.99 : null;
   const saving = verified && a && b ? fmt(a - b) : demo ? fmt(11) : "";
   const cta = t("comparisonCta") || c.cta;
   const ctaClass = "mt-4 inline-flex items-center gap-1.5";
@@ -163,13 +163,13 @@ function RoamingComparison({ section, preview, locale, uiLocale, onDestinationSe
       {onDestinationSearch ? <Button type="button" className={ctaClass} onClick={onDestinationSearch}>{cta}<ArrowRight className="size-4 rtl:rotate-180" /></Button> : <Button asChild className={ctaClass}><Link to="/esim">{cta}<ArrowRight className="size-4 rtl:rotate-180" /></Link></Button>}
     </div>
     {data && a && b && <div className="min-w-0 border-t border-border bg-secondary/40 p-5 sm:p-7 lg:border-s lg:border-t-0">
-      {(t("comparisonDestination") || demo) && <p className="mb-3 text-xs font-semibold text-muted-foreground">{demo ? c.demo : t("comparisonDestination")} · {t("comparisonAllowance") || (demo ? "1 GB" : "")} · {t("comparisonValidity") || (demo ? "7 Tage" : "")}</p>}
+       {(t("comparisonDestination") || demo) && <p className="mb-3 text-xs font-semibold text-muted-foreground">{demo ? c.demo : t("comparisonDestination")} · {demo ? "1 GB" : t("comparisonAllowance")} · {demo ? "7 Tage" : t("comparisonValidity")}</p>}
       <div className="space-y-4">
         <div><div className="flex items-baseline justify-between gap-3 text-sm"><span className="min-w-0 font-semibold text-muted-foreground">{t("comparisonALabel") || c.roaming}</span><bdi className="shrink-0 font-display text-xl font-bold text-foreground">{data.a}</bdi></div><div className="mt-1.5 h-4 rounded-full bg-muted-foreground/25" /></div>
         <div><div className="flex items-baseline justify-between gap-3 text-sm"><span className="min-w-0 font-bold text-primary">{t("comparisonBLabel") || c.travely}</span><bdi className="shrink-0 font-display text-2xl font-bold text-primary">{data.b}</bdi></div><div className="mt-1.5 h-4 rounded-full bg-muted"><div className="h-full rounded-full bg-primary" style={{ width: `${Math.max(8, Math.min(100, (b / a) * 100))}%` }} /></div></div>
       </div>
       {saving && <div className="mt-5 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 rounded-2xl bg-primary-soft px-4 py-3 text-sm font-semibold text-foreground"><p className="min-w-0">{t("comparisonSavingLabel") || c.save}<bdi className="block font-display text-2xl font-bold text-primary">{saving}</bdi></p><p className="text-end text-xs text-primary"><strong className="block font-display text-xl">{data.stat}</strong>{t("comparisonAdvantageLabel") || c.advantage}</p></div>}
-      {t("comparisonFootnote") && <p className="mt-3 text-[11px] leading-snug text-muted-foreground">{t("comparisonFootnote")}</p>}
+       {(verified && t("comparisonFootnote")) && <p className="mt-3 text-[11px] leading-snug text-muted-foreground">{t("comparisonFootnote")}</p>}
     </div>}
   </div>;
 }
