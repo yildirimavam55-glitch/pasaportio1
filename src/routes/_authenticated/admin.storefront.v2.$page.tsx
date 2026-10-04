@@ -14,6 +14,7 @@ import { Button } from "@/components/ui/button";
 import { StorefrontIcon } from "@/domain/storefront/icons";
 import { listMedia } from "@/lib/admin-media.functions";
 import { translateReview } from "@/lib/review-translate.functions";
+import { translateTrustCopy } from "@/lib/trust-translate.functions";
 import { useServerFn } from "@tanstack/react-start";
 import { discardV2Draft, getV2PageEditor, restoreV2Version, saveV2Page } from "@/lib/v2-storefront.functions";
 import { V2_BUILTIN_URLS, V2_PREVIEW_WINDOW } from "@/components/design-v2/V2Sections";
@@ -72,6 +73,7 @@ function Editor({ page }: { page: V2PageId }) {
   const [device, setDevice] = useState<(typeof DEVICES)[number]["id"]>("390");
   const [dragId, setDragId] = useState<string | null>(null);
   const [showHistory, setShowHistory] = useState(false);
+  const [translatingTrust, setTranslatingTrust] = useState(false);
   const frame = useRef<HTMLIFrameElement | null>(null);
 
   useEffect(() => { if (editor.data && !dirty) setDraft(editor.data.draft); }, [editor.data, dirty]);
@@ -111,6 +113,48 @@ function Editor({ page }: { page: V2PageId }) {
   if (editor.error) return <AdminError error={editor.error} />;
 
   const update = (next: V2PageConfig) => { setDraft(next); setDirty(true); };
+  const translateTrust = async () => {
+    const trust = draft.sections.find((section) => section.type === "TRUST_REVIEWS");
+    if (!trust || translatingTrust) return;
+    const defaultTrust = defaultV2Page(page).sections.find((section) => section.type === "TRUST_REVIEWS");
+    const entries: Record<string, string> = {};
+    const collect = (id: string, value: LT | undefined, original?: LT) => {
+      if (!value?.tr?.trim()) return;
+      if (UI_LOCALES.some((code) => code !== "tr" && (!value[code]?.trim() || value._auto?.[code] === value[code] || (value.tr !== original?.tr && value[code] === original?.[code])))) entries[id] = value.tr.trim();
+    };
+    for (const [key] of V2_TEXT_FIELDS.TRUST_REVIEWS) collect(`text:${key}`, trust.text[key], defaultTrust?.text[key]);
+    for (const item of trust.items.filter((row) => row.cardType === "trust" || row.cardType === "chip")) {
+      const original = defaultTrust?.items.find((row) => row.id === item.id);
+      for (const field of ["title", "text", "imageAlt", "cta"] as const) collect(`item:${item.id}:${field}`, item[field], original?.[field]);
+      item.labels.forEach((label, index) => collect(`item:${item.id}:label:${index}`, label, original?.labels[index]));
+    }
+    collect("trust:manualCaption", trust.trust?.manualCaption, defaultTrust?.trust?.manualCaption);
+    if (!Object.keys(entries).length) { toast.info("Çevrilecek yeni Türkçe metin yok."); return; }
+    setTranslatingTrust(true);
+    try {
+      const translations = await translateTrustCopy({ data: { entries } });
+      const merge = (id: string, value: LT, original?: LT): LT => {
+        const translated = translations[id];
+        if (!translated) return value;
+        const next = { ...value, _auto: { ...value._auto } };
+        for (const code of UI_LOCALES) {
+          if (code === "tr" || !translated[code]) continue;
+          if (value[code]?.trim() && value._auto?.[code] !== value[code] && !(value.tr !== original?.tr && value[code] === original?.[code])) continue;
+          next[code] = translated[code];
+          next._auto[code] = translated[code];
+        }
+        return next;
+      };
+      const next = { ...trust, text: Object.fromEntries(Object.entries(trust.text).map(([key, value]) => [key, merge(`text:${key}`, value, defaultTrust?.text[key])])), items: trust.items.map((item) => {
+        if (item.cardType !== "trust" && item.cardType !== "chip") return item;
+        const original = defaultTrust?.items.find((row) => row.id === item.id);
+        return { ...item, title: merge(`item:${item.id}:title`, item.title, original?.title), text: merge(`item:${item.id}:text`, item.text, original?.text), imageAlt: merge(`item:${item.id}:imageAlt`, item.imageAlt, original?.imageAlt), cta: merge(`item:${item.id}:cta`, item.cta, original?.cta), labels: item.labels.map((label, index) => merge(`item:${item.id}:label:${index}`, label, original?.labels[index])) };
+      }), ...(trust.trust ? { trust: { ...trust.trust, manualCaption: merge("trust:manualCaption", trust.trust.manualCaption, defaultTrust?.trust?.manualCaption) } } : {}) };
+      update({ ...draft, sections: draft.sections.map((section) => section.id === trust.id ? next : section) });
+      toast.success("Çeviriler taslağa eklendi. Önizleyip kaydedebilir veya yayınlayabilirsiniz.");
+    } catch (error) { toast.error(error instanceof Error ? error.message : "Çeviri başarısız oldu."); }
+    finally { setTranslatingTrust(false); }
+  };
   const sections = draft.sections;
   const selected = sections.find((s) => s.id === selectedId) ?? sections[0]!;
   const patchSection = (id: string, patch: Partial<V2Section>) => update({ ...draft, sections: sections.map((s) => (s.id === id ? { ...s, ...patch } : s)) });
@@ -236,6 +280,7 @@ function Editor({ page }: { page: V2PageId }) {
             <span className="ml-2 text-[10px] text-muted-foreground">Boş DE/EN alanlarda Türkçe metin gösterilir.</span>
           </div>
           {V2_PROTECTED.includes(selected.type) && <p className="mb-3 rounded-md bg-secondary p-2 text-[11px] text-muted-foreground">Arama mantığı kodda korunur. Burada yalnızca metin, görsel ve görünüm ön ayarları değişir; bölüm gizlenemez veya taşınamaz.</p>}
+          {selected.type === "TRUST_REVIEWS" && <div className="mb-3 flex items-center gap-2"><Button type="button" size="sm" variant="outline" disabled={translatingTrust} onClick={() => void translateTrust()}>{translatingTrust ? "Çevriliyor…" : "Türkçe metni 13 dile çevir"}</Button><span className="text-xs text-muted-foreground">Elle düzenlenen çeviriler korunur; sonuçlar önce taslakta görünür.</span></div>}
           <SectionForm section={selected} lang={lang} page={page} trustPreviewLocale={trustPreviewLocale} onTrustLocale={setTrustPreviewLocale} onChange={(patch) => patchSection(selected.id, patch)} />
         </AdminPanel>
 
