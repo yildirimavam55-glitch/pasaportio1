@@ -181,7 +181,7 @@ function RoamingComparison({ section, media, preview, locale, uiLocale, onDestin
       {demo && <p className="mb-3 inline-block rounded-full bg-primary-soft px-2.5 py-1 text-[10px] font-bold text-primary">{c.demo}</p>}
       <p className="inline-flex max-w-full rounded-full bg-primary-soft px-3 py-1.5 text-xs font-bold uppercase tracking-wide text-primary">{t("comparisonTitle") || c.eyebrow}</p>
       {data
-        ? <p className="mt-4 text-foreground"><span className="block font-display text-2xl font-bold leading-tight lg:text-3xl">{c.pre}</span><bdi className="block font-display text-[clamp(3.75rem,16vw,6rem)] font-bold leading-[0.95] text-primary">{pct(data.percent)}</bdi><span className="block font-display text-2xl font-bold leading-tight lg:text-3xl">{t("statisticLabel") || c.post}</span></p>
+        ? <p className="mt-4 text-foreground"><span className="block font-display text-2xl font-bold leading-tight lg:text-3xl">{t("statisticPrefix") || c.pre}</span><bdi className="block font-display text-[clamp(3.75rem,16vw,6rem)] font-bold leading-[0.95] text-primary">{pct(data.percent)}</bdi><span className="block font-display text-2xl font-bold leading-tight lg:text-3xl">{t("statisticLabel") || c.post}</span></p>
         : <>{preview && <p className="mt-3 inline-block rounded-full bg-muted px-2.5 py-1 text-[10px] font-bold text-muted-foreground">{c.unavailable}</p>}<p className="mt-3 max-w-md font-display text-2xl font-bold leading-tight text-foreground">{c.fbHead}</p></>}
       <p className="mt-3 max-w-sm text-sm leading-relaxed text-muted-foreground sm:text-base">{data ? (t("comparisonDescription") || c.desc) : c.fbDesc}</p>
       {ctaNode}
