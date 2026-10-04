@@ -41,7 +41,7 @@ export function V2TrustReviews({ section, media, preview = false, onDestinationS
   const realReviews = reviews.filter((item) => item.reviewType === "REAL" && item.verified && item.published && item.reviewStatus === "PUBLISHED");
   const displayReviews = reviews;
   const rating = realReviews.length ? (realReviews.reduce((sum, item) => sum + item.rating, 0) / realReviews.length).toFixed(1).replace(".", uiLocale === "en" ? "." : ",") : null;
-  const trustItems = section.items.filter((item) => item.visible && item.cardType === "trust" && (item.id !== "trust-payment" || preview));
+  const trustItems = section.items.filter((item) => item.visible && item.cardType === "trust");
   const manual = settings?.ratingMode === "manual";
   const displayRating = settings?.ratingMode === "off" ? null : preview && manual ? settings.manualRating.toFixed(1).replace(".", uiLocale === "en" ? "." : ",") : rating;
   const scrollTo = (index: number) => rail.current?.children[index]?.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "start" });
@@ -94,7 +94,7 @@ export function V2TrustReviews({ section, media, preview = false, onDestinationS
        {trustItems.map((item, index) => <li key={item.id} className={`flex min-w-0 items-center gap-3 rounded-2xl bg-card px-3 py-2 text-start shadow-soft ring-1 ring-border sm:flex-col sm:gap-0 sm:rounded-none sm:px-4 sm:pb-4 sm:pt-2 sm:text-center sm:shadow-none sm:ring-0 ${index > 0 ? "sm:border-s" : ""}`}>
           <span className="flex size-16 shrink-0 items-center justify-center overflow-hidden sm:h-32 sm:w-full">{item.visualMode !== "ICON" && mediaUrl(item.mediaId, media) ? <img src={mediaUrl(item.mediaId, media)} alt={v2ItemText(item.imageAlt, locale) || media[item.mediaId ?? ""]?.alt || ""} loading="lazy" decoding="async" width={320} height={320} onLoad={(event) => { event.currentTarget.dataset['wide'] = String(event.currentTarget.naturalWidth / event.currentTarget.naturalHeight >= 2); }} className={`${BENEFIT_IMAGE_SIZE[item.imageScale ?? (item.id === "trust-payment" ? 160 : 100)] ?? BENEFIT_IMAGE_SIZE[100]} max-h-full shrink-0 object-contain data-[wide=true]:max-w-none`} /> : <StorefrontIcon name={item.icon} className="size-10 text-success sm:size-14" />}</span>
           <span className="min-w-0 flex-1 sm:w-full"><strong className="block w-full max-w-full min-w-0 hyphens-auto break-words text-[clamp(14px,3.9vw,17px)] leading-tight text-foreground sm:text-base">{v2ItemText(item.title, locale)}</strong><span className="mt-1 block w-full max-w-full min-w-0 hyphens-auto break-words text-xs leading-snug text-muted-foreground sm:text-sm">{v2ItemText(item.text, locale)}</span></span>
-         {preview && item.id === "trust-payment" && <span className="mt-1 text-[8px] font-bold leading-tight text-muted-foreground">{labels.paymentPreview}</span>}
+          {preview && item.id === "trust-payment" && <span className="mt-1 text-[8px] font-bold leading-tight text-muted-foreground">{labels.paymentPreview}</span>}
       </li>)}
     </ul></Reveal>}
 
