@@ -129,9 +129,9 @@ function ReviewCard({ review, media, locale, uiLocale, ratingLabel, demoLabel }:
 
 
 const COMPARE = localize({
-  tr: { eyebrow: "Roaming'e göre daha avantajlı", pre: "En fazla", post: "fiyat avantajı*", desc: "eSIM fiyatlarını seçili roaming teklifleriyle karşılaştırın.", cta: "eSIM fiyatlarını gör", roaming: "Operatör Roaming", travely: "Travely eSIM", save: "Tasarrufunuz", advantage: "Fiyat avantajı", demo: "DEMO / ÖNİZLEME — doğrulanmış karşılaştırma verisi değildir", unavailable: "Doğrulanmış fiyat karşılaştırması henüz mevcut değil." },
-  de: { eyebrow: "Die Alternative zum Roaming", pre: "Bis zu", post: "günstiger*", desc: "Vergleiche eSIM-Preise mit ausgewählten Roaming-Angeboten.", cta: "eSIM-Preise ansehen", roaming: "Mobilfunk-Roaming", travely: "Travely eSIM", save: "Du sparst", advantage: "Preisvorteil", demo: "DEMO / VORSCHAU — keine verifizierten Vergleichsdaten", unavailable: "Noch kein verifizierter Preisvergleich verfügbar." },
-  en: { eyebrow: "The alternative to roaming", pre: "Save up to", post: "vs. roaming*", desc: "Compare eSIM prices with selected roaming offers.", cta: "See eSIM prices", roaming: "Carrier roaming", travely: "Travely eSIM", save: "You save", advantage: "Price advantage", demo: "DEMO / PREVIEW — not verified comparison data", unavailable: "No verified price comparison is available yet." },
+  tr: { eyebrow: "Roaming'e alternatif", pre: "En fazla", post: "daha uygun*", desc: "eSIM fiyatlarını seçili roaming teklifleriyle karşılaştırın.", cta: "eSIM fiyatlarını gör", roaming: "Operatör Roaming", travely: "Travely eSIM", save: "Tasarrufunuz", advantage: "Fiyat avantajı", demo: "DEMO / ÖNİZLEME — doğrulanmış karşılaştırma verisi değildir", sample: "* Örnek karşılaştırma. Fiyatlar operatöre, ülkeye ve tarihe göre değişebilir.", unavailable: "Doğrulanmış fiyat karşılaştırması henüz mevcut değil." },
+  de: { eyebrow: "Die Alternative zum Roaming", pre: "Bis zu", post: "günstiger*", desc: "Vergleiche eSIM-Preise mit ausgewählten Roaming-Angeboten.", cta: "eSIM-Preise ansehen", roaming: "Mobilfunk-Roaming", travely: "Travely eSIM", save: "Du sparst", advantage: "Preisvorteil", demo: "DEMO / VORSCHAU — keine verifizierten Vergleichsdaten", sample: "* Beispielvergleich. Preise können je nach Anbieter, Land und Zeitraum variieren.", unavailable: "Noch kein verifizierter Preisvergleich verfügbar." },
+  en: { eyebrow: "The alternative to roaming", pre: "Save up to", post: "vs. roaming*", desc: "Compare eSIM prices with selected roaming offers.", cta: "See eSIM prices", roaming: "Carrier roaming", travely: "Travely eSIM", save: "You save", advantage: "Price advantage", demo: "DEMO / PREVIEW — not verified comparison data", sample: "* Example comparison. Prices may vary by provider, country and date.", unavailable: "No verified price comparison is available yet." },
 });
 
 const amount = (value: string) => { const n = Number(value.replace(/[^\d.,]/g, "").replace(/\.(?=\d{3}\b)/g, "").replace(",", ".")); return Number.isFinite(n) && n > 0 ? n : null; };
@@ -149,28 +149,32 @@ function RoamingComparison({ section, preview, locale, uiLocale, onDestinationSe
   const enteredSaving = amount(entered.saving);
   const verified = section.trust?.comparisonStatus === "VERIFIED" && section.trust?.comparisonPreviewOnly === false && Boolean(section.trust.comparisonVerifiedAt && t("comparisonFootnote") && t("comparisonDestination") && t("comparisonAllowance") && t("comparisonValidity") && enteredA && enteredB && enteredA > enteredB && enteredSaving && Math.abs(enteredA - enteredB - enteredSaving) < 0.011 && enteredPercent && Math.abs((1 - enteredB / enteredA) * 100 - enteredPercent) < 1);
   const demo = !verified && preview && section.trust?.comparisonStatus !== "HIDDEN";
-  const data = verified ? { stat: `${enteredPercent}%`, a: fmt(enteredA!), b: fmt(enteredB!) } : demo ? { stat: "50 %", a: fmt(21.99), b: fmt(10.99) } : null;
+  const data = verified && enteredA !== null && enteredB !== null && enteredPercent !== null ? { stat: `${enteredPercent} %`, a: fmt(enteredA), b: fmt(enteredB) } : demo ? { stat: "50 %", a: fmt(21.99), b: fmt(10.99) } : null;
   const a = verified ? enteredA : demo ? 21.99 : null;
   const b = verified ? enteredB : demo ? 10.99 : null;
   const saving = verified && enteredSaving ? fmt(enteredSaving) : demo ? fmt(11) : "";
   const cta = t("comparisonCta") || c.cta;
   const ctaClass = "mt-4 inline-flex items-center gap-1.5";
   return <div className={`mt-4 grid min-w-0 overflow-hidden rounded-2xl bg-card shadow-soft ring-1 ring-border ${data ? "lg:grid-cols-[2fr_3fr]" : ""}`}>
-    <div className={`min-w-0 p-5 sm:p-7 ${data ? "" : "lg:grid lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end lg:gap-x-8 [&>p]:lg:col-start-1 [&>button]:lg:col-start-2 [&>button]:lg:row-start-1 [&>button]:lg:row-span-2 [&>button]:lg:self-center [&>button]:lg:mt-0 [&>a]:lg:col-start-2 [&>a]:lg:row-start-1 [&>a]:lg:row-span-2 [&>a]:lg:self-center [&>a]:lg:mt-0"}`}>
+    <div className="min-w-0 p-5 sm:p-7 lg:p-8">
       {demo && <p className="mb-3 inline-block rounded-full bg-primary-soft px-2.5 py-1 text-[10px] font-bold text-primary">{c.demo}</p>}
-      <p className="text-xs font-bold uppercase tracking-wide text-success">{t("comparisonTitle") || c.eyebrow}</p>
-      {data ? <p className="mt-3 text-foreground"><span className="block text-sm font-semibold sm:text-base">{c.pre}</span><strong className="block font-display text-6xl font-bold leading-none text-primary sm:text-7xl">{data.stat}</strong><span className="mt-1 block font-display text-xl font-bold sm:text-2xl">{t("statisticLabel") || c.post}</span></p> : <p className="mt-3 text-sm text-muted-foreground">{c.unavailable}</p>}
+      <p className="inline-flex max-w-full rounded-full bg-primary-soft px-3 py-1.5 text-xs font-bold uppercase text-primary">{t("comparisonTitle") || c.eyebrow}</p>
+      {data ? <div className="mt-3 text-foreground"><span className="block font-display text-2xl font-bold leading-tight">{c.pre}</span><strong className="block font-display text-[clamp(4rem,15vw,5.5rem)] font-bold leading-none text-primary">{data.stat}</strong><span className="block font-display text-2xl font-bold leading-tight">{t("statisticLabel") || c.post}</span></div> : <p className="mt-4 max-w-sm text-sm leading-relaxed text-muted-foreground">{c.unavailable}</p>}
       <p className="mt-3 max-w-sm text-sm leading-relaxed text-muted-foreground sm:text-base">{t("comparisonDescription") || c.desc}</p>
-       {onDestinationSearch && section.href === "/esim" ? <Button type="button" className={ctaClass} onClick={onDestinationSearch}>{cta}<ArrowRight className="size-4 rtl:rotate-180" /></Button> : <Button asChild className={ctaClass}><Link to={section.href}>{cta}<ArrowRight className="size-4 rtl:rotate-180" /></Link></Button>}
+      {onDestinationSearch && section.href === "/esim" ? <Button type="button" className={ctaClass} onClick={onDestinationSearch}>{cta}<ArrowRight className="size-4 rtl:rotate-180" /></Button> : <Button asChild className={ctaClass}><Link to={section.href}>{cta}<ArrowRight className="size-4 rtl:rotate-180" /></Link></Button>}
     </div>
-    {data && a && b && <div className="min-w-0 border-t border-border bg-secondary/40 p-5 sm:p-7 lg:border-s lg:border-t-0">
-       {(t("comparisonDestination") || demo) && <p className="mb-3 text-xs font-semibold text-muted-foreground">{demo ? c.demo : t("comparisonDestination")} · {demo ? "1 GB" : t("comparisonAllowance")} · {demo ? "7 Tage" : t("comparisonValidity")}</p>}
-      <div className="space-y-4">
-        <div><div className="flex items-baseline justify-between gap-3 text-sm"><span className="min-w-0 font-semibold text-muted-foreground">{t("comparisonALabel") || c.roaming}</span><bdi className="shrink-0 font-display text-xl font-bold text-foreground">{data.a}</bdi></div><div className="mt-1.5 h-4 rounded-full bg-muted-foreground/25" /></div>
-        <div><div className="flex items-baseline justify-between gap-3 text-sm"><span className="min-w-0 font-bold text-primary">{t("comparisonBLabel") || c.travely}</span><bdi className="shrink-0 font-display text-2xl font-bold text-primary">{data.b}</bdi></div><div className="mt-1.5 h-4 rounded-full bg-muted"><div className="h-full rounded-full bg-primary" style={{ width: `${Math.max(8, Math.min(100, (b / a) * 100))}%` }} /></div></div>
+    {data && a !== null && b !== null && <div className="min-w-0 space-y-3 border-t border-border p-5 sm:p-7 lg:border-s lg:border-t-0 lg:p-8">
+      {!demo && <p className="text-xs font-semibold text-muted-foreground">{[t("comparisonDestination"), t("comparisonAllowance"), t("comparisonValidity")].filter(Boolean).join(" · ")}</p>}
+      <div className="rounded-xl bg-secondary/60 px-4 py-3">
+        <div className="flex flex-wrap items-baseline justify-between gap-x-3 text-sm"><span className="min-w-0 font-semibold text-foreground">{t("comparisonALabel") || c.roaming}</span><bdi className="font-display text-xl font-bold text-foreground">{data.a}</bdi></div>
+        <div className="mt-2 h-3 w-full overflow-hidden rounded-full bg-muted"><div className="h-full w-[70%] rounded-full bg-destructive/65" /></div>
       </div>
-      {saving && <div className="mt-5 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 rounded-2xl bg-primary-soft px-4 py-3 text-sm font-semibold text-foreground"><p className="min-w-0">{t("comparisonSavingLabel") || c.save}<bdi className="block font-display text-2xl font-bold text-primary">{saving}</bdi></p><p className="text-end text-xs text-primary"><strong className="block font-display text-xl">{data.stat}</strong>{t("comparisonAdvantageLabel") || c.advantage}</p></div>}
-       {(verified && t("comparisonFootnote")) && <p className="mt-3 text-[11px] leading-snug text-muted-foreground">{t("comparisonFootnote")}</p>}
+      <div className="rounded-xl bg-primary-soft px-4 py-3">
+        <div className="flex flex-wrap items-baseline justify-between gap-x-3 text-sm"><span className="min-w-0 font-bold text-primary">{t("comparisonBLabel") || c.travely}</span><bdi className="font-display text-xl font-bold text-primary">{data.b}</bdi></div>
+        <div className="mt-2 h-3 w-full overflow-hidden rounded-full bg-muted"><div className="h-full rounded-full bg-primary" style={{ width: `${Math.max(8, Math.min(70, (b / a) * 70))}%` }} /></div>
+      </div>
+      {saving && <div className="flex flex-wrap items-center justify-between gap-3 px-1 text-sm text-foreground"><p>{t("comparisonSavingLabel") || c.save}<bdi className="block font-display text-2xl font-bold">{saving}</bdi></p><p className="rounded-xl bg-primary-soft px-4 py-2 text-center text-xs text-primary"><strong className="block font-display text-xl">{data.stat}</strong>{t("comparisonAdvantageLabel") || c.advantage}</p></div>}
+      <p className="text-[11px] leading-snug text-muted-foreground">{demo ? c.sample : t("comparisonFootnote")}</p>
     </div>}
   </div>;
 }
