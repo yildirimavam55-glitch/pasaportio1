@@ -122,7 +122,7 @@ function Editor({ page }: { page: V2PageId }) {
       if (!value?.tr?.trim()) return;
       if (UI_LOCALES.some((code) => code !== "tr" && (!value[code]?.trim() || value._auto?.[code] === value[code] || (value.tr !== original?.tr && value[code] === original?.[code])))) entries[id] = value.tr.trim();
     };
-    for (const [key] of V2_TEXT_FIELDS.TRUST_REVIEWS) collect(`text:${key}`, trust.text[key], defaultTrust?.text[key]);
+    for (const [key] of V2_TEXT_FIELDS.TRUST_REVIEWS) if (!["statistic", "comparisonAValue", "comparisonBValue", "comparisonHighlight"].includes(key)) collect(`text:${key}`, trust.text[key], defaultTrust?.text[key]);
     for (const item of trust.items.filter((row) => row.cardType === "trust" || row.cardType === "chip")) {
       const original = defaultTrust?.items.find((row) => row.id === item.id);
       for (const field of ["title", "text", "imageAlt", "cta"] as const) collect(`item:${item.id}:${field}`, item[field], original?.[field]);
@@ -145,7 +145,7 @@ function Editor({ page }: { page: V2PageId }) {
         }
         return next;
       };
-      const next = { ...trust, text: Object.fromEntries(Object.entries(trust.text).map(([key, value]) => [key, merge(`text:${key}`, value, defaultTrust?.text[key])])), items: trust.items.map((item) => {
+      const next = { ...trust, text: Object.fromEntries(Object.entries(trust.text).map(([key, value]) => [key, ["statistic", "comparisonAValue", "comparisonBValue", "comparisonHighlight"].includes(key) ? value : merge(`text:${key}`, value, defaultTrust?.text[key])])), items: trust.items.map((item) => {
         if (item.cardType !== "trust" && item.cardType !== "chip") return item;
         const original = defaultTrust?.items.find((row) => row.id === item.id);
         return { ...item, title: merge(`item:${item.id}:title`, item.title, original?.title), text: merge(`item:${item.id}:text`, item.text, original?.text), imageAlt: merge(`item:${item.id}:imageAlt`, item.imageAlt, original?.imageAlt), cta: merge(`item:${item.id}:cta`, item.cta, original?.cta), labels: item.labels.map((label, index) => merge(`item:${item.id}:label:${index}`, label, original?.labels[index])) };
