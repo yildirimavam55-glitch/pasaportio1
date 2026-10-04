@@ -13,8 +13,13 @@ describe("V2 storefront config", () => {
     for (const page of V2_PAGES) expect(missingV2Translations(defaultV2Page(page), "de")).toBe(0);
   });
 
-  it("round-trips defaults unchanged", () => {
-    for (const page of V2_PAGES) expect(sanitizeV2Page(defaultV2Page(page), page)).toEqual(defaultV2Page(page));
+  it("round-trips defaults: keeps every default value and is idempotent", () => {
+    // The sanitizer intentionally normalizes optional fields (trust imageScale, comparison image mode) into canonical values.
+    for (const page of V2_PAGES) {
+      const once = sanitizeV2Page(defaultV2Page(page), page);
+      expect(once).toMatchObject(defaultV2Page(page));
+      expect(sanitizeV2Page(once, page)).toEqual(once);
+    }
   });
 
   it("keeps fictional reviews separate and respects an explicitly disabled preview switch", () => {
