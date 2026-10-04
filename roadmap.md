@@ -770,3 +770,5 @@
 - [x] Show example figures only in labelled Admin preview; public display of figures requires manually entered, consistent values and verified comparison metadata.
 - [ ] Obtain independently verified, like-for-like roaming/eSIM prices and source methodology before enabling public numeric claims.
 - [ ] Verify the Admin translation action, manual-edit protection, and demo comparison preview with an Admin-role account; current account lacks Admin access.
+- [x] Match the supplied price-comparison composition inside the existing Trust story below benefits; remove the example's 1 GB claim, retain visibly labelled Admin-only example figures.
+- [ ] Publish numeric savings and prices only after comparable, source-backed prices are supplied and approved by an Admin; the supplied figures remain unverified examples.
