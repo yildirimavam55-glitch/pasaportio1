@@ -76,12 +76,21 @@ const FOOTER_COPY = localize({
   en: { services: "Services", help: "Help", legal: "Legal", newsletterUnavailable: "Subscription will be available soon.", social: "Social media" },
 } as const);
 
+/** Destinations / how-it-works entries open their homepage section in the visitor's language. */
+function footerTarget(link: { id: string; href: string }, uiLocale: string): { to: string; hash?: string } {
+  if (link.id === "service-destinations" || link.id === "nav-destinations") return { to: `/${uiLocale}`, hash: "popular" };
+  if (link.id === "nav-how") return { to: `/${uiLocale}`, hash: "how" };
+  const [path, hash] = link.href.split("#");
+  if (!path) return { to: `/${uiLocale}`, hash: hash ?? "" };
+  return hash !== undefined ? { to: path, hash } : { to: path };
+}
+
 function Brand() {
   const theme = usePublishedTheme();
+  const { uiLocale } = useI18n();
   return (
     <Link
-      to="/"
-      search={{ service: "esim" }}
+      to={`/${uiLocale}`}
       aria-label="Ana sayfa"
       className="flex shrink-0 items-center gap-2 text-primary"
     >
@@ -211,13 +220,13 @@ function PublicFooter({ fallback, supportLabel, bottomSafe = false }: { fallback
                   {group.title}<ChevronDown className="size-4 transition group-open:rotate-180 lg:hidden" />
                 </summary>
                 <nav aria-label={group.title} className="hidden gap-2 pb-3 pt-1.5 text-sm group-open:grid">
-                  {groupLinks.map((link) => <Link key={link.id} to={link.href.split("#")[0] || "/"} {...(link.href.includes("#") ? { hash: link.href.split("#")[1] ?? "" } : {})} className="text-primary-foreground/68 transition hover:text-primary-foreground">{itemText(link.label, locale)}</Link>)}
+                  {groupLinks.map((link) => <Link key={link.id} {...footerTarget(link, uiLocale)} className="text-primary-foreground/68 transition hover:text-primary-foreground">{itemText(link.label, locale)}</Link>)}
                 </nav>
               </details>
               <div className="hidden lg:block">
                 <h2 className="text-sm font-bold">{group.title}</h2>
                 <nav aria-label={group.title} className="mt-4 grid gap-2 text-sm">
-                  {groupLinks.map((link) => <Link key={link.id} to={link.href.split("#")[0] || "/"} {...(link.href.includes("#") ? { hash: link.href.split("#")[1] ?? "" } : {})} className="text-primary-foreground/68 transition hover:text-primary-foreground">{itemText(link.label, locale)}</Link>)}
+                  {groupLinks.map((link) => <Link key={link.id} {...footerTarget(link, uiLocale)} className="text-primary-foreground/68 transition hover:text-primary-foreground">{itemText(link.label, locale)}</Link>)}
                 </nav>
               </div>
             </div>;
@@ -462,8 +471,7 @@ export function PublicShell({
                   )}
                   <SheetClose asChild>
                     <Link
-                      to="/"
-                      search={{ service: activeService ?? "esim" }}
+                      to={`/${uiLocale}`}
                       hash="popular"
                       className="mobile-menu-link"
                     >
@@ -472,8 +480,7 @@ export function PublicShell({
                   </SheetClose>
                   <SheetClose asChild>
                     <Link
-                      to="/"
-                      search={{ service: activeService ?? "esim" }}
+                      to={`/${uiLocale}`}
                       hash="how"
                       className="mobile-menu-link"
                     >
