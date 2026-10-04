@@ -143,8 +143,9 @@ function RoamingComparison({ section, media, preview, locale, uiLocale, onDestin
   const t = (key: string) => v2Text(section, key, locale);
   const desktopGraphic = mediaUrl(section.trust?.comparisonMediaId, media);
   const mobileGraphic = mediaUrl(section.trust?.comparisonMobileMediaId, media);
-  if (section.trust?.comparisonStatus === "VERIFIED" && desktopGraphic) {
+  if (desktopGraphic && (section.trust?.comparisonStatus === "VERIFIED" || preview && section.trust?.comparisonStatus !== "HIDDEN")) {
     return <div className="mx-auto mt-4 w-full max-w-[60rem] overflow-hidden rounded-2xl bg-card shadow-soft ring-1 ring-border">
+      {section.trust?.comparisonStatus !== "VERIFIED" && <p className="bg-primary-soft px-4 py-2 text-xs font-bold text-primary">DEMO / ÖNİZLEME — yalnız yönetici görünümü</p>}
       <a href={section.href === "/esim" ? "/esim" : section.href} onClick={onDestinationSearch && section.href === "/esim" ? (event) => { event.preventDefault(); onDestinationSearch(); } : undefined} aria-label={t("comparisonCta") || c.cta} className="block focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary">
         <picture>{mobileGraphic && <source media="(max-width: 639px)" srcSet={mobileGraphic} />}<img src={desktopGraphic} alt={t("comparisonTitle") || c.eyebrow} loading="lazy" decoding="async" width={918} height={479} className="block h-auto w-full object-contain" /></picture>
       </a>
