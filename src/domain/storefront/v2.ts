@@ -19,7 +19,18 @@ import { DEFAULT_IMAGE_DISPLAY, ESIM_DESKTOP_IMAGE_DISPLAY, sanitizeImageDisplay
 export const V2_PAGES = ["esim", "lounge", "vignette"] as const;
 export type V2PageId = (typeof V2_PAGES)[number];
 export const V2_LOCALES = ["tr", "de", "en"] as const;
-export type LT = Record<Locale, string> & Partial<Record<UiLocale, string>> & { _auto?: Partial<Record<UiLocale, string>> };
+export type LT = Record<Locale, string> & Partial<Record<UiLocale, string>> & { _auto?: Partial<Record<UiLocale, string>>; _src?: Partial<Record<UiLocale, string>> };
+
+export type LTStatus = "SOURCE" | "MISSING" | "AUTO_TRANSLATED" | "MANUALLY_EDITED" | "OUTDATED";
+/** Provenance of one locale value. OUTDATED = manual translation whose Turkish source changed since it was written; never overwritten automatically. */
+export function ltStatus(value: LT | undefined, code: UiLocale): LTStatus {
+  if (code === "tr") return "SOURCE";
+  const text = value?.[code];
+  if (!text?.trim()) return "MISSING";
+  if (value?._auto?.[code] === text) return "AUTO_TRANSLATED";
+  const src = value?._src?.[code];
+  return src !== undefined && src !== (value?.tr ?? "") ? "OUTDATED" : "MANUALLY_EDITED";
+}
 
 export const V2_SECTION_TYPES = [
   "SEARCH_HERO",
@@ -480,6 +491,7 @@ export const cleanText = (value: unknown, max = 600) =>
 const cleanLT = (value: any, max = 600): LT => ({
   ...Object.fromEntries(UI_LOCALES.filter((code) => code === "tr" || code === "de" || code === "en" || value?.[code] !== undefined).map((code) => [code, cleanText(value?.[code], max)])),
   ...(value?._auto && typeof value._auto === "object" ? { _auto: Object.fromEntries(UI_LOCALES.filter((code) => code !== "tr" && typeof value._auto[code] === "string" && value._auto[code] === value[code]).map((code) => [code, cleanText(value._auto[code], max)])) } : {}),
+  ...(value?._src && typeof value._src === "object" ? { _src: Object.fromEntries(UI_LOCALES.filter((code) => code !== "tr" && typeof value._src[code] === "string").map((code) => [code, cleanText(value._src[code], max)])) } : {}),
 }) as LT;
 const pick = <T extends string>(value: unknown, allowed: readonly T[], fallback: T): T =>
   (allowed as readonly string[]).includes(String(value)) ? (String(value) as T) : fallback;
