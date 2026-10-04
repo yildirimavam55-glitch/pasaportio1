@@ -212,7 +212,7 @@ function Popular({ c, section, onPick }: { c: (typeof T)["tr"]; section: V2Secti
   });
   return (
     <>
-      <SectionTitle>{v2Text(section, "title", locale) || c.popular}</SectionTitle>
+      <div id="popular" className="scroll-mt-28"><SectionTitle>{v2Text(section, "title", locale) || c.popular}</SectionTitle></div>
       {isLoading ? (
         <div className="h-40 animate-pulse rounded-2xl bg-muted" />
       ) : priced.length === 0 ? (
