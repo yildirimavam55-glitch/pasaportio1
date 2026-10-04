@@ -214,7 +214,6 @@ function section(id: string, type: V2SectionType, patch: Partial<V2Section> = {}
     overlay: "normal",
     mediaId: null,
     mobileMediaId: null,
-    ...(type === "SEARCH_HERO" ? { imageDisplay: id === "hero" && patch.mediaId === "builtin:esim-hero" ? ESIM_DESKTOP_IMAGE_DISPLAY : DEFAULT_IMAGE_DISPLAY, mobileImageDisplay: DEFAULT_IMAGE_DISPLAY } : {}),
     href: "/esim",
     startsAt: "",
     endsAt: "",
@@ -502,8 +501,8 @@ function cleanSection(raw: any): V2Section | null {
     mediaId: cleanMediaId(raw.mediaId),
     mobileMediaId: cleanMediaId(raw.mobileMediaId),
     ...(type === "SEARCH_HERO" ? {
-      imageDisplay: sanitizeImageDisplay(raw.imageDisplay, raw.mediaId === "builtin:esim-hero" ? ESIM_DESKTOP_IMAGE_DISPLAY : DEFAULT_IMAGE_DISPLAY),
-      mobileImageDisplay: sanitizeImageDisplay(raw.mobileImageDisplay),
+      ...(raw.imageDisplay != null ? { imageDisplay: sanitizeImageDisplay(raw.imageDisplay, raw.mediaId === "builtin:esim-hero" ? ESIM_DESKTOP_IMAGE_DISPLAY : DEFAULT_IMAGE_DISPLAY) } : {}),
+      ...(raw.mobileImageDisplay != null ? { mobileImageDisplay: sanitizeImageDisplay(raw.mobileImageDisplay) } : {}),
     } : {}),
     href: pick(typeof raw.href === "string" && raw.href.startsWith("/design-v2") ? designV2ToPublic(raw.href) : raw.href, V2_SAFE_LINKS, "/esim"),
     startsAt: DATE.test(String(raw.startsAt)) ? String(raw.startsAt) : "",

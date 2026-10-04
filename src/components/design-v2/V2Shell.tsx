@@ -177,7 +177,7 @@ const HERO_OVERLAY = {
 } as const;
 
 /** Full-bleed photo hero with the search floating over its bottom edge. Presets only — no free CSS. */
-export function V2Hero({ image, desktopImage, desktopFocus = "center", imageDisplay, mobileImageDisplay, alt = "", eyebrow, title, subtitle, align = "left", height = "normal", overlay = "normal", desktopFooter, children }: { image: string; desktopImage?: string | undefined; desktopFocus?: "center" | "phone"; imageDisplay?: ImageDisplay; mobileImageDisplay?: ImageDisplay; alt?: string; eyebrow?: string; title: string; subtitle?: string; align?: "left" | "center"; height?: keyof typeof HERO_HEIGHT; overlay?: keyof typeof HERO_OVERLAY; desktopFooter?: ReactNode; children?: ReactNode }) {
+export function V2Hero({ image, desktopImage, desktopFocus = "center", imageDisplay, mobileImageDisplay, alt = "", eyebrow, title, subtitle, align = "left", height = "normal", overlay = "normal", desktopFooter, children }: { image: string; desktopImage?: string | undefined; desktopFocus?: "center" | "phone"; imageDisplay?: ImageDisplay | undefined; mobileImageDisplay?: ImageDisplay | undefined; alt?: string; eyebrow?: string; title: string; subtitle?: string; align?: "left" | "center"; height?: keyof typeof HERO_HEIGHT; overlay?: keyof typeof HERO_OVERLAY; desktopFooter?: ReactNode; children?: ReactNode }) {
   const desktop = imageDisplay ?? (desktopFocus === "phone" ? ESIM_DESKTOP_IMAGE_DISPLAY : DEFAULT_IMAGE_DISPLAY);
   const mobile = mobileImageDisplay ?? DEFAULT_IMAGE_DISPLAY;
   const imageStyle = {
