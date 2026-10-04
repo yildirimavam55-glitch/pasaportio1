@@ -3,6 +3,7 @@ import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { assertAdminRole, type AdminCtx } from "@/lib/admin-guard";
 import { UI_LOCALES } from "@/i18n/locales";
+import { STOREFRONT_TRANSLATION_STYLE } from "@/domain/storefront/translation-style";
 
 const input = z.object({ entries: z.record(z.string().max(120), z.string().min(1).max(900)).refine((value) => Object.keys(value).length <= 70) });
 
@@ -26,7 +27,7 @@ export const translateTrustCopy = createServerFn({ method: "POST" })
         body: JSON.stringify({
           model: "google/gemini-2.5-flash",
           messages: [
-            { role: "system", content: "Translate Turkish storefront trust and social-proof presentation copy accurately into each requested language. Preserve brand names, numbers, currency, and the meaning of commercial claims; do not invent claims. Each field must retain its source key. Return only the requested JSON via the tool." },
+            { role: "system", content: "Translate Turkish storefront trust and social-proof presentation copy accurately into each requested language. Preserve brand names, numbers, currency, and the meaning of commercial claims; do not invent claims. Each field must retain its source key. Return only the requested JSON via the tool. " + STOREFRONT_TRANSLATION_STYLE },
             { role: "user", content: JSON.stringify({ sources: batch, targets }) },
           ],
           tools: [{ type: "function", function: { name: "translations", parameters: { type: "object", properties: Object.fromEntries(Object.keys(batch).map((id) => [id, { type: "object", properties: Object.fromEntries(targets.map((code) => [code, { type: "string" }])), required: targets }])), required: Object.keys(batch) } } }],
