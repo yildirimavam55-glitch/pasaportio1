@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import { Link } from "@tanstack/react-router";
 import { ArrowRight, Car, Plane, Search, ShoppingBag, Smartphone, UserRound } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -10,6 +10,7 @@ import { useI18n } from "@/i18n";
 import type { Locale } from "@/domain/enums";
 import { localize } from "@/i18n/overlay";
 import { PromoBanner } from "./PromoBanner";
+import { DEFAULT_IMAGE_DISPLAY, ESIM_DESKTOP_IMAGE_DISPLAY, type ImageDisplay } from "@/domain/storefront/image-display";
 
 export type V2Service = "esim" | "lounge" | "vignette";
 
@@ -176,13 +177,25 @@ const HERO_OVERLAY = {
 } as const;
 
 /** Full-bleed photo hero with the search floating over its bottom edge. Presets only — no free CSS. */
-export function V2Hero({ image, desktopImage, desktopFocus = "center", alt = "", eyebrow, title, subtitle, align = "left", height = "normal", overlay = "normal", desktopFooter, children }: { image: string; desktopImage?: string | undefined; desktopFocus?: "center" | "phone"; alt?: string; eyebrow?: string; title: string; subtitle?: string; align?: "left" | "center"; height?: keyof typeof HERO_HEIGHT; overlay?: keyof typeof HERO_OVERLAY; desktopFooter?: ReactNode; children?: ReactNode }) {
+export function V2Hero({ image, desktopImage, desktopFocus = "center", imageDisplay, mobileImageDisplay, alt = "", eyebrow, title, subtitle, align = "left", height = "normal", overlay = "normal", desktopFooter, children }: { image: string; desktopImage?: string | undefined; desktopFocus?: "center" | "phone"; imageDisplay?: ImageDisplay | undefined; mobileImageDisplay?: ImageDisplay | undefined; alt?: string; eyebrow?: string; title: string; subtitle?: string; align?: "left" | "center"; height?: keyof typeof HERO_HEIGHT; overlay?: keyof typeof HERO_OVERLAY; desktopFooter?: ReactNode; children?: ReactNode }) {
+  const desktop = imageDisplay ?? (desktopFocus === "phone" ? ESIM_DESKTOP_IMAGE_DISPLAY : DEFAULT_IMAGE_DISPLAY);
+  const mobile = mobileImageDisplay ?? DEFAULT_IMAGE_DISPLAY;
+  const imageStyle = {
+    "--hero-mobile-position": `${mobile.x}% ${mobile.y}%`,
+    "--hero-mobile-origin": `${mobile.x}% ${mobile.y}%`,
+    "--hero-mobile-scale": mobile.zoom / 100,
+    "--hero-mobile-fit": mobile.fit,
+    "--hero-desktop-position": `${desktop.x}% ${desktop.y}%`,
+    "--hero-desktop-origin": `${desktop.x}% ${desktop.y}%`,
+    "--hero-desktop-scale": desktop.zoom / 100,
+    "--hero-desktop-fit": desktop.fit,
+  } as CSSProperties;
   return (
     <section className="relative -mx-4 sm:-mx-6 lg:mx-0">
-      <div className={`relative ${HERO_HEIGHT[height]} overflow-hidden text-primary-foreground sm:mx-4 sm:mt-3 sm:rounded-3xl lg:mx-0 lg:mt-4`}>
+      <div className={`relative ${HERO_HEIGHT[height]} overflow-hidden bg-[var(--v2-service)] text-primary-foreground sm:mx-4 sm:mt-3 sm:rounded-3xl lg:mx-0 lg:mt-4`}>
         <picture>
           {desktopImage && <source media="(min-width: 640px)" srcSet={desktopImage} />}
-          {image && <img src={image} alt={alt} fetchPriority="high" decoding="async" width={1024} height={768} className={`absolute inset-0 size-full object-cover ${desktopFocus === "phone" ? "lg:object-[50%_65%]" : ""}`} />}
+          {image && <img src={image} alt={alt} fetchPriority="high" decoding="async" width={1024} height={768} className="v2-hero-image absolute inset-0 size-full" style={imageStyle} />}
         </picture>
         <div className={`absolute inset-0 bg-gradient-to-t ${HERO_OVERLAY[overlay]}`} />
         <div className={`absolute inset-x-5 bottom-10 max-w-[21rem] lg:inset-x-14 lg:bottom-[13rem] lg:max-w-2xl ${align === "center" ? "mx-auto text-center" : ""}`}>
