@@ -58,7 +58,7 @@ export function V2InstallAnimation({ quickSteps, qrSteps, ready, adding, quickLa
   const visibleSteps = method === "quick" ? quickSteps : qrSteps;
 
   return (
-    <div ref={ref} className="rounded-2xl bg-muted/50 p-4 ring-1 ring-border lg:h-[20rem] lg:w-full lg:p-4">
+    <div ref={ref} className="rounded-2xl bg-muted/50 p-4 ring-1 ring-border lg:min-h-[20rem] lg:w-full lg:p-4">
       <div className="mx-auto mb-3 w-full max-w-[17rem] lg:mb-3">
         <InstallationMethodSelector value={method} onChange={selectMethod} quickLabel={quickSelectorLabel} qrLabel={qrSelectorLabel} ariaLabel={selectorLabel} compact />
       </div>
