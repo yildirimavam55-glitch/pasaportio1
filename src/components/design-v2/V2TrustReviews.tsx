@@ -142,7 +142,7 @@ function RoamingComparison({ section, preview, locale, uiLocale, onDestinationSe
   const c = COMPARE[locale];
   const t = (key: string) => v2Text(section, key, locale);
   const fmt = (n: number) => new Intl.NumberFormat(LOCALE_REGISTRY[uiLocale].bcp47, { style: "currency", currency: "EUR" }).format(n);
-  const entered = { stat: section.text.statistic?.tr ?? "", a: section.text.comparisonAValue?.tr ?? "", b: section.text.comparisonBValue?.tr ?? "" };
+  const entered = { stat: section.text['statistic']?.tr ?? "", a: section.text['comparisonAValue']?.tr ?? "", b: section.text['comparisonBValue']?.tr ?? "" };
   const enteredA = amount(entered.a);
   const enteredB = amount(entered.b);
   const enteredPercent = percentage(entered.stat);
