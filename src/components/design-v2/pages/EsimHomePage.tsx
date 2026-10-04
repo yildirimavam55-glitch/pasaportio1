@@ -241,8 +241,8 @@ function RegionalDiscovery({ section, summaries, loading, c }: { section: V2Sect
   const regions = summaries.filter((item) => item.region !== "GLOBAL");
   return (
     <section aria-labelledby="regional-esim-title">
-      <p className="mt-5 text-[11px] font-bold uppercase text-primary">{v2Text(section, "eyebrow", locale)}</p>
-      <SectionTitle><span id="regional-esim-title">{v2Text(section, "title", locale) || c.regionalTitle}</span></SectionTitle>
+      <p className="mt-5 text-[11px] font-bold uppercase text-primary lg:mt-12">{v2Text(section, "eyebrow", locale)}</p>
+      <div className="lg:[&>div]:mt-1"><SectionTitle><span id="regional-esim-title">{v2Text(section, "title", locale) || c.regionalTitle}</span></SectionTitle></div>
       <p className="mb-3 text-xs text-muted-foreground">{v2Text(section, "lead", locale)}</p>
       {loading ? <div className="h-40 animate-pulse rounded-xl bg-muted" /> : (
         <ul className="-mx-4 flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-2 [overscroll-behavior-inline:contain] [scrollbar-width:none] sm:mx-0 sm:grid sm:grid-cols-3 sm:px-0 lg:grid-cols-3 lg:gap-4">

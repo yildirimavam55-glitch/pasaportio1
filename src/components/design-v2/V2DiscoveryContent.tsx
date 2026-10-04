@@ -340,11 +340,11 @@ export function V2CategorizedEsimFaq() {
   const copy = CATEGORIZED_FAQ[locale];
   const [openId, setOpenId] = useState<string | null>(null);
   return (
-    <section id="faq" aria-labelledby="esim-faq-title" className="mx-auto mb-0 mt-8 w-full max-w-6xl scroll-mt-24 pb-0 lg:mb-10 lg:mt-14 lg:pb-4" dir={dir}>
+    <section id="faq" aria-labelledby="esim-faq-title" className="mx-auto mb-0 mt-8 w-full max-w-6xl scroll-mt-24 pb-0 lg:mb-4 lg:mt-12 lg:pb-0" dir={dir}>
       <header className="mb-5 grid gap-5 lg:mb-7 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] lg:items-center lg:gap-12">
         <div className="min-w-0">
           <p className="text-xs font-bold uppercase text-primary">{copy.eyebrow}</p>
-          <h2 id="esim-faq-title" className="mt-1.5 max-w-xl font-display text-3xl font-bold leading-tight text-foreground lg:text-5xl">{copy.title}</h2>
+          <h2 id="esim-faq-title" className="mt-1.5 max-w-xl font-display text-3xl font-bold leading-tight text-foreground lg:text-4xl">{copy.title}</h2>
           <p className="mt-2 max-w-xl text-sm leading-relaxed text-muted-foreground sm:text-base lg:mt-3 lg:text-lg">{copy.subtitle}</p>
           <ul className="mt-4 grid gap-2">
             {copy.helpPoints.map((point) => <li key={point} className="grid grid-cols-[auto_minmax(0,1fr)] items-start gap-2 text-xs font-medium leading-relaxed text-foreground sm:text-sm"><CheckCircle2 className="mt-0.5 size-4 shrink-0 text-primary" aria-hidden="true" /><span>{point}</span></li>)}
