@@ -7,6 +7,8 @@ import { AdminGate } from "@/components/AdminGate";
 import { AdminError, AdminLoading, AdminPanel, Field } from "@/components/admin/AdminUi";
 import { adminHead } from "@/components/admin/AdminSectionPage";
 import { MediaField } from "@/components/admin/MediaPicker";
+import { ImageDisplayControls } from "@/components/admin/ImageDisplayControls";
+import { DEFAULT_IMAGE_DISPLAY, ESIM_DESKTOP_IMAGE_DISPLAY } from "@/domain/storefront/image-display";
 import { IconPicker } from "@/components/admin/IconPicker";
 import { Button } from "@/components/ui/button";
 import { StorefrontIcon } from "@/domain/storefront/icons";
@@ -301,8 +303,12 @@ function SectionForm({ section: s, lang, page, trustPreviewLocale, onTrustLocale
 
       {s.type === "SEARCH_HERO" && (
         <div className="grid gap-3 sm:grid-cols-2">
-          <ImageField label="Hero görseli (masaüstü + varsayılan)" value={s.mediaId} onChange={(v) => onChange({ mediaId: v })} />
-          <ImageField label="Mobil hero görseli (isteğe bağlı)" value={s.mobileMediaId} onChange={(v) => onChange({ mobileMediaId: v })} />
+          <div className="space-y-3"><ImageField label="Hero görseli (masaüstü + varsayılan)" value={s.mediaId} onChange={(v) => onChange({ mediaId: v })} />
+            <ImageDisplayControls value={s.imageDisplay} defaults={page === "esim" && s.mediaId === "builtin:esim-hero" ? ESIM_DESKTOP_IMAGE_DISPLAY : DEFAULT_IMAGE_DISPLAY} onChange={(imageDisplay) => onChange({ imageDisplay })} />
+          </div>
+          <div className="space-y-3"><ImageField label="Mobil hero görseli (isteğe bağlı)" value={s.mobileMediaId} onChange={(v) => onChange({ mobileMediaId: v })} />
+            {s.mobileMediaId && <ImageDisplayControls title="Mobil görsel ayarları" value={s.mobileImageDisplay} onChange={(mobileImageDisplay) => onChange({ mobileImageDisplay })} />}
+          </div>
           <Select label="Metin hizası" value={s.align} options={V2_ALIGNS} onChange={(align) => onChange({ align })} />
           <Select label="Yükseklik" value={s.height} options={V2_HEIGHTS} onChange={(height) => onChange({ height })} />
           <Select label="Karartma" value={s.overlay} options={V2_OVERLAYS} onChange={(overlay) => onChange({ overlay })} />

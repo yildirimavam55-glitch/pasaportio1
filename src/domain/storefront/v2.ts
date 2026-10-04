@@ -14,6 +14,7 @@ import { getAirport, POPULAR_AIRPORT_IDS } from "@/domain/geo/airports";
 import { DISCOVERY_COPY, ESIM_COPY, LOUNGE_COPY, VIGNETTE_COPY } from "@/domain/storefront/v2-copy";
 import { TRUST_EDITORIAL } from "./trust-editorial";
 import { TRUST_TRANSLATIONS } from "@/i18n/trust-translations";
+import { DEFAULT_IMAGE_DISPLAY, ESIM_DESKTOP_IMAGE_DISPLAY, sanitizeImageDisplay, type ImageDisplay } from "./image-display";
 
 export const V2_PAGES = ["esim", "lounge", "vignette"] as const;
 export type V2PageId = (typeof V2_PAGES)[number];
@@ -116,6 +117,8 @@ export type V2Section = {
   overlay: (typeof V2_OVERLAYS)[number];
   mediaId: string | null;
   mobileMediaId: string | null;
+  imageDisplay?: ImageDisplay;
+  mobileImageDisplay?: ImageDisplay;
   href: V2SafeLink;
   startsAt: string;
   endsAt: string;
@@ -211,6 +214,7 @@ function section(id: string, type: V2SectionType, patch: Partial<V2Section> = {}
     overlay: "normal",
     mediaId: null,
     mobileMediaId: null,
+    ...(type === "SEARCH_HERO" ? { imageDisplay: id === "hero" && patch.mediaId === "builtin:esim-hero" ? ESIM_DESKTOP_IMAGE_DISPLAY : DEFAULT_IMAGE_DISPLAY, mobileImageDisplay: DEFAULT_IMAGE_DISPLAY } : {}),
     href: "/esim",
     startsAt: "",
     endsAt: "",
@@ -497,6 +501,10 @@ function cleanSection(raw: any): V2Section | null {
     overlay: pick(raw.overlay, V2_OVERLAYS, "normal"),
     mediaId: cleanMediaId(raw.mediaId),
     mobileMediaId: cleanMediaId(raw.mobileMediaId),
+    ...(type === "SEARCH_HERO" ? {
+      imageDisplay: sanitizeImageDisplay(raw.imageDisplay, raw.mediaId === "builtin:esim-hero" ? ESIM_DESKTOP_IMAGE_DISPLAY : DEFAULT_IMAGE_DISPLAY),
+      mobileImageDisplay: sanitizeImageDisplay(raw.mobileImageDisplay),
+    } : {}),
     href: pick(typeof raw.href === "string" && raw.href.startsWith("/design-v2") ? designV2ToPublic(raw.href) : raw.href, V2_SAFE_LINKS, "/esim"),
     startsAt: DATE.test(String(raw.startsAt)) ? String(raw.startsAt) : "",
     endsAt: DATE.test(String(raw.endsAt)) ? String(raw.endsAt) : "",
