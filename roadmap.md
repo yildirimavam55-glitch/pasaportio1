@@ -769,8 +769,6 @@
 - [x] Keep reviews, benefits, Why Travely, and the comparison inside the single Trust section; stack benefits readably on mobile and keep one unified mint background.
 - [x] Organize the existing Admin Trust editor into five groups and reuse its translate-all action for copy while excluding numeric values.
 - [x] Store comparison status, verification date, matched destination/allowance/validity, source note, and labels in the existing JSON CMS model without a migration.
-- [x] Show example figures only in labelled Admin preview; public display of figures requires manually entered, consistent values and verified comparison metadata.
-- [ ] Obtain independently verified, like-for-like roaming/eSIM prices and source methodology before enabling public numeric claims.
+- [x] Keep unapproved numeric text comparisons in labelled Admin preview; the owner's approved graphic is the sole public visual when its media status is VERIFIED.
 - [ ] Verify the Admin translation action, manual-edit protection, and demo comparison preview with an Admin-role account; current account lacks Admin access.
-- [x] Match the supplied price-comparison composition inside the existing Trust story below benefits; remove the example's 1 GB claim, retain visibly labelled Admin-only example figures.
-- [ ] Publish numeric savings and prices only after comparable, source-backed prices are supplied and approved by an Admin; the supplied figures remain unverified examples.
+- [x] Place the owner-approved graphic within the existing Trust story below benefits; the graphic includes its original example disclaimer and reference allowance.
