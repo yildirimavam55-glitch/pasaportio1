@@ -280,8 +280,8 @@ function Editor({ page }: { page: V2PageId }) {
             <span className="ml-2 text-[10px] text-muted-foreground">Boş DE/EN alanlarda Türkçe metin gösterilir.</span>
           </div>
           {V2_PROTECTED.includes(selected.type) && <p className="mb-3 rounded-md bg-secondary p-2 text-[11px] text-muted-foreground">Arama mantığı kodda korunur. Burada yalnızca metin, görsel ve görünüm ön ayarları değişir; bölüm gizlenemez veya taşınamaz.</p>}
-          {selected.type === "TRUST_REVIEWS" && <div className="mb-3 flex items-center gap-2"><Button type="button" size="sm" variant="outline" disabled={translatingTrust} onClick={() => void translateTrust()}>{translatingTrust ? "Çevriliyor…" : "Türkçe metni 13 dile çevir"}</Button><span className="text-xs text-muted-foreground">Elle düzenlenen çeviriler korunur; sonuçlar önce taslakta görünür.</span></div>}
-          <SectionForm section={selected} lang={lang} page={page} trustPreviewLocale={trustPreviewLocale} onTrustLocale={setTrustPreviewLocale} onChange={(patch) => patchSection(selected.id, patch)} />
+          {selected.type === "TRUST_REVIEWS" && <div className="mb-3 flex items-center gap-2"><Button type="button" size="sm" variant="outline" disabled={translatingTrust} onClick={() => void translateTrust()}>{translatingTrust ? "Çevriliyor…" : "Türkçe metni 13 dile çevir"}</Button><span className="text-xs text-muted-foreground">Türkçe değişiklikler alanı kapatınca çevrilir; elle düzenlenen çeviriler korunur. Sonuçlar önce taslakta görünür.</span></div>}
+          <SectionForm section={selected} lang={lang} page={page} trustPreviewLocale={trustPreviewLocale} onTrustLocale={setTrustPreviewLocale} onTrustSourceBlur={() => void translateTrust()} onChange={(patch) => patchSection(selected.id, patch)} />
         </AdminPanel>
 
         <AdminPanel title="Önizleme (taslak)" className="xl:w-[27rem]" action={
@@ -304,15 +304,15 @@ function Editor({ page }: { page: V2PageId }) {
   );
 }
 
-function LTInput({ label, value, lang, onChange, multiline = false, uiLang }: { label: string; value: LT | undefined; lang: Locale; onChange: (v: LT) => void; multiline?: boolean; uiLang?: UiLocale }) {
+function LTInput({ label, value, lang, onChange, multiline = false, uiLang, onSourceBlur }: { label: string; value: LT | undefined; lang: Locale; onChange: (v: LT) => void; multiline?: boolean; uiLang?: UiLocale; onSourceBlur?: () => void }) {
   const code = uiLang ?? lang;
   const current = value ?? { tr: "", de: "", en: "" };
   const cls = "mt-1 w-full rounded-md border border-border bg-background px-2 py-1.5 text-sm font-normal";
   return (
     <Field label={`${label} · ${code.toUpperCase()}`} {...(code !== "tr" && current.tr ? { hint: `TR: ${current.tr}` } : {})}>
       {multiline
-        ? <textarea rows={3} className={cls} value={current[code] ?? ""} onChange={(e) => onChange({ ...current, [code]: e.target.value })} />
-        : <input className={cls} value={current[code] ?? ""} onChange={(e) => onChange({ ...current, [code]: e.target.value })} />}
+        ? <textarea rows={3} className={cls} value={current[code] ?? ""} onBlur={code === "tr" ? onSourceBlur : undefined} onChange={(e) => onChange({ ...current, [code]: e.target.value })} />
+        : <input className={cls} value={current[code] ?? ""} onBlur={code === "tr" ? onSourceBlur : undefined} onChange={(e) => onChange({ ...current, [code]: e.target.value })} />}
     </Field>
   );
 }
@@ -337,7 +337,7 @@ function ImageField({ label, value, onChange, category = "HERO" }: { label: stri
   );
 }
 
-function SectionForm({ section: s, lang, page, trustPreviewLocale, onTrustLocale, onChange }: { section: V2Section; lang: Locale; page: V2PageId; trustPreviewLocale: UiLocale | null; onTrustLocale: (code: UiLocale) => void; onChange: (patch: Partial<V2Section>) => void }) {
+function SectionForm({ section: s, lang, page, trustPreviewLocale, onTrustLocale, onTrustSourceBlur, onChange }: { section: V2Section; lang: Locale; page: V2PageId; trustPreviewLocale: UiLocale | null; onTrustLocale: (code: UiLocale) => void; onTrustSourceBlur: () => void; onChange: (patch: Partial<V2Section>) => void }) {
   const setText = (key: string, value: LT) => onChange({ text: { ...s.text, [key]: value } });
   const mode = V2_ITEM_MODE[s.type];
   return (
@@ -382,7 +382,7 @@ function SectionForm({ section: s, lang, page, trustPreviewLocale, onTrustLocale
       {s.type === "SPACER" && <Select label="Boşluk" value={s.height} options={V2_HEIGHTS} onChange={(height) => onChange({ height })} />}
       {s.type === "DESTINATION_CAROUSEL" && <p className="rounded-md bg-secondary p-2 text-[11px] text-muted-foreground">Fiyatlar her zaman gerçek katalogdan gelir; yalnız yayınlanmış fiyatı olan destinasyonlar müşteriye görünür.</p>}
       {s.type === "REGION_DISCOVERY" && <p className="rounded-md bg-secondary p-2 text-[11px] text-muted-foreground">Bölgeler, ülke sayıları ve fiyatlar gerçek katalogdan otomatik gelir; burada yalnız metinler düzenlenir.</p>}
-      {s.type === "TRUST_REVIEWS" && <TrustReviewsEditor section={s} lang={lang} uiLang={trustPreviewLocale ?? lang} onUiLang={onTrustLocale} onChange={onChange} />}
+      {s.type === "TRUST_REVIEWS" && <TrustReviewsEditor section={s} lang={lang} uiLang={trustPreviewLocale ?? lang} onUiLang={onTrustLocale} onSourceBlur={onTrustSourceBlur} onChange={onChange} />}
       {page === "lounge" && !V2_PROTECTED.includes(s.type) && s.type !== "DESTINATION_CAROUSEL" && (
         <label className="flex items-center gap-2 text-xs font-semibold"><input type="checkbox" checked={s.showOnResults} onChange={(e) => onChange({ showOnResults: e.target.checked })} />Havalimanı sonuçlarının altında da göster</label>
       )}
@@ -392,7 +392,7 @@ function SectionForm({ section: s, lang, page, trustPreviewLocale, onTrustLocale
   );
 }
 
-function TrustReviewsEditor({ section, lang, uiLang, onUiLang, onChange }: { section: V2Section; lang: Locale; uiLang: UiLocale; onUiLang: (code: UiLocale) => void; onChange: (patch: Partial<V2Section>) => void }) {
+function TrustReviewsEditor({ section, lang, uiLang, onUiLang, onSourceBlur, onChange }: { section: V2Section; lang: Locale; uiLang: UiLocale; onUiLang: (code: UiLocale) => void; onSourceBlur: () => void; onChange: (patch: Partial<V2Section>) => void }) {
   const trustItems = section.items.filter((item) => item.cardType === "trust");
   const chips = section.items.filter((item) => item.cardType === "chip");
   const settings = section.trust;
@@ -424,7 +424,7 @@ function TrustReviewsEditor({ section, lang, uiLang, onUiLang, onChange }: { sec
   return <div className="space-y-4">
     <p className="rounded-md bg-warning/10 p-2 text-xs text-foreground">Yayınlamadan önce bu bilginin doğruluğunu kontrol edin. Manuel puanlar ve fiyat karşılaştırmaları müşteri verisi değildir.</p>
     <Field label="Trust & Reviews dili"><select className="admin-field mt-1 w-full" value={uiLang} onChange={(event) => onUiLang(event.target.value as UiLocale)}>{UI_LOCALES.map((code) => <option key={code} value={code}>{LOCALE_REGISTRY[code].nativeName}</option>)}</select></Field>
-    <div className="grid gap-2 sm:grid-cols-2">{V2_TEXT_FIELDS.TRUST_REVIEWS.map(([key, label]) => <LTInput key={key} label={label} lang={lang} uiLang={uiLang} value={section.text[key]} onChange={(value) => onChange({ text: { ...section.text, [key]: value } })} />)}</div>
+    <div className="grid gap-2 sm:grid-cols-2">{V2_TEXT_FIELDS.TRUST_REVIEWS.map(([key, label]) => <LTInput key={key} label={label} lang={lang} uiLang={uiLang} value={section.text[key]} onSourceBlur={onSourceBlur} onChange={(value) => onChange({ text: { ...section.text, [key]: value } })} />)}</div>
     <ImageField label="MAIN SOCIAL PROOF IMAGE · Ana seyahat görseli" value={section.mediaId} onChange={(mediaId) => onChange({ mediaId })} />
     <div className="grid gap-2 sm:grid-cols-2"><Select label="Görsel odağı" value={settings?.focal ?? "right"} options={["left", "center", "right"] as const} labels={{ left: "Sol", center: "Orta", right: "Sağ" }} onChange={(focal) => setTrust({ focal })} /><Select label="Arka plan" value={settings?.background ?? "mint"} options={["mint", "cream", "white"] as const} labels={{ mint: "Mint", cream: "Krem", white: "Beyaz" }} onChange={(background) => setTrust({ background })} /><Select label="Buton hedefi" value={section.href} options={V2_SAFE_LINKS} labels={LINK_LABEL} onChange={(href) => onChange({ href })} /></div>
     <div className="rounded-md border border-border p-3"><p className="text-xs font-bold">Görsel etiketleri</p>{chips.map((chip, index) => <div key={chip.id} className="mt-3 grid gap-2 border-t border-border pt-2 sm:grid-cols-2"><div className="flex items-center gap-2 text-xs"><label><input type="checkbox" checked={chip.visible} onChange={(event) => setItem(chip.id, { visible: event.target.checked })} /> Göster</label><Button variant="ghost" size="icon" aria-label="Yukarı" disabled={index === 0} onClick={() => moveItem(chip.id, -1)}><ArrowUp /></Button><Button variant="ghost" size="icon" aria-label="Aşağı" disabled={index === chips.length - 1} onClick={() => moveItem(chip.id, 1)}><ArrowDown /></Button><Button variant="ghost" size="icon" aria-label="Kaldır" onClick={() => onChange({ items: section.items.filter((item) => item.id !== chip.id) })}><Trash2 /></Button></div><Select label="Konum" value={chip.position ?? "top-right"} options={["top-right", "middle-left", "bottom-right"] as const} labels={{ "top-right": "Üst sağ", "middle-left": "Orta sol", "bottom-right": "Alt sağ" }} onChange={(position) => setItem(chip.id, { position })} /><IconPicker value={chip.icon} onChange={(icon) => setItem(chip.id, { icon })} /><MediaField label="Özel simge" value={chip.mediaId} onChange={(mediaId) => setItem(chip.id, { mediaId })} category="GLOBAL" /><LTInput label="Başlık" value={chip.title} lang={lang} uiLang={uiLang} onChange={(title) => setItem(chip.id, { title })} /><LTInput label="Açıklama" value={chip.text} lang={lang} uiLang={uiLang} onChange={(text) => setItem(chip.id, { text })} /></div>)}<Button variant="outline" size="sm" className="mt-2" onClick={() => addItem("chip")}>Etiket ekle</Button></div>
