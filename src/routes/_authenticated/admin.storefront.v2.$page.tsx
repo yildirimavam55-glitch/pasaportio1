@@ -28,6 +28,7 @@ import {
   V2_ITEM_MODE,
   V2_OVERLAYS,
   V2_PAGES,
+  comparisonFigures,
   V2_PROTECTED,
   V2_SAFE_LINKS,
   V2_SECTION_LABELS,
