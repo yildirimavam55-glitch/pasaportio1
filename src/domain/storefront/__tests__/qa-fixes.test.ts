@@ -53,3 +53,15 @@ describe("roaming comparison mode", () => {
     expect(trust.comparisonPreviewOnly).toBe(true);
   });
 });
+
+import { ltStatus as ltStatusFn } from "@/domain/storefront/v2";
+describe("translation provenance", () => {
+  it("marks auto, manual and outdated manual values", () => {
+    const v: any = { tr: "Yeni", de: "Neu", en: "Mine", fr: "Old", _auto: { de: "Neu" }, _src: { de: "Yeni", en: "Yeni", fr: "Eski" } };
+    expect(ltStatusFn(v, "tr")).toBe("SOURCE");
+    expect(ltStatusFn(v, "de")).toBe("AUTO_TRANSLATED");
+    expect(ltStatusFn(v, "en")).toBe("MANUALLY_EDITED");
+    expect(ltStatusFn(v, "fr")).toBe("OUTDATED");
+    expect(ltStatusFn(v, "ar")).toBe("MISSING");
+  });
+});
