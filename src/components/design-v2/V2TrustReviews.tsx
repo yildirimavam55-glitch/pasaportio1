@@ -103,7 +103,7 @@ export function V2TrustReviews({ section, media, preview = false, onDestinationS
         <p className="text-xs font-bold uppercase tracking-wide text-success">{v2Text(section, "whyEyebrow", locale)}</p>
         <h3 id={`${section.id}-why`} className="mt-2 font-display text-xl font-bold leading-tight text-foreground sm:text-3xl">{v2Text(section, "whyTitle", locale)}</h3>
         <p className="mt-2 max-w-xl text-[13px] leading-relaxed text-muted-foreground sm:text-base">{v2Text(section, "whyDescription", locale)}</p>
-         {settings?.comparisonStatus !== "HIDDEN" && <RoamingComparison section={section} preview={preview} locale={locale} uiLocale={uiLocale} onDestinationSearch={onDestinationSearch} />}
+         {settings?.comparisonStatus !== "HIDDEN" && <RoamingComparison section={section} media={media} preview={preview} locale={locale} uiLocale={uiLocale} onDestinationSearch={onDestinationSearch} />}
       </div>
     </Reveal>}
      {v2Text(section, "cta", locale) && !(settings?.whyEnabled !== false && settings?.comparisonStatus !== "HIDDEN") && (onDestinationSearch ? <Button type="button" className="mt-4" onClick={onDestinationSearch}>{v2Text(section, "cta", locale)}</Button> : <Button asChild className="mt-4"><Link to={section.href}>{v2Text(section, "cta", locale)}</Link></Button>)}
@@ -142,7 +142,7 @@ const SAMPLE_FIGURES = { roaming: 21.99, travely: 10.99, saving: 11, percent: 50
  * structured price fields and are formatted per locale — nothing is baked into an image.
  * Public: only VERIFIED figures. Admin preview: labelled sample when not verified.
  */
-function RoamingComparison({ section, preview, locale, uiLocale, onDestinationSearch }: { section: V2Section; preview: boolean; locale: Locale; uiLocale: keyof typeof LOCALE_REGISTRY; onDestinationSearch?: (() => void) | undefined }) {
+function RoamingComparison({ section, media, preview, locale, uiLocale, onDestinationSearch }: { section: V2Section; media: V2Media; preview: boolean; locale: Locale; uiLocale: keyof typeof LOCALE_REGISTRY; onDestinationSearch?: (() => void) | undefined }) {
   const c = COMPARE[locale];
   const t = (key: string) => v2Text(section, key, locale);
   const trust = section.trust;
@@ -151,6 +151,18 @@ function RoamingComparison({ section, preview, locale, uiLocale, onDestinationSe
   const demo = !verified && preview && trust?.comparisonStatus !== "HIDDEN";
   const data = verified ? figures : demo ? (figures ?? SAMPLE_FIGURES) : null;
   const bcp47 = LOCALE_REGISTRY[uiLocale].bcp47;
+  // IMAGE mode: one finished graphic replaces the structured card. Same verification gate — public only when VERIFIED.
+  if (trust?.comparisonMode === "IMAGE") {
+    const desktop = mediaUrl(trust.comparisonImageId ?? null, media);
+    const mobile = mediaUrl(trust.comparisonMobileImageId ?? null, media) ?? desktop;
+    const imageVerified = trust.comparisonStatus === "VERIFIED" && Boolean(trust.comparisonVerifiedAt);
+    if (!desktop || (!imageVerified && !preview)) return null;
+    const alt = v2ItemText(trust.comparisonImageAlt ?? { tr: "", de: "", en: "" }, locale) || media[trust.comparisonImageId ?? ""]?.alt || "";
+    return <div className="mt-4 min-w-0 overflow-hidden rounded-2xl">
+      {preview && !imageVerified && <p className="mb-2 inline-block rounded-full bg-primary-soft px-2.5 py-1 text-[10px] font-bold text-primary">{c.demo}</p>}
+      <picture><source media="(max-width: 639px)" srcSet={mobile} /><img src={desktop} alt={alt} loading="lazy" decoding="async" className="mx-auto block h-auto w-full max-w-5xl rounded-2xl object-contain" /></picture>
+    </div>;
+  }
   const money = (n: number) => new Intl.NumberFormat(bcp47, { style: "currency", currency: "EUR" }).format(n);
   const pct = (n: number) => new Intl.NumberFormat(bcp47, { style: "percent", maximumFractionDigits: 0 }).format(n / 100);
   const cta = t("comparisonCta") || c.cta;
