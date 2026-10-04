@@ -1,5 +1,5 @@
 import { useEffect, useState, type ReactNode } from "react";
-import { queryOptions, useQuery } from "@tanstack/react-query";
+import { queryOptions, replaceEqualDeep, useQuery } from "@tanstack/react-query";
 import { DesktopPromoCard, HowItWorks, PromoCard, TrustRow } from "@/components/design-v2/V2Shell";
 import { V2InfoCarousel } from "@/components/design-v2/V2InfoCarousel";
 import { V2TrustReviews } from "@/components/design-v2/V2TrustReviews";
@@ -30,8 +30,6 @@ import trustBenefitGlobe from "@/assets/trust-benefit-globe.webp";
 import trustBenefitRefund from "@/assets/trust-benefit-refund.webp";
 import trustBenefitInstall from "@/assets/trust-benefit-install.webp";
 import trustBenefitPayment from "@/assets/trust-benefit-payment.webp";
-import roamingComparisonDesktop from "@/assets/roaming-comparison-desktop.png.asset.json";
-import roamingComparisonMobile from "@/assets/roaming-comparison-mobile.png.asset.json";
 
 export const V2_BUILTIN_URLS: Record<string, string> = {
   "builtin:esim-hero": esimHero,
@@ -54,14 +52,39 @@ export const V2_BUILTIN_URLS: Record<string, string> = {
   "builtin:trust-benefit-refund": trustBenefitRefund,
   "builtin:trust-benefit-install": trustBenefitInstall,
   "builtin:trust-benefit-payment": trustBenefitPayment,
-  "builtin:roaming-comparison-desktop": roamingComparisonDesktop.url,
-  "builtin:roaming-comparison-mobile": roamingComparisonMobile.url,
 };
 
 export const V2_PREVIEW_WINDOW = "v2-cms-preview";
 
+type V2PageData = { config: V2PageConfig; media: V2Media };
+const signedBase = (url: string) => url.split("?")[0];
+
+/**
+ * Media URLs are signed per request, so a refetch returns a new token for the same file. Keep the
+ * previous URL while it is the same object and still comfortably valid: the <img> src stays
+ * byte-identical and the browser never re-downloads/re-paints an unchanged image.
+ */
+function keepStableMedia(previous: unknown, next: unknown): unknown {
+  const prev = previous as V2PageData | undefined;
+  const incoming = next as V2PageData;
+  if (!prev?.media || !incoming?.media) return incoming;
+  const media: V2Media = {};
+  for (const [id, asset] of Object.entries(incoming.media)) {
+    const old = prev.media[id];
+    media[id] = old && signedBase(old.url) === signedBase(asset.url) && (old.expiresAt ?? 0) - Date.now() > 30 * 60_000 ? { ...asset, url: old.url, expiresAt: old.expiresAt } : asset;
+  }
+  return replaceEqualDeep(prev, { ...incoming, media });
+}
+
 export const v2PageQuery = (page: V2PageId) =>
-  queryOptions({ queryKey: ["v2-storefront", page], queryFn: () => getPublishedV2Page({ data: { page } }), staleTime: 60_000 });
+  queryOptions({
+    queryKey: ["v2-storefront", page],
+    queryFn: () => getPublishedV2Page({ data: { page } }),
+    // Published layout changes rarely; the server-rendered copy is reused by hydration.
+    staleTime: 5 * 60_000,
+    refetchOnWindowFocus: false,
+    structuralSharing: keepStableMedia,
+  });
 
 export function mediaUrl(id: string | null | undefined, media: V2Media): string | undefined {
   if (!id) return undefined;
