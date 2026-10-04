@@ -160,7 +160,7 @@ function RoamingComparison({ section, preview, locale, uiLocale, onDestinationSe
       <p className="text-xs font-bold uppercase tracking-wide text-success">{t("comparisonTitle") || c.eyebrow}</p>
       {data ? <p className="mt-3 text-foreground"><span className="block text-sm font-semibold sm:text-base">{c.pre}</span><strong className="block font-display text-6xl font-bold leading-none text-primary sm:text-7xl">{data.stat}</strong><span className="mt-1 block font-display text-xl font-bold sm:text-2xl">{t("statisticLabel") || c.post}</span></p> : <p className="mt-3 text-sm text-muted-foreground">{c.unavailable}</p>}
       <p className="mt-3 max-w-sm text-sm leading-relaxed text-muted-foreground sm:text-base">{t("comparisonDescription") || c.desc}</p>
-      {onDestinationSearch ? <Button type="button" className={ctaClass} onClick={onDestinationSearch}>{cta}<ArrowRight className="size-4 rtl:rotate-180" /></Button> : <Button asChild className={ctaClass}><Link to="/esim">{cta}<ArrowRight className="size-4 rtl:rotate-180" /></Link></Button>}
+       {onDestinationSearch && section.href === "/esim" ? <Button type="button" className={ctaClass} onClick={onDestinationSearch}>{cta}<ArrowRight className="size-4 rtl:rotate-180" /></Button> : <Button asChild className={ctaClass}><Link to={section.href}>{cta}<ArrowRight className="size-4 rtl:rotate-180" /></Link></Button>}
     </div>
     {data && a && b && <div className="min-w-0 border-t border-border bg-secondary/40 p-5 sm:p-7 lg:border-s lg:border-t-0">
        {(t("comparisonDestination") || demo) && <p className="mb-3 text-xs font-semibold text-muted-foreground">{demo ? c.demo : t("comparisonDestination")} · {demo ? "1 GB" : t("comparisonAllowance")} · {demo ? "7 Tage" : t("comparisonValidity")}</p>}
