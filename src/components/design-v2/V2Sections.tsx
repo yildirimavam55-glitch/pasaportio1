@@ -104,7 +104,7 @@ export type V2Slots = {
 };
 
 /** Renders the configured, visible sections in order through the approved V2 components. */
-export function V2Sections({ config, media, slots, only }: { config: V2PageConfig; media: V2Media; slots: V2Slots; only?: (section: V2Section) => boolean }) {
+export function V2Sections({ config, media, slots, only, onDestinationSearch }: { config: V2PageConfig; media: V2Media; slots: V2Slots; only?: (section: V2Section) => boolean; onDestinationSearch?: () => void }) {
   const { locale } = useI18n();
   const [isPreview, setIsPreview] = useState(false);
   useEffect(() => {
@@ -125,7 +125,7 @@ export function V2Sections({ config, media, slots, only }: { config: V2PageConfi
           case "DESTINATION_CAROUSEL":
             return <V2Fragment key={s.id}>{slots.destinations?.(s)}{slots.afterDestinations}</V2Fragment>;
           case "TRUST_REVIEWS":
-            return <V2TrustReviews key={s.id} section={s} media={media} preview={isPreview} />;
+            return <V2TrustReviews key={s.id} section={s} media={media} preview={isPreview} onDestinationSearch={onDestinationSearch} />;
           case "REGION_DISCOVERY":
             return <V2Fragment key={s.id}>{slots.regions?.(s)}{slots.afterRegions}</V2Fragment>;
           case "NOTICE":

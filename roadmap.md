@@ -757,3 +757,8 @@
 ## V2 eSIM Hero image display
 - [x] Add reusable bounded crop controls to the existing Admin Hero editor, with independent mobile settings and live draft preview.
 - [x] Verify zoom, position, fit, and unsaved preview rendering at 360/390/430/desktop without publishing; live Admin control interaction remains blocked by the available account's missing Admin role.
+
+## Trust translations and destination CTA
+- [x] Add Admin-only translation generation for Trust/Social Proof CMS fields, preserving manual locale values without a migration.
+- [x] Verify the destination CTA opens the primary country picker at 390px and 1440px across TR/DE/EN/AR; focused input, one panel, RTL, and no horizontal overflow.
+- [ ] Verify a Turkish CMS edit translates into all 13 other locales and survives Admin draft/preview; blocked by the available account's missing Admin role.

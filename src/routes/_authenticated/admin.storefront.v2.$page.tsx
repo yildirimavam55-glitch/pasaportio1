@@ -14,6 +14,7 @@ import { Button } from "@/components/ui/button";
 import { StorefrontIcon } from "@/domain/storefront/icons";
 import { listMedia } from "@/lib/admin-media.functions";
 import { translateReview } from "@/lib/review-translate.functions";
+import { translateTrustCopy } from "@/lib/trust-translate.functions";
 import { useServerFn } from "@tanstack/react-start";
 import { discardV2Draft, getV2PageEditor, restoreV2Version, saveV2Page } from "@/lib/v2-storefront.functions";
 import { V2_BUILTIN_URLS, V2_PREVIEW_WINDOW } from "@/components/design-v2/V2Sections";
@@ -72,6 +73,7 @@ function Editor({ page }: { page: V2PageId }) {
   const [device, setDevice] = useState<(typeof DEVICES)[number]["id"]>("390");
   const [dragId, setDragId] = useState<string | null>(null);
   const [showHistory, setShowHistory] = useState(false);
+  const [translatingTrust, setTranslatingTrust] = useState(false);
   const frame = useRef<HTMLIFrameElement | null>(null);
 
   useEffect(() => { if (editor.data && !dirty) setDraft(editor.data.draft); }, [editor.data, dirty]);
@@ -111,6 +113,48 @@ function Editor({ page }: { page: V2PageId }) {
   if (editor.error) return <AdminError error={editor.error} />;
 
   const update = (next: V2PageConfig) => { setDraft(next); setDirty(true); };
+  const translateTrust = async () => {
+    const trust = draft.sections.find((section) => section.type === "TRUST_REVIEWS");
+    if (!trust || translatingTrust) return;
+    const defaultTrust = defaultV2Page(page).sections.find((section) => section.type === "TRUST_REVIEWS");
+    const entries: Record<string, string> = {};
+    const collect = (id: string, value: LT | undefined, original?: LT) => {
+      if (!value?.tr?.trim()) return;
+      if (UI_LOCALES.some((code) => code !== "tr" && (!value[code]?.trim() || value._auto?.[code] === value[code] || (value.tr !== original?.tr && value[code] === original?.[code])))) entries[id] = value.tr.trim();
+    };
+    for (const [key] of V2_TEXT_FIELDS.TRUST_REVIEWS) collect(`text:${key}`, trust.text[key], defaultTrust?.text[key]);
+    for (const item of trust.items.filter((row) => row.cardType === "trust" || row.cardType === "chip")) {
+      const original = defaultTrust?.items.find((row) => row.id === item.id);
+      for (const field of ["title", "text", "imageAlt", "cta"] as const) collect(`item:${item.id}:${field}`, item[field], original?.[field]);
+      item.labels.forEach((label, index) => collect(`item:${item.id}:label:${index}`, label, original?.labels[index]));
+    }
+    collect("trust:manualCaption", trust.trust?.manualCaption, defaultTrust?.trust?.manualCaption);
+    if (!Object.keys(entries).length) { toast.info("Çevrilecek yeni Türkçe metin yok."); return; }
+    setTranslatingTrust(true);
+    try {
+      const translations = await translateTrustCopy({ data: { entries } });
+      const merge = (id: string, value: LT, original?: LT): LT => {
+        const translated = translations[id];
+        if (!translated) return value;
+        const next = { ...value, _auto: { ...value._auto } };
+        for (const code of UI_LOCALES) {
+          if (code === "tr" || !translated[code]) continue;
+          if (value[code]?.trim() && value._auto?.[code] !== value[code] && !(value.tr !== original?.tr && value[code] === original?.[code])) continue;
+          next[code] = translated[code];
+          next._auto[code] = translated[code];
+        }
+        return next;
+      };
+      const next = { ...trust, text: Object.fromEntries(Object.entries(trust.text).map(([key, value]) => [key, merge(`text:${key}`, value, defaultTrust?.text[key])])), items: trust.items.map((item) => {
+        if (item.cardType !== "trust" && item.cardType !== "chip") return item;
+        const original = defaultTrust?.items.find((row) => row.id === item.id);
+        return { ...item, title: merge(`item:${item.id}:title`, item.title, original?.title), text: merge(`item:${item.id}:text`, item.text, original?.text), imageAlt: merge(`item:${item.id}:imageAlt`, item.imageAlt, original?.imageAlt), cta: merge(`item:${item.id}:cta`, item.cta, original?.cta), labels: item.labels.map((label, index) => merge(`item:${item.id}:label:${index}`, label, original?.labels[index])) };
+      }), ...(trust.trust ? { trust: { ...trust.trust, manualCaption: merge("trust:manualCaption", trust.trust.manualCaption, defaultTrust?.trust?.manualCaption) } } : {}) };
+      update({ ...draft, sections: draft.sections.map((section) => section.id === trust.id ? next : section) });
+      toast.success("Çeviriler taslağa eklendi. Önizleyip kaydedebilir veya yayınlayabilirsiniz.");
+    } catch (error) { toast.error(error instanceof Error ? error.message : "Çeviri başarısız oldu."); }
+    finally { setTranslatingTrust(false); }
+  };
   const sections = draft.sections;
   const selected = sections.find((s) => s.id === selectedId) ?? sections[0]!;
   const patchSection = (id: string, patch: Partial<V2Section>) => update({ ...draft, sections: sections.map((s) => (s.id === id ? { ...s, ...patch } : s)) });
@@ -236,7 +280,8 @@ function Editor({ page }: { page: V2PageId }) {
             <span className="ml-2 text-[10px] text-muted-foreground">Boş DE/EN alanlarda Türkçe metin gösterilir.</span>
           </div>
           {V2_PROTECTED.includes(selected.type) && <p className="mb-3 rounded-md bg-secondary p-2 text-[11px] text-muted-foreground">Arama mantığı kodda korunur. Burada yalnızca metin, görsel ve görünüm ön ayarları değişir; bölüm gizlenemez veya taşınamaz.</p>}
-          <SectionForm section={selected} lang={lang} page={page} trustPreviewLocale={trustPreviewLocale} onTrustLocale={setTrustPreviewLocale} onChange={(patch) => patchSection(selected.id, patch)} />
+          {selected.type === "TRUST_REVIEWS" && <div className="mb-3 flex items-center gap-2"><Button type="button" size="sm" variant="outline" disabled={translatingTrust} onClick={() => void translateTrust()}>{translatingTrust ? "Çevriliyor…" : "Türkçe metni 13 dile çevir"}</Button><span className="text-xs text-muted-foreground">Türkçe değişiklikler alanı kapatınca çevrilir; elle düzenlenen çeviriler korunur. Sonuçlar önce taslakta görünür.</span></div>}
+          <SectionForm section={selected} lang={lang} page={page} trustPreviewLocale={trustPreviewLocale} onTrustLocale={setTrustPreviewLocale} onTrustSourceBlur={() => void translateTrust()} onChange={(patch) => patchSection(selected.id, patch)} />
         </AdminPanel>
 
         <AdminPanel title="Önizleme (taslak)" className="xl:w-[27rem]" action={
@@ -259,15 +304,15 @@ function Editor({ page }: { page: V2PageId }) {
   );
 }
 
-function LTInput({ label, value, lang, onChange, multiline = false, uiLang }: { label: string; value: LT | undefined; lang: Locale; onChange: (v: LT) => void; multiline?: boolean; uiLang?: UiLocale }) {
+function LTInput({ label, value, lang, onChange, multiline = false, uiLang, onSourceBlur }: { label: string; value: LT | undefined; lang: Locale; onChange: (v: LT) => void; multiline?: boolean; uiLang?: UiLocale; onSourceBlur?: () => void }) {
   const code = uiLang ?? lang;
   const current = value ?? { tr: "", de: "", en: "" };
   const cls = "mt-1 w-full rounded-md border border-border bg-background px-2 py-1.5 text-sm font-normal";
   return (
     <Field label={`${label} · ${code.toUpperCase()}`} {...(code !== "tr" && current.tr ? { hint: `TR: ${current.tr}` } : {})}>
       {multiline
-        ? <textarea rows={3} className={cls} value={current[code] ?? ""} onChange={(e) => onChange({ ...current, [code]: e.target.value })} />
-        : <input className={cls} value={current[code] ?? ""} onChange={(e) => onChange({ ...current, [code]: e.target.value })} />}
+        ? <textarea rows={3} className={cls} value={current[code] ?? ""} onBlur={code === "tr" ? onSourceBlur : undefined} onChange={(e) => onChange({ ...current, [code]: e.target.value })} />
+        : <input className={cls} value={current[code] ?? ""} onBlur={code === "tr" ? onSourceBlur : undefined} onChange={(e) => onChange({ ...current, [code]: e.target.value })} />}
     </Field>
   );
 }
@@ -292,7 +337,7 @@ function ImageField({ label, value, onChange, category = "HERO" }: { label: stri
   );
 }
 
-function SectionForm({ section: s, lang, page, trustPreviewLocale, onTrustLocale, onChange }: { section: V2Section; lang: Locale; page: V2PageId; trustPreviewLocale: UiLocale | null; onTrustLocale: (code: UiLocale) => void; onChange: (patch: Partial<V2Section>) => void }) {
+function SectionForm({ section: s, lang, page, trustPreviewLocale, onTrustLocale, onTrustSourceBlur, onChange }: { section: V2Section; lang: Locale; page: V2PageId; trustPreviewLocale: UiLocale | null; onTrustLocale: (code: UiLocale) => void; onTrustSourceBlur: () => void; onChange: (patch: Partial<V2Section>) => void }) {
   const setText = (key: string, value: LT) => onChange({ text: { ...s.text, [key]: value } });
   const mode = V2_ITEM_MODE[s.type];
   return (
@@ -337,7 +382,7 @@ function SectionForm({ section: s, lang, page, trustPreviewLocale, onTrustLocale
       {s.type === "SPACER" && <Select label="Boşluk" value={s.height} options={V2_HEIGHTS} onChange={(height) => onChange({ height })} />}
       {s.type === "DESTINATION_CAROUSEL" && <p className="rounded-md bg-secondary p-2 text-[11px] text-muted-foreground">Fiyatlar her zaman gerçek katalogdan gelir; yalnız yayınlanmış fiyatı olan destinasyonlar müşteriye görünür.</p>}
       {s.type === "REGION_DISCOVERY" && <p className="rounded-md bg-secondary p-2 text-[11px] text-muted-foreground">Bölgeler, ülke sayıları ve fiyatlar gerçek katalogdan otomatik gelir; burada yalnız metinler düzenlenir.</p>}
-      {s.type === "TRUST_REVIEWS" && <TrustReviewsEditor section={s} lang={lang} uiLang={trustPreviewLocale ?? lang} onUiLang={onTrustLocale} onChange={onChange} />}
+      {s.type === "TRUST_REVIEWS" && <TrustReviewsEditor section={s} lang={lang} uiLang={trustPreviewLocale ?? lang} onUiLang={onTrustLocale} onSourceBlur={onTrustSourceBlur} onChange={onChange} />}
       {page === "lounge" && !V2_PROTECTED.includes(s.type) && s.type !== "DESTINATION_CAROUSEL" && (
         <label className="flex items-center gap-2 text-xs font-semibold"><input type="checkbox" checked={s.showOnResults} onChange={(e) => onChange({ showOnResults: e.target.checked })} />Havalimanı sonuçlarının altında da göster</label>
       )}
@@ -347,7 +392,7 @@ function SectionForm({ section: s, lang, page, trustPreviewLocale, onTrustLocale
   );
 }
 
-function TrustReviewsEditor({ section, lang, uiLang, onUiLang, onChange }: { section: V2Section; lang: Locale; uiLang: UiLocale; onUiLang: (code: UiLocale) => void; onChange: (patch: Partial<V2Section>) => void }) {
+function TrustReviewsEditor({ section, lang, uiLang, onUiLang, onSourceBlur, onChange }: { section: V2Section; lang: Locale; uiLang: UiLocale; onUiLang: (code: UiLocale) => void; onSourceBlur: () => void; onChange: (patch: Partial<V2Section>) => void }) {
   const trustItems = section.items.filter((item) => item.cardType === "trust");
   const chips = section.items.filter((item) => item.cardType === "chip");
   const settings = section.trust;
@@ -379,16 +424,16 @@ function TrustReviewsEditor({ section, lang, uiLang, onUiLang, onChange }: { sec
   return <div className="space-y-4">
     <p className="rounded-md bg-warning/10 p-2 text-xs text-foreground">Yayınlamadan önce bu bilginin doğruluğunu kontrol edin. Manuel puanlar ve fiyat karşılaştırmaları müşteri verisi değildir.</p>
     <Field label="Trust & Reviews dili"><select className="admin-field mt-1 w-full" value={uiLang} onChange={(event) => onUiLang(event.target.value as UiLocale)}>{UI_LOCALES.map((code) => <option key={code} value={code}>{LOCALE_REGISTRY[code].nativeName}</option>)}</select></Field>
-    <div className="grid gap-2 sm:grid-cols-2">{V2_TEXT_FIELDS.TRUST_REVIEWS.map(([key, label]) => <LTInput key={key} label={label} lang={lang} uiLang={uiLang} value={section.text[key]} onChange={(value) => onChange({ text: { ...section.text, [key]: value } })} />)}</div>
+    <div className="grid gap-2 sm:grid-cols-2">{V2_TEXT_FIELDS.TRUST_REVIEWS.map(([key, label]) => <LTInput key={key} label={label} lang={lang} uiLang={uiLang} value={section.text[key]} onSourceBlur={onSourceBlur} onChange={(value) => onChange({ text: { ...section.text, [key]: value } })} />)}</div>
     <ImageField label="MAIN SOCIAL PROOF IMAGE · Ana seyahat görseli" value={section.mediaId} onChange={(mediaId) => onChange({ mediaId })} />
     <div className="grid gap-2 sm:grid-cols-2"><Select label="Görsel odağı" value={settings?.focal ?? "right"} options={["left", "center", "right"] as const} labels={{ left: "Sol", center: "Orta", right: "Sağ" }} onChange={(focal) => setTrust({ focal })} /><Select label="Arka plan" value={settings?.background ?? "mint"} options={["mint", "cream", "white"] as const} labels={{ mint: "Mint", cream: "Krem", white: "Beyaz" }} onChange={(background) => setTrust({ background })} /><Select label="Buton hedefi" value={section.href} options={V2_SAFE_LINKS} labels={LINK_LABEL} onChange={(href) => onChange({ href })} /></div>
-    <div className="rounded-md border border-border p-3"><p className="text-xs font-bold">Görsel etiketleri</p>{chips.map((chip, index) => <div key={chip.id} className="mt-3 grid gap-2 border-t border-border pt-2 sm:grid-cols-2"><div className="flex items-center gap-2 text-xs"><label><input type="checkbox" checked={chip.visible} onChange={(event) => setItem(chip.id, { visible: event.target.checked })} /> Göster</label><Button variant="ghost" size="icon" aria-label="Yukarı" disabled={index === 0} onClick={() => moveItem(chip.id, -1)}><ArrowUp /></Button><Button variant="ghost" size="icon" aria-label="Aşağı" disabled={index === chips.length - 1} onClick={() => moveItem(chip.id, 1)}><ArrowDown /></Button><Button variant="ghost" size="icon" aria-label="Kaldır" onClick={() => onChange({ items: section.items.filter((item) => item.id !== chip.id) })}><Trash2 /></Button></div><Select label="Konum" value={chip.position ?? "top-right"} options={["top-right", "middle-left", "bottom-right"] as const} labels={{ "top-right": "Üst sağ", "middle-left": "Orta sol", "bottom-right": "Alt sağ" }} onChange={(position) => setItem(chip.id, { position })} /><IconPicker value={chip.icon} onChange={(icon) => setItem(chip.id, { icon })} /><MediaField label="Özel simge" value={chip.mediaId} onChange={(mediaId) => setItem(chip.id, { mediaId })} category="GLOBAL" /><LTInput label="Başlık" value={chip.title} lang={lang} uiLang={uiLang} onChange={(title) => setItem(chip.id, { title })} /><LTInput label="Açıklama" value={chip.text} lang={lang} uiLang={uiLang} onChange={(text) => setItem(chip.id, { text })} /></div>)}<Button variant="outline" size="sm" className="mt-2" onClick={() => addItem("chip")}>Etiket ekle</Button></div>
-    <div className="rounded-md border border-border p-3"><p className="text-xs font-bold">Puan & görünüm</p><div className="mt-2 grid gap-2 sm:grid-cols-2"><Select label="Puan kaynağı" value={settings?.ratingMode ?? "real"} options={["real", "manual", "off"] as const} labels={{ real: "Onaylı gerçek yorumlar", manual: "MANUEL / ÖNİZLEME", off: "Kapalı" }} onChange={(ratingMode) => setTrust({ ratingMode })} />{settings?.ratingMode === "manual" && <><Field label="Manuel puan (yalnız yönetici önizlemesi)"><input type="number" min="0" max="5" step="0.1" className="admin-field mt-1 w-full" value={settings.manualRating} onChange={(event) => setTrust({ manualRating: Number(event.target.value) })} /></Field><LTInput label="Puan açıklaması" value={settings.manualCaption} lang={lang} uiLang={uiLang} onChange={(manualCaption) => setTrust({ manualCaption })} /></>}<label className="text-xs"><input type="checkbox" checked={section.showDots} onChange={(event) => onChange({ showDots: event.target.checked })} /> Sayfa noktaları</label><label className="text-xs"><input type="checkbox" checked={settings?.autoplay ?? false} onChange={(event) => setTrust({ autoplay: event.target.checked })} /> Otomatik kaydırma</label></div><p className="mt-2 text-xs text-muted-foreground">Kart sayısı: otomatik. Manuel puan yalnız yönetici önizlemesinde görünür; gerçek müşteri puanına karışmaz. Kaydırma kullanıcı kontrolündedir.</p></div>
+    <div className="rounded-md border border-border p-3"><p className="text-xs font-bold">Görsel etiketleri</p>{chips.map((chip, index) => <div key={chip.id} className="mt-3 grid gap-2 border-t border-border pt-2 sm:grid-cols-2"><div className="flex items-center gap-2 text-xs"><label><input type="checkbox" checked={chip.visible} onChange={(event) => setItem(chip.id, { visible: event.target.checked })} /> Göster</label><Button variant="ghost" size="icon" aria-label="Yukarı" disabled={index === 0} onClick={() => moveItem(chip.id, -1)}><ArrowUp /></Button><Button variant="ghost" size="icon" aria-label="Aşağı" disabled={index === chips.length - 1} onClick={() => moveItem(chip.id, 1)}><ArrowDown /></Button><Button variant="ghost" size="icon" aria-label="Kaldır" onClick={() => onChange({ items: section.items.filter((item) => item.id !== chip.id) })}><Trash2 /></Button></div><Select label="Konum" value={chip.position ?? "top-right"} options={["top-right", "middle-left", "bottom-right"] as const} labels={{ "top-right": "Üst sağ", "middle-left": "Orta sol", "bottom-right": "Alt sağ" }} onChange={(position) => setItem(chip.id, { position })} /><IconPicker value={chip.icon} onChange={(icon) => setItem(chip.id, { icon })} /><MediaField label="Özel simge" value={chip.mediaId} onChange={(mediaId) => setItem(chip.id, { mediaId })} category="GLOBAL" /><LTInput label="Başlık" value={chip.title} lang={lang} uiLang={uiLang} onSourceBlur={onSourceBlur} onChange={(title) => setItem(chip.id, { title })} /><LTInput label="Açıklama" value={chip.text} lang={lang} uiLang={uiLang} onSourceBlur={onSourceBlur} onChange={(text) => setItem(chip.id, { text })} /></div>)}<Button variant="outline" size="sm" className="mt-2" onClick={() => addItem("chip")}>Etiket ekle</Button></div>
+    <div className="rounded-md border border-border p-3"><p className="text-xs font-bold">Puan & görünüm</p><div className="mt-2 grid gap-2 sm:grid-cols-2"><Select label="Puan kaynağı" value={settings?.ratingMode ?? "real"} options={["real", "manual", "off"] as const} labels={{ real: "Onaylı gerçek yorumlar", manual: "MANUEL / ÖNİZLEME", off: "Kapalı" }} onChange={(ratingMode) => setTrust({ ratingMode })} />{settings?.ratingMode === "manual" && <><Field label="Manuel puan (yalnız yönetici önizlemesi)"><input type="number" min="0" max="5" step="0.1" className="admin-field mt-1 w-full" value={settings.manualRating} onChange={(event) => setTrust({ manualRating: Number(event.target.value) })} /></Field><LTInput label="Puan açıklaması" value={settings.manualCaption} lang={lang} uiLang={uiLang} onSourceBlur={onSourceBlur} onChange={(manualCaption) => setTrust({ manualCaption })} /></>}<label className="text-xs"><input type="checkbox" checked={section.showDots} onChange={(event) => onChange({ showDots: event.target.checked })} /> Sayfa noktaları</label><label className="text-xs"><input type="checkbox" checked={settings?.autoplay ?? false} onChange={(event) => setTrust({ autoplay: event.target.checked })} /> Otomatik kaydırma</label></div><p className="mt-2 text-xs text-muted-foreground">Kart sayısı: otomatik. Manuel puan yalnız yönetici önizlemesinde görünür; gerçek müşteri puanına karışmaz. Kaydırma kullanıcı kontrolündedir.</p></div>
     <label className="flex items-center gap-2 text-xs font-semibold"><input type="checkbox" checked={section.visible} onChange={(event) => onChange({ visible: event.target.checked })} />Bölüm mağazada görünür</label>
     <div className="rounded-md border border-border p-3">
       <p className="text-xs font-bold">Güven çubuğu</p>
       <p className="mt-1 text-[10px] text-muted-foreground">Kurulum iddiası dahil tüm metinler yayınlanmadan önce içerik onayı gerektirir.</p>
-        <div className="mt-3 space-y-3">{trustItems.map((item, index) => <div key={item.id} className="grid gap-2 rounded-md bg-secondary/40 p-2 sm:grid-cols-2"><div className="flex items-center gap-1"><label className="mr-auto text-xs"><input type="checkbox" checked={item.visible} onChange={(event) => setItem(item.id, { visible: event.target.checked })} /> Göster</label><Button size="icon" variant="ghost" aria-label="Yukarı" disabled={index === 0} onClick={() => moveItem(item.id, -1)}><ArrowUp /></Button><Button size="icon" variant="ghost" aria-label="Aşağı" disabled={index === trustItems.length - 1} onClick={() => moveItem(item.id, 1)}><ArrowDown /></Button><Button size="icon" variant="ghost" aria-label="Kaldır" onClick={() => onChange({ items: section.items.filter((row) => row.id !== item.id) })}><Trash2 /></Button></div><Select label="Görsel modu" value={item.visualMode ?? (item.mediaId ? "CUSTOM_IMAGE" : "ICON")} options={["ICON", "CUSTOM_IMAGE"] as const} labels={{ ICON: "Simge", CUSTOM_IMAGE: "Özel görsel" }} onChange={(visualMode) => setItem(item.id, { visualMode })} /><div className="sm:col-span-2">{item.visualMode === "ICON" ? <IconPicker value={item.icon} onChange={(icon) => setItem(item.id, { icon })} /> : <ImageField label="Avantaj görseli · Bild ändern / Replace image · Bild hochladen / Upload image" value={item.mediaId} category="GLOBAL" onChange={(mediaId) => setItem(item.id, { mediaId, visualMode: mediaId ? "CUSTOM_IMAGE" : "ICON" })} />}</div>{item.visualMode !== "ICON" && <div className="sm:col-span-2"><Select label="Görsel ayarları · Görsel ölçeği" value={String(item.imageScale ?? (item.id === "trust-payment" ? 160 : 100))} options={["80", "100", "120", "140", "160"] as const} labels={{ "80": "80%", "100": "100%", "120": "120%", "140": "140%", "160": "160%" }} onChange={(scale) => setItem(item.id, { imageScale: Number(scale) as 80 | 100 | 120 | 140 | 160 })} /></div>}<div className="sm:col-span-2"><LTInput label="Görsel alternatif metni / Alt text" value={item.imageAlt} lang={lang} uiLang={uiLang} onChange={(imageAlt) => setItem(item.id, { imageAlt })} /></div><LTInput label="Başlık" value={item.title} lang={lang} uiLang={uiLang} onChange={(title) => setItem(item.id, { title })} /><div className="sm:col-span-2"><LTInput label="Açıklama" value={item.text} lang={lang} uiLang={uiLang} onChange={(text) => setItem(item.id, { text })} /></div>{item.id === "trust-payment" && <p className="sm:col-span-2 text-[10px] text-muted-foreground">Ödeme sağlayıcısı etkin değil; bu görsel yalnız yönetici önizlemesinde görünür.</p>}</div>)}</div><Button variant="outline" size="sm" onClick={() => addItem("trust")}>Avantaj ekle</Button>
+        <div className="mt-3 space-y-3">{trustItems.map((item, index) => <div key={item.id} className="grid gap-2 rounded-md bg-secondary/40 p-2 sm:grid-cols-2"><div className="flex items-center gap-1"><label className="mr-auto text-xs"><input type="checkbox" checked={item.visible} onChange={(event) => setItem(item.id, { visible: event.target.checked })} /> Göster</label><Button size="icon" variant="ghost" aria-label="Yukarı" disabled={index === 0} onClick={() => moveItem(item.id, -1)}><ArrowUp /></Button><Button size="icon" variant="ghost" aria-label="Aşağı" disabled={index === trustItems.length - 1} onClick={() => moveItem(item.id, 1)}><ArrowDown /></Button><Button size="icon" variant="ghost" aria-label="Kaldır" onClick={() => onChange({ items: section.items.filter((row) => row.id !== item.id) })}><Trash2 /></Button></div><Select label="Görsel modu" value={item.visualMode ?? (item.mediaId ? "CUSTOM_IMAGE" : "ICON")} options={["ICON", "CUSTOM_IMAGE"] as const} labels={{ ICON: "Simge", CUSTOM_IMAGE: "Özel görsel" }} onChange={(visualMode) => setItem(item.id, { visualMode })} /><div className="sm:col-span-2">{item.visualMode === "ICON" ? <IconPicker value={item.icon} onChange={(icon) => setItem(item.id, { icon })} /> : <ImageField label="Avantaj görseli · Bild ändern / Replace image · Bild hochladen / Upload image" value={item.mediaId} category="GLOBAL" onChange={(mediaId) => setItem(item.id, { mediaId, visualMode: mediaId ? "CUSTOM_IMAGE" : "ICON" })} />}</div>{item.visualMode !== "ICON" && <div className="sm:col-span-2"><Select label="Görsel ayarları · Görsel ölçeği" value={String(item.imageScale ?? (item.id === "trust-payment" ? 160 : 100))} options={["80", "100", "120", "140", "160"] as const} labels={{ "80": "80%", "100": "100%", "120": "120%", "140": "140%", "160": "160%" }} onChange={(scale) => setItem(item.id, { imageScale: Number(scale) as 80 | 100 | 120 | 140 | 160 })} /></div>}<div className="sm:col-span-2"><LTInput label="Görsel alternatif metni / Alt text" value={item.imageAlt} lang={lang} uiLang={uiLang} onSourceBlur={onSourceBlur} onChange={(imageAlt) => setItem(item.id, { imageAlt })} /></div><LTInput label="Başlık" value={item.title} lang={lang} uiLang={uiLang} onSourceBlur={onSourceBlur} onChange={(title) => setItem(item.id, { title })} /><div className="sm:col-span-2"><LTInput label="Açıklama" value={item.text} lang={lang} uiLang={uiLang} onSourceBlur={onSourceBlur} onChange={(text) => setItem(item.id, { text })} /></div>{item.id === "trust-payment" && <p className="sm:col-span-2 text-[10px] text-muted-foreground">Ödeme sağlayıcısı etkin değil; bu görsel yalnız yönetici önizlemesinde görünür.</p>}</div>)}</div><Button variant="outline" size="sm" onClick={() => addItem("trust")}>Avantaj ekle</Button>
     </div>
     <div className="rounded-md border border-border p-3">
        <div className="flex items-center justify-between gap-2"><div><p className="text-xs font-bold">Müşteri yorumları</p><p className="mt-1 text-[10px] text-muted-foreground">Mağaza yalnız GERÇEK + DOĞRULANMIŞ + YAYINDA yorumları gösterir. Demo yorumları sadece bu editörün önizlemesinde görünür.</p></div><Button size="sm" variant="outline" onClick={() => onChange({ items: [...section.items, makeReview("REAL")] })}><Plus />Yorum ekle</Button></div>
