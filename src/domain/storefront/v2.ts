@@ -583,7 +583,7 @@ export function v2Text(section: V2Section | undefined, key: string, locale: Loca
   if (active !== "tr" && active !== "de" && active !== "en") {
     return value?.[active]?.trim() || overlayText((value?.en || value?.tr || "").trim(), "en");
   }
-  return value?.[active]?.trim() || (value?.[locale] || value?.tr || "").trim();
+  return (value?.[locale]?.trim() || value?.tr || "").trim();
 }
 
 export function v2ItemText(value: LT | undefined, locale: Locale): string {
@@ -591,7 +591,7 @@ export function v2ItemText(value: LT | undefined, locale: Locale): string {
   if (active !== "tr" && active !== "de" && active !== "en") {
     return value?.[active]?.trim() || overlayText((value?.en || value?.tr || "").trim(), "en");
   }
-  return value?.[active]?.trim() || (value?.[locale] || value?.tr || "").trim();
+  return (value?.[locale]?.trim() || value?.tr || "").trim();
 }
 
 /** Promo date window, evaluated on the viewer's calendar day. */
