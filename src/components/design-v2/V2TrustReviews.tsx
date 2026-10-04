@@ -90,23 +90,23 @@ export function V2TrustReviews({ section, media, preview = false, onDestinationS
        {section.showDots && displayReviews.length > 1 && <div className="mt-2 flex justify-center gap-1">{displayReviews.map((review, index) => <Button key={review.id} type="button" variant="ghost" size="icon" onClick={() => scrollTo(index)} aria-label={labels.slide.replace("{index}", String(index + 1))} aria-current={active === index ? "true" : undefined} className="size-6 rounded-full p-0"><span className={`block size-2 rounded-full ${active === index ? "bg-success" : "bg-border"}`} /></Button>)}</div>}
     </Reveal>}
 
-     {trustItems.length > 0 && <Reveal delay={210} className="trust-section-reveal mt-5"><ul className={`-mx-4 flex snap-x snap-mandatory scroll-px-4 gap-2.5 overflow-x-auto px-4 pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:mx-0 sm:grid sm:gap-0 sm:overflow-hidden sm:rounded-2xl sm:bg-card sm:px-0 sm:pb-0 sm:shadow-soft sm:ring-1 sm:ring-border ${trustItems.length === 3 ? "sm:grid-cols-3" : "sm:grid-cols-4"}`}>
-       {trustItems.map((item, index) => <li key={item.id} className={`flex w-[clamp(9.75rem,44vw,11.25rem)] min-w-0 shrink-0 snap-start flex-col items-center rounded-2xl border-border bg-card px-3 pb-4 pt-2 text-center shadow-soft ring-1 ring-border sm:w-auto sm:shrink sm:rounded-none sm:px-4 sm:shadow-none sm:ring-0 ${index > 0 ? "sm:border-s" : ""}`}>
-          <span className="flex h-20 w-full min-w-0 items-center justify-center overflow-hidden sm:h-32">{item.visualMode !== "ICON" && mediaUrl(item.mediaId, media) ? <img src={mediaUrl(item.mediaId, media)} alt={v2ItemText(item.imageAlt, locale) || media[item.mediaId ?? ""]?.alt || ""} loading="lazy" decoding="async" width={320} height={320} onLoad={(event) => { event.currentTarget.dataset['wide'] = String(event.currentTarget.naturalWidth / event.currentTarget.naturalHeight >= 2); }} className={`${BENEFIT_IMAGE_SIZE[item.imageScale ?? (item.id === "trust-payment" ? 160 : 100)] ?? BENEFIT_IMAGE_SIZE[100]} max-h-full shrink-0 object-contain data-[wide=true]:max-w-none`} /> : <StorefrontIcon name={item.icon} className="size-10 text-success sm:size-14" />}</span>
-         <strong className="block w-full max-w-full min-w-0 hyphens-auto break-words text-[clamp(14px,3.9vw,17px)] leading-tight text-foreground sm:text-base">{v2ItemText(item.title, locale)}</strong><span className="mt-1 block w-full max-w-full min-w-0 hyphens-auto break-words text-xs leading-snug text-muted-foreground sm:text-sm">{v2ItemText(item.text, locale)}</span>
-         {preview && item.id === "trust-payment" && <span className="mt-1 text-[8px] font-bold leading-tight text-muted-foreground">{labels.paymentPreview}</span>}
+     {trustItems.length > 0 && <Reveal delay={210} className="trust-section-reveal mt-5"><ul className={`grid grid-cols-1 gap-2.5 sm:gap-0 sm:overflow-hidden sm:rounded-2xl sm:bg-card sm:shadow-soft sm:ring-1 sm:ring-border ${trustItems.length === 3 ? "sm:grid-cols-3" : "sm:grid-cols-4"}`}>
+       {trustItems.map((item, index) => <li key={item.id} className={`flex min-w-0 items-center gap-3 rounded-2xl bg-card px-3 py-2 text-start shadow-soft ring-1 ring-border sm:flex-col sm:gap-0 sm:rounded-none sm:px-4 sm:pb-4 sm:pt-2 sm:text-center sm:shadow-none sm:ring-0 ${index > 0 ? "sm:border-s" : ""}`}>
+          <span className="flex size-16 shrink-0 items-center justify-center overflow-hidden sm:h-32 sm:w-full">{item.visualMode !== "ICON" && mediaUrl(item.mediaId, media) ? <img src={mediaUrl(item.mediaId, media)} alt={v2ItemText(item.imageAlt, locale) || media[item.mediaId ?? ""]?.alt || ""} loading="lazy" decoding="async" width={320} height={320} onLoad={(event) => { event.currentTarget.dataset['wide'] = String(event.currentTarget.naturalWidth / event.currentTarget.naturalHeight >= 2); }} className={`${BENEFIT_IMAGE_SIZE[item.imageScale ?? (item.id === "trust-payment" ? 160 : 100)] ?? BENEFIT_IMAGE_SIZE[100]} max-h-full shrink-0 object-contain data-[wide=true]:max-w-none`} /> : <StorefrontIcon name={item.icon} className="size-10 text-success sm:size-14" />}</span>
+          <span className="min-w-0 flex-1 sm:w-full"><strong className="block w-full max-w-full min-w-0 hyphens-auto break-words text-[clamp(14px,3.9vw,17px)] leading-tight text-foreground sm:text-base">{v2ItemText(item.title, locale)}</strong><span className="mt-1 block w-full max-w-full min-w-0 hyphens-auto break-words text-xs leading-snug text-muted-foreground sm:text-sm">{v2ItemText(item.text, locale)}</span></span>
+          {preview && item.id === "trust-payment" && <span className="mt-1 text-[8px] font-bold leading-tight text-muted-foreground">{labels.paymentPreview}</span>}
       </li>)}
     </ul></Reveal>}
 
-    {settings?.whyEnabled !== false && <Reveal delay={140} className="trust-section-reveal mt-6 border-t border-border/70 pt-5">
+    {settings?.whyEnabled !== false && <Reveal delay={140} className="trust-section-reveal mt-5 border-t border-border/70 pt-5">
       <div aria-labelledby={`${section.id}-why`}>
         <p className="text-xs font-bold uppercase tracking-wide text-success">{v2Text(section, "whyEyebrow", locale)}</p>
         <h3 id={`${section.id}-why`} className="mt-2 font-display text-xl font-bold leading-tight text-foreground sm:text-3xl">{v2Text(section, "whyTitle", locale)}</h3>
         <p className="mt-2 max-w-xl text-[13px] leading-relaxed text-muted-foreground sm:text-base">{v2Text(section, "whyDescription", locale)}</p>
-        {settings?.comparisonEnabled && <RoamingComparison section={section} preview={preview} locale={locale} uiLocale={uiLocale} onDestinationSearch={onDestinationSearch} />}
+         {settings?.comparisonStatus !== "HIDDEN" && <RoamingComparison section={section} preview={preview} locale={locale} uiLocale={uiLocale} onDestinationSearch={onDestinationSearch} />}
       </div>
     </Reveal>}
-    {v2Text(section, "cta", locale) && !(settings?.whyEnabled !== false && settings?.comparisonEnabled) && (onDestinationSearch ? <Button type="button" className="mt-4" onClick={onDestinationSearch}>{v2Text(section, "cta", locale)}</Button> : <Button asChild className="mt-4"><Link to={section.href}>{v2Text(section, "cta", locale)}</Link></Button>)}
+     {v2Text(section, "cta", locale) && !(settings?.whyEnabled !== false && settings?.comparisonStatus !== "HIDDEN") && (onDestinationSearch ? <Button type="button" className="mt-4" onClick={onDestinationSearch}>{v2Text(section, "cta", locale)}</Button> : <Button asChild className="mt-4"><Link to={section.href}>{v2Text(section, "cta", locale)}</Link></Button>)}
 
   </section>;
 }
@@ -129,42 +129,48 @@ function ReviewCard({ review, media, locale, uiLocale, ratingLabel, demoLabel }:
 
 
 const COMPARE = localize({
-  tr: { eyebrow: "Roaming'e göre daha avantajlı", pre: "En fazla", post: "fiyat avantajı*", desc: "eSIM fiyatlarını seçili roaming teklifleriyle karşılaştırın.", cta: "eSIM fiyatlarını gör", roaming: "Operatör Roaming", travely: "Travely eSIM", save: "Tasarrufunuz", demo: "DEMO / ÖNİZLEME — doğrulanmış karşılaştırma verisi değildir" },
-  de: { eyebrow: "Die Alternative zum Roaming", pre: "Bis zu", post: "günstiger*", desc: "Vergleiche eSIM-Preise mit ausgewählten Roaming-Angeboten.", cta: "eSIM-Preise ansehen", roaming: "Mobilfunk-Roaming", travely: "Travely eSIM", save: "Du sparst", demo: "DEMO / VORSCHAU — keine verifizierten Vergleichsdaten" },
-  en: { eyebrow: "The alternative to roaming", pre: "Save up to", post: "vs. roaming*", desc: "Compare eSIM prices with selected roaming offers.", cta: "See eSIM prices", roaming: "Carrier roaming", travely: "Travely eSIM", save: "You save", demo: "DEMO / PREVIEW — not verified comparison data" },
+  tr: { eyebrow: "Roaming'e göre daha avantajlı", pre: "En fazla", post: "fiyat avantajı*", desc: "eSIM fiyatlarını seçili roaming teklifleriyle karşılaştırın.", cta: "eSIM fiyatlarını gör", roaming: "Operatör Roaming", travely: "Travely eSIM", save: "Tasarrufunuz", advantage: "Fiyat avantajı", demo: "DEMO / ÖNİZLEME — doğrulanmış karşılaştırma verisi değildir", unavailable: "Doğrulanmış fiyat karşılaştırması henüz mevcut değil." },
+  de: { eyebrow: "Die Alternative zum Roaming", pre: "Bis zu", post: "günstiger*", desc: "Vergleiche eSIM-Preise mit ausgewählten Roaming-Angeboten.", cta: "eSIM-Preise ansehen", roaming: "Mobilfunk-Roaming", travely: "Travely eSIM", save: "Du sparst", advantage: "Preisvorteil", demo: "DEMO / VORSCHAU — keine verifizierten Vergleichsdaten", unavailable: "Noch kein verifizierter Preisvergleich verfügbar." },
+  en: { eyebrow: "The alternative to roaming", pre: "Save up to", post: "vs. roaming*", desc: "Compare eSIM prices with selected roaming offers.", cta: "See eSIM prices", roaming: "Carrier roaming", travely: "Travely eSIM", save: "You save", advantage: "Price advantage", demo: "DEMO / PREVIEW — not verified comparison data", unavailable: "No verified price comparison is available yet." },
 });
 
 const amount = (value: string) => { const n = Number(value.replace(/[^\d.,]/g, "").replace(/\.(?=\d{3}\b)/g, "").replace(",", ".")); return Number.isFinite(n) && n > 0 ? n : null; };
+const percentage = (value: string) => { const n = Number(value.replace(/[^\d.,]/g, "").replace(",", ".")); return Number.isFinite(n) && n > 0 && n < 100 ? n : null; };
 
 /** Public numbers render only from Admin-entered, non-preview data; preview-only shows marked demo values. */
 function RoamingComparison({ section, preview, locale, uiLocale, onDestinationSearch }: { section: V2Section; preview: boolean; locale: Locale; uiLocale: keyof typeof LOCALE_REGISTRY; onDestinationSearch?: (() => void) | undefined }) {
   const c = COMPARE[locale];
   const t = (key: string) => v2Text(section, key, locale);
   const fmt = (n: number) => new Intl.NumberFormat(LOCALE_REGISTRY[uiLocale].bcp47, { style: "currency", currency: "EUR" }).format(n);
-  const entered = { stat: t("statistic"), a: t("comparisonAValue"), b: t("comparisonBValue") };
-  const verified = !section.trust?.comparisonPreviewOnly && Boolean(entered.stat && amount(entered.a) && amount(entered.b));
-  const demo = !verified && preview;
-  const data = verified ? entered : demo ? { stat: new Intl.NumberFormat(LOCALE_REGISTRY[uiLocale].bcp47, { style: "percent" }).format(0.5), a: fmt(21.99), b: fmt(10.99) } : null;
-  const a = data ? amount(data.a) : null;
-  const b = data ? amount(data.b) : null;
-  const saving = verified ? t("comparisonHighlight") || (a && b && a > b ? fmt(a - b) : "") : demo ? fmt(11) : "";
+  const entered = { stat: section.text['statistic']?.tr ?? "", a: section.text['comparisonAValue']?.tr ?? "", b: section.text['comparisonBValue']?.tr ?? "", saving: section.text['comparisonHighlight']?.tr ?? "" };
+  const enteredA = amount(entered.a);
+  const enteredB = amount(entered.b);
+  const enteredPercent = percentage(entered.stat);
+  const enteredSaving = amount(entered.saving);
+  const verified = section.trust?.comparisonStatus === "VERIFIED" && section.trust?.comparisonPreviewOnly === false && Boolean(section.trust.comparisonVerifiedAt && t("comparisonFootnote") && t("comparisonDestination") && t("comparisonAllowance") && t("comparisonValidity") && enteredA && enteredB && enteredA > enteredB && enteredSaving && Math.abs(enteredA - enteredB - enteredSaving) < 0.011 && enteredPercent && Math.abs((1 - enteredB / enteredA) * 100 - enteredPercent) < 1);
+  const demo = !verified && preview && section.trust?.comparisonStatus !== "HIDDEN";
+  const data = verified ? { stat: `${enteredPercent}%`, a: fmt(enteredA!), b: fmt(enteredB!) } : demo ? { stat: "50 %", a: fmt(21.99), b: fmt(10.99) } : null;
+  const a = verified ? enteredA : demo ? 21.99 : null;
+  const b = verified ? enteredB : demo ? 10.99 : null;
+  const saving = verified && enteredSaving ? fmt(enteredSaving) : demo ? fmt(11) : "";
   const cta = t("comparisonCta") || c.cta;
   const ctaClass = "mt-4 inline-flex items-center gap-1.5";
-  return <div className={`mt-5 grid overflow-hidden rounded-3xl bg-card shadow-soft ring-1 ring-border ${data ? "lg:grid-cols-[2fr_3fr]" : ""}`}>
+  return <div className={`mt-4 grid min-w-0 overflow-hidden rounded-2xl bg-card shadow-soft ring-1 ring-border ${data ? "lg:grid-cols-[2fr_3fr]" : ""}`}>
     <div className={`min-w-0 p-5 sm:p-7 ${data ? "" : "lg:grid lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end lg:gap-x-8 [&>p]:lg:col-start-1 [&>button]:lg:col-start-2 [&>button]:lg:row-start-1 [&>button]:lg:row-span-2 [&>button]:lg:self-center [&>button]:lg:mt-0 [&>a]:lg:col-start-2 [&>a]:lg:row-start-1 [&>a]:lg:row-span-2 [&>a]:lg:self-center [&>a]:lg:mt-0"}`}>
+      {demo && <p className="mb-3 inline-block rounded-full bg-primary-soft px-2.5 py-1 text-[10px] font-bold text-primary">{c.demo}</p>}
       <p className="text-xs font-bold uppercase tracking-wide text-success">{t("comparisonTitle") || c.eyebrow}</p>
-      {data && <p className="mt-2 text-foreground"><span className="block text-sm font-semibold sm:text-base">{t("statisticLabel") ? "" : c.pre}</span><strong className="block font-display text-6xl font-bold leading-none text-primary sm:text-7xl">{data.stat}</strong><span className="mt-1 block font-display text-xl font-bold sm:text-2xl">{t("statisticLabel") || c.post}</span></p>}
+      {data ? <p className="mt-3 text-foreground"><span className="block text-sm font-semibold sm:text-base">{c.pre}</span><strong className="block font-display text-6xl font-bold leading-none text-primary sm:text-7xl">{data.stat}</strong><span className="mt-1 block font-display text-xl font-bold sm:text-2xl">{t("statisticLabel") || c.post}</span></p> : <p className="mt-3 text-sm text-muted-foreground">{c.unavailable}</p>}
       <p className="mt-3 max-w-sm text-sm leading-relaxed text-muted-foreground sm:text-base">{t("comparisonDescription") || c.desc}</p>
-      {onDestinationSearch ? <Button type="button" className={ctaClass} onClick={onDestinationSearch}>{cta}<ArrowRight className="size-4 rtl:rotate-180" /></Button> : <Button asChild className={ctaClass}><Link to="/esim">{cta}<ArrowRight className="size-4 rtl:rotate-180" /></Link></Button>}
+       {onDestinationSearch && section.href === "/esim" ? <Button type="button" className={ctaClass} onClick={onDestinationSearch}>{cta}<ArrowRight className="size-4 rtl:rotate-180" /></Button> : <Button asChild className={ctaClass}><Link to={section.href}>{cta}<ArrowRight className="size-4 rtl:rotate-180" /></Link></Button>}
     </div>
     {data && a && b && <div className="min-w-0 border-t border-border bg-secondary/40 p-5 sm:p-7 lg:border-s lg:border-t-0">
-      {demo && <p className="mb-3 inline-block rounded-full bg-card px-2.5 py-1 text-[10px] font-bold text-muted-foreground ring-1 ring-border">{c.demo}</p>}
+       {(t("comparisonDestination") || demo) && <p className="mb-3 text-xs font-semibold text-muted-foreground">{demo ? c.demo : t("comparisonDestination")} · {demo ? "1 GB" : t("comparisonAllowance")} · {demo ? "7 Tage" : t("comparisonValidity")}</p>}
       <div className="space-y-4">
         <div><div className="flex items-baseline justify-between gap-3 text-sm"><span className="min-w-0 font-semibold text-muted-foreground">{t("comparisonALabel") || c.roaming}</span><bdi className="shrink-0 font-display text-xl font-bold text-foreground">{data.a}</bdi></div><div className="mt-1.5 h-4 rounded-full bg-muted-foreground/25" /></div>
         <div><div className="flex items-baseline justify-between gap-3 text-sm"><span className="min-w-0 font-bold text-primary">{t("comparisonBLabel") || c.travely}</span><bdi className="shrink-0 font-display text-2xl font-bold text-primary">{data.b}</bdi></div><div className="mt-1.5 h-4 rounded-full bg-muted"><div className="h-full rounded-full bg-primary" style={{ width: `${Math.max(8, Math.min(100, (b / a) * 100))}%` }} /></div></div>
       </div>
-      {saving && <p className="mt-5 flex flex-wrap items-baseline gap-x-2 rounded-2xl bg-primary-soft px-4 py-3 text-sm font-semibold text-foreground">{c.save}<bdi className="font-display text-2xl font-bold text-primary">{saving}</bdi></p>}
-      {t("comparisonFootnote") && <p className="mt-3 text-[11px] leading-snug text-muted-foreground">{t("comparisonFootnote")}</p>}
+      {saving && <div className="mt-5 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 rounded-2xl bg-primary-soft px-4 py-3 text-sm font-semibold text-foreground"><p className="min-w-0">{t("comparisonSavingLabel") || c.save}<bdi className="block font-display text-2xl font-bold text-primary">{saving}</bdi></p><p className="text-end text-xs text-primary"><strong className="block font-display text-xl">{data.stat}</strong>{t("comparisonAdvantageLabel") || c.advantage}</p></div>}
+       {(verified && t("comparisonFootnote")) && <p className="mt-3 text-[11px] leading-snug text-muted-foreground">{t("comparisonFootnote")}</p>}
     </div>}
   </div>;
 }

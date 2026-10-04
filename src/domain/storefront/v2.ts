@@ -141,6 +141,8 @@ export type V2Section = {
     whyEnabled: boolean;
     comparisonEnabled: boolean;
     comparisonPreviewOnly: boolean;
+    comparisonStatus?: "DRAFT" | "VERIFIED" | "HIDDEN";
+    comparisonVerifiedAt?: string;
     illustrationId: string | null;
   };
 };
@@ -170,7 +172,7 @@ export const V2_TEXT_FIELDS: Record<V2SectionType, Array<[string, string]>> = {
   SEARCH_HERO: [["eyebrow", "Üst başlık"], ["title", "Başlık"], ["subtitle", "Alt başlık"], ["placeholder", "Arama metni"], ["sticky", "Sabit arama metni"]],
   BENEFIT_ROW: [],
   DESTINATION_CAROUSEL: [["title", "Başlık"]],
-  TRUST_REVIEWS: [["eyebrow", "Güven etiketi"], ["title", "Başlık"], ["accent", "Yeşil başlık satırı"], ["subtitle", "Açıklama"], ["imageAlt", "Seyahat görseli alt metni"], ["cta", "Buton metni"], ["whyEyebrow", "Neden Travely üst başlığı"], ["whyTitle", "Neden Travely başlığı"], ["whyDescription", "Neden Travely açıklaması"], ["statistic", "Ana istatistik"], ["statisticLabel", "İstatistik etiketi"], ["comparisonTitle", "Karşılaştırma başlığı"], ["comparisonDescription", "Karşılaştırma açıklaması"], ["comparisonCta", "Karşılaştırma buton metni"], ["comparisonALabel", "Birinci fiyat etiketi"], ["comparisonAValue", "Birinci fiyat"], ["comparisonBLabel", "İkinci fiyat etiketi"], ["comparisonBValue", "İkinci fiyat"], ["comparisonHighlight", "Karşılaştırma vurgusu"], ["comparisonFootnote", "Karşılaştırma dipnotu"]],
+  TRUST_REVIEWS: [["eyebrow", "Güven etiketi"], ["title", "Başlık"], ["accent", "Yeşil başlık satırı"], ["subtitle", "Açıklama"], ["imageAlt", "Seyahat görseli alt metni"], ["cta", "Buton metni"], ["whyEyebrow", "Neden Travely üst başlığı"], ["whyTitle", "Neden Travely başlığı"], ["whyDescription", "Neden Travely açıklaması"], ["statistic", "Tasarruf yüzdesi (%)"], ["statisticLabel", "Tasarruf başlığı"], ["comparisonTitle", "Karşılaştırma üst başlığı"], ["comparisonDescription", "Karşılaştırma açıklaması"], ["comparisonCta", "Karşılaştırma buton metni"], ["comparisonALabel", "Roaming etiketi"], ["comparisonAValue", "Roaming fiyatı (€)"], ["comparisonBLabel", "Travely etiketi"], ["comparisonBValue", "Travely fiyatı (€)"], ["comparisonHighlight", "Tasarruf tutarı (€)"], ["comparisonFootnote", "Kaynak / yöntem notu"], ["comparisonSavingLabel", "Tasarruf etiketi"], ["comparisonAdvantageLabel", "Fiyat avantajı etiketi"], ["comparisonDestination", "Karşılaştırılan destinasyon / referans"], ["comparisonAllowance", "Karşılaştırılan veri miktarı"], ["comparisonValidity", "Karşılaştırılan geçerlilik süresi"]],
   INFO_CAROUSEL: [["title", "Başlık"], ["subtitle", "Alt başlık"]],
   REGION_DISCOVERY: [["eyebrow", "Üst başlık"], ["title", "Başlık"], ["lead", "Açıklama"], ["worldwide", "Dünya bannerı"], ["cta", "Buton metni"]],
   NOTICE: [["title", "Başlık"], ["text", "Metin"]],
@@ -200,7 +202,7 @@ const from3 = <K extends string>(copy: Record<Locale, Record<K, unknown>>, key: 
   lt(String(copy.tr[key] ?? ""), String(copy.de[key] ?? ""), String(copy.en[key] ?? ""));
 const same = (value: string): LT => lt(value, value, value);
 
-const defaultTrust = () => ({ background: "mint" as const, focal: "right" as const, ratingMode: "manual" as const, manualRating: 4.8, maxRating: 5, manualCaption: lt("Örnek puan · müşteri değerlendirmesi değildir", "Beispielbewertung · keine Kundenbewertung", "Sample rating · not a customer rating"), autoplay: false, whyEnabled: true, comparisonEnabled: false, comparisonPreviewOnly: true, illustrationId: null });
+const defaultTrust = () => ({ background: "mint" as const, focal: "right" as const, ratingMode: "manual" as const, manualRating: 4.8, maxRating: 5, manualCaption: lt("Örnek puan · müşteri değerlendirmesi değildir", "Beispielbewertung · keine Kundenbewertung", "Sample rating · not a customer rating"), autoplay: false, whyEnabled: true, comparisonEnabled: true, comparisonPreviewOnly: true, comparisonStatus: "DRAFT" as const, illustrationId: null });
 
 function section(id: string, type: V2SectionType, patch: Partial<V2Section> = {}): V2Section {
   return {
@@ -324,7 +326,7 @@ function esimDefault(): V2Page {
         whyTitle: lt("Daha az risk. Daha uygun internet. Daha kolay seyahat.", "Weniger Risiko. Günstigeres Internet. Einfacher reisen.", "Less risk. Better-value internet. Easier travel."),
         whyDescription: lt("eSIM paketini seç, fiyatını baştan gör ve birkaç adımda bağlantıya hazır ol.", "eSIM-Paket wählen, den Preis vorab sehen und in wenigen Schritten verbunden sein.", "Choose an eSIM plan, see the price up front and get connected in a few steps."),
         comparisonTitle: lt("Roaming’e alternatif", "Die Alternative zum Roaming", "An alternative to roaming"),
-        comparisonDescription: lt("eSIM fiyatlarını seçili roaming teklifleriyle karşılaştırın.", "Vergleiche eSIM-Preise mit ausgewählten Roaming-Angeboten.", "Compare eSIM prices with selected roaming offers."), comparisonCta: lt("eSIM fiyatlarını gör", "eSIM-Preise ansehen", "See eSIM prices"), comparisonFootnote: same(""), statistic: same(""), statisticLabel: same(""), comparisonALabel: same(""), comparisonAValue: same(""), comparisonBLabel: same(""), comparisonBValue: same(""), comparisonHighlight: same(""),
+        comparisonDescription: lt("eSIM fiyatlarını seçili roaming teklifleriyle karşılaştırın.", "Vergleiche eSIM-Preise mit ausgewählten Roaming-Angeboten.", "Compare eSIM prices with selected roaming offers."), comparisonCta: lt("eSIM fiyatlarını gör", "eSIM-Preise ansehen", "See eSIM prices"), comparisonFootnote: same(""), statistic: same(""), statisticLabel: same(""), comparisonALabel: same(""), comparisonAValue: same(""), comparisonBLabel: same(""), comparisonBValue: same(""), comparisonHighlight: same(""), comparisonSavingLabel: lt("Tasarrufunuz", "Du sparst", "You save"), comparisonAdvantageLabel: lt("Fiyat avantajı", "Preisvorteil", "Price advantage"), comparisonDestination: same(""), comparisonAllowance: same(""), comparisonValidity: same(""),
       },
       items: [
         item("chip-setup", { cardType: "chip", position: "top-right", icon: "Zap", title: lt("60 saniyede kurulum", "In 60 Sekunden installiert", "Installed in 60 seconds"), text: lt("Doğrudan cihazında", "Direkt auf deinem Gerät", "Directly on your device") }),
@@ -534,6 +536,8 @@ function cleanSection(raw: any): V2Section | null {
       whyEnabled: raw.trust?.whyEnabled !== false,
       comparisonEnabled: raw.trust?.comparisonEnabled === true,
       comparisonPreviewOnly: raw.trust?.comparisonPreviewOnly !== false,
+      comparisonStatus: pick(raw.trust?.comparisonStatus, ["DRAFT", "VERIFIED", "HIDDEN"] as const, "DRAFT"),
+      comparisonVerifiedAt: DATE.test(String(raw.trust?.comparisonVerifiedAt)) ? raw.trust.comparisonVerifiedAt : "",
       illustrationId: cleanMediaId(raw.trust?.illustrationId),
     } } : {}),
   };
