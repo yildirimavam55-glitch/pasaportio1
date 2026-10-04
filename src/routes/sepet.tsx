@@ -13,7 +13,7 @@ export const Route = createFileRoute("/sepet")({
 });
 
 function V2Cart() {
-  const { locale } = useI18n();
+  const { locale, uiLocale } = useI18n();
   const c = pick(locale, CART_COPY);
   // The one existing cart store — no second cart, no price recalculation.
   const { lines, removeLine, updateQuantity } = useCart();
@@ -69,6 +69,7 @@ function V2Cart() {
                 <strong className="font-display text-xl text-foreground">{money(applied ? applied.total : total, currency)}</strong>
               </div>
               <Link to="/odeme" className="mt-3 flex min-h-12 w-full items-center justify-center rounded-full bg-primary text-sm font-semibold text-primary-foreground">{c.review}</Link>
+              <Link to="/$locale" params={{ locale: uiLocale }} className="mt-2 flex min-h-11 w-full items-center justify-center rounded-full border border-border text-sm font-semibold text-foreground hover:bg-secondary">{c.continueShopping}</Link>
             </aside>
           </div>
         )}

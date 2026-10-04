@@ -1,5 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 
+import { useRouterState } from "@tanstack/react-router";
 import { DEFAULT_LOCALE, LOCALES, type Locale } from "@/domain/enums";
 import { messages, type MessageKey } from "./messages";
 import { setActiveUiLocale } from "./overlay";
@@ -32,7 +33,9 @@ const I18nContext = createContext<I18nValue | null>(null);
 const warned = new Set<string>();
 
 export function I18nProvider({ children }: { children: ReactNode }) {
-  const [uiLocale, setUiLocale] = useState<UiLocale>(DEFAULT_LOCALE);
+  // Explicit locale routes (/de, /en/…) render in their language from the first paint.
+  const pathname = useRouterState({ select: (state) => state.location.pathname });
+  const [uiLocale, setUiLocale] = useState<UiLocale>(() => localeFromPath(pathname) ?? DEFAULT_LOCALE);
 
   useEffect(() => {
     let stored: string | null = null;
