@@ -309,7 +309,7 @@ function LTInput({ label, value, lang, onChange, multiline = false, uiLang, onSo
   const current = value ?? { tr: "", de: "", en: "" };
   const cls = "mt-1 w-full rounded-md border border-border bg-background px-2 py-1.5 text-sm font-normal";
   return (
-    <Field label={`${label} · ${code.toUpperCase()}`} {...(code !== "tr" && current.tr ? { hint: `TR: ${current.tr}` } : {})}>
+    <Field label={`${label} · ${code.toUpperCase()}${onSourceBlur ? ` · ${code === "tr" ? "SOURCE" : !current[code]?.trim() ? "EKSİK" : current._auto?.[code] === current[code] ? "AUTO_TRANSLATED" : "MANUALLY_EDITED"}` : ""}`} {...(code !== "tr" && current.tr ? { hint: `TR: ${current.tr}` } : {})}>
       {multiline
         ? <textarea rows={3} className={cls} value={current[code] ?? ""} onBlur={code === "tr" ? onSourceBlur : undefined} onChange={(e) => onChange({ ...current, [code]: e.target.value })} />
         : <input className={cls} value={current[code] ?? ""} onBlur={code === "tr" ? onSourceBlur : undefined} onChange={(e) => onChange({ ...current, [code]: e.target.value })} />}
