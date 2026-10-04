@@ -31,4 +31,6 @@ Public install help stays in V2; QR, activation credentials, and package policy 
 - Trust benefit custom images use an optional per-item CMS scale and contained rendering; this compensates for differing artwork proportions without altering shared card dimensions or uploaded media.
 - Store V2 Hero image crop presets as validated presentation values inside the existing CMS document; keep desktop and optional mobile settings independent and render one media asset through CSS so layout and uploads stay unchanged.
 - Generate Trust/Social Proof storefront translations when an Admin finishes editing Turkish source text or requests regeneration, into existing CMS locale fields; retain automatic provenance inside each text value to avoid replacing manual edits and keep public rendering read-only.
-- Keep roaming comparison graphics inside the existing Trust CMS editor with separate desktop/mobile media IDs; replacement returns to draft until explicitly verified, and public rendering uses only a verified image rather than duplicating its claims in HTML.
+- The roaming comparison is a real CMS-driven component: localized text from the Trust editor, locale-formatted structured prices with derived saving/percentage, never a text-bearing image; price edits return it to draft and only VERIFIED figures render publicly.
+
+- Loader-fetched queries are dehydrated with the router and signed media URLs stay stable across refetches, so hydration reuses the server-rendered image sources instead of swapping or re-downloading them.

@@ -772,3 +772,8 @@
 - [x] Keep unapproved numeric text comparisons in labelled Admin preview; the owner's approved graphic is the sole public visual when its media status is VERIFIED.
 - [ ] Verify the Admin translation action, manual-edit protection, and demo comparison preview with an Admin-role account; current account lacks Admin access.
 - [x] Place the owner-approved graphic within the existing Trust story below benefits; the graphic includes its original example disclaimer and reference allowance.
+
+## Image stability + real roaming comparison (2026-10-04)
+- [x] Hydration reuses server CMS data (router dehydrate/hydrate); signed media URLs kept stable on refetch
+- [x] Roaming comparison rebuilt as localized component with structured prices (14 locales)
+- [ ] Admin editor live check — blocked: session lacks Admin role

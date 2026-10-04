@@ -19,7 +19,8 @@ import {
  * missing/invalid data falls back to the built-in approved V2 layout.
  */
 
-export type V2Media = Record<string, { url: string; alt: string }>;
+/** expiresAt (ms) lets the client keep an unchanged signed URL stable across refetches. */
+export type V2Media = Record<string, { url: string; alt: string; expiresAt?: number }>;
 const KIND = "V2_STOREFRONT";
 const keyFor = (page: V2PageId) => `storefront_v2_${page}`;
 const pageOf = (value: unknown): V2PageId => ((V2_PAGES as readonly string[]).includes(String(value)) ? (value as V2PageId) : "esim");
@@ -33,9 +34,10 @@ async function resolveMedia(ids: string[]): Promise<V2Media> {
     const { data: urls } = await supabaseAdmin.storage.from("media").createSignedUrls(rows.map((row: any) => row.storage_path), 60 * 60 * 6);
     const byPath = new Map((urls ?? []).map((row: any) => [row.path, row.signedUrl]));
     const map: V2Media = {};
+    const expiresAt = Date.now() + 60 * 60 * 6 * 1000;
     for (const row of rows as any[]) {
       const url = byPath.get(row.storage_path);
-      if (url) map[row.id] = { url, alt: row.alt_text ?? "" };
+      if (url) map[row.id] = { url, alt: row.alt_text ?? "", expiresAt };
     }
     return map;
   } catch {
