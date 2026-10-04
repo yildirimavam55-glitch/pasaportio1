@@ -762,3 +762,11 @@
 - [x] Add Admin-only translation generation for Trust/Social Proof CMS fields, preserving manual locale values without a migration.
 - [x] Verify the destination CTA opens the primary country picker at 390px and 1440px across TR/DE/EN/AR; focused input, one panel, RTL, and no horizontal overflow.
 - [ ] Verify a Turkish CMS edit translates into all 13 other locales and survives Admin draft/preview; blocked by the available account's missing Admin role.
+
+## Connected Trust & Social Proof comparison
+- [x] Keep reviews, benefits, Why Travely, and the comparison inside the single Trust section; stack benefits readably on mobile and keep one unified mint background.
+- [x] Organize the existing Admin Trust editor into five groups and reuse its translate-all action for copy while excluding numeric values.
+- [x] Store comparison status, verification date, matched destination/allowance/validity, source note, and labels in the existing JSON CMS model without a migration.
+- [x] Show example figures only in labelled Admin preview; public display of figures requires manually entered, consistent values and verified comparison metadata.
+- [ ] Obtain independently verified, like-for-like roaming/eSIM prices and source methodology before enabling public numeric claims.
+- [ ] Verify the Admin translation action, manual-edit protection, and demo comparison preview with an Admin-role account; current account lacks Admin access.
