@@ -14,6 +14,7 @@ import {
 import { GUIDES_COPY, countryIsoFromSlug, countrySlug } from "@/components/guides/copy";
 import { getGuideBySlug, getGuideDestinationHub } from "@/lib/guides.functions";
 import { useI18n } from "@/i18n";
+import { localize } from "@/i18n/overlay";
 import { COUNTRIES } from "@/domain/geo/countries";
 import { CountryFlag } from "@/components/travel/CountryFlag";
 import type { Locale } from "@/domain/enums";
@@ -154,6 +155,8 @@ export const Route = createFileRoute("/guides/$slug")({
   component: GuideEntryPage,
 });
 
+const ESIM_CTA = localize({ tr: "eSIM paketlerini keşfet", de: "eSIM-Pakete entdecken", en: "Explore eSIM packages" });
+
 function GuideMissing() {
   const { locale } = useI18n();
   const copy = GUIDES_COPY[locale];
@@ -181,11 +184,11 @@ function GuideEntryPage() {
 }
 
 function Breadcrumbs({ current, category }: { current: string; category?: string | null }) {
-  const { locale } = useI18n();
+  const { locale, uiLocale } = useI18n();
   const copy = GUIDES_COPY[locale];
   return (
     <nav aria-label="breadcrumb" className="text-xs text-muted-foreground">
-      <Link to="/" search={{ service: "esim" }} className="hover:text-foreground">
+      <Link to="/$locale" params={{ locale: uiLocale }} className="hover:text-foreground">
         {copy.breadcrumbHome}
       </Link>
       <span className="px-1.5">/</span>
@@ -399,11 +402,16 @@ function GuideArticle({
           </section>
         )}
 
-        <Button asChild variant="outline" className="mt-10">
+        <div className="mt-10 flex flex-wrap gap-3">
+        <Button asChild>
+          <Link to="/esim" search={{ country: "" }}>{ESIM_CTA[locale]}</Link>
+        </Button>
+        <Button asChild variant="outline">
           <Link to="/tr/rehber">
             <ArrowLeft /> {copy.allGuides}
           </Link>
         </Button>
+        </div>
       </main>
     </PublicShell>
   );
