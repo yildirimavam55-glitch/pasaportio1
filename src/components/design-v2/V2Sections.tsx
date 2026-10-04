@@ -30,6 +30,8 @@ import trustBenefitGlobe from "@/assets/trust-benefit-globe.webp";
 import trustBenefitRefund from "@/assets/trust-benefit-refund.webp";
 import trustBenefitInstall from "@/assets/trust-benefit-install.webp";
 import trustBenefitPayment from "@/assets/trust-benefit-payment.webp";
+import roamingComparisonDesktop from "@/assets/roaming-comparison-desktop.png.asset.json";
+import roamingComparisonMobile from "@/assets/roaming-comparison-mobile.png.asset.json";
 
 export const V2_BUILTIN_URLS: Record<string, string> = {
   "builtin:esim-hero": esimHero,
@@ -52,6 +54,8 @@ export const V2_BUILTIN_URLS: Record<string, string> = {
   "builtin:trust-benefit-refund": trustBenefitRefund,
   "builtin:trust-benefit-install": trustBenefitInstall,
   "builtin:trust-benefit-payment": trustBenefitPayment,
+  "builtin:roaming-comparison-desktop": roamingComparisonDesktop.url,
+  "builtin:roaming-comparison-mobile": roamingComparisonMobile.url,
 };
 
 export const V2_PREVIEW_WINDOW = "v2-cms-preview";

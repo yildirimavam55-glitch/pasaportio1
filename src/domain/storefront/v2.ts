@@ -59,7 +59,7 @@ export const V2_SAFE_LINKS = [
 export type V2SafeLink = (typeof V2_SAFE_LINKS)[number];
 
 /** Images bundled with the app, referenced as `builtin:<key>`. */
-export const V2_BUILTIN_MEDIA = ["esim-hero", "lounge-hero", "vignette-hero", "lounge-card", "esim-cross-sell", "info-products", "info-roaming", "info-delivery", "info-install", "info-payment", "info-support", "trust-refund", "trust-traveler", "trust-demo-giulia", "trust-demo-haruto", "trust-demo-emily", "trust-benefit-globe", "trust-benefit-refund", "trust-benefit-install", "trust-benefit-payment"] as const;
+export const V2_BUILTIN_MEDIA = ["esim-hero", "lounge-hero", "vignette-hero", "lounge-card", "esim-cross-sell", "info-products", "info-roaming", "info-delivery", "info-install", "info-payment", "info-support", "trust-refund", "trust-traveler", "trust-demo-giulia", "trust-demo-haruto", "trust-demo-emily", "trust-benefit-globe", "trust-benefit-refund", "trust-benefit-install", "trust-benefit-payment", "roaming-comparison-desktop", "roaming-comparison-mobile"] as const;
 
 /** Existing trust cards from before image editing receive their approved visuals once on read. */
 const TRUST_BENEFIT_MEDIA: Record<string, string> = {
@@ -144,6 +144,8 @@ export type V2Section = {
     comparisonStatus?: "DRAFT" | "VERIFIED" | "HIDDEN";
     comparisonVerifiedAt?: string;
     illustrationId: string | null;
+    comparisonMediaId?: string | null;
+    comparisonMobileMediaId?: string | null;
   };
 };
 
@@ -202,7 +204,7 @@ const from3 = <K extends string>(copy: Record<Locale, Record<K, unknown>>, key: 
   lt(String(copy.tr[key] ?? ""), String(copy.de[key] ?? ""), String(copy.en[key] ?? ""));
 const same = (value: string): LT => lt(value, value, value);
 
-const defaultTrust = () => ({ background: "mint" as const, focal: "right" as const, ratingMode: "manual" as const, manualRating: 4.8, maxRating: 5, manualCaption: lt("Örnek puan · müşteri değerlendirmesi değildir", "Beispielbewertung · keine Kundenbewertung", "Sample rating · not a customer rating"), autoplay: false, whyEnabled: true, comparisonEnabled: true, comparisonPreviewOnly: true, comparisonStatus: "DRAFT" as const, illustrationId: null });
+const defaultTrust = () => ({ background: "mint" as const, focal: "right" as const, ratingMode: "manual" as const, manualRating: 4.8, maxRating: 5, manualCaption: lt("Örnek puan · müşteri değerlendirmesi değildir", "Beispielbewertung · keine Kundenbewertung", "Sample rating · not a customer rating"), autoplay: false, whyEnabled: true, comparisonEnabled: true, comparisonPreviewOnly: false, comparisonStatus: "VERIFIED" as const, illustrationId: null, comparisonMediaId: "builtin:roaming-comparison-desktop", comparisonMobileMediaId: "builtin:roaming-comparison-mobile" });
 
 function section(id: string, type: V2SectionType, patch: Partial<V2Section> = {}): V2Section {
   return {
@@ -535,10 +537,12 @@ function cleanSection(raw: any): V2Section | null {
       autoplay: raw.trust?.autoplay === true,
       whyEnabled: raw.trust?.whyEnabled !== false,
       comparisonEnabled: raw.trust?.comparisonEnabled === true,
-      comparisonPreviewOnly: raw.trust?.comparisonPreviewOnly !== false,
-      comparisonStatus: pick(raw.trust?.comparisonStatus, ["DRAFT", "VERIFIED", "HIDDEN"] as const, "DRAFT"),
+      comparisonPreviewOnly: raw.trust?.comparisonMediaId === undefined ? false : raw.trust?.comparisonPreviewOnly !== false,
+      comparisonStatus: raw.trust?.comparisonMediaId === undefined && raw.trust?.comparisonStatus !== "HIDDEN" ? "VERIFIED" : pick(raw.trust?.comparisonStatus, ["DRAFT", "VERIFIED", "HIDDEN"] as const, "DRAFT"),
       comparisonVerifiedAt: DATE.test(String(raw.trust?.comparisonVerifiedAt)) ? raw.trust.comparisonVerifiedAt : "",
       illustrationId: cleanMediaId(raw.trust?.illustrationId),
+      comparisonMediaId: raw.trust?.comparisonMediaId === undefined ? "builtin:roaming-comparison-desktop" : cleanMediaId(raw.trust.comparisonMediaId),
+      comparisonMobileMediaId: raw.trust?.comparisonMobileMediaId === undefined && raw.trust?.comparisonMediaId === undefined ? "builtin:roaming-comparison-mobile" : cleanMediaId(raw.trust?.comparisonMobileMediaId),
     } } : {}),
   };
 }
@@ -628,7 +632,7 @@ export function missingV2Translations(config: V2PageConfig, locale: "de" | "en")
 export function collectV2MediaIds(config: V2PageConfig): string[] {
   const ids = new Set<string>();
   for (const s of config.sections) {
-    for (const id of [s.mediaId, s.mobileMediaId, s.trust?.illustrationId, ...s.items.map((item) => item.mediaId)]) if (id && UUID.test(id)) ids.add(id);
+    for (const id of [s.mediaId, s.mobileMediaId, s.trust?.illustrationId, s.trust?.comparisonMediaId, s.trust?.comparisonMobileMediaId, ...s.items.map((item) => item.mediaId)]) if (id && UUID.test(id)) ids.add(id);
   }
   return [...ids];
 }

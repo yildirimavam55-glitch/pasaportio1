@@ -103,7 +103,7 @@ export function V2TrustReviews({ section, media, preview = false, onDestinationS
         <p className="text-xs font-bold uppercase tracking-wide text-success">{v2Text(section, "whyEyebrow", locale)}</p>
         <h3 id={`${section.id}-why`} className="mt-2 font-display text-xl font-bold leading-tight text-foreground sm:text-3xl">{v2Text(section, "whyTitle", locale)}</h3>
         <p className="mt-2 max-w-xl text-[13px] leading-relaxed text-muted-foreground sm:text-base">{v2Text(section, "whyDescription", locale)}</p>
-         {settings?.comparisonStatus !== "HIDDEN" && <RoamingComparison section={section} preview={preview} locale={locale} uiLocale={uiLocale} onDestinationSearch={onDestinationSearch} />}
+         {settings?.comparisonStatus !== "HIDDEN" && <RoamingComparison section={section} media={media} preview={preview} locale={locale} uiLocale={uiLocale} onDestinationSearch={onDestinationSearch} />}
       </div>
     </Reveal>}
      {v2Text(section, "cta", locale) && !(settings?.whyEnabled !== false && settings?.comparisonStatus !== "HIDDEN") && (onDestinationSearch ? <Button type="button" className="mt-4" onClick={onDestinationSearch}>{v2Text(section, "cta", locale)}</Button> : <Button asChild className="mt-4"><Link to={section.href}>{v2Text(section, "cta", locale)}</Link></Button>)}
@@ -138,9 +138,19 @@ const amount = (value: string) => { const n = Number(value.replace(/[^\d.,]/g, "
 const percentage = (value: string) => { const n = Number(value.replace(/[^\d.,]/g, "").replace(",", ".")); return Number.isFinite(n) && n > 0 && n < 100 ? n : null; };
 
 /** Public numbers render only from Admin-entered, non-preview data; preview-only shows marked demo values. */
-function RoamingComparison({ section, preview, locale, uiLocale, onDestinationSearch }: { section: V2Section; preview: boolean; locale: Locale; uiLocale: keyof typeof LOCALE_REGISTRY; onDestinationSearch?: (() => void) | undefined }) {
+function RoamingComparison({ section, media, preview, locale, uiLocale, onDestinationSearch }: { section: V2Section; media: V2Media; preview: boolean; locale: Locale; uiLocale: keyof typeof LOCALE_REGISTRY; onDestinationSearch?: (() => void) | undefined }) {
   const c = COMPARE[locale];
   const t = (key: string) => v2Text(section, key, locale);
+  const desktopGraphic = mediaUrl(section.trust?.comparisonMediaId, media);
+  const mobileGraphic = mediaUrl(section.trust?.comparisonMobileMediaId, media);
+  if (desktopGraphic && (section.trust?.comparisonStatus === "VERIFIED" || preview && section.trust?.comparisonStatus !== "HIDDEN")) {
+    return <div className="mx-auto mt-4 w-full max-w-[60rem] overflow-hidden rounded-2xl bg-card shadow-soft ring-1 ring-border">
+      {section.trust?.comparisonStatus !== "VERIFIED" && <p className="bg-primary-soft px-4 py-2 text-xs font-bold text-primary">DEMO / ÖNİZLEME — yalnız yönetici görünümü</p>}
+      <a href={section.href === "/esim" ? "/esim" : section.href} onClick={onDestinationSearch && section.href === "/esim" ? (event) => { event.preventDefault(); onDestinationSearch(); } : undefined} aria-label={t("comparisonCta") || c.cta} className="block focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary">
+        <picture>{mobileGraphic && <source media="(max-width: 639px)" srcSet={mobileGraphic} />}<img src={desktopGraphic} alt={t("comparisonTitle") || c.eyebrow} loading="lazy" decoding="async" width={918} height={479} className="block h-auto w-full object-contain" /></picture>
+      </a>
+    </div>;
+  }
   const fmt = (n: number) => new Intl.NumberFormat(LOCALE_REGISTRY[uiLocale].bcp47, { style: "currency", currency: "EUR" }).format(n);
   const entered = { stat: section.text['statistic']?.tr ?? "", a: section.text['comparisonAValue']?.tr ?? "", b: section.text['comparisonBValue']?.tr ?? "", saving: section.text['comparisonHighlight']?.tr ?? "" };
   const enteredA = amount(entered.a);
