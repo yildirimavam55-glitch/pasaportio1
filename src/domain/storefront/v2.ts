@@ -59,7 +59,7 @@ export const V2_SAFE_LINKS = [
 export type V2SafeLink = (typeof V2_SAFE_LINKS)[number];
 
 /** Images bundled with the app, referenced as `builtin:<key>`. */
-export const V2_BUILTIN_MEDIA = ["esim-hero", "lounge-hero", "vignette-hero", "lounge-card", "esim-cross-sell", "info-products", "info-roaming", "info-delivery", "info-install", "info-payment", "info-support", "trust-refund", "trust-traveler", "trust-demo-giulia", "trust-demo-haruto", "trust-demo-emily", "trust-benefit-globe", "trust-benefit-refund", "trust-benefit-install", "trust-benefit-payment", "roaming-comparison-desktop", "roaming-comparison-mobile"] as const;
+export const V2_BUILTIN_MEDIA = ["esim-hero", "lounge-hero", "vignette-hero", "lounge-card", "esim-cross-sell", "info-products", "info-roaming", "info-delivery", "info-install", "info-payment", "info-support", "trust-refund", "trust-traveler", "trust-demo-giulia", "trust-demo-haruto", "trust-demo-emily", "trust-benefit-globe", "trust-benefit-refund", "trust-benefit-install", "trust-benefit-payment"] as const;
 
 /** Existing trust cards from before image editing receive their approved visuals once on read. */
 const TRUST_BENEFIT_MEDIA: Record<string, string> = {
@@ -205,7 +205,36 @@ const from3 = <K extends string>(copy: Record<Locale, Record<K, unknown>>, key: 
   lt(String(copy.tr[key] ?? ""), String(copy.de[key] ?? ""), String(copy.en[key] ?? ""));
 const same = (value: string): LT => lt(value, value, value);
 
-const defaultTrust = () => ({ background: "mint" as const, focal: "right" as const, ratingMode: "manual" as const, manualRating: 4.8, maxRating: 5, manualCaption: lt("Örnek puan · müşteri değerlendirmesi değildir", "Beispielbewertung · keine Kundenbewertung", "Sample rating · not a customer rating"), autoplay: false, whyEnabled: true, comparisonEnabled: true, comparisonPreviewOnly: false, comparisonStatus: "VERIFIED" as const, illustrationId: null, comparisonMediaId: "builtin:roaming-comparison-desktop", comparisonMobileMediaId: "builtin:roaming-comparison-mobile" });
+/** Owner-approved comparison (2026-10-04): 21.99 EUR roaming vs 10.99 EUR Travely eSIM. */
+export const OWNER_APPROVED_COMPARISON = { comparisonEnabled: true, comparisonPreviewOnly: false, comparisonStatus: "VERIFIED" as const, comparisonVerifiedAt: "2026-10-04", comparisonRoamingPrice: 21.99, comparisonTravelyPrice: 10.99 };
+
+const price = (value: unknown) => { const n = Math.round(Number(value) * 100) / 100; return value != null && value !== "" && Number.isFinite(n) && n > 0 && n < 10000 ? n : null; };
+
+/** Legacy rows without structured prices adopt the owner-approved comparison; HIDDEN always wins. */
+function cleanComparison(trust: any) {
+  if (trust?.comparisonRoamingPrice === undefined) {
+    return { ...OWNER_APPROVED_COMPARISON, ...(trust?.comparisonStatus === "HIDDEN" ? { comparisonStatus: "HIDDEN" as const, comparisonEnabled: false } : {}) };
+  }
+  const status = pick(trust?.comparisonStatus, ["DRAFT", "VERIFIED", "HIDDEN"] as const, "DRAFT");
+  return {
+    comparisonEnabled: status !== "HIDDEN" && trust?.comparisonEnabled !== false,
+    comparisonPreviewOnly: status !== "VERIFIED",
+    comparisonStatus: status,
+    comparisonVerifiedAt: DATE.test(String(trust?.comparisonVerifiedAt)) ? String(trust.comparisonVerifiedAt) : "",
+    comparisonRoamingPrice: price(trust?.comparisonRoamingPrice),
+    comparisonTravelyPrice: price(trust?.comparisonTravelyPrice),
+  };
+}
+
+/** Saving and percentage are derived from the two prices, never typed separately. */
+export function comparisonFigures(trust: V2Section["trust"]) {
+  const a = trust?.comparisonRoamingPrice ?? null;
+  const b = trust?.comparisonTravelyPrice ?? null;
+  if (a == null || b == null || !(a > b) || !(b > 0)) return null;
+  return { roaming: a, travely: b, saving: Math.round((a - b) * 100) / 100, percent: Math.round((1 - b / a) * 100) };
+}
+
+const defaultTrust = () => ({ background: "mint" as const, focal: "right" as const, ratingMode: "manual" as const, manualRating: 4.8, maxRating: 5, manualCaption: lt("Örnek puan · müşteri değerlendirmesi değildir", "Beispielbewertung · keine Kundenbewertung", "Sample rating · not a customer rating"), autoplay: false, whyEnabled: true, ...OWNER_APPROVED_COMPARISON, illustrationId: null });
 
 function section(id: string, type: V2SectionType, patch: Partial<V2Section> = {}): V2Section {
   return {
@@ -628,7 +657,7 @@ export function missingV2Translations(config: V2PageConfig, locale: "de" | "en")
 export function collectV2MediaIds(config: V2PageConfig): string[] {
   const ids = new Set<string>();
   for (const s of config.sections) {
-    for (const id of [s.mediaId, s.mobileMediaId, s.trust?.illustrationId, s.trust?.comparisonMediaId, s.trust?.comparisonMobileMediaId, ...s.items.map((item) => item.mediaId)]) if (id && UUID.test(id)) ids.add(id);
+    for (const id of [s.mediaId, s.mobileMediaId, s.trust?.illustrationId, ...s.items.map((item) => item.mediaId)]) if (id && UUID.test(id)) ids.add(id);
   }
   return [...ids];
 }
