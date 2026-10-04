@@ -329,7 +329,7 @@ function ActionDock({ showCart, showWhatsApp, purchaseSummary }: { showCart: boo
   const l = pick(locale, DOCK);
   const { count } = useCart();
   return (
-    <div className="pointer-events-none fixed inset-x-0 bottom-[calc(3.75rem+env(safe-area-inset-bottom))] z-30 px-4 pb-1.5 sm:bottom-4 lg:left-auto lg:right-6 lg:w-[25rem] lg:px-0">
+    <div className="pointer-events-none fixed inset-x-0 bottom-[calc(3.75rem+env(safe-area-inset-bottom))] z-30 px-4 pb-1.5 sm:bottom-4 lg:left-auto lg:right-[max(1.5rem,calc((100vw-77rem)/2-4.5rem))] lg:w-[25rem] lg:px-0">
       <div className="mx-auto flex max-w-xl items-center justify-end gap-2 lg:mx-0">
         {purchaseSummary}
         {!purchaseSummary && showCart && count > 0 && (
