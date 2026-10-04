@@ -29,7 +29,7 @@ const BENEFIT_IMAGE_SIZE: Record<80 | 100 | 120 | 140 | 160, string> = {
 };
 
 /** Public reviews are additionally filtered on the server; demos can only appear in the Admin iframe. */
-export function V2TrustReviews({ section, media, preview = false }: { section: V2Section; media: V2Media; preview?: boolean }) {
+export function V2TrustReviews({ section, media, preview = false, onDestinationSearch }: { section: V2Section; media: V2Media; preview?: boolean; onDestinationSearch?: () => void }) {
   const { locale, uiLocale } = useI18n();
   const labels = LABELS[locale];
   const settings = section.trust;
@@ -113,7 +113,7 @@ export function V2TrustReviews({ section, media, preview = false }: { section: V
         </div>}
       </div>
     </Reveal>}
-    {v2Text(section, "cta", locale) && <Button asChild className="mt-4"><Link to={section.href}>{v2Text(section, "cta", locale)}</Link></Button>}
+    {v2Text(section, "cta", locale) && (onDestinationSearch ? <Button type="button" className="mt-4" onClick={onDestinationSearch}>{v2Text(section, "cta", locale)}</Button> : <Button asChild className="mt-4"><Link to={section.href}>{v2Text(section, "cta", locale)}</Link></Button>)}
 
   </section>;
 }

@@ -23,6 +23,7 @@ export function V2PickerSheet({
   selectedId,
   onSelect,
   emptyLabel,
+  autoFocusSearch = false,
   children,
 }: {
   open: boolean;
@@ -35,6 +36,7 @@ export function V2PickerSheet({
   selectedId?: string;
   onSelect: (id: string) => void;
   emptyLabel: string;
+  autoFocusSearch?: boolean;
   children: ReactNode;
 }) {
   const previousScroll = useRef<{ x: number; y: number } | null>(null);
@@ -50,6 +52,12 @@ export function V2PickerSheet({
   useLayoutEffect(() => {
     if (open && !previousScroll.current) previousScroll.current = { x: window.scrollX, y: window.scrollY };
   }, [open]);
+
+  useLayoutEffect(() => {
+    if (!open || !autoFocusSearch) return;
+    const frame = requestAnimationFrame(() => inputRef.current?.focus({ preventScroll: true }));
+    return () => cancelAnimationFrame(frame);
+  }, [open, autoFocusSearch]);
 
   useLayoutEffect(() => {
     if (!open) {
