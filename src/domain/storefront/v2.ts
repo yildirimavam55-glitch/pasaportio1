@@ -143,9 +143,10 @@ export type V2Section = {
     comparisonPreviewOnly: boolean;
     comparisonStatus?: "DRAFT" | "VERIFIED" | "HIDDEN";
     comparisonVerifiedAt?: string;
+    /** Structured, locale-independent comparison prices (EUR). Saving and percentage are derived. */
+    comparisonRoamingPrice?: number | null;
+    comparisonTravelyPrice?: number | null;
     illustrationId: string | null;
-    comparisonMediaId?: string | null;
-    comparisonMobileMediaId?: string | null;
   };
 };
 
@@ -536,13 +537,8 @@ function cleanSection(raw: any): V2Section | null {
       manualCaption: cleanLT(raw.trust?.manualCaption, 160),
       autoplay: raw.trust?.autoplay === true,
       whyEnabled: raw.trust?.whyEnabled !== false,
-      comparisonEnabled: raw.trust?.comparisonEnabled === true,
-      comparisonPreviewOnly: raw.trust?.comparisonMediaId === undefined ? false : raw.trust?.comparisonPreviewOnly !== false,
-      comparisonStatus: raw.trust?.comparisonMediaId === undefined && raw.trust?.comparisonStatus !== "HIDDEN" ? "VERIFIED" : pick(raw.trust?.comparisonStatus, ["DRAFT", "VERIFIED", "HIDDEN"] as const, "DRAFT"),
-      comparisonVerifiedAt: DATE.test(String(raw.trust?.comparisonVerifiedAt)) ? raw.trust.comparisonVerifiedAt : "",
+      ...cleanComparison(raw.trust),
       illustrationId: cleanMediaId(raw.trust?.illustrationId),
-      comparisonMediaId: raw.trust?.comparisonMediaId === undefined ? "builtin:roaming-comparison-desktop" : cleanMediaId(raw.trust.comparisonMediaId),
-      comparisonMobileMediaId: raw.trust?.comparisonMobileMediaId === undefined && raw.trust?.comparisonMediaId === undefined ? "builtin:roaming-comparison-mobile" : cleanMediaId(raw.trust?.comparisonMobileMediaId),
     } } : {}),
   };
 }
