@@ -150,8 +150,8 @@ function RoamingComparison({ section, preview, locale, uiLocale, onDestinationSe
   const saving = verified ? t("comparisonHighlight") || (a && b && a > b ? fmt(a - b) : "") : demo ? fmt(11) : "";
   const cta = t("comparisonCta") || c.cta;
   const ctaClass = "mt-4 inline-flex items-center gap-1.5";
-  return <div className="mt-5 grid overflow-hidden rounded-3xl bg-card shadow-soft ring-1 ring-border lg:grid-cols-[2fr_3fr]">
-    <div className="min-w-0 p-5 sm:p-7">
+  return <div className={`mt-5 grid overflow-hidden rounded-3xl bg-card shadow-soft ring-1 ring-border ${data ? "lg:grid-cols-[2fr_3fr]" : ""}`}>
+    <div className={`min-w-0 p-5 sm:p-7 ${data ? "" : "lg:grid lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end lg:gap-x-8 [&>p]:lg:col-start-1 [&>button]:lg:col-start-2 [&>button]:lg:row-start-1 [&>button]:lg:row-span-2 [&>button]:lg:self-center [&>button]:lg:mt-0 [&>a]:lg:col-start-2 [&>a]:lg:row-start-1 [&>a]:lg:row-span-2 [&>a]:lg:self-center [&>a]:lg:mt-0"}`}>
       <p className="text-xs font-bold uppercase tracking-wide text-success">{t("comparisonTitle") || c.eyebrow}</p>
       {data && <p className="mt-2 text-foreground"><span className="block text-sm font-semibold sm:text-base">{t("statisticLabel") ? "" : c.pre}</span><strong className="block font-display text-6xl font-bold leading-none text-primary sm:text-7xl">{data.stat}</strong><span className="mt-1 block font-display text-xl font-bold sm:text-2xl">{t("statisticLabel") || c.post}</span></p>}
       <p className="mt-3 max-w-sm text-sm leading-relaxed text-muted-foreground sm:text-base">{t("comparisonDescription") || c.desc}</p>
