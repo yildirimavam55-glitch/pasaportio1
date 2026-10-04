@@ -29,7 +29,7 @@ const BENEFIT_IMAGE_SIZE: Record<80 | 100 | 120 | 140 | 160, string> = {
 };
 
 /** Public reviews are additionally filtered on the server; demos can only appear in the Admin iframe. */
-export function V2TrustReviews({ section, media, preview = false, onDestinationSearch }: { section: V2Section; media: V2Media; preview?: boolean; onDestinationSearch?: () => void }) {
+export function V2TrustReviews({ section, media, preview = false, onDestinationSearch }: { section: V2Section; media: V2Media; preview?: boolean; onDestinationSearch?: (() => void) | undefined }) {
   const { locale, uiLocale } = useI18n();
   const labels = LABELS[locale];
   const settings = section.trust;
