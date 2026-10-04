@@ -20,6 +20,8 @@ function countryName(iso: string | null, locale: Locale) {
   return COUNTRIES.find((c) => c.iso === iso)?.name[locale] ?? iso;
 }
 
+const ESIM_CTA: Record<Locale, string> = { tr: "eSIM paketlerini keşfet", de: "eSIM-Pakete entdecken", en: "Explore eSIM packages" };
+
 const FINDER_COPY: Record<Locale, { title: string; destination: string; choose: string; cta: string; region: string }> = {
   tr: { title: "Seyahatin için doğru eSIM'i bul", destination: "Destinasyon", choose: "Ülke seç", cta: "eSIM'imi bul", region: "Bölgesel eSIM paketlerini görüntüle" },
   de: { title: "Finde die passende eSIM für deine Reise", destination: "Reiseziel", choose: "Land wählen", cta: "Meine eSIM finden", region: "Regionale eSIM-Pakete ansehen" },
@@ -237,7 +239,11 @@ export function SeoContentPage({ page }: { page: SeoPage }) {
           ))}
         </div>
 
-        {esimGuide || !commercial ? <FinderCta locale={locale} iso={finderIso} /> : null}
+        {esimGuide || !commercial ? <FinderCta locale={locale} iso={finderIso} /> : (
+          <Button asChild variant="outline" className="my-6">
+            <Link to="/esim" search={{ country: "" }}>{ESIM_CTA[locale]} <ArrowRight /></Link>
+          </Button>
+        )}
 
         {guide.faq.length ? (
           <section className="mt-10">
@@ -276,7 +282,7 @@ export function SeoMissing({ locale }: { locale: Locale }) {
       <main className="mx-auto w-full max-w-3xl px-4 py-16 text-center">
         <h1 className="font-display text-2xl font-bold">{SEO_COPY[locale].notFound}</h1>
         <Button asChild className="mt-6">
-          <Link to="/" search={{ service: "esim" } as never}>
+          <Link to="/$locale" params={{ locale }}>
             {SEO_COPY[locale].home}
           </Link>
         </Button>

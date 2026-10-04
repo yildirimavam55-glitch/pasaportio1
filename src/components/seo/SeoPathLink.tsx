@@ -27,7 +27,7 @@ export function SeoPathLink({
   if (locale === "de" && folder === "ratgeber") return <Link to="/de/ratgeber" {...common} />;
   if (locale === "en" && folder === "guides") return <Link to="/en/guides" {...common} />;
   if (locale === "tr" && folder === "rehber") return <Link to="/tr/rehber" {...common} />;
-  if (locale === "de") return <Link to="/de" search={{ service: "esim" }} {...common} />;
-  if (locale === "en") return <Link to="/en" search={{ service: "esim" }} {...common} />;
-  return <Link to="/tr" search={{ service: "esim" }} {...common} />;
+  if (locale === "de") return <Link to="/de" {...common} />;
+  if (locale === "en") return <Link to="/en" {...common} />;
+  return <Link to="/tr" {...common} />;
 }
