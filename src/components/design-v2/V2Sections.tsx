@@ -71,7 +71,7 @@ function keepStableMedia(previous: unknown, next: unknown): unknown {
   const media: V2Media = {};
   for (const [id, asset] of Object.entries(incoming.media)) {
     const old = prev.media[id];
-    media[id] = old && signedBase(old.url) === signedBase(asset.url) && (old.expiresAt ?? 0) - Date.now() > 30 * 60_000 ? { ...asset, url: old.url, expiresAt: old.expiresAt } : asset;
+    media[id] = old && signedBase(old.url) === signedBase(asset.url) && (old.expiresAt ?? 0) - Date.now() > 30 * 60_000 ? { ...asset, url: old.url, expiresAt: old.expiresAt ?? 0 } : asset;
   }
   return replaceEqualDeep(prev, { ...incoming, media });
 }

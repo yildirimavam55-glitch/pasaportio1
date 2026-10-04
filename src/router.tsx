@@ -12,9 +12,9 @@ export const getRouter = () => {
     defaultPreloadStaleTime: 0,
     // Loader-fetched queries (published storefront CMS, media URLs) travel with the SSR HTML,
     // so the hydrated render reuses the exact data — and image URLs — the server rendered.
-    dehydrate: () => ({ queryClientState: dehydrate(queryClient) as unknown as Record<string, unknown> }),
-    hydrate: (dehydrated: { queryClientState: Record<string, unknown> }) => {
-      hydrate(queryClient, dehydrated.queryClientState as unknown as DehydratedState);
+    dehydrate: () => ({ queryClientState: JSON.stringify(dehydrate(queryClient)) }),
+    hydrate: (dehydrated: { queryClientState: string }) => {
+      hydrate(queryClient, JSON.parse(dehydrated.queryClientState) as DehydratedState);
     },
   });
 
