@@ -63,9 +63,33 @@ const extraRows: Partial<Record<UiLocale, readonly string[]>> = {
   zh: ["为什么选择 Travely？", "风险更少。流量更划算。旅行更轻松。", "选择 eSIM 套餐，提前查看价格，只需几步即可连接。", "漫游之外的选择", "选择目的地", "未使用的 eSIM，可在购买后 14 天内申请", "编辑示例 · 非真实客户评价", "灵活套餐", "60 秒即可安装", "14 天退款保障", "示例评分 · 非客户评分"],
 };
 
+
+// Roaming comparison component copy (numbers are never translated; they are locale-formatted).
+const compareSource = [
+  "The alternative to roaming", "Up to", "cheaper*", "Compare eSIM prices with selected roaming offers.",
+  "See eSIM prices", "Carrier roaming", "You save", "Price advantage",
+  "* Example comparison. Prices may vary by provider, country and period.", "Price comparison",
+  "Internet abroad – transparent, with no surprise roaming charges.", "Compare our eSIM packages for your destination.",
+] as const;
+
+const compareRows: Partial<Record<UiLocale, readonly string[]>> = {
+  fr: ["L’alternative au roaming", "Jusqu’à", "moins cher*", "Comparez les prix eSIM avec des offres de roaming sélectionnées.", "Voir les prix eSIM", "Roaming opérateur", "Vous économisez", "Avantage prix", "* Exemple de comparaison. Les prix peuvent varier selon l’opérateur, le pays et la période.", "Comparaison des prix", "Internet à l’étranger – transparent, sans frais de roaming surprises.", "Comparez nos forfaits eSIM pour votre destination."],
+  es: ["La alternativa al roaming", "Hasta un", "más barato*", "Compara los precios eSIM con ofertas de roaming seleccionadas.", "Ver precios eSIM", "Roaming del operador", "Ahorras", "Ventaja de precio", "* Comparación de ejemplo. Los precios pueden variar según el operador, el país y el periodo.", "Comparación de precios", "Internet en el extranjero: transparente y sin cargos de roaming inesperados.", "Compara nuestros planes eSIM para tu destino."],
+  it: ["L’alternativa al roaming", "Fino al", "in meno*", "Confronta i prezzi eSIM con offerte roaming selezionate.", "Vedi i prezzi eSIM", "Roaming dell’operatore", "Risparmi", "Vantaggio di prezzo", "* Confronto di esempio. I prezzi possono variare in base a operatore, paese e periodo.", "Confronto prezzi", "Internet all’estero: trasparente e senza costi di roaming a sorpresa.", "Confronta i nostri piani eSIM per la tua destinazione."],
+  pt: ["A alternativa ao roaming", "Até", "mais barato*", "Compara os preços eSIM com ofertas de roaming selecionadas.", "Ver preços eSIM", "Roaming do operador", "Poupas", "Vantagem de preço", "* Comparação de exemplo. Os preços podem variar consoante o operador, o país e o período.", "Comparação de preços", "Internet no estrangeiro – transparente e sem custos de roaming inesperados.", "Compara os nossos planos eSIM para o teu destino."],
+  nl: ["Het alternatief voor roaming", "Tot", "goedkoper*", "Vergelijk eSIM-prijzen met geselecteerde roamingaanbiedingen.", "Bekijk eSIM-prijzen", "Roaming via provider", "Je bespaart", "Prijsvoordeel", "* Voorbeeldvergelijking. Prijzen kunnen per provider, land en periode verschillen.", "Prijsvergelijking", "Internet in het buitenland – transparant, zonder verrassende roamingkosten.", "Vergelijk onze eSIM-bundels voor je bestemming."],
+  pl: ["Alternatywa dla roamingu", "Do", "taniej*", "Porównaj ceny eSIM z wybranymi ofertami roamingu.", "Zobacz ceny eSIM", "Roaming operatora", "Oszczędzasz", "Przewaga cenowa", "* Przykładowe porównanie. Ceny mogą się różnić w zależności od operatora, kraju i okresu.", "Porównanie cen", "Internet za granicą – przejrzyście i bez niespodziewanych opłat za roaming.", "Porównaj nasze pakiety eSIM dla swojego kierunku."],
+  ru: ["Альтернатива роумингу", "До", "дешевле*", "Сравните цены eSIM с выбранными роуминговыми предложениями.", "Смотреть цены eSIM", "Роуминг оператора", "Вы экономите", "Ценовое преимущество", "* Пример сравнения. Цены могут различаться в зависимости от оператора, страны и периода.", "Сравнение цен", "Интернет за границей — прозрачно и без неожиданных расходов на роуминг.", "Сравните наши тарифы eSIM для вашего направления."],
+  ar: ["البديل عن التجوال", "حتى", "أرخص*", "قارن أسعار eSIM مع عروض تجوال مختارة.", "عرض أسعار eSIM", "تجوال المشغّل", "توفّر", "ميزة السعر", "* مقارنة توضيحية. قد تختلف الأسعار حسب المشغّل والبلد والفترة.", "مقارنة الأسعار", "إنترنت في الخارج – بشفافية ودون رسوم تجوال مفاجئة.", "قارن باقات eSIM لوجهتك."],
+  ja: ["ローミングに代わる選択肢", "最大", "お得*", "eSIMの料金を、選ばれたローミングプランと比較できます。", "eSIMの料金を見る", "携帯会社のローミング", "節約額", "価格メリット", "* 比較例です。料金は通信会社・国・期間により異なる場合があります。", "料金比較", "海外でのインターネットを、明確な料金で。思わぬローミング料金の心配なし。", "旅行先のeSIMプランを比較しましょう。"],
+  ko: ["로밍을 대신할 선택", "최대", "저렴*", "eSIM 가격을 선별한 로밍 요금과 비교해 보세요.", "eSIM 가격 보기", "통신사 로밍", "절약 금액", "가격 혜택", "* 비교 예시입니다. 가격은 통신사, 국가, 기간에 따라 달라질 수 있습니다.", "가격 비교", "해외 인터넷을 투명하게, 예상치 못한 로밍 요금 없이.", "여행지에 맞는 eSIM 요금제를 비교해 보세요."],
+  zh: ["漫游之外的选择", "最高便宜", "*", "将 eSIM 价格与精选漫游方案进行比较。", "查看 eSIM 价格", "运营商漫游", "您可节省", "价格优势", "* 示例比较。价格可能因运营商、国家和时间而异。", "价格比较", "出境上网——价格透明，没有意外的漫游费用。", "为您的目的地比较我们的 eSIM 套餐。"],
+};
+
 export const TRUST_TRANSLATIONS: Partial<Record<UiLocale, Record<string, string>>> = Object.fromEntries(
   Object.entries(rows).map(([locale, values]) => [locale, {
     ...Object.fromEntries(source.map((key, index) => [key, values[index]])),
     ...Object.fromEntries(extraSource.map((key, index) => [key, extraRows[locale as UiLocale]?.[index]])),
+    ...Object.fromEntries(compareSource.map((key, index) => [key, compareRows[locale as UiLocale]?.[index]])),
   }]),
 );
