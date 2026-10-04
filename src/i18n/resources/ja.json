@@ -887,5 +887,13 @@
   "Higher cost": "高いコスト",
   "Lower cost": "低いコスト",
   "Protected payment step": "保護された支払い手続き",
-  "Live payment methods will be shown here soon": "オンライン決済方法は近日中にこちらに表示されます。"
+  "Live payment methods will be shown here soon": "オンライン決済方法は近日中にこちらに表示されます。",
+  "The alternative to roaming": "ローミングに代わる選択肢",
+  "Save up to": "最大",
+  "vs. roaming*": "ローミングよりお得*",
+  "Compare eSIM prices with selected roaming offers.": "eSIMの価格を厳選したローミングプランと比較しましょう。",
+  "See eSIM prices": "eSIMの価格を見る",
+  "Carrier roaming": "キャリアのローミング",
+  "You save": "節約額",
+  "DEMO / PREVIEW — not verified comparison data": "デモ / プレビュー — 未検証の比較データ"
 }

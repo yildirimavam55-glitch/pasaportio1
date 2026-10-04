@@ -887,5 +887,13 @@
   "Higher cost": "تكلفة أعلى",
   "Lower cost": "تكلفة أقل",
   "Protected payment step": "خطوة دفع محمية",
-  "Live payment methods will be shown here soon": "ستظهر طرق الدفع المباشر هنا قريبًا."
+  "Live payment methods will be shown here soon": "ستظهر طرق الدفع المباشر هنا قريبًا.",
+  "The alternative to roaming": "البديل عن التجوال",
+  "Save up to": "وفّر حتى",
+  "vs. roaming*": "مقارنةً بالتجوال*",
+  "Compare eSIM prices with selected roaming offers.": "قارن أسعار eSIM مع عروض تجوال مختارة.",
+  "See eSIM prices": "عرض أسعار eSIM",
+  "Carrier roaming": "تجوال المشغّل",
+  "You save": "توفيرك",
+  "DEMO / PREVIEW — not verified comparison data": "عرض تجريبي / معاينة — بيانات مقارنة غير موثّقة"
 }
