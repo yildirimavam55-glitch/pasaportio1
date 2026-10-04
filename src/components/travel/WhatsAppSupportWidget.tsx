@@ -163,7 +163,7 @@ export function WhatsAppSupportWidget({ surface, placement = "inline" }: { surfa
         aria-label={base.label}
         aria-expanded={open}
         aria-controls={open ? cardId : undefined}
-        className="grid size-[3.25rem] place-items-center rounded-full shadow-lg hover:brightness-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+        className={`grid size-[3.25rem] place-items-center rounded-full shadow-lg hover:brightness-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ${surface === "v2-dock" ? "lg:max-[1399px]:size-[2.625rem]" : ""}`}
         style={{ backgroundColor: "#25D366", color: "#fff" }}
       >
         {open ? <X className="size-6" /> : <WhatsAppLogo className="size-6" />}
