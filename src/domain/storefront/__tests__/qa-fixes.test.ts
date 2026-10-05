@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { V2CompactFaq } from "@/components/design-v2/V2DiscoveryContent";
-import { defaultV2Page, sanitizeV2Page } from "@/domain/storefront/v2";
+import { comparisonFigures, defaultV2Page, sanitizeV2Page, V2_TEXT_FIELDS } from "@/domain/storefront/v2";
 import { looksFormalGerman, STOREFRONT_TRANSLATION_STYLE } from "@/domain/storefront/translation-style";
 
 describe("eSIM FAQ data source", () => {
@@ -51,6 +51,17 @@ describe("roaming comparison mode", () => {
     const trust = trustOf(sanitizeV2Page(raw, "esim"));
     expect(trust.comparisonMode).toBe("STRUCTURED");
     expect(trust.comparisonPreviewOnly).toBe(true);
+  });
+  it("derives exact saving and proportional bar length from structured prices", () => {
+    const trust = trustOf(defaultV2Page("esim"));
+    const figures = comparisonFigures(trust);
+    expect(figures).toMatchObject({ roaming: 21.99, travely: 10.99, saving: 11, percent: 50 });
+    expect(figures?.travely && figures.travely / figures.roaming).toBeCloseTo(0.49977, 4);
+    expect(comparisonFigures({ ...trust, comparisonRoamingPrice: 30, comparisonTravelyPrice: 9 })).toMatchObject({ saving: 21, percent: 70 });
+  });
+  it("keeps the new supporting labels in the existing translated Trust editor", () => {
+    const fields = V2_TEXT_FIELDS.TRUST_REVIEWS.map(([key]) => key);
+    expect(fields).toEqual(expect.arrayContaining(["comparisonASupport", "comparisonBSupport", "comparisonTitle", "comparisonDescription", "comparisonCta", "comparisonSavingLabel", "comparisonAdvantageLabel", "comparisonFootnote"]));
   });
 });
 
