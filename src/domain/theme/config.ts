@@ -3,13 +3,19 @@
 export type ThemeConfig = {
   logoMediaId: string | null;
   faviconMediaId: string | null;
-  colors: { primary: string; cta: string; success: string; warning: string; info: string };
+  colors: { primary: string; secondary: string; background: string; text: string; cta: string; success: string; warning: string; info: string };
   headingFont: "Outfit" | "Manrope" | "Sora" | "Urbanist";
   bodyFont: "Manrope" | "Inter" | "Figtree" | "Work Sans";
   radius: "sharp" | "soft" | "round";
   shadow: "none" | "subtle" | "raised";
   buttonStyle: "solid" | "outline" | "pill";
   surface: "light" | "soft" | "contrast";
+  headingScale: "compact" | "default" | "large";
+  bodyScale: "compact" | "default" | "large";
+  sectionSpacing: "compact" | "default" | "large";
+  pageWidth: "narrow" | "default" | "wide";
+  buttonRadius: "small" | "default" | "pill";
+  cardRadius: "small" | "default" | "large";
 };
 
 export type PublishedThemeConfig = ThemeConfig & { logoUrl: string | null; faviconUrl: string | null };
@@ -17,13 +23,19 @@ export type PublishedThemeConfig = ThemeConfig & { logoUrl: string | null; favic
 export const DEFAULT_THEME: ThemeConfig = {
   logoMediaId: null,
   faviconMediaId: null,
-  colors: { primary: "#07584f", cta: "#e2662a", success: "#1f8a5f", warning: "#c98a17", info: "#2b6cb0" },
+  colors: { primary: "#07584f", secondary: "#f3efe4", background: "#faf7ef", text: "#173d3a", cta: "#e2662a", success: "#1f8a5f", warning: "#c98a17", info: "#2b6cb0" },
   headingFont: "Outfit",
   bodyFont: "Manrope",
   radius: "soft",
   shadow: "subtle",
   buttonStyle: "solid",
   surface: "light",
+  headingScale: "default",
+  bodyScale: "default",
+  sectionSpacing: "default",
+  pageWidth: "default",
+  buttonRadius: "default",
+  cardRadius: "default",
 };
 
 const HEX = /^#[0-9a-fA-F]{6}$/;
@@ -39,6 +51,9 @@ export function sanitizeTheme(input: unknown): ThemeConfig {
     faviconMediaId: raw.faviconMediaId ? String(raw.faviconMediaId) : null,
     colors: {
       primary: color(raw.colors?.primary, base.colors.primary),
+      secondary: color(raw.colors?.secondary, base.colors.secondary),
+      background: color(raw.colors?.background, base.colors.background),
+      text: color(raw.colors?.text, base.colors.text),
       cta: color(raw.colors?.cta, base.colors.cta),
       success: color(raw.colors?.success, base.colors.success),
       warning: color(raw.colors?.warning, base.colors.warning),
@@ -50,6 +65,12 @@ export function sanitizeTheme(input: unknown): ThemeConfig {
     shadow: pick(raw.shadow, ["none", "subtle", "raised"] as const, base.shadow),
     buttonStyle: pick(raw.buttonStyle, ["solid", "outline", "pill"] as const, base.buttonStyle),
     surface: pick(raw.surface, ["light", "soft", "contrast"] as const, base.surface),
+    headingScale: pick(raw.headingScale, ["compact", "default", "large"] as const, base.headingScale),
+    bodyScale: pick(raw.bodyScale, ["compact", "default", "large"] as const, base.bodyScale),
+    sectionSpacing: pick(raw.sectionSpacing, ["compact", "default", "large"] as const, base.sectionSpacing),
+    pageWidth: pick(raw.pageWidth, ["narrow", "default", "wide"] as const, base.pageWidth),
+    buttonRadius: pick(raw.buttonRadius, ["small", "default", "pill"] as const, base.buttonRadius),
+    cardRadius: pick(raw.cardRadius, ["small", "default", "large"] as const, base.cardRadius),
   };
 }
 
@@ -70,6 +91,13 @@ const SHADOW = {
   },
 } as const;
 
+const HEADING_SCALE = { compact: "0.92", default: "1", large: "1.1" } as const;
+const BODY_SCALE = { compact: "0.94", default: "1", large: "1.06" } as const;
+const SECTION_SPACING = { compact: "2rem", default: "3rem", large: "4rem" } as const;
+const PAGE_WIDTH = { narrow: "68rem", default: "80rem", wide: "92rem" } as const;
+const BUTTON_RADIUS = { small: "0.5rem", default: "0.75rem", pill: "999px" } as const;
+const CARD_RADIUS = { small: "0.75rem", default: "1.25rem", large: "1.75rem" } as const;
+
 /** CSS custom properties applied to the storefront root element. */
 export function themeCssVariables(theme: ThemeConfig): Record<string, string> {
   const isEmpty = !theme;
@@ -77,6 +105,9 @@ export function themeCssVariables(theme: ThemeConfig): Record<string, string> {
   const shadow = SHADOW[theme.shadow];
   return {
     "--primary": theme.colors.primary,
+    "--secondary": theme.colors.secondary,
+    "--background": theme.colors.background,
+    "--foreground": theme.colors.text,
     "--cta": theme.colors.cta,
     "--success": theme.colors.success,
     "--warning": theme.colors.warning,
@@ -84,6 +115,14 @@ export function themeCssVariables(theme: ThemeConfig): Record<string, string> {
     "--radius": RADIUS[theme.radius],
     "--font-sans": `"${theme.bodyFont}", sans-serif`,
     "--font-display": `"${theme.headingFont}", sans-serif`,
+    "--font-body": `"${theme.bodyFont}", sans-serif`,
+    "--font-heading": `"${theme.headingFont}", sans-serif`,
+    "--theme-heading-scale": HEADING_SCALE[theme.headingScale],
+    "--theme-body-scale": BODY_SCALE[theme.bodyScale],
+    "--section-spacing": SECTION_SPACING[theme.sectionSpacing],
+    "--page-max-width": PAGE_WIDTH[theme.pageWidth],
+    "--button-radius": BUTTON_RADIUS[theme.buttonRadius],
+    "--radius-card": CARD_RADIUS[theme.cardRadius],
     "--theme-shadow-card": shadow.card,
     "--theme-shadow-panel": shadow.panel,
     "--theme-shadow-brand": shadow.brand,

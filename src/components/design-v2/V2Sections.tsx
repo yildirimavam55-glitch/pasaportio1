@@ -5,6 +5,7 @@ import { V2InfoCarousel } from "@/components/design-v2/V2InfoCarousel";
 import { V2TrustReviews } from "@/components/design-v2/V2TrustReviews";
 import { V2Compatibility, V2CompactFaq, V2GuidesRail, V2InfoGrid, V2Installation } from "@/components/design-v2/V2DiscoveryContent";
 import { DesktopDeviceCompatibilityBanner } from "@/components/travel/DeviceCompatibility";
+import { V2SectionFrame } from "@/components/design-v2/V2SectionFrame";
 import { StorefrontIcon } from "@/domain/storefront/icons";
 import { defaultV2Page, isInWindow, sanitizeV2Page, v2ItemText, v2Text, type V2PageConfig, type V2PageId, type V2Section } from "@/domain/storefront/v2";
 import { getPublishedV2Page, type V2Media } from "@/lib/v2-storefront.functions";
@@ -160,13 +161,14 @@ export function V2Sections({ config, media, slots, only, onDestinationSearch }: 
       {sections.map((s, index) => {
         const t = (key: string) => v2Text(s, key, locale);
         const items = s.items.filter((item) => item.visible);
+        const framed = (node: ReactNode) => <V2SectionFrame key={s.id} section={s}>{node}</V2SectionFrame>;
         switch (s.type) {
           case "SEARCH_HERO":
-            return <V2Fragment key={s.id}>{slots.hero(s)}</V2Fragment>;
+            return framed(slots.hero(s));
           case "BENEFIT_ROW":
-            return <V2Fragment key={s.id}><div className={slots.benefitsInDesktopHero ? "lg:hidden" : undefined}><TrustRow items={items.map((item) => ({ icon: <StorefrontIcon name={item.icon} className="size-6" />, label: v2ItemText(item.title, locale) }))} />{slots.afterBenefits}</div></V2Fragment>;
+            return framed(<div className={slots.benefitsInDesktopHero ? "lg:hidden" : undefined}><TrustRow items={items.map((item) => ({ icon: <StorefrontIcon name={item.icon} className="size-6" />, label: v2ItemText(item.title, locale) }))} />{slots.afterBenefits}</div>);
           case "DESTINATION_CAROUSEL":
-            return <V2Fragment key={s.id}>{slots.destinations?.(s)}{slots.afterDestinations}</V2Fragment>;
+            return framed(<>{slots.destinations?.(s)}{slots.afterDestinations}</>);
           case "TRUST_REVIEWS":
             return <V2TrustReviews key={s.id} section={s} media={media} preview={isPreview} onDestinationSearch={onDestinationSearch} />;
           case "REGION_DISCOVERY":
@@ -216,11 +218,11 @@ export function V2Sections({ config, media, slots, only, onDestinationSearch }: 
           case "INFO_CAROUSEL":
             return <V2InfoCarousel key={s.id} section={s} media={media} />;
           case "GUIDE_CAROUSEL":
-            return <V2GuidesRail key={s.id} title={t("title")} lead={t("lead")} allLabel={t("all")} />;
+            return framed(<V2GuidesRail title={t("title")} lead={t("lead")} allLabel={t("all")} />);
           case "FAQ": {
-            if (slots.faq) return <V2Fragment key={s.id}>{slots.faq}</V2Fragment>;
+            if (slots.faq) return framed(slots.faq);
             const questions = items.map((item) => [v2ItemText(item.title, locale), v2ItemText(item.text, locale)] as const);
-            return <V2CompactFaq key={s.id} title={t("title")} questions={questions} relaxed={s.variant === "comfortable"} />;
+            return framed(<V2CompactFaq title={t("title")} questions={questions} relaxed={s.variant === "comfortable"} />);
           }
           case "SPACER":
             return <div key={s.id} aria-hidden className={s.height === "tall" ? "h-10" : s.height === "normal" ? "h-6" : "h-3"} />;

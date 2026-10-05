@@ -24,6 +24,16 @@ import {
   missingV2Translations,
   V2_ADDABLE,
   V2_ALIGNS,
+  V2_DESIGN_ALIGNMENTS,
+  V2_DESIGN_BACKGROUNDS,
+  V2_DESIGN_FONTS,
+  V2_DESIGN_LINES,
+  V2_DESIGN_POSITIONS,
+  V2_DESIGN_RADII,
+  V2_DESIGN_SPACING,
+  V2_DESIGN_TRACKING,
+  V2_DESIGN_WEIGHTS,
+  V2_DESIGN_WIDTHS,
   V2_HEIGHTS,
   V2_ITEM_MODE,
   V2_OVERLAYS,
@@ -51,6 +61,7 @@ const PAGE_LABEL: Record<V2PageId, string> = { esim: "eSIM ana sayfası", lounge
 const LINK_LABEL: Record<string, string> = { "/esim": "eSIM", "/lounge": "Lounge", "/vignette": "Vignette", "/destek": "Destek / kurulum rehberi", "/sepet": "Sepet", "/account": "Hesabım" };
 const DEVICES = [{ id: "360", w: 360 }, { id: "390", w: 390 }, { id: "430", w: 430 }, { id: "Masaüstü", w: 1280 }] as const;
 const PRESET = { left: "Sola", center: "Orta", compact: "Kompakt", normal: "Normal", tall: "Yüksek", light: "Hafif", strong: "Güçlü" } as Record<string, string>;
+const DESIGN_LABELS: Record<string, string> = { default: "Travely varsayılanı", narrow: "Dar", wide: "Geniş", full: "Tam genişlik", brand: "Marka", dark: "Koyu", custom: "Özel renk", small: "Küçük", medium: "Orta", large: "Büyük", theme: "Tema varsayılanı", heading: "Başlık yazı tipi", body: "Gövde yazı tipi", semibold: "Yarı kalın", bold: "Kalın", tight: "Sıkı", relaxed: "Rahat", right: "Sağ" };
 
 export const Route = createFileRoute("/_authenticated/admin/storefront/v2/$page")({
   head: ({ params }) => adminHead(`V2 ${PAGE_LABEL[(params.page as V2PageId)] ?? "sayfa"} düzenleyici`, "V2 storefront bölümlerini, metinlerini ve görsellerini düzenle, önizle ve yayınla."),
@@ -200,6 +211,7 @@ function Editor({ page }: { page: V2PageId }) {
             {(dirty || editor.data?.hasDraftChanges) && " · Yayınlanmamış değişiklikler var"}
           </p>
         </div>
+        <div className="flex rounded-md border border-border p-0.5" aria-label="Düzenlenen sayfa">{V2_PAGES.map((id) => <Button key={id} asChild size="sm" variant={id === page ? "default" : "ghost"}><Link to="/admin/storefront/v2/$page" params={{ page: id }}>{id === "esim" ? "Ana sayfa" : PAGE_LABEL[id]}</Link></Button>)}</div>
         <Button variant="outline" size="sm" onClick={() => setShowHistory((v) => !v)}><History />Geçmiş</Button>
         <Button variant="outline" size="sm" onClick={() => { if (window.confirm("Tüm sayfa onaylı varsayılan tasarıma dönsün mü? (Kaydedene kadar yalnız taslakta)")) update(defaults); }}><RotateCcw />Varsayılana dön</Button>
         {editor.data?.hasDraftChanges && !dirty && <Button variant="outline" size="sm" onClick={() => discard.mutate()}>Taslağı at</Button>}
@@ -267,6 +279,7 @@ function Editor({ page }: { page: V2PageId }) {
           {V2_PROTECTED.includes(selected.type) && <p className="mb-3 rounded-md bg-secondary p-2 text-[11px] text-muted-foreground">Arama mantığı kodda korunur. Burada yalnızca metin, görsel ve görünüm ön ayarları değişir; bölüm gizlenemez veya taşınamaz.</p>}
            {<div className="mb-3 flex items-center gap-2"><Button type="button" size="sm" variant="outline" disabled={translatingTrust} onClick={() => void translateTrust()}>{translatingTrust ? "Çevriliyor…" : "Tüm dillere çevir"}</Button><span className="text-xs text-muted-foreground">Türkçe kaynak 13 dile çevrilir; elle düzenlenen çeviriler korunur. "Taslağı kaydet" değişen Türkçe metni otomatik çevirir; yayınlamaz.</span></div>}
           <LocaleStatusRow section={selected} />
+          <SectionDesignEditor section={selected} onChange={(design) => patchSection(selected.id, design ? { design } : { design: undefined } as unknown as Partial<V2Section>)} />
           <SectionForm section={selected} lang={lang} page={page} trustPreviewLocale={trustPreviewLocale} onTrustLocale={setTrustPreviewLocale} onTrustSourceBlur={() => void translateTrust()} onChange={(patch) => patchSection(selected.id, patch)} />
         </AdminPanel>
 
@@ -287,6 +300,36 @@ function Editor({ page }: { page: V2PageId }) {
         </AdminPanel>
       </div>
     </div>
+  );
+}
+
+const DEFAULT_DESIGN: NonNullable<V2Section["design"]> = { width: "default", spacing: "default", background: "default", radius: "default", font: "theme", weight: "default", lineHeight: "default", letterSpacing: "default", textAlign: "default", position: "top-left" };
+
+function SectionDesignEditor({ section, onChange }: { section: V2Section; onChange: (design: NonNullable<V2Section["design"]> | undefined) => void }) {
+  const design = section.design ?? DEFAULT_DESIGN;
+  const set = (patch: Partial<typeof design>) => onChange({ ...design, ...patch });
+  const setResponsive = (device: "desktop" | "tablet" | "mobile", key: "headingSize" | "bodySize", value: string) => set({ [device]: { ...design[device], [key]: value ? Number(value) : undefined } });
+  const positionSupported = section.type !== "SEARCH_HERO" && section.type !== "SPACER";
+  return (
+    <details className="mb-4 rounded-md border border-border bg-secondary/30 p-3">
+      <summary className="cursor-pointer text-xs font-bold">Tasarım ayarları</summary>
+      <p className="mt-2 text-[11px] text-muted-foreground">Bu ayarlar tüm dillerde ortaktır. Boş veya varsayılan değerler mevcut Travely görünümünü aynen korur.</p>
+      <div className="mt-3 grid gap-3 sm:grid-cols-2">
+        <Select label="İçerik genişliği" value={design.width} options={V2_DESIGN_WIDTHS} labels={DESIGN_LABELS} onChange={(width) => set({ width })} />
+        <Select label="Bölüm aralığı" value={design.spacing} options={V2_DESIGN_SPACING} labels={DESIGN_LABELS} onChange={(spacing) => set({ spacing })} />
+        <Select label="Arka plan" value={design.background} options={V2_DESIGN_BACKGROUNDS} labels={DESIGN_LABELS} onChange={(background) => set({ background })} />
+        {design.background === "custom" && <Field label="Özel arka plan rengi"><input type="color" className="admin-field mt-1 h-10 w-full" value={design.customColor ?? "#faf7ef"} onChange={(event) => set({ customColor: event.target.value })} /></Field>}
+        <Select label="Köşe yuvarlaklığı" value={design.radius} options={V2_DESIGN_RADII} labels={DESIGN_LABELS} onChange={(radius) => set({ radius })} />
+        <Select label="Yazı tipi" value={design.font} options={V2_DESIGN_FONTS} labels={DESIGN_LABELS} onChange={(font) => set({ font })} />
+        <Select label="Yazı kalınlığı" value={design.weight} options={V2_DESIGN_WEIGHTS} labels={DESIGN_LABELS} onChange={(weight) => set({ weight })} />
+        <Select label="Satır yüksekliği" value={design.lineHeight} options={V2_DESIGN_LINES} labels={DESIGN_LABELS} onChange={(lineHeight) => set({ lineHeight })} />
+        <Select label="Harf aralığı" value={design.letterSpacing} options={V2_DESIGN_TRACKING} labels={DESIGN_LABELS} onChange={(letterSpacing) => set({ letterSpacing })} />
+        <Select label="Metin hizası" value={design.textAlign} options={V2_DESIGN_ALIGNMENTS} labels={DESIGN_LABELS} onChange={(textAlign) => set({ textAlign })} />
+      </div>
+      {positionSupported && <div className="mt-3"><p className="mb-2 text-xs font-semibold">İçerik konumu</p><div className="grid w-44 grid-cols-3 gap-1">{V2_DESIGN_POSITIONS.map((position) => <Button key={position} type="button" size="icon" variant={design.position === position ? "default" : "outline"} className="size-9" title={position} aria-label={position} onClick={() => set({ position })}><span className="size-2 rounded-full bg-current" /></Button>)}</div></div>}
+      <div className="mt-4 grid gap-3 sm:grid-cols-3">{(["desktop", "tablet", "mobile"] as const).map((device) => <div key={device} className="rounded-md border border-border bg-background p-2"><p className="text-xs font-bold capitalize">{device}</p><Field label="Başlık px"><input type="number" min="18" max="80" className="admin-field mt-1 w-full" value={design[device]?.headingSize ?? ""} placeholder="Varsayılan" onChange={(event) => setResponsive(device, "headingSize", event.target.value)} /></Field><Field label="Metin px"><input type="number" min="11" max="28" className="admin-field mt-1 w-full" value={design[device]?.bodySize ?? ""} placeholder="Varsayılan" onChange={(event) => setResponsive(device, "bodySize", event.target.value)} /></Field></div>)}</div>
+      <Button type="button" size="sm" variant="outline" className="mt-3" onClick={() => onChange(undefined)}><RotateCcw />Tasarımı varsayılana döndür</Button>
+    </details>
   );
 }
 

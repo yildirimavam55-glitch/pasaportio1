@@ -1,10 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useEffect, useState } from "react";
-import { History, Monitor, RotateCcw, Smartphone } from "lucide-react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { History, Monitor, RotateCcw, Smartphone, Tablet } from "lucide-react";
 import { AdminGate } from "@/components/AdminGate";
 import { AdminError, AdminLoading, AdminPanel, Field } from "@/components/admin/AdminUi";
-import { ThemePreview } from "@/components/admin/ThemePreview";
 import { adminHead } from "@/components/admin/AdminSectionPage";
 import { Button } from "@/components/ui/button";
 import { getThemeSettings, publishTheme, restoreThemeVersion, saveThemeDraft } from "@/lib/admin-theme.functions";
@@ -20,6 +19,9 @@ export const Route = createFileRoute("/_authenticated/admin/theme")({
 
 const COLORS: Array<{ key: keyof ThemeConfig["colors"]; label: string }> = [
   { key: "primary", label: "Petrol (ana renk)" },
+  { key: "secondary", label: "İkincil yüzey" },
+  { key: "background", label: "Sayfa arka planı" },
+  { key: "text", label: "Metin rengi" },
   { key: "cta", label: "Eylem turuncusu" },
   { key: "success", label: "Başarı" },
   { key: "warning", label: "Uyarı" },
@@ -32,13 +34,22 @@ function Theme() {
   const media = useQuery({ queryKey: ["media", "all"], queryFn: () => listMedia({ data: {} }) });
   const [theme, setTheme] = useState<ThemeConfig>(DEFAULT_THEME);
   const [message, setMessage] = useState<string | null>(null);
-  const [device, setDevice] = useState<"desktop" | "mobile">("desktop");
+  const [device, setDevice] = useState<"desktop" | "tablet" | "mobile">("desktop");
+  const [previewPage, setPreviewPage] = useState<"esim" | "lounge" | "vignette">("esim");
+  const frame = useRef<HTMLIFrameElement | null>(null);
   const [savedDraft, setSavedDraft] = useState<ThemeConfig>(DEFAULT_THEME);
 
   useEffect(() => { if (settings.data?.draft) { setTheme(settings.data.draft as ThemeConfig); setSavedDraft(settings.data.draft as ThemeConfig); } }, [settings.data]);
   const hasUnsavedChanges = JSON.stringify(theme) !== JSON.stringify(savedDraft);
   const draftDiffersFromPublished = JSON.stringify(savedDraft) !== JSON.stringify(settings.data?.published ?? DEFAULT_THEME);
-  const selectedLogo = (media.data ?? []).find((asset: any) => asset.id === theme.logoMediaId);
+  const previewWidth = device === "mobile" ? 390 : device === "tablet" ? 768 : 1280;
+  const pushPreview = useCallback(() => frame.current?.contentWindow?.postMessage({ type: "v2-theme-preview", theme }, window.location.origin), [theme]);
+  useEffect(() => { pushPreview(); }, [pushPreview]);
+  useEffect(() => {
+    const ready = (event: MessageEvent) => { if (event.origin === window.location.origin && event.data?.type === "v2-theme-ready") pushPreview(); };
+    window.addEventListener("message", ready);
+    return () => window.removeEventListener("message", ready);
+  }, [pushPreview]);
 
   const save = useMutation({
     mutationFn: () => saveThemeDraft({ data: { theme } }),
@@ -91,6 +102,12 @@ function Theme() {
               <Field label="Gölge"><select className="admin-field mt-1 w-full" value={theme.shadow} onChange={(event) => set({ shadow: event.target.value as ThemeConfig["shadow"] })}><option value="none">Yok</option><option value="subtle">Hafif</option><option value="raised">Belirgin</option></select></Field>
               <Field label="Düğme biçimi"><select className="admin-field mt-1 w-full" value={theme.buttonStyle} onChange={(event) => set({ buttonStyle: event.target.value as ThemeConfig["buttonStyle"] })}><option value="solid">Dolu</option><option value="outline">Çerçeveli</option><option value="pill">Yuvarlak</option></select></Field>
               <Field label="Bölüm yüzeyi"><select className="admin-field mt-1 w-full" value={theme.surface} onChange={(event) => set({ surface: event.target.value as ThemeConfig["surface"] })}><option value="light">Açık</option><option value="soft">Yumuşak</option><option value="contrast">Kontrast</option></select></Field>
+              <Field label="Başlık ölçeği"><select className="admin-field mt-1 w-full" value={theme.headingScale} onChange={(event) => set({ headingScale: event.target.value as ThemeConfig["headingScale"] })}><option value="compact">Kompakt</option><option value="default">Travely varsayılanı</option><option value="large">Büyük</option></select></Field>
+              <Field label="Gövde metni ölçeği"><select className="admin-field mt-1 w-full" value={theme.bodyScale} onChange={(event) => set({ bodyScale: event.target.value as ThemeConfig["bodyScale"] })}><option value="compact">Kompakt</option><option value="default">Travely varsayılanı</option><option value="large">Büyük</option></select></Field>
+              <Field label="Varsayılan bölüm aralığı"><select className="admin-field mt-1 w-full" value={theme.sectionSpacing} onChange={(event) => set({ sectionSpacing: event.target.value as ThemeConfig["sectionSpacing"] })}><option value="compact">Kompakt</option><option value="default">Travely varsayılanı</option><option value="large">Geniş</option></select></Field>
+              <Field label="Sayfa maksimum genişliği"><select className="admin-field mt-1 w-full" value={theme.pageWidth} onChange={(event) => set({ pageWidth: event.target.value as ThemeConfig["pageWidth"] })}><option value="narrow">Dar</option><option value="default">Travely varsayılanı</option><option value="wide">Geniş</option></select></Field>
+              <Field label="Düğme köşesi"><select className="admin-field mt-1 w-full" value={theme.buttonRadius} onChange={(event) => set({ buttonRadius: event.target.value as ThemeConfig["buttonRadius"] })}><option value="small">Küçük</option><option value="default">Travely varsayılanı</option><option value="pill">Tam yuvarlak</option></select></Field>
+              <Field label="Kart köşesi"><select className="admin-field mt-1 w-full" value={theme.cardRadius} onChange={(event) => set({ cardRadius: event.target.value as ThemeConfig["cardRadius"] })}><option value="small">Küçük</option><option value="default">Travely varsayılanı</option><option value="large">Büyük</option></select></Field>
             </div>
           </AdminPanel>
 
@@ -105,9 +122,10 @@ function Theme() {
 
         <div className="grid content-start gap-4 xl:sticky xl:top-20">
           <AdminPanel title="Taslak önizleme">
-            <div className="mb-3 flex gap-2"><Button size="sm" variant={device === "desktop" ? "default" : "outline"} onClick={() => setDevice("desktop")}><Monitor /> Masaüstü</Button><Button size="sm" variant={device === "mobile" ? "default" : "outline"} onClick={() => setDevice("mobile")}><Smartphone /> Mobil</Button></div>
+            <Field label="Sayfa"><select className="admin-field mt-1 mb-3 w-full" value={previewPage} onChange={(event) => setPreviewPage(event.target.value as typeof previewPage)}><option value="esim">Ana sayfa / eSIM</option><option value="lounge">Lounge</option><option value="vignette">Vignette</option></select></Field>
+            <div className="mb-3 flex gap-2"><Button size="sm" variant={device === "desktop" ? "default" : "outline"} onClick={() => setDevice("desktop")}><Monitor /> Masaüstü</Button><Button size="sm" variant={device === "tablet" ? "default" : "outline"} onClick={() => setDevice("tablet")}><Tablet /> Tablet</Button><Button size="sm" variant={device === "mobile" ? "default" : "outline"} onClick={() => setDevice("mobile")}><Smartphone /> Mobil</Button></div>
             <p className="mb-3 text-xs text-muted-foreground">Bu görünüm yerel taslağı gösterir; kaydetmek veya yayınlamak gerekmez.</p>
-            <ThemePreview theme={theme} logoUrl={selectedLogo?.url ?? null} device={device} />
+            <div className="overflow-auto rounded-md border border-border bg-secondary/40 p-2"><iframe ref={frame} name="v2-cms-preview" title="Canlı tema önizlemesi" src={previewPage === "esim" ? "/esim?country=" : previewPage === "lounge" ? "/lounge?iata=" : "/vignette"} onLoad={pushPreview} style={{ width: previewWidth, height: 760, transform: previewWidth > 430 ? "scale(0.4)" : undefined, transformOrigin: "top left" }} className="mx-auto block rounded-md bg-background" /></div>
           </AdminPanel>
           <AdminPanel title="Sürüm geçmişi">
             <div className="grid max-h-96 gap-2 overflow-y-auto">

@@ -84,6 +84,34 @@ const TRUST_BENEFIT_MEDIA: Record<string, string> = {
 export const V2_HEIGHTS = ["compact", "normal", "tall"] as const;
 export const V2_OVERLAYS = ["light", "normal", "strong"] as const;
 export const V2_ALIGNS = ["left", "center"] as const;
+export const V2_DESIGN_WIDTHS = ["default", "narrow", "wide", "full"] as const;
+export const V2_DESIGN_SPACING = ["default", "compact", "normal", "large"] as const;
+export const V2_DESIGN_BACKGROUNDS = ["default", "brand", "light", "dark", "custom"] as const;
+export const V2_DESIGN_RADII = ["default", "small", "medium", "large"] as const;
+export const V2_DESIGN_POSITIONS = ["top-left", "top-center", "top-right", "middle-left", "middle-center", "middle-right", "bottom-left", "bottom-center", "bottom-right"] as const;
+export const V2_DESIGN_FONTS = ["theme", "heading", "body"] as const;
+export const V2_DESIGN_WEIGHTS = ["default", "normal", "medium", "semibold", "bold"] as const;
+export const V2_DESIGN_LINES = ["default", "tight", "normal", "relaxed"] as const;
+export const V2_DESIGN_TRACKING = ["default", "normal", "wide"] as const;
+export const V2_DESIGN_ALIGNMENTS = ["default", "left", "center", "right"] as const;
+
+export type V2ResponsiveTypography = { headingSize?: number; bodySize?: number };
+export type V2SectionDesign = {
+  width: (typeof V2_DESIGN_WIDTHS)[number];
+  spacing: (typeof V2_DESIGN_SPACING)[number];
+  background: (typeof V2_DESIGN_BACKGROUNDS)[number];
+  customColor?: string;
+  radius: (typeof V2_DESIGN_RADII)[number];
+  font: (typeof V2_DESIGN_FONTS)[number];
+  weight: (typeof V2_DESIGN_WEIGHTS)[number];
+  lineHeight: (typeof V2_DESIGN_LINES)[number];
+  letterSpacing: (typeof V2_DESIGN_TRACKING)[number];
+  textAlign: (typeof V2_DESIGN_ALIGNMENTS)[number];
+  position: (typeof V2_DESIGN_POSITIONS)[number];
+  desktop?: V2ResponsiveTypography;
+  tablet?: V2ResponsiveTypography;
+  mobile?: V2ResponsiveTypography;
+};
 
 export type V2Item = {
   id: string;
@@ -142,6 +170,7 @@ export type V2Section = {
   mobilePreview: "compact" | "normal" | "wide";
   claims: { countries: string; refundDays: string; savingPercent: string; setupSeconds: string };
   showDemoReviews?: boolean;
+  design?: V2SectionDesign;
   trust?: {
     background: "mint" | "cream" | "white";
     focal: "left" | "center" | "right";
@@ -548,6 +577,19 @@ function cleanSection(raw: any): V2Section | null {
   const type = raw.type as V2SectionType;
   const text: Record<string, LT> = {};
   for (const [key] of V2_TEXT_FIELDS[type]) text[key] = cleanLT(raw.text?.[key], 300);
+  const size = (value: unknown, min: number, max: number) => {
+    const number = Number(value);
+    return Number.isFinite(number) ? Math.min(max, Math.max(min, Math.round(number))) : undefined;
+  };
+  const responsive = (value: any): V2ResponsiveTypography | undefined => {
+    const headingSize = size(value?.headingSize, 18, 80);
+    const bodySize = size(value?.bodySize, 11, 28);
+    return headingSize || bodySize ? { ...(headingSize ? { headingSize } : {}), ...(bodySize ? { bodySize } : {}) } : undefined;
+  };
+  const desktop = responsive(raw.design?.desktop);
+  const tablet = responsive(raw.design?.tablet);
+  const mobile = responsive(raw.design?.mobile);
+  const customColor = /^#[0-9a-fA-F]{6}$/.test(String(raw.design?.customColor)) ? String(raw.design.customColor).toLowerCase() : undefined;
   return {
     id: String(raw.id),
     type,
@@ -579,6 +621,22 @@ function cleanSection(raw: any): V2Section | null {
       setupSeconds: cleanText(raw.claims?.setupSeconds, 12) || "60",
     },
     showDemoReviews: raw.showDemoReviews === true,
+    ...(raw.design && typeof raw.design === "object" ? { design: {
+      width: pick(raw.design.width, V2_DESIGN_WIDTHS, "default"),
+      spacing: pick(raw.design.spacing, V2_DESIGN_SPACING, "default"),
+      background: pick(raw.design.background, V2_DESIGN_BACKGROUNDS, "default"),
+      ...(customColor ? { customColor } : {}),
+      radius: pick(raw.design.radius, V2_DESIGN_RADII, "default"),
+      font: pick(raw.design.font, V2_DESIGN_FONTS, "theme"),
+      weight: pick(raw.design.weight, V2_DESIGN_WEIGHTS, "default"),
+      lineHeight: pick(raw.design.lineHeight, V2_DESIGN_LINES, "default"),
+      letterSpacing: pick(raw.design.letterSpacing, V2_DESIGN_TRACKING, "default"),
+      textAlign: pick(raw.design.textAlign, V2_DESIGN_ALIGNMENTS, "default"),
+      position: pick(raw.design.position, V2_DESIGN_POSITIONS, "top-left"),
+      ...(desktop ? { desktop } : {}),
+      ...(tablet ? { tablet } : {}),
+      ...(mobile ? { mobile } : {}),
+    } } : {}),
     ...(type === "TRUST_REVIEWS" ? { trust: {
       background: pick(raw.trust?.background, ["mint", "cream", "white"] as const, "mint"),
       focal: pick(raw.trust?.focal, ["left", "center", "right"] as const, "right"),
