@@ -1,8 +1,8 @@
 import { useQuery } from "@tanstack/react-query";
 import { useRouterState } from "@tanstack/react-router";
-import { createContext, useContext, useEffect, type ReactNode } from "react";
+import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
 import { getPublishedTheme } from "@/lib/admin-theme.functions";
-import { DEFAULT_THEME, themeCssVariables, themeFontUrl, type PublishedThemeConfig } from "@/domain/theme/config";
+import { DEFAULT_THEME, sanitizeTheme, themeCssVariables, themeFontUrl, type PublishedThemeConfig } from "@/domain/theme/config";
 
 const fallback: PublishedThemeConfig = { ...DEFAULT_THEME, logoUrl: null, faviconUrl: null };
 const PublishedThemeContext = createContext<PublishedThemeConfig>(fallback);
@@ -16,7 +16,18 @@ export const usePublishedTheme = () => useContext(PublishedThemeContext);
 export function PublishedTheme({ children }: { children: ReactNode }) {
   const pathname = useRouterState({ select: (state) => state.location.pathname });
   const theme = useQuery({ queryKey: ["published-theme"], queryFn: () => getPublishedTheme(), staleTime: 5 * 60 * 1000 });
-  const active = pathname.startsWith("/admin") ? fallback : (theme.data ?? fallback);
+  const [previewTheme, setPreviewTheme] = useState<PublishedThemeConfig | null>(null);
+  useEffect(() => {
+    if (window.parent === window || window.name !== "v2-cms-preview") return;
+    const onMessage = (event: MessageEvent) => {
+      if (event.origin !== window.location.origin || event.source !== window.parent || event.data?.type !== "v2-theme-preview") return;
+      setPreviewTheme({ ...sanitizeTheme(event.data.theme), logoUrl: null, faviconUrl: null });
+    };
+    window.addEventListener("message", onMessage);
+    window.parent.postMessage({ type: "v2-theme-ready" }, window.location.origin);
+    return () => window.removeEventListener("message", onMessage);
+  }, []);
+  const active = pathname.startsWith("/admin") ? fallback : (previewTheme ?? theme.data ?? fallback);
   useEffect(() => {
     if (pathname.startsWith("/admin")) return;
     const fontLink = document.querySelector<HTMLLinkElement>('link[data-travely-fonts="true"]');
