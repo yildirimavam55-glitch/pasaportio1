@@ -28,4 +28,24 @@ describe("storefront theme", () => {
     expect(themeFontUrl(theme)).toContain("family=Sora");
     expect(themeFontUrl(theme)).toContain("family=Inter");
   });
+
+  it("sanitizes extended global controls without accepting arbitrary values", () => {
+    const clean = sanitizeTheme({
+      colors: { secondary: "#abcdef", background: "red", text: "#123456" },
+      headingScale: "large", bodyScale: "huge", sectionSpacing: "compact",
+      pageWidth: "wide", buttonRadius: "pill", cardRadius: "large",
+    });
+    expect(clean.colors.secondary).toBe("#abcdef");
+    expect(clean.colors.background).toBe(DEFAULT_THEME.colors.background);
+    expect(clean.colors.text).toBe("#123456");
+    expect(clean.headingScale).toBe("large");
+    expect(clean.bodyScale).toBe("default");
+    expect(themeCssVariables(clean)).toMatchObject({
+      "--font-heading": '"Outfit", sans-serif',
+      "--font-body": '"Manrope", sans-serif',
+      "--page-max-width": "92rem",
+      "--button-radius": "999px",
+      "--radius-card": "1.75rem",
+    });
+  });
 });
