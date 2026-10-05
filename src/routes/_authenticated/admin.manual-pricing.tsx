@@ -11,7 +11,8 @@ import { Button } from "@/components/ui/button";
 import { getCountryPricing, getManualPricingOverview, previewCopyCountryPrices, saveManualPrices } from "@/lib/manual-pricing.functions";
 import { packageKeyLabel, profitAndMargin } from "@/domain/pricing/manual-prices";
 import { ageLabel, costAnomalies, evaluateCompetitive, type CompetitiveResult, type CompetitiveStatus } from "@/domain/pricing/competitive";
-import { getCompetitorStore, previewCompetitorImport, saveCompetitorPrices } from "@/lib/competitor-pricing.functions";
+import { commitResearchImport, getCompetitorStore, previewCompetitorImport, previewResearchImport, saveCompetitorPrices } from "@/lib/competitor-pricing.functions";
+import { compareWithCompetitor, matchCompetitor, type AiraloIndicator, type MatchQuality } from "@/domain/pricing/airalo";
 
 export const Route = createFileRoute("/_authenticated/admin/manual-pricing")({
   head: () => adminHead("Paket fiyatları", "Genel ve ülkeye özel manuel eSIM fiyatları."),
@@ -39,6 +40,38 @@ const Dot = ({ status }: { status: CompetitiveStatus }) => <span aria-hidden cla
 const STATUS_TONE: Record<CompetitiveStatus, string> = { COMPETITIVE: "bg-primary/10 text-primary", REVIEW: "bg-accent text-accent-foreground", UNSUITABLE: "bg-destructive/10 text-destructive", NO_DATA: "bg-muted text-muted-foreground" };
 function StatusBadge({ status }: { status: CompetitiveStatus }) {
   return <span className={`inline-flex items-center gap-1 whitespace-nowrap rounded-full px-2 py-0.5 text-[10px] font-bold ${STATUS_TONE[status]}`}><Dot status={status} />{STATUS_LABEL[status]}</span>;
+}
+const AIRALO_LABEL: Record<AiraloIndicator, string> = { CHEAPER: "Airalo'dan uygun", CLOSE: "Airalo'ya yakın", EXPENSIVE: "Airalo'dan pahalı", NO_DATA: "Airalo verisi yok" };
+const AIRALO_TONE: Record<AiraloIndicator, CompetitiveStatus> = { CHEAPER: "COMPETITIVE", CLOSE: "REVIEW", EXPENSIVE: "UNSUITABLE", NO_DATA: "NO_DATA" };
+const MATCH_LABEL: Record<MatchQuality, string> = { EXACT: "EXACT", SHORTER_VALIDITY: "SHORTER VALIDITY", COMPARABLE: "COMPARABLE", NO_MATCH: "NO MATCH" };
+const trDate = (d: string) => d.split("-").reverse().join(".");
+/** Airalo is one competitor: shown as its own comparison, never as a market median. */
+function AiraloBlock({ group, price, cost, market }: { group: PackageGroup; price: number | null; cost: number | null; market: Market }) {
+  const [open, setOpen] = useState(false);
+  const airalo = (market?.competitors ?? []).filter((c) => c.competitor.toLowerCase() === "airalo");
+  const { entry, quality } = matchCompetitor(group.key, airalo);
+  const cmp = compareWithCompetitor({ price, cost, minMargin: group.rows[0]?.minMargin ?? 25, entry });
+  const tone = AIRALO_TONE[cmp.indicator];
+  if (!entry) return <p className="mt-1.5 flex items-center gap-1.5 text-[11px] text-muted-foreground"><Dot status="NO_DATA" />Airalo · Veri yok</p>;
+  const days = group.key.split("|")[1];
+  const airaloDays = entry.key.split("|")[1];
+  return <div className="mt-1.5 rounded-lg bg-secondary/40 p-2 text-[11px]">
+    <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+      <span className="font-semibold">Airalo <b className="tabular-nums">{entry.currency === "EUR" ? euro(entry.price) : `${entry.price} ${entry.currency}`}</b></span>
+      <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold ${STATUS_TONE[tone]}`}><Dot status={tone} />{AIRALO_LABEL[cmp.indicator]}</span>
+      {quality === "SHORTER_VALIDITY" && <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-bold text-primary">Airalo {airaloDays} gün · Pasaport {days} gün</span>}
+      <Button variant="link" size="sm" className="h-auto px-0 text-[11px] text-muted-foreground" aria-expanded={open} onClick={() => setOpen((v) => !v)}>Rakip detayı</Button>
+    </div>
+    {cmp.diff != null && <p className="mt-1 font-semibold">Airalo'ya göre {Math.abs(cmp.diff) < 0.005 ? "aynı fiyat" : `${euro(Math.abs(cmp.diff))} daha ${cmp.diff < 0 ? "uygun" : "pahalı"} · %${Math.abs(cmp.diffPct!).toFixed(1)}`}</p>}
+    {cmp.fxRequired && <p className="mt-1 font-semibold text-destructive">FX_REQUIRED — kur yok, karşılaştırılmadı</p>}
+    {open && <dl className="mt-1.5 grid grid-cols-[auto_minmax(0,1fr)] gap-x-3 gap-y-0.5 text-muted-foreground">
+      <dt>Paket</dt><dd className="text-foreground">{packageKeyLabel(entry.key)}</dd>
+      <dt>Kaynak</dt><dd className="text-foreground">Airalo App{entry.sourceType ? ` · ${entry.sourceType}` : ""}</dd>
+      <dt>Kontrol</dt><dd className="text-foreground">{trDate(entry.checkedAt)}</dd>
+      <dt>Match</dt><dd className="text-foreground">{MATCH_LABEL[quality]}</dd>
+      <dt>Pazar güveni</dt><dd className="text-foreground">DÜŞÜK (tek rakip)</dd>
+    </dl>}
+  </div>;
 }
 const marketDiff = (diff: number | null) => diff == null ? null : Math.abs(diff) < 0.5 ? "Pazarla aynı" : diff < 0 ? `Pazardan %${Math.abs(diff).toFixed(0)} daha uygun` : `Pazardan %${diff.toFixed(0)} pahalı`;
 
@@ -273,6 +306,7 @@ function MobilePriceRow({ group, iso, market, edit, onEdit }: { group: PackageGr
       {result.suggested != null && result.suggested !== details.active && <Button variant="link" size="sm" className="h-auto px-0 text-[11px]" onClick={() => onEdit(String(result.suggested))}>Önerilen fiyatı uygula</Button>}
       <Button variant="link" size="sm" className="h-auto px-0 text-[11px] text-muted-foreground" aria-expanded={open} onClick={() => setOpen((v) => !v)}>Rakipler {result.competitors.length}</Button>
     </div>
+    <AiraloBlock group={group} price={details.active} cost={details.cost} market={market} />
     {open && <CompetitorList result={result} expensiveVariants={expensiveVariants} />}
     {details.first.country != null && <Button variant="link" size="sm" className="mt-1 h-auto px-0 text-[11px]" onClick={() => onEdit("")}>Ülkeye özel fiyatı kaldır</Button>}
   </article>;
@@ -294,6 +328,7 @@ function DesktopPriceRow({ group, iso, market, edit, onEdit }: { group: PackageG
     <td className={`px-3 py-2 tabular-nums ${details.low ? "font-bold text-destructive" : ""}`}>{pct(details.metrics.margin)}{details.metrics.loss ? <span className="block text-[10px]">Zarar</span> : details.low ? <span className="block text-[10px]">Düşük marj</span> : null}</td>
     <td className="px-3 py-2"><StatusBadge status={result.status} /></td>
   </tr>
+  <tr><td colSpan={8} className="px-3 pb-2 pt-0"><AiraloBlock group={group} price={details.active} cost={details.cost} market={market} /></td></tr>
   {open && <tr><td colSpan={8} className="px-3 pb-3"><CompetitorList result={result} expensiveVariants={expensiveVariants} /></td></tr>}</>;
 }
 
@@ -384,7 +419,8 @@ function CompetitorPanel({ iso, countries, onClose }: { iso: string; countries: 
       <div className="grid gap-2 border-t border-border p-2.5 sm:grid-cols-4">{currentNames.map((n, i) => <input key={i} aria-label={`Rakip ${i + 1}`} className="h-9 rounded-lg border border-input bg-background px-2 text-sm" value={n} onChange={(e) => setNames(currentNames.map((x, j) => (j === i ? e.target.value : x)))} />)}</div>
       {names && <Button className="mx-2.5 mb-2.5" size="sm" variant="outline" disabled={save.isPending} onClick={() => save.mutate({ competitors: names })}>Adları kaydet</Button>}
     </details>
-    <details className="mb-3 rounded-lg border border-border" open><summary className="cursor-pointer p-2.5 text-sm font-bold">CSV içe aktar</summary>
+    <ResearchImport history={store.data.history} />
+    <details className="mb-3 rounded-lg border border-border"><summary className="cursor-pointer p-2.5 text-sm font-bold">CSV içe aktar</summary>
       <div className="border-t border-border p-2.5">
         <p className="mb-2 text-[11px] text-muted-foreground">Sütunlar: rakip, ülke (TR), tür (STANDARD/UNLIMITED), GB, gün, fiyat, para birimi, kaynak, kontrol tarihi (05.10.2026)</p>
         <input type="file" accept=".csv,text/csv,text/plain" aria-label="CSV dosyası" className="mb-2 block w-full text-xs" onChange={(e) => readFile(e.target.files?.[0])} />
@@ -407,4 +443,31 @@ function CompetitorPanel({ iso, countries, onClose }: { iso: string; countries: 
       </li>)}
     </ul>}
   </AdminPanel>;
+}
+
+function ResearchImport({ history }: { history: { at: string; competitor: string; checkedAt: string; rows: number; countries: number; newRecords: number; updated: number; invalid: number; sourceType: string }[] }) {
+  const queryClient = useQueryClient();
+  const preview = useMutation({ mutationFn: () => previewResearchImport({ data: { fileId: "airalo-2026-10-05" } }) });
+  const commit = useMutation({
+    mutationFn: () => commitResearchImport({ data: { fileId: "airalo-2026-10-05" } }),
+    onSuccess: async (r) => { toast.success(`Airalo verisi içe aktarıldı: ${r.newRecords} yeni, ${r.updated} güncellendi.`); preview.reset(); await queryClient.invalidateQueries({ queryKey: ["manual-pricing"] }); },
+    onError: (e: Error) => toast.error(e.message || "İçe aktarılamadı."),
+  });
+  const s = preview.data?.summary;
+  const items: [string, number][] = s ? [["Satır", s.rows], ["Ülke", s.countries], ["Standard", s.standard], ["Unlimited", s.unlimited], ["Yeni", s.newRecords], ["Güncellenecek", s.updated], ["Değişmeyen", s.unchanged], ["Tekrar", s.duplicates], ["Geçersiz", s.invalid], ["Ülke eşleşmesi gerekli", s.countryMatchRequired]] : [];
+  return <details className="mb-3 rounded-lg border border-border" open><summary className="cursor-pointer p-2.5 text-sm font-bold">Airalo içe aktarımı · App araştırması 05.10.2026</summary>
+    <div className="border-t border-border p-2.5 text-xs">
+      <p className="mb-2 text-muted-foreground">Kaynak: Airalo uygulamasındaki müşteri fiyatları (manuel araştırma). Satış fiyatları değişmez; yalnızca karşılaştırma için kullanılır.</p>
+      <Button size="sm" variant="outline" disabled={preview.isPending} onClick={() => preview.mutate()}>Önizle</Button>
+      {preview.error && <p className="mt-2 text-destructive">{(preview.error as Error).message}</p>}
+      {s && <div className="mt-3">
+        <p className="font-bold">AIRALO IMPORT</p>
+        <dl className="mt-1 grid grid-cols-2 gap-x-3 gap-y-0.5 sm:grid-cols-5">{items.map(([k, v]) => <div key={k} className="flex justify-between gap-2 rounded bg-secondary/40 px-2 py-1"><dt className="text-muted-foreground">{k}</dt><dd className="font-bold tabular-nums">{v}</dd></div>)}</dl>
+        {preview.data!.invalid.slice(0, 20).map((r) => <p key={r.line} className="text-destructive">Satır {r.line}: {r.error}</p>)}
+        {preview.data!.countryMatchRequired.slice(0, 20).map((r) => <p key={r.line} className="text-destructive">Satır {r.line}: COUNTRY_MATCH_REQUIRED ({r.countryName})</p>)}
+        {s.newRecords + s.updated > 0 ? <Button className="mt-2" size="sm" variant="cta" disabled={commit.isPending} onClick={() => commit.mutate()}>Airalo verisini içe aktar</Button> : <p className="mt-2 font-semibold text-muted-foreground">İçe aktarılacak yeni veya değişen kayıt yok.</p>}
+      </div>}
+      {history.length > 0 && <div className="mt-3"><p className="font-bold">İçe aktarma geçmişi</p><ul className="mt-1 space-y-1">{[...history].reverse().slice(0, 10).map((h) => <li key={h.at} className="rounded bg-secondary/40 px-2 py-1">{h.competitor} · {trDate(h.checkedAt)} · {h.rows} satır · {h.countries} ülke · Yeni {h.newRecords} · Güncellendi {h.updated} · Geçersiz {h.invalid} · Kaynak: Airalo App Research</li>)}</ul></div>}
+    </div>
+  </details>;
 }
