@@ -790,9 +790,9 @@
           "zh": "选择 eSIM 套餐，提前查看价格，只需几步即可连接。"
         },
         "statisticLabel": {
-          "tr": "",
-          "en": "",
-          "de": ""
+          "tr": "daha uygun*",
+          "en": "cheaper*",
+          "de": "günstiger*"
         },
         "comparisonTitle": {
           "tr": "Roaming’e alternatif",
@@ -811,91 +811,61 @@
           "zh": "漫游之外的选择"
         },
         "comparisonDescription": {
-          "tr": "Yüzde ",
-          "en": "Percent",
-          "de": "Prozent",
-          "fr": "Pour cent",
-          "es": "Por ciento",
-          "it": "Percento",
-          "pt": "Por cento",
-          "nl": "Procent",
-          "pl": "Procent",
-          "ar": "بالمائة",
-          "ru": "Процент",
-          "ja": "パーセント",
-          "ko": "퍼센트",
-          "zh": "百分比",
-          "_auto": {
-            "en": "Percent",
-            "de": "Prozent",
-            "fr": "Pour cent",
-            "es": "Por ciento",
-            "it": "Percento",
-            "pt": "Por cento",
-            "nl": "Procent",
-            "pl": "Procent",
-            "ar": "بالمائة",
-            "ru": "Процент",
-            "ja": "パーセント",
-            "ko": "퍼센트",
-            "zh": "百分比"
-          }
+          "tr": "eSIM fiyatlarını seçili roaming teklifleriyle karşılaştırın.",
+          "en": "Compare eSIM prices with selected roaming offers.",
+          "de": "Vergleiche eSIM-Preise mit ausgewählten Roaming-Angeboten.",
+          "fr": "Comparez les prix eSIM avec une sélection d’offres de roaming.",
+          "es": "Compara los precios de eSIM con ofertas de roaming seleccionadas.",
+          "it": "Confronta i prezzi eSIM con offerte roaming selezionate.",
+          "pt": "Compara os preços de eSIM com ofertas de roaming selecionadas.",
+          "nl": "Vergelijk eSIM-prijzen met geselecteerde roamingaanbiedingen.",
+          "pl": "Porównaj ceny eSIM z wybranymi ofertami roamingowymi.",
+          "ar": "قارن أسعار eSIM بعروض تجوال مختارة.",
+          "ru": "Сравните цены eSIM с выбранными предложениями роуминга.",
+          "ja": "eSIM料金を対象のローミングプランと比較できます。",
+          "ko": "eSIM 가격을 선택된 로밍 요금과 비교해 보세요.",
+          "zh": "将 eSIM 价格与精选漫游方案进行比较。"
         },
         "comparisonCta": {
-          "tr": "50",
-          "en": "50",
-          "de": "50",
-          "fr": "50",
-          "es": "50",
-          "it": "50",
-          "pt": "50",
-          "nl": "50",
-          "pl": "50",
-          "ar": "50",
-          "ru": "50",
-          "ja": "50",
-          "ko": "50",
-          "zh": "50",
-          "_auto": {
-            "en": "50",
-            "de": "50",
-            "fr": "50",
-            "es": "50",
-            "it": "50",
-            "pt": "50",
-            "nl": "50",
-            "pl": "50",
-            "ar": "50",
-            "ru": "50",
-            "ja": "50",
-            "ko": "50",
-            "zh": "50"
-          }
+          "tr": "eSIM fiyatlarını gör",
+          "en": "See eSIM prices",
+          "de": "eSIM-Preise ansehen",
+          "fr": "Voir les prix eSIM",
+          "es": "Ver precios de eSIM",
+          "it": "Vedi i prezzi eSIM",
+          "pt": "Ver preços de eSIM",
+          "nl": "Bekijk eSIM-prijzen",
+          "pl": "Zobacz ceny eSIM",
+          "ar": "عرض أسعار eSIM",
+          "ru": "Посмотреть цены eSIM",
+          "ja": "eSIM料金を見る",
+          "ko": "eSIM 가격 보기",
+          "zh": "查看 eSIM 价格"
         },
         "comparisonALabel": {
-          "tr": "Avantaj",
-          "en": "",
-          "de": ""
+          "tr": "Operatör roaming",
+          "en": "Carrier roaming",
+          "de": "Mobilfunk-Roaming"
         },
         "comparisonBLabel": {
-          "tr": "",
-          "en": "",
-          "de": ""
+          "tr": "Travely eSIM",
+          "en": "Travely eSIM",
+          "de": "Travely eSIM"
         },
         "comparisonFootnote": {
-          "tr": "",
-          "en": "",
-          "de": ""
+          "tr": "* Örnek karşılaştırma. Fiyatlar operatöre, ülkeye ve döneme göre değişebilir.",
+          "en": "* Example comparison. Prices may vary by provider, country and period.",
+          "de": "* Beispielvergleich. Preise können je nach Anbieter, Land und Zeitraum variieren."
         },
         "comparisonSavingLabel": {
-          "tr": "",
-          "en": "",
-          "de": ""
+          "tr": "Tasarrufunuz",
+          "en": "You save",
+          "de": "Du sparst"
         },
         "comparisonAdvantageLabel": {
-          "tr": "",
-          "en": "",
-          "de": ""
+          "tr": "Fiyat avantajı",
+          "en": "Price advantage",
+          "de": "Preisvorteil"
         },
         "comparisonDestination": {
           "tr": "",
