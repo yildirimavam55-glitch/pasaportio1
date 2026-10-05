@@ -142,6 +142,8 @@ export type V2Slots = {
   afterBenefits?: ReactNode;
   /** eSIM desktop places benefits inside its hero while preserving the mobile row. */
   benefitsInDesktopHero?: boolean;
+  /** Page-owned FAQ presentation replacing the generic configured FAQ list. */
+  faq?: ReactNode;
 };
 
 /** Renders the configured, visible sections in order through the approved V2 components. */
@@ -216,6 +218,7 @@ export function V2Sections({ config, media, slots, only, onDestinationSearch }: 
           case "GUIDE_CAROUSEL":
             return <V2GuidesRail key={s.id} title={t("title")} lead={t("lead")} allLabel={t("all")} />;
           case "FAQ": {
+            if (slots.faq) return <V2Fragment key={s.id}>{slots.faq}</V2Fragment>;
             const questions = items.map((item) => [v2ItemText(item.title, locale), v2ItemText(item.text, locale)] as const);
             return <V2CompactFaq key={s.id} title={t("title")} questions={questions} relaxed={s.variant === "comfortable"} />;
           }
