@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { AdminGate } from "@/components/AdminGate";
 import { AdminError, AdminLoading, AdminPanel, money } from "@/components/admin/AdminUi";
 import { adminHead } from "@/components/admin/AdminSectionPage";
+import { CountryFlag } from "@/components/travel/CountryFlag";
 import { Button } from "@/components/ui/button";
 import { getCountryPricing, getManualPricingOverview, previewCopyCountryPrices, saveManualPrices } from "@/lib/manual-pricing.functions";
 import { packageKeyLabel, profitAndMargin } from "@/domain/pricing/manual-prices";
@@ -19,7 +20,6 @@ const SOURCE_LABEL = { COUNTRY: "Ülkeye özel", GLOBAL: "Genel fiyat", AUTO: "O
 const pct = (value: number | null) => (value == null ? "—" : `%${value.toFixed(1).replace(".0", "")}`);
 const parse = (value: string) => (value.trim() === "" ? null : Number(value.replace(",", ".")));
 const euro = (value: number | null | undefined) => value == null ? "—" : new Intl.NumberFormat("tr-TR", { style: "currency", currency: "EUR" }).format(value);
-const flag = (iso: string) => String.fromCodePoint(...[...iso].map((char) => 127397 + char.charCodeAt(0)));
 const regionNames = new Intl.DisplayNames(["tr"], { type: "region" });
 const countryName = (iso: string) => regionNames.of(iso) ?? iso;
 const normalizeSearch = (value: string) => value.toLocaleLowerCase("tr-TR").normalize("NFD").replace(/[\u0300-\u036f]/g, "");
@@ -105,7 +105,7 @@ function CountryPicker({ countries, selectedIso, onSelect }: { countries: Overvi
     <div className="relative min-w-0">
       <button type="button" aria-label="Ülke ara" aria-expanded={open} className="grid h-11 w-full grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2 rounded-xl border border-input bg-background px-3 text-left shadow-sm transition-colors hover:border-primary/40" onClick={() => setOpen(true)}>
         <Search className="size-4 shrink-0 text-primary" />
-        <span className="truncate text-sm font-semibold">{flag(selectedIso)} {countryName(selectedIso)}</span>
+        <span className="flex min-w-0 items-center gap-2 text-sm font-semibold"><CountryFlag code={selectedIso} /><span className="truncate">{countryName(selectedIso)}</span></span>
         <span className="hidden text-xs text-muted-foreground sm:inline">Ülke ara</span>
       </button>
       {open && <div className="absolute inset-x-0 top-[calc(100%+0.35rem)] z-50 overflow-hidden rounded-xl border border-border bg-card shadow-panel">
@@ -117,7 +117,7 @@ function CountryPicker({ countries, selectedIso, onSelect }: { countries: Overvi
         <div className="max-h-72 overflow-y-auto p-1.5">
           {matches.length ? matches.map((country) => (
             <Button key={country.iso} variant="ghost" className="grid h-auto w-full grid-cols-[auto_minmax(0,1fr)_auto] justify-start px-2.5 py-2 text-left" onClick={() => choose(country.iso)}>
-              <span className="text-lg" aria-hidden>{flag(country.iso)}</span>
+              <CountryFlag code={country.iso} />
               <span className="min-w-0"><span className="block truncate text-sm font-semibold">{country.name}</span><span className="block text-[10px] font-normal text-muted-foreground">{country.packages} paket</span></span>
               {country.iso === selectedIso && <Check className="size-4 text-primary" />}
             </Button>
@@ -158,11 +158,11 @@ function CountryPrices({ iso, summary }: { iso: string; summary: Overview["count
   if (query.error) return <AdminError error={query.error} />;
   return <section className="min-w-0 pb-20">
     <header className="mb-3 grid grid-cols-[minmax(0,1fr)_auto] items-end gap-3">
-      <div className="min-w-0"><h2 className="truncate font-display text-xl font-bold">{flag(iso)} {countryName(iso)}</h2><p className="mt-0.5 text-xs text-muted-foreground">{summary?.packages ?? query.data?.rows.length ?? 0} paket</p></div>
+      <div className="min-w-0"><h2 className="flex items-center gap-2 font-display text-xl font-bold"><CountryFlag code={iso} className="text-base" /><span className="truncate">{countryName(iso)}</span></h2><p className="mt-0.5 text-xs text-muted-foreground">{summary?.packages ?? query.data?.rows.length ?? 0} paket</p></div>
     </header>
     <div className="mb-3 grid grid-cols-2 rounded-xl bg-secondary p-1" aria-label="Paket türü">
-      <Button variant={kind === "standard" ? "default" : "ghost"} className="h-9" onClick={() => setKind("standard")}>STANDARD · {standard.length}</Button>
-      <Button variant={kind === "unlimited" ? "default" : "ghost"} className="h-9" onClick={() => setKind("unlimited")}>UNLIMITED · {unlimited.length}</Button>
+      <Button variant="ghost" className={`h-9 ${kind === "standard" ? "!bg-primary !text-primary-foreground shadow-sm" : "text-muted-foreground"}`} onClick={() => setKind("standard")}>STANDARD · {standard.length}</Button>
+      <Button variant="ghost" className={`h-9 ${kind === "unlimited" ? "!bg-primary !text-primary-foreground shadow-sm" : "text-muted-foreground"}`} onClick={() => setKind("unlimited")}>UNLIMITED · {unlimited.length}</Button>
     </div>
     {lossDialog}
     <div className="space-y-2 md:hidden">
@@ -260,8 +260,8 @@ function CopyPrices({ countries, onClose }: { countries: string[]; onClose: () =
       <summary className="grid cursor-pointer list-none grid-cols-[minmax(0,1fr)_auto] items-center gap-3 p-3 text-sm font-bold">Fiyatları kopyala<ChevronDown className="size-4 transition-transform group-open:rotate-180" /></summary>
       <div className="border-t border-border p-3">
         <div className="grid gap-3 sm:grid-cols-2">
-          <label className="text-xs font-semibold">Kaynak ülke<select className="mt-1 block h-10 w-full rounded-lg border border-input bg-background px-2 text-sm" value={from} onChange={(event) => { setFrom(event.target.value); preview.reset(); }}>{countries.map((iso) => <option key={iso} value={iso}>{flag(iso)} {countryName(iso)}</option>)}</select></label>
-          <label className="text-xs font-semibold">Hedef ülke<select className="mt-1 block h-10 w-full rounded-lg border border-input bg-background px-2 text-sm" value={to} onChange={(event) => { setTo(event.target.value); preview.reset(); }}>{countries.map((iso) => <option key={iso} value={iso}>{flag(iso)} {countryName(iso)}</option>)}</select></label>
+          <label className="text-xs font-semibold">Kaynak ülke<select className="mt-1 block h-10 w-full rounded-lg border border-input bg-background px-2 text-sm" value={from} onChange={(event) => { setFrom(event.target.value); preview.reset(); }}>{countries.map((iso) => <option key={iso} value={iso}>{countryName(iso)}</option>)}</select></label>
+          <label className="text-xs font-semibold">Hedef ülke<select className="mt-1 block h-10 w-full rounded-lg border border-input bg-background px-2 text-sm" value={to} onChange={(event) => { setTo(event.target.value); preview.reset(); }}>{countries.map((iso) => <option key={iso} value={iso}>{countryName(iso)}</option>)}</select></label>
         </div>
         <Button className="mt-3" size="sm" variant="outline" disabled={from === to || preview.isPending} onClick={() => preview.mutate()}>Kopyalamayı önizle</Button>
         {preview.data && <div className="mt-4 text-sm"><p className="mb-2 text-xs text-muted-foreground">Eşleşmeyen: {preview.data.skipped.map(packageKeyLabel).join(", ") || "yok"}</p>{preview.data.matches.length === 0 ? <p>Kopyalanacak eşleşen ülkeye özel fiyat yok.</p> : <ul className="space-y-1">{preview.data.matches.map((match) => <li key={match.key}>{packageKeyLabel(match.key)}: {euro(match.current)} → <b>{euro(match.price)}</b>{match.loss && <span className="font-semibold text-destructive"> · Zarar</span>}</li>)}</ul>}{lossDialog}{preview.data.matches.length > 0 && <Button className="mt-3" size="sm" variant="cta" disabled={pending} onClick={() => save({ scope: to, entries: preview.data.matches.map((match) => ({ key: match.key, price: match.price })) })}>Onayla ve {countryName(to)} için uygula</Button>}</div>}
