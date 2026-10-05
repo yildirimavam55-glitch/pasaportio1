@@ -779,3 +779,8 @@
 - [x] Roaming comparison rebuilt as localized component with structured prices (14 locales)
 - [ ] Admin editor live check — blocked: session lacks Admin role
 - [ ] Clarify the owner's unfinished “Statt” replacement request before changing any comparison wording.
+
+## Restore current production homepage
+- [ ] Capture the current `https://pasaport.lovable.app/tr` homepage content and presentation.
+- [ ] Restore that homepage configuration in this remixed project without changing commerce logic.
+- [ ] Verify the restored page at mobile and desktop sizes without publishing.
