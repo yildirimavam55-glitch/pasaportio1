@@ -1,5 +1,10 @@
 # Phase 1.3 Roadmap
 
+## Approved Travely visual-system preservation
+- [ ] Preserve the current cream, petrol, mint, photography, search, card, navigation, and WhatsApp presentation throughout the eSIM purchase flow.
+- [ ] Correct only verified visual inconsistencies without changing catalogue, pricing, curation, commerce, security, translations, or homepage content.
+- [ ] Verify country search through cart in TR/DE/EN/AR at 360/390/430/1280/1440 without publishing.
+
 ## Desktop compatibility and travel banners
 - [x] Preserve the approved sub-1024 compatibility, Lounge, and Vignette presentation.
 - [x] Add the desktop full-width compatibility tool and equal Lounge/Vignette row using existing behavior and copy.
