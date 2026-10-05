@@ -1,3 +1,12 @@
+# Controlled Theme Editor
+
+- [ ] Audit reusable public sections, hardcoded page composition, and existing Admin editors.
+- [ ] Restore homepage Guides visibility using only valid published guide data.
+- [ ] Extend the safe section registry with layout, typography, position, and responsive presentation settings.
+- [ ] Add page selection, ordering, visibility, reset, and draft preview for supported public pages.
+- [ ] Extend global theme tokens while preserving the current Travely defaults.
+- [ ] Verify TR/DE/EN/AR, RTL, responsive previews, draft isolation, and unchanged business flows without publishing.
+
 # Phase 1.3 Roadmap
 
 ## Approved Travely visual-system preservation
