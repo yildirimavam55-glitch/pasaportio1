@@ -169,7 +169,7 @@ export function EsimHomePage() {
             })}
             onSelect={choose}
           >
-            <Button type="button" variant="ghost" className={`${heroInputClass} justify-start font-normal hover:bg-transparent`}>
+            <Button type="button" variant="ghost" onClick={() => setPickerOpen(true)} className={`${heroInputClass} justify-start font-normal hover:bg-transparent`}>
               <span className="truncate">{v2Text(section, "placeholder", locale) || c.ph}</span>
             </Button>
           </V2PickerSheet>
