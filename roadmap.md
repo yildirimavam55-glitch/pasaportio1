@@ -781,6 +781,6 @@
 - [ ] Clarify the owner's unfinished “Statt” replacement request before changing any comparison wording.
 
 ## Restore current production homepage
-- [ ] Capture the current `https://pasaport.lovable.app/tr` homepage content and presentation.
-- [ ] Restore that homepage configuration in this remixed project without changing commerce logic.
+- [x] Capture the current `https://pasaport.lovable.app/tr` homepage content and presentation.
+- [x] Restore that homepage configuration in this remixed project without changing commerce logic.
 - [ ] Verify the restored page at mobile and desktop sizes without publishing.

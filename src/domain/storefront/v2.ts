@@ -466,7 +466,11 @@ function vignetteDefault(): V2Page {
 type V2Page = V2Section[];
 
 export function defaultV2Page(page: V2PageId): V2PageConfig {
-  const sections = page === "lounge" ? loungeDefault() : page === "vignette" ? vignetteDefault() : esimDefault();
+  const sections = page === "lounge"
+    ? loungeDefault()
+    : page === "vignette"
+      ? vignetteDefault()
+      : (restoredEsimHomepage as V2PageConfig).sections;
   return { version: 1, page, sections };
 }
 
