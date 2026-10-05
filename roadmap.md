@@ -1,5 +1,11 @@
 # Controlled Theme Editor
 
+## Admin package pricing UX
+- [ ] Make country search and selection the primary pricing workflow.
+- [ ] Replace the mobile pricing table with compact editable rows and one sticky save action.
+- [ ] Keep global pricing and country-copy tools available as secondary actions.
+- [ ] Verify the pricing flow at 360/390/430/1280/1440 without changing data or publishing.
+
 - [ ] Audit reusable public sections, hardcoded page composition, and existing Admin editors.
 - [ ] Restore homepage Guides visibility using only valid published guide data.
 - [ ] Extend the safe section registry with layout, typography, position, and responsive presentation settings.
