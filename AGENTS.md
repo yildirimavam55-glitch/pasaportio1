@@ -34,3 +34,4 @@ Public install help stays in V2; QR, activation credentials, and package policy 
 - The roaming comparison uses CMS-localized structured copy and calculated prices with reveal-once presentation or the retained CMS image mode; price edits return it to draft and only VERIFIED figures render publicly, so visual changes never bypass approval.
 
 - Loader-fetched queries are dehydrated with the router and signed media URLs stay stable across refetches, so hydration reuses the server-rendered image sources instead of swapping or re-downloading them.
+- Storefront theme editing extends the existing V2 section registry and global theme document; optional sanitized settings must fall back exactly to the approved Travely presentation.
