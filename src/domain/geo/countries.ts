@@ -57,7 +57,7 @@ export function foldText(value: string): string {
     .replace(/ö/g, "o")
     .replace(/ü/g, "u")
     .replace(/ß/g, "ss")
-    .replace(/[^a-z0-9 ]/g, " ")
+    .replace(/[^\p{L}\p{N} ]/gu, " ")
     .replace(/\s+/g, " ")
     .trim();
 }
