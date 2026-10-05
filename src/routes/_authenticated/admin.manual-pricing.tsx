@@ -82,7 +82,7 @@ function ManualPricing() {
           </div>
           {view === "global" ? <GlobalPrices data={overview.data} onClose={() => setView("country")} />
             : view === "copy" ? <CopyPrices countries={overview.data.countries.map((country) => country.iso)} onClose={() => setView("country")} />
-              : <CountryPrices iso={selectedIso} summary={overview.data.countries.find((country) => country.iso === selectedIso)} />}
+              : <CountryPrices iso={selectedIso} summary={overview.data.countries.find((country) => country.iso === selectedIso) ?? null} />}
         </div>
       )}
     </AdminGate>
@@ -141,7 +141,7 @@ function groupCountryRows(rows: CountryRow[]): PackageGroup[] {
   });
 }
 
-function CountryPrices({ iso, summary }: { iso: string; summary?: Overview["countries"][number] }) {
+function CountryPrices({ iso, summary }: { iso: string; summary: Overview["countries"][number] | null }) {
   const query = useQuery({ queryKey: ["manual-pricing", "country", iso], queryFn: () => getCountryPricing({ data: { iso } }) });
   const [edits, setEdits] = useState<Record<string, string>>({});
   const [kind, setKind] = useState<"standard" | "unlimited">("standard");
@@ -166,12 +166,12 @@ function CountryPrices({ iso, summary }: { iso: string; summary?: Overview["coun
     </div>
     {lossDialog}
     <div className="space-y-2 md:hidden">
-      {visible.map((group) => <MobilePriceRow key={group.key} group={group} iso={iso} edit={edits[group.key]} onEdit={(value) => setEdits((current) => ({ ...current, [group.key]: value }))} />)}
+      {visible.map((group) => <MobilePriceRow key={group.key} group={group} iso={iso} edit={edits[group.key] ?? null} onEdit={(value) => setEdits((current) => ({ ...current, [group.key]: value }))} />)}
     </div>
     <div className="hidden overflow-hidden rounded-lg border border-border bg-card md:block">
       <table className="w-full text-sm">
         <thead className="bg-secondary/50 text-left text-xs text-muted-foreground"><tr><th className="px-3 py-2">Paket</th><th className="px-3 py-2">Alış</th><th className="px-3 py-2">Satış fiyatı</th><th className="px-3 py-2">Kâr</th><th className="px-3 py-2">Marj</th><th className="px-3 py-2">Kaynak</th></tr></thead>
-        <tbody>{visible.map((group) => <DesktopPriceRow key={group.key} group={group} iso={iso} edit={edits[group.key]} onEdit={(value) => setEdits((current) => ({ ...current, [group.key]: value }))} />)}</tbody>
+        <tbody>{visible.map((group) => <DesktopPriceRow key={group.key} group={group} iso={iso} edit={edits[group.key] ?? null} onEdit={(value) => setEdits((current) => ({ ...current, [group.key]: value }))} />)}</tbody>
       </table>
     </div>
     {changed.length > 0 && <div className="sticky bottom-3 z-30 mt-4 flex items-center justify-between gap-3 rounded-xl border border-border bg-card/95 p-2.5 shadow-panel backdrop-blur">
@@ -181,15 +181,15 @@ function CountryPrices({ iso, summary }: { iso: string; summary?: Overview["coun
   </section>;
 }
 
-function resolvedGroup(group: PackageGroup, edit: string | undefined) {
+function resolvedGroup(group: PackageGroup, edit: string | null) {
   const first = group.rows[0];
   if (!first) return null;
-  const draft = edit === undefined ? first.price : parse(edit);
+  const draft = edit === null ? first.price : parse(edit);
   const active = draft ?? first.general ?? first.autoPrice;
   const cost = Math.max(...group.rows.map((row) => row.cost ?? 0));
   const metrics = profitAndMargin(active, cost);
   const low = metrics.margin != null && !metrics.loss && metrics.margin < first.minMargin;
-  const source = edit === undefined ? first.source : draft != null ? "COUNTRY" : first.general != null ? "GLOBAL" : "AUTO";
+  const source = edit === null ? first.source : draft != null ? "COUNTRY" : first.general != null ? "GLOBAL" : "AUTO";
   return { first, active, cost, metrics, low, source };
 }
 
@@ -197,10 +197,10 @@ function PriceInput({ iso, group, value, onEdit }: { iso: string; group: Package
   return <div className="relative w-28"><input aria-label={`${iso} satış fiyatı ${packageKeyLabel(group.key)}`} inputMode="decimal" className="h-10 w-full rounded-lg border-2 border-primary/35 bg-background px-2.5 pr-7 text-right text-base font-bold tabular-nums outline-none transition-colors focus:border-primary focus:ring-2 focus:ring-primary/15" value={value} onChange={(event) => onEdit(event.target.value)} onFocus={(event) => event.currentTarget.select()} /><span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-sm font-bold text-muted-foreground">€</span></div>;
 }
 
-function MobilePriceRow({ group, iso, edit, onEdit }: { group: PackageGroup; iso: string; edit?: string; onEdit: (value: string) => void }) {
+function MobilePriceRow({ group, iso, edit, onEdit }: { group: PackageGroup; iso: string; edit: string | null; onEdit: (value: string) => void }) {
   const details = resolvedGroup(group, edit);
   if (!details) return null;
-  const value = edit ?? String(details.active ?? "");
+  const value = edit === null ? String(details.active ?? "") : edit;
   return <article className={`rounded-lg border bg-card p-3 ${details.metrics.loss ? "border-destructive/50" : "border-border"}`}>
     <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3">
       <div className="min-w-0"><h3 className="truncate text-sm font-bold">{packageKeyLabel(group.key)}</h3><p className="mt-1 text-xs text-muted-foreground">Alış {euro(details.cost)}{group.rows.length > 1 ? ` · ${group.rows.length} ürün` : ""}</p></div>
@@ -214,10 +214,10 @@ function MobilePriceRow({ group, iso, edit, onEdit }: { group: PackageGroup; iso
   </article>;
 }
 
-function DesktopPriceRow({ group, iso, edit, onEdit }: { group: PackageGroup; iso: string; edit?: string; onEdit: (value: string) => void }) {
+function DesktopPriceRow({ group, iso, edit, onEdit }: { group: PackageGroup; iso: string; edit: string | null; onEdit: (value: string) => void }) {
   const details = resolvedGroup(group, edit);
   if (!details) return null;
-  const value = edit ?? String(details.active ?? "");
+  const value = edit === null ? String(details.active ?? "") : edit;
   return <tr className="border-t border-border">
     <td className="px-3 py-2 font-semibold">{packageKeyLabel(group.key)}{group.rows.length > 1 && <span className="ml-1 text-xs font-normal text-muted-foreground">×{group.rows.length}</span>}</td>
     <td className="px-3 py-2 tabular-nums text-muted-foreground">{euro(details.cost)}</td>
