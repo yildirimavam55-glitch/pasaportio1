@@ -33,10 +33,12 @@ type CountryData = Awaited<ReturnType<typeof getCountryPricing>>;
 type CountryRow = CountryData["rows"][number];
 type PackageGroup = { key: string; rows: CountryRow[] };
 
-const STATUS_LABEL: Record<CompetitiveStatus, string> = { COMPETITIVE: "🟢 Rekabetçi", REVIEW: "🟡 Kontrol et", UNSUITABLE: "🔴 Satışa uygun değil", NO_DATA: "⚪ Rakip verisi yok" };
+const STATUS_LABEL: Record<CompetitiveStatus, string> = { COMPETITIVE: "Rekabetçi", REVIEW: "Kontrol et", UNSUITABLE: "Satışa uygun değil", NO_DATA: "Rakip verisi yok" }
+const STATUS_DOT: Record<CompetitiveStatus, string> = { COMPETITIVE: "bg-primary", REVIEW: "bg-warning", UNSUITABLE: "bg-destructive", NO_DATA: "border border-muted-foreground" };
+const Dot = ({ status }: { status: CompetitiveStatus }) => <span aria-hidden className={`inline-block size-2 shrink-0 rounded-full ${STATUS_DOT[status]}`} />;;
 const STATUS_TONE: Record<CompetitiveStatus, string> = { COMPETITIVE: "bg-primary/10 text-primary", REVIEW: "bg-accent text-accent-foreground", UNSUITABLE: "bg-destructive/10 text-destructive", NO_DATA: "bg-muted text-muted-foreground" };
 function StatusBadge({ status }: { status: CompetitiveStatus }) {
-  return <span className={`inline-flex whitespace-nowrap rounded-full px-2 py-0.5 text-[10px] font-bold ${STATUS_TONE[status]}`}>{STATUS_LABEL[status]}</span>;
+  return <span className={`inline-flex items-center gap-1 whitespace-nowrap rounded-full px-2 py-0.5 text-[10px] font-bold ${STATUS_TONE[status]}`}><Dot status={status} />{STATUS_LABEL[status]}</span>;
 }
 const marketDiff = (diff: number | null) => diff == null ? null : Math.abs(diff) < 0.5 ? "Pazarla aynı" : diff < 0 ? `Pazardan %${Math.abs(diff).toFixed(0)} daha uygun` : `Pazardan %${diff.toFixed(0)} pahalı`;
 
@@ -149,7 +151,7 @@ function MarketDashboard({ data, onSelect }: { data: Overview; onSelect: (iso: s
   const chips: [StatusFilter, string, number][] = [["ALL", `Tümü · ${data.countries.length} ülke`, 0], ["COMPETITIVE", STATUS_LABEL.COMPETITIVE, t.COMPETITIVE], ["REVIEW", STATUS_LABEL.REVIEW, t.REVIEW], ["UNSUITABLE", STATUS_LABEL.UNSUITABLE, t.UNSUITABLE], ["NO_DATA", "Rakip verisi yok", t.NO_DATA]];
   return <section className="mb-4 rounded-xl border border-border bg-card p-2.5" aria-label="Rekabet özeti">
     <div className="flex gap-1.5 overflow-x-auto pb-0.5 [scrollbar-width:none]">
-      {chips.map(([key, label, n]) => <button key={key} type="button" aria-pressed={filter === key} onClick={() => setFilter(key)} className={`shrink-0 rounded-full border px-2.5 py-1 text-[11px] font-semibold transition-colors ${filter === key ? "border-primary bg-primary text-primary-foreground" : "border-border bg-background text-foreground"}`}>{label}{key !== "ALL" && <span className="ml-1 tabular-nums opacity-80">{n}</span>}</button>)}
+      {chips.map(([key, label, n]) => <button key={key} type="button" aria-pressed={filter === key} onClick={() => setFilter(key)} className={`inline-flex shrink-0 items-center gap-1 rounded-full border px-2.5 py-1 text-[11px] font-semibold transition-colors ${filter === key ? "border-primary bg-primary text-primary-foreground" : "border-border bg-background text-foreground"}`}>{key !== "ALL" && <Dot status={key} />}{label}{key !== "ALL" && <span className="ml-1 tabular-nums opacity-80">{n}</span>}</button>)}
     </div>
     {data.competitive.entries === 0 && filter === "ALL" && <p className="mt-2 text-[11px] text-muted-foreground">Henüz rakip fiyatı girilmedi. Rakip fiyatlarını eklemek için kişi simgesini kullan.</p>}
     {filter !== "ALL" && <div className="mt-2 flex flex-wrap gap-1.5">
@@ -194,7 +196,7 @@ function CountryPrices({ iso, summary, counts }: { iso: string; summary: Overvie
       <div className="min-w-0"><h2 className="flex items-center gap-2 font-display text-xl font-bold"><CountryFlag iso={iso} className="text-base" /><span className="truncate">{countryName(iso)}</span></h2><p className="mt-0.5 text-xs text-muted-foreground">{summary?.packages ?? query.data?.rows.length ?? 0} paket · Vitrin paketleri: {summary?.published ?? 0}</p></div>
       <Button size="sm" variant="outline" onClick={() => setSuggestOpen((v) => !v)}><Sparkles />Önerilen fiyatları oluştur</Button>
     </header>
-    {counts && <div className="mb-3 flex flex-wrap gap-1.5 text-[11px]">{(["COMPETITIVE", "REVIEW", "UNSUITABLE", "NO_DATA"] as const).map((k) => <span key={k} className={`rounded-full px-2 py-0.5 font-semibold ${STATUS_TONE[k]}`}>{STATUS_LABEL[k]}: {counts[k]}</span>)}{counts.showcase > 0 && <span className="rounded-full bg-secondary px-2 py-0.5 font-semibold">Vitrin için önerilen: {counts.showcase}</span>}</div>}
+    {counts && <div className="mb-3 flex flex-wrap gap-1.5 text-[11px]">{(["COMPETITIVE", "REVIEW", "UNSUITABLE", "NO_DATA"] as const).map((k) => <span key={k} className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 font-semibold ${STATUS_TONE[k]}`}><Dot status={k} />{STATUS_LABEL[k]}: {counts[k]}</span>)}{counts.showcase > 0 && <span className="rounded-full bg-secondary px-2 py-0.5 font-semibold">Vitrin için önerilen: {counts.showcase}</span>}</div>}
     {suggestOpen && market && <SuggestionPreview iso={iso} groups={groups} market={market} onClose={() => setSuggestOpen(false)} />}
     <div className="mb-3 grid grid-cols-2 rounded-xl bg-secondary p-1" aria-label="Paket türü">
       <Button variant="ghost" className={`h-9 ${kind === "standard" ? "!bg-primary !text-primary-foreground shadow-sm" : "text-muted-foreground"}`} onClick={() => setKind("standard")}>STANDARD · {standard.length}</Button>
@@ -242,7 +244,7 @@ function CompetitorList({ result, expensiveVariants }: { result: CompetitiveResu
   return <div className="mt-2 space-y-1 rounded-lg bg-secondary/40 p-2 text-[11px]">
     {result.competitors.length === 0 ? <p className="text-muted-foreground">Rakip verisi yok</p> : result.competitors.map((c) => <p key={c.id} className="grid grid-cols-[minmax(0,1fr)_auto] gap-2"><span className="truncate">{c.competitor} · <span className={c.stale ? "font-semibold text-destructive" : "text-muted-foreground"}>{ageLabel(c.checkedAt)}</span></span><span className="tabular-nums font-semibold">{c.currency === "EUR" ? euro(c.price) : `${c.price} ${c.currency}`}{c.eur == null && " · Kur yok"}</span></p>)}
     {result.reasons.map((r) => <p key={r} className="font-semibold text-muted-foreground">• {r}</p>)}
-    {expensiveVariants > 0 && <p className="font-semibold text-destructive">🔴 {expensiveVariants} pahalı tedarikçi varyantı satışa uygun değil (katalogda kalır)</p>}
+    {expensiveVariants > 0 && <p className="font-semibold text-destructive">{expensiveVariants} pahalı tedarikçi varyantı satışa uygun değil (katalogda kalır)</p>}
   </div>;
 }
 
