@@ -7,6 +7,8 @@ import {
   EMPTY_MANUAL_CONFIG, packageKey, profitAndMargin, resolveManualPrice, sanitizeManualConfig,
   type ManualPriceConfig,
 } from "@/domain/pricing/manual-prices";
+import { costAnomalies, evaluateCompetitive, type CompetitiveStatus } from "@/domain/pricing/competitive";
+import { loadEurRates, loadStore } from "@/lib/competitor-pricing.server";
 
 /**
  * Manual price layers live in the Admin-only platform_settings row "manual_pricing".
@@ -124,7 +126,8 @@ export const getManualPricingOverview = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     const db = await adminDb(context as AdminCtx);
-    const [config, rows] = await Promise.all([loadConfig(db), loadRows(db)]);
+    const [config, rows, store, rates] = await Promise.all([loadConfig(db), loadRows(db), loadStore(db), loadEurRates(db)]);
+    const competitive = summarizeCompetitive(rows, config, store, rates);
     const groups = new Map<string, { key: string; products: number; countries: Set<string>; minCost: number | null; maxCost: number | null; lossCount: number; lowCount: number }>();
     const countries = new Map<string, { iso: string; packages: number; published: number; country: number; global: number; auto: number; check: number }>();
     for (const row of rows) {
@@ -142,6 +145,7 @@ export const getManualPricingOverview = createServerFn({ method: "GET" })
       countries.set(row.iso!, c);
     }
     return {
+      competitive,
       global: config.global,
       groups: [...groups.values()].map((g) => ({ ...g, countries: g.countries.size })),
       countries: [...countries.values()].sort((a, b) => a.iso.localeCompare(b.iso)),
@@ -153,14 +157,38 @@ export const getCountryPricing = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context, data }) => {
     const db = await adminDb(context as AdminCtx);
-    const [config, rows] = await Promise.all([loadConfig(db), loadRows(db, data.iso)]);
+    const [config, rows, store, rates] = await Promise.all([loadConfig(db), loadRows(db, data.iso), loadStore(db), loadEurRates(db)]);
     return {
       iso: data.iso,
+      competitorNames: store.competitors,
+      competitors: store.entries.filter((e) => e.iso === data.iso),
+      rates, policy: store.policy,
       rows: rows
         .map((row) => ({ id: row.id, name: row.name, key: row.key, cost: row.cost, autoPrice: row.autoPrice, lifecycle: row.lifecycle, minMargin: row.minMargin, ...describe(row, config) }))
         .sort((a, b) => a.key.localeCompare(b.key, undefined, { numeric: true })),
     };
   });
+
+/** Per-country competitive status counts, one evaluation per package structure (cheapest equivalent variant). */
+function summarizeCompetitive(rows: Row[], config: ManualPriceConfig, store: Awaited<ReturnType<typeof loadStore>>, rates: Record<string, number>) {
+  const byGroup = new Map<string, Row[]>();
+  for (const r of rows) byGroup.set(`${r.iso}|${r.key}`, [...(byGroup.get(`${r.iso}|${r.key}`) ?? []), r]);
+  const entries = new Map<string, typeof store.entries>();
+  for (const e of store.entries) entries.set(`${e.iso}|${e.key}`, [...(entries.get(`${e.iso}|${e.key}`) ?? []), e]);
+  const empty = () => ({ COMPETITIVE: 0, REVIEW: 0, UNSUITABLE: 0, NO_DATA: 0, showcase: 0 });
+  const countries: Record<string, ReturnType<typeof empty>> = {};
+  const totals = empty();
+  for (const [gk, list] of byGroup) {
+    const first = list[0]!;
+    const { cheapest } = costAnomalies(list.map((r) => r.cost));
+    const price = resolveManualPrice(config, first.iso, first.key, first.autoPrice).price;
+    const status: CompetitiveStatus = evaluateCompetitive({ cost: cheapest, price, minMargin: first.minMargin, competitors: entries.get(gk) ?? [], rates, policy: store.policy }).status;
+    const c = (countries[first.iso!] ??= empty());
+    c[status]++; totals[status]++;
+    if (status === "COMPETITIVE" && list.some((r) => r.lifecycle === "PUBLISHED")) { c.showcase++; totals.showcase++; }
+  }
+  return { totals, countries, entries: store.entries.length };
+}
 
 type Entry = { key: string; price: number | null };
 
