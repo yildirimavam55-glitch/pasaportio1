@@ -3,7 +3,9 @@ import { costAnomalies, evaluateCompetitive, median, parseCompetitorCsv, ageLabe
 
 const now = new Date("2026-10-05T12:00:00Z");
 const c = (price: number, extra: Partial<CompetitorPrice> = {}): CompetitorPrice => ({
-  id: String(price), competitor: "X", iso: "TR", key: "10|30", price, currency: "EUR", source: "test", checkedAt: "2026-10-05", ...extra,
+  // distinct names unless overridden, so multi-entry tests form a market
+
+  id: String(price) + (extra.competitor ?? ""), competitor: `X${price}`, iso: "TR", key: "10|30", price, currency: "EUR", source: "test", checkedAt: "2026-10-05", ...extra,
 });
 
 describe("competitive pricing", () => {
@@ -22,21 +24,21 @@ describe("competitive pricing", () => {
   });
 
   it("flags low margin for review", () => {
-    const r = evaluateCompetitive({ cost: 13.2, price: 15.99, minMargin: 25, competitors: [c(15.49)], rates: {}, now });
+    const r = evaluateCompetitive({ cost: 13.2, price: 15.99, minMargin: 25, competitors: [c(15.49), c(15.49, { competitor: "Y" })], rates: {}, now });
     expect(r.status).toBe("UNSUITABLE"); // cost ≥ 90% of market
-    const r2 = evaluateCompetitive({ cost: 11, price: 13.49, minMargin: 25, competitors: [c(15.49)], rates: {}, now });
+    const r2 = evaluateCompetitive({ cost: 11, price: 13.49, minMargin: 25, competitors: [c(15.49), c(15.49, { competitor: "Y" })], rates: {}, now });
     expect(r2.status).toBe("REVIEW");
   });
 
   it("marks unsuitable when cost exceeds market and never suggests a loss", () => {
-    const r = evaluateCompetitive({ cost: 18.5, price: 24.99, minMargin: 25, competitors: [c(15.99)], rates: {}, now });
+    const r = evaluateCompetitive({ cost: 18.5, price: 24.99, minMargin: 25, competitors: [c(15.99), c(15.99, { competitor: "Y" })], rates: {}, now });
     expect(r.status).toBe("UNSUITABLE");
     expect(r.suggested).toBeNull();
   });
 
   it("reports missing and stale competitor data without inventing values", () => {
     expect(evaluateCompetitive({ cost: 5, price: 9.99, minMargin: 25, competitors: [], rates: {}, now }).status).toBe("NO_DATA");
-    const stale = evaluateCompetitive({ cost: 5, price: 9.99, minMargin: 25, competitors: [c(12, { checkedAt: "2026-07-01" })], rates: {}, now });
+    const stale = evaluateCompetitive({ cost: 5, price: 9.99, minMargin: 25, competitors: [c(12, { checkedAt: "2026-07-01" }), c(12, { checkedAt: "2026-07-01", competitor: "Y" })], rates: {}, now });
     expect(stale.status).toBe("REVIEW");
     expect(stale.market).toBeNull();
     expect(stale.reasons).toContain("Rakip fiyatını tekrar kontrol et");
@@ -46,13 +48,13 @@ describe("competitive pricing", () => {
     const r = evaluateCompetitive({ cost: 5, price: 9.99, minMargin: 25, competitors: [c(12, { currency: "USD" })], rates: {}, now });
     expect(r.fxMissing).toBe(true);
     expect(r.market).toBeNull();
-    const r2 = evaluateCompetitive({ cost: 5, price: 9.99, minMargin: 25, competitors: [c(12, { currency: "USD" })], rates: { USD: 0.9 }, now });
+    const r2 = evaluateCompetitive({ cost: 5, price: 9.99, minMargin: 25, competitors: [c(12, { currency: "USD" }), c(12, { currency: "USD", competitor: "Y" })], rates: { USD: 0.9 }, now });
     expect(r2.market).toBe(10.8);
   });
 
   it("marks expensive supplier variants", () => {
     expect(costAnomalies([8, 41, 8.5]).anomalous).toEqual([false, true, false]);
-    expect(evaluateCompetitive({ cost: 41, price: 59.99, minMargin: 25, competitors: [c(15.99)], rates: {}, now, costAnomaly: true }).status).toBe("UNSUITABLE");
+    expect(evaluateCompetitive({ cost: 41, price: 59.99, minMargin: 25, competitors: [c(15.99), c(15.99, { competitor: "Y" })], rates: {}, now, costAnomaly: true }).status).toBe("UNSUITABLE");
   });
 
   it("parses CSV and rejects invalid rows", () => {

@@ -14,7 +14,14 @@ export type CompetitorPrice = {
   currency: string;
   source: string;
   checkedAt: string; // YYYY-MM-DD
+  countryName?: string;
+  sourceType?: string;
+  importedAt?: string;
+  active?: boolean;
 };
+
+/** A market reference needs at least this many distinct reliable competitors. */
+export const MIN_MARKET_COMPETITORS = 2;
 
 export type CompetitivePolicy = {
   /** Market target = market reference × factor (0.93 ≈ 7% below). */
@@ -100,15 +107,18 @@ export function evaluateCompetitive(input: {
 }): CompetitiveResult {
   const policy = input.policy ?? DEFAULT_POLICY;
   const now = input.now ?? new Date();
-  const competitors = input.competitors.map((c) => {
+  const competitors = input.competitors.filter((c) => c.active !== false).map((c) => {
     const eur = toEur(c.price, c.currency, input.rates);
     const stale = ageDays(c.checkedAt, now) > policy.staleDays;
     return { ...c, eur, stale, usable: eur != null && !stale };
   });
-  const usable = competitors.filter((c) => c.usable).map((c) => c.eur!);
+  const usableList = competitors.filter((c) => c.usable);
+  const distinct = new Set(usableList.map((c) => c.competitor.toLowerCase())).size;
+  const usable = usableList.map((c) => c.eur!);
   const stale = competitors.some((c) => c.stale);
   const fxMissing = competitors.some((c) => c.eur == null);
-  const market = median(usable);
+  const lowConfidence = usable.length > 0 && distinct < MIN_MARKET_COMPETITORS;
+  const market = lowConfidence ? null : median(usable);
   const reasons: string[] = [];
   const minMargin = Math.min(Math.max(input.minMargin, 0), 95);
   const floor = input.cost != null && input.cost > 0 ? roundUpPsych(input.cost / (1 - minMargin / 100)) : null;
@@ -120,6 +130,10 @@ export function evaluateCompetitive(input: {
   }
   if (stale) reasons.push("Rakip fiyatını tekrar kontrol et");
   if (fxMissing) reasons.push("Kur yok — karşılaştırılamadı");
+  if (lowConfidence) {
+    reasons.push("Pazar güveni düşük — tek rakip, pazar referansı hesaplanmadı");
+    return { status: input.costAnomaly ? "UNSUITABLE" : "NO_DATA", reasons, competitors, market: null, diffPct: null, floor, suggested: null, stale, fxMissing };
+  }
   if (market == null) {
     return { status: input.costAnomaly ? "UNSUITABLE" : "REVIEW", reasons, competitors, market, diffPct, floor, suggested: null, stale, fxMissing };
   }

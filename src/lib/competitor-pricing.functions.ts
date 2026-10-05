@@ -3,6 +3,58 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { adminDb, audit, type AdminCtx } from "@/lib/admin-guard";
 import { parseCompetitorCsv, type CompetitorPrice } from "@/domain/pricing/competitive";
 import { COMPETITOR_SETTINGS_ID, loadStore, sanitizeStore } from "@/lib/competitor-pricing.server";
+import { planResearchImport, type ResearchFile } from "@/domain/pricing/airalo";
+import airaloResearch from "@/data/airalo-research-2026-10-05.json";
+
+const RESEARCH_FILES: Record<string, ResearchFile & { file: string }> = { "airalo-2026-10-05": airaloResearch as ResearchFile & { file: string } };
+
+async function catalogueIsos(db: any, isos: string[]) {
+  const found = new Set<string>();
+  await Promise.all([...new Set(isos)].map(async (iso) => {
+    const { count } = await db.from("esim_product_details").select("product_id", { count: "exact", head: true }).eq("country_iso", iso);
+    if ((count ?? 0) > 0) found.add(iso);
+  }));
+  return found;
+}
+
+async function planFor(db: any, fileId: string) {
+  const file = RESEARCH_FILES[fileId];
+  if (!file) throw new Error("Bilinmeyen araştırma dosyası");
+  const store = await loadStore(db);
+  const isos = await catalogueIsos(db, file.rows.flatMap((r) => (r.iso ? [r.iso] : [])));
+  return { file, store, plan: planResearchImport(file, store.entries, isos, new Date().toISOString()) };
+}
+
+/** Read-only preview of the bundled Airalo app research; nothing is saved. */
+export const previewResearchImport = createServerFn({ method: "POST" })
+  .inputValidator((input: { fileId: string }) => ({ fileId: String(input.fileId) }))
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context, data }) => {
+    const { file, plan } = await planFor(await adminDb(context as AdminCtx), data.fileId);
+    return { file: file.file, competitor: file.competitor, sourceType: file.sourceType, source: file.sourceDescription, checkedAt: file.checkedAt,
+      summary: plan.summary, invalid: plan.invalid, countryMatchRequired: plan.countryMatchRequired };
+  });
+
+/** Explicit Admin confirmation: upserts competitor observations by competitor+country+package; never touches selling prices. */
+export const commitResearchImport = createServerFn({ method: "POST" })
+  .inputValidator((input: { fileId: string }) => ({ fileId: String(input.fileId) }))
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context, data }) => {
+    const db = await adminDb(context as AdminCtx);
+    const { file, store, plan } = await planFor(db, data.fileId);
+    const sig = (e: { competitor: string; iso: string; key: string }) => `${e.competitor.toLowerCase()}|${e.iso}|${e.key}`;
+    const incoming = new Set(plan.entries.map(sig));
+    const prior = new Map(store.entries.map((e) => [sig(e), e.id]));
+    const kept = store.entries.filter((e) => !incoming.has(sig(e)));
+    const added = plan.entries.map((e) => ({ ...e, id: prior.get(sig(e)) ?? crypto.randomUUID() }));
+    const history = [...store.history, { at: new Date().toISOString(), competitor: file.competitor, file: file.file, checkedAt: file.checkedAt, sourceType: file.sourceType,
+      rows: plan.summary.rows, countries: plan.summary.countries, newRecords: plan.summary.newRecords, updated: plan.summary.updated, invalid: plan.summary.invalid, countryMatchRequired: plan.summary.countryMatchRequired }];
+    const next = sanitizeStore({ ...store, entries: [...kept, ...added], history });
+    const { error } = await db.from("platform_settings").upsert({ id: COMPETITOR_SETTINGS_ID, data: next });
+    if (error) throw new Error(error.message);
+    await audit(db, "competitor_prices.research_import", "platform_settings", COMPETITOR_SETTINGS_ID, { entries: store.entries.length }, { entries: next.entries.length, ...plan.summary });
+    return plan.summary;
+  });
 
 /** Admin-only competitor research; read and written only after the server admin check. */
 export const getCompetitorStore = createServerFn({ method: "GET" })

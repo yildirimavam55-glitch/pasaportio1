@@ -4,7 +4,8 @@ import { DEFAULT_COMPETITORS, DEFAULT_POLICY, round2, type CompetitivePolicy, ty
 export const COMPETITOR_SETTINGS_ID = "competitor_prices";
 const RATE_MAX_AGE_DAYS = 7;
 
-export type CompetitorStore = { competitors: string[]; entries: CompetitorPrice[]; policy: CompetitivePolicy };
+export type ImportHistory = { at: string; competitor: string; file: string; checkedAt: string; sourceType: string; rows: number; countries: number; newRecords: number; updated: number; invalid: number; countryMatchRequired: number };
+export type CompetitorStore = { competitors: string[]; entries: CompetitorPrice[]; policy: CompetitivePolicy; history: ImportHistory[] };
 
 export function sanitizeStore(raw: any): CompetitorStore {
   const names = Array.isArray(raw?.competitors) ? raw.competitors.map((n: unknown) => String(n ?? "").trim().slice(0, 60)) : [];
@@ -14,11 +15,16 @@ export function sanitizeStore(raw: any): CompetitorStore {
     if (!e || !/^[A-Z]{2}$/.test(e.iso) || !/^(U|\d+(\.\d+)?)\|\d+$/.test(e.key) || !(price > 0 && price < 10000)
       || !/^[A-Z]{3}$/.test(e.currency) || !/^\d{4}-\d{2}-\d{2}$/.test(e.checkedAt) || !e.competitor) return [];
     return [{ id: String(e.id).slice(0, 40), competitor: String(e.competitor).slice(0, 60), iso: e.iso, key: e.key, price: round2(price),
-      currency: e.currency, source: String(e.source ?? "").slice(0, 300), checkedAt: e.checkedAt }];
+      currency: e.currency, source: String(e.source ?? "").slice(0, 300), checkedAt: e.checkedAt,
+      ...(e.countryName ? { countryName: String(e.countryName).slice(0, 80) } : {}),
+      ...(e.sourceType ? { sourceType: String(e.sourceType).slice(0, 40) } : {}),
+      ...(e.importedAt ? { importedAt: String(e.importedAt).slice(0, 40) } : {}),
+      ...(e.active === false ? { active: false } : {}) }];
   }).slice(0, 5000);
   const p = raw?.policy ?? {};
   const n = (v: unknown, d: number, lo: number, hi: number) => { const x = Number(v); return Number.isFinite(x) && x >= lo && x <= hi ? x : d; };
-  return { competitors, entries, policy: {
+  const history: ImportHistory[] = (Array.isArray(raw?.history) ? raw.history : []).filter((h: any) => h && typeof h.at === "string").slice(-50);
+  return { competitors, entries, history, policy: {
     targetFactor: n(p.targetFactor, DEFAULT_POLICY.targetFactor, 0.5, 1),
     staleDays: n(p.staleDays, DEFAULT_POLICY.staleDays, 1, 365),
     tolerancePct: n(p.tolerancePct, DEFAULT_POLICY.tolerancePct, 0, 50),
