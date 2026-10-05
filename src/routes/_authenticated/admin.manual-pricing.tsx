@@ -41,8 +41,8 @@ const STATUS_TONE: Record<CompetitiveStatus, string> = { COMPETITIVE: "bg-primar
 function StatusBadge({ status }: { status: CompetitiveStatus }) {
   return <span className={`inline-flex items-center gap-1 whitespace-nowrap rounded-full px-2 py-0.5 text-[10px] font-bold ${STATUS_TONE[status]}`}><Dot status={status} />{STATUS_LABEL[status]}</span>;
 }
-const AIRALO_LABEL: Record<AiraloIndicator, string> = { CHEAPER: "Airalo'dan uygun", CLOSE: "Airalo'ya yakın", EXPENSIVE: "Airalo'dan pahalı", NO_DATA: "Airalo verisi yok" };
-const AIRALO_TONE: Record<AiraloIndicator, CompetitiveStatus> = { CHEAPER: "COMPETITIVE", CLOSE: "REVIEW", EXPENSIVE: "UNSUITABLE", NO_DATA: "NO_DATA" };
+const AIRALO_LABEL: Record<AiraloIndicator, string> = { CHEAPER: "Airalo'dan uygun", CHEAPER_LOW_MARGIN: "Airalo'dan uygun · düşük marj", CLOSE: "Airalo'ya yakın", EXPENSIVE: "Airalo'dan pahalı", NO_DATA: "Airalo verisi yok" };
+const AIRALO_TONE: Record<AiraloIndicator, CompetitiveStatus> = { CHEAPER: "COMPETITIVE", CHEAPER_LOW_MARGIN: "REVIEW", CLOSE: "REVIEW", EXPENSIVE: "UNSUITABLE", NO_DATA: "NO_DATA" };
 const MATCH_LABEL: Record<MatchQuality, string> = { EXACT: "EXACT", SHORTER_VALIDITY: "SHORTER VALIDITY", COMPARABLE: "COMPARABLE", NO_MATCH: "NO MATCH" };
 const trDate = (d: string) => d.split("-").reverse().join(".");
 /** Airalo is one competitor: shown as its own comparison, never as a market median. */

@@ -7,7 +7,7 @@ import { packageKey } from "./manual-prices";
 import { round2, type CompetitorPrice } from "./competitive";
 
 export type MatchQuality = "EXACT" | "SHORTER_VALIDITY" | "COMPARABLE" | "NO_MATCH";
-export type AiraloIndicator = "CHEAPER" | "CLOSE" | "EXPENSIVE" | "NO_DATA";
+export type AiraloIndicator = "CHEAPER" | "CHEAPER_LOW_MARGIN" | "CLOSE" | "EXPENSIVE" | "NO_DATA";
 /** Prices within ±this % of the competitor count as "close". */
 export const CLOSE_BAND_PCT = 3;
 
@@ -41,7 +41,7 @@ export function compareWithCompetitor(input: { price: number | null; cost: numbe
   const diffPct = round2((diff / entry.price) * 100);
   const margin = cost != null && price > 0 ? ((price - cost) / price) * 100 : null;
   const healthy = margin == null || margin >= input.minMargin;
-  const indicator: AiraloIndicator = diffPct > CLOSE_BAND_PCT ? "EXPENSIVE" : diffPct < -CLOSE_BAND_PCT && healthy ? "CHEAPER" : "CLOSE";
+  const indicator: AiraloIndicator = diffPct > CLOSE_BAND_PCT ? "EXPENSIVE" : diffPct < -CLOSE_BAND_PCT ? (healthy ? "CHEAPER" : "CHEAPER_LOW_MARGIN") : "CLOSE";
   return { indicator, diff, diffPct, fxRequired: false };
 }
 

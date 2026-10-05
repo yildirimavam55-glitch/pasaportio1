@@ -46,6 +46,7 @@ describe("Airalo research import", () => {
     expect(cheaper.diffPct).toBeCloseTo(-6.25, 1);
     expect(compareWithCompetitor({ price: 17.99, cost: 8.2, minMargin: 25, entry: e("10|30", 15.99) })).toMatchObject({ diff: 2, indicator: "EXPENSIVE" });
     expect(compareWithCompetitor({ price: 16.2, cost: 8, minMargin: 25, entry: e("10|30", 15.99) }).indicator).toBe("CLOSE");
+    expect(compareWithCompetitor({ price: 10.99, cost: 8.75, minMargin: 25, entry: e("20|30", 20.5) }).indicator).toBe("CHEAPER_LOW_MARGIN");
     expect(compareWithCompetitor({ price: 9.99, cost: 5, minMargin: 25, entry: null }).indicator).toBe("NO_DATA");
     expect(compareWithCompetitor({ price: 9.99, cost: 5, minMargin: 25, entry: e("1|1", 10, { currency: "USD" }) }).fxRequired).toBe(true);
     const r = evaluateCompetitive({ cost: 8.2, price: 14.99, minMargin: 25, competitors: [e("10|30", 15.99)], rates: {} , now: new Date("2026-10-05T12:00:00Z")});
