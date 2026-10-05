@@ -215,6 +215,13 @@ function RoamingComparison({ section, media, preview, locale, uiLocale, onDestin
       {ctaNode}
     </div> : <div role="group" aria-label={c.chart} className="min-w-0">
       {demo && <p className="mb-3 inline-block rounded-full bg-primary-soft px-2.5 py-1 text-[10px] font-bold text-primary">{c.demo}</p>}
+      <div className="mb-5 px-1 sm:mb-6">
+        <p className="text-xs font-bold uppercase tracking-wide text-success">{t("comparisonTitle") || c.eyebrow}</p>
+        <h4 className="mt-2 font-display text-2xl font-bold leading-tight text-foreground sm:text-4xl">
+          <span>{c.pre} </span><bdi className="text-primary">{pct(data.percent)}</bdi><span> {t("statisticLabel") || c.post}</span>
+        </h4>
+        <p className="mt-2 text-sm leading-relaxed text-muted-foreground sm:text-base">{t("comparisonDescription") || c.desc}</p>
+      </div>
       <div className="space-y-2.5 sm:space-y-3">
         {([{"key": "roaming", "label": t("comparisonALabel") || c.roaming, "support": t("comparisonASupport") || c.roamingSupport, "price": data.roaming, "progress": redProgress, "ratio": data.roaming / Math.max(data.roaming, data.travely), "Icon": RadioTower}, {"key": "travely", "label": t("comparisonBLabel") || c.travely, "support": t("comparisonBSupport") || c.travelySupport, "price": data.travely, "progress": tealProgress, "ratio": data.travely / Math.max(data.roaming, data.travely), "Icon": Signal}] as const).map((row) => <div key={row.key} data-comparison-row={row.key} className="min-w-0 rounded-xl border border-border/60 bg-card px-4 py-4 sm:px-6 sm:py-5">
           <div className="flex min-w-0 items-center gap-3 sm:gap-4"><span className={`grid size-10 shrink-0 place-items-center rounded-full ${row.key === "roaming" ? "bg-comparison-coral/10 text-comparison-coral" : "bg-primary-soft text-primary"}`}><row.Icon className="size-5" aria-hidden /></span><div className="min-w-0 flex-1"><p className="break-words text-sm font-bold leading-tight text-foreground sm:text-base">{row.label}</p>{row.support && <p className="mt-0.5 break-words text-xs leading-snug text-muted-foreground sm:text-sm">{row.support}</p>}</div><div className="min-w-0 shrink-0 text-end"><span className="sr-only">{money(row.price)}</span><span className="grid font-display text-xl font-bold tabular-nums text-foreground sm:text-3xl"><bdi aria-hidden="true" className="invisible col-start-1 row-start-1">{money(row.price)}</bdi><bdi aria-hidden="true" className="col-start-1 row-start-1 self-center whitespace-nowrap">{money(Math.round(row.price * row.progress * 100) / 100)}</bdi></span></div></div>
@@ -225,7 +232,7 @@ function RoamingComparison({ section, media, preview, locale, uiLocale, onDestin
         <div className="min-w-0 border-e border-border pe-3"><p className="break-words text-[11px] font-bold uppercase text-muted-foreground sm:text-xs">{t("comparisonSavingLabel") || c.save}</p><bdi className="mt-1 block font-display text-2xl font-bold tabular-nums text-foreground sm:text-4xl">{money(data.saving)}</bdi></div>
         <div className="min-w-0 ps-2"><bdi className="block font-display text-3xl font-bold tabular-nums text-primary sm:text-4xl">{pct(data.percent)}</bdi><p className="break-words text-xs font-semibold text-muted-foreground sm:text-sm">{t("comparisonAdvantageLabel") || c.advantage}</p></div>
       </div>
-      <div className="mt-5 px-1 sm:mt-6"><h4 className="font-display text-xl font-bold leading-tight text-foreground sm:text-3xl">{t("comparisonTitle") || c.fbHead}</h4><p className="mt-1 text-sm leading-relaxed text-muted-foreground sm:text-base">{t("comparisonDescription") || c.desc}</p>{ctaNode}</div>
+      <div className="px-1">{ctaNode}</div>
       {reference && <p className="mt-4 text-xs font-semibold text-muted-foreground">{reference}</p>}
       <p className="mt-3 text-[11px] leading-snug text-muted-foreground">{t("comparisonFootnote") || c.sample}</p>
     </div>}
