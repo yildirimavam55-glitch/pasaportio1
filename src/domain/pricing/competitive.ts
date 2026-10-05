@@ -93,7 +93,7 @@ export function evaluateCompetitive(input: {
   minMargin: number;
   competitors: CompetitorPrice[];
   rates: EurRates;
-  policy?: CompetitivePolicy;
+  policy?: CompetitivePolicy | undefined;
   now?: Date;
   /** True when a cheaper equivalent supplier variant exists for this structure. */
   costAnomaly?: boolean;
@@ -181,7 +181,7 @@ export function parseCompetitorCsv(text: string, now = new Date()): ImportRow[] 
     if (!raw.trim()) return;
     const c = splitLine(raw);
     if (i === 0 && /competitor|rakip/i.test(c[0] ?? "")) return;
-    const fail = (error: string) => out.push({ line: i + 1, ok: false, error, raw });
+    const fail = (error: string): void => { out.push({ line: i + 1, ok: false, error, raw }); };
     if (c.length < 9) return fail("9 sütun gerekli");
     const [competitor, country, type, data, validity, price, currency, source, checked] = c as string[];
     if (!competitor || competitor.length > 60) return fail("Rakip adı geçersiz");
