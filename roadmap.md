@@ -774,7 +774,8 @@
 - [x] Place the owner-approved graphic within the existing Trust story below benefits; the graphic includes its original example disclaimer and reference allowance.
 
 ## Image stability + real roaming comparison (2026-10-04)
-- [ ] Finish the existing Trust comparison's viewport-triggered bars, count-up, savings, CTA, responsive and reduced-motion QA without publishing.
+- [x] Finish the existing Trust comparison's viewport-triggered bars, count-up, savings, CTA, responsive and reduced-motion QA without publishing.
 - [x] Hydration reuses server CMS data (router dehydrate/hydrate); signed media URLs kept stable on refetch
 - [x] Roaming comparison rebuilt as localized component with structured prices (14 locales)
 - [ ] Admin editor live check — blocked: session lacks Admin role
+- [ ] Clarify the owner's unfinished “Statt” replacement request before changing any comparison wording.
