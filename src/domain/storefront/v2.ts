@@ -15,6 +15,7 @@ import { DISCOVERY_COPY, ESIM_COPY, LOUNGE_COPY, VIGNETTE_COPY } from "@/domain/
 import { TRUST_EDITORIAL } from "./trust-editorial";
 import { TRUST_TRANSLATIONS } from "@/i18n/trust-translations";
 import { DEFAULT_IMAGE_DISPLAY, ESIM_DESKTOP_IMAGE_DISPLAY, sanitizeImageDisplay, type ImageDisplay } from "./image-display";
+import restoredEsimHomepage from "./restored-esim-homepage.json";
 
 export const V2_PAGES = ["esim", "lounge", "vignette"] as const;
 export type V2PageId = (typeof V2_PAGES)[number];

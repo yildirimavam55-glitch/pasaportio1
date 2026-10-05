@@ -1,0 +1,2763 @@
+{
+  "version": 1,
+  "page": "esim",
+  "sections": [
+    {
+      "id": "hero",
+      "type": "SEARCH_HERO",
+      "visible": true,
+      "showOnResults": false,
+      "variant": "default",
+      "align": "left",
+      "height": "tall",
+      "overlay": "normal",
+      "mediaId": "2096d4af-5b89-49ad-b19f-7ca95ec54160",
+      "mobileMediaId": "2096d4af-5b89-49ad-b19f-7ca95ec54160",
+      "imageDisplay": {
+        "zoom": 100,
+        "x": 77,
+        "y": 56,
+        "fit": "cover"
+      },
+      "href": "/esim",
+      "startsAt": "",
+      "endsAt": "",
+      "text": {
+        "eyebrow": {
+          "tr": "eSIM",
+          "en": "eSIM",
+          "de": "eSIM"
+        },
+        "title": {
+          "tr": "Yurt dışında bağlantıda kal.",
+          "en": "Stay connected abroad.",
+          "de": "Im Ausland verbunden bleiben."
+        },
+        "subtitle": {
+          "tr": "Hangi ülke için eSIM arıyorsun?",
+          "en": "Which country do you need an eSIM for?",
+          "de": "Für welches Land suchst du eine eSIM?"
+        },
+        "placeholder": {
+          "tr": "Ülke ara, örn. İtalya",
+          "en": "Search country, e.g. Italy",
+          "de": "Land suchen, z. B. Türkei"
+        },
+        "sticky": {
+          "tr": "Türkiye veya başka ülke ara",
+          "en": "Search Turkey or another country",
+          "de": "Türkei oder anderes Land suchen"
+        }
+      },
+      "items": [],
+      "showDots": true,
+      "showArrows": true,
+      "cardGap": "normal",
+      "mobilePreview": "normal",
+      "claims": {
+        "countries": "190+",
+        "refundDays": "14",
+        "savingPercent": "60",
+        "setupSeconds": "60"
+      },
+      "showDemoReviews": false
+    },
+    {
+      "id": "benefits",
+      "type": "BENEFIT_ROW",
+      "visible": true,
+      "showOnResults": false,
+      "variant": "default",
+      "align": "left",
+      "height": "normal",
+      "overlay": "normal",
+      "mediaId": null,
+      "mobileMediaId": null,
+      "href": "/esim",
+      "startsAt": "",
+      "endsAt": "",
+      "text": {},
+      "items": [
+        {
+          "id": "delivery",
+          "visible": true,
+          "icon": "Zap",
+          "entity": "",
+          "title": {
+            "tr": "Hızlı teslim",
+            "en": "Fast delivery",
+            "de": "Schnell verfügbar"
+          },
+          "text": {
+            "tr": "",
+            "en": "",
+            "de": ""
+          },
+          "internalKey": "delivery",
+          "cardType": "products",
+          "mediaId": null,
+          "href": "",
+          "labels": [],
+          "cta": {
+            "tr": "",
+            "en": "",
+            "de": ""
+          },
+          "imageAlt": {
+            "tr": "",
+            "en": "",
+            "de": ""
+          },
+          "focalX": 50,
+          "focalY": 50,
+          "rating": 5,
+          "verified": false,
+          "published": false
+        },
+        {
+          "id": "refund",
+          "visible": true,
+          "icon": "ShieldCheck",
+          "entity": "",
+          "title": {
+            "tr": "14 gün iade",
+            "en": "14-day refund",
+            "de": "14 Tage Rückgabe"
+          },
+          "text": {
+            "tr": "",
+            "en": "",
+            "de": ""
+          },
+          "internalKey": "refund",
+          "cardType": "products",
+          "mediaId": null,
+          "href": "",
+          "labels": [],
+          "cta": {
+            "tr": "",
+            "en": "",
+            "de": ""
+          },
+          "imageAlt": {
+            "tr": "",
+            "en": "",
+            "de": ""
+          },
+          "focalX": 50,
+          "focalY": 50,
+          "rating": 5,
+          "verified": false,
+          "published": false
+        },
+        {
+          "id": "setup",
+          "visible": true,
+          "icon": "Smartphone",
+          "entity": "",
+          "title": {
+            "tr": "Kolay kurulum",
+            "en": "Easy setup",
+            "de": "Einfache Einrichtung"
+          },
+          "text": {
+            "tr": "",
+            "en": "",
+            "de": ""
+          },
+          "internalKey": "setup",
+          "cardType": "products",
+          "mediaId": null,
+          "href": "",
+          "labels": [],
+          "cta": {
+            "tr": "",
+            "en": "",
+            "de": ""
+          },
+          "imageAlt": {
+            "tr": "",
+            "en": "",
+            "de": ""
+          },
+          "focalX": 50,
+          "focalY": 50,
+          "rating": 5,
+          "verified": false,
+          "published": false
+        },
+        {
+          "id": "support",
+          "visible": true,
+          "icon": "Headphones",
+          "entity": "",
+          "title": {
+            "tr": "WhatsApp destek",
+            "en": "WhatsApp support",
+            "de": "WhatsApp-Support"
+          },
+          "text": {
+            "tr": "",
+            "en": "",
+            "de": ""
+          },
+          "internalKey": "support",
+          "cardType": "products",
+          "mediaId": null,
+          "href": "",
+          "labels": [],
+          "cta": {
+            "tr": "",
+            "en": "",
+            "de": ""
+          },
+          "imageAlt": {
+            "tr": "",
+            "en": "",
+            "de": ""
+          },
+          "focalX": 50,
+          "focalY": 50,
+          "rating": 5,
+          "verified": false,
+          "published": false
+        }
+      ],
+      "showDots": true,
+      "showArrows": true,
+      "cardGap": "normal",
+      "mobilePreview": "normal",
+      "claims": {
+        "countries": "190+",
+        "refundDays": "14",
+        "savingPercent": "60",
+        "setupSeconds": "60"
+      },
+      "showDemoReviews": false
+    },
+    {
+      "id": "popular",
+      "type": "DESTINATION_CAROUSEL",
+      "visible": true,
+      "showOnResults": false,
+      "variant": "country",
+      "align": "left",
+      "height": "normal",
+      "overlay": "normal",
+      "mediaId": null,
+      "mobileMediaId": null,
+      "href": "/esim",
+      "startsAt": "",
+      "endsAt": "",
+      "text": {
+        "title": {
+          "tr": "Popüler eSIM ülkeleri",
+          "en": "Popular eSIM destinations",
+          "de": "Beliebte eSIM-Länder"
+        }
+      },
+      "items": [
+        {
+          "id": "c-TR",
+          "visible": true,
+          "icon": "",
+          "entity": "TR",
+          "title": {
+            "tr": "",
+            "en": "",
+            "de": ""
+          },
+          "text": {
+            "tr": "",
+            "en": "",
+            "de": ""
+          },
+          "internalKey": "c-TR",
+          "cardType": "products",
+          "mediaId": null,
+          "href": "",
+          "labels": [],
+          "cta": {
+            "tr": "",
+            "en": "",
+            "de": ""
+          },
+          "imageAlt": {
+            "tr": "",
+            "en": "",
+            "de": ""
+          },
+          "focalX": 50,
+          "focalY": 50,
+          "rating": 5,
+          "verified": false,
+          "published": false
+        },
+        {
+          "id": "c-DE",
+          "visible": true,
+          "icon": "",
+          "entity": "DE",
+          "title": {
+            "tr": "",
+            "en": "",
+            "de": ""
+          },
+          "text": {
+            "tr": "",
+            "en": "",
+            "de": ""
+          },
+          "internalKey": "c-DE",
+          "cardType": "products",
+          "mediaId": null,
+          "href": "",
+          "labels": [],
+          "cta": {
+            "tr": "",
+            "en": "",
+            "de": ""
+          },
+          "imageAlt": {
+            "tr": "",
+            "en": "",
+            "de": ""
+          },
+          "focalX": 50,
+          "focalY": 50,
+          "rating": 5,
+          "verified": false,
+          "published": false
+        },
+        {
+          "id": "c-AT",
+          "visible": true,
+          "icon": "",
+          "entity": "AT",
+          "title": {
+            "tr": "",
+            "en": "",
+            "de": ""
+          },
+          "text": {
+            "tr": "",
+            "en": "",
+            "de": ""
+          },
+          "internalKey": "c-AT",
+          "cardType": "products",
+          "mediaId": null,
+          "href": "",
+          "labels": [],
+          "cta": {
+            "tr": "",
+            "en": "",
+            "de": ""
+          },
+          "imageAlt": {
+            "tr": "",
+            "en": "",
+            "de": ""
+          },
+          "focalX": 50,
+          "focalY": 50,
+          "rating": 5,
+          "verified": false,
+          "published": false
+        },
+        {
+          "id": "c-FR",
+          "visible": true,
+          "icon": "",
+          "entity": "FR",
+          "title": {
+            "tr": "",
+            "en": "",
+            "de": ""
+          },
+          "text": {
+            "tr": "",
+            "en": "",
+            "de": ""
+          },
+          "internalKey": "c-FR",
+          "cardType": "products",
+          "mediaId": null,
+          "href": "",
+          "labels": [],
+          "cta": {
+            "tr": "",
+            "en": "",
+            "de": ""
+          },
+          "imageAlt": {
+            "tr": "",
+            "en": "",
+            "de": ""
+          },
+          "focalX": 50,
+          "focalY": 50,
+          "rating": 5,
+          "verified": false,
+          "published": false
+        },
+        {
+          "id": "c-IT",
+          "visible": true,
+          "icon": "",
+          "entity": "IT",
+          "title": {
+            "tr": "",
+            "en": "",
+            "de": ""
+          },
+          "text": {
+            "tr": "",
+            "en": "",
+            "de": ""
+          },
+          "internalKey": "c-IT",
+          "cardType": "products",
+          "mediaId": null,
+          "href": "",
+          "labels": [],
+          "cta": {
+            "tr": "",
+            "en": "",
+            "de": ""
+          },
+          "imageAlt": {
+            "tr": "",
+            "en": "",
+            "de": ""
+          },
+          "focalX": 50,
+          "focalY": 50,
+          "rating": 5,
+          "verified": false,
+          "published": false
+        },
+        {
+          "id": "c-ES",
+          "visible": true,
+          "icon": "",
+          "entity": "ES",
+          "title": {
+            "tr": "",
+            "en": "",
+            "de": ""
+          },
+          "text": {
+            "tr": "",
+            "en": "",
+            "de": ""
+          },
+          "internalKey": "c-ES",
+          "cardType": "products",
+          "mediaId": null,
+          "href": "",
+          "labels": [],
+          "cta": {
+            "tr": "",
+            "en": "",
+            "de": ""
+          },
+          "imageAlt": {
+            "tr": "",
+            "en": "",
+            "de": ""
+          },
+          "focalX": 50,
+          "focalY": 50,
+          "rating": 5,
+          "verified": false,
+          "published": false
+        },
+        {
+          "id": "c-NL",
+          "visible": true,
+          "icon": "",
+          "entity": "NL",
+          "title": {
+            "tr": "",
+            "en": "",
+            "de": ""
+          },
+          "text": {
+            "tr": "",
+            "en": "",
+            "de": ""
+          },
+          "internalKey": "c-NL",
+          "cardType": "products",
+          "mediaId": null,
+          "href": "",
+          "labels": [],
+          "cta": {
+            "tr": "",
+            "en": "",
+            "de": ""
+          },
+          "imageAlt": {
+            "tr": "",
+            "en": "",
+            "de": ""
+          },
+          "focalX": 50,
+          "focalY": 50,
+          "rating": 5,
+          "verified": false,
+          "published": false
+        },
+        {
+          "id": "c-GB",
+          "visible": true,
+          "icon": "",
+          "entity": "GB",
+          "title": {
+            "tr": "",
+            "en": "",
+            "de": ""
+          },
+          "text": {
+            "tr": "",
+            "en": "",
+            "de": ""
+          },
+          "internalKey": "c-GB",
+          "cardType": "products",
+          "mediaId": null,
+          "href": "",
+          "labels": [],
+          "cta": {
+            "tr": "",
+            "en": "",
+            "de": ""
+          },
+          "imageAlt": {
+            "tr": "",
+            "en": "",
+            "de": ""
+          },
+          "focalX": 50,
+          "focalY": 50,
+          "rating": 5,
+          "verified": false,
+          "published": false
+        },
+        {
+          "id": "c-US",
+          "visible": true,
+          "icon": "",
+          "entity": "US",
+          "title": {
+            "tr": "",
+            "en": "",
+            "de": ""
+          },
+          "text": {
+            "tr": "",
+            "en": "",
+            "de": ""
+          },
+          "internalKey": "c-US",
+          "cardType": "products",
+          "mediaId": null,
+          "href": "",
+          "labels": [],
+          "cta": {
+            "tr": "",
+            "en": "",
+            "de": ""
+          },
+          "imageAlt": {
+            "tr": "",
+            "en": "",
+            "de": ""
+          },
+          "focalX": 50,
+          "focalY": 50,
+          "rating": 5,
+          "verified": false,
+          "published": false
+        },
+        {
+          "id": "c-AE",
+          "visible": true,
+          "icon": "",
+          "entity": "AE",
+          "title": {
+            "tr": "",
+            "en": "",
+            "de": ""
+          },
+          "text": {
+            "tr": "",
+            "en": "",
+            "de": ""
+          },
+          "internalKey": "c-AE",
+          "cardType": "products",
+          "mediaId": null,
+          "href": "",
+          "labels": [],
+          "cta": {
+            "tr": "",
+            "en": "",
+            "de": ""
+          },
+          "imageAlt": {
+            "tr": "",
+            "en": "",
+            "de": ""
+          },
+          "focalX": 50,
+          "focalY": 50,
+          "rating": 5,
+          "verified": false,
+          "published": false
+        }
+      ],
+      "showDots": true,
+      "showArrows": true,
+      "cardGap": "normal",
+      "mobilePreview": "normal",
+      "claims": {
+        "countries": "190+",
+        "refundDays": "14",
+        "savingPercent": "60",
+        "setupSeconds": "60"
+      },
+      "showDemoReviews": false
+    },
+    {
+      "id": "trust-reviews",
+      "type": "TRUST_REVIEWS",
+      "visible": true,
+      "showOnResults": false,
+      "variant": "default",
+      "align": "left",
+      "height": "normal",
+      "overlay": "normal",
+      "mediaId": "536a6bd7-2418-4668-8149-6b85bfd2b98d",
+      "mobileMediaId": null,
+      "href": "/esim",
+      "startsAt": "",
+      "endsAt": "",
+      "text": {
+        "eyebrow": {
+          "tr": "Seyahat edenler için geliştirildi",
+          "en": "Built for travellers",
+          "de": "Für Reisende entwickelt",
+          "fr": "Conçu pour les voyageurs",
+          "es": "Creado para viajeros",
+          "it": "Pensato per chi viaggia",
+          "pt": "Feito para viajantes",
+          "nl": "Gemaakt voor reizigers",
+          "pl": "Stworzone dla podróżnych",
+          "ar": "صُممت للمسافرين",
+          "ru": "Создано для путешественников",
+          "ja": "旅行者のために",
+          "ko": "여행자를 위해",
+          "zh": "为旅行者打造"
+        },
+        "title": {
+          "tr": "Gerçek yolculuklar.",
+          "en": "Real travellers.",
+          "de": "Echte Reisende.",
+          "fr": "De vrais voyageurs.",
+          "es": "Viajeros reales.",
+          "it": "Viaggiatori veri.",
+          "pt": "Viajantes reais.",
+          "nl": "Echte reizigers.",
+          "pl": "Prawdziwi podróżni.",
+          "ar": "مسافرون حقيقيون.",
+          "ru": "Настоящие путешественники.",
+          "ja": "本当の旅行者。",
+          "ko": "진짜 여행자.",
+          "zh": "真实旅人。"
+        },
+        "accent": {
+          "tr": "Gerçek deneyimler.",
+          "en": "Real experiences.",
+          "de": "Echte Erfahrungen.",
+          "fr": "De vraies expériences.",
+          "es": "Experiencias reales.",
+          "it": "Esperienze vere.",
+          "pt": "Experiências reais.",
+          "nl": "Echte ervaringen.",
+          "pl": "Prawdziwe doświadczenia.",
+          "ar": "تجارب حقيقية.",
+          "ru": "Настоящие впечатления.",
+          "ja": "本当の体験。",
+          "ko": "진짜 경험.",
+          "zh": "真实体验。"
+        },
+        "subtitle": {
+          "tr": "Şehir gezisi, sırt çantalı yolculuk veya iş seyahati — eSIM’lerimiz 190’dan fazla ülkede yolculuğuna eşlik eder.",
+          "en": "From city breaks and backpacking to business travel, our eSIMs keep travellers connected in over 190 countries.",
+          "de": "Ob Städtetrip, Backpacking oder Geschäftsreise – unsere eSIMs begleiten Reisende in über 190 Ländern.",
+          "fr": "Escapades urbaines, voyages en sac à dos ou déplacements professionnels : nos eSIM accompagnent les voyageurs dans plus de 190 pays.",
+          "es": "Desde escapadas urbanas y viajes con mochila hasta viajes de trabajo, nuestras eSIM acompañan a los viajeros en más de 190 países.",
+          "it": "Dalle gite in città ai viaggi zaino in spalla e di lavoro, le nostre eSIM accompagnano i viaggiatori in oltre 190 paesi.",
+          "pt": "De escapadinhas urbanas e viagens de mochila a viagens de negócios, os nossos eSIM acompanham viajantes em mais de 190 países.",
+          "nl": "Van stedentrips en backpacken tot zakenreizen: onze eSIMs reizen mee naar meer dan 190 landen.",
+          "pl": "Od wyjazdów miejskich i podróży z plecakiem po podróże służbowe — nasze eSIM towarzyszą podróżnym w ponad 190 krajach.",
+          "ar": "من رحلات المدن والسفر بحقيبة الظهر إلى رحلات العمل، ترافق شرائح eSIM المسافرين في أكثر من 190 دولة.",
+          "ru": "От поездок по городам до путешествий с рюкзаком и командировок — наши eSIM сопровождают путешественников более чем в 190 странах.",
+          "ja": "街歩きからバックパック旅行、出張まで、190か国以上で旅行者を支えるeSIMです。",
+          "ko": "도시 여행부터 배낭여행과 출장까지, 190개국 이상에서 여행자를 위한 eSIM입니다.",
+          "zh": "无论城市短途游、背包旅行还是商务出行，我们的 eSIM 陪伴旅人前往 190 多个国家。"
+        },
+        "imageAlt": {
+          "tr": "Akdeniz kıyısındaki şehri seyreden gezgin",
+          "en": "Traveller overlooking a Mediterranean coastal city",
+          "de": "Reisende mit Blick auf eine mediterrane Küstenstadt",
+          "fr": "Voyageuse admirant une ville côtière méditerranéenne",
+          "es": "Viajera contemplando una ciudad costera mediterránea",
+          "it": "Viaggiatrice che guarda una città costiera mediterranea",
+          "pt": "Viajante a observar uma cidade costeira mediterrânica",
+          "nl": "Reiziger kijkt uit over een mediterrane kuststad",
+          "pl": "Podróżniczka patrząca na śródziemnomorskie miasto nad morzem",
+          "ar": "مسافرة تتأمل مدينة ساحلية على البحر المتوسط",
+          "ru": "Путешественница смотрит на средиземноморский прибрежный город",
+          "ja": "地中海沿岸の街を眺める旅行者",
+          "ko": "지중해 해안 도시를 바라보는 여행자",
+          "zh": "旅人眺望地中海沿岸城市"
+        },
+        "cta": {
+          "tr": "Seyahat noktası seç",
+          "en": "Choose destination",
+          "de": "Reiseziel wählen",
+          "fr": "Choisir une destination",
+          "es": "Elegir destino",
+          "it": "Scegli la destinazione",
+          "pt": "Escolher destino",
+          "nl": "Bestemming kiezen",
+          "pl": "Wybierz kierunek",
+          "ar": "اختر وجهتك",
+          "ru": "Выбрать направление",
+          "ja": "旅行先を選ぶ",
+          "ko": "여행지 선택",
+          "zh": "选择目的地"
+        },
+        "whyEyebrow": {
+          "tr": "Neden Travely?",
+          "en": "Why Travely?",
+          "de": "Warum Travely?",
+          "fr": "Pourquoi Travely ?",
+          "es": "¿Por qué Travely?",
+          "it": "Perché Travely?",
+          "pt": "Porquê Travely?",
+          "nl": "Waarom Travely?",
+          "pl": "Dlaczego Travely?",
+          "ar": "لماذا Travely؟",
+          "ru": "Почему Travely?",
+          "ja": "Travelyを選ぶ理由",
+          "ko": "왜 Travely인가요?",
+          "zh": "为什么选择 Travely？"
+        },
+        "whyTitle": {
+          "tr": "Daha az risk. Daha uygun internet. Daha kolay seyahat.",
+          "en": "Less risk. Better-value internet. Easier travel.",
+          "de": "Weniger Risiko. Günstigeres Internet. Einfacher reisen.",
+          "fr": "Moins de risques. Internet à prix avantageux. Voyager plus simplement.",
+          "es": "Menos riesgos. Internet a mejor precio. Viajes más sencillos.",
+          "it": "Meno rischi. Internet conveniente. Viaggi più semplici.",
+          "pt": "Menos riscos. Internet com melhor preço. Viajar sem complicações.",
+          "nl": "Minder risico. Voordeliger internet. Makkelijker reizen.",
+          "pl": "Mniej ryzyka. Internet w korzystniejszej cenie. Łatwiejsze podróże.",
+          "ar": "مخاطر أقل. إنترنت بقيمة أفضل. سفر أسهل.",
+          "ru": "Меньше рисков. Выгоднее интернет. Проще путешествовать.",
+          "ja": "リスクを減らし、通信費を抑えて、もっと気軽な旅を。",
+          "ko": "위험은 줄이고, 인터넷은 합리적으로, 여행은 더 쉽게.",
+          "zh": "风险更少。流量更划算。旅行更轻松。"
+        },
+        "whyDescription": {
+          "tr": "eSIM paketini seç, fiyatını baştan gör ve birkaç adımda bağlantıya hazır ol.",
+          "en": "Choose an eSIM plan, see the price up front and get connected in a few steps.",
+          "de": "eSIM-Paket wählen, den Preis vorab sehen und in wenigen Schritten verbunden sein.",
+          "fr": "Choisissez un forfait eSIM, découvrez le prix à l’avance et connectez-vous en quelques étapes.",
+          "es": "Elige un plan eSIM, consulta el precio por adelantado y conéctate en pocos pasos.",
+          "it": "Scegli un piano eSIM, conosci il prezzo in anticipo e connettiti in pochi passaggi.",
+          "pt": "Escolhe um plano eSIM, vê o preço antecipadamente e liga-te em poucos passos.",
+          "nl": "Kies een eSIM-bundel, zie vooraf de prijs en maak in een paar stappen verbinding.",
+          "pl": "Wybierz pakiet eSIM, poznaj cenę z góry i połącz się w kilku krokach.",
+          "ar": "اختر باقة eSIM واطّلع على السعر مقدمًا واتصل في خطوات قليلة.",
+          "ru": "Выберите тариф eSIM, узнайте цену заранее и подключитесь за несколько шагов.",
+          "ja": "eSIMプランを選び、料金を事前に確認して、数ステップで接続できます。",
+          "ko": "eSIM 요금제를 고르고 가격을 미리 확인한 뒤 몇 단계만 거치면 연결할 수 있어요.",
+          "zh": "选择 eSIM 套餐，提前查看价格，只需几步即可连接。"
+        },
+        "statisticLabel": {
+          "tr": "",
+          "en": "",
+          "de": ""
+        },
+        "comparisonTitle": {
+          "tr": "Roaming’e alternatif",
+          "en": "An alternative to roaming",
+          "de": "Die Alternative zum Roaming",
+          "fr": "Une alternative au roaming",
+          "es": "Una alternativa al roaming",
+          "it": "Un’alternativa al roaming",
+          "pt": "Uma alternativa ao roaming",
+          "nl": "Een alternatief voor roaming",
+          "pl": "Alternatywa dla roamingu",
+          "ar": "بديل للتجوال",
+          "ru": "Альтернатива роумингу",
+          "ja": "ローミングに代わる選択肢",
+          "ko": "로밍을 대신할 선택지",
+          "zh": "漫游之外的选择"
+        },
+        "comparisonDescription": {
+          "tr": "Yüzde ",
+          "en": "Percent",
+          "de": "Prozent",
+          "fr": "Pour cent",
+          "es": "Por ciento",
+          "it": "Percento",
+          "pt": "Por cento",
+          "nl": "Procent",
+          "pl": "Procent",
+          "ar": "بالمائة",
+          "ru": "Процент",
+          "ja": "パーセント",
+          "ko": "퍼센트",
+          "zh": "百分比",
+          "_auto": {
+            "en": "Percent",
+            "de": "Prozent",
+            "fr": "Pour cent",
+            "es": "Por ciento",
+            "it": "Percento",
+            "pt": "Por cento",
+            "nl": "Procent",
+            "pl": "Procent",
+            "ar": "بالمائة",
+            "ru": "Процент",
+            "ja": "パーセント",
+            "ko": "퍼센트",
+            "zh": "百分比"
+          }
+        },
+        "comparisonCta": {
+          "tr": "50",
+          "en": "50",
+          "de": "50",
+          "fr": "50",
+          "es": "50",
+          "it": "50",
+          "pt": "50",
+          "nl": "50",
+          "pl": "50",
+          "ar": "50",
+          "ru": "50",
+          "ja": "50",
+          "ko": "50",
+          "zh": "50",
+          "_auto": {
+            "en": "50",
+            "de": "50",
+            "fr": "50",
+            "es": "50",
+            "it": "50",
+            "pt": "50",
+            "nl": "50",
+            "pl": "50",
+            "ar": "50",
+            "ru": "50",
+            "ja": "50",
+            "ko": "50",
+            "zh": "50"
+          }
+        },
+        "comparisonALabel": {
+          "tr": "Avantaj",
+          "en": "",
+          "de": ""
+        },
+        "comparisonBLabel": {
+          "tr": "",
+          "en": "",
+          "de": ""
+        },
+        "comparisonFootnote": {
+          "tr": "",
+          "en": "",
+          "de": ""
+        },
+        "comparisonSavingLabel": {
+          "tr": "",
+          "en": "",
+          "de": ""
+        },
+        "comparisonAdvantageLabel": {
+          "tr": "",
+          "en": "",
+          "de": ""
+        },
+        "comparisonDestination": {
+          "tr": "",
+          "en": "",
+          "de": ""
+        },
+        "comparisonAllowance": {
+          "tr": "",
+          "en": "",
+          "de": ""
+        },
+        "comparisonValidity": {
+          "tr": "",
+          "en": "",
+          "de": ""
+        }
+      },
+      "items": [
+        {
+          "id": "chip-setup",
+          "visible": true,
+          "icon": "Zap",
+          "entity": "",
+          "title": {
+            "tr": "60 saniyede kurulum",
+            "en": "Installed in 60 seconds",
+            "de": "In 60 Sekunden installiert",
+            "fr": "Installation en 60 secondes",
+            "es": "Instalación en 60 segundos",
+            "it": "Installazione in 60 secondi",
+            "pt": "Instalação em 60 segundos",
+            "nl": "Installatie in 60 seconden",
+            "pl": "Instalacja w 60 sekund",
+            "ar": "التثبيت في 60 ثانية",
+            "ru": "Установка за 60 секунд",
+            "ja": "60秒でインストール",
+            "ko": "60초 만에 설치",
+            "zh": "60 秒即可安装"
+          },
+          "text": {
+            "tr": "Doğrudan cihazında",
+            "en": "Directly on your device",
+            "de": "Direkt auf deinem Gerät",
+            "fr": "Directement sur votre appareil",
+            "es": "Directamente en tu dispositivo",
+            "it": "Direttamente sul tuo dispositivo",
+            "pt": "Diretamente no teu dispositivo",
+            "nl": "Direct op je toestel",
+            "pl": "Bezpośrednio na urządzeniu",
+            "ar": "مباشرة على جهازك",
+            "ru": "Прямо на вашем устройстве",
+            "ja": "お使いの端末に直接",
+            "ko": "기기에 직접 설치",
+            "zh": "直接安装到您的设备"
+          },
+          "internalKey": "chip-setup",
+          "cardType": "chip",
+          "mediaId": null,
+          "position": "top-right",
+          "href": "",
+          "labels": [],
+          "cta": {
+            "tr": "",
+            "en": "",
+            "de": ""
+          },
+          "imageAlt": {
+            "tr": "",
+            "en": "",
+            "de": ""
+          },
+          "focalX": 50,
+          "focalY": 50,
+          "rating": 5,
+          "verified": false,
+          "published": false
+        },
+        {
+          "id": "chip-plans",
+          "visible": true,
+          "icon": "Globe2",
+          "entity": "",
+          "title": {
+            "tr": "Esnek paketler",
+            "en": "Flexible plans",
+            "de": "Flexible Pakete",
+            "fr": "Forfaits flexibles",
+            "es": "Planes flexibles",
+            "it": "Piani flessibili",
+            "pt": "Planos flexíveis",
+            "nl": "Flexibele bundels",
+            "pl": "Elastyczne pakiety",
+            "ar": "باقات مرنة",
+            "ru": "Гибкие тарифы",
+            "ja": "柔軟なプラン",
+            "ko": "유연한 요금제",
+            "zh": "灵活套餐"
+          },
+          "text": {
+            "tr": "Her yolculuk için",
+            "en": "For every trip",
+            "de": "Für jede Reise",
+            "fr": "pour chaque voyage",
+            "es": "para cada viaje",
+            "it": "per ogni viaggio",
+            "pt": "para cada viagem",
+            "nl": "voor elke reis",
+            "pl": "na każdą podróż",
+            "ar": "لكل رحلة",
+            "ru": "для каждой поездки",
+            "ja": "すべての旅に",
+            "ko": "모든 여행에",
+            "zh": "适合每段旅程"
+          },
+          "internalKey": "chip-plans",
+          "cardType": "chip",
+          "mediaId": null,
+          "position": "middle-left",
+          "href": "",
+          "labels": [],
+          "cta": {
+            "tr": "",
+            "en": "",
+            "de": ""
+          },
+          "imageAlt": {
+            "tr": "",
+            "en": "",
+            "de": ""
+          },
+          "focalX": 50,
+          "focalY": 50,
+          "rating": 5,
+          "verified": false,
+          "published": false
+        },
+        {
+          "id": "chip-travel",
+          "visible": true,
+          "icon": "Sparkles",
+          "entity": "",
+          "title": {
+            "tr": "Tatil, iş ve daha fazlası için",
+            "en": "For holidays, business & more",
+            "de": "Für Urlaub, Business & mehr",
+            "fr": "Pour les vacances, le travail et plus",
+            "es": "Para vacaciones, trabajo y más",
+            "it": "Per vacanze, lavoro e altro",
+            "pt": "Para férias, trabalho e mais",
+            "nl": "Voor vakanties, werk en meer",
+            "pl": "Na wakacje, do pracy i nie tylko",
+            "ar": "للعطلات، والعمل والمزيد",
+            "ru": "Для отпуска, работы и не только",
+            "ja": "休暇にも、 出張などにも",
+            "ko": "휴가부터 출장까지",
+            "zh": "度假、 商务及更多"
+          },
+          "text": {
+            "tr": "",
+            "en": "",
+            "de": ""
+          },
+          "internalKey": "chip-travel",
+          "cardType": "chip",
+          "mediaId": null,
+          "position": "bottom-right",
+          "href": "",
+          "labels": [],
+          "cta": {
+            "tr": "",
+            "en": "",
+            "de": ""
+          },
+          "imageAlt": {
+            "tr": "",
+            "en": "",
+            "de": ""
+          },
+          "focalX": 50,
+          "focalY": 50,
+          "rating": 5,
+          "verified": false,
+          "published": false
+        },
+        {
+          "id": "trust-countries",
+          "visible": true,
+          "icon": "Globe2",
+          "entity": "",
+          "title": {
+            "tr": "190+ ülke",
+            "en": "190+ countries",
+            "de": "190+ Länder",
+            "fr": "Plus de 190 pays",
+            "es": "Más de 190 países",
+            "it": "Oltre 190 paesi",
+            "pt": "Mais de 190 países",
+            "nl": "Meer dan 190 landen",
+            "pl": "Ponad 190 krajów",
+            "ar": "أكثر من 190 دولة",
+            "ru": "Более 190 стран",
+            "ja": "190か国以上",
+            "ko": "190개국 이상",
+            "zh": "190 多个国家"
+          },
+          "text": {
+            "tr": "Dünya çapında bağlantı",
+            "en": "Connected worldwide",
+            "de": "Weltweit verbunden",
+            "fr": "Connecté dans le monde entier",
+            "es": "Conectado en todo el mundo",
+            "it": "Connessi in tutto il mondo",
+            "pt": "Ligado em todo o mundo",
+            "nl": "Wereldwijd verbonden",
+            "pl": "Łączność na całym świecie",
+            "ar": "اتصال حول العالم",
+            "ru": "Связь по всему миру",
+            "ja": "世界中でつながる",
+            "ko": "전 세계 연결",
+            "zh": "全球保持连接"
+          },
+          "internalKey": "trust-countries",
+          "cardType": "trust",
+          "mediaId": "ab51ead1-6ab5-46d2-8761-9ef319adb84d",
+          "visualMode": "CUSTOM_IMAGE",
+          "imageScale": 100,
+          "href": "",
+          "labels": [],
+          "cta": {
+            "tr": "",
+            "en": "",
+            "de": ""
+          },
+          "imageAlt": {
+            "tr": "",
+            "en": "",
+            "de": ""
+          },
+          "focalX": 50,
+          "focalY": 50,
+          "rating": 5,
+          "verified": false,
+          "published": false
+        },
+        {
+          "id": "trust-refund",
+          "visible": true,
+          "icon": "RotateCcw",
+          "entity": "",
+          "title": {
+            "tr": "14 gün iade güvencesi",
+            "en": "14-Day Refund Guarantee",
+            "de": "14 Tage Rückgabegarantie",
+            "fr": "Garantie de remboursement sous 14 jours",
+            "es": "Garantía de devolución de 14 días",
+            "it": "Garanzia di rimborso entro 14 giorni",
+            "pt": "Garantia de reembolso em 14 dias",
+            "nl": "14 dagen terugbetalingsgarantie",
+            "pl": "14-dniowa gwarancja zwrotu",
+            "ar": "ضمان استرداد خلال 14 يومًا",
+            "ru": "Гарантия возврата в течение 14 дней",
+            "ja": "14日間の返金保証",
+            "ko": "14일 환불 보장",
+            "zh": "14 天退款保障"
+          },
+          "text": {
+            "tr": "Kullanılmamış eSIM’lerde, satın almadan itibaren 14 gün",
+            "en": "For unused eSIMs, within 14 days of purchase",
+            "de": "Für ungenutzte eSIMs, 14 Tage ab Kauf",
+            "fr": "Pour les eSIM non utilisées, dans les 14 jours suivant l’achat",
+            "es": "Para eSIM sin usar, durante los 14 días posteriores a la compra",
+            "it": "Per le eSIM non utilizzate, entro 14 giorni dall’acquisto",
+            "pt": "Para eSIM não utilizados, até 14 dias após a compra",
+            "nl": "Voor ongebruikte eSIMs, binnen 14 dagen na aankoop",
+            "pl": "Dla niewykorzystanych eSIM, w ciągu 14 dni od zakupu",
+            "ar": "لشرائح eSIM غير المستخدمة، خلال 14 يومًا من الشراء",
+            "ru": "Для неиспользованных eSIM, в течение 14 дней после покупки",
+            "ja": "未使用のeSIMは購入から14日以内",
+            "ko": "미사용 eSIM은 구매 후 14일 이내",
+            "zh": "未使用的 eSIM，可在购买后 14 天内申请"
+          },
+          "internalKey": "trust-refund",
+          "cardType": "trust",
+          "mediaId": "d00960c2-2105-4f92-abab-553e73485e12",
+          "visualMode": "CUSTOM_IMAGE",
+          "imageScale": 100,
+          "href": "",
+          "labels": [],
+          "cta": {
+            "tr": "",
+            "en": "",
+            "de": ""
+          },
+          "imageAlt": {
+            "tr": "",
+            "en": "",
+            "de": ""
+          },
+          "focalX": 50,
+          "focalY": 50,
+          "rating": 5,
+          "verified": false,
+          "published": false
+        },
+        {
+          "id": "trust-install",
+          "visible": true,
+          "icon": "Zap",
+          "entity": "",
+          "title": {
+            "tr": "60 saniyede kurulum",
+            "en": "Installed in 60 seconds",
+            "de": "In 60 Sekunden installiert",
+            "fr": "Installation en 60 secondes",
+            "es": "Instalación en 60 segundos",
+            "it": "Installazione in 60 secondi",
+            "pt": "Instalação em 60 segundos",
+            "nl": "Installatie in 60 seconden",
+            "pl": "Instalacja w 60 sekund",
+            "ar": "التثبيت في 60 ثانية",
+            "ru": "Установка за 60 секунд",
+            "ja": "60秒でインストール",
+            "ko": "60초 만에 설치",
+            "zh": "60 秒即可安装"
+          },
+          "text": {
+            "tr": "Doğrudan cihazında",
+            "en": "Directly on your device",
+            "de": "Direkt auf deinem Gerät",
+            "fr": "Directement sur votre appareil",
+            "es": "Directamente en tu dispositivo",
+            "it": "Direttamente sul tuo dispositivo",
+            "pt": "Diretamente no teu dispositivo",
+            "nl": "Direct op je toestel",
+            "pl": "Bezpośrednio na urządzeniu",
+            "ar": "مباشرة على جهازك",
+            "ru": "Прямо на вашем устройстве",
+            "ja": "お使いの端末に直接",
+            "ko": "기기에 직접 설치",
+            "zh": "直接安装到您的设备"
+          },
+          "internalKey": "trust-install",
+          "cardType": "trust",
+          "mediaId": "4800b8e8-f92b-4acc-8615-7eec881e7031",
+          "visualMode": "CUSTOM_IMAGE",
+          "imageScale": 100,
+          "href": "",
+          "labels": [],
+          "cta": {
+            "tr": "",
+            "en": "",
+            "de": ""
+          },
+          "imageAlt": {
+            "tr": "",
+            "en": "",
+            "de": ""
+          },
+          "focalX": 50,
+          "focalY": 50,
+          "rating": 5,
+          "verified": false,
+          "published": false
+        },
+        {
+          "id": "trust-tf4cvi",
+          "visible": true,
+          "icon": "ShieldCheck",
+          "entity": "",
+          "title": {
+            "tr": "Güvenli Ödeme seçenekleri",
+            "en": "Secure Payment Options",
+            "de": "Sichere Zahlungsoptionen",
+            "fr": "Options de paiement sécurisées",
+            "es": "Opciones de pago seguras",
+            "it": "Opzioni di pagamento sicure",
+            "pt": "Opções de pagamento seguras",
+            "nl": "Veilige betaalopties",
+            "pl": "Bezpieczne opcje płatności",
+            "ar": "خيارات دفع آمنة",
+            "ru": "Безопасные способы оплаты",
+            "ja": "安全な支払いオプション",
+            "ko": "안전한 결제 옵션",
+            "zh": "安全支付选项",
+            "_auto": {
+              "en": "Secure Payment Options",
+              "de": "Sichere Zahlungsoptionen",
+              "fr": "Options de paiement sécurisées",
+              "es": "Opciones de pago seguras",
+              "it": "Opzioni di pagamento sicure",
+              "pt": "Opções de pagamento seguras",
+              "nl": "Veilige betaalopties",
+              "pl": "Bezpieczne opcje płatności",
+              "ar": "خيارات دفع آمنة",
+              "ru": "Безопасные способы оплаты",
+              "ja": "安全な支払いオプション",
+              "ko": "안전한 결제 옵션",
+              "zh": "安全支付选项"
+            }
+          },
+          "text": {
+            "tr": "PayPal, Klarna, Apple Pay ve Google Pay ve daha fazlası ile ödeme imkanı.",
+            "en": "Payment via PayPal, Klarna, Apple Pay, Google Pay and more.",
+            "de": "Zahlung per PayPal, Klarna, Apple Pay, Google Pay und mehr.",
+            "fr": "Paiement via PayPal, Klarna, Apple Pay, Google Pay et plus encore.",
+            "es": "Pago a través de PayPal, Klarna, Apple Pay, Google Pay y más.",
+            "it": "Pagamento tramite PayPal, Klarna, Apple Pay, Google Pay e altro ancora.",
+            "pt": "Pagamento via PayPal, Klarna, Apple Pay, Google Pay e muito mais.",
+            "nl": "Betaling via PayPal, Klarna, Apple Pay, Google Pay en meer.",
+            "pl": "Płatność przez PayPal, Klarna, Apple Pay, Google Pay i wiele innych.",
+            "ar": "الدفع عبر PayPal وKlarna وApple Pay وGoogle Pay والمزيد.",
+            "ru": "Оплата через PayPal, Klarna, Apple Pay, Google Pay и другие.",
+            "ja": "PayPal、Klarna、Apple Pay、Google Payなどでお支払いいただけます。",
+            "ko": "PayPal, Klarna, Apple Pay, Google Pay 등으로 결제 가능합니다.",
+            "zh": "通过 PayPal、Klarna、Apple Pay、Google Pay 等支付。",
+            "_auto": {
+              "en": "Payment via PayPal, Klarna, Apple Pay, Google Pay and more.",
+              "de": "Zahlung per PayPal, Klarna, Apple Pay, Google Pay und mehr.",
+              "fr": "Paiement via PayPal, Klarna, Apple Pay, Google Pay et plus encore.",
+              "es": "Pago a través de PayPal, Klarna, Apple Pay, Google Pay y más.",
+              "it": "Pagamento tramite PayPal, Klarna, Apple Pay, Google Pay e altro ancora.",
+              "pt": "Pagamento via PayPal, Klarna, Apple Pay, Google Pay e muito mais.",
+              "nl": "Betaling via PayPal, Klarna, Apple Pay, Google Pay en meer.",
+              "pl": "Płatność przez PayPal, Klarna, Apple Pay, Google Pay i wiele innych.",
+              "ar": "الدفع عبر PayPal وKlarna وApple Pay وGoogle Pay والمزيد.",
+              "ru": "Оплата через PayPal, Klarna, Apple Pay, Google Pay и другие.",
+              "ja": "PayPal、Klarna、Apple Pay、Google Payなどでお支払いいただけます。",
+              "ko": "PayPal, Klarna, Apple Pay, Google Pay 등으로 결제 가능합니다.",
+              "zh": "通过 PayPal、Klarna、Apple Pay、Google Pay 等支付。"
+            }
+          },
+          "internalKey": "trust-tf4cvi",
+          "cardType": "trust",
+          "mediaId": "3fb223cb-8c4b-4a22-ab7b-18082e0487fa",
+          "visualMode": "CUSTOM_IMAGE",
+          "imageScale": 100,
+          "href": "",
+          "labels": [],
+          "cta": {
+            "tr": "",
+            "en": "",
+            "de": ""
+          },
+          "imageAlt": {
+            "tr": "Güvenli Ödeme seçenekleri",
+            "en": "Secure Payment Options",
+            "de": "Sichere Zahlungsoptionen",
+            "fr": "Options de paiement sécurisées",
+            "es": "Opciones de pago seguras",
+            "it": "Opzioni di pagamento sicure",
+            "pt": "Opções de pagamento seguras",
+            "nl": "Veilige betaalopties",
+            "pl": "Bezpieczne opcje płatności",
+            "ar": "خيارات دفع آمنة",
+            "ru": "Безопасные способы оплаты",
+            "ja": "安全な支払いオプション",
+            "ko": "안전한 결제 옵션",
+            "zh": "安全支付选项",
+            "_auto": {
+              "en": "Secure Payment Options",
+              "de": "Sichere Zahlungsoptionen",
+              "fr": "Options de paiement sécurisées",
+              "es": "Opciones de pago seguras",
+              "it": "Opzioni di pagamento sicure",
+              "pt": "Opções de pagamento seguras",
+              "nl": "Veilige betaalopties",
+              "pl": "Bezpieczne opcje płatności",
+              "ar": "خيارات دفع آمنة",
+              "ru": "Безопасные способы оплаты",
+              "ja": "安全な支払いオプション",
+              "ko": "안전한 결제 옵션",
+              "zh": "安全支付选项"
+            }
+          },
+          "focalX": 50,
+          "focalY": 50,
+          "rating": 5,
+          "verified": false,
+          "published": false
+        },
+        {
+          "id": "review-cry3q3sb",
+          "visible": true,
+          "icon": "",
+          "entity": "",
+          "title": {
+            "tr": "",
+            "en": "",
+            "de": "Laura M."
+          },
+          "text": {
+            "tr": "Türkiye tatilim için satın aldım. İstanbul'a indikten sonra hemen internetim oldu. Kurulum beklediğimden çok daha kolaydı.",
+            "en": "Bought it for my vacation in Turkey. After landing in Istanbul, I had internet right away. Setup was much easier than expected.",
+            "de": "Für meinen Türkei-Urlaub gekauft. Nach der Landung in Istanbul hatte ich direkt Internet. Die Einrichtung war viel einfacher als erwartet."
+          },
+          "internalKey": "review-cry3q3sb",
+          "cardType": "review",
+          "mediaId": null,
+          "href": "",
+          "labels": [],
+          "cta": {
+            "tr": "",
+            "en": "",
+            "de": ""
+          },
+          "imageAlt": {
+            "tr": "",
+            "en": "",
+            "de": ""
+          },
+          "focalX": 50,
+          "focalY": 50,
+          "rating": 5,
+          "verified": true,
+          "published": true,
+          "reviewType": "REAL",
+          "reviewStatus": "PUBLISHED",
+          "originalLanguage": "de",
+          "countryCode": "DE",
+          "reviewDate": "2026-09-17",
+          "createdAt": "2026-10-03T19:58:33.887Z",
+          "updatedAt": "2026-10-04T11:08:21.306Z"
+        },
+        {
+          "id": "review-om4spb4g",
+          "visible": true,
+          "icon": "",
+          "entity": "",
+          "title": {
+            "tr": "Sophie V.",
+            "en": "",
+            "de": "",
+            "nl": "Sophie V."
+          },
+          "text": {
+            "tr": "Japonya seyahatimiz sırasında iki hafta kullandık. Tokyo, Osaka ve Kyoto'da her şey gayet iyi çalıştı, özellikle Google Maps ve tren uygulamaları",
+            "en": "Used it for two weeks during our trip through Japan. Everything worked great in Tokyo, Osaka and Kyoto, especially Google Maps and the train apps",
+            "de": "Zwei Wochen während unserer Reise durch Japan genutzt. In Tokio, Osaka und Kyoto funktionierte alles prima, vor allem Google Maps und die Zug-Apps",
+            "nl": "Twee weken gebruikt tijdens onze reis door Japan. In Tokio, Osaka en Kyoto werkte alles prima, vooral Google Maps en de treinapps"
+          },
+          "internalKey": "review-om4spb4g",
+          "cardType": "review",
+          "mediaId": null,
+          "href": "",
+          "labels": [],
+          "cta": {
+            "tr": "",
+            "en": "",
+            "de": ""
+          },
+          "imageAlt": {
+            "tr": "",
+            "en": "",
+            "de": ""
+          },
+          "focalX": 50,
+          "focalY": 50,
+          "rating": 5,
+          "verified": true,
+          "published": true,
+          "reviewType": "REAL",
+          "reviewStatus": "PUBLISHED",
+          "originalLanguage": "nl",
+          "countryCode": "NL",
+          "reviewDate": "2026-09-20",
+          "createdAt": "2026-10-04T11:06:55.400Z",
+          "updatedAt": "2026-10-04T11:11:20.544Z"
+        },
+        {
+          "id": "review-5uyuoo9j",
+          "visible": true,
+          "icon": "",
+          "entity": "",
+          "title": {
+            "tr": "",
+            "en": "James W. – United Kingdom",
+            "de": ""
+          },
+          "text": {
+            "tr": "İtalya gezimizde, Roma'dan Floransa'ya kadar kullandık. Kurulumu kolaydı ve bağlantı gezinin büyük bölümünde iyi çalıştı.",
+            "en": "Used it for our trip around Italy, from Rome to Florence. Setup was easy and the connection worked well throughout most of the trip.",
+            "de": "Haben es auf unserer Reise durch Italien von Rom nach Florenz genutzt. Die Einrichtung war einfach und die Verbindung funktionierte während des größten Teils der Reise gut."
+          },
+          "internalKey": "review-5uyuoo9j",
+          "cardType": "review",
+          "mediaId": null,
+          "href": "",
+          "labels": [],
+          "cta": {
+            "tr": "",
+            "en": "",
+            "de": ""
+          },
+          "imageAlt": {
+            "tr": "",
+            "en": "",
+            "de": ""
+          },
+          "focalX": 50,
+          "focalY": 50,
+          "rating": 4,
+          "verified": true,
+          "published": true,
+          "reviewType": "REAL",
+          "reviewStatus": "PUBLISHED",
+          "originalLanguage": "en",
+          "countryCode": "GB",
+          "reviewDate": "2026-10-02",
+          "createdAt": "2026-10-04T11:09:11.745Z",
+          "updatedAt": "2026-10-04T11:11:13.586Z"
+        },
+        {
+          "id": "review-m69okwm0",
+          "visible": true,
+          "icon": "",
+          "entity": "",
+          "title": {
+            "tr": "Mert M.",
+            "en": "",
+            "de": ""
+          },
+          "text": {
+            "tr": "Almanya seyahatimde ilk kez eSIM kullandım. QR kod ile kurulumu yaptım, uçaktan indiğimde internetim direkt çalıştı. Gerçekten çok pratik.",
+            "en": "“I used an eSIM for the first time on my trip to Germany. I set it up using a QR code, and my internet worked right away when I got off the plane. Really very practical.",
+            "de": "„Auf meiner Deutschlandreise habe ich zum ersten Mal eine eSIM benutzt. Ich habe sie per QR-Code eingerichtet, und als ich aus dem Flugzeug stieg, funktionierte mein Internet sofort. Wirklich sehr praktisch."
+          },
+          "internalKey": "review-m69okwm0",
+          "cardType": "review",
+          "mediaId": null,
+          "href": "",
+          "labels": [],
+          "cta": {
+            "tr": "",
+            "en": "",
+            "de": ""
+          },
+          "imageAlt": {
+            "tr": "",
+            "en": "",
+            "de": ""
+          },
+          "focalX": 50,
+          "focalY": 50,
+          "rating": 5,
+          "verified": true,
+          "published": true,
+          "reviewType": "REAL",
+          "reviewStatus": "PUBLISHED",
+          "originalLanguage": "tr",
+          "countryCode": "TR",
+          "reviewDate": "2026-09-28",
+          "createdAt": "2026-10-04T11:11:33.289Z",
+          "updatedAt": "2026-10-04T11:12:41.251Z"
+        },
+        {
+          "id": "review-wwt8rxpz",
+          "visible": true,
+          "icon": "",
+          "entity": "",
+          "title": {
+            "tr": "",
+            "en": "",
+            "de": "",
+            "es": "Lucía R."
+          },
+          "text": {
+            "tr": "Tayland tatilim boyunca Grab, Google Maps ve WhatsApp için kullandım. Havalimanında SIM kart almak için sıraya girmek zorunda kalmamak harikaydı.",
+            "en": "I used it during my vacation in Thailand for Grab, Google Maps, and WhatsApp. Not having to queue to buy a SIM at the airport was great.",
+            "de": "Ich habe sie während meines Urlaubs in Thailand für Grab, Google Maps und WhatsApp genutzt. Es war toll, am Flughafen nicht für den Kauf einer SIM-Karte anstehen zu müssen.",
+            "es": "La usé durante mis vacaciones en Tailandia para Grab, Google Maps y WhatsApp. No tener que hacer cola para comprar una SIM en el aeropuerto fue genial."
+          },
+          "internalKey": "review-wwt8rxpz",
+          "cardType": "review",
+          "mediaId": null,
+          "href": "",
+          "labels": [],
+          "cta": {
+            "tr": "",
+            "en": "",
+            "de": ""
+          },
+          "imageAlt": {
+            "tr": "",
+            "en": "",
+            "de": ""
+          },
+          "focalX": 50,
+          "focalY": 50,
+          "rating": 5,
+          "verified": true,
+          "published": true,
+          "reviewType": "REAL",
+          "reviewStatus": "PUBLISHED",
+          "originalLanguage": "es",
+          "countryCode": "ES",
+          "reviewDate": "2026-10-01",
+          "createdAt": "2026-10-04T11:12:51.811Z",
+          "updatedAt": "2026-10-04T11:13:43.159Z"
+        },
+        {
+          "id": "review-ml3yjyxf",
+          "visible": true,
+          "icon": "",
+          "entity": "",
+          "title": {
+            "tr": "",
+            "en": "",
+            "de": "",
+            "it": "Mario B."
+          },
+          "text": {
+            "tr": "Dubai'ye yaptığım bir iş seyahatinde kullandım. Varır varmaz zaten internete bağlıydım ve WhatsApp, Maps ve iş uygulamalarımı hemen kullanabildim.",
+            "en": "Used it during a business trip to Dubai. As soon as I arrived, I was already online and could immediately use WhatsApp, Maps and my work apps.",
+            "de": "Während einer Geschäftsreise nach Dubai genutzt. Kaum angekommen, war ich schon online und konnte sofort WhatsApp, Maps und meine Arbeits-Apps nutzen.",
+            "it": "Usata durante un viaggio di lavoro a Dubai. Appena arrivato ero già online e ho potuto usare subito WhatsApp, Maps e le mie app di lavoro."
+          },
+          "internalKey": "review-ml3yjyxf",
+          "cardType": "review",
+          "mediaId": null,
+          "href": "",
+          "labels": [],
+          "cta": {
+            "tr": "",
+            "en": "",
+            "de": ""
+          },
+          "imageAlt": {
+            "tr": "",
+            "en": "",
+            "de": ""
+          },
+          "focalX": 50,
+          "focalY": 50,
+          "rating": 4,
+          "verified": true,
+          "published": true,
+          "reviewType": "REAL",
+          "reviewStatus": "PUBLISHED",
+          "originalLanguage": "it",
+          "countryCode": "IT",
+          "reviewDate": "2026-09-25",
+          "createdAt": "2026-10-04T11:13:50.903Z",
+          "updatedAt": "2026-10-04T11:14:43.443Z"
+        },
+        {
+          "id": "review-81xayxmg",
+          "visible": true,
+          "icon": "",
+          "entity": "",
+          "title": {
+            "tr": "Anna K.",
+            "en": "",
+            "de": "",
+            "pl": "Anna K."
+          },
+          "text": {
+            "tr": "İspanya ve Portekiz için bir paket satın aldım. Çok pratik bir çözüm, çünkü diğer ülkeye geçerken eSIM kartını değiştirmem gerekmedi.",
+            "en": "I bought a package for Spain and Portugal. A very convenient solution, as I didn’t have to change my eSIM card when crossing into the other country.",
+            "de": "Ich habe ein Paket für Spanien und Portugal gekauft. Eine sehr praktische Lösung, da ich beim Wechsel ins andere Land die eSIM-Karte nicht wechseln musste.",
+            "pl": "Kupiłam pakiet na Hiszpanię i Portugalię. Bardzo wygodne rozwiązanie, bo nie musiałam zmieniać karty eSIM przy przejeździe do drugiego kraju."
+          },
+          "internalKey": "review-81xayxmg",
+          "cardType": "review",
+          "mediaId": null,
+          "href": "",
+          "labels": [],
+          "cta": {
+            "tr": "",
+            "en": "",
+            "de": ""
+          },
+          "imageAlt": {
+            "tr": "",
+            "en": "",
+            "de": ""
+          },
+          "focalX": 50,
+          "focalY": 50,
+          "rating": 5,
+          "verified": true,
+          "published": true,
+          "reviewType": "REAL",
+          "reviewStatus": "PUBLISHED",
+          "originalLanguage": "pl",
+          "countryCode": "PL",
+          "reviewDate": "2026-09-09",
+          "createdAt": "2026-10-04T11:14:45.552Z",
+          "updatedAt": "2026-10-04T11:15:34.356Z"
+        },
+        {
+          "id": "trust-ihe3up",
+          "visible": false,
+          "icon": "Globe2",
+          "entity": "",
+          "title": {
+            "tr": "",
+            "en": "",
+            "de": ""
+          },
+          "text": {
+            "tr": "",
+            "en": "",
+            "de": ""
+          },
+          "internalKey": "trust-ihe3up",
+          "cardType": "trust",
+          "mediaId": null,
+          "visualMode": "ICON",
+          "imageScale": 100,
+          "href": "",
+          "labels": [],
+          "cta": {
+            "tr": "",
+            "en": "",
+            "de": ""
+          },
+          "imageAlt": {
+            "tr": "",
+            "en": "",
+            "de": ""
+          },
+          "focalX": 50,
+          "focalY": 50,
+          "rating": 5,
+          "verified": false,
+          "published": false
+        }
+      ],
+      "showDots": true,
+      "showArrows": true,
+      "cardGap": "normal",
+      "mobilePreview": "normal",
+      "claims": {
+        "countries": "190+",
+        "refundDays": "14",
+        "savingPercent": "60",
+        "setupSeconds": "60"
+      },
+      "showDemoReviews": false,
+      "trust": {
+        "background": "mint",
+        "focal": "right",
+        "ratingMode": "real",
+        "manualRating": 4.8,
+        "maxRating": 5,
+        "manualCaption": {
+          "tr": "Önizleme puanı",
+          "en": "Preview rating",
+          "de": "Vorschau-Bewertung",
+          "fr": "Score d'aperçu",
+          "es": "Puntuación de vista previa",
+          "it": "Punteggio anteprima",
+          "pt": "Pontuação de pré-visualização",
+          "nl": "Voorbeeldscore",
+          "pl": "Wynik podglądu",
+          "ar": "نتيجة المعاينة",
+          "ru": "Предварительная оценка",
+          "ja": "プレビュースコア",
+          "ko": "미리보기 점수",
+          "zh": "预览分数",
+          "_auto": {
+            "fr": "Score d'aperçu",
+            "es": "Puntuación de vista previa",
+            "it": "Punteggio anteprima",
+            "pt": "Pontuação de pré-visualização",
+            "nl": "Voorbeeldscore",
+            "pl": "Wynik podglądu",
+            "ar": "نتيجة المعاينة",
+            "ru": "Предварительная оценка",
+            "ja": "プレビュースコア",
+            "ko": "미리보기 점수",
+            "zh": "预览分数"
+          }
+        },
+        "autoplay": false,
+        "whyEnabled": true,
+        "comparisonEnabled": true,
+        "comparisonPreviewOnly": false,
+        "comparisonStatus": "VERIFIED",
+        "comparisonVerifiedAt": "2026-10-04",
+        "comparisonRoamingPrice": 21.99,
+        "comparisonTravelyPrice": 10.99,
+        "comparisonMode": "STRUCTURED",
+        "comparisonImageId": null,
+        "comparisonMobileImageId": null,
+        "comparisonImageAlt": {
+          "tr": "",
+          "en": "",
+          "de": ""
+        },
+        "illustrationId": "533377df-ddd6-4803-a0cb-6f5727c933b6"
+      }
+    },
+    {
+      "id": "regions",
+      "type": "REGION_DISCOVERY",
+      "visible": true,
+      "showOnResults": false,
+      "variant": "default",
+      "align": "left",
+      "height": "normal",
+      "overlay": "normal",
+      "mediaId": null,
+      "mobileMediaId": null,
+      "href": "/esim",
+      "startsAt": "",
+      "endsAt": "",
+      "text": {
+        "eyebrow": {
+          "tr": "Birden fazla ülkeye mi gidiyorsun?",
+          "en": "Travelling to multiple countries?",
+          "de": "Reist du in mehrere Länder?"
+        },
+        "title": {
+          "tr": "Bölgesel eSIM paketleri",
+          "en": "Regional eSIM plans",
+          "de": "Regionale eSIM-Pakete"
+        },
+        "lead": {
+          "tr": "Tek eSIM ile birden fazla ülkede bağlantıda kal.",
+          "en": "Stay connected across multiple countries with one eSIM.",
+          "de": "Mit einer eSIM in mehreren Ländern verbunden bleiben."
+        },
+        "worldwide": {
+          "tr": "Dünya çapında sınırsız internet",
+          "en": "Unlimited data worldwide",
+          "de": "Weltweit unbegrenzt online"
+        },
+        "cta": {
+          "tr": "Paketleri keşfet",
+          "en": "Explore plans",
+          "de": "Pakete entdecken"
+        }
+      },
+      "items": [],
+      "showDots": true,
+      "showArrows": true,
+      "cardGap": "normal",
+      "mobilePreview": "normal",
+      "claims": {
+        "countries": "190+",
+        "refundDays": "14",
+        "savingPercent": "60",
+        "setupSeconds": "60"
+      },
+      "showDemoReviews": false
+    },
+    {
+      "id": "esim-info",
+      "type": "INFO_CAROUSEL",
+      "visible": false,
+      "showOnResults": false,
+      "variant": "default",
+      "align": "left",
+      "height": "normal",
+      "overlay": "normal",
+      "mediaId": null,
+      "mobileMediaId": null,
+      "href": "/esim",
+      "startsAt": "",
+      "endsAt": "",
+      "text": {
+        "title": {
+          "tr": "eSIM hakkında merak ettiklerin",
+          "en": "Everything you need to know about eSIM",
+          "de": "Alles, was du über eSIM wissen solltest"
+        },
+        "subtitle": {
+          "tr": "Seyahatten önce bilmen gereken her şey. Kolay, güvenli ve hızlı.",
+          "en": "Everything you need before your trip. Simple, secure and fast.",
+          "de": "Alles Wichtige vor deiner Reise. Einfach, sicher und schnell."
+        }
+      },
+      "items": [
+        {
+          "id": "products",
+          "visible": true,
+          "icon": "",
+          "entity": "",
+          "title": {
+            "tr": "eSIM ürünlerimiz",
+            "en": "Our eSIM plans",
+            "de": "Unsere eSIM-Pakete"
+          },
+          "text": {
+            "tr": "190+ ülkede internet, limitsiz paketler ve bölgesel paketlerle seyahatinde bağlantıda kal.",
+            "en": "Stay connected in 190+ countries with data plans, unlimited options and regional packages.",
+            "de": "Internet in über 190 Ländern – mit Datenpaketen, Unlimited-Optionen und regionalen Paketen."
+          },
+          "internalKey": "products",
+          "cardType": "products",
+          "mediaId": "builtin:info-products",
+          "href": "",
+          "labels": [
+            {
+              "tr": "190+ ülke",
+              "en": "190+ countries",
+              "de": "190+ Länder"
+            },
+            {
+              "tr": "Limitsiz paketler",
+              "en": "Unlimited plans",
+              "de": "Unlimited-Pakete"
+            },
+            {
+              "tr": "Bölgesel paketler",
+              "en": "Regional plans",
+              "de": "Regionale Pakete"
+            }
+          ],
+          "cta": {
+            "tr": "",
+            "en": "",
+            "de": ""
+          },
+          "imageAlt": {
+            "tr": "eSIM ürünlerimiz",
+            "en": "Our eSIM plans",
+            "de": "Unsere eSIM-Pakete"
+          },
+          "focalX": 50,
+          "focalY": 50,
+          "rating": 5,
+          "verified": false,
+          "published": false
+        },
+        {
+          "id": "refund",
+          "visible": true,
+          "icon": "",
+          "entity": "",
+          "title": {
+            "tr": "14 gün iade güvencesi",
+            "en": "14-day refund guarantee",
+            "de": "14 Tage Rückgabegarantie"
+          },
+          "text": {
+            "tr": "eSIM’inizi kullanmadıysanız, satın alma tarihinden itibaren 14 gün içinde iade talep edebilirsiniz.",
+            "en": "If the eSIM has not been used, you can request a refund within 14 days of purchase.",
+            "de": "Wenn die eSIM noch nicht genutzt wurde, können Sie innerhalb von 14 Tagen nach dem Kauf eine Rückgabe beantragen."
+          },
+          "internalKey": "refund",
+          "cardType": "refund",
+          "mediaId": "builtin:trust-refund",
+          "href": "/account",
+          "labels": [],
+          "cta": {
+            "tr": "",
+            "en": "",
+            "de": ""
+          },
+          "imageAlt": {
+            "tr": "14 gün iade güvencesi",
+            "en": "14-day refund guarantee",
+            "de": "14 Tage Rückgabegarantie"
+          },
+          "focalX": 50,
+          "focalY": 50,
+          "rating": 5,
+          "verified": false,
+          "published": false
+        },
+        {
+          "id": "roaming",
+          "visible": false,
+          "icon": "",
+          "entity": "",
+          "title": {
+            "tr": "Roaming’e alternatif",
+            "en": "An alternative to roaming",
+            "de": "Alternative zum Roaming"
+          },
+          "text": {
+            "tr": "Roaming’e alternatif, seyahatinize uygun eSIM paketlerini keşfedin.",
+            "en": "Discover eSIM plans that suit your trip as an alternative to roaming.",
+            "de": "Entdecke als Alternative zum Roaming eSIM-Pakete, die zu deiner Reise passen."
+          },
+          "internalKey": "roaming",
+          "cardType": "roaming",
+          "mediaId": "builtin:info-roaming",
+          "href": "",
+          "labels": [],
+          "cta": {
+            "tr": "",
+            "en": "",
+            "de": ""
+          },
+          "imageAlt": {
+            "tr": "Roaming’e alternatif",
+            "en": "An alternative to roaming",
+            "de": "Alternative zum Roaming"
+          },
+          "focalX": 50,
+          "focalY": 50,
+          "rating": 5,
+          "verified": false,
+          "published": false
+        },
+        {
+          "id": "delivery",
+          "visible": true,
+          "icon": "",
+          "entity": "",
+          "title": {
+            "tr": "Anında teslimat",
+            "en": "Instant delivery",
+            "de": "Sofort verfügbar"
+          },
+          "text": {
+            "tr": "Satın alma tamamlandıktan sonra eSIM bilgilerin hemen profilinde hazır.",
+            "en": "Once your purchase is complete, your eSIM details are immediately available in your profile.",
+            "de": "Nach dem Kauf stehen deine eSIM-Daten sofort in deinem Profil bereit."
+          },
+          "internalKey": "delivery",
+          "cardType": "delivery",
+          "mediaId": "builtin:info-delivery",
+          "href": "/account",
+          "labels": [
+            {
+              "tr": "Profilinde hazır",
+              "en": "Ready in your profile",
+              "de": "In deinem Profil verfügbar"
+            }
+          ],
+          "cta": {
+            "tr": "",
+            "en": "",
+            "de": ""
+          },
+          "imageAlt": {
+            "tr": "Anında teslimat",
+            "en": "Instant delivery",
+            "de": "Sofort verfügbar"
+          },
+          "focalX": 50,
+          "focalY": 50,
+          "rating": 5,
+          "verified": false,
+          "published": false
+        },
+        {
+          "id": "setup",
+          "visible": true,
+          "icon": "",
+          "entity": "",
+          "title": {
+            "tr": "Kolay kurulum",
+            "en": "Easy setup",
+            "de": "Einfache Einrichtung"
+          },
+          "text": {
+            "tr": "QR kodunu tara veya kurulum linkini kullan. eSIM’ini yaklaşık 60 saniyede kur.",
+            "en": "Scan the QR code or use the installation link. Set up your eSIM in around 60 seconds.",
+            "de": "Scanne den QR-Code oder nutze den Installationslink. Deine eSIM ist in etwa 60 Sekunden eingerichtet."
+          },
+          "internalKey": "setup",
+          "cardType": "setup",
+          "mediaId": "builtin:info-install",
+          "href": "/esim/kurulum",
+          "labels": [
+            {
+              "tr": "QR kod ile kurulum",
+              "en": "QR code",
+              "de": "QR-Code"
+            },
+            {
+              "tr": "Link ile kurulum",
+              "en": "Installation link",
+              "de": "Installationslink"
+            },
+            {
+              "tr": "≈ 60 saniye",
+              "en": "≈ 60 seconds",
+              "de": "≈ 60 Sekunden"
+            }
+          ],
+          "cta": {
+            "tr": "",
+            "en": "",
+            "de": ""
+          },
+          "imageAlt": {
+            "tr": "Kolay kurulum",
+            "en": "Easy setup",
+            "de": "Einfache Einrichtung"
+          },
+          "focalX": 50,
+          "focalY": 50,
+          "rating": 5,
+          "verified": false,
+          "published": false
+        },
+        {
+          "id": "payment",
+          "visible": true,
+          "icon": "",
+          "entity": "",
+          "title": {
+            "tr": "Güvenli ödeme",
+            "en": "Secure payment",
+            "de": "Sicher bezahlen"
+          },
+          "text": {
+            "tr": "Ödemeniz güvenli ödeme altyapısı üzerinden korunarak işlenir.",
+            "en": "Your payment is securely processed through our protected payment infrastructure.",
+            "de": "Deine Zahlung wird über eine sichere Zahlungsinfrastruktur geschützt verarbeitet."
+          },
+          "internalKey": "payment",
+          "cardType": "payment",
+          "mediaId": "builtin:info-payment",
+          "href": "",
+          "labels": [],
+          "cta": {
+            "tr": "",
+            "en": "",
+            "de": ""
+          },
+          "imageAlt": {
+            "tr": "Güvenli ödeme",
+            "en": "Secure payment",
+            "de": "Sicher bezahlen"
+          },
+          "focalX": 50,
+          "focalY": 50,
+          "rating": 5,
+          "verified": false,
+          "published": false
+        },
+        {
+          "id": "support",
+          "visible": true,
+          "icon": "",
+          "entity": "",
+          "title": {
+            "tr": "7/24 WhatsApp destek",
+            "en": "24/7 WhatsApp support",
+            "de": "24/7 WhatsApp-Support"
+          },
+          "text": {
+            "tr": "Soruların mı var? Ekibimiz 7/24 WhatsApp üzerinden yanında.",
+            "en": "Have a question? Our team is available around the clock via WhatsApp.",
+            "de": "Du hast Fragen? Unser Team ist rund um die Uhr über WhatsApp für dich da."
+          },
+          "internalKey": "support",
+          "cardType": "support",
+          "mediaId": "builtin:info-support",
+          "href": "",
+          "labels": [
+            {
+              "tr": "7/24 destek",
+              "en": "24/7 support",
+              "de": "24/7 Support"
+            },
+            {
+              "tr": "Hızlı yanıt",
+              "en": "Quick help",
+              "de": "Schnelle Hilfe"
+            },
+            {
+              "tr": "WhatsApp",
+              "en": "WhatsApp",
+              "de": "WhatsApp"
+            }
+          ],
+          "cta": {
+            "tr": "",
+            "en": "",
+            "de": ""
+          },
+          "imageAlt": {
+            "tr": "7/24 WhatsApp destek",
+            "en": "24/7 WhatsApp support",
+            "de": "24/7 WhatsApp-Support"
+          },
+          "focalX": 50,
+          "focalY": 50,
+          "rating": 5,
+          "verified": false,
+          "published": false
+        }
+      ],
+      "showDots": true,
+      "showArrows": true,
+      "cardGap": "normal",
+      "mobilePreview": "normal",
+      "claims": {
+        "countries": "190+",
+        "refundDays": "14",
+        "savingPercent": "60",
+        "setupSeconds": "60"
+      },
+      "showDemoReviews": false
+    },
+    {
+      "id": "compatibility",
+      "type": "COMPATIBILITY",
+      "visible": true,
+      "showOnResults": false,
+      "variant": "default",
+      "align": "left",
+      "height": "normal",
+      "overlay": "normal",
+      "mediaId": null,
+      "mobileMediaId": null,
+      "href": "/esim",
+      "startsAt": "",
+      "endsAt": "",
+      "text": {
+        "title": {
+          "tr": "Telefonum eSIM uyumlu mu?",
+          "en": "Is my phone eSIM compatible?",
+          "de": "Ist mein Handy eSIM-fähig?"
+        }
+      },
+      "items": [],
+      "showDots": true,
+      "showArrows": true,
+      "cardGap": "normal",
+      "mobilePreview": "normal",
+      "claims": {
+        "countries": "190+",
+        "refundDays": "14",
+        "savingPercent": "60",
+        "setupSeconds": "60"
+      },
+      "showDemoReviews": false
+    },
+    {
+      "id": "promo-lounge",
+      "type": "PROMO_BANNER",
+      "visible": true,
+      "showOnResults": false,
+      "variant": "default",
+      "align": "left",
+      "height": "normal",
+      "overlay": "normal",
+      "mediaId": "builtin:lounge-card",
+      "mobileMediaId": null,
+      "href": "/lounge",
+      "startsAt": "",
+      "endsAt": "",
+      "text": {
+        "title": {
+          "tr": "Uçuş öncesi biraz daha konfor",
+          "en": "More comfort before your flight",
+          "de": "Mehr Komfort vor dem Abflug"
+        },
+        "subtitle": {
+          "tr": "Lounge'u keşfet",
+          "en": "Discover Lounge",
+          "de": "Lounge entdecken"
+        }
+      },
+      "items": [],
+      "showDots": true,
+      "showArrows": true,
+      "cardGap": "normal",
+      "mobilePreview": "normal",
+      "claims": {
+        "countries": "190+",
+        "refundDays": "14",
+        "savingPercent": "60",
+        "setupSeconds": "60"
+      },
+      "showDemoReviews": false
+    },
+    {
+      "id": "installation",
+      "type": "INSTALLATION_STEPS",
+      "visible": true,
+      "showOnResults": false,
+      "variant": "animated",
+      "align": "left",
+      "height": "normal",
+      "overlay": "normal",
+      "mediaId": null,
+      "mobileMediaId": null,
+      "href": "/esim/kurulum",
+      "startsAt": "",
+      "endsAt": "",
+      "text": {
+        "title": {
+          "tr": "eSIM kurulumu çok kolay",
+          "en": "eSIM installation is easy",
+          "de": "eSIM ganz einfach installieren"
+        },
+        "subtitle": {
+          "tr": "Sadece birkaç adımda bağlantıya hazır.",
+          "en": "Ready to connect in just a few steps.",
+          "de": "In wenigen Schritten verbunden."
+        },
+        "ready": {
+          "tr": "eSIM hazır",
+          "en": "eSIM ready",
+          "de": "eSIM bereit"
+        },
+        "adding": {
+          "tr": "eSIM ekleniyor...",
+          "en": "Adding eSIM...",
+          "de": "eSIM wird hinzugefügt..."
+        },
+        "cta": {
+          "tr": "Detaylı kurulum rehberi",
+          "en": "Detailed installation guide",
+          "de": "Ausführliche Installationshilfe"
+        }
+      },
+      "items": [
+        {
+          "id": "step-1",
+          "visible": true,
+          "icon": "",
+          "entity": "",
+          "title": {
+            "tr": "QR kodunu al",
+            "en": "Get QR code",
+            "de": "QR-Code erhalten"
+          },
+          "text": {
+            "tr": "",
+            "en": "",
+            "de": ""
+          },
+          "internalKey": "step-1",
+          "cardType": "products",
+          "mediaId": null,
+          "href": "",
+          "labels": [],
+          "cta": {
+            "tr": "",
+            "en": "",
+            "de": ""
+          },
+          "imageAlt": {
+            "tr": "",
+            "en": "",
+            "de": ""
+          },
+          "focalX": 50,
+          "focalY": 50,
+          "rating": 5,
+          "verified": false,
+          "published": false
+        },
+        {
+          "id": "step-2",
+          "visible": true,
+          "icon": "",
+          "entity": "",
+          "title": {
+            "tr": "QR kodunu tara",
+            "en": "Scan QR code",
+            "de": "QR-Code scannen"
+          },
+          "text": {
+            "tr": "",
+            "en": "",
+            "de": ""
+          },
+          "internalKey": "step-2",
+          "cardType": "products",
+          "mediaId": null,
+          "href": "",
+          "labels": [],
+          "cta": {
+            "tr": "",
+            "en": "",
+            "de": ""
+          },
+          "imageAlt": {
+            "tr": "",
+            "en": "",
+            "de": ""
+          },
+          "focalX": 50,
+          "focalY": 50,
+          "rating": 5,
+          "verified": false,
+          "published": false
+        },
+        {
+          "id": "step-3",
+          "visible": true,
+          "icon": "",
+          "entity": "",
+          "title": {
+            "tr": "eSIM'i ekle",
+            "en": "Add eSIM",
+            "de": "eSIM hinzufügen"
+          },
+          "text": {
+            "tr": "",
+            "en": "",
+            "de": ""
+          },
+          "internalKey": "step-3",
+          "cardType": "products",
+          "mediaId": null,
+          "href": "",
+          "labels": [],
+          "cta": {
+            "tr": "",
+            "en": "",
+            "de": ""
+          },
+          "imageAlt": {
+            "tr": "",
+            "en": "",
+            "de": ""
+          },
+          "focalX": 50,
+          "focalY": 50,
+          "rating": 5,
+          "verified": false,
+          "published": false
+        },
+        {
+          "id": "step-4",
+          "visible": true,
+          "icon": "",
+          "entity": "",
+          "title": {
+            "tr": "Bağlantını aç",
+            "en": "Enable connection",
+            "de": "Verbindung aktivieren"
+          },
+          "text": {
+            "tr": "",
+            "en": "",
+            "de": ""
+          },
+          "internalKey": "step-4",
+          "cardType": "products",
+          "mediaId": null,
+          "href": "",
+          "labels": [],
+          "cta": {
+            "tr": "",
+            "en": "",
+            "de": ""
+          },
+          "imageAlt": {
+            "tr": "",
+            "en": "",
+            "de": ""
+          },
+          "focalX": 50,
+          "focalY": 50,
+          "rating": 5,
+          "verified": false,
+          "published": false
+        }
+      ],
+      "showDots": true,
+      "showArrows": true,
+      "cardGap": "normal",
+      "mobilePreview": "normal",
+      "claims": {
+        "countries": "190+",
+        "refundDays": "14",
+        "savingPercent": "60",
+        "setupSeconds": "60"
+      },
+      "showDemoReviews": false
+    },
+    {
+      "id": "promo-vignette",
+      "type": "PROMO_BANNER",
+      "visible": true,
+      "showOnResults": false,
+      "variant": "default",
+      "align": "left",
+      "height": "normal",
+      "overlay": "normal",
+      "mediaId": "builtin:vignette-hero",
+      "mobileMediaId": null,
+      "href": "/vignette",
+      "startsAt": "",
+      "endsAt": "",
+      "text": {
+        "title": {
+          "tr": "Avrupa yollarına hazır ol",
+          "en": "Get ready for Europe's roads",
+          "de": "Bereit für Europas Straßen"
+        },
+        "subtitle": {
+          "tr": "Vignette'i keşfet",
+          "en": "Discover Vignette",
+          "de": "Vignette entdecken"
+        }
+      },
+      "items": [],
+      "showDots": true,
+      "showArrows": true,
+      "cardGap": "normal",
+      "mobilePreview": "normal",
+      "claims": {
+        "countries": "190+",
+        "refundDays": "14",
+        "savingPercent": "60",
+        "setupSeconds": "60"
+      },
+      "showDemoReviews": false
+    },
+    {
+      "id": "guides",
+      "type": "GUIDE_CAROUSEL",
+      "visible": true,
+      "showOnResults": true,
+      "variant": "default",
+      "align": "left",
+      "height": "normal",
+      "overlay": "normal",
+      "mediaId": null,
+      "mobileMediaId": null,
+      "href": "/esim",
+      "startsAt": "",
+      "endsAt": "",
+      "text": {
+        "title": {
+          "tr": "Seyahat rehberi",
+          "en": "Travel guides",
+          "de": "Reiseratgeber"
+        },
+        "lead": {
+          "tr": "Yayınlanmış gerçek seyahat içerikleri.",
+          "en": "Real published travel content.",
+          "de": "Echte veröffentlichte Reiseinhalte."
+        },
+        "all": {
+          "tr": "Tüm yazılar",
+          "en": "All guides",
+          "de": "Alle Ratgeber"
+        }
+      },
+      "items": [],
+      "showDots": true,
+      "showArrows": true,
+      "cardGap": "normal",
+      "mobilePreview": "normal",
+      "claims": {
+        "countries": "190+",
+        "refundDays": "14",
+        "savingPercent": "60",
+        "setupSeconds": "60"
+      },
+      "showDemoReviews": false
+    },
+    {
+      "id": "faq",
+      "type": "FAQ",
+      "visible": true,
+      "showOnResults": false,
+      "variant": "comfortable",
+      "align": "left",
+      "height": "normal",
+      "overlay": "normal",
+      "mediaId": null,
+      "mobileMediaId": null,
+      "href": "/esim",
+      "startsAt": "",
+      "endsAt": "",
+      "text": {
+        "title": {
+          "tr": "eSIM hakkında sık sorulanlar",
+          "en": "Frequently asked eSIM questions",
+          "de": "Häufige Fragen zur eSIM"
+        }
+      },
+      "items": [
+        {
+          "id": "faq-1",
+          "visible": true,
+          "icon": "",
+          "entity": "",
+          "title": {
+            "tr": "eSIM nedir?",
+            "en": "What is an eSIM?",
+            "de": "Was ist eine eSIM?"
+          },
+          "text": {
+            "tr": "eSIM, uyumlu telefona dijital olarak eklenen bir mobil veri hattıdır.",
+            "en": "An eSIM is a digital mobile data line added to a compatible phone.",
+            "de": "Eine eSIM ist ein digitaler Mobilfunktarif für ein kompatibles Handy."
+          },
+          "internalKey": "faq-1",
+          "cardType": "products",
+          "mediaId": null,
+          "href": "",
+          "labels": [],
+          "cta": {
+            "tr": "",
+            "en": "",
+            "de": ""
+          },
+          "imageAlt": {
+            "tr": "",
+            "en": "",
+            "de": ""
+          },
+          "focalX": 50,
+          "focalY": 50,
+          "rating": 5,
+          "verified": false,
+          "published": false
+        },
+        {
+          "id": "faq-2",
+          "visible": true,
+          "icon": "",
+          "entity": "",
+          "title": {
+            "tr": "Telefonum eSIM uyumlu mu?",
+            "en": "Is my phone eSIM compatible?",
+            "de": "Ist mein Handy eSIM-fähig?"
+          },
+          "text": {
+            "tr": "Marka ve modelini cihaz kontrolünde seç. Operatör kilidi ve bölgesel model farklılıkları yine etkili olabilir.",
+            "en": "Choose your brand and model in the device checker. Carrier locks and regional model variants can still differ.",
+            "de": "Wähle Marke und Modell in der Geräteprüfung. Anbietersperren und regionale Modellvarianten können dennoch abweichen."
+          },
+          "internalKey": "faq-2",
+          "cardType": "products",
+          "mediaId": null,
+          "href": "",
+          "labels": [],
+          "cta": {
+            "tr": "",
+            "en": "",
+            "de": ""
+          },
+          "imageAlt": {
+            "tr": "",
+            "en": "",
+            "de": ""
+          },
+          "focalX": 50,
+          "focalY": 50,
+          "rating": 5,
+          "verified": false,
+          "published": false
+        },
+        {
+          "id": "faq-3",
+          "visible": true,
+          "icon": "",
+          "entity": "",
+          "title": {
+            "tr": "eSIM'i nasıl kurarım?",
+            "en": "How do I install the eSIM?",
+            "de": "Wie installiere ich die eSIM?"
+          },
+          "text": {
+            "tr": "Satın alma ve provisioning tamamlandıktan sonra hesabındaki gerçek kurulum bilgilerini kullan. iPhone ve Android adımları cihaz sürümüne göre küçük farklılıklar gösterebilir.",
+            "en": "After purchase and provisioning, use the real setup details in your account. Steps may vary slightly by iPhone or Android version.",
+            "de": "Nutze nach Kauf und Provisionierung die echten Einrichtungsdaten in deinem Konto. Einzelne Schritte können je nach iPhone- oder Android-Version leicht abweichen."
+          },
+          "internalKey": "faq-3",
+          "cardType": "products",
+          "mediaId": null,
+          "href": "",
+          "labels": [],
+          "cta": {
+            "tr": "",
+            "en": "",
+            "de": ""
+          },
+          "imageAlt": {
+            "tr": "",
+            "en": "",
+            "de": ""
+          },
+          "focalX": 50,
+          "focalY": 50,
+          "rating": 5,
+          "verified": false,
+          "published": false
+        },
+        {
+          "id": "faq-4",
+          "visible": true,
+          "icon": "",
+          "entity": "",
+          "title": {
+            "tr": "QR kodunu nereden bulurum?",
+            "en": "Where do I find the QR code?",
+            "de": "Wo finde ich den QR-Code?"
+          },
+          "text": {
+            "tr": "Gerçek QR kodu, tedarikçi provisioning sonucu oluştuğunda eSIM alanında görünür. Bu site örnek veya sahte QR üretmez.",
+            "en": "The real QR code appears in the eSIM area when supplier provisioning completes. No sample or fake QR is generated.",
+            "de": "Der echte QR-Code erscheint im eSIM-Bereich, sobald die Provisionierung des Anbieters abgeschlossen ist. Es wird kein Beispiel-QR erzeugt."
+          },
+          "internalKey": "faq-4",
+          "cardType": "products",
+          "mediaId": null,
+          "href": "",
+          "labels": [],
+          "cta": {
+            "tr": "",
+            "en": "",
+            "de": ""
+          },
+          "imageAlt": {
+            "tr": "",
+            "en": "",
+            "de": ""
+          },
+          "focalX": 50,
+          "focalY": 50,
+          "rating": 5,
+          "verified": false,
+          "published": false
+        },
+        {
+          "id": "faq-5",
+          "visible": true,
+          "icon": "",
+          "entity": "",
+          "title": {
+            "tr": "Paket hangi ülkelerde geçerli?",
+            "en": "Which countries does the package cover?",
+            "de": "In welchen Ländern gilt das Paket?"
+          },
+          "text": {
+            "tr": "Paket detayındaki gerçek kapsam listesini kontrol et. Ülke paketleri ile bölgesel paketler ayrı gösterilir.",
+            "en": "Check the real coverage list in package details. Country and regional packages are presented separately.",
+            "de": "Prüfe die echte Abdeckung in den Paketdetails. Länder- und Regionalpakete werden getrennt dargestellt."
+          },
+          "internalKey": "faq-5",
+          "cardType": "products",
+          "mediaId": null,
+          "href": "",
+          "labels": [],
+          "cta": {
+            "tr": "",
+            "en": "",
+            "de": ""
+          },
+          "imageAlt": {
+            "tr": "",
+            "en": "",
+            "de": ""
+          },
+          "focalX": 50,
+          "focalY": 50,
+          "rating": 5,
+          "verified": false,
+          "published": false
+        }
+      ],
+      "showDots": true,
+      "showArrows": true,
+      "cardGap": "normal",
+      "mobilePreview": "normal",
+      "claims": {
+        "countries": "190+",
+        "refundDays": "14",
+        "savingPercent": "60",
+        "setupSeconds": "60"
+      },
+      "showDemoReviews": false
+    }
+  ]
+}
