@@ -151,6 +151,7 @@ export function EsimHomePage() {
             media={media}
             onDestinationSearch={openHeroSearch}
             slots={{
+              faq: <V2CategorizedEsimFaq />,
               hero: (section) => (
 <V2Hero image={mediaUrl(section.mobileMediaId ?? section.mediaId, media) ?? ""} desktopImage={mediaUrl(section.mediaId, media)} desktopFocus="phone" imageDisplay={section.imageDisplay} mobileImageDisplay={section.mobileImageDisplay} eyebrow={v2Text(section, "eyebrow", locale)} title={v2Text(section, "title", locale)} subtitle={v2Text(section, "subtitle", locale)} align={section.align} height={section.height} overlay={section.overlay} desktopFooter={desktopBenefits.length ? <ul className="grid grid-cols-4 gap-5 border-t border-primary-foreground/25 pt-4">{desktopBenefits.map((item) => <li key={item.id} className="flex min-w-0 items-center gap-2 text-sm font-semibold text-primary-foreground"><StorefrontIcon name={item.icon} className="size-5 shrink-0" /><span className="truncate">{v2ItemText(item.title, locale)}</span></li>)}</ul> : undefined}>
         <div ref={heroSearchRef}><HeroField icon={<Search className="size-5" />}>
