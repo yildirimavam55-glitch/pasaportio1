@@ -15,6 +15,7 @@ import { DISCOVERY_COPY, ESIM_COPY, LOUNGE_COPY, VIGNETTE_COPY } from "@/domain/
 import { TRUST_EDITORIAL } from "./trust-editorial";
 import { TRUST_TRANSLATIONS } from "@/i18n/trust-translations";
 import { DEFAULT_IMAGE_DISPLAY, ESIM_DESKTOP_IMAGE_DISPLAY, sanitizeImageDisplay, type ImageDisplay } from "./image-display";
+import restoredEsimHomepage from "./restored-esim-homepage.json";
 
 export const V2_PAGES = ["esim", "lounge", "vignette"] as const;
 export type V2PageId = (typeof V2_PAGES)[number];
@@ -465,7 +466,11 @@ function vignetteDefault(): V2Page {
 type V2Page = V2Section[];
 
 export function defaultV2Page(page: V2PageId): V2PageConfig {
-  const sections = page === "lounge" ? loungeDefault() : page === "vignette" ? vignetteDefault() : esimDefault();
+  const sections = page === "lounge"
+    ? loungeDefault()
+    : page === "vignette"
+      ? vignetteDefault()
+      : (restoredEsimHomepage as V2PageConfig).sections;
   return { version: 1, page, sections };
 }
 
