@@ -279,7 +279,7 @@ function Editor({ page }: { page: V2PageId }) {
           {V2_PROTECTED.includes(selected.type) && <p className="mb-3 rounded-md bg-secondary p-2 text-[11px] text-muted-foreground">Arama mantığı kodda korunur. Burada yalnızca metin, görsel ve görünüm ön ayarları değişir; bölüm gizlenemez veya taşınamaz.</p>}
            {<div className="mb-3 flex items-center gap-2"><Button type="button" size="sm" variant="outline" disabled={translatingTrust} onClick={() => void translateTrust()}>{translatingTrust ? "Çevriliyor…" : "Tüm dillere çevir"}</Button><span className="text-xs text-muted-foreground">Türkçe kaynak 13 dile çevrilir; elle düzenlenen çeviriler korunur. "Taslağı kaydet" değişen Türkçe metni otomatik çevirir; yayınlamaz.</span></div>}
           <LocaleStatusRow section={selected} />
-          <SectionDesignEditor section={selected} onChange={(design) => patchSection(selected.id, { design })} />
+          <SectionDesignEditor section={selected} onChange={(design) => patchSection(selected.id, design ? { design } : { design: undefined } as unknown as Partial<V2Section>)} />
           <SectionForm section={selected} lang={lang} page={page} trustPreviewLocale={trustPreviewLocale} onTrustLocale={setTrustPreviewLocale} onTrustSourceBlur={() => void translateTrust()} onChange={(patch) => patchSection(selected.id, patch)} />
         </AdminPanel>
 
@@ -315,7 +315,6 @@ function SectionDesignEditor({ section, onChange }: { section: V2Section; onChan
       <summary className="cursor-pointer text-xs font-bold">Tasarım ayarları</summary>
       <p className="mt-2 text-[11px] text-muted-foreground">Bu ayarlar tüm dillerde ortaktır. Boş veya varsayılan değerler mevcut Travely görünümünü aynen korur.</p>
       <div className="mt-3 grid gap-3 sm:grid-cols-2">
-        <label className="flex items-center gap-2 text-xs font-semibold"><input type="checkbox" checked={section.visible} disabled={V2_PROTECTED.includes(section.type)} onChange={(event) => onChange({ ...design, ...(section.design ?? {}) }) || event} />Bölüm görünür</label>
         <Select label="İçerik genişliği" value={design.width} options={V2_DESIGN_WIDTHS} labels={DESIGN_LABELS} onChange={(width) => set({ width })} />
         <Select label="Bölüm aralığı" value={design.spacing} options={V2_DESIGN_SPACING} labels={DESIGN_LABELS} onChange={(spacing) => set({ spacing })} />
         <Select label="Arka plan" value={design.background} options={V2_DESIGN_BACKGROUNDS} labels={DESIGN_LABELS} onChange={(background) => set({ background })} />

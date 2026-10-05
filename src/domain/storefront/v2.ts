@@ -586,6 +586,9 @@ function cleanSection(raw: any): V2Section | null {
     const bodySize = size(value?.bodySize, 11, 28);
     return headingSize || bodySize ? { ...(headingSize ? { headingSize } : {}), ...(bodySize ? { bodySize } : {}) } : undefined;
   };
+  const desktop = responsive(raw.design?.desktop);
+  const tablet = responsive(raw.design?.tablet);
+  const mobile = responsive(raw.design?.mobile);
   const customColor = /^#[0-9a-fA-F]{6}$/.test(String(raw.design?.customColor)) ? String(raw.design.customColor).toLowerCase() : undefined;
   return {
     id: String(raw.id),
@@ -630,9 +633,9 @@ function cleanSection(raw: any): V2Section | null {
       letterSpacing: pick(raw.design.letterSpacing, V2_DESIGN_TRACKING, "default"),
       textAlign: pick(raw.design.textAlign, V2_DESIGN_ALIGNMENTS, "default"),
       position: pick(raw.design.position, V2_DESIGN_POSITIONS, "top-left"),
-      ...(responsive(raw.design.desktop) ? { desktop: responsive(raw.design.desktop) } : {}),
-      ...(responsive(raw.design.tablet) ? { tablet: responsive(raw.design.tablet) } : {}),
-      ...(responsive(raw.design.mobile) ? { mobile: responsive(raw.design.mobile) } : {}),
+      ...(desktop ? { desktop } : {}),
+      ...(tablet ? { tablet } : {}),
+      ...(mobile ? { mobile } : {}),
     } } : {}),
     ...(type === "TRUST_REVIEWS" ? { trust: {
       background: pick(raw.trust?.background, ["mint", "cream", "white"] as const, "mint"),

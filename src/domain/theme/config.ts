@@ -115,6 +115,8 @@ export function themeCssVariables(theme: ThemeConfig): Record<string, string> {
     "--radius": RADIUS[theme.radius],
     "--font-sans": `"${theme.bodyFont}", sans-serif`,
     "--font-display": `"${theme.headingFont}", sans-serif`,
+    "--font-body": `"${theme.bodyFont}", sans-serif`,
+    "--font-heading": `"${theme.headingFont}", sans-serif`,
     "--theme-heading-scale": HEADING_SCALE[theme.headingScale],
     "--theme-body-scale": BODY_SCALE[theme.bodyScale],
     "--section-spacing": SECTION_SPACING[theme.sectionSpacing],

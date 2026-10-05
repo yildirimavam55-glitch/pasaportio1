@@ -78,4 +78,20 @@ describe("V2 storefront config", () => {
     expect(isInWindow(promo, "2026-10-10")).toBe(true);
     expect(isInWindow(promo, "2026-11-01")).toBe(false);
   });
+
+  it("keeps safe section design values and removes invalid values", () => {
+    const page = structuredClone(defaultV2Page("esim"));
+    page.sections[1]!.design = {
+      width: "wide", spacing: "compact", background: "custom", customColor: "#ABCDEF",
+      radius: "large", font: "heading", weight: "bold", lineHeight: "relaxed",
+      letterSpacing: "wide", textAlign: "center", position: "middle-center",
+      desktop: { headingSize: 120, bodySize: 4 }, mobile: { headingSize: 34, bodySize: 15 },
+    };
+    const design = sanitizeV2Page(page, "esim").sections[1]!.design;
+    expect(design).toMatchObject({ width: "wide", customColor: "#abcdef", desktop: { headingSize: 80, bodySize: 11 }, mobile: { headingSize: 34, bodySize: 15 } });
+  });
+
+  it("preserves the production default when no section design exists", () => {
+    for (const section of defaultV2Page("esim").sections) expect(section.design).toBeUndefined();
+  });
 });
