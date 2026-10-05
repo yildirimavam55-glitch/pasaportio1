@@ -51,6 +51,7 @@ const groups: AdminGroup[] = [
     { to: "/admin/esim/provider-import", label: "Katalog senkronu", icon: CloudUpload },
     { to: "/admin/test-catalogue", label: "Test kataloğu", icon: Boxes },
     { to: "/admin/pricing-rules", label: "Fiyatlandırma kuralları", icon: CircleDollarSign },
+    { to: "/admin/manual-pricing", label: "Paket fiyatları", icon: CircleDollarSign },
   ]},
   { label: "Mağaza yönetimi", links: [
     { to: "/admin/storefront", label: "Storefront", icon: LayoutTemplate },
