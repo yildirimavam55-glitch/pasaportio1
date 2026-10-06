@@ -809,4 +809,4 @@
 
 ## Pricing sync protection
 - [x] Steps 1–3: sync/import/editor/manual-removal never overwrite existing prices; new products DRAFT + suggested price
-- [ ] Step 4: REPRICE_REQUIRED Admin queue (waits on approval)
+- [x] Step 4: REPRICE_REQUIRED Admin queue
