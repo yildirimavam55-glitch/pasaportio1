@@ -94,7 +94,7 @@ async function loadRows(db: any, iso?: string): Promise<Row[]> {
 }
 
 function describe(row: Row, config: ManualPriceConfig) {
-  const r = resolveManualPrice(config, row.iso, row.key, row.autoPrice);
+  const r = resolveManualPrice(config, row.iso, row.key, row.salePrice);
   const pm = profitAndMargin(r.price, row.cost);
   return {
     ...r, ...pm,
@@ -107,9 +107,12 @@ function describe(row: Row, config: ManualPriceConfig) {
 async function applyRows(db: any, rows: Row[], config: ManualPriceConfig) {
   const groups = new Map<string, string[]>();
   for (const row of rows) {
-    const r = resolveManualPrice(config, row.iso, row.key, row.autoPrice);
+    const r = resolveManualPrice(config, row.iso, row.key, row.salePrice);
     if (r.price == null) continue; // never leave a product without a price
-    const manual = r.source !== "AUTO";
+    // No manual price for this key: the current selling price is kept as-is
+    // (removing a manual price never falls back to the legacy rule).
+    if (r.source === "AUTO") continue;
+    const manual = true;
     if (row.salePrice === r.price && row.overridden === manual) continue;
     const g = `${r.price}|${manual}`;
     groups.set(g, [...(groups.get(g) ?? []), row.id]);
@@ -188,7 +191,7 @@ function summarizeCompetitive(rows: Row[], config: ManualPriceConfig, store: Awa
   for (const [gk, list] of byGroup) {
     const first = list[0]!;
     const { cheapest } = costAnomalies(list.map((r) => r.cost));
-    const price = resolveManualPrice(config, first.iso, first.key, first.autoPrice).price;
+    const price = resolveManualPrice(config, first.iso, first.key, first.salePrice).price;
     const status: CompetitiveStatus = evaluateCompetitive({ cost: cheapest, price, minMargin: first.minMargin, competitors: entries.get(gk) ?? [], rates, policy: store.policy }).status;
     const c = (countries[first.iso!] ??= empty());
     c[status]++; totals[status]++;
