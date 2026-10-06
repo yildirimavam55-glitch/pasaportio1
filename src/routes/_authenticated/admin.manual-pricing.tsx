@@ -419,7 +419,7 @@ function CompetitorPanel({ iso, countries, onClose }: { iso: string; countries: 
       <div className="grid gap-2 border-t border-border p-2.5 sm:grid-cols-4">{currentNames.map((n, i) => <input key={i} aria-label={`Rakip ${i + 1}`} className="h-9 rounded-lg border border-input bg-background px-2 text-sm" value={n} onChange={(e) => setNames(currentNames.map((x, j) => (j === i ? e.target.value : x)))} />)}</div>
       {names && <Button className="mx-2.5 mb-2.5" size="sm" variant="outline" disabled={save.isPending} onClick={() => save.mutate({ competitors: names })}>Adları kaydet</Button>}
     </details>
-    <ResearchImport history={store.data.history} />
+    {RESEARCH_FILES.map((f) => <ResearchImport key={f.id} fileId={f.id} label={f.label} history={store.data.history.filter((h) => h.file === f.file)} />)}
     <details className="mb-3 rounded-lg border border-border"><summary className="cursor-pointer p-2.5 text-sm font-bold">CSV içe aktar</summary>
       <div className="border-t border-border p-2.5">
         <p className="mb-2 text-[11px] text-muted-foreground">Sütunlar: rakip, ülke (TR), tür (STANDARD/UNLIMITED), GB, gün, fiyat, para birimi, kaynak, kontrol tarihi (05.10.2026)</p>
@@ -445,17 +445,21 @@ function CompetitorPanel({ iso, countries, onClose }: { iso: string; countries: 
   </AdminPanel>;
 }
 
-function ResearchImport({ history }: { history: { at: string; competitor: string; checkedAt: string; rows: number; countries: number; newRecords: number; updated: number; invalid: number; sourceType: string }[] }) {
+const RESEARCH_FILES = [
+  { id: "airalo-2026-10-05", file: "Pasaport_Airalo_Video_Fiyatlari.xlsx", label: "Airalo içe aktarımı · App video 1 · 05.10.2026" },
+  { id: "airalo-2026-10-05-video2", file: "Pasaport_Airalo_Video2_Fiyatlari.xlsx", label: "Airalo içe aktarımı · App video 2 · 05.10.2026" },
+];
+function ResearchImport({ fileId, label, history }: { fileId: string; label: string; history: { file?: string; at: string; competitor: string; checkedAt: string; rows: number; countries: number; newRecords: number; updated: number; invalid: number; sourceType: string }[] }) {
   const queryClient = useQueryClient();
-  const preview = useMutation({ mutationFn: () => previewResearchImport({ data: { fileId: "airalo-2026-10-05" } }) });
+  const preview = useMutation({ mutationFn: () => previewResearchImport({ data: { fileId } }) });
   const commit = useMutation({
-    mutationFn: () => commitResearchImport({ data: { fileId: "airalo-2026-10-05" } }),
+    mutationFn: () => commitResearchImport({ data: { fileId } }),
     onSuccess: async (r) => { toast.success(`Airalo verisi içe aktarıldı: ${r.newRecords} yeni, ${r.updated} güncellendi.`); preview.reset(); await queryClient.invalidateQueries({ queryKey: ["manual-pricing"] }); },
     onError: (e: Error) => toast.error(e.message || "İçe aktarılamadı."),
   });
   const s = preview.data?.summary;
   const items: [string, number][] = s ? [["Satır", s.rows], ["Ülke", s.countries], ["Standard", s.standard], ["Unlimited", s.unlimited], ["Yeni", s.newRecords], ["Güncellenecek", s.updated], ["Değişmeyen", s.unchanged], ["Tekrar", s.duplicates], ["Geçersiz", s.invalid], ["Ülke eşleşmesi gerekli", s.countryMatchRequired]] : [];
-  return <details className="mb-3 rounded-lg border border-border" open><summary className="cursor-pointer p-2.5 text-sm font-bold">Airalo içe aktarımı · App araştırması 05.10.2026</summary>
+  return <details className="mb-3 rounded-lg border border-border" open={history.length === 0}><summary className="cursor-pointer p-2.5 text-sm font-bold">{label}</summary>
     <div className="border-t border-border p-2.5 text-xs">
       <p className="mb-2 text-muted-foreground">Kaynak: Airalo uygulamasındaki müşteri fiyatları (manuel araştırma). Satış fiyatları değişmez; yalnızca karşılaştırma için kullanılır.</p>
       <Button size="sm" variant="outline" disabled={preview.isPending} onClick={() => preview.mutate()}>Önizle</Button>

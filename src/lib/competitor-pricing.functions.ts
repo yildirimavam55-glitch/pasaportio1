@@ -5,8 +5,12 @@ import { parseCompetitorCsv, type CompetitorPrice } from "@/domain/pricing/compe
 import { COMPETITOR_SETTINGS_ID, loadStore, sanitizeStore } from "@/lib/competitor-pricing.server";
 import { planResearchImport, type ResearchFile } from "@/domain/pricing/airalo";
 import airaloResearch from "@/data/airalo-research-2026-10-05.json";
+import airaloResearch2 from "@/data/airalo-research-2026-10-05-video2.json";
 
-const RESEARCH_FILES: Record<string, ResearchFile & { file: string }> = { "airalo-2026-10-05": airaloResearch as ResearchFile & { file: string } };
+const RESEARCH_FILES: Record<string, ResearchFile & { file: string }> = {
+  "airalo-2026-10-05": airaloResearch as ResearchFile & { file: string },
+  "airalo-2026-10-05-video2": airaloResearch2 as ResearchFile & { file: string },
+};
 
 async function catalogueIsos(db: any, isos: string[]) {
   const found = new Set<string>();

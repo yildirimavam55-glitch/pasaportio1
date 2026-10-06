@@ -56,3 +56,14 @@ describe("Airalo research import", () => {
     expect(profitAndMargin(14.99, 8.2).margin).toBeCloseTo(45.3, 1);
   });
 });
+
+import data2 from "@/data/airalo-research-2026-10-05-video2.json";
+describe("Airalo video 2", () => {
+  it("imports 235 rows, flags Azores, and updates overlaps instead of duplicating", () => {
+    const f2 = data2 as ResearchFile;
+    const all = new Set([...f2.rows.map((r) => r.iso!), ...isos].filter((i) => /^[A-Z]{2}$/.test(i)));
+    const first = planResearchImport(file, [], all, "x").entries.map((x, i) => ({ ...x, id: String(i) }));
+    const p = planResearchImport(f2, first, all, "y");
+    expect(p.summary).toMatchObject({ rows: 235, countries: 39, standard: 155, unlimited: 80, newRecords: 215, updated: 2, unchanged: 13, invalid: 0, duplicates: 0, countryMatchRequired: 5 });
+  });
+});
