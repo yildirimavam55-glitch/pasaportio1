@@ -20,13 +20,6 @@ const LABELS = localize({
   en: { rating: "{rating} out of 5 stars", reviews: "Customer reviews", real: "Based on real customer reviews", demo: "DEMO / TEST — not a real customer review", editorial: "Editorial examples · not customer reviews", slide: "Review {index}", country: "Country", previewRating: "Based on customer experiences", paymentPreview: "DEMO / PREVIEW — payment not yet available" },
 });
 
-const BENEFIT_IMAGE_SIZE: Record<80 | 100 | 120 | 140 | 160, string> = {
-  80: "size-[min(100%,3.8rem)] sm:size-[min(100%,5.6rem)] data-[wide=true]:w-[5.5rem] sm:data-[wide=true]:w-[9rem]",
-  100: "size-[min(100%,4.75rem)] sm:size-[min(100%,7rem)] data-[wide=true]:w-[6.875rem] sm:data-[wide=true]:w-[11.25rem]",
-  120: "size-[min(100%,5.7rem)] sm:size-[min(100%,8rem)] data-[wide=true]:w-[8.25rem] sm:data-[wide=true]:w-[13.5rem]",
-  140: "size-[min(100%,6.65rem)] sm:size-[min(100%,8rem)] data-[wide=true]:w-[9.625rem] sm:data-[wide=true]:w-[15.75rem]",
-  160: "size-[min(100%,7.6rem)] sm:size-[min(100%,8rem)] data-[wide=true]:w-[11rem] sm:data-[wide=true]:w-[18rem]",
-};
 
 /** Public reviews are additionally filtered on the server; demos can only appear in the Admin iframe. */
 export function V2TrustReviews({ section, media, preview = false, onDestinationSearch }: { section: V2Section; media: V2Media; preview?: boolean; onDestinationSearch?: (() => void) | undefined }) {
@@ -91,8 +84,8 @@ export function V2TrustReviews({ section, media, preview = false, onDestinationS
     </Reveal>}
 
      {trustItems.length > 0 && <Reveal delay={210} className="trust-section-reveal mt-5"><ul className={`grid grid-cols-1 gap-2.5 sm:gap-0 sm:overflow-hidden sm:rounded-2xl sm:bg-card sm:shadow-soft sm:ring-1 sm:ring-border ${trustItems.length === 3 ? "sm:grid-cols-3" : "sm:grid-cols-4"}`}>
-       {trustItems.map((item, index) => <li key={item.id} className={`flex min-w-0 items-center gap-3 rounded-2xl bg-card px-3 py-2 text-start shadow-soft ring-1 ring-border sm:flex-col sm:gap-0 sm:rounded-none sm:px-4 sm:pb-4 sm:pt-2 sm:text-center sm:shadow-none sm:ring-0 ${index > 0 ? "sm:border-s" : ""}`}>
-          <span className="flex size-16 shrink-0 items-center justify-center overflow-hidden sm:h-32 sm:w-full">{item.visualMode !== "ICON" && mediaUrl(item.mediaId, media) ? <img src={mediaUrl(item.mediaId, media)} alt={v2ItemText(item.imageAlt, locale) || media[item.mediaId ?? ""]?.alt || ""} loading="lazy" decoding="async" width={320} height={320} onLoad={(event) => { event.currentTarget.dataset['wide'] = String(event.currentTarget.naturalWidth / event.currentTarget.naturalHeight >= 2); }} className={`${BENEFIT_IMAGE_SIZE[item.imageScale ?? (item.id === "trust-payment" ? 160 : 100)] ?? BENEFIT_IMAGE_SIZE[100]} max-h-full shrink-0 object-contain data-[wide=true]:max-w-none`} /> : <StorefrontIcon name={item.icon} className="size-10 text-success sm:size-14" />}</span>
+       {trustItems.map((item, index) => <li key={item.id} className={`flex min-w-0 items-center gap-4 rounded-2xl bg-card px-3 py-2 text-start shadow-soft ring-1 ring-border sm:flex-col sm:gap-0 sm:rounded-none sm:px-4 sm:pb-4 sm:pt-2 sm:text-center sm:shadow-none sm:ring-0 ${index > 0 ? "sm:border-s" : ""}`}>
+          <span className="flex h-[6.5rem] w-33 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-secondary sm:h-40 sm:w-full sm:rounded-2xl">{item.visualMode !== "ICON" && mediaUrl(item.mediaId, media) ? <img src={mediaUrl(item.mediaId, media)} alt={v2ItemText(item.imageAlt, locale) || media[item.mediaId ?? ""]?.alt || ""} loading="lazy" decoding="async" width={640} height={480} className="size-full object-cover" /> : <StorefrontIcon name={item.icon} className="size-10 text-success sm:size-14" />}</span>
           <span className="min-w-0 flex-1 sm:w-full"><strong className="block w-full max-w-full min-w-0 hyphens-auto break-words text-[clamp(14px,3.9vw,17px)] leading-tight text-foreground sm:text-base">{v2ItemText(item.title, locale)}</strong><span className="mt-1 block w-full max-w-full min-w-0 hyphens-auto break-words text-xs leading-snug text-muted-foreground sm:text-sm">{v2ItemText(item.text, locale)}</span></span>
           {preview && item.id === "trust-payment" && <span className="mt-1 text-[8px] font-bold leading-tight text-muted-foreground">{labels.paymentPreview}</span>}
       </li>)}
