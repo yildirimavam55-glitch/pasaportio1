@@ -64,7 +64,7 @@ function AiraloBlock({ group, price, cost, market }: { group: PackageGroup; pric
   return <div className="mt-1.5 rounded-lg bg-secondary/40 p-2 text-[11px]">
     <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
       <span className="font-semibold">Airalo <b className="tabular-nums">{entry.currency === "EUR" ? euro(entry.price) : `${entry.price} ${entry.currency}`}</b></span>
-      <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold ${STATUS_TONE[tone]}`}><Dot status={tone} />{AIRALO_LABEL[cmp.indicator]}</span>
+      <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold ${STATUS_TONE[tone]}`}>{AIRALO_LABEL[cmp.indicator]}</span>
       {quality === "SHORTER_VALIDITY" && <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-bold text-primary">PASAPORT DAHA UZUN GEÇERLİLİK · Airalo {airaloDays} gün · Pasaport {days} gün</span>}
       <Button variant="link" size="sm" className="h-auto px-0 text-[11px] text-muted-foreground" aria-expanded={open} onClick={() => setOpen((v) => !v)}>Rakip detayı</Button>
     </div>
