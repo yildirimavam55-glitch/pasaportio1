@@ -450,6 +450,7 @@ const RESEARCH_FILES = [
   { id: "airalo-2026-10-05-video3", file: "Pasaport_Airalo_Video3_Fiyatlari.xlsx", label: "Airalo içe aktarımı · App video 3 · 05.10.2026" },
   { id: "airalo-2026-10-06-video4", file: "Pasaport_Airalo_Video4_Fiyatlari.xlsx", label: "Airalo içe aktarımı · App video 4 · 06.10.2026" },
   { id: "airalo-2026-10-06-video5", file: "Pasaport_Airalo_Video5_Kontrol_Edilmis_retry.xlsx", label: "Airalo içe aktarımı · App video 5 · 06.10.2026" },
+  { id: "airalo-2026-10-06-video6", file: "Pasaport_Airalo_Video6_Kontrol_Edilmis.xlsx", label: "Airalo içe aktarımı · App video 6 · 06.10.2026" },
 ];
 function ResearchImport({ fileId, label, history }: { fileId: string; label: string; history: { file?: string; at: string; competitor: string; checkedAt: string; rows: number; countries: number; newRecords: number; updated: number; invalid: number; sourceType: string }[] }) {
   const queryClient = useQueryClient();
