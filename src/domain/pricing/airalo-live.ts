@@ -6,7 +6,7 @@
  */
 import { packageKey } from "./manual-prices";
 import { round2, type CompetitorPrice } from "./competitive";
-import { matchCompetitor } from "./airalo";
+import { compareWithCompetitor, matchCompetitor, type AiraloIndicator, type MatchQuality } from "./airalo";
 
 /** First implementation scope: the five validated pilot countries. */
 export const AIRALO_PILOT_COUNTRIES: Record<string, string> = {
@@ -158,4 +158,70 @@ export function applyLiveCheck(checks: CountryCheck[], existing: CompetitorPrice
 export function missingAiraloLabel(check: LiveCheckRecord | undefined): "AIRALO_NOT_OFFERED" | "AIRALO_DATA_UNKNOWN" | "RESEARCH_FAILED" {
   if (!check) return "AIRALO_DATA_UNKNOWN";
   return check.status === "OK" ? "AIRALO_NOT_OFFERED" : "RESEARCH_FAILED";
+}
+
+// ---------- Full-catalogue comparison (Admin preview only; never writes prices) ----------
+
+export type BaseRow = { iso: string; key: string; cost: number | null; price: number | null; minMargin: number };
+export type CompareStatus = AiraloIndicator | "NOT_OFFERED" | "UNKNOWN" | "RESEARCH_FAILED";
+export type CompareItem = {
+  iso: string; key: string; cost: number | null; price: number | null; airalo: number | null; airaloKey: string | null; quality: MatchQuality;
+  previousAiralo: number | null; diff: number | null; diffPct: number | null; profit: number | null; margin: number | null; lowMargin: boolean; status: CompareStatus;
+};
+export type CountryRow = {
+  iso: string; retrieval: "COMPLETE" | "PARTIAL" | "RESEARCH_FAILED" | "NOT_FOUND" | "COUNTRY_MATCH_REQUIRED";
+  packages: number; newRecords: number; changed: number; unchanged: number; notOffered: number; unknown: number; reason?: string;
+};
+
+/** Popular destinations used only to rank the action list. */
+export const POPULAR_ISOS = new Set(["TR", "US", "GB", "DE", "FR", "IT", "ES", "GR", "JP", "TH", "AE", "NL", "CH", "AT", "PT", "CN", "KR", "EG", "SA", "MA", "CA", "MX", "ID", "VN", "SG"]);
+
+export function compareFull(checks: CountryCheck[], base: BaseRow[], existing: CompetitorPrice[], extra: { notFound: string[]; matchRequired: string[] }) {
+  const byIso = new Map(checks.map((c) => [c.iso, c]));
+  const items: CompareItem[] = [];
+  for (const b of base) {
+    const c = byIso.get(b.iso);
+    const profit = b.price != null && b.cost != null ? round2(b.price - b.cost) : null;
+    const margin = profit != null && b.price ? round2((profit / b.price) * 100) : null;
+    const lowMargin = margin != null && margin < b.minMargin;
+    const blank = { iso: b.iso, key: b.key, cost: b.cost, price: b.price, airalo: null, airaloKey: null, quality: "NO_MATCH" as MatchQuality, previousAiralo: null, diff: null, diffPct: null, profit, margin, lowMargin };
+    if (!c) { items.push({ ...blank, status: "UNKNOWN" }); continue; }
+    if (c.status !== "OK") { items.push({ ...blank, status: "RESEARCH_FAILED" }); continue; }
+    const live = c.packages.map((p) => ({ id: p.key, competitor: "Airalo", iso: c.iso, key: p.key, price: p.price, currency: "EUR", source: c.source, checkedAt: "" }));
+    const m = matchCompetitor(b.key, live);
+    if (!m.entry) { items.push({ ...blank, status: c.nonEur.length ? "UNKNOWN" : "NOT_OFFERED" }); continue; }
+    const prev = existing.find((e) => isAiralo(e) && e.iso === c.iso && e.key === m.entry!.key);
+    const cmp = compareWithCompetitor({ price: b.price, cost: b.cost, minMargin: b.minMargin, entry: m.entry });
+    items.push({ ...blank, airalo: m.entry.price, airaloKey: m.entry.key, quality: m.quality, previousAiralo: prev && prev.currency === "EUR" ? prev.price : null, diff: cmp.diff, diffPct: cmp.diffPct, status: cmp.indicator === "NO_DATA" ? "UNKNOWN" : cmp.indicator });
+  }
+  const comparable = items.filter((i) => i.airalo != null && i.diff != null);
+  const count = (s: CompareStatus) => items.filter((i) => i.status === s).length;
+  const changePct = (i: CompareItem) => (i.previousAiralo && i.airalo ? Math.abs((i.airalo - i.previousAiralo) / i.previousAiralo) * 100 : 0);
+  const score = (i: CompareItem) => (i.status === "EXPENSIVE" ? 1000 : 0) + Math.max(0, i.diffPct ?? 0) * 3 + Math.max(0, i.diff ?? 0) * 2
+    + (i.lowMargin ? 40 : 0) + (POPULAR_ISOS.has(i.iso) ? 30 : 0) + Math.min(20, (i.cost ?? 0) / 2) + Math.min(20, changePct(i));
+  const actions = comparable.filter((i) => i.status === "EXPENSIVE" || i.lowMargin).sort((a, b) => score(b) - score(a)).slice(0, 60);
+  const topExpensive = comparable.filter((i) => (i.diff ?? 0) > 0).sort((a, b) => (b.diffPct ?? 0) - (a.diffPct ?? 0)).slice(0, 30);
+  const lowestMargin = comparable.filter((i) => i.margin != null).sort((a, b) => (a.margin ?? 0) - (b.margin ?? 0)).slice(0, 30);
+  const lowMarginList = comparable.filter((i) => i.lowMargin).sort((a, b) => (a.margin ?? 0) - (b.margin ?? 0));
+  const plan = planLiveCheck(checks, existing, Object.fromEntries([...new Set(base.map((b) => b.iso))].map((iso) => [iso, base.filter((b) => b.iso === iso).map((b) => b.key)])));
+  const countries: CountryRow[] = checks.map((c) => {
+    const ch = plan.changes.filter((x) => x.iso === c.iso);
+    const its = items.filter((i) => i.iso === c.iso);
+    const n = (k: ChangeKind) => ch.filter((x) => x.kind === k).length;
+    if (c.status !== "OK") return { iso: c.iso, retrieval: "RESEARCH_FAILED", packages: 0, newRecords: 0, changed: 0, unchanged: 0, notOffered: 0, unknown: its.length, reason: c.reason };
+    const partial = c.nonEur.length > 0 || n("POSSIBLY_REMOVED") > 0;
+    return { iso: c.iso, retrieval: partial ? "PARTIAL" : "COMPLETE", packages: c.packages.length + c.nonEur.length, newRecords: n("NEW"), changed: n("PRICE_CHANGED"), unchanged: n("UNCHANGED"),
+      notOffered: its.filter((i) => i.status === "NOT_OFFERED").length, unknown: its.filter((i) => i.status === "UNKNOWN").length };
+  });
+  for (const iso of extra.notFound) countries.push({ iso, retrieval: "NOT_FOUND", packages: 0, newRecords: 0, changed: 0, unchanged: 0, notOffered: 0, unknown: items.filter((i) => i.iso === iso).length });
+  for (const iso of extra.matchRequired) countries.push({ iso, retrieval: "COUNTRY_MATCH_REQUIRED", packages: 0, newRecords: 0, changed: 0, unchanged: 0, notOffered: 0, unknown: items.filter((i) => i.iso === iso).length });
+  const okChecks = checks.filter((c): c is Extract<CountryCheck, { status: "OK" }> => c.status === "OK");
+  const standard = okChecks.reduce((a, c) => a + c.packages.filter((p) => !p.key.startsWith("U|")).length, 0);
+  return {
+    summary: { ...plan.summary, countriesNotFound: extra.notFound.length, countryMatchRequired: extra.matchRequired.length, standard, unlimited: okChecks.reduce((a, c) => a + c.packages.length, 0) - standard,
+      eurVerified: okChecks.reduce((a, c) => a + c.packages.length, 0),
+      comparable: comparable.length, cheaper: count("CHEAPER"), close: count("CLOSE"), expensive: count("EXPENSIVE"), cheaperLowMargin: count("CHEAPER_LOW_MARGIN"),
+      notOfferedPkgs: count("NOT_OFFERED"), unknownPkgs: count("UNKNOWN") + count("RESEARCH_FAILED"), lowMarginAll: lowMarginList.length },
+    changes: plan.changes.filter((c) => c.kind !== "UNCHANGED"), countries, actions, topExpensive, lowestMargin, lowMarginList: lowMarginList.slice(0, 100),
+  };
 }

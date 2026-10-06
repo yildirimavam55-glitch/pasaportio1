@@ -12,8 +12,10 @@ import { getCountryPricing, getManualPricingOverview, previewCopyCountryPrices, 
 import { packageKeyLabel, profitAndMargin } from "@/domain/pricing/manual-prices";
 import { ageLabel, costAnomalies, evaluateCompetitive, type CompetitiveResult, type CompetitiveStatus } from "@/domain/pricing/competitive";
 import { commitResearchImport, getCompetitorStore, previewCompetitorImport, previewResearchImport, saveCompetitorPrices } from "@/lib/competitor-pricing.functions";
-import { commitAiraloLiveCheck, previewAiraloLiveCheck } from "@/lib/competitor-pricing.functions";
-import { missingAiraloLabel, type LiveChange } from "@/domain/pricing/airalo-live";
+import { commitAiraloLiveCheck, fetchAiraloCountries } from "@/lib/competitor-pricing.functions";
+import { planAiraloFullCheck } from "@/lib/manual-pricing.functions";
+import { AIRALO_DESTINATIONS } from "@/domain/pricing/airalo-destinations";
+import { missingAiraloLabel, type CompareItem, type CountryCheck, type CountryRow as AiraloCountryRow, type LiveChange } from "@/domain/pricing/airalo-live";
 import { compareWithCompetitor, matchCompetitor, type AiraloIndicator, type MatchQuality } from "@/domain/pricing/airalo";
 
 export const Route = createFileRoute("/_authenticated/admin/manual-pricing")({
@@ -493,34 +495,86 @@ function ResearchImport({ fileId, label, history }: { fileId: string; label: str
 }
 
 const KIND_LABEL: Record<LiveChange["kind"], string> = { NEW: "NEW", PRICE_CHANGED: "PRICE CHANGED", UNCHANGED: "UNCHANGED", POSSIBLY_REMOVED: "POSSIBLY REMOVED", CURRENCY_NOT_EUR: "EUR fiyatı doğrulanamadı" };
-/** Admin-triggered only: retrieves Airalo public pages, previews, writes Airalo rows only after confirmation. */
+const RETRIEVAL_LABEL: Record<AiraloCountryRow["retrieval"], string> = { COMPLETE: "🟢 COMPLETE AIRALO CATALOGUE RETRIEVED", PARTIAL: "🟡 PARTIAL / REVIEW", RESEARCH_FAILED: "🔴 RESEARCH FAILED", NOT_FOUND: "⚪ AIRALO DESTINATION NOT FOUND", COUNTRY_MATCH_REQUIRED: "🟡 COUNTRY_MATCH_REQUIRED" };
+const LIVE_STATUS_LABEL: Record<CompareItem["status"], string> = { CHEAPER: "🟢 AIRALO'DAN UCUZ", CLOSE: "🟡 AIRALO'YA YAKIN", EXPENSIVE: "🔴 AIRALO'DAN PAHALI", CHEAPER_LOW_MARGIN: "🟠 AIRALO'DAN UCUZ AMA MARJ DÜŞÜK", NO_DATA: "⚪ AIRALO VERİSİ BİLİNMİYOR", NOT_OFFERED: "⚪ AIRALO'DA YOK", UNKNOWN: "⚪ AIRALO VERİSİ BİLİNMİYOR", RESEARCH_FAILED: "⚪ AIRALO VERİSİ BİLİNMİYOR" };
+const eur = (v: number | null) => (v == null ? "—" : `€${v.toFixed(2)}`);
+const livePct = (v: number | null) => (v == null ? "—" : `${v > 0 ? "+" : ""}${v.toFixed(1)}%`);
+const BATCH = 4;
+
+function ItemTable({ title, items, mode }: { title: string; items: CompareItem[]; mode: "diff" | "margin" }) {
+  if (!items.length) return null;
+  return <details className="mt-2 rounded border border-border p-2"><summary className="cursor-pointer font-bold">{title} ({items.length})</summary>
+    <div className="mt-1 overflow-x-auto"><table className="w-full text-left tabular-nums"><thead className="text-muted-foreground"><tr><th>Ülke</th><th>Paket</th><th>Maliyet</th><th>Pasaport</th><th>Airalo</th>{mode === "diff" ? <><th>Fark €</th><th>Fark %</th></> : <th>Kâr</th>}<th>Marj</th><th>Durum</th></tr></thead>
+      <tbody>{items.map((i) => <tr key={`${i.iso}|${i.key}`} className="border-t border-border/50"><td>{countryName(i.iso)}</td><td>{packageKeyLabel(i.key)}{i.quality === "SHORTER_VALIDITY" ? " · PASAPORT DAHA UZUN GEÇERLİLİK" : ""}</td><td>{eur(i.cost)}</td><td>{eur(i.price)}</td><td>{eur(i.airalo)}</td>
+        {mode === "diff" ? <><td>{eur(i.diff)}</td><td>{livePct(i.diffPct)}</td></> : <td>{eur(i.profit)}</td>}<td>{i.margin == null ? "—" : `${i.margin.toFixed(1)}%`}</td><td className="whitespace-nowrap">{LIVE_STATUS_LABEL[i.status]}</td></tr>)}</tbody></table></div></details>;
+}
+
+/** Admin-triggered only: reads each mapped Airalo country page once, previews, writes Airalo rows only after confirmation. */
 function AiraloLiveCheck() {
   const queryClient = useQueryClient();
-  const preview = useMutation({ mutationFn: () => previewAiraloLiveCheck() });
+  const queue = useMemo(() => Object.keys(AIRALO_DESTINATIONS).sort(), []);
+  const [checks, setChecks] = useState<CountryCheck[] | null>(null);
+  const [progress, setProgress] = useState<{ done: number; running: boolean; stop: boolean }>({ done: 0, running: false, stop: false });
+  const stopRef = useMemo(() => ({ stop: false }), []);
+  const plan = useMutation({ mutationFn: (c: CountryCheck[]) => planAiraloFullCheck({ data: { checks: c } }) });
   const commit = useMutation({
-    mutationFn: () => commitAiraloLiveCheck({ data: { checks: preview.data!.checks } }),
-    onSuccess: async (r) => { toast.success(`Airalo verileri güncellendi: ${r.newRecords} yeni, ${r.changed} değişti.`); preview.reset(); await queryClient.invalidateQueries({ queryKey: ["manual-pricing"] }); },
+    mutationFn: () => commitAiraloLiveCheck({ data: { checks: checks! } }),
+    onSuccess: async (r) => { toast.success(`Airalo verileri güncellendi: ${r.newRecords} yeni, ${r.changed} değişti.`); setChecks(null); plan.reset(); await queryClient.invalidateQueries({ queryKey: ["manual-pricing"] }); },
     onError: (e: Error) => toast.error(e.message || "Güncellenemedi."),
   });
-  const d = preview.data, s = d?.summary;
-  const items: [string, number][] = s ? [["Kontrol edilen ülke", s.countriesRetrieved], ["Airalo veri paketi", s.dataOnly], ["NEW", s.newRecords], ["PRICE CHANGED", s.changed], ["UNCHANGED", s.unchanged], ["POSSIBLY REMOVED", s.possiblyRemoved], ["AIRALO NOT OFFERED", s.notOffered], ["UNKNOWN", s.unknown], ["RESEARCH FAILED", s.failed], ["NON-EUR", s.nonEur], ["Hariç: arama/SMS", s.excludedVoice]] : [];
-  const shown = (d?.changes ?? []).filter((c) => c.kind !== "UNCHANGED");
+  const run = async () => {
+    stopRef.stop = false;
+    const got = new Map<string, CountryCheck>();
+    setChecks(null); plan.reset(); setProgress({ done: 0, running: true, stop: false });
+    let blocked: string | null = null;
+    for (let i = 0; i < queue.length; i += BATCH) {
+      const batch = queue.slice(i, i + BATCH).filter((iso) => !got.has(iso));
+      if (blocked || stopRef.stop) {
+        for (const iso of batch) got.set(iso, { iso, status: "RESEARCH_FAILED", source: `https://www.airalo.com/${AIRALO_DESTINATIONS[iso]}-esim`, reason: blocked ?? "Admin tarafından durduruldu" });
+        continue;
+      }
+      try {
+        const r = await fetchAiraloCountries({ data: { isos: batch } });
+        for (const c of r.checks) got.set(c.iso, c);
+        if (r.checks.some((c) => c.status === "RESEARCH_FAILED" && /HTTP (403|429)/.test(c.reason))) blocked = "Airalo erişimi kısıtladı; kontrol durduruldu";
+      } catch (e) {
+        for (const iso of batch) got.set(iso, { iso, status: "RESEARCH_FAILED", source: `https://www.airalo.com/${AIRALO_DESTINATIONS[iso]}-esim`, reason: e instanceof Error ? e.message.slice(0, 150) : "Hata" });
+      }
+      setProgress({ done: got.size, running: true, stop: false });
+    }
+    const all = queue.map((iso) => got.get(iso)!).filter(Boolean);
+    setChecks(all); setProgress({ done: all.length, running: false, stop: false });
+    plan.mutate(all);
+  };
+  const d = plan.data, s = d?.summary;
+  const items: [string, number | string][] = s && d ? [
+    ["Pasaport ülkeleri", d.pasaportCountries], ["İstenen ülke", s.countriesRequested + s.countriesNotFound + s.countryMatchRequired], ["Başarıyla kontrol edilen", s.countriesRetrieved], ["Airalo'da bulunamadı", s.countriesNotFound], ["COUNTRY_MATCH_REQUIRED", s.countryMatchRequired], ["RESEARCH FAILED", s.failed],
+    ["Airalo veri paketi", s.dataOnly], ["Standard", s.standard], ["Unlimited", s.unlimited], ["Hariç: arama/SMS", s.excludedVoice], ["EUR doğrulandı", s.eurVerified], ["NON-EUR", s.nonEur],
+    ["NEW", s.newRecords], ["PRICE CHANGED", s.changed], ["UNCHANGED", s.unchanged], ["POSSIBLY REMOVED", s.possiblyRemoved],
+    ["Karşılaştırılabilir", s.comparable], ["🟢 Ucuz", s.cheaper], ["🟡 Yakın", s.close], ["🔴 Pahalı", s.expensive], ["🟠 Ucuz ama marj düşük", s.cheaperLowMargin], ["⚪ AIRALO NOT OFFERED", s.notOfferedPkgs], ["⚪ AIRALO DATA UNKNOWN", s.unknownPkgs],
+  ] : [];
   return <section className="mb-3 rounded-lg border border-primary/30 p-2.5 text-xs">
     <p className="text-sm font-bold">Airalo Fiyat Güncelleme</p>
-    <p className="mb-2 mt-0.5 text-muted-foreground">Almanya, Türkiye, Birleşik Krallık, ABD ve Japonya için Airalo'nun herkese açık ülke sayfaları ülke başına bir kez okunur. Yalnızca EUR ve yalnızca veri paketleri. Önizleme kaydetmez; Pasaport fiyatları hiçbir zaman değişmez.</p>
-    {!d && <Button size="sm" variant="cta" disabled={preview.isPending} onClick={() => preview.mutate()}>{preview.isPending ? "Kontrol ediliyor…" : "AIRALO FİYATLARINI KONTROL ET"}</Button>}
-    {preview.error && <p className="mt-2 text-destructive">Airalo kontrolü başarısız: {(preview.error as Error).message}</p>}
+    <p className="mb-2 mt-0.5 text-muted-foreground">Eşleşen {queue.length} ülkenin Airalo sayfası sırayla, ülke başına bir kez okunur. Yalnızca EUR ve yalnızca veri paketleri. Önizleme kaydetmez; Pasaport fiyatları hiçbir zaman değişmez.</p>
+    {!progress.running && !d && <Button size="sm" variant="cta" disabled={plan.isPending} onClick={() => void run()}>{plan.isPending ? "Karşılaştırılıyor…" : "AIRALO FİYATLARINI KONTROL ET"}</Button>}
+    {progress.running && <div className="flex items-center gap-2"><span>Kontrol ediliyor… {progress.done}/{queue.length} ülke</span><Button size="sm" variant="outline" onClick={() => { stopRef.stop = true; }}>Durdur</Button></div>}
+    {plan.error && <p className="mt-2 text-destructive">Karşılaştırma başarısız: {(plan.error as Error).message}</p>}
     {d && s && <div className="mt-2">
-      <p className="font-bold">AIRALO FİYAT KONTROLÜ · {trDateTime(d.checkedAt)}</p>
+      <p className="font-bold">AIRALO FULL PRICE CHECK · {trDateTime(d.checkedAt)}</p>
       <dl className="mt-1 grid grid-cols-2 gap-x-3 gap-y-0.5 sm:grid-cols-4">{items.map(([k, v]) => <div key={k} className="flex justify-between gap-2 rounded bg-secondary/40 px-2 py-1"><dt className="text-muted-foreground">{k}</dt><dd className="font-bold tabular-nums">{v}</dd></div>)}</dl>
-      {d.checks.filter((c) => c.status === "RESEARCH_FAILED").map((c) => <p key={c.iso} className="mt-1 text-destructive">{countryName(c.iso)}: Airalo kontrolü başarısız ({"reason" in c ? c.reason : ""}) — mevcut fiyatlar korunur</p>)}
-      <ul className="mt-2 max-h-80 space-y-1 overflow-y-auto">{shown.map((c) => <li key={`${c.iso}-${c.key}`} className="grid grid-cols-[minmax(0,1fr)_auto] gap-2 rounded bg-secondary/40 px-2 py-1">
-        <span className="min-w-0"><span className="flex items-center gap-1.5 font-semibold"><CountryFlag iso={c.iso} className="size-4" />{countryName(c.iso)} · {packageKeyLabel(c.key)}</span>
-          <span className="block tabular-nums text-muted-foreground">Mevcut Airalo {euro(c.previous)} · Güncel Airalo {c.current == null ? (c.kind === "POSSIBLY_REMOVED" ? "bulunamadı (son fiyat korunur)" : "—") : euro(c.current)}{c.previous != null && c.current != null ? ` · Değişim ${c.current >= c.previous ? "+" : "−"}${euro(Math.abs(c.current - c.previous))} · ${c.current >= c.previous ? "+" : "−"}%${Math.abs(((c.current - c.previous) / c.previous) * 100).toFixed(1)}` : ""}</span></span>
-        <span className="self-center rounded-full bg-background px-2 py-0.5 text-[10px] font-bold">{KIND_LABEL[c.kind]}</span>
-      </li>)}</ul>
+      <details className="mt-2 rounded border border-border p-2"><summary className="cursor-pointer font-bold">Ülke sonuçları ({d.countries.length})</summary>
+        <div className="mt-1 overflow-x-auto"><table className="w-full text-left tabular-nums"><thead className="text-muted-foreground"><tr><th>Ülke</th><th>Airalo</th><th>Paket</th><th>Yeni</th><th>Değişti</th><th>Aynı</th><th>Yok</th><th>Bilinmiyor</th></tr></thead>
+          <tbody>{d.countries.map((c) => <tr key={c.iso} className="border-t border-border/50"><td>{countryName(c.iso)}</td><td className="whitespace-nowrap" title={c.reason}>{RETRIEVAL_LABEL[c.retrieval]}</td><td>{c.packages}</td><td>{c.newRecords}</td><td>{c.changed}</td><td>{c.unchanged}</td><td>{c.notOffered}</td><td>{c.unknown}</td></tr>)}</tbody></table></div></details>
+      <details className="mt-2 rounded border border-border p-2"><summary className="cursor-pointer font-bold">Airalo fiyat değişiklikleri ({d.changes.length})</summary>
+        <ul className="mt-1 space-y-1">{d.changes.map((c) => <li key={`${c.iso}|${c.key}|${c.kind}`} className="flex flex-wrap justify-between gap-2 rounded bg-secondary/40 px-2 py-1">
+          <span>{countryName(c.iso)} · {packageKeyLabel(c.key)} · Eski {eur(c.previous)} → Yeni {eur(c.current)}{c.previous != null && c.current != null ? ` · ${eur(Math.round((c.current - c.previous) * 100) / 100)} · ${livePct(((c.current - c.previous) / c.previous) * 100)}` : ""}</span>
+          <span className="rounded-full bg-background px-2 py-0.5 text-[10px] font-bold">{KIND_LABEL[c.kind]}</span></li>)}</ul></details>
+      <ItemTable title="FİYAT AKSİYONLARI" items={d.actions} mode="diff" />
+      <ItemTable title="DÜŞÜK MARJLI PAKETLER" items={d.lowMarginList} mode="margin" />
+      <ItemTable title="TOP 30 PASAPORT > AIRALO" items={d.topExpensive} mode="diff" />
+      <ItemTable title="TOP 30 EN DÜŞÜK MARJ" items={d.lowestMargin} mode="margin" />
       <div className="mt-2 flex flex-wrap gap-2">
-        <Button size="sm" variant="outline" disabled={commit.isPending} onClick={() => preview.reset()}>İptal</Button>
+        <Button size="sm" variant="outline" disabled={commit.isPending} onClick={() => { setChecks(null); plan.reset(); }}>İptal</Button>
         {s.countriesRetrieved > 0 && <Button size="sm" variant="cta" disabled={commit.isPending} onClick={() => commit.mutate()}>Airalo verilerini güncelle</Button>}
       </div>
     </div>}

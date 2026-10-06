@@ -4,8 +4,9 @@ import { adminDb, audit, type AdminCtx } from "@/lib/admin-guard";
 import { parseCompetitorCsv, type CompetitorPrice } from "@/domain/pricing/competitive";
 import { COMPETITOR_SETTINGS_ID, loadStore, sanitizeStore } from "@/lib/competitor-pricing.server";
 import { z } from "zod";
-import { packageKey } from "@/domain/pricing/manual-prices";
-import { AIRALO_PILOT_COUNTRIES, airaloPageUrl, applyLiveCheck, normalizeCountry, planLiveCheck, type CountryCheck } from "@/domain/pricing/airalo-live";
+import { airaloCheckSchema } from "@/domain/pricing/airalo-check-schema";
+import { AIRALO_DESTINATIONS } from "@/domain/pricing/airalo-destinations";
+import { airaloPageUrl, applyLiveCheck, normalizeCountry, planLiveCheck, type CountryCheck } from "@/domain/pricing/airalo-live";
 import { planResearchImport, type ResearchFile } from "@/domain/pricing/airalo";
 import airaloResearch from "@/data/airalo-research-2026-10-05.json";
 import airaloResearch2 from "@/data/airalo-research-2026-10-05-video2.json";
@@ -123,24 +124,11 @@ export const saveCompetitorPrices = createServerFn({ method: "POST" })
 // ---------- Airalo public retail check (Admin-triggered only) ----------
 
 const ISO_RE = /^[A-Z]{2}$/;
-const KEY_RE = /^(U|\d+(\.\d+)?)\|\d+$/;
+const slugFor = (iso: string) => AIRALO_DESTINATIONS[iso] ? `${AIRALO_DESTINATIONS[iso]}-esim` : "";
 
-async function pasaportKeys(db: any, isos: string[]) {
-  const { data, error } = await db.from("esim_product_details").select("country_iso, data_gb, unlimited_data, validity_days").in("country_iso", isos).limit(5000);
-  if (error) throw new Error(error.message);
-  const out: Record<string, string[]> = {};
-  for (const r of data ?? []) {
-    if (!r.validity_days || (!r.unlimited_data && !(Number(r.data_gb) > 0))) continue;
-    const key = packageKey({ unlimited: !!r.unlimited_data, dataGb: r.unlimited_data ? null : Number(r.data_gb), validityDays: Number(r.validity_days) });
-    const list = (out[r.country_iso] ??= []);
-    if (!list.includes(key)) list.push(key);
-  }
-  return out;
-}
-
-/** One plain public page request per country; any non-200, block page or unknown structure is RESEARCH_FAILED. */
+/** One plain public page request per country; any non-200, block page or unknown structure is RESEARCH_FAILED. No retries. */
 async function fetchCountry(iso: string): Promise<CountryCheck> {
-  const source = airaloPageUrl(AIRALO_PILOT_COUNTRIES[iso] ?? "");
+  const source = airaloPageUrl(slugFor(iso));
   try {
     const res = await fetch(source, { headers: { "User-Agent": "PasaportPriceResearch/1.0 (admin competitor research)", Accept: "text/html" }, redirect: "follow", signal: AbortSignal.timeout(15_000) });
     if (res.status !== 200) return normalizeCountry(iso, source, null, `HTTP ${res.status}`);
@@ -150,24 +138,22 @@ async function fetchCountry(iso: string): Promise<CountryCheck> {
   }
 }
 
-/** Retrieves the pilot countries and returns a diff preview. Nothing is written. */
-export const previewAiraloLiveCheck = createServerFn({ method: "POST" })
+/** Retrieves a small batch of mapped countries sequentially (one page each, short pause). Nothing is written. */
+export const fetchAiraloCountries = createServerFn({ method: "POST" })
+  .inputValidator((input: { isos: string[] }) => ({ isos: z.array(z.string().regex(ISO_RE)).min(1).max(5).parse(input.isos) }))
   .middleware([requireSupabaseAuth])
-  .handler(async ({ context }) => {
-    const db = await adminDb(context as AdminCtx);
-    const isos = Object.keys(AIRALO_PILOT_COUNTRIES);
+  .handler(async ({ context, data }) => {
+    await adminDb(context as AdminCtx);
     const checks: CountryCheck[] = [];
-    for (const iso of isos) checks.push(await fetchCountry(iso)); // sequential, one request per country
-    const [store, keys] = await Promise.all([loadStore(db), pasaportKeys(db, isos)]);
-    const plan = planLiveCheck(checks, store.entries, keys);
-    return { checkedAt: new Date().toISOString(), checks, ...plan };
+    for (const iso of [...new Set(data.isos)]) {
+      if (!AIRALO_DESTINATIONS[iso]) continue;
+      if (checks.length) await new Promise((r) => setTimeout(r, 400));
+      checks.push(await fetchCountry(iso));
+    }
+    return { checks };
   });
 
-const checkSchema = z.array(z.discriminatedUnion("status", [
-  z.object({ iso: z.string().regex(ISO_RE), status: z.literal("OK"), source: z.string().max(200), excludedVoice: z.number().int().min(0).max(500),
-    nonEur: z.array(z.string().regex(KEY_RE)).max(200), packages: z.array(z.object({ key: z.string().regex(KEY_RE), price: z.number().positive().max(1000) })).max(200) }),
-  z.object({ iso: z.string().regex(ISO_RE), status: z.literal("RESEARCH_FAILED"), source: z.string().max(200), reason: z.string().max(200) }),
-])).max(10);
+const checkSchema = airaloCheckSchema;
 
 /** Explicit Admin confirmation: updates Airalo competitor rows only; Pasaport prices are never touched. */
 export const commitAiraloLiveCheck = createServerFn({ method: "POST" })
@@ -175,7 +161,7 @@ export const commitAiraloLiveCheck = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context, data }) => {
     for (const c of data.checks) {
-      if (!AIRALO_PILOT_COUNTRIES[c.iso] || c.source !== airaloPageUrl(AIRALO_PILOT_COUNTRIES[c.iso] ?? "")) throw new Error("Geçersiz Airalo kaynağı");
+      if (!AIRALO_DESTINATIONS[c.iso] || c.source !== airaloPageUrl(slugFor(c.iso))) throw new Error("Geçersiz Airalo kaynağı");
     }
     const db = await adminDb(context as AdminCtx);
     const store = await loadStore(db);
