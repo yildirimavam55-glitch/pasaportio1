@@ -23,7 +23,12 @@ export function sanitizeStore(raw: any): CompetitorStore {
       ...(e.active === false ? { active: false } : {}),
       ...(typeof e.verifiedAt === "string" ? { verifiedAt: e.verifiedAt.slice(0, 40) } : {}),
       ...(Array.isArray(e.priceHistory) ? { priceHistory: e.priceHistory.filter((h: any) => Number(h?.price) > 0 && /^[A-Z]{3}$/.test(h?.currency) && typeof h?.checkedAt === "string")
-        .slice(-20).map((h: any) => ({ price: round2(Number(h.price)), currency: h.currency, checkedAt: String(h.checkedAt).slice(0, 40) })) } : {}) }];
+        .slice(-20).map((h: any) => ({ price: round2(Number(h.price)), currency: h.currency, checkedAt: String(h.checkedAt).slice(0, 40) })) } : {}),
+      ...(Number.isInteger(e.offers) && e.offers > 0 && e.offers < 100 ? { offers: e.offers } : {}),
+      ...(Array.isArray(e.alternatives) ? { alternatives: e.alternatives.map(Number).filter((x: number) => x > 0 && x < 10000).slice(0, 10).map(round2) } : {}),
+      ...(e.promotional === true ? { promotional: true } : {}),
+      ...(e.possiblyRemoved && typeof e.possiblyRemoved.since === "string" && typeof e.possiblyRemoved.lastCheckedAt === "string"
+        ? { possiblyRemoved: { since: e.possiblyRemoved.since.slice(0, 40), lastCheckedAt: e.possiblyRemoved.lastCheckedAt.slice(0, 40), checks: Math.max(1, Math.min(999, Number(e.possiblyRemoved.checks) || 1)) } } : {}) }];
   }).slice(0, 5000);
   const p = raw?.policy ?? {};
   const n = (v: unknown, d: number, lo: number, hi: number) => { const x = Number(v); return Number.isFinite(x) && x >= lo && x <= hi ? x : d; };

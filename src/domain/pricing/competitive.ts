@@ -22,6 +22,14 @@ export type CompetitorPrice = {
   verifiedAt?: string;
   /** Previous verified prices, oldest first; never silently dropped on change. */
   priceHistory?: { price: number; currency: string; checkedAt: string }[];
+  /** Number of matching data-only offers seen on the public page (lowest is the benchmark). */
+  offers?: number;
+  /** Other matching data-only offer prices on the same page (same currency). */
+  alternatives?: number[];
+  /** The public page marked this price with a broadly visible promotion. */
+  promotional?: boolean;
+  /** Previously verified, absent from a later successful check. Kept, but never used as a benchmark. */
+  possiblyRemoved?: { since: string; lastCheckedAt: string; checks: number };
 };
 
 /** A market reference needs at least this many distinct reliable competitors. */
@@ -111,7 +119,7 @@ export function evaluateCompetitive(input: {
 }): CompetitiveResult {
   const policy = input.policy ?? DEFAULT_POLICY;
   const now = input.now ?? new Date();
-  const competitors = input.competitors.filter((c) => c.active !== false).map((c) => {
+  const competitors = input.competitors.filter((c) => c.active !== false && !c.possiblyRemoved).map((c) => {
     const eur = toEur(c.price, c.currency, input.rates);
     const stale = ageDays(c.checkedAt, now) > policy.staleDays;
     return { ...c, eur, stale, usable: eur != null && !stale };
