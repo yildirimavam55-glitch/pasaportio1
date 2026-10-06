@@ -495,7 +495,7 @@ function ResearchImport({ fileId, label, history }: { fileId: string; label: str
 }
 
 const KIND_LABEL: Record<LiveChange["kind"], string> = { NEW: "NEW", PRICE_CHANGED: "PRICE CHANGED", UNCHANGED: "UNCHANGED", POSSIBLY_REMOVED: "POSSIBLY REMOVED", CURRENCY_NOT_EUR: "EUR fiyatı doğrulanamadı" };
-const RETRIEVAL_LABEL: Record<AiraloCountryRow["retrieval"], string> = { COMPLETE: "🟢 COMPLETE AIRALO CATALOGUE RETRIEVED", PARTIAL: "🟡 PARTIAL / REVIEW", RESEARCH_FAILED: "🔴 RESEARCH FAILED", NOT_FOUND: "⚪ AIRALO DESTINATION NOT FOUND", COUNTRY_MATCH_REQUIRED: "🟡 COUNTRY_MATCH_REQUIRED" };
+const RETRIEVAL_LABEL: Record<AiraloCountryRow["retrieval"], string> = { COMPLETE: "🟢 AIRALO KATALOĞU ALINDI", PARTIAL: "🟡 PARTIAL / REVIEW (EUR dışı)", RESEARCH_FAILED: "🔴 RESEARCH FAILED", NOT_FOUND: "⚪ AIRALO DESTINATION NOT FOUND", COUNTRY_MATCH_REQUIRED: "🟡 COUNTRY_MATCH_REQUIRED", SPECIAL_DESTINATION_MAPPING_REQUIRED: "🟡 ÖZEL BÖLGE — TEK FİYATLA EŞLEŞTİRİLEMEZ" };
 const LIVE_STATUS_LABEL: Record<CompareItem["status"], string> = { CHEAPER: "🟢 AIRALO'DAN UCUZ", CLOSE: "🟡 AIRALO'YA YAKIN", EXPENSIVE: "🔴 AIRALO'DAN PAHALI", CHEAPER_LOW_MARGIN: "🟠 AIRALO'DAN UCUZ AMA MARJ DÜŞÜK", NO_DATA: "⚪ AIRALO VERİSİ BİLİNMİYOR", NOT_OFFERED: "⚪ AIRALO'DA YOK", UNKNOWN: "⚪ AIRALO VERİSİ BİLİNMİYOR", RESEARCH_FAILED: "⚪ AIRALO VERİSİ BİLİNMİYOR" };
 const eur = (v: number | null) => (v == null ? "—" : `€${v.toFixed(2)}`);
 const livePct = (v: number | null) => (v == null ? "—" : `${v > 0 ? "+" : ""}${v.toFixed(1)}%`);
