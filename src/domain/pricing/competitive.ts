@@ -18,6 +18,10 @@ export type CompetitorPrice = {
   sourceType?: string;
   importedAt?: string;
   active?: boolean;
+  /** ISO timestamp of the last public-retail verification. */
+  verifiedAt?: string;
+  /** Previous verified prices, oldest first; never silently dropped on change. */
+  priceHistory?: { price: number; currency: string; checkedAt: string }[];
 };
 
 /** A market reference needs at least this many distinct reliable competitors. */

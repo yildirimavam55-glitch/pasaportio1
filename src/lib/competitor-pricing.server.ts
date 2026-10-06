@@ -1,3 +1,4 @@
+import type { LiveCheckRecord } from "@/domain/pricing/airalo-live";
 import { DEFAULT_COMPETITORS, DEFAULT_POLICY, round2, type CompetitivePolicy, type CompetitorPrice, type EurRates } from "@/domain/pricing/competitive";
 
 /** Admin-only research data in platform_settings; never touches catalogue or supplier rows. */
@@ -5,7 +6,7 @@ export const COMPETITOR_SETTINGS_ID = "competitor_prices";
 const RATE_MAX_AGE_DAYS = 7;
 
 export type ImportHistory = { at: string; competitor: string; file: string; checkedAt: string; sourceType: string; rows: number; countries: number; newRecords: number; updated: number; invalid: number; countryMatchRequired: number };
-export type CompetitorStore = { competitors: string[]; entries: CompetitorPrice[]; policy: CompetitivePolicy; history: ImportHistory[] };
+export type CompetitorStore = { competitors: string[]; entries: CompetitorPrice[]; policy: CompetitivePolicy; history: ImportHistory[]; liveChecks: Record<string, LiveCheckRecord> };
 
 export function sanitizeStore(raw: any): CompetitorStore {
   const names = Array.isArray(raw?.competitors) ? raw.competitors.map((n: unknown) => String(n ?? "").trim().slice(0, 60)) : [];
@@ -19,12 +20,22 @@ export function sanitizeStore(raw: any): CompetitorStore {
       ...(e.countryName ? { countryName: String(e.countryName).slice(0, 80) } : {}),
       ...(e.sourceType ? { sourceType: String(e.sourceType).slice(0, 40) } : {}),
       ...(e.importedAt ? { importedAt: String(e.importedAt).slice(0, 40) } : {}),
-      ...(e.active === false ? { active: false } : {}) }];
+      ...(e.active === false ? { active: false } : {}),
+      ...(typeof e.verifiedAt === "string" ? { verifiedAt: e.verifiedAt.slice(0, 40) } : {}),
+      ...(Array.isArray(e.priceHistory) ? { priceHistory: e.priceHistory.filter((h: any) => Number(h?.price) > 0 && /^[A-Z]{3}$/.test(h?.currency) && typeof h?.checkedAt === "string")
+        .slice(-20).map((h: any) => ({ price: round2(Number(h.price)), currency: h.currency, checkedAt: String(h.checkedAt).slice(0, 40) })) } : {}) }];
   }).slice(0, 5000);
   const p = raw?.policy ?? {};
   const n = (v: unknown, d: number, lo: number, hi: number) => { const x = Number(v); return Number.isFinite(x) && x >= lo && x <= hi ? x : d; };
   const history: ImportHistory[] = (Array.isArray(raw?.history) ? raw.history : []).filter((h: any) => h && typeof h.at === "string").slice(-50);
-  return { competitors, entries, history, policy: {
+  const liveChecks: Record<string, LiveCheckRecord> = {};
+  for (const [iso, c] of Object.entries(raw?.liveChecks ?? {}) as [string, any][]) {
+    if (!/^[A-Z]{2}$/.test(iso) || !c || typeof c.at !== "string" || (c.status !== "OK" && c.status !== "RESEARCH_FAILED")) continue;
+    liveChecks[iso] = { at: c.at.slice(0, 40), status: c.status, ...(c.reason ? { reason: String(c.reason).slice(0, 200) } : {}),
+      ...(typeof c.lastOkAt === "string" ? { lastOkAt: c.lastOkAt.slice(0, 40) } : {}),
+      ...(Array.isArray(c.offered) ? { offered: c.offered.filter((k: unknown) => typeof k === "string" && /^(U|\d+(\.\d+)?)\|\d+$/.test(k)).slice(0, 200) } : {}) };
+  }
+  return { competitors, entries, history, liveChecks, policy: {
     targetFactor: n(p.targetFactor, DEFAULT_POLICY.targetFactor, 0.5, 1),
     staleDays: n(p.staleDays, DEFAULT_POLICY.staleDays, 1, 365),
     tolerancePct: n(p.tolerancePct, DEFAULT_POLICY.tolerancePct, 0, 50),

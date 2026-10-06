@@ -162,6 +162,7 @@ export const getCountryPricing = createServerFn({ method: "GET" })
       iso: data.iso,
       competitorNames: store.competitors,
       competitors: store.entries.filter((e) => e.iso === data.iso),
+      airaloCheck: store.liveChecks[data.iso] ?? null,
       rates, policy: store.policy,
       rows: rows
         .map((row) => ({ id: row.id, name: row.name, key: row.key, cost: row.cost, autoPrice: row.autoPrice, lifecycle: row.lifecycle, minMargin: row.minMargin, ...describe(row, config) }))

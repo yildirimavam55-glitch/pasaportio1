@@ -1,0 +1,2 @@
+- Competitor research lives only in the Admin-only `platform_settings` row `competitor_prices`; the engine only classifies and suggests, and customer prices change solely via an explicit Admin save of manual prices.
+- Research files and Airalo public retail checks (Admin-triggered, one public page per country, EUR data-only, preview then confirm) upsert by competitor+country+package; failures or absences never delete or null stored prices; a market median needs at least two distinct competitors.
