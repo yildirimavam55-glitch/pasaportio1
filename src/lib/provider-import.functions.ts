@@ -1,5 +1,6 @@
 import { privilegedAdminDb } from "@/lib/admin-guard";
 import { createServerFn } from "@tanstack/react-start";
+import { loadAiraloExactIndex, suggestionFor, type AiraloExactIndex } from "@/lib/pricing-suggestion.server";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { audit } from "@/lib/admin-guard";
@@ -213,6 +214,7 @@ export const applyEsimImport = createServerFn({ method: "POST" })
     let failed = 0;
     const errors: string[] = [];
 
+    let airaloIndex: AiraloExactIndex | null = null;
     for (const item of priced) {
       try {
         const hash = hashItem(item);
@@ -262,9 +264,13 @@ export const applyEsimImport = createServerFn({ method: "POST" })
             .from("service_products")
             .insert({
               ...base,
-              sale_price: item.salePrice,
-              lifecycle: data.publish ? "PUBLISHED" : "DRAFT",
-              customer_visible: data.publish,
+              // NEW product: off sale, no live price; approved-engine suggestion only.
+              sale_price: null,
+              margin_flagged: false,
+              pricing_review_required: true,
+              pricing_snapshot: suggestionFor(item, (airaloIndex ??= await loadAiraloExactIndex(db))) as any,
+              lifecycle: "DRAFT",
+              customer_visible: false,
             })
             .select("id")
             .single();
@@ -274,15 +280,16 @@ export const applyEsimImport = createServerFn({ method: "POST" })
         } else {
           const { data: current } = await db
             .from("service_products")
-            .select("price_overridden, lifecycle, customer_visible")
+            .select("price_overridden, sale_price, lifecycle, customer_visible")
             .eq("id", productId)
             .maybeSingle();
           const patch: Record<string, unknown> = { ...base };
           // Admin-owned marketing name is never silently overwritten by provider sync.
           delete patch["name"];
-          // Admin-owned sale price is never silently overwritten.
-          if (!current?.price_overridden) patch["sale_price"] = item.salePrice;
-          if (data.publish && ["IMPORTED", "DRAFT", "UNAVAILABLE"].includes(current?.lifecycle ?? "")) {
+          // Existing selling price, currency and pricing flags are never written by an import.
+          delete patch["currency"];
+          delete patch["margin_flagged"];
+          if (data.publish && current?.sale_price != null && ["IMPORTED", "DRAFT", "UNAVAILABLE"].includes(current?.lifecycle ?? "")) {
             patch["lifecycle"] = "PUBLISHED";
             patch["customer_visible"] = true;
           }
