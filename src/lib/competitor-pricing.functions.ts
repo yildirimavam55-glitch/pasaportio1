@@ -132,14 +132,15 @@ async function pasaportKeys(db: any, isos: string[]) {
   for (const r of data ?? []) {
     if (!r.validity_days || (!r.unlimited_data && !(Number(r.data_gb) > 0))) continue;
     const key = packageKey({ unlimited: !!r.unlimited_data, dataGb: r.unlimited_data ? null : Number(r.data_gb), validityDays: Number(r.validity_days) });
-    (out[r.country_iso] ??= []).includes(key) || out[r.country_iso].push(key);
+    const list = (out[r.country_iso] ??= []);
+    if (!list.includes(key)) list.push(key);
   }
   return out;
 }
 
 /** One plain public page request per country; any non-200, block page or unknown structure is RESEARCH_FAILED. */
 async function fetchCountry(iso: string): Promise<CountryCheck> {
-  const source = airaloPageUrl(AIRALO_PILOT_COUNTRIES[iso]);
+  const source = airaloPageUrl(AIRALO_PILOT_COUNTRIES[iso] ?? "");
   try {
     const res = await fetch(source, { headers: { "User-Agent": "PasaportPriceResearch/1.0 (admin competitor research)", Accept: "text/html" }, redirect: "follow", signal: AbortSignal.timeout(15_000) });
     if (res.status !== 200) return normalizeCountry(iso, source, null, `HTTP ${res.status}`);
@@ -174,7 +175,7 @@ export const commitAiraloLiveCheck = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context, data }) => {
     for (const c of data.checks) {
-      if (!AIRALO_PILOT_COUNTRIES[c.iso] || c.source !== airaloPageUrl(AIRALO_PILOT_COUNTRIES[c.iso])) throw new Error("Geçersiz Airalo kaynağı");
+      if (!AIRALO_PILOT_COUNTRIES[c.iso] || c.source !== airaloPageUrl(AIRALO_PILOT_COUNTRIES[c.iso] ?? "")) throw new Error("Geçersiz Airalo kaynağı");
     }
     const db = await adminDb(context as AdminCtx);
     const store = await loadStore(db);
