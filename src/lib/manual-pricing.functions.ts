@@ -9,6 +9,9 @@ import {
 } from "@/domain/pricing/manual-prices";
 import { costAnomalies, evaluateCompetitive, type CompetitiveStatus } from "@/domain/pricing/competitive";
 import { loadEurRates, loadStore } from "@/lib/competitor-pricing.server";
+import { compareFull, type BaseRow, type CountryCheck } from "@/domain/pricing/airalo-live";
+import { AIRALO_COUNTRY_MATCH_REQUIRED, AIRALO_DESTINATION_NOT_FOUND } from "@/domain/pricing/airalo-destinations";
+import { airaloCheckSchema } from "@/domain/pricing/airalo-check-schema";
 
 /**
  * Manual price layers live in the Admin-only platform_settings row "manual_pricing".
@@ -249,4 +252,31 @@ export const previewCopyCountryPrices = createServerFn({ method: "POST" })
     });
     const skipped = Object.keys(source).filter((k) => !targetKeys.has(k));
     return { matches, skipped };
+  });
+
+/**
+ * Full Airalo preview: compares retrieved Airalo catalogues (passed back by the Admin client)
+ * against published Pasaport packages. Read-only — no prices or competitor rows are written.
+ */
+export const planAiraloFullCheck = createServerFn({ method: "POST" })
+  .inputValidator((input: { checks: unknown }) => ({ checks: airaloCheckSchema.parse(input.checks) as CountryCheck[] }))
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context, data }) => {
+    const db = await adminDb(context as AdminCtx);
+    const [config, rows, store] = await Promise.all([loadConfig(db), loadRows(db), loadStore(db)]);
+    const best = new Map<string, BaseRow>();
+    for (const row of rows) {
+      if (!row.iso || row.lifecycle !== "PUBLISHED") continue;
+      const d = describe(row, config);
+      const k = `${row.iso}|${row.key}`;
+      const prev = best.get(k);
+      if (!prev || (row.cost ?? Infinity) < (prev.cost ?? Infinity)) best.set(k, { iso: row.iso, key: row.key, cost: row.cost, price: d.price, minMargin: row.minMargin });
+    }
+    const checkedIsos = new Set(data.checks.map((c) => c.iso));
+    const base = [...best.values()];
+    const result = compareFull(data.checks, base, store.entries, {
+      notFound: AIRALO_DESTINATION_NOT_FOUND.filter((i) => !checkedIsos.has(i)),
+      matchRequired: AIRALO_COUNTRY_MATCH_REQUIRED.filter((i) => !checkedIsos.has(i)),
+    });
+    return { checkedAt: new Date().toISOString(), pasaportCountries: new Set(base.map((b) => b.iso)).size, ...result };
   });
