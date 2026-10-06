@@ -806,3 +806,7 @@
 - [ ] Verify the restored page at mobile and desktop sizes without publishing.
 
 - [ ] Supplier-cost sync: update cost, never overwrite approved price, derive REPRICE_REQUIRED (never stops sales/unpublishes); cost >= price -> critical "SATIŞ FİYATI MALİYETİN ALTINDA / ZARAR RİSKİ" top of queue — waiting on approval of the audit design
+
+## Pricing sync protection
+- [x] Steps 1–3: sync/import/editor/manual-removal never overwrite existing prices; new products DRAFT + suggested price
+- [ ] Step 4: REPRICE_REQUIRED Admin queue (waits on approval)
