@@ -6,10 +6,12 @@ import { COMPETITOR_SETTINGS_ID, loadStore, sanitizeStore } from "@/lib/competit
 import { planResearchImport, type ResearchFile } from "@/domain/pricing/airalo";
 import airaloResearch from "@/data/airalo-research-2026-10-05.json";
 import airaloResearch2 from "@/data/airalo-research-2026-10-05-video2.json";
+import airaloResearch3 from "@/data/airalo-research-2026-10-05-video3.json";
 
 const RESEARCH_FILES: Record<string, ResearchFile & { file: string }> = {
   "airalo-2026-10-05": airaloResearch as ResearchFile & { file: string },
   "airalo-2026-10-05-video2": airaloResearch2 as ResearchFile & { file: string },
+  "airalo-2026-10-05-video3": airaloResearch3 as ResearchFile & { file: string },
 };
 
 async function catalogueIsos(db: any, isos: string[]) {
