@@ -62,6 +62,7 @@ import { Route as AuthenticatedAdminPricingRulesRouteImport } from './routes/_au
 import { Route as AuthenticatedAdminProductsRouteImport } from './routes/_authenticated/admin.products'
 import { Route as AuthenticatedAdminProvidersRouteImport } from './routes/_authenticated/admin.providers'
 import { Route as AuthenticatedAdminRefundsRouteImport } from './routes/_authenticated/admin.refunds'
+import { Route as AuthenticatedAdminRepricingRouteImport } from './routes/_authenticated/admin.repricing'
 import { Route as AuthenticatedAdminSecurityRouteImport } from './routes/_authenticated/admin.security'
 import { Route as AuthenticatedAdminServiceControlsRouteImport } from './routes/_authenticated/admin.service-controls'
 import { Route as AuthenticatedAdminTestCatalogueRouteImport } from './routes/_authenticated/admin.test-catalogue'
@@ -403,6 +404,12 @@ const AuthenticatedAdminRefundsRoute =
   AuthenticatedAdminRefundsRouteImport.update({
     id: '/admin/refunds',
     path: '/admin/refunds',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedAdminRepricingRoute =
+  AuthenticatedAdminRepricingRouteImport.update({
+    id: '/admin/repricing',
+    path: '/admin/repricing',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedAdminSecurityRoute =
@@ -832,6 +839,7 @@ export interface FileRoutesByFullPath {
   '/admin/products': typeof AuthenticatedAdminProductsRoute
   '/admin/providers': typeof AuthenticatedAdminProvidersRoute
   '/admin/refunds': typeof AuthenticatedAdminRefundsRoute
+  '/admin/repricing': typeof AuthenticatedAdminRepricingRoute
   '/admin/security': typeof AuthenticatedAdminSecurityRoute
   '/admin/service-controls': typeof AuthenticatedAdminServiceControlsRoute
   '/admin/test-catalogue': typeof AuthenticatedAdminTestCatalogueRoute
@@ -949,6 +957,7 @@ export interface FileRoutesByTo {
   '/admin/products': typeof AuthenticatedAdminProductsRoute
   '/admin/providers': typeof AuthenticatedAdminProvidersRoute
   '/admin/refunds': typeof AuthenticatedAdminRefundsRoute
+  '/admin/repricing': typeof AuthenticatedAdminRepricingRoute
   '/admin/security': typeof AuthenticatedAdminSecurityRoute
   '/admin/service-controls': typeof AuthenticatedAdminServiceControlsRoute
   '/admin/test-catalogue': typeof AuthenticatedAdminTestCatalogueRoute
@@ -1071,6 +1080,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/products': typeof AuthenticatedAdminProductsRoute
   '/_authenticated/admin/providers': typeof AuthenticatedAdminProvidersRoute
   '/_authenticated/admin/refunds': typeof AuthenticatedAdminRefundsRoute
+  '/_authenticated/admin/repricing': typeof AuthenticatedAdminRepricingRoute
   '/_authenticated/admin/security': typeof AuthenticatedAdminSecurityRoute
   '/_authenticated/admin/service-controls': typeof AuthenticatedAdminServiceControlsRoute
   '/_authenticated/admin/test-catalogue': typeof AuthenticatedAdminTestCatalogueRoute
@@ -1192,6 +1202,7 @@ export interface FileRouteTypes {
     | '/admin/products'
     | '/admin/providers'
     | '/admin/refunds'
+    | '/admin/repricing'
     | '/admin/security'
     | '/admin/service-controls'
     | '/admin/test-catalogue'
@@ -1309,6 +1320,7 @@ export interface FileRouteTypes {
     | '/admin/products'
     | '/admin/providers'
     | '/admin/refunds'
+    | '/admin/repricing'
     | '/admin/security'
     | '/admin/service-controls'
     | '/admin/test-catalogue'
@@ -1430,6 +1442,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/products'
     | '/_authenticated/admin/providers'
     | '/_authenticated/admin/refunds'
+    | '/_authenticated/admin/repricing'
     | '/_authenticated/admin/security'
     | '/_authenticated/admin/service-controls'
     | '/_authenticated/admin/test-catalogue'
@@ -1912,6 +1925,13 @@ declare module '@tanstack/react-router' {
       path: '/admin/refunds'
       fullPath: '/admin/refunds'
       preLoaderRoute: typeof AuthenticatedAdminRefundsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/admin/repricing': {
+      id: '/_authenticated/admin/repricing'
+      path: '/admin/repricing'
+      fullPath: '/admin/repricing'
+      preLoaderRoute: typeof AuthenticatedAdminRepricingRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/admin/security': {
@@ -2463,6 +2483,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminProductsRoute: typeof AuthenticatedAdminProductsRoute
   AuthenticatedAdminProvidersRoute: typeof AuthenticatedAdminProvidersRoute
   AuthenticatedAdminRefundsRoute: typeof AuthenticatedAdminRefundsRoute
+  AuthenticatedAdminRepricingRoute: typeof AuthenticatedAdminRepricingRoute
   AuthenticatedAdminSecurityRoute: typeof AuthenticatedAdminSecurityRoute
   AuthenticatedAdminServiceControlsRoute: typeof AuthenticatedAdminServiceControlsRoute
   AuthenticatedAdminTestCatalogueRoute: typeof AuthenticatedAdminTestCatalogueRoute
@@ -2511,6 +2532,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminProductsRoute: AuthenticatedAdminProductsRoute,
   AuthenticatedAdminProvidersRoute: AuthenticatedAdminProvidersRoute,
   AuthenticatedAdminRefundsRoute: AuthenticatedAdminRefundsRoute,
+  AuthenticatedAdminRepricingRoute: AuthenticatedAdminRepricingRoute,
   AuthenticatedAdminSecurityRoute: AuthenticatedAdminSecurityRoute,
   AuthenticatedAdminServiceControlsRoute:
     AuthenticatedAdminServiceControlsRoute,
