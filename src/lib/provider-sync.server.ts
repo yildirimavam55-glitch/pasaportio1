@@ -13,6 +13,7 @@
  *  - provider cost changes are always written to history
  */
 import { pricingFromRule } from "@/domain/pricing-rule";
+import { loadAiraloExactIndex, suggestionFor, type AiraloExactIndex } from "@/lib/pricing-suggestion.server";
 import { parseEsimCatalogue, priceItems, hashItem, type PricedItem, type PricingInput } from "@/domain/providers/esim-import";
 import {
   balanceHealth,
@@ -714,16 +715,7 @@ export async function runProviderSync(
           available: true,
         });
 
-        if (item.belowMinimumMargin) {
-          await db.from("ops_alerts").insert({
-            type: "MARGIN_BELOW_MINIMUM",
-            severity: "WARNING",
-            message: `${item.name}: provider maliyeti sonrası marj minimumun altında.`,
-            entity_type: "service_products",
-            entity_id: productId,
-            context: { externalId: item.externalId, marginPercent: item.marginPercent, providerCost: item.providerCost },
-          });
-        }
+        // Legacy-rule margin alerts removed: margins are judged on the live Pasaport price.
       } catch (error) {
         failed += 1;
         await db.from("provider_sync_errors").insert({
