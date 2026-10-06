@@ -16,6 +16,7 @@ import { coverageNames } from "@/domain/geo/region-search";
 import { useI18n } from "@/i18n";
 import { listEsimRegionPackages, type EsimPackage } from "@/lib/esim-catalogue.functions";
 import { localize } from "@/i18n/overlay";
+import { ESSENTIAL_FAIR_USE } from "@/domain/esim/fair-use";
 
 type ResultRegion = Exclude<CoverageRegionKey, "MULTI">;
 
