@@ -487,11 +487,11 @@ function ProductDrawer({ product, onClose }: { product: any; onClose: () => void
 
           <fieldset className="rounded-md border border-border p-3">
             <legend className="px-1 text-xs font-semibold">Fiyat kaynağı</legend>
-            <p className="text-[11px] text-muted-foreground">Genel fiyat kuralı {activePricing?.markupPercent != null ? `(%${activePricing.markupPercent})` : ""} → ürün manuel fiyatı yoksa geçerlidir.</p>
-            <label className="mt-2 flex items-center gap-2 text-xs font-semibold"><input type="radio" name="pricing-mode" checked={form.pricingMode === "AUTO"} onChange={() => set({ pricingMode: "AUTO" })} />Otomatik fiyat (kural)</label>
+            <p className="text-[11px] text-muted-foreground">Mevcut onaylı satış fiyatı korunur; eski otomatik kural fiyatı değiştirmez.</p>
+            <label className="mt-2 flex items-center gap-2 text-xs font-semibold"><input type="radio" name="pricing-mode" checked={form.pricingMode === "AUTO"} onChange={() => set({ pricingMode: "AUTO" })} />Mevcut fiyatı koru</label>
             <label className="mt-1 flex items-center gap-2 text-xs font-semibold"><input type="radio" name="pricing-mode" checked={form.pricingMode === "MANUAL"} onChange={() => set({ pricingMode: "MANUAL" })} />Manuel satış fiyatı</label>
             {form.pricingMode === "AUTO" && product.price_overridden && (
-              <p className="mt-2 text-[11px]">Kaydedince manuel fiyat kaldırılır ve fiyat {auto ? <strong>{money(auto.salePrice, activePricing!.currency)}</strong> : "kurala göre"} olur.{!auto && <span className="block font-semibold text-destructive">Geçerli kural bulunamadı; mevcut fiyat korunur.</span>}</p>
+              <p className="mt-2 text-[11px]">Kaydedince yalnız manuel işaret kaldırılır; satış fiyatı {money(Number(product.sale_price), product.currency ?? "EUR")} olarak aynı kalır.</p>
             )}
             {form.pricingMode === "MANUAL" && (
               <div className="mt-2">
