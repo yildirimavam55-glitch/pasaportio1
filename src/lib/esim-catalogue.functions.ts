@@ -4,7 +4,7 @@ import { createClient } from "@supabase/supabase-js";
 import type { Database } from "@/integrations/supabase/types";
 import { isTestCatalogueVisible } from "@/lib/test-catalogue.functions";
 import { commercialDataGb } from "@/domain/esim/customer-presentation";
-import { networkGenerationsOf, planTierOf, regionFamilyOf, regionLabelOf, type PlanTier, type RegionFamily } from "@/domain/esim/supplier-metadata";
+import { networkGenerationsOf, planTierOf, standardUnlimitedOnly, regionFamilyOf, regionLabelOf, type PlanTier, type RegionFamily } from "@/domain/esim/supplier-metadata";
 import { classifyCoverageRegion, COVERAGE_REGION_ORDER, type CoverageRegionKey } from "@/domain/geo/coverage-regions";
 import { resolvePackageScope } from "@/domain/esim/package-scope";
 import { dedupeStorefrontPackages } from "@/domain/esim/storefront-packages";
@@ -220,7 +220,9 @@ export const listEsimPackages = createServerFn({ method: "GET" })
       })
       .filter((pkg) => (wanted.length ? wanted.every((iso) => pkg.coverage.includes(iso)) : true))
       .filter((pkg) => pkg.salePrice != null && pkg.salePrice > 0)
-      .filter((pkg) => showTest || !pkg.isTest);
+      .filter((pkg) => showTest || !pkg.isTest)
+      // Pasaport Unlimited = supplier Essential tier; Lite/Plus stay in the catalogue only.
+      .filter((pkg, _i, all) => standardUnlimitedOnly(all, (x) => x.unlimited ? `${[...x.coverage].sort().join(",")}|${x.validityDays}` : null, (x) => x.planTier).includes(pkg));
   });
 
 /**
