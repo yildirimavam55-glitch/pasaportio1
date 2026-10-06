@@ -144,8 +144,7 @@ function CountryPicker({ countries, selectedIso, onSelect }: { countries: Overvi
     return countries
       .map((country) => ({ ...country, name: countryName(country.iso) }))
       .filter((country) => !needle || normalizeSearch(`${country.name} ${country.iso}`).includes(needle))
-      .sort((a, b) => a.name.localeCompare(b.name, "tr"))
-      .slice(0, 40);
+      .sort((a, b) => a.name.localeCompare(b.name, "tr"));
   }, [countries, query]);
   const choose = (iso: string) => { onSelect(iso); setQuery(""); setOpen(false); };
   return (
