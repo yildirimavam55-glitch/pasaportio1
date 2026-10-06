@@ -26,7 +26,7 @@ export function extractAiraloPackages(html: string): LivePackage[] | null {
   const m = html.match(/<script[^>]*id="__NUXT_DATA__"[^>]*>([\s\S]*?)<\/script>/);
   if (!m) return null;
   let raw: unknown[];
-  try { raw = JSON.parse(m[1]); } catch { return null; }
+  try { raw = JSON.parse(m[1] ?? ""); } catch { return null; }
   if (!Array.isArray(raw)) return null;
   const at = (i: unknown, depth = 0): any => {
     if (typeof i !== "number" || depth > 8) return undefined;
@@ -37,7 +37,7 @@ export function extractAiraloPackages(html: string): LivePackage[] | null {
   const out = new Map<string, LivePackage>();
   for (const v of raw) {
     if (!v || typeof v !== "object" || Array.isArray(v)) continue;
-    const o = v as Record<string, unknown>;
+    const o = v as any;
     if (!("price" in o && "day" in o && "is_unlimited" in o && "amount" in o && "title" in o)) continue;
     const price = at(o.price);
     if (!price || typeof price !== "object" || Array.isArray(price)) continue;

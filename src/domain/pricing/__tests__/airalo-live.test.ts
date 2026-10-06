@@ -48,8 +48,8 @@ describe("Airalo public retail check", () => {
     expect(r.entries.find((e) => e.key === "50|30")!.price).toBe(33);
     const f = applyLiveCheck([{ iso: "DE", status: "RESEARCH_FAILED", source: SRC, reason: "HTTP 403" }], r.entries, r.liveChecks, "2026-10-07T00:00:00Z", () => "n");
     expect(f.entries.find((e) => e.key === "10|30")!.price).toBe(20.5);
-    expect(f.liveChecks.DE).toMatchObject({ status: "RESEARCH_FAILED", lastOkAt: "2026-10-06T15:00:00Z" });
-    expect(missingAiraloLabel(f.liveChecks.DE)).toBe("RESEARCH_FAILED");
+    expect(f.liveChecks["DE"]).toMatchObject({ status: "RESEARCH_FAILED", lastOkAt: "2026-10-06T15:00:00Z" });
+    expect(missingAiraloLabel(f.liveChecks["DE"])).toBe("RESEARCH_FAILED");
     expect(missingAiraloLabel(undefined)).toBe("AIRALO_DATA_UNKNOWN");
   });
 });
