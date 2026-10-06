@@ -28,7 +28,8 @@ const pct = (value: number | null) => (value == null ? "—" : `%${value.toFixed
 const parse = (value: string) => (value.trim() === "" ? null : Number(value.replace(",", ".")));
 const euro = (value: number | null | undefined) => value == null ? "—" : new Intl.NumberFormat("tr-TR", { style: "currency", currency: "EUR" }).format(value);
 const regionNames = new Intl.DisplayNames(["tr"], { type: "region" });
-const countryName = (iso: string) => regionNames.of(iso) ?? iso;
+const COUNTRY_NAME_OVERRIDES: Record<string, string> = { AN: "Hollanda Antilleri" }; // Intl maps the legacy code to Curaçao
+const countryName = (iso: string) => COUNTRY_NAME_OVERRIDES[iso] ?? regionNames.of(iso) ?? iso;
 const normalizeSearch = (value: string) => value.toLocaleLowerCase("tr-TR").normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 
 type Loss = { name: string; iso: string | null; key: string; cost: number | null; price: number | null; loss: number | null };
