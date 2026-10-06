@@ -421,7 +421,7 @@ function CompetitorPanel({ iso, countries, onClose }: { iso: string; countries: 
   const currentNames = names ?? store.data.competitors;
   const readFile = (file: File | undefined) => { if (!file || file.size > 500_000) return; file.text().then(setCsv); };
   return <AdminPanel title="Rakip fiyatları" action={<Button variant="ghost" size="sm" onClick={onClose}>Ülke fiyatlarına dön</Button>}>
-    <p className="mb-3 text-xs text-muted-foreground">Yalnızca senin araştırıp girdiğin fiyatlar kullanılır; otomatik veri toplama yok. Karşılaştırma aynı ülke, paket türü, veri ve gün ile yapılır.</p>
+    <p className="mb-3 text-xs text-muted-foreground">Manuel araştırma ve yalnızca Admin isteğiyle yapılan Airalo kontrolü kullanılır; arka planda otomatik veri toplama yok. Karşılaştırma aynı ülke, paket türü, veri ve gün ile yapılır.</p>
     <details className="mb-3 rounded-lg border border-border"><summary className="cursor-pointer p-2.5 text-sm font-bold">Rakip adları</summary>
       <div className="grid gap-2 border-t border-border p-2.5 sm:grid-cols-4">{currentNames.map((n, i) => <input key={i} aria-label={`Rakip ${i + 1}`} className="h-9 rounded-lg border border-input bg-background px-2 text-sm" value={n} onChange={(e) => setNames(currentNames.map((x, j) => (j === i ? e.target.value : x)))} />)}</div>
       {names && <Button className="mx-2.5 mb-2.5" size="sm" variant="outline" disabled={save.isPending} onClick={() => save.mutate({ competitors: names })}>Adları kaydet</Button>}
