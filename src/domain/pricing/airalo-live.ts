@@ -115,7 +115,7 @@ export function planLiveCheck(checks: CountryCheck[], existing: CompetitorPrice[
     const liveEntries = c.packages.map((p) => ({ id: p.key, competitor: "Airalo", iso: c.iso, key: p.key, price: p.price, currency: "EUR", source: c.source, checkedAt: "" }));
     for (const key of keys) {
       if (matchCompetitor(key, liveEntries).entry) coverage.push({ iso: c.iso, key, status: "AIRALO_PRICE_VERIFIED" });
-      else if (c.nonEur.some((k) => matchCompetitor(key, [{ ...liveEntries[0], key: k, id: k } as CompetitorPrice]).entry)) coverage.push({ iso: c.iso, key, status: "CURRENCY_NOT_EUR" });
+      else if (matchCompetitor(key, c.nonEur.map((k) => ({ id: k, competitor: "Airalo", iso: c.iso, key: k, price: 1, currency: "XXX", source: "", checkedAt: "" }))).entry) coverage.push({ iso: c.iso, key, status: "CURRENCY_NOT_EUR" });
       else { s.notOffered++; coverage.push({ iso: c.iso, key, status: "AIRALO_NOT_OFFERED" }); }
     }
   }
@@ -157,6 +157,5 @@ export function applyLiveCheck(checks: CountryCheck[], existing: CompetitorPrice
 /** Admin label for a Pasaport package without a comparable Airalo price. */
 export function missingAiraloLabel(check: LiveCheckRecord | undefined): "AIRALO_NOT_OFFERED" | "AIRALO_DATA_UNKNOWN" | "RESEARCH_FAILED" {
   if (!check) return "AIRALO_DATA_UNKNOWN";
-  if (check.status === "RESEARCH_FAILED") return check.lastOkAt ? "AIRALO_NOT_OFFERED" : "RESEARCH_FAILED";
-  return "AIRALO_NOT_OFFERED";
+  return check.status === "OK" ? "AIRALO_NOT_OFFERED" : "RESEARCH_FAILED";
 }
