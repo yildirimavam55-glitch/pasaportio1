@@ -20,13 +20,6 @@ const LABELS = localize({
   en: { rating: "{rating} out of 5 stars", reviews: "Customer reviews", real: "Based on real customer reviews", demo: "DEMO / TEST — not a real customer review", editorial: "Editorial examples · not customer reviews", slide: "Review {index}", country: "Country", previewRating: "Based on customer experiences", paymentPreview: "DEMO / PREVIEW — payment not yet available" },
 });
 
-const BENEFIT_IMAGE_SIZE: Record<80 | 100 | 120 | 140 | 160, string> = {
-  80: "size-[min(100%,3.8rem)] sm:size-[min(100%,5.6rem)] data-[wide=true]:w-[5.5rem] sm:data-[wide=true]:w-[9rem]",
-  100: "size-[min(100%,4.75rem)] sm:size-[min(100%,7rem)] data-[wide=true]:w-[6.875rem] sm:data-[wide=true]:w-[11.25rem]",
-  120: "size-[min(100%,5.7rem)] sm:size-[min(100%,8rem)] data-[wide=true]:w-[8.25rem] sm:data-[wide=true]:w-[13.5rem]",
-  140: "size-[min(100%,6.65rem)] sm:size-[min(100%,8rem)] data-[wide=true]:w-[9.625rem] sm:data-[wide=true]:w-[15.75rem]",
-  160: "size-[min(100%,7.6rem)] sm:size-[min(100%,8rem)] data-[wide=true]:w-[11rem] sm:data-[wide=true]:w-[18rem]",
-};
 
 /** Public reviews are additionally filtered on the server; demos can only appear in the Admin iframe. */
 export function V2TrustReviews({ section, media, preview = false, onDestinationSearch }: { section: V2Section; media: V2Media; preview?: boolean; onDestinationSearch?: (() => void) | undefined }) {
