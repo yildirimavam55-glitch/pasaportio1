@@ -448,6 +448,7 @@ function CompetitorPanel({ iso, countries, onClose }: { iso: string; countries: 
 const RESEARCH_FILES = [
   { id: "airalo-2026-10-05", file: "Pasaport_Airalo_Video_Fiyatlari.xlsx", label: "Airalo içe aktarımı · App video 1 · 05.10.2026" },
   { id: "airalo-2026-10-05-video2", file: "Pasaport_Airalo_Video2_Fiyatlari.xlsx", label: "Airalo içe aktarımı · App video 2 · 05.10.2026" },
+  { id: "airalo-2026-10-05-video3", file: "Pasaport_Airalo_Video3_Fiyatlari.xlsx", label: "Airalo içe aktarımı · App video 3 · 05.10.2026" },
 ];
 function ResearchImport({ fileId, label, history }: { fileId: string; label: string; history: { file?: string; at: string; competitor: string; checkedAt: string; rows: number; countries: number; newRecords: number; updated: number; invalid: number; sourceType: string }[] }) {
   const queryClient = useQueryClient();
