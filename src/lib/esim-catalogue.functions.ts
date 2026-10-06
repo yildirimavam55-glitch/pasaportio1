@@ -8,6 +8,7 @@ import { networkGenerationsOf, planTierOf, standardUnlimitedOnly, regionFamilyOf
 import { classifyCoverageRegion, COVERAGE_REGION_ORDER, type CoverageRegionKey } from "@/domain/geo/coverage-regions";
 import { resolvePackageScope } from "@/domain/esim/package-scope";
 import { dedupeStorefrontPackages } from "@/domain/esim/storefront-packages";
+import { lowestByCountry, type StartingPriceRow } from "@/domain/esim/starting-price";
 
 export type ActivationPolicy = "ON_INSTALL" | "ON_FIRST_NETWORK_CONNECTION" | "ON_PURCHASE" | "UNKNOWN";
 
@@ -280,7 +281,38 @@ export const listEsimRegionPackages = createServerFn({ method: "GET" })
     return packages.filter((pkg) => regionalIdentity(pkg) === data.region);
   });
 
-/** Lowest current customer price for each requested country/route coverage target. */
+const STARTING_SELECT = "currency, sale_price, is_test, esim_product_details!inner(country_iso, package_kind, unlimited_data, supplier_groups)";
+
+/** Live, customer-visible single-country rows: the only input for "from" prices. */
+async function liveCountryLowest(isos?: string[]) {
+  const client = publicClient();
+  const showTest = await isTestCatalogueVisible();
+  const rows: StartingPriceRow[] = [];
+  for (let from = 0; ; from += 1000) {
+    let q = client
+      .from("service_products")
+      .select(STARTING_SELECT)
+      .eq("service_type", "ESIM")
+      .eq("lifecycle", "PUBLISHED")
+      .eq("customer_visible", true)
+      .eq("provider_available", true)
+      .eq("margin_flagged", false)
+      .gt("sale_price", 0)
+      .eq("esim_product_details.package_kind", "COUNTRY");
+    if (isos?.length) q = q.in("esim_product_details.country_iso", isos);
+    const { data, error } = await q.order("id").range(from, from + 999);
+    if (error) throw new Error(error.message);
+    for (const r of (data ?? []) as any[]) {
+      if (!showTest && r.is_test) continue;
+      const d = Array.isArray(r.esim_product_details) ? r.esim_product_details[0] : r.esim_product_details;
+      if (d) rows.push({ sale_price: r.sale_price, currency: r.currency, ...d });
+    }
+    if ((data ?? []).length < 1000) break;
+  }
+  return lowestByCountry(rows);
+}
+
+/** Lowest current customer price per country card; route cards use packages covering every country. */
 export const listEsimStartingPrices = createServerFn({ method: "GET" })
   .inputValidator((input: { targets: Array<{ id: string; coverageIsos: string[] }> }) => ({
     targets: (input.targets ?? []).slice(0, 12).map((target) => ({
@@ -289,74 +321,40 @@ export const listEsimStartingPrices = createServerFn({ method: "GET" })
     })),
   }))
   .handler(async ({ data }): Promise<EsimStartingPrice[]> => {
+    const single = data.targets.filter((t) => t.coverageIsos.length === 1);
+    const lowest = single.length ? await liveCountryLowest([...new Set(single.map((t) => t.coverageIsos[0]!))]) : new Map();
+    const results: EsimStartingPrice[] = [];
+    for (const t of single) {
+      const v = lowest.get(t.coverageIsos[0]!);
+      if (v) results.push({ targetId: t.id, ...v });
+    }
+    // Multi-country route cards: lowest live regional package covering every country (Lite/Plus excluded).
     const client = publicClient();
     const showTest = await isTestCatalogueVisible();
-    const results: EsimStartingPrice[] = [];
-
-    for (const target of data.targets) {
-      let query = client
+    for (const t of data.targets.filter((x) => x.coverageIsos.length > 1)) {
+      const { data: rows, error } = await client
         .from("service_products")
-        .select("currency, sale_price, is_test, esim_product_details!inner(coverage_country_isos)")
-        .eq("service_type", "ESIM")
-        .eq("lifecycle", "PUBLISHED")
-        .eq("customer_visible", true)
-        .eq("provider_available", true)
-        .eq("margin_flagged", false)
-        .gt("sale_price", 0)
-        .order("sale_price")
-        .limit(5);
-      if (target.coverageIsos.length) {
-        query = query.contains("esim_product_details.coverage_country_isos", target.coverageIsos);
-      }
-      const { data: rows, error } = await query;
+        .select("currency, sale_price, is_test, esim_product_details!inner(coverage_country_isos, unlimited_data, supplier_groups)")
+        .eq("service_type", "ESIM").eq("lifecycle", "PUBLISHED").eq("customer_visible", true)
+        .eq("provider_available", true).eq("margin_flagged", false).gt("sale_price", 0)
+        .contains("esim_product_details.coverage_country_isos", t.coverageIsos)
+        .order("sale_price").limit(30);
       if (error) throw new Error(error.message);
-      const lowest = (rows ?? []).find((row) => showTest || !row.is_test);
-      if (lowest?.sale_price != null) {
-        results.push({ targetId: target.id, amount: Number(lowest.sale_price), currency: lowest.currency ?? "EUR" });
-      }
+      const ok = (rows ?? []).find((r: any) => {
+        if (!showTest && r.is_test) return false;
+        const d = Array.isArray(r.esim_product_details) ? r.esim_product_details[0] : r.esim_product_details;
+        const tier = d?.unlimited_data ? planTierOf(d.supplier_groups) : null;
+        return tier !== "LITE" && tier !== "PLUS";
+      });
+      if (ok) results.push({ targetId: t.id, amount: Number(ok.sale_price), currency: ok.currency ?? "EUR" });
     }
     return results;
   });
 
-/** All currently sellable country destinations with their lowest published price. */
+/** All currently sellable country destinations with their lowest live single-country price. */
 export const listEsimDestinationStartingPrices = createServerFn({ method: "GET" }).handler(
   async (): Promise<EsimStartingPrice[]> => {
-    const client = publicClient();
-    const showTest = await isTestCatalogueVisible();
-    const lowestByIso = new Map<string, { amount: number; currency: string }>();
-    const pageSize = 1000;
-
-    for (let from = 0; ; from += pageSize) {
-      const { data: rows, error } = await client
-        .from("service_products")
-        .select("currency, sale_price, is_test, esim_product_details!inner(coverage_country_isos, country_iso)")
-        .eq("service_type", "ESIM")
-        .eq("lifecycle", "PUBLISHED")
-        .eq("customer_visible", true)
-        .eq("provider_available", true)
-        .eq("margin_flagged", false)
-        .gt("sale_price", 0)
-        .range(from, from + pageSize - 1);
-      if (error) throw new Error(error.message);
-
-      for (const row of rows ?? []) {
-        if (!showTest && row.is_test) continue;
-        const details = (Array.isArray(row.esim_product_details) ? row.esim_product_details[0] : row.esim_product_details) as
-          | { coverage_country_isos: string[] | null; country_iso: string | null }
-          | null
-          | undefined;
-        const isos = new Set([...(details?.coverage_country_isos ?? []), ...(details?.country_iso ? [details.country_iso] : [])]);
-        const amount = Number(row.sale_price);
-        for (const rawIso of isos) {
-          const iso = String(rawIso).toUpperCase();
-          if (!/^[A-Z]{2}$/.test(iso)) continue;
-          const current = lowestByIso.get(iso);
-          if (!current || amount < current.amount) lowestByIso.set(iso, { amount, currency: row.currency ?? "EUR" });
-        }
-      }
-      if ((rows ?? []).length < pageSize) break;
-    }
-
-    return [...lowestByIso.entries()].map(([targetId, value]) => ({ targetId, ...value }));
+    const lowest = await liveCountryLowest();
+    return [...lowest.entries()].map(([targetId, value]) => ({ targetId, ...value }));
   },
 );
