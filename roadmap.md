@@ -804,3 +804,5 @@
 - [x] Capture the current `https://pasaport.lovable.app/tr` homepage content and presentation.
 - [x] Restore that homepage configuration in this remixed project without changing commerce logic.
 - [ ] Verify the restored page at mobile and desktop sizes without publishing.
+
+- [ ] Supplier-cost sync: update cost, never overwrite approved price, derive REPRICE_REQUIRED (never stops sales/unpublishes); cost >= price -> critical "SATIŞ FİYATI MALİYETİN ALTINDA / ZARAR RİSKİ" top of queue — waiting on approval of the audit design
