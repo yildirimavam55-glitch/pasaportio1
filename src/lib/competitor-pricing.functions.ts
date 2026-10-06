@@ -11,6 +11,7 @@ import airaloResearch4 from "@/data/airalo-research-2026-10-06-video4.json";
 import airaloResearch5 from "@/data/airalo-research-2026-10-06-video5.json";
 import airaloResearch6 from "@/data/airalo-research-2026-10-06-video6.json";
 import airaloResearch7 from "@/data/airalo-research-2026-10-06-video7.json";
+import airaloResearchShots from "@/data/airalo-research-2026-10-06-screenshots.json";
 
 const RESEARCH_FILES: Record<string, ResearchFile & { file: string }> = {
   "airalo-2026-10-05": airaloResearch as ResearchFile & { file: string },
@@ -20,6 +21,7 @@ const RESEARCH_FILES: Record<string, ResearchFile & { file: string }> = {
   "airalo-2026-10-06-video5": airaloResearch5 as ResearchFile & { file: string },
   "airalo-2026-10-06-video6": airaloResearch6 as ResearchFile & { file: string },
   "airalo-2026-10-06-video7": airaloResearch7 as ResearchFile & { file: string },
+  "airalo-2026-10-06-screenshots": airaloResearchShots as ResearchFile & { file: string },
 };
 
 async function catalogueIsos(db: any, isos: string[]) {
