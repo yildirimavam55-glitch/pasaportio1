@@ -220,9 +220,9 @@ export const listEsimPackages = createServerFn({ method: "GET" })
       })
       .filter((pkg) => (wanted.length ? wanted.every((iso) => pkg.coverage.includes(iso)) : true))
       .filter((pkg) => pkg.salePrice != null && pkg.salePrice > 0)
-      .filter((pkg) => showTest || !pkg.isTest)
-      // Pasaport Unlimited = supplier Essential tier; Lite/Plus stay in the catalogue only.
-      .filter((pkg, _i, all) => standardUnlimitedOnly(all, (x) => x.unlimited ? `${[...x.coverage].sort().join(",")}|${x.validityDays}` : null, (x) => x.planTier).includes(pkg));
+      .filter((pkg) => showTest || !pkg.isTest);
+    // Pasaport Unlimited = supplier Essential tier; Lite/Plus stay in the catalogue only.
+    return standardUnlimitedOnly(packages, (x) => x.unlimited ? `${[...x.coverage].sort().join(",")}|${x.validityDays}` : null, (x) => x.planTier);
   });
 
 /**
