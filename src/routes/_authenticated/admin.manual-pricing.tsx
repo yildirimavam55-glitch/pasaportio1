@@ -267,6 +267,13 @@ function CountryPrices({ iso, summary, counts }: { iso: string; summary: Overvie
   </section>;
 }
 
+const TIER_NAME = { LITE: "Unlimited Lite", ESSENTIAL: "Unlimited Essential", PLUS: "Unlimited Plus" } as const;
+/** Supplier tier behind a standard Unlimited row (the server keeps only Essential when it exists). */
+function tierLabel(group: PackageGroup) {
+  const tier = (group.rows[0] as { tier?: keyof typeof TIER_NAME | null } | undefined)?.tier;
+  return tier ? TIER_NAME[tier] : null;
+}
+
 function resolvedGroup(group: PackageGroup, edit: string | null) {
   const first = group.rows[0];
   if (!first) return null;
@@ -308,7 +315,7 @@ function MobilePriceRow({ group, iso, market, edit, onEdit }: { group: PackageGr
   const value = edit === null ? String(details.active ?? "") : edit;
   return <article className={`rounded-lg border bg-card p-3 ${details.metrics.loss ? "border-destructive/50" : "border-border"}`}>
     <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3">
-      <div className="min-w-0"><h3 className="truncate text-sm font-bold">{packageKeyLabel(group.key)}</h3><p className="mt-1 text-xs text-muted-foreground">Maliyet {euro(details.cost)}{group.rows.length > 1 ? ` · ${group.rows.length} ürün` : ""} · Pazar {result.market == null ? "Veri yok" : euro(result.market)}</p></div>
+      <div className="min-w-0"><h3 className="truncate text-sm font-bold">{packageKeyLabel(group.key)}</h3><p className="mt-1 text-xs text-muted-foreground">Maliyet {euro(details.cost)}{tierLabel(group) ? ` · Ürün: ${tierLabel(group)}` : group.rows.length > 1 ? ` · ${group.rows.length} ürün` : ""} · Pazar {result.market == null ? "Veri yok" : euro(result.market)}</p></div>
       <div className="flex flex-col items-end gap-1"><StatusBadge status={result.status} /><SourceBadge source={details.source} /></div>
     </div>
     <div className="mt-2 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3">
@@ -334,7 +341,7 @@ function DesktopPriceRow({ group, iso, market, edit, onEdit }: { group: PackageG
   const { result, expensiveVariants } = competitiveFor(group, details.active, market);
   const value = edit === null ? String(details.active ?? "") : edit;
   return <><tr className="border-t border-border">
-    <td className="px-3 py-2 font-semibold"><button type="button" className="flex items-center gap-1 text-left" aria-expanded={open} onClick={() => setOpen((v) => !v)}><ChevronDown className={`size-3.5 transition-transform ${open ? "rotate-180" : ""}`} />{packageKeyLabel(group.key)}</button>{group.rows.length > 1 && <span className="ml-5 text-xs font-normal text-muted-foreground">×{group.rows.length}</span>}<div className="ml-5"><SourceBadge source={details.source} /></div></td>
+    <td className="px-3 py-2 font-semibold"><button type="button" className="flex items-center gap-1 text-left" aria-expanded={open} onClick={() => setOpen((v) => !v)}><ChevronDown className={`size-3.5 transition-transform ${open ? "rotate-180" : ""}`} />{packageKeyLabel(group.key)}</button>{tierLabel(group) ? <span className="ml-5 block text-xs font-normal text-muted-foreground">Ürün: {tierLabel(group)}</span> : group.rows.length > 1 && <span className="ml-5 text-xs font-normal text-muted-foreground">×{group.rows.length}</span>}<div className="ml-5"><SourceBadge source={details.source} /></div></td>
     <td className="px-3 py-2 tabular-nums text-muted-foreground">{euro(details.cost)}</td>
     <td className="px-3 py-2"><PriceInput iso={iso} group={group} value={value} onEdit={onEdit} />{result.suggested != null && result.suggested !== details.active && <Button variant="link" size="sm" className="block h-auto px-0 pt-1 text-[10px]" onClick={() => onEdit(String(result.suggested))}>Önerilen {euro(result.suggested)} uygula</Button>}{details.first.country != null && <Button variant="link" size="sm" className="block h-auto px-0 pt-1 text-[10px]" onClick={() => onEdit("")}>Ülkeye özel fiyatı kaldır</Button>}</td>
     <td className="px-3 py-2 tabular-nums">{result.market == null ? <span className="text-xs text-muted-foreground">Veri yok</span> : euro(result.market)}</td>

@@ -75,3 +75,20 @@ export function pickRegionalRecommendations<T extends RegionalCandidate>(items: 
   }
   return chosen.sort((a, b) => (a.dataGb ?? 0) - (b.dataGb ?? 0));
 }
+
+/** Supplier tier that represents Pasaport's standard Unlimited product. */
+export const STANDARD_UNLIMITED_TIER: PlanTier = "ESSENTIAL";
+
+/**
+ * Keeps only the standard Unlimited tier where the supplier offers it for the same
+ * package structure; other tiers stay in the catalogue but never stand in for it.
+ * Structures without a standard-tier product are left unchanged.
+ */
+export function standardUnlimitedOnly<T>(items: T[], structureOf: (item: T) => string | null, tierOf: (item: T) => PlanTier | null): T[] {
+  const hasStandard = new Set<string>();
+  for (const item of items) { const k = structureOf(item); if (k != null && tierOf(item) === STANDARD_UNLIMITED_TIER) hasStandard.add(k); }
+  return items.filter((item) => {
+    const k = structureOf(item);
+    return k == null || !hasStandard.has(k) || tierOf(item) === STANDARD_UNLIMITED_TIER;
+  });
+}

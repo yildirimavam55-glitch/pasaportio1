@@ -29,6 +29,7 @@ import { V2ProductSelectionCard, V2SelectedProductSummary } from "@/components/d
 import { V2RegionCard } from "@/components/design-v2/V2RegionCard";
 import { localize } from "@/i18n/overlay";
 import { StorefrontIcon } from "@/domain/storefront/icons";
+import { ESSENTIAL_FAIR_USE } from "@/domain/esim/fair-use";
 
 /** Public home/eSIM search: optional country + legacy `service` hint (V1 links used `/?service=lounge`). */
 export const validateEsimSearch = (s: Record<string, unknown>): { country?: string; service?: "esim" | "lounge" } => ({
@@ -329,7 +330,8 @@ function Packages({ iso, name, c, selectedPackage, onSelectPackage, desktopAfter
                      {p.unlimited ? (<><InfinityIcon className="size-3.5 shrink-0 text-muted-foreground" /><span>{c.unlimited}</span></>) : `${p.dataGb ?? "—"} GB`}
                     </span>
                    <span className="mt-1 text-xs font-normal leading-4 text-muted-foreground">{p.validityDays ? `${p.validityDays} ${c.days}` : ""}</span>
-                   <span className="mt-2 text-base font-bold leading-5 text-primary">{p.salePrice != null ? money(p.salePrice, p.currency) : ""}</span>
+                   {p.unlimited && p.planTier === "ESSENTIAL" ? <span className="max-w-full truncate text-[10px] leading-3 text-muted-foreground">{ESSENTIAL_FAIR_USE[locale].short}</span> : null}
+                   <span className={`${p.unlimited && p.planTier === "ESSENTIAL" ? "mt-1" : "mt-2"} text-base font-bold leading-5 text-primary`}>{p.salePrice != null ? money(p.salePrice, p.currency) : ""}</span>
                   </span>
                 </V2ProductSelectionCard>
               </li>

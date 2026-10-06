@@ -12,6 +12,7 @@ import { loadEurRates, loadStore } from "@/lib/competitor-pricing.server";
 import { compareFull, storedChecks, type BaseRow, type CountryCheck } from "@/domain/pricing/airalo-live";
 import { AIRALO_COUNTRY_MATCH_REQUIRED, AIRALO_DESTINATION_NOT_FOUND, AIRALO_SPECIAL_DESTINATIONS } from "@/domain/pricing/airalo-destinations";
 import { airaloCheckSchema } from "@/domain/pricing/airalo-check-schema";
+import { planTierOf, standardUnlimitedOnly, type PlanTier } from "@/domain/esim/supplier-metadata";
 
 /**
  * Manual price layers live in the Admin-only platform_settings row "manual_pricing".
@@ -23,7 +24,7 @@ const DEFAULT_MIN_MARGIN = 25;
 
 type Row = {
   id: string; iso: string | null; key: string; cost: number | null; salePrice: number | null;
-  overridden: boolean; lifecycle: string; providerId: string | null; name: string; autoPrice: number | null; minMargin: number;
+  overridden: boolean; lifecycle: string; providerId: string | null; name: string; autoPrice: number | null; minMargin: number; tier: PlanTier | null;
 };
 
 async function loadConfig(db: any): Promise<ManualPriceConfig> {
@@ -44,7 +45,7 @@ async function pageAll(build: (from: number, to: number) => any) {
 /** Single-country eSIM products with structure, cost and automatic price. */
 async function loadRows(db: any, iso?: string): Promise<Row[]> {
   const details = await pageAll((a, b) => {
-    let q = db.from("esim_product_details").select("product_id, country_iso, data_gb, unlimited_data, validity_days").not("country_iso", "is", null);
+    let q = db.from("esim_product_details").select("product_id, country_iso, data_gb, unlimited_data, validity_days, supplier_groups").not("country_iso", "is", null);
     if (iso) q = q.eq("country_iso", iso);
     return q.order("product_id").range(a, b);
   });
@@ -85,9 +86,11 @@ async function loadRows(db: any, iso?: string): Promise<Row[]> {
       cost, salePrice: p.sale_price == null ? null : Number(p.sale_price), overridden: Boolean(p.price_overridden),
       lifecycle: p.lifecycle, providerId: p.primary_provider_id,
       autoPrice: cost != null && pricing ? explainPrice(cost, pricing).salePrice : null, minMargin: min,
+      tier: d.unlimited_data ? planTierOf(d.supplier_groups) : null,
     });
   }
-  return rows;
+  // Standard Pasaport Unlimited is priced from the Essential tier only; Lite/Plus never affect cost, margin or price.
+  return standardUnlimitedOnly(rows, (r) => r.key.startsWith("U|") ? `${r.iso}|${r.key}` : null, (r) => r.tier);
 }
 
 function describe(row: Row, config: ManualPriceConfig) {
@@ -168,7 +171,7 @@ export const getCountryPricing = createServerFn({ method: "GET" })
       airaloCheck: store.liveChecks[data.iso] ?? null,
       rates, policy: store.policy,
       rows: rows
-        .map((row) => ({ id: row.id, name: row.name, key: row.key, cost: row.cost, autoPrice: row.autoPrice, lifecycle: row.lifecycle, minMargin: row.minMargin, ...describe(row, config) }))
+        .map((row) => ({ id: row.id, name: row.name, key: row.key, tier: row.tier, cost: row.cost, autoPrice: row.autoPrice, lifecycle: row.lifecycle, minMargin: row.minMargin, ...describe(row, config) }))
         .sort((a, b) => a.key.localeCompare(b.key, undefined, { numeric: true })),
     };
   });
