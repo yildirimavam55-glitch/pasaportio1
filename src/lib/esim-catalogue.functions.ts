@@ -138,7 +138,7 @@ export const listEsimPackages = createServerFn({ method: "GET" })
 
     const showTest = await isTestCatalogueVisible();
     const wanted = wantedIsos;
-    return rows
+    const packages = rows
       .map((row) => {
         const details = (Array.isArray(row.esim_product_details) ? row.esim_product_details[0] : row.esim_product_details) as
           | {
