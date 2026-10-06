@@ -114,25 +114,9 @@ export const updateProduct = createServerFn({ method: "POST" })
         ? (Number(before.sale_price) !== rounded ? "pricing.override.changed" : null)
         : "pricing.override.created";
     } else if (data.pricingMode === "AUTO") {
-      const { rule, pricing } = await resolveAutoPricing(db, before as any);
-      if (!pricing || before.provider_cost == null) {
-        throw new Error("Otomatik fiyat hesaplanamadı (geçerli kural veya maliyet yok). Mevcut fiyat korundu.");
-      }
-      const result = explainPrice(Number(before.provider_cost), pricing);
-      if (!Number.isFinite(result.salePrice) || result.salePrice <= 0) throw new Error("Hesaplanan fiyat geçersiz. Mevcut fiyat korundu.");
-      patch["sale_price"] = result.salePrice;
-      patch["currency"] = pricing.currency;
+      // Legacy rule recalculation is disabled: removing the manual mark keeps the
+      // current selling price unchanged. New prices need explicit Admin approval.
       patch["price_overridden"] = false;
-      patch["pricing_rule_id"] = rule?.id ?? null;
-      patch["pricing_review_required"] = false;
-      patch["priced_at"] = new Date().toISOString();
-      patch["pricing_snapshot"] = {
-        providerCost: Number(before.provider_cost), pricingRuleId: rule?.id ?? null, pricingRuleName: rule?.name ?? null,
-        strategy: pricing.strategy, markupPercent: pricing.markupPercent ?? null, fixedMarkup: pricing.fixedMarkup ?? null,
-        minimumMarginPercent: pricing.minimumMarginPercent ?? null, roundingMode: pricing.roundingMode, currency: pricing.currency,
-        rawPrice: result.rawPrice, salePrice: result.salePrice, marginPercent: result.marginPercent,
-        calculatedAt: new Date().toISOString(), source: "ADMIN_AUTO",
-      };
       pricingAction = before.price_overridden ? "pricing.override.removed" : null;
     }
     if (data.pricingRuleId !== undefined && data.pricingMode !== "AUTO") patch["pricing_rule_id"] = data.pricingRuleId || null;

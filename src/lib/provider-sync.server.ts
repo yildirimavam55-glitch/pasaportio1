@@ -13,6 +13,7 @@
  *  - provider cost changes are always written to history
  */
 import { pricingFromRule } from "@/domain/pricing-rule";
+import { loadAiraloExactIndex, suggestionFor, type AiraloExactIndex } from "@/lib/pricing-suggestion.server";
 import { parseEsimCatalogue, priceItems, hashItem, type PricedItem, type PricingInput } from "@/domain/providers/esim-import";
 import {
   balanceHealth,
@@ -479,13 +480,9 @@ export async function runProviderSync(
         .eq("provider_id", providerId)
         .in("external_id", seenExternalIds.slice(i, i + 200));
     }
-    for (let i = 0; i < promoteProductIds.length; i += 200) {
-      await db
-        .from("service_products")
-        .update({ lifecycle: "PUBLISHED", customer_visible: true })
-        .eq("lifecycle", "DRAFT")
-        .in("id", promoteProductIds.slice(i, i + 200));
-    }
+    // Drafts are never auto-published by a sync: publication needs Admin approval.
+    void promoteProductIds;
+    let airaloIndex: AiraloExactIndex | null = null;
 
     const processItem = async (item: PricedItem) => {
       try {
@@ -555,21 +552,24 @@ export async function runProviderSync(
         };
 
         if (!productId) {
+          // NEW supplier product: imported OFF SALE with no live price. The approved
+          // engine only stores a suggestion; Admin approves price and publication.
+          airaloIndex ??= await loadAiraloExactIndex(db);
+          const suggestion = suggestionFor(item, airaloIndex);
           const { data: inserted, error } = await db
             .from("service_products")
             .insert({
               ...providerOwned,
               name: item.name,
               currency: pricing.currency,
-              // No valid pricing rule -> no price is invented from supplier cost.
-              sale_price: pricingUnresolved ? null : item.salePrice,
-              pricing_rule_id: rule?.id ?? null,
-              pricing_review_required: pricingUnresolved,
-              priced_at: pricingUnresolved ? null : new Date().toISOString(),
-              pricing_snapshot: pricingUnresolved ? null : (pricingSnapshot(item) as any),
-              lifecycle: publishable(item, storedCoverage) ? "PUBLISHED" : "DRAFT",
-              customer_visible: publishable(item, storedCoverage),
-              margin_flagged: item.belowMinimumMargin,
+              sale_price: null,
+              pricing_rule_id: null,
+              pricing_review_required: true,
+              priced_at: null,
+              pricing_snapshot: suggestion as any,
+              lifecycle: "DRAFT",
+              customer_visible: false,
+              margin_flagged: false,
             })
             .select("id")
             .single();
@@ -583,7 +583,7 @@ export async function runProviderSync(
             external_id: item.externalId,
             change_type: "NEW_PRODUCT",
             needs_review: true,
-            details: { providerCost: item.providerCost, salePrice: item.salePrice, currency: pricing.currency },
+            details: { providerCost: item.providerCost, suggestedPrice: suggestion.suggestedPrice, suggestionRule: suggestion.rule, currency: pricing.currency },
           });
         } else {
           const { data: current } = await db
@@ -592,30 +592,16 @@ export async function runProviderSync(
             .eq("id", productId)
             .maybeSingle();
 
-          const patch: Record<string, unknown> = { ...providerOwned, margin_flagged: item.belowMinimumMargin };
-          // Admin-owned fields are never touched by a sync.
-          // Unresolved pricing keeps the last known valid sale price and only
-          // raises the review flag — it never reprices and never sells at cost.
-          if (pricingUnresolved) {
-            patch["pricing_review_required"] = true;
-          } else if (!current?.price_overridden) {
-            patch["sale_price"] = item.salePrice;
-            patch["currency"] = pricing.currency;
-            patch["pricing_rule_id"] = rule?.id ?? null;
-            patch["pricing_review_required"] = false;
-            patch["priced_at"] = new Date().toISOString();
-            patch["pricing_snapshot"] = pricingSnapshot(item) as any;
-          }
-          // Publishing rule: only an eligible DRAFT is promoted. PAUSED, ARCHIVED
-          // and Admin-published states are left exactly as the Admin set them.
-          if (current?.lifecycle === "DRAFT" && publishable(item, storedCoverage)) {
-            patch["lifecycle"] = "PUBLISHED";
-            patch["customer_visible"] = true;
-          }
-          // A returned product reuses its mapping and leaves UNAVAILABLE.
+          // EXISTING product: supplier-owned fields only. The current Pasaport selling
+          // price, pricing flags and publication are never changed by a sync, locked or
+          // not, so a cost change never reprices, unpublishes or blocks checkout.
+          const patch: Record<string, unknown> = { ...providerOwned };
+          // A returned product reuses its mapping and leaves UNAVAILABLE; it only goes
+          // back on sale when it still has an existing selling price.
           if (current?.lifecycle === "UNAVAILABLE") {
-            patch["lifecycle"] = publishable(item, storedCoverage) ? "PUBLISHED" : "DRAFT";
-            patch["customer_visible"] = publishable(item, storedCoverage);
+            const sellable = publishable(item, storedCoverage) && current?.sale_price != null;
+            patch["lifecycle"] = sellable ? "PUBLISHED" : "DRAFT";
+            patch["customer_visible"] = sellable;
             returned += 1;
             changeRows.push({
               provider_id: providerId,
@@ -729,16 +715,7 @@ export async function runProviderSync(
           available: true,
         });
 
-        if (item.belowMinimumMargin) {
-          await db.from("ops_alerts").insert({
-            type: "MARGIN_BELOW_MINIMUM",
-            severity: "WARNING",
-            message: `${item.name}: provider maliyeti sonrası marj minimumun altında.`,
-            entity_type: "service_products",
-            entity_id: productId,
-            context: { externalId: item.externalId, marginPercent: item.marginPercent, providerCost: item.providerCost },
-          });
-        }
+        // Legacy-rule margin alerts removed: margins are judged on the live Pasaport price.
       } catch (error) {
         failed += 1;
         await db.from("provider_sync_errors").insert({
