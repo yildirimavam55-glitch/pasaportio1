@@ -331,7 +331,7 @@ function Packages({ iso, name, c, selectedPackage, onSelectPackage, desktopAfter
                     </span>
                    <span className="mt-1 text-xs font-normal leading-4 text-muted-foreground">{p.validityDays ? `${p.validityDays} ${c.days}` : ""}</span>
                    {p.unlimited && p.planTier === "ESSENTIAL" ? <span className="max-w-full truncate text-[10px] leading-3 text-muted-foreground">{ESSENTIAL_FAIR_USE[locale].short}</span> : null}
-                   <span className={`${p.unlimited && p.planTier === "ESSENTIAL" ? "mt-1" : "mt-2"} text-base font-bold leading-5 text-primary">{p.salePrice != null ? money(p.salePrice, p.currency) : ""}</span>
+                   <span className={`${p.unlimited && p.planTier === "ESSENTIAL" ? "mt-1" : "mt-2"} text-base font-bold leading-5 text-primary`}>{p.salePrice != null ? money(p.salePrice, p.currency) : ""}</span>
                   </span>
                 </V2ProductSelectionCard>
               </li>
