@@ -8,6 +8,8 @@ import { flagOf, getCountryByIso } from "@/domain/geo/countries";
 import type { Locale } from "@/domain/enums";
 import type { EsimPackage } from "@/lib/esim-catalogue.functions";
 import { localize } from "@/i18n/overlay";
+import { ESSENTIAL_FAIR_USE } from "@/domain/esim/fair-use";
+import { Gauge } from "lucide-react";
 
 const COPY = localize({
   tr: { title: "Paket detayları", subtitle: "Seçtiğin eSIM paketi hakkında bilgiler.", data: "Veri", dataHelp: "Kullanılabilir toplam veri miktarı.", unlimited: "Sınırsız", unlimitedHelp: "Sınırsız veri paketi.", validity: "Geçerlilik", validityHelp: "Paketin geçerlilik süresi.", days: "gün", coverage: "Kapsama", coverageOne: "Bu paketin kapsadığı destinasyon.", coverageMany: "Bu paketin kapsadığı ülkeler.", countries: "ülke", showCountries: "Ülkeleri gör", hideCountries: "Listeyi gizle", tech: "Bağlantı", techHelp: "Desteklenen ağ teknolojisi.", techNote: "Mevcut ağ teknolojisi konuma, cihaza ve yerel şebeke koşullarına göre değişebilir.", add: "Bu paketi seç", added: "Seçildi" },
@@ -44,6 +46,10 @@ export function V2EsimPackageDetails({ pkg, locale, inCart, onClose, onAdd }: { 
         </div>
       ),
     },
+    ...(pkg.unlimited && pkg.planTier === "ESSENTIAL" ? [{
+      key: "fairUse", icon: Gauge, label: ESSENTIAL_FAIR_USE[locale].label, value: ESSENTIAL_FAIR_USE[locale].short, help: ESSENTIAL_FAIR_USE[locale].line,
+      extra: <ul className="mt-1.5 space-y-0.5 text-xs text-foreground"><li>{ESSENTIAL_FAIR_USE[locale].highSpeed}</li><li>{ESSENTIAL_FAIR_USE[locale].after}</li><li className="text-muted-foreground">{ESSENTIAL_FAIR_USE[locale].reset}</li></ul>,
+    }] : []),
     ...(technology ? [{ key: "tech", icon: Signal, label: c.tech, value: technology, help: c.techHelp }] : []),
   ];
   return (
