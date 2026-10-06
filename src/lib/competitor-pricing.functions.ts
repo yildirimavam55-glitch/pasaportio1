@@ -5,7 +5,7 @@ import { parseCompetitorCsv, type CompetitorPrice } from "@/domain/pricing/compe
 import { COMPETITOR_SETTINGS_ID, loadStore, sanitizeStore } from "@/lib/competitor-pricing.server";
 import { z } from "zod";
 import { airaloCheckSchema } from "@/domain/pricing/airalo-check-schema";
-import { AIRALO_DESTINATIONS } from "@/domain/pricing/airalo-destinations";
+import { AIRALO_DESTINATIONS, AIRALO_SPECIAL_DESTINATIONS } from "@/domain/pricing/airalo-destinations";
 import { airaloPageUrl, applyLiveCheck, normalizeCountry, planLiveCheck, type CountryCheck } from "@/domain/pricing/airalo-live";
 import { planResearchImport, type ResearchFile } from "@/domain/pricing/airalo";
 import airaloResearch from "@/data/airalo-research-2026-10-05.json";
@@ -127,8 +127,8 @@ const ISO_RE = /^[A-Z]{2}$/;
 const slugFor = (iso: string) => AIRALO_DESTINATIONS[iso] ? `${AIRALO_DESTINATIONS[iso]}-esim` : "";
 
 /** One plain public page request per country; any non-200, block page or unknown structure is RESEARCH_FAILED. No retries. */
-async function fetchCountry(iso: string): Promise<CountryCheck> {
-  const source = airaloPageUrl(slugFor(iso));
+async function fetchCountry(iso: string, slug = slugFor(iso)): Promise<CountryCheck> {
+  const source = airaloPageUrl(slug);
   try {
     const res = await fetch(source, { headers: { "User-Agent": "PasaportPriceResearch/1.0 (admin competitor research)", Accept: "text/html" }, redirect: "follow", signal: AbortSignal.timeout(15_000) });
     if (res.status !== 200) return normalizeCountry(iso, source, null, `HTTP ${res.status}`);
@@ -154,6 +154,21 @@ export const fetchAiraloCountries = createServerFn({ method: "POST" })
   });
 
 const checkSchema = airaloCheckSchema;
+
+/** Research-only retrieval of the separate Airalo destinations behind one special Pasaport destination. Never stored. */
+export const fetchAiraloSpecialDestination = createServerFn({ method: "POST" })
+  .inputValidator((input: { iso: string }) => ({ iso: z.string().regex(ISO_RE).parse(input.iso) }))
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context, data }) => {
+    await adminDb(context as AdminCtx);
+    const parts = AIRALO_SPECIAL_DESTINATIONS[data.iso] ?? [];
+    const out: { label: string; check: CountryCheck }[] = [];
+    for (const p of parts) {
+      if (out.length) await new Promise((r) => setTimeout(r, 400));
+      out.push({ label: p.label, check: await fetchCountry(data.iso, `${p.slug}-esim`) });
+    }
+    return { iso: data.iso, parts: out };
+  });
 
 /** Explicit Admin confirmation: updates Airalo competitor rows only; Pasaport prices are never touched. */
 export const commitAiraloLiveCheck = createServerFn({ method: "POST" })

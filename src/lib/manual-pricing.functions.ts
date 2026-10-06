@@ -9,8 +9,8 @@ import {
 } from "@/domain/pricing/manual-prices";
 import { costAnomalies, evaluateCompetitive, type CompetitiveStatus } from "@/domain/pricing/competitive";
 import { loadEurRates, loadStore } from "@/lib/competitor-pricing.server";
-import { compareFull, type BaseRow, type CountryCheck } from "@/domain/pricing/airalo-live";
-import { AIRALO_COUNTRY_MATCH_REQUIRED, AIRALO_DESTINATION_NOT_FOUND } from "@/domain/pricing/airalo-destinations";
+import { compareFull, storedChecks, type BaseRow, type CountryCheck } from "@/domain/pricing/airalo-live";
+import { AIRALO_COUNTRY_MATCH_REQUIRED, AIRALO_DESTINATION_NOT_FOUND, AIRALO_SPECIAL_DESTINATIONS } from "@/domain/pricing/airalo-destinations";
 import { airaloCheckSchema } from "@/domain/pricing/airalo-check-schema";
 
 /**
@@ -263,6 +263,19 @@ export const planAiraloFullCheck = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context, data }) => {
     const db = await adminDb(context as AdminCtx);
+    return runCompare(db, data.checks);
+  });
+
+/** Data-quality view from the last confirmed Airalo data. No Airalo request, no writes. */
+export const getAiraloDataQuality = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const db = await adminDb(context as AdminCtx);
+    const store = await loadStore(db);
+    return runCompare(db, storedChecks(store.entries, store.liveChecks), true);
+  });
+
+async function runCompare(db: any, checks: CountryCheck[], stored = false) {
     const [config, rows, store] = await Promise.all([loadConfig(db), loadRows(db), loadStore(db)]);
     const best = new Map<string, BaseRow>();
     for (const row of rows) {
@@ -272,11 +285,14 @@ export const planAiraloFullCheck = createServerFn({ method: "POST" })
       const prev = best.get(k);
       if (!prev || (row.cost ?? Infinity) < (prev.cost ?? Infinity)) best.set(k, { iso: row.iso, key: row.key, cost: row.cost, price: d.price, minMargin: row.minMargin });
     }
-    const checkedIsos = new Set(data.checks.map((c) => c.iso));
+    const checkedIsos = new Set(checks.map((c) => c.iso));
     const base = [...best.values()];
-    const result = compareFull(data.checks, base, store.entries, {
+    const checkedAt = new Date().toISOString();
+    const result = compareFull(checks, base, store.entries, {
       notFound: AIRALO_DESTINATION_NOT_FOUND.filter((i) => !checkedIsos.has(i)),
       matchRequired: AIRALO_COUNTRY_MATCH_REQUIRED.filter((i) => !checkedIsos.has(i)),
+      special: Object.keys(AIRALO_SPECIAL_DESTINATIONS).filter((i) => !checkedIsos.has(i)),
+      checkedAt,
     });
-    return { checkedAt: new Date().toISOString(), pasaportCountries: new Set(base.map((b) => b.iso)).size, ...result };
-  });
+    return { checkedAt, stored, pasaportCountries: new Set(base.map((b) => b.iso)).size, ...result };
+}
