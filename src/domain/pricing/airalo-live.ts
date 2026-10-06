@@ -14,9 +14,10 @@ export const AIRALO_PILOT_COUNTRIES: Record<string, string> = {
 };
 export const airaloPageUrl = (slug: string) => `https://www.airalo.com/${slug}`;
 
-export type LivePackage = { id: string; title: string; unlimited: boolean; dataGb: number | null; days: number; price: number; currency: string; voiceOrText: boolean };
+export type LivePackage = { id: string; title: string; unlimited: boolean; dataGb: number | null; days: number; price: number; currency: string; voiceOrText: boolean; promo: boolean };
+export type LiveOffer = { key: string; price: number; offers?: number; alternatives?: number[]; promo?: boolean };
 export type CountryCheck =
-  | { iso: string; status: "OK"; source: string; packages: { key: string; price: number }[]; excludedVoice: number; nonEur: string[] }
+  | { iso: string; status: "OK"; source: string; packages: LiveOffer[]; excludedVoice: number; nonEur: string[] }
   | { iso: string; status: "RESEARCH_FAILED"; source: string; reason: string };
 
 const WRAPPERS = new Set(["ShallowReactive", "Reactive", "Ref", "ShallowRef", "EmptyRef"]);
@@ -52,7 +53,9 @@ export function extractAiraloPackages(html: string): LivePackage[] | null {
     if (!id || !title || !Number.isInteger(days) || days <= 0 || !(amount > 0) || !/^[A-Z]{3}$/.test(code)) continue;
     if (!unlimited && !(mb > 0)) continue;
     const voiceOrText = at(o.voice) != null || at(o.text) != null || /\b(sms|mins?|calls?|voice|texts?)\b/i.test(title);
-    out.set(id, { id, title, unlimited, dataGb: unlimited ? null : round2(mb / 1024), days, price: round2(amount), currency: code, voiceOrText });
+    const promos = at(o.promotions);
+    const promo = Array.isArray(promos) && promos.length > 0;
+    out.set(id, { id, title, unlimited, dataGb: unlimited ? null : round2(mb / 1024), days, price: round2(amount), currency: code, voiceOrText, promo });
   }
   return [...out.values()];
 }
@@ -63,15 +66,21 @@ export function normalizeCountry(iso: string, source: string, html: string | nul
   const pkgs = extractAiraloPackages(html);
   if (!pkgs || pkgs.length === 0) return { iso, status: "RESEARCH_FAILED", source, reason: "Sayfa yapısı tanınmadı" };
   const dataOnly = pkgs.filter((p) => !p.voiceOrText);
-  const best = new Map<string, number>();
+  const byKey = new Map<string, { price: number; promo: boolean }[]>();
   const nonEur = new Set<string>();
   for (const p of dataOnly) {
     const key = packageKey({ unlimited: p.unlimited, dataGb: p.dataGb, validityDays: p.days });
     if (p.currency !== "EUR") { nonEur.add(key); continue; }
-    best.set(key, Math.min(best.get(key) ?? Infinity, p.price));
+    (byKey.get(key) ?? byKey.set(key, []).get(key)!).push({ price: p.price, promo: p.promo });
+  }
+  const best = new Map<string, LiveOffer>();
+  for (const [key, list] of byKey) {
+    const sorted = [...list].sort((a, b) => a.price - b.price);
+    const top = sorted[0]!;
+    best.set(key, { key, price: top.price, ...(sorted.length > 1 ? { offers: sorted.length, alternatives: sorted.slice(1, 11).map((o) => o.price) } : {}), ...(top.promo ? { promo: true } : {}) });
   }
   if (best.size === 0 && nonEur.size === 0) return { iso, status: "RESEARCH_FAILED", source, reason: "Veri paketi bulunamadı" };
-  return { iso, status: "OK", source, packages: [...best].map(([key, price]) => ({ key, price })), excludedVoice: pkgs.length - dataOnly.length, nonEur: [...nonEur] };
+  return { iso, status: "OK", source, packages: [...best.values()], excludedVoice: pkgs.length - dataOnly.length, nonEur: [...nonEur] };
 }
 
 export type ChangeKind = "NEW" | "PRICE_CHANGED" | "UNCHANGED" | "POSSIBLY_REMOVED" | "CURRENCY_NOT_EUR";
@@ -147,7 +156,17 @@ export function applyLiveCheck(checks: CountryCheck[], existing: CompetitorPrice
         source: c.source, checkedAt: day, sourceType: "PUBLIC_RETAIL", verifiedAt: now, active: true,
         ...(history.length ? { priceHistory: history } : {}),
       };
+      delete next.possiblyRemoved; delete next.offers; delete next.alternatives; delete next.promotional;
+      if (p.offers) { next.offers = p.offers; next.alternatives = p.alternatives ?? []; }
+      if (p.promo) next.promotional = true;
       if (idx >= 0) entries[idx] = next; else entries.push(next);
+    }
+    const seen = new Set([...c.packages.map((p) => p.key), ...c.nonEur]);
+    for (let i = 0; i < entries.length; i++) {
+      const e = entries[i]!;
+      if (!isAiralo(e) || e.iso !== c.iso || seen.has(e.key)) continue;
+      // One absence is never a deletion: keep the row and its history, mark it as not currently seen.
+      entries[i] = { ...e, possiblyRemoved: { since: e.possiblyRemoved?.since ?? now, lastCheckedAt: now, checks: (e.possiblyRemoved?.checks ?? 0) + 1 } };
     }
     liveChecks[c.iso] = { at: now, status: "OK", lastOkAt: now, offered: c.packages.map((p) => p.key) };
   }

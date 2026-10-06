@@ -22,7 +22,7 @@ const parseKey = (key: string) => {
  */
 export function matchCompetitor(key: string, entries: CompetitorPrice[]): { entry: CompetitorPrice | null; quality: MatchQuality } {
   const p = parseKey(key);
-  const live = entries.filter((e) => e.active !== false);
+  const live = entries.filter((e) => e.active !== false && !e.possiblyRemoved);
   const exact = live.find((e) => e.key === key);
   if (exact) return { entry: exact, quality: "EXACT" };
   if (p.unlimited) return { entry: null, quality: "NO_MATCH" };
