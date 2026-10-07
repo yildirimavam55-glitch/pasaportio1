@@ -4,7 +4,7 @@ import { useMemo, useRef, useState, type ReactNode } from "react";
 import { ArrowRight, BarChart3, BookOpen, Box, CheckCircle2, Globe2, Infinity as InfinityIcon, MapPin, MessageCircle, Search, Share2, Smartphone, Sparkles, Video, Zap } from "lucide-react";
 import { DeviceCompatibilityProductCard } from "@/components/travel/DeviceCompatibility";
 import { PasaportEsimHero } from "@/components/design-v2/PasaportEsimHero";
-import { CartBar, HeroField, heroInputClass, money, PhotoCard, PhotoRail, pick, SectionTitle, TrustRow, useV2StickySearch, V2Hero, V2Shell, V2StickySearchButton } from "@/components/design-v2/V2Shell";
+import { CartBar, money as formatMoney, PhotoCard, PhotoRail, pick, SectionTitle, TrustRow, useV2StickySearch, V2Shell, V2StickySearchButton } from "@/components/design-v2/V2Shell";
 import { V2PickerSheet } from "@/components/design-v2/V2PickerSheet";
 import { Button } from "@/components/ui/button";
 import { countryPhotoRegistry } from "@/components/travel/countryPhotos";
@@ -56,7 +56,8 @@ export const destinationPricesQuery = queryOptions({
 });
 
 export function EsimHomePage() {
-  const { locale } = useI18n();
+  const { locale, uiLocale } = useI18n();
+  const money = (value: number, currency: string) => formatMoney(value, currency, uiLocale);
   const c = pick(locale, T);
   const country = String((useSearch({ strict: false }) as { country?: string }).country ?? "").slice(0, 2).toUpperCase();
   const navigateRaw = useNavigate();
@@ -224,7 +225,8 @@ function CountryProductHero({ country, name, subtitle, changeLabel, onChange }: 
 }
 
 function Popular({ c, section, onPick }: { c: (typeof T)["tr"]; section: V2Section; onPick: (iso: string) => void }) {
-  const { locale } = useI18n();
+  const { locale, uiLocale } = useI18n();
+  const money = (value: number, currency: string) => formatMoney(value, currency, uiLocale);
   const list = section.items.filter((item) => item.visible).flatMap((item) => { const country = getCountryByIso(item.entity); return country ? [country] : []; });
   // Same authoritative country "from" prices as the search list: one shared request.
   const { data, isLoading } = useQuery(destinationPricesQuery);
@@ -259,7 +261,8 @@ function Popular({ c, section, onPick }: { c: (typeof T)["tr"]; section: V2Secti
 }
 
 function RegionalDiscovery({ section, summaries, loading, c }: { section: V2Section; summaries: EsimRegionalSummary[]; loading: boolean; c: (typeof T)["tr"] }) {
-  const { locale } = useI18n();
+  const { locale, uiLocale } = useI18n();
+  const money = (value: number, currency: string) => formatMoney(value, currency, uiLocale);
   const worldwide = summaries.find((item) => item.region === "GLOBAL" && item.unlimitedCount > 0);
   const regions = summaries.filter((item) => item.region !== "GLOBAL");
   return (
@@ -289,7 +292,8 @@ const HELP = localize({
 });
 
 function Packages({ iso, name, c, selectedPackage, onSelectPackage, desktopAfter }: { desktopAfter?: ReactNode; iso: string; name: string; c: (typeof T)["tr"]; selectedPackage: EsimPackage | null; onSelectPackage: (pkg: EsimPackage) => void }) {
-  const { locale } = useI18n();
+  const { locale, uiLocale } = useI18n();
+  const money = (value: number, currency: string) => formatMoney(value, currency, uiLocale);
   const h = pick(locale, HELP);
   const { lines } = useCart();
   const [type, setType] = useState<"standard" | "unlimited">("standard");
