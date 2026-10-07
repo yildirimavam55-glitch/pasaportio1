@@ -104,8 +104,18 @@ export const listEsimPackages = createServerFn({ method: "GET" })
   .inputValidator((input: { coverageIsos: string[] }) => ({
     coverageIsos: (input.coverageIsos ?? []).map((iso) => String(iso).toUpperCase().slice(0, 2)).filter(Boolean).slice(0, 25),
   }))
-  .handler(async ({ data }): Promise<EsimPackage[]> => {
-    const wantedIsos = data.coverageIsos;
+  .handler(async ({ data }): Promise<EsimPackage[]> => loadEsimPackages(data.coverageIsos));
+
+/** Package kinds that can never be a regional/global bundle (mirrors resolvePackageScope). */
+const NON_MULTI_KINDS = "(COUNTRY,LOCAL,SUBDIVISION,STATE,PROVINCE)";
+
+/**
+ * Shared package loader. `multiCountryOnly` lets region/global pages skip
+ * single-country rows in the database; regionalIdentity still runs afterwards,
+ * so the result is identical to filtering the full catalogue.
+ */
+async function loadEsimPackages(wantedIsos: string[], options: { multiCountryOnly?: boolean } = {}): Promise<EsimPackage[]> {
+    {
     const pageSize = wantedIsos.length ? 400 : 500;
     let rows: Awaited<ReturnType<typeof queryPage>> = [];
     async function queryPage(from: number) {
@@ -124,6 +134,9 @@ export const listEsimPackages = createServerFn({ method: "GET" })
         .order("id")
         .range(from, from + pageSize - 1);
       if (wantedIsos.length) query = query.contains("esim_product_details.coverage_country_isos", wantedIsos);
+      if (options.multiCountryOnly) {
+        query = query.or(`package_kind.is.null,package_kind.not.in.${NON_MULTI_KINDS}`, { referencedTable: "esim_product_details" });
+      }
       const { data: page, error } = await query;
       if (error) throw new Error(error.message);
       return page ?? [];
@@ -223,7 +236,8 @@ export const listEsimPackages = createServerFn({ method: "GET" })
       .filter((pkg) => showTest || !pkg.isTest);
     // Pasaport Unlimited = supplier Essential tier; Lite/Plus stay in the catalogue only.
     return standardUnlimitedOnly(packages, (x) => x.unlimited ? `${[...x.coverage].sort().join(",")}|${x.validityDays}` : null, (x) => x.planTier);
-  });
+    }
+}
 
 /**
  * Genuine published Unlimited bundles whose supplier metadata explicitly calls
@@ -231,7 +245,7 @@ export const listEsimPackages = createServerFn({ method: "GET" })
  */
 export const listGlobalUnlimitedEsimPackages = createServerFn({ method: "GET" }).handler(
   async (): Promise<EsimPackage[]> => {
-    const packages = await listEsimPackages({ data: { coverageIsos: [] } });
+    const packages = await loadEsimPackages([], { multiCountryOnly: true });
     return packages.filter((pkg) => pkg.unlimited && pkg.regionFamily === "GLOBAL");
   },
 );
@@ -302,7 +316,7 @@ export const listEsimRegionPackages = createServerFn({ method: "GET" })
     return { region: region as Exclude<CoverageRegionKey, "MULTI"> };
   })
   .handler(async ({ data }): Promise<EsimPackage[]> => {
-    const packages = await listEsimPackages({ data: { coverageIsos: [] } });
+    const packages = await loadEsimPackages([], { multiCountryOnly: true });
     return packages.filter((pkg) => regionalIdentity(pkg) === data.region);
   });
 
