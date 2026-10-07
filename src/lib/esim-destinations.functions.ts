@@ -89,6 +89,11 @@ export const listEsimDestinations = createServerFn({ method: "GET" }).handler(
         const amount = Number(row.sale_price);
         const currency = row.currency ?? "EUR";
         if (!coverage.length || !Number.isFinite(amount)) continue;
+        // Pasaport Unlimited = Essential tier only; Lite/Plus never set a "from" price.
+        if (details?.unlimited_data) {
+          const tier = planTierOf(details?.supplier_groups);
+          if (tier === "LITE" || tier === "PLUS") continue;
+        }
 
         if (coverage.length === 1) {
           const iso = coverage[0]!;
