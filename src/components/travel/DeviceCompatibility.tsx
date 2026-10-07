@@ -203,7 +203,7 @@ export function HeroDeviceCompatibility() {
   const [override, setOverride] = useState<{ brand: string; device: DeviceRecord | null } | null>(null);
   const [modelOpen, setModelOpen] = useState(false);
   const [query, setQuery] = useState("");
-  const prefill = resolveCheckerPrefill(devices, saved.compatibilityChecked ? { model: saved.deviceModel, brand: saved.deviceBrand } : null, detection);
+  const prefill = resolveCheckerPrefill(devices, saved.compatibilityChecked ? { model: saved.deviceModel, ...(saved.deviceBrand ? { brand: saved.deviceBrand } : {}) } : null, detection);
   const brand = override?.brand ?? prefill.brand ?? "";
   const device = override ? override.device : prefill.device;
   const brands = useMemo(() => [...new Set(devices.map((d) => d.brand))].sort(), [devices]);
@@ -215,7 +215,7 @@ export function HeroDeviceCompatibility() {
       <select aria-label={c.brand} value={brand} onChange={(e) => { setOverride({ brand: e.target.value, device: null }); saved.reset(); setQuery(""); }} className="h-11 min-w-0 rounded-lg border border-input bg-card px-2 text-sm text-foreground focus-visible:ring-2 focus-visible:ring-ring">
         <option value="">{c.brand}</option>{brands.map((b) => <option key={b} value={b}>{b}</option>)}
       </select>
-      <V2PickerSheet open={modelOpen} onOpenChange={(open) => { setModelOpen(open); if (!open) setQuery(""); }} title={c.model} searchLabel={c.search} query={query} onQueryChange={setQuery} selectedId={device?.id} emptyLabel={isPending ? "…" : c.unknown} items={models.map((d) => ({ id: d.id, label: d.model }))} onSelect={(id) => { const d = devices.find((item) => item.id === id); if (!d) return; setOverride({ brand: d.brand, device: d }); saved.setResult(d.model, d.status, d.brand); setModelOpen(false); setQuery(""); }}>
+      <V2PickerSheet open={modelOpen} onOpenChange={(open) => { setModelOpen(open); if (!open) setQuery(""); }} title={c.model} searchLabel={c.search} query={query} onQueryChange={setQuery} {...(device ? { selectedId: device.id } : {})} emptyLabel={isPending ? "…" : c.unknown} items={models.map((d) => ({ id: d.id, label: d.model }))} onSelect={(id) => { const d = devices.find((item) => item.id === id); if (!d) return; setOverride({ brand: d.brand, device: d }); saved.setResult(d.model, d.status, d.brand); setModelOpen(false); setQuery(""); }}>
         <Button variant="outline" className="h-11 min-w-0 justify-between bg-card px-2 font-normal"><span className="truncate">{device?.model ?? c.model}</span><ChevronRight className="size-4 shrink-0 rotate-90" /></Button>
       </V2PickerSheet>
     </div>

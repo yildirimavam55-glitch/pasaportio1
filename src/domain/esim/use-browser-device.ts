@@ -15,11 +15,11 @@ export function useBrowserDevice(devices: DeviceRecord[]) {
     let cancelled = false;
     const nav = navigator as DeviceNavigator;
     const inspect = async () => {
-      const hints = await nav.userAgentData?.getHighEntropyValues?.(["model", "platform", "platformVersion"]).catch(() => ({})) ?? {};
+      const hints: { model?: string; platform?: string; platformVersion?: string } = await nav.userAgentData?.getHighEntropyValues?.(["model", "platform", "platformVersion"]).catch(() => ({})) ?? {};
       if (cancelled) return;
       const platform = hints.platform ?? nav.userAgentData?.platform ?? nav.platform;
       setOs(/iPhone|iPad|iPod/.test(nav.userAgent) ? "iOS" : /Android/.test(`${platform} ${nav.userAgent}`) ? "Android" : "");
-      setDetection(detectDeviceFromSignals(devices, { model: hints.model, platform, userAgent: nav.userAgent, maxTouchPoints: nav.maxTouchPoints }));
+      setDetection(detectDeviceFromSignals(devices, { ...(hints.model ? { model: hints.model } : {}), platform, userAgent: nav.userAgent, maxTouchPoints: nav.maxTouchPoints }));
     };
     void inspect();
     return () => { cancelled = true; };

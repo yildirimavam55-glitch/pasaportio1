@@ -29,7 +29,7 @@ export function HeroPromotion() {
   const title = localizedField(data.text, "title", uiLocale) || bannerTagline(data.text, uiLocale);
   const description = localizedField(data.text, "description", uiLocale);
   const conditions = localizedField(data.text, "conditions", uiLocale);
-  const discount = (PROMO_HEADLINE[uiLocale] ?? PROMO_HEADLINE.en ?? "{discount}").split("|")[0]?.replace("{discount}", formatDiscount(data.discountType, data.discountValue, uiLocale, data.currency)).trim();
+  const discount = (PROMO_HEADLINE[uiLocale] ?? PROMO_HEADLINE["en"] ?? "{discount}").split("|")[0]?.replace("{discount}", formatDiscount(data.discountType, data.discountValue, uiLocale, data.currency)).trim();
   return <aside data-testid="hero-promotion" dir={dir} className="pasaport-hero-promotion rounded-2xl bg-card p-4 text-card-foreground shadow-panel ring-1 ring-border/50 lg:p-5">
     <div className="grid grid-cols-[auto_minmax(0,1fr)] items-center gap-3">
       <Gift className="size-9 shrink-0 text-primary lg:size-10" />
