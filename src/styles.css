@@ -1565,14 +1565,18 @@ html[data-quick-search-lock] body {
 .pasaport-hero-promotion { position: relative; margin-top: .75rem; }
 .pasaport-hero-promotion > div:last-child { padding-inline-end: 2rem; }
 @media (max-width: 1023px) {
+  .pasaport-mobile-reference { --foreground: oklch(0.25 0.045 220); --card-foreground: var(--foreground); --muted-foreground: oklch(0.52 0.04 235); }
+  .pasaport-mobile-reference > header { border-bottom-color: transparent; }
+  .pasaport-mobile-reference > header > div { padding-inline: 16px; }
   .pasaport-esim-hero { padding: 10px 16px 0; grid-template-columns: minmax(0,1fr); }
   .pasaport-hero-content { display: contents; }
   .pasaport-hero-heading { grid-row: 1; padding-bottom: 8px; }
-  .pasaport-hero-heading h1 { font-size: 28px; line-height: 1.08; margin-top: 4px; }
+  .pasaport-hero-heading h1 { max-width: 250px; font-size: 28px; line-height: 1.08; margin-top: 6px; }
   .pasaport-hero-heading > p:last-of-type { font-size: 13px; line-height: 1.4; margin-top: 6px; }
   .pasaport-hero-heading ul { display: none; }
   .pasaport-hero-photo { position: relative; grid-row: 2; grid-column: 1; height: 180px; margin-inline: -16px; z-index: 0; }
   .pasaport-hero-photo img { object-position: var(--hero-mobile-position, 75% 50%); object-fit: cover; transform: scaleX(-1); }
+  .pasaport-hero-photo::after { content: ""; position: absolute; inset: 0; pointer-events: none; background: linear-gradient(180deg, var(--background), transparent 16%, transparent 90%, var(--background)); }
   .pasaport-hero-shade { display: none; }
   .pasaport-hero-promotion { grid-row: 2; grid-column: 1; align-self: end; justify-self: end; position: relative; width: 156px; margin: 0 0 12px; padding: 10px; border-radius: 16px; z-index: 1; }
   .pasaport-hero-promotion > div:first-child { gap: 6px; }
@@ -1582,7 +1586,9 @@ html[data-quick-search-lock] body {
   .pasaport-hero-promotion > div:last-child { padding-inline-end: 0; }
   .pasaport-hero-promotion span.font-mono { font-size: 12px; padding: 6px; }
   .pasaport-hero-promotion > div.mt-3 { margin-top: 5px; gap: 0; }
-  .pasaport-search-card { grid-row: 3; grid-column: 1; position: relative; z-index: 2; margin: -3px 0 0; padding: 12px 14px; border-radius: 20px; }
+  .pasaport-search-card { grid-row: 3; grid-column: 1; position: relative; z-index: 2; margin: -3px 0 0; padding: 12px 14px; border-radius: 20px; background: var(--card); }
+  .pasaport-search-card button, .pasaport-search-card select { border-radius: 10px; }
+  .pasaport-hero-promotion span.font-mono { background: color-mix(in oklab, var(--primary-soft) 50%, var(--card)); }
   .pasaport-search-card button, .pasaport-search-card select { height: 44px; }
   .hero-device-check { margin-top: 8px; padding-top: 8px; }
   .hero-device-check h2 { font-size: 14px; }

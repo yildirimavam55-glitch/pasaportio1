@@ -60,7 +60,7 @@ export function V2Shell({
   const serviceAccent = service === "lounge" ? "[--v2-service:var(--color-v2-lounge)]" : service === "vignette" ? "[--v2-service:var(--color-v2-vignette)]" : "[--v2-service:var(--color-v2-esim)]";
   return (
     <V2Context.Provider value={true}>
-      <PublicShell hideStickySearch hideFloatingWhatsApp footerBottomSafe={purchaseSummary ? "purchase" : false} headerAccessory={stickySearch}>
+      <PublicShell hideStickySearch hideFloatingWhatsApp mobilePasaport={heroPromotion} footerBottomSafe={purchaseSummary ? "purchase" : false} headerAccessory={stickySearch}>
         <div className={`${heroPromotion ? "pasaport-mobile-home" : ""} mx-auto w-full ${width} ${serviceAccent} overflow-x-clip px-4 pb-8 sm:px-6 sm:pb-12 lg:pb-16`}>
           {!heroPromotion && <PromoBanner />}
           <DesktopNav active={active} />
