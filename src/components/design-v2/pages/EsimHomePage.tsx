@@ -12,7 +12,7 @@ import { CountryFlag } from "@/components/travel/CountryFlag";
 import { useI18n } from "@/i18n";
 import { useCart } from "@/domain/cart/store";
 import { getCountryByIso, REGION_LABELS, searchCountries } from "@/domain/geo/countries";
-import { listEsimDestinationStartingPrices, listEsimPackages, listEsimRegionalSummaries, listEsimStartingPrices, type EsimPackage, type EsimRegionalSummary } from "@/lib/esim-catalogue.functions";
+import { listEsimDestinationStartingPrices, listEsimPackages, listEsimRegionalSummaries, type EsimPackage, type EsimRegionalSummary } from "@/lib/esim-catalogue.functions";
 import { customerCataloguePackageTitle } from "@/domain/esim/customer-presentation";
 import { estimateUsageNeed, type EsimUsageSettings } from "@/domain/esim/usage-recommendation";
 import { selectRecommendedPackage } from "@/domain/esim/package-matching";
