@@ -237,10 +237,36 @@ export const listGlobalUnlimitedEsimPackages = createServerFn({ method: "GET" })
   },
 );
 
+/**
+ * Slim multi-country rows for regional cards. The database applies the same
+ * visibility rules and Essential-only Unlimited filter as listEsimPackages;
+ * only the fields regional cards and deduplication need are transferred.
+ */
+async function regionalCardRows() {
+  const showTest = await isTestCatalogueVisible();
+  const { data, error } = await publicClient().rpc("storefront_regional_package_rows", { _show_test: showTest });
+  if (error) throw new Error(error.message);
+  return (data ?? []).map((r) => {
+    const coverage = r.coverage ?? [];
+    return {
+      salePrice: Number(r.sale_price),
+      currency: r.currency ?? "EUR",
+      countryIso: r.country_iso ?? null,
+      packageKind: r.package_kind ?? null,
+      unlimited: Boolean(r.unlimited),
+      dataGb: r.unlimited || r.data_gb == null ? null : commercialDataGb(Number(r.data_gb)),
+      validityDays: r.validity_days ?? null,
+      coverage,
+      networks: r.network_operators ?? [],
+      networkGenerations: networkGenerationsOf(r.supplier_speed),
+    };
+  });
+}
+
 /** Real published multi-country inventory summarized for V2 regional discovery. */
 export const listEsimRegionalSummaries = createServerFn({ method: "GET" }).handler(
   async (): Promise<EsimRegionalSummary[]> => {
-    const packages = dedupeStorefrontPackages(await listEsimPackages({ data: { coverageIsos: [] } }));
+    const packages = dedupeStorefrontPackages(await regionalCardRows()) as unknown as EsimPackage[];
     return COVERAGE_REGION_ORDER.flatMap((region) => {
       if (region === "MULTI") return [];
       const rows = packages.filter((pkg) => regionalIdentity(pkg) === region && pkg.salePrice != null);
