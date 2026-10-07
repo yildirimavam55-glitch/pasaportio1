@@ -47,8 +47,13 @@ export function PasaportEsimHero({ section, image, mobileImage, children }: { se
       </div>
     </div>
     <HeroPromotion />
-    <ul className="pasaport-mobile-benefits grid grid-cols-3 divide-x divide-border lg:hidden">
-      {[{ icon: Zap, label: c.delivery }, { icon: Globe2, label: c.coverage }, { icon: Headphones, label: c.support }].map(({ icon: Icon, label }) => <li key={label} className="flex min-w-0 flex-col items-center gap-1 px-1 text-center text-[10px] font-medium"><Icon className="size-6 text-primary" /><span>{label}</span></li>)}
-    </ul>
   </section>;
+}
+
+export function PasaportMobileBenefits() {
+  const { locale, uiLocale } = useI18n();
+  const c = COPY[uiLocale as keyof typeof COPY] ?? COPY[locale];
+  return <ul className="pasaport-mobile-benefits grid grid-cols-3 divide-x divide-border lg:hidden">
+    {[{ icon: Zap, label: c.delivery }, { icon: Globe2, label: c.coverage }, { icon: Headphones, label: c.support }].map(({ icon: Icon, label }) => <li key={label} className="flex min-w-0 flex-col items-center gap-1 px-1 text-center text-[10px] font-medium"><Icon className="size-6 text-primary" /><span>{label}</span></li>)}
+  </ul>;
 }
