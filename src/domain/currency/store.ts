@@ -34,14 +34,18 @@ export function convertForDisplay(amount: number, sourceCurrency: string): { amo
   return { amount: convertAmount(amount, entry.rate, entry.rounding), currency: target };
 }
 
+const PREFIXED = new Set(["CAD", "AUD", "SGD", "NZD", "MXN"]);
+
 export function formatCurrencyAmount(amount: number, currency: string, locale?: string) {
   const tag = locale ? NUMBER_LOCALE[locale] ?? locale : undefined;
   const digits = isCurrencyCode(currency) ? FRACTION_DIGITS[currency] : undefined;
+  const fraction = digits != null ? { minimumFractionDigits: digits, maximumFractionDigits: digits } : {};
   try {
-    const text = new Intl.NumberFormat(tag, { style: "currency", currency, ...(digits != null ? { minimumFractionDigits: digits, maximumFractionDigits: digits } : {}) }).format(amount);
-    return isCurrencyCode(currency) && /^[A-Z]{3}/.test(text.trim()) && CURRENCY_SYMBOL[currency].length <= 3 && currency !== "CHF"
-      ? text.replace(currency, CURRENCY_SYMBOL[currency]).replace(/\u00a0(?=\d)/, "")
-      : text;
+    if (isCurrencyCode(currency) && PREFIXED.has(currency)) {
+      const text = new Intl.NumberFormat(tag, { style: "currency", currency, currencyDisplay: "code", ...fraction }).format(amount);
+      return text.replace(currency, CURRENCY_SYMBOL[currency]).replace(/(\$)\s+/, "$1");
+    }
+    return new Intl.NumberFormat(tag, { style: "currency", currency, currencyDisplay: "narrowSymbol", ...fraction }).format(amount);
   } catch {
     return `${amount.toFixed(2)} ${currency}`;
   }
