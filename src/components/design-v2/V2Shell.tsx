@@ -60,14 +60,13 @@ export function V2Shell({
   const serviceAccent = service === "lounge" ? "[--v2-service:var(--color-v2-lounge)]" : service === "vignette" ? "[--v2-service:var(--color-v2-vignette)]" : "[--v2-service:var(--color-v2-esim)]";
   return (
     <V2Context.Provider value={true}>
-      <PublicShell hideStickySearch hideFloatingWhatsApp footerBottomSafe={purchaseSummary ? "purchase" : true} headerAccessory={stickySearch}>
-        <div className={`mx-auto w-full ${width} ${serviceAccent} overflow-x-clip px-4 pb-8 sm:px-6 sm:pb-12 lg:pb-16`}>
+      <PublicShell hideStickySearch hideFloatingWhatsApp footerBottomSafe={purchaseSummary ? "purchase" : false} headerAccessory={stickySearch}>
+        <div className={`${heroPromotion ? "pasaport-mobile-home" : ""} mx-auto w-full ${width} ${serviceAccent} overflow-x-clip px-4 pb-8 sm:px-6 sm:pb-12 lg:pb-16`}>
           {!heroPromotion && <PromoBanner />}
           <DesktopNav active={active} />
           {children}
         </div>
         <ActionDock showCart={level === "discovery"} showWhatsApp={!commerceSelection && !hideWhatsApp && !purchaseSummary} purchaseSummary={purchaseSummary} />
-        <BottomNav active={active} />
       </PublicShell>
     </V2Context.Provider>
   );
@@ -345,7 +344,7 @@ function ActionDock({ showCart, showWhatsApp, purchaseSummary }: { showCart: boo
   const l = pick(locale, DOCK);
   const { count } = useCart();
   return (
-    <div className="pointer-events-none fixed inset-x-0 bottom-[calc(3.75rem+env(safe-area-inset-bottom))] z-30 px-4 pb-1.5 sm:bottom-4 lg:left-auto lg:right-[max(1.5rem,calc((100vw-77rem)/2-4.5rem))] lg:w-[25rem] lg:px-0">
+    <div className="pointer-events-none fixed inset-x-0 bottom-[calc(.75rem+env(safe-area-inset-bottom))] z-30 px-4 pb-1.5 sm:bottom-4 lg:left-auto lg:right-[max(1.5rem,calc((100vw-77rem)/2-4.5rem))] lg:w-[25rem] lg:px-0">
       <div className="mx-auto flex max-w-xl items-center justify-end gap-2 lg:mx-0">
         {purchaseSummary}
         {!purchaseSummary && showCart && count > 0 && (

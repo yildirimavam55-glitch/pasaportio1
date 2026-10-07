@@ -1,6 +1,8 @@
 # Roadmap
 
 ## Current request
+- [ ] Match latest compact mobile reference; preserve desktop, campaign, search and device logic.
+- [ ] Remove fixed bottom menu and validate 360/390/430px, desktop, languages and interaction.
 - [x] Apply approved seaside eSIM hero with existing country search and integrated device checker.
 - [x] Move homepage campaign into hero and extend existing Admin localized display fields and refresh.
 - [x] Prevent initial wrong-language flash; verify locale priority and Arabic RTL.

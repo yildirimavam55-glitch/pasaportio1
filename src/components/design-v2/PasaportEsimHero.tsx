@@ -32,12 +32,14 @@ export function PasaportEsimHero({ section, image, mobileImage, children }: { se
     <picture className="pasaport-hero-photo"><source media="(min-width: 1024px)" srcSet={heroImage} /><img src={heroMobile || heroImage} alt="" width={1920} height={1088} fetchPriority="high" decoding="async" className="v2-hero-image size-full" /></picture>
     <div className="pasaport-hero-shade" aria-hidden />
     <div className={`pasaport-hero-content relative z-10 min-w-0 ${section.align === "center" ? "text-center" : "text-start"}`}>
+      <div className="pasaport-hero-heading">
       <p className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground lg:text-sm">{useApprovedCopy ? c.eyebrow : v2Text(section, "eyebrow", locale)}</p>
       <h1 className="mt-2 max-w-xl font-display text-[34px] font-bold leading-[1.03] text-foreground lg:text-[64px]">{useApprovedCopy ? c.title : storedTitle}</h1>
       <p className="mt-2 text-sm text-muted-foreground lg:mt-3 lg:text-xl">{useApprovedCopy ? c.subtitle : v2Text(section, "subtitle", locale)}</p>
       <ul className="mt-4 flex gap-3 text-[10px] font-medium text-foreground lg:mt-5 lg:gap-5 lg:text-xs">
         {[{ icon: Zap, label: c.delivery }, { icon: Globe2, label: c.coverage }, { icon: Headphones, label: c.support }].map(({ icon: Icon, label }) => <li key={label} className="flex min-w-0 items-center gap-1.5"><Icon className="size-4 shrink-0 text-primary lg:size-5" /><span>{label}</span></li>)}
       </ul>
+      </div>
       <div className="pasaport-search-card mt-5 rounded-2xl bg-card/95 p-4 shadow-panel lg:mt-6 lg:p-6">
         <p className="mb-2 text-sm font-bold">{c.search}</p>
         {children}
@@ -45,5 +47,8 @@ export function PasaportEsimHero({ section, image, mobileImage, children }: { se
       </div>
     </div>
     <HeroPromotion />
+    <ul className="pasaport-mobile-benefits grid grid-cols-3 divide-x divide-border lg:hidden">
+      {[{ icon: Zap, label: c.delivery }, { icon: Globe2, label: c.coverage }, { icon: Headphones, label: c.support }].map(({ icon: Icon, label }) => <li key={label} className="flex min-w-0 flex-col items-center gap-1 px-1 text-center text-[10px] font-medium"><Icon className="size-6 text-primary" /><span>{label}</span></li>)}
+    </ul>
   </section>;
 }

@@ -209,17 +209,17 @@ export function HeroDeviceCompatibility() {
   const brands = useMemo(() => [...new Set(devices.map((d) => d.brand))].sort(), [devices]);
   const models = useMemo(() => searchDevices(devices, query, brand || undefined), [devices, query, brand]);
   const result = device?.status ?? "UNCERTAIN";
-  return <div className="mt-4 border-t border-border pt-3" data-testid="hero-device-check">
+   return <div className="hero-device-check mt-4 border-t border-border pt-3" data-testid="hero-device-check">
     <h2 className="mb-2 text-sm font-bold">{c.title}</h2>
     <div className="grid grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] gap-2">
-      <select aria-label={c.brand} value={brand} onChange={(e) => { setOverride({ brand: e.target.value, device: null }); saved.reset(); setQuery(""); }} className="h-11 min-w-0 rounded-lg border border-input bg-card px-2 text-sm text-foreground focus-visible:ring-2 focus-visible:ring-ring">
+      <select aria-label={c.brand} value={brand} data-known-brand={Boolean(brand) || undefined} onChange={(e) => { setOverride({ brand: e.target.value, device: null }); saved.reset(); setQuery(""); }} className="h-11 min-w-0 rounded-lg border border-input bg-card px-2 text-sm text-foreground focus-visible:ring-2 focus-visible:ring-ring">
         <option value="">{c.brand}</option>{brands.map((b) => <option key={b} value={b}>{b}</option>)}
       </select>
       <V2PickerSheet open={modelOpen} onOpenChange={(open) => { setModelOpen(open); if (!open) setQuery(""); }} title={c.model} searchLabel={c.search} query={query} onQueryChange={setQuery} {...(device ? { selectedId: device.id } : {})} emptyLabel={isPending ? "…" : c.unknown} items={models.map((d) => ({ id: d.id, label: d.model }))} onSelect={(id) => { const d = devices.find((item) => item.id === id); if (!d) return; setOverride({ brand: d.brand, device: d }); saved.setResult(d.model, d.status, d.brand); setModelOpen(false); setQuery(""); }}>
         <Button variant="outline" className="h-11 min-w-0 justify-between bg-card px-2 font-normal"><span className="truncate">{device?.model ?? c.model}</span><ChevronRight className="size-4 shrink-0 rotate-90" /></Button>
       </V2PickerSheet>
     </div>
-    <div aria-live="polite" className="mt-2 min-h-8 text-[11px] leading-4 text-muted-foreground">
+    <div aria-live="polite" className="hero-device-result mt-2 min-h-8 text-[11px] leading-4 text-muted-foreground" data-has-result={Boolean(device) || undefined}>
       {device ? <><span className="flex items-center gap-1 font-semibold text-foreground"><StatusIcon status={result} />{result === "COMPATIBLE" ? c.ok : result === "NOT_COMPATIBLE" ? c.no : c.unknown}{os ? ` · ${os}` : ""}</span><span>{c.caution}</span></> : <span>{os ? `${os} · ` : ""}{isError ? c.unknown : c.missing}</span>}
     </div>
   </div>;
