@@ -3,13 +3,13 @@ import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { adminDb, audit, type AdminCtx } from "@/lib/admin-guard";
 import { packageKey } from "@/domain/pricing/manual-prices";
-import { approvedBaseline, classifyRepricing, PRIORITY_ORDER, type Priority } from "@/domain/pricing/repricing";
-import { planTierOf, standardUnlimitedOnly } from "@/domain/esim/supplier-metadata";
+import { classifyRepricing, monitoringBaseline, PRIORITY_ORDER, type BaselineKind, type Priority } from "@/domain/pricing/repricing";
+import { planTierOf, STANDARD_UNLIMITED_TIER } from "@/domain/esim/supplier-metadata";
 import { loadAiraloExactIndex } from "@/lib/pricing-suggestion.server";
 
 export type RepricingRow = {
   id: string; name: string; iso: string | null; key: string; unlimited: boolean; lifecycle: string;
-  cost: number | null; baseline: number | null; change: number | null; changePct: number | null;
+  cost: number | null; baseline: number | null; baselineKind: BaselineKind | null; change: number | null; changePct: number | null;
   price: number | null; profit: number | null; markup: number | null; airalo: number | null;
   suggested: number | null; suggestionStatus: string; suggestionRule: string;
   suggestedProfit: number | null; suggestedMarkup: number | null; priority: Priority; manual: boolean;
@@ -47,19 +47,20 @@ export const getRepricingQueue = createServerFn({ method: "GET" })
       key: packageKey({ unlimited: Boolean(d.unlimited_data), dataGb: d.data_gb == null ? null : Number(d.data_gb), validityDays: d.validity_days }),
       tier: d.unlimited_data ? planTierOf(d.supplier_groups) : null,
     }));
-    // Standard Pasaport Unlimited = Essential only; Lite/Plus stay out of the queue.
-    const scoped = standardUnlimitedOnly(base, (r) => (r.key.startsWith("U|") && r.d.country_iso ? `${r.d.country_iso}|${r.key}` : null), (r) => r.tier);
+    // Normal Pasaport Unlimited = Essential only; Lite/Plus never enter the cost-change queue.
+    const scoped = base.filter((r) => !r.key.startsWith("U|") || r.tier === STANDARD_UNLIMITED_TIER);
     const rows: RepricingRow[] = scoped.map(({ d, p, key }) => {
       const cost = p.provider_cost == null ? null : Number(p.provider_cost);
       const price = Number(p.sale_price);
-      const baseline = approvedBaseline(p.pricing_snapshot);
+      const mb = monitoringBaseline(p.pricing_snapshot);
+      const baseline = mb?.cost ?? null;
       const airaloExact = d.country_iso ? airalo.get(`${d.country_iso}|${key}`) ?? null : null;
       const c = classifyRepricing({ cost, price, baseline, airaloExact });
       return {
         id: p.id, name: p.name, iso: d.country_iso, key, unlimited: Boolean(d.unlimited_data), lifecycle: p.lifecycle,
-        cost, baseline, change: c.change, changePct: c.changePct, price, profit: c.profit, markup: c.markup,
+        cost, baseline, baselineKind: mb?.kind ?? null, change: c.change, changePct: c.changePct, price, profit: c.profit, markup: c.markup,
         airalo: airaloExact, suggested: c.suggestion.price, suggestionStatus: c.suggestion.status, suggestionRule: c.suggestion.rule,
-        suggestedProfit: c.suggestedProfit, suggestedMarkup: c.suggestedMarkup, priority: c.priority, manual: Boolean(p.price_overridden && !baseline),
+        suggestedProfit: c.suggestedProfit, suggestedMarkup: c.suggestedMarkup, priority: c.priority, manual: Boolean(p.price_overridden && mb?.kind !== "APPROVED"),
       };
     });
     rows.sort((a, b) => PRIORITY_ORDER[a.priority] - PRIORITY_ORDER[b.priority] || (b.changePct ?? 0) - (a.changePct ?? 0));
@@ -89,4 +90,66 @@ export const approveRepricing = createServerFn({ method: "POST" })
     if (upErr) throw new Error(upErr.message);
     await audit(db, "pricing.reprice.approved", "service_products", data.productId, { salePrice: Number(before.sale_price) }, { salePrice: price, supplierCost: cost });
     return { ok: true, price };
+  });
+
+export type ManualReviewCategory = "AIRALO_BELOW_COST" | "LOW_PROFIT" | "NO_ESSENTIAL";
+export type ManualReviewRow = {
+  id: string; iso: string; key: string; category: ManualReviewCategory; protectedManual: boolean;
+  cost: number | null; price: number | null; profit: number | null; markup: number | null; airalo: number | null;
+  baseline: number | null; baselineKind: BaselineKind | null; resolvedByAdmin: boolean;
+};
+
+/**
+ * Read-only "MANUEL FİYAT İNCELEMESİ" list, kept apart from supplier-cost alerts. Its membership is the
+ * Admin-only platform_settings row "manual_price_review"; a monitoring baseline never marks a price as approved.
+ */
+/** Compact list "10GB_30D:AD,AW;ULE_7D:DE" -> supplier product IDs "esim_10GB_30D_AD_V2", ... */
+export function expandProductList(compact: string): string[] {
+  return compact.split(";").filter(Boolean).flatMap((part) => {
+    const [pkg, isos] = part.split(":");
+    return (isos ?? "").split(",").filter(Boolean).map((iso) => `esim_${pkg}_${iso}_V2`);
+  });
+}
+
+export const getManualPriceReview = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const db = await adminDb(context as AdminCtx);
+    const { data: setting, error } = await db.from("platform_settings").select("data").eq("id", "manual_price_review").maybeSingle();
+    if (error) throw new Error(error.message);
+    const s = (setting?.data ?? {}) as any;
+    const cats = Object.fromEntries(Object.entries(s.categories ?? {}).map(([k, v]) => [k, expandProductList(String(v))])) as Record<ManualReviewCategory, string[]>;
+    const prot = new Set<string>(expandProductList(String(s.protectedManual ?? "")));
+    const exts = [...new Set([...Object.values(cats).flat(), ...prot])];
+    const products = new Map<string, any>();
+    for (let i = 0; i < exts.length; i += 200) {
+      const { data, error: e } = await db.from("service_products")
+        .select("id, provider_external_id, provider_cost, sale_price, pricing_snapshot, esim_product_details(country_iso, data_gb, unlimited_data, validity_days)")
+        .in("provider_external_id", exts.slice(i, i + 200));
+      if (e) throw new Error(e.message);
+      for (const p of data ?? []) products.set(p.provider_external_id, p);
+    }
+    const airalo = await loadAiraloExactIndex(db);
+    const rows: ManualReviewRow[] = [];
+    for (const [category, list] of Object.entries(cats) as [ManualReviewCategory, string[]][]) {
+      for (const ext of list) {
+        const p = products.get(ext);
+        if (!p) continue;
+        const d = Array.isArray(p.esim_product_details) ? p.esim_product_details[0] : p.esim_product_details;
+        const key = packageKey({ unlimited: Boolean(d?.unlimited_data), dataGb: d?.data_gb == null ? null : Number(d.data_gb), validityDays: d?.validity_days });
+        const cost = p.provider_cost == null ? null : Number(p.provider_cost);
+        const price = p.sale_price == null ? null : Number(p.sale_price);
+        const mb = monitoringBaseline(p.pricing_snapshot);
+        const profit = cost != null && price != null ? Math.round((price - cost) * 100) / 100 : null;
+        rows.push({
+          id: p.id, iso: d?.country_iso ?? "", key, category, protectedManual: prot.has(ext),
+          cost, price, profit, markup: profit != null && cost ? Math.round((profit / cost) * 1000) / 10 : null,
+          airalo: d?.country_iso ? airalo.get(`${d.country_iso}|${key}`) ?? null : null,
+          baseline: mb?.cost ?? null, baselineKind: mb?.kind ?? null,
+          resolvedByAdmin: String(p.pricing_snapshot?.source ?? "") === "ADMIN_REPRICE",
+        });
+      }
+    }
+    const counts = rows.reduce((a, r) => ({ ...a, [r.category]: (a[r.category] ?? 0) + 1 }), {} as Record<string, number>);
+    return { rows, counts, packages: Number(s.packageCount ?? 0), protectedManualCount: prot.size, createdAt: s.createdAt ?? null };
   });
