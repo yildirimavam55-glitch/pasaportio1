@@ -204,7 +204,17 @@ export function V2CompactFaq({ title, questions, relaxed = false }: { title: str
 export function V2GuidesRail({ title, lead, allLabel }: { title?: string; lead?: string; allLabel?: string } = {}) {
   const { locale } = useI18n();
   const c = COPY[locale];
-  const { data = [] } = useQuery({ queryKey: ["v2-guides", locale], queryFn: () => listFeaturedGuides({ data: { locale, limit: 4 } }), staleTime: 5 * 60_000 });
+  const { data = [], isPending } = useQuery({ queryKey: ["v2-guides", locale], queryFn: () => listFeaturedGuides({ data: { locale, limit: 4 } }), staleTime: 5 * 60_000 });
+  // Reserve the final section footprint while guides load so the page never jumps.
+  if (isPending) return (
+    <section className="mb-4 pb-4" aria-hidden>
+      <SectionTitle>{title || c.guides}</SectionTitle>
+      {(lead ?? c.guideLead) && <p className="-mt-0.5 mb-4 text-xs text-muted-foreground">{lead ?? c.guideLead}</p>}
+      <div className="-mx-4 flex gap-3 overflow-hidden px-4 pb-1 lg:mx-0 lg:grid lg:grid-cols-3 lg:gap-6 lg:px-0">
+        {[0, 1, 2].map((i) => <div key={i} className="h-[17rem] w-[84vw] max-w-[22rem] shrink-0 rounded-xl bg-muted/70 sm:w-[17rem] lg:h-[21.2rem] lg:w-auto lg:max-w-none" />)}
+      </div>
+    </section>
+  );
   if (!data.length) return null;
   return (
     <section className="mb-4 pb-4">
