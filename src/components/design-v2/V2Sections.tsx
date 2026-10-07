@@ -166,7 +166,8 @@ export function V2Sections({ config, media, slots, only, onDestinationSearch }: 
           case "SEARCH_HERO":
             return framed(slots.hero(s));
           case "BENEFIT_ROW":
-            return framed(<div className={slots.benefitsInDesktopHero ? "lg:hidden" : undefined}><TrustRow items={items.map((item) => ({ icon: <StorefrontIcon name={item.icon} className="size-6" />, label: v2ItemText(item.title, locale) }))} />{slots.afterBenefits}</div>);
+            if (slots.benefitsInDesktopHero) return null;
+            return framed(<div><TrustRow items={items.map((item) => ({ icon: <StorefrontIcon name={item.icon} className="size-6" />, label: v2ItemText(item.title, locale) }))} />{slots.afterBenefits}</div>);
           case "DESTINATION_CAROUSEL":
             return framed(<>{slots.destinations?.(s)}{slots.afterDestinations}</>);
           case "TRUST_REVIEWS":
