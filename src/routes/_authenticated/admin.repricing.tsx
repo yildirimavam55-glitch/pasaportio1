@@ -8,8 +8,8 @@ import { AdminError, AdminLoading } from "@/components/admin/AdminUi";
 import { adminHead } from "@/components/admin/AdminSectionPage";
 import { Button } from "@/components/ui/button";
 import { packageKeyLabel } from "@/domain/pricing/manual-prices";
-import type { Priority } from "@/domain/pricing/repricing";
-import { approveRepricing, getRepricingQueue, type RepricingRow } from "@/lib/repricing.functions";
+import { BASELINE_LABEL, type Priority } from "@/domain/pricing/repricing";
+import { approveRepricing, getManualPriceReview, getRepricingQueue, type ManualReviewCategory, type RepricingRow } from "@/lib/repricing.functions";
 
 export const Route = createFileRoute("/_authenticated/admin/repricing")({
   head: () => adminHead("Fiyat kontrol kuyruğu", "Tedarikçi maliyeti değişen paketlerin fiyat incelemesi."),
@@ -49,11 +49,16 @@ function Repricing() {
       <div className="text-xs">{label}</div><div className="text-xl font-bold">{c[p] ?? 0}</div>
     </button>
   );
+  const [tab, setTab] = useState<"COST" | "MANUAL">("COST");
   return (
     <AdminGate title="Fiyat kontrol kuyruğu">
-      {q.isLoading ? <AdminLoading /> : q.error ? <AdminError error={q.error} /> : (
+      <div className="mb-4 flex gap-2" role="tablist">
+        <Button size="sm" variant={tab === "COST" ? "default" : "outline"} onClick={() => setTab("COST")}>MALİYET DEĞİŞİKLİĞİ</Button>
+        <Button size="sm" variant={tab === "MANUAL" ? "default" : "outline"} onClick={() => setTab("MANUAL")}>MANUEL FİYAT İNCELEMESİ</Button>
+      </div>
+      {tab === "MANUAL" ? <ManualReview /> : q.isLoading ? <AdminLoading /> : q.error ? <AdminError error={q.error} /> : (
         <div className="min-w-0 space-y-4">
-          <p className="text-xs text-muted-foreground">Ürünler mevcut fiyatla satışta kalır. Fiyat yalnız tek tek onayınızla değişir.</p>
+          <p className="text-xs text-muted-foreground">Tedarikçi maliyeti izleme başlangıcından beri değişen paketler. Ürünler mevcut fiyatla satışta kalır; fiyat yalnız tek tek onayınızla değişir. Sınırsız = yalnız Essential.</p>
           <div className="grid grid-cols-2 gap-2 sm:grid-cols-5">
             {tile("CRITICAL", "🔴 Kritik")}{tile("HIGH", "🟠 Yüksek öncelik")}{tile("NORMAL", "🟡 Fiyat kontrolü gerekli")}{tile("CURRENT", "🟢 Güncel")}{tile("UNKNOWN_BASELINE", "Başlangıç maliyeti bilinmiyor")}
           </div>
@@ -101,7 +106,7 @@ function QueueCard({ r }: { r: RepricingRow }) {
       </div>
       <dl className="mt-2 grid grid-cols-2 gap-x-3 gap-y-1 text-xs sm:grid-cols-4">
         <div><dt className="text-muted-foreground">Güncel maliyet</dt><dd>{euro(r.cost)}</dd></div>
-        <div><dt className="text-muted-foreground">Onaydaki maliyet</dt><dd>{r.baseline == null ? "Bilinmiyor" : euro(r.baseline)}</dd></div>
+        <div><dt className="text-muted-foreground">İzleme başlangıç maliyeti</dt><dd>{r.baseline == null ? "Bilinmiyor" : euro(r.baseline)}{r.baselineKind && <span className="block text-[10px] text-muted-foreground">{BASELINE_LABEL[r.baselineKind]}</span>}</dd></div>
         <div><dt className="text-muted-foreground">Maliyet değişimi</dt><dd>{r.change == null ? "—" : `${r.change > 0 ? "+" : ""}${euro(r.change)} (${pct(r.changePct)})`}</dd></div>
         <div><dt className="text-muted-foreground">MEVCUT FİYAT</dt><dd className="font-semibold">{euro(r.price)}</dd></div>
         <div><dt className="text-muted-foreground">Mevcut kâr / markup</dt><dd>{euro(r.profit)} · {pct(r.markup)}</dd></div>
