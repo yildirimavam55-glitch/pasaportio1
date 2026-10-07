@@ -205,5 +205,6 @@ export const setTestCatalogueVisible = createServerFn({ method: "POST" })
       .update({ enabled: data.enabled })
       .eq("key", TEST_FLAG_KEY);
     if (error) throw new Error(error.message);
+    testFlagCache = null;
     return { showTestCatalogue: data.enabled };
   });
