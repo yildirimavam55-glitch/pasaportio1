@@ -365,6 +365,6 @@ export function CartBar(_props: { count: number; label: string }) {
   return null;
 }
 
-export function money(value: number, currency: string) {
-  return displayMoney(value, currency);
+export function money(value: number, currency: string, locale?: string) {
+  return displayMoney(value, currency, locale);
 }
