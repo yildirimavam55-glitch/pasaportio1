@@ -15,6 +15,7 @@ export function HeroPromotion() {
   const query = useQuery(promotionBannerQuery);
   const qc = useQueryClient();
   const [copied, setCopied] = useState(false);
+  const [now, setNow] = useState(0);
   const data = query.data;
   useEffect(() => {
     const refresh = () => { void qc.invalidateQueries({ queryKey: ["promotion-banner"] }); };
@@ -24,7 +25,14 @@ export function HeroPromotion() {
     return () => { window.removeEventListener(PROMOTION_CHANGE_KEY, refresh); window.removeEventListener("storage", storage); };
   }, [qc]);
   useEffect(() => { setCopied(false); }, [data?.code]);
-  if (!data) return null;
+  useEffect(() => {
+    if (!data?.endsAt) return;
+    const delay = new Date(data.endsAt).getTime() - Date.now();
+    if (delay <= 0) { setNow(Date.now()); return; }
+    const timer = window.setTimeout(() => { setNow(Date.now()); void qc.invalidateQueries({ queryKey: ["promotion-banner"] }); }, Math.min(delay, 2_147_483_647));
+    return () => window.clearTimeout(timer);
+  }, [data?.endsAt, qc]);
+  if (!data || (now && new Date(data.endsAt).getTime() <= now)) return null;
   const c = PROMO_COPY[locale];
   const title = localizedField(data.text, "title", uiLocale) || bannerTagline(data.text, uiLocale);
   const description = localizedField(data.text, "description", uiLocale);

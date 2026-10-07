@@ -648,28 +648,7 @@ export function DeviceCompatibilityProductCard() {
     queryFn: () => listDeviceCompatibility(),
     staleTime: 10 * 60 * 1000,
   });
-  const [detected, setDetected] = useState<DeviceDetection>({ kind: "unknown" });
-
-  useEffect(() => {
-    if (compatibilityChecked || devices.length === 0) return;
-    let cancelled = false;
-    const browserNavigator = navigator as NavigatorWithUserAgentData;
-    const inspect = async () => {
-      const highEntropy: { model?: string; platform?: string } = browserNavigator.userAgentData?.getHighEntropyValues
-        ? await browserNavigator.userAgentData.getHighEntropyValues(["model", "platform"]).catch(() => ({}))
-        : {};
-      if (cancelled) return;
-      const model = highEntropy.model ?? browserNavigator.userAgentData?.model;
-      setDetected(detectDeviceFromSignals(devices, {
-        ...(model ? { model } : {}),
-        userAgent: browserNavigator.userAgent,
-        platform: highEntropy.platform ?? browserNavigator.userAgentData?.platform ?? browserNavigator.platform,
-        maxTouchPoints: browserNavigator.maxTouchPoints,
-      }));
-    };
-    void inspect();
-    return () => { cancelled = true; };
-  }, [compatibilityChecked, devices]);
+  const { detection: detected } = useBrowserDevice(devices);
 
   const manualVerified = Boolean(compatibilityChecked && compatibilityResult && compatibilityResult !== "UNCERTAIN");
   const automaticDevice = !compatibilityChecked && detected.kind === "exact" && detected.device.status !== "UNCERTAIN" ? detected.device : null;

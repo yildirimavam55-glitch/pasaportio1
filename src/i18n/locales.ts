@@ -94,7 +94,8 @@ export function localeFromPath(pathname: string): UiLocale | null {
  */
 export function localeBootScript(): string {
   const codes = JSON.stringify(UI_LOCALES);
+  const automatic = JSON.stringify(["tr", "de", "en", "ar"]);
   const rtl = JSON.stringify(UI_LOCALES.filter((c) => LOCALE_REGISTRY[c].dir === "rtl"));
   const tags = JSON.stringify(Object.fromEntries(UI_LOCALES.map((c) => [c, LOCALE_REGISTRY[c].bcp47])));
-  return `(function(){try{var C=${codes},R=${rtl},T=${tags};var ok=function(x){return C.indexOf(x)>=0};var n=function(t){return t?String(t).toLowerCase().replace('_','-').split('-')[0]:''};var l=location.pathname.split('/')[1];if(!ok(l)){l=localStorage.getItem('${LOCALE_STORAGE_KEY}');if(!ok(l)){l='';var L=navigator.languages&&navigator.languages.length?navigator.languages:[navigator.language];for(var i=0;i<L.length;i++){var b=n(L[i]);if(ok(b)){l=b;break}}if(!l)l='en'}}var d=document.documentElement;d.lang=T[l];d.dir=R.indexOf(l)>=0?'rtl':'ltr'}catch(e){}})();`;
+  return `(function(){try{var C=${codes},A=${automatic},R=${rtl},T=${tags};var ok=function(x){return C.indexOf(x)>=0};var n=function(t){return t?String(t).toLowerCase().replace('_','-').split('-')[0]:''};var l=location.pathname.split('/')[1];if(!ok(l)){try{l=localStorage.getItem('${LOCALE_STORAGE_KEY}')}catch(e){l=''}if(!ok(l)){l='';var L=navigator.languages&&navigator.languages.length?navigator.languages:[navigator.language];for(var i=0;i<L.length;i++){var b=n(L[i]);if(A.indexOf(b)>=0){l=b;break}}if(!l)l='en'}}var d=document.documentElement;d.lang=T[l];d.dir=R.indexOf(l)>=0?'rtl':'ltr'}catch(e){}})();`;
 }
