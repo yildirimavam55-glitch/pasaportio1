@@ -307,35 +307,21 @@ export const listEsimRegionPackages = createServerFn({ method: "GET" })
     return packages.filter((pkg) => regionalIdentity(pkg) === data.region);
   });
 
-const STARTING_SELECT = "currency, sale_price, is_test, esim_product_details!inner(country_iso, package_kind, unlimited_data, supplier_groups)";
-
-/** Live, customer-visible single-country rows: the only input for "from" prices. */
+/**
+ * Live, customer-visible single-country "from" prices. The database returns one
+ * row per country (lowest current sale_price, same rules as lowestByCountry in
+ * domain/esim/starting-price), so no package rows are transferred.
+ */
 async function liveCountryLowest(isos?: string[]) {
-  const client = publicClient();
   const showTest = await isTestCatalogueVisible();
-  const rows: StartingPriceRow[] = [];
-  for (let from = 0; ; from += 1000) {
-    let q = client
-      .from("service_products")
-      .select(STARTING_SELECT)
-      .eq("service_type", "ESIM")
-      .eq("lifecycle", "PUBLISHED")
-      .eq("customer_visible", true)
-      .eq("provider_available", true)
-      .eq("margin_flagged", false)
-      .gt("sale_price", 0)
-      .eq("esim_product_details.package_kind", "COUNTRY");
-    if (isos?.length) q = q.in("esim_product_details.country_iso", isos);
-    const { data, error } = await q.order("id").range(from, from + 999);
-    if (error) throw new Error(error.message);
-    for (const r of (data ?? []) as any[]) {
-      if (!showTest && r.is_test) continue;
-      const d = Array.isArray(r.esim_product_details) ? r.esim_product_details[0] : r.esim_product_details;
-      if (d) rows.push({ sale_price: r.sale_price, currency: r.currency, ...d });
-    }
-    if ((data ?? []).length < 1000) break;
-  }
-  return lowestByCountry(rows);
+  const { data, error } = await publicClient().rpc("storefront_country_starting_prices", {
+    _isos: isos?.length ? isos : undefined,
+    _show_test: showTest,
+  });
+  if (error) throw new Error(error.message);
+  const out = new Map<string, { amount: number; currency: string }>();
+  for (const r of data ?? []) out.set(r.iso, { amount: Number(r.amount), currency: r.currency ?? "EUR" });
+  return out;
 }
 
 /** Lowest current customer price per country card; route cards use packages covering every country. */
