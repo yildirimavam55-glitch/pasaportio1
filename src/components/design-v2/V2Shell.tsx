@@ -42,6 +42,7 @@ export function V2Shell({
   hideWhatsApp = false,
   stickySearch,
   purchaseSummary,
+  heroPromotion = false,
   children,
 }: {
   service?: V2Service;
@@ -51,6 +52,7 @@ export function V2Shell({
   hideWhatsApp?: boolean;
   stickySearch?: ReactNode;
   purchaseSummary?: ReactNode;
+  heroPromotion?: boolean;
   children: ReactNode;
 }) {
   const active: V2Nav | undefined = nav ?? service;
@@ -60,7 +62,7 @@ export function V2Shell({
     <V2Context.Provider value={true}>
       <PublicShell hideStickySearch hideFloatingWhatsApp footerBottomSafe={purchaseSummary ? "purchase" : true} headerAccessory={stickySearch}>
         <div className={`mx-auto w-full ${width} ${serviceAccent} overflow-x-clip px-4 pb-8 sm:px-6 sm:pb-12 lg:pb-16`}>
-          <PromoBanner />
+          {!heroPromotion && <PromoBanner />}
           <DesktopNav active={active} />
           {children}
         </div>
