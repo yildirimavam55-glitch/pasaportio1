@@ -1,6 +1,8 @@
 # Roadmap
 
 ## Current request
+- [x] Compact mobile hero for 390×740, ensure headings clear header, move benefits after countries; preserve desktop and functionality.
+- [x] Verify standalone preview from page top and share screenshot; TR/DE/EN/AR at 360/390/430/1440, 44px controls, copy and search passed.
 - [x] Match latest compact mobile reference; preserve desktop, campaign, search and device logic.
 - [x] Remove fixed bottom menu and validate 360/390/430px, desktop, languages and interaction.
 - [x] Apply approved seaside eSIM hero with existing country search and integrated device checker.
