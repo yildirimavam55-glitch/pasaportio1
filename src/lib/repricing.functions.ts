@@ -110,29 +110,38 @@ export const getManualPriceReview = createServerFn({ method: "GET" })
     const { data: setting, error } = await db.from("platform_settings").select("data").eq("id", "manual_price_review").maybeSingle();
     if (error) throw new Error(error.message);
     const s = (setting?.data ?? {}) as any;
-    const items: { productId: string; iso: string; key: string; category: ManualReviewCategory; airalo: number | null }[] = s.items ?? [];
-    const protectedIds: string[] = s.protectedManualProductIds ?? [];
-    const ids = [...new Set([...items.map((i) => i.productId), ...protectedIds])];
+    const cats: Record<ManualReviewCategory, string[]> = s.categories ?? {};
+    const prot = new Set<string>(s.protectedManual ?? []);
+    const exts = [...new Set([...Object.values(cats).flat(), ...prot])];
     const products = new Map<string, any>();
-    for (let i = 0; i < ids.length; i += 300) {
-      const { data, error: e } = await db.from("service_products").select("id, provider_cost, sale_price, pricing_snapshot").in("id", ids.slice(i, i + 300));
+    for (let i = 0; i < exts.length; i += 200) {
+      const { data, error: e } = await db.from("service_products")
+        .select("id, provider_external_id, provider_cost, sale_price, pricing_snapshot, esim_product_details(country_iso, data_gb, unlimited_data, validity_days)")
+        .in("provider_external_id", exts.slice(i, i + 200));
       if (e) throw new Error(e.message);
-      for (const p of data ?? []) products.set(p.id, p);
+      for (const p of data ?? []) products.set(p.provider_external_id, p);
     }
-    const prot = new Set(protectedIds);
-    const rows: ManualReviewRow[] = items.map((it) => {
-      const p = products.get(it.productId);
-      const cost = p?.provider_cost == null ? null : Number(p.provider_cost);
-      const price = p?.sale_price == null ? null : Number(p.sale_price);
-      const mb = monitoringBaseline(p?.pricing_snapshot);
-      const profit = cost != null && price != null ? Math.round((price - cost) * 100) / 100 : null;
-      return {
-        id: it.productId, iso: it.iso, key: it.key, category: it.category, protectedManual: prot.has(it.productId),
-        cost, price, profit, markup: profit != null && cost ? Math.round((profit / cost) * 1000) / 10 : null, airalo: it.airalo ?? null,
-        baseline: mb?.cost ?? null, baselineKind: mb?.kind ?? null,
-        resolvedByAdmin: String(p?.pricing_snapshot?.source ?? "") === "ADMIN_REPRICE",
-      };
-    });
+    const airalo = await loadAiraloExactIndex(db);
+    const rows: ManualReviewRow[] = [];
+    for (const [category, list] of Object.entries(cats) as [ManualReviewCategory, string[]][]) {
+      for (const ext of list) {
+        const p = products.get(ext);
+        if (!p) continue;
+        const d = Array.isArray(p.esim_product_details) ? p.esim_product_details[0] : p.esim_product_details;
+        const key = packageKey({ unlimited: Boolean(d?.unlimited_data), dataGb: d?.data_gb == null ? null : Number(d.data_gb), validityDays: d?.validity_days });
+        const cost = p.provider_cost == null ? null : Number(p.provider_cost);
+        const price = p.sale_price == null ? null : Number(p.sale_price);
+        const mb = monitoringBaseline(p.pricing_snapshot);
+        const profit = cost != null && price != null ? Math.round((price - cost) * 100) / 100 : null;
+        rows.push({
+          id: p.id, iso: d?.country_iso ?? "", key, category, protectedManual: prot.has(ext),
+          cost, price, profit, markup: profit != null && cost ? Math.round((profit / cost) * 1000) / 10 : null,
+          airalo: d?.country_iso ? airalo.get(`${d.country_iso}|${key}`) ?? null : null,
+          baseline: mb?.cost ?? null, baselineKind: mb?.kind ?? null,
+          resolvedByAdmin: String(p.pricing_snapshot?.source ?? "") === "ADMIN_REPRICE",
+        });
+      }
+    }
     const counts = rows.reduce((a, r) => ({ ...a, [r.category]: (a[r.category] ?? 0) + 1 }), {} as Record<string, number>);
-    return { rows, counts, packages: Number(s.packageCount ?? 0), protectedManualCount: protectedIds.length, createdAt: s.createdAt ?? null };
+    return { rows, counts, packages: Number(s.packageCount ?? 0), protectedManualCount: prot.size, createdAt: s.createdAt ?? null };
   });
