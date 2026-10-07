@@ -314,7 +314,7 @@ export const listEsimRegionPackages = createServerFn({ method: "GET" })
 async function liveCountryLowest(isos?: string[]) {
   const showTest = await isTestCatalogueVisible();
   const { data, error } = await publicClient().rpc("storefront_country_starting_prices", {
-    _isos: isos?.length ? isos : undefined,
+    ...(isos?.length ? { _isos: isos } : {}),
     _show_test: showTest,
   });
   if (error) throw new Error(error.message);
