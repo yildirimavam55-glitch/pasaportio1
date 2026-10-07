@@ -1,11 +1,11 @@
 {
-  "version": 1,
   "asset_id": "55790b70-2eaf-44b6-b608-352fc58aba9c",
-  "project_id": "cbdec2b7-ce43-4b67-b00e-733b015947cf",
-  "url": "/__l5e/assets-v1/55790b70-2eaf-44b6-b608-352fc58aba9c/3-d00960c2-2105-4f92-abab-553e73485e12.png",
-  "r2_key": "a/v1/cbdec2b7-ce43-4b67-b00e-733b015947cf/55790b70-2eaf-44b6-b608-352fc58aba9c/3-d00960c2-2105-4f92-abab-553e73485e12.png",
-  "original_filename": "3-d00960c2-2105-4f92-abab-553e73485e12.png",
-  "size": 1415950,
   "content_type": "image/png",
-  "created_at": "2026-10-05T06:36:34Z"
+  "created_at": "2026-10-05T06:36:34Z",
+  "original_filename": "3-d00960c2-2105-4f92-abab-553e73485e12.png",
+  "project_id": "650631d3-fa00-4c84-b30e-e472947470da",
+  "r2_key": "a/v1/650631d3-fa00-4c84-b30e-e472947470da/55790b70-2eaf-44b6-b608-352fc58aba9c/3-d00960c2-2105-4f92-abab-553e73485e12.png",
+  "size": 1415950,
+  "url": "/__l5e/assets-v1/55790b70-2eaf-44b6-b608-352fc58aba9c/3-d00960c2-2105-4f92-abab-553e73485e12.png",
+  "version": 1
 }
