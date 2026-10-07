@@ -1,4 +1,5 @@
 import type { Locale } from "@/domain/enums";
+import { displayMoney } from "@/domain/currency/store";
 import { localize } from "@/i18n/overlay";
 
 /** All customer-portal wording, reusing the app's existing locale set. */
@@ -525,7 +526,7 @@ export function numberLocale(locale: Locale) {
 }
 
 export function formatMoney(amount: number, currency: string, locale: Locale) {
-  return new Intl.NumberFormat(numberLocale(locale), { style: "currency", currency }).format(amount);
+  return displayMoney(amount, currency, locale);
 }
 
 export function formatDate(value: string | null | undefined, locale: Locale) {
