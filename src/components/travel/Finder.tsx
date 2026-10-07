@@ -1,4 +1,5 @@
 import {
+import { displayMoney } from "@/domain/currency/store";
   ArrowDown,
   ArrowRight,
   ArrowRightLeft,
@@ -944,10 +945,7 @@ export function EsimFinder({
               </div>
               {recommended.salePrice != null && (
                 <strong className="mt-3 block font-display text-3xl">
-                  {new Intl.NumberFormat(
-                    locale === "tr" ? "tr-TR" : locale === "de" ? "de-DE" : "en-GB",
-                    { style: "currency", currency: recommended.currency },
-                  ).format(recommended.salePrice)}
+                  {displayMoney(recommended.salePrice, recommended.currency, locale)}
                 </strong>
               )}
               <p className="mt-3 text-sm leading-6 text-muted-foreground">{copy.shortWhy}</p>

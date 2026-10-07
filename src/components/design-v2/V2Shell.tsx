@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
+import { displayMoney } from "@/domain/currency/store";
 import { Link } from "@tanstack/react-router";
 import { ArrowRight, Car, Plane, Search, ShoppingBag, Smartphone, UserRound } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -363,5 +364,5 @@ export function CartBar(_props: { count: number; label: string }) {
 }
 
 export function money(value: number, currency: string) {
-  return new Intl.NumberFormat(undefined, { style: "currency", currency }).format(value);
+  return displayMoney(value, currency);
 }

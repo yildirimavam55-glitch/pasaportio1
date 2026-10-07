@@ -5,6 +5,7 @@
  * catalogue-derived cards, so a country keeps one identity across the site.
  */
 import { useQuery } from "@tanstack/react-query";
+import { displayMoney } from "@/domain/currency/store";
 import { useNavigate } from "@tanstack/react-router";
 import { ArrowRight } from "lucide-react";
 
@@ -78,10 +79,7 @@ export function useDestinationCatalogue() {
 }
 
 export function formatFrom(amount: number, currency: string, locale: Locale) {
-  return new Intl.NumberFormat(locale === "tr" ? "tr-TR" : locale === "de" ? "de-DE" : "en-GB", {
-    style: "currency",
-    currency,
-  }).format(amount);
+  return displayMoney(amount, currency, locale);
 }
 
 export function countryLabel(iso: string, locale: Locale) {

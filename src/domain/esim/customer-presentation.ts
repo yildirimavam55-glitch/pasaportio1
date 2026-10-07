@@ -1,4 +1,5 @@
 import type { Locale } from "@/domain/enums";
+import { displayMoney } from "@/domain/currency/store";
 import { classifyCoverageRegion, COVERAGE_REGION_LABELS } from "@/domain/geo/coverage-regions";
 import { getCountryByIso } from "@/domain/geo/countries";
 import { resolvePackageScope } from "@/domain/esim/package-scope";
@@ -103,8 +104,5 @@ export function customerOrderPackageTitle(input: {
 }
 
 export function formatSalePrice(amount: number, currency: string, locale: Locale): string {
-  return new Intl.NumberFormat(locale === "tr" ? "tr-TR" : locale === "de" ? "de-DE" : "en-GB", {
-    style: "currency",
-    currency,
-  }).format(amount);
+  return displayMoney(amount, currency, locale);
 }

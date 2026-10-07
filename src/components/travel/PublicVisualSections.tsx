@@ -1,4 +1,5 @@
 import {
+import { displayMoney } from "@/domain/currency/store";
   ArrowRight,
   CheckCircle2,
   Coffee,
@@ -318,10 +319,7 @@ function LoungePopular({ service, section }: { service: ServiceSlug } & SectionP
                       {service === "esim" && price && (
                         <strong className="mt-1 block text-base">
                           {strings.startingAt}{" "}
-                          {new Intl.NumberFormat(
-                            locale === "tr" ? "tr-TR" : locale === "de" ? "de-DE" : "en-GB",
-                            { style: "currency", currency: price.currency },
-                          ).format(price.amount)}
+                          {displayMoney(price.amount, price.currency, locale)}
                         </strong>
                       )}
                     </div>
