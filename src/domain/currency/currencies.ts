@@ -100,7 +100,7 @@ export function applyCurrencyRounding(value: number, rule: RoundingRule): number
   if (!Number.isFinite(value) || value <= 0) return value;
   switch (rule.mode) {
     case "integer": return Math.ceil(value);
-    case "90": return Math.max(0.9, Math.ceil(value - 0.9 + 1e-9) + 0.9 - (Math.ceil(value - 0.9 + 1e-9) + 0.9 - value >= 1 ? 1 : 0));
+    case "90": return endingAtOrAbove(value, 0.9);
     case "95": return endingAtOrAbove(value, 0.95);
     case "99": return endingAtOrAbove(value, 0.99);
     case "increment": {
