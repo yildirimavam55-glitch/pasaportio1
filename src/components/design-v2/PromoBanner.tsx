@@ -5,7 +5,6 @@ import { toast } from "sonner";
 import { promotionBannerQuery } from "@/lib/promotion-banner-query";
 import { bannerHeadline, bannerParts, bannerTagline, formatDiscount, isStructuredBanner } from "@/domain/promotions";
 import { useI18n } from "@/i18n";
-import { getActiveUiLocale } from "@/i18n/overlay";
 const pick = <T,>(l: string, v: Record<string, T>): T => v[l] ?? v["tr"]!;
 import { PROMO_COPY, copyText } from "./promo-copy";
 
@@ -13,7 +12,7 @@ const DISMISS_KEY = "travely.promo.dismissed";
 
 /** Compact storefront promotion strip under the header; content comes only from Admin. */
 export function PromoBanner() {
-  const { locale } = useI18n();
+  const { locale, uiLocale } = useI18n();
   const c = pick(locale, PROMO_COPY);
   const banner = useQuery(promotionBannerQuery);
   const [dismissed, setDismissed] = useState<string | null>(null);
@@ -22,7 +21,8 @@ export function PromoBanner() {
 
   const data = banner.data;
   if (!data || dismissed === data.id) return null;
-  const ui = getActiveUiLocale();
+  // Same locale on server and client (the overlay global is browser-only and caused a TR/DE mismatch).
+  const ui = uiLocale;
   const template = bannerHeadline(data.text, ui, locale);
   const parts = bannerParts(template, formatDiscount(data.discountType, data.discountValue, ui, data.currency), data.code);
   const tagline = isStructuredBanner(data.text) ? bannerTagline(data.text, ui) : "";

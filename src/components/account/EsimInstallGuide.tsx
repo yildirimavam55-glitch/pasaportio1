@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { Apple, Download, Info, Smartphone } from "lucide-react";
-import QRCode from "qrcode";
 
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -48,9 +47,15 @@ export function EsimInstallGuide({
         active = false;
       };
     }
-    void QRCode.toDataURL(qrPayload, { width: 640, margin: 2 }).then((image) => {
-      if (active) setQrImage(image);
-    });
+    // Browser-only: the QR library is loaded on demand so it never enters the server bundle.
+    void import("qrcode")
+      .then(({ default: QRCode }) => QRCode.toDataURL(qrPayload, { width: 640, margin: 2 }))
+      .then((image) => {
+        if (active) setQrImage(image);
+      })
+      .catch(() => {
+        if (active) setQrImage(null);
+      });
     return () => {
       active = false;
     };
