@@ -19,7 +19,7 @@ export function PasaportEsimHero({ section, image, mobileImage, children }: { se
   const { locale, uiLocale } = useI18n();
   const c = COPY[uiLocale as keyof typeof COPY] ?? COPY[locale];
   const storedTitle = v2Text(section, "title", locale);
-  const useApprovedCopy = !storedTitle || oldTitles.includes(storedTitle);
+  const useApprovedCopy = !storedTitle || oldTitles.includes(storedTitle) || oldTitles.includes(section.text?.["title"]?.[locale] ?? "");
   // Replace the previous shipped hero fixture only; future CMS-selected media remains authoritative.
   const legacyMedia = section.mediaId === "2096d4af-5b89-49ad-b19f-7ca95ec54160" || section.mediaId === "builtin:esim-hero";
   const heroImage = legacyMedia ? seasideHero : image;
