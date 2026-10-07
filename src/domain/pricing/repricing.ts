@@ -20,6 +20,26 @@ export function approvedBaseline(snapshot: any): number | null {
   return Number.isFinite(c) && c > 0 ? c : null;
 }
 
+export type BaselineKind = "APPROVED" | "SYSTEM_DOCUMENTED" | "NEW_MONITORING";
+export const BASELINE_LABEL: Record<BaselineKind, string> = {
+  APPROVED: "Admin onaylı fiyat maliyeti",
+  SYSTEM_DOCUMENTED: "Belgeli fiyat-anı maliyeti — sistem, 2026-10-05, Admin onayı yok",
+  NEW_MONITORING: "YENİ İZLEME BAŞLANGICI — 2026-10-07 (tarihsel maliyet değil)",
+};
+
+/**
+ * Cost from which supplier-cost changes are monitored. An Admin-approved cost always wins;
+ * a `monitoringBaseline` only says where monitoring starts and never means the price was approved.
+ */
+export function monitoringBaseline(snapshot: any): { cost: number; kind: BaselineKind } | null {
+  const approved = approvedBaseline(snapshot);
+  if (approved != null) return { cost: approved, kind: "APPROVED" };
+  const mb = snapshot?.monitoringBaseline;
+  const c = Number(mb?.cost);
+  if ((mb?.kind === "SYSTEM_DOCUMENTED" || mb?.kind === "NEW_MONITORING") && Number.isFinite(c) && c > 0) return { cost: c, kind: mb.kind };
+  return null;
+}
+
 const r2 = (x: number) => Math.round(x * 100) / 100;
 
 export function classifyRepricing(input: { cost: number | null; price: number | null; baseline: number | null; airaloExact: number | null }) {

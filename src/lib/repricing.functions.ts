@@ -3,13 +3,13 @@ import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { adminDb, audit, type AdminCtx } from "@/lib/admin-guard";
 import { packageKey } from "@/domain/pricing/manual-prices";
-import { approvedBaseline, classifyRepricing, PRIORITY_ORDER, type Priority } from "@/domain/pricing/repricing";
-import { planTierOf, standardUnlimitedOnly } from "@/domain/esim/supplier-metadata";
+import { classifyRepricing, monitoringBaseline, PRIORITY_ORDER, type BaselineKind, type Priority } from "@/domain/pricing/repricing";
+import { planTierOf, STANDARD_UNLIMITED_TIER } from "@/domain/esim/supplier-metadata";
 import { loadAiraloExactIndex } from "@/lib/pricing-suggestion.server";
 
 export type RepricingRow = {
   id: string; name: string; iso: string | null; key: string; unlimited: boolean; lifecycle: string;
-  cost: number | null; baseline: number | null; change: number | null; changePct: number | null;
+  cost: number | null; baseline: number | null; baselineKind: BaselineKind | null; change: number | null; changePct: number | null;
   price: number | null; profit: number | null; markup: number | null; airalo: number | null;
   suggested: number | null; suggestionStatus: string; suggestionRule: string;
   suggestedProfit: number | null; suggestedMarkup: number | null; priority: Priority; manual: boolean;
@@ -47,19 +47,20 @@ export const getRepricingQueue = createServerFn({ method: "GET" })
       key: packageKey({ unlimited: Boolean(d.unlimited_data), dataGb: d.data_gb == null ? null : Number(d.data_gb), validityDays: d.validity_days }),
       tier: d.unlimited_data ? planTierOf(d.supplier_groups) : null,
     }));
-    // Standard Pasaport Unlimited = Essential only; Lite/Plus stay out of the queue.
-    const scoped = standardUnlimitedOnly(base, (r) => (r.key.startsWith("U|") && r.d.country_iso ? `${r.d.country_iso}|${r.key}` : null), (r) => r.tier);
+    // Normal Pasaport Unlimited = Essential only; Lite/Plus never enter the cost-change queue.
+    const scoped = base.filter((r) => !r.key.startsWith("U|") || r.tier === STANDARD_UNLIMITED_TIER);
     const rows: RepricingRow[] = scoped.map(({ d, p, key }) => {
       const cost = p.provider_cost == null ? null : Number(p.provider_cost);
       const price = Number(p.sale_price);
-      const baseline = approvedBaseline(p.pricing_snapshot);
+      const mb = monitoringBaseline(p.pricing_snapshot);
+      const baseline = mb?.cost ?? null;
       const airaloExact = d.country_iso ? airalo.get(`${d.country_iso}|${key}`) ?? null : null;
       const c = classifyRepricing({ cost, price, baseline, airaloExact });
       return {
         id: p.id, name: p.name, iso: d.country_iso, key, unlimited: Boolean(d.unlimited_data), lifecycle: p.lifecycle,
-        cost, baseline, change: c.change, changePct: c.changePct, price, profit: c.profit, markup: c.markup,
+        cost, baseline, baselineKind: mb?.kind ?? null, change: c.change, changePct: c.changePct, price, profit: c.profit, markup: c.markup,
         airalo: airaloExact, suggested: c.suggestion.price, suggestionStatus: c.suggestion.status, suggestionRule: c.suggestion.rule,
-        suggestedProfit: c.suggestedProfit, suggestedMarkup: c.suggestedMarkup, priority: c.priority, manual: Boolean(p.price_overridden && !baseline),
+        suggestedProfit: c.suggestedProfit, suggestedMarkup: c.suggestedMarkup, priority: c.priority, manual: Boolean(p.price_overridden && mb?.kind !== "APPROVED"),
       };
     });
     rows.sort((a, b) => PRIORITY_ORDER[a.priority] - PRIORITY_ORDER[b.priority] || (b.changePct ?? 0) - (a.changePct ?? 0));
