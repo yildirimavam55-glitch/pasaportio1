@@ -59,6 +59,12 @@ describe("safe browser device detection", () => {
   it("returns unknown when no useful device signal exists", () => {
     expect(detectDeviceFromSignals(devices, { userAgent: "Mozilla/5.0 (X11; Linux x86_64)" })).toEqual({ kind: "unknown" });
   });
+  it("does not promote Chrome's reduced generic Android model K to an exact model", () => {
+    expect(detectDeviceFromSignals(devices, { userAgent: "Mozilla/5.0 (Linux; Android 10; K) Chrome/130 Mobile" })).toEqual({ kind: "partial", family: "android" });
+  });
+  it("uses an exact Android UA identifier when available", () => {
+    expect(detectDeviceFromSignals(devices, { userAgent: "Mozilla/5.0 (Linux; Android 14; Pixel 9 Build/UP1A)" })).toMatchObject({ kind: "exact", device: { id: "3" } });
+  });
 
   it("rejects ambiguous exact aliases", () => {
     const duplicate = { ...devices[1], id: "4", model: "Galaxy S24 regional" } as DeviceRecord;
