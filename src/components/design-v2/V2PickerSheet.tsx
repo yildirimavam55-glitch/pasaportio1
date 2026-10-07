@@ -144,6 +144,13 @@ export function V2PickerSheet({
             ref={inputRef}
             value={query}
             onChange={(event) => onQueryChange(event.target.value)}
+            onKeyDown={(event) => {
+              if (event.key !== "Enter" || event.nativeEvent.isComposing || !query.trim()) return;
+              const first = items[0];
+              if (!first) return;
+              event.preventDefault();
+              onSelect(first.id);
+            }}
             onFocus={() => setInputFocused(true)}
             onBlur={() => {
               // Keep the keyboard layout stable until a result tap or scroll
