@@ -8,7 +8,6 @@ import { networkGenerationsOf, planTierOf, standardUnlimitedOnly, regionFamilyOf
 import { classifyCoverageRegion, COVERAGE_REGION_ORDER, type CoverageRegionKey } from "@/domain/geo/coverage-regions";
 import { resolvePackageScope } from "@/domain/esim/package-scope";
 import { dedupeStorefrontPackages } from "@/domain/esim/storefront-packages";
-import { lowestByCountry, type StartingPriceRow } from "@/domain/esim/starting-price";
 
 export type ActivationPolicy = "ON_INSTALL" | "ON_FIRST_NETWORK_CONNECTION" | "ON_PURCHASE" | "UNKNOWN";
 
