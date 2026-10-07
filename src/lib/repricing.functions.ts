@@ -103,6 +103,14 @@ export type ManualReviewRow = {
  * Read-only "MANUEL FİYAT İNCELEMESİ" list, kept apart from supplier-cost alerts. Its membership is the
  * Admin-only platform_settings row "manual_price_review"; a monitoring baseline never marks a price as approved.
  */
+/** Compact list "10GB_30D:AD,AW;ULE_7D:DE" -> supplier product IDs "esim_10GB_30D_AD_V2", ... */
+export function expandProductList(compact: string): string[] {
+  return compact.split(";").filter(Boolean).flatMap((part) => {
+    const [pkg, isos] = part.split(":");
+    return (isos ?? "").split(",").filter(Boolean).map((iso) => `esim_${pkg}_${iso}_V2`);
+  });
+}
+
 export const getManualPriceReview = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
@@ -110,8 +118,8 @@ export const getManualPriceReview = createServerFn({ method: "GET" })
     const { data: setting, error } = await db.from("platform_settings").select("data").eq("id", "manual_price_review").maybeSingle();
     if (error) throw new Error(error.message);
     const s = (setting?.data ?? {}) as any;
-    const cats: Record<ManualReviewCategory, string[]> = s.categories ?? {};
-    const prot = new Set<string>(s.protectedManual ?? []);
+    const cats = Object.fromEntries(Object.entries(s.categories ?? {}).map(([k, v]) => [k, expandProductList(String(v))])) as Record<ManualReviewCategory, string[]>;
+    const prot = new Set<string>(expandProductList(String(s.protectedManual ?? "")));
     const exts = [...new Set([...Object.values(cats).flat(), ...prot])];
     const products = new Map<string, any>();
     for (let i = 0; i < exts.length; i += 200) {
