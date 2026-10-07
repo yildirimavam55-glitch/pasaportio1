@@ -214,8 +214,9 @@ function Popular({ c, section, onPick }: { c: (typeof T)["tr"]; section: V2Secti
   const { locale } = useI18n();
   const list = section.items.filter((item) => item.visible).flatMap((item) => { const country = getCountryByIso(item.entity); return country ? [country] : []; });
   const { data, isLoading } = useQuery({
-    queryKey: ["v2-esim-starting", list.map((x) => x.iso)],
-    queryFn: () => listEsimStartingPrices({ data: { targets: list.map((x) => ({ id: x.iso, coverageIsos: [x.iso] })) } }),
+    // Same authoritative country "from" prices as the search list: one shared request.
+    queryKey: ["v2-esim-destinations"],
+    queryFn: () => listEsimDestinationStartingPrices(),
   });
   // Only countries with a real published price are shown.
   const priced = list.flatMap((country) => {
