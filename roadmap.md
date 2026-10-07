@@ -1,8 +1,8 @@
 # Roadmap
 
 ## Current request
-- [ ] Match supplied pasaport.io reference on mobile in the selected stacked layout; preserve desktop and existing functions.
-- [ ] Verify mobile reference, languages and standalone screenshots.
+- [x] Match supplied pasaport.io reference on mobile in the selected stacked layout; preserve desktop and existing functions.
+- [x] Verify TR/DE/EN/AR at 360/390/430 and desktop, campaign copying and 67 regression tests; standalone screenshots captured.
 - [x] Compact mobile hero for 390×740, ensure headings clear header, move benefits after countries; preserve desktop and functionality.
 - [x] Verify standalone preview from page top and share screenshot; TR/DE/EN/AR at 360/390/430/1440, 44px controls, copy and search passed.
 - [x] Match latest compact mobile reference; preserve desktop, campaign, search and device logic.
