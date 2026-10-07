@@ -91,3 +91,48 @@ export const approveRepricing = createServerFn({ method: "POST" })
     await audit(db, "pricing.reprice.approved", "service_products", data.productId, { salePrice: Number(before.sale_price) }, { salePrice: price, supplierCost: cost });
     return { ok: true, price };
   });
+
+export type ManualReviewCategory = "AIRALO_BELOW_COST" | "LOW_PROFIT" | "NO_ESSENTIAL";
+export type ManualReviewRow = {
+  id: string; iso: string; key: string; category: ManualReviewCategory; protectedManual: boolean;
+  cost: number | null; price: number | null; profit: number | null; markup: number | null; airalo: number | null;
+  baseline: number | null; baselineKind: BaselineKind | null; resolvedByAdmin: boolean;
+};
+
+/**
+ * Read-only "MANUEL FİYAT İNCELEMESİ" list, kept apart from supplier-cost alerts. Its membership is the
+ * Admin-only platform_settings row "manual_price_review"; a monitoring baseline never marks a price as approved.
+ */
+export const getManualPriceReview = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const db = await adminDb(context as AdminCtx);
+    const { data: setting, error } = await db.from("platform_settings").select("data").eq("id", "manual_price_review").maybeSingle();
+    if (error) throw new Error(error.message);
+    const s = (setting?.data ?? {}) as any;
+    const items: { productId: string; iso: string; key: string; category: ManualReviewCategory; airalo: number | null }[] = s.items ?? [];
+    const protectedIds: string[] = s.protectedManualProductIds ?? [];
+    const ids = [...new Set([...items.map((i) => i.productId), ...protectedIds])];
+    const products = new Map<string, any>();
+    for (let i = 0; i < ids.length; i += 300) {
+      const { data, error: e } = await db.from("service_products").select("id, provider_cost, sale_price, pricing_snapshot").in("id", ids.slice(i, i + 300));
+      if (e) throw new Error(e.message);
+      for (const p of data ?? []) products.set(p.id, p);
+    }
+    const prot = new Set(protectedIds);
+    const rows: ManualReviewRow[] = items.map((it) => {
+      const p = products.get(it.productId);
+      const cost = p?.provider_cost == null ? null : Number(p.provider_cost);
+      const price = p?.sale_price == null ? null : Number(p.sale_price);
+      const mb = monitoringBaseline(p?.pricing_snapshot);
+      const profit = cost != null && price != null ? Math.round((price - cost) * 100) / 100 : null;
+      return {
+        id: it.productId, iso: it.iso, key: it.key, category: it.category, protectedManual: prot.has(it.productId),
+        cost, price, profit, markup: profit != null && cost ? Math.round((profit / cost) * 1000) / 10 : null, airalo: it.airalo ?? null,
+        baseline: mb?.cost ?? null, baselineKind: mb?.kind ?? null,
+        resolvedByAdmin: String(p?.pricing_snapshot?.source ?? "") === "ADMIN_REPRICE",
+      };
+    });
+    const counts = rows.reduce((a, r) => ({ ...a, [r.category]: (a[r.category] ?? 0) + 1 }), {} as Record<string, number>);
+    return { rows, counts, packages: Number(s.packageCount ?? 0), protectedManualCount: protectedIds.length, createdAt: s.createdAt ?? null };
+  });
