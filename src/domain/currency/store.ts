@@ -37,8 +37,7 @@ export function convertForDisplay(amount: number, sourceCurrency: string): { amo
 const PREFIXED = new Set(["CAD", "AUD", "SGD", "NZD", "MXN"]);
 
 export function formatCurrencyAmount(amount: number, currency: string, locale?: string) {
-  // Explicit deterministic fallback prevents server/browser default-locale hydration mismatches.
-  const tag = locale ? NUMBER_LOCALE[locale] ?? locale : "en-GB";
+  const tag = locale ? NUMBER_LOCALE[locale] ?? locale : undefined;
   const digits = isCurrencyCode(currency) ? FRACTION_DIGITS[currency] : undefined;
   const fraction = digits != null ? { minimumFractionDigits: digits, maximumFractionDigits: digits } : {};
   try {

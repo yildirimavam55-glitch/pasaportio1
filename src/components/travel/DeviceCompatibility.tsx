@@ -35,7 +35,7 @@ import {
   type DeviceRecord,
 } from "@/domain/esim/device-compatibility";
 import { useDeviceCheck } from "@/domain/esim/device-check-session";
-import { detectDeviceFromSignals, resolveCheckerPrefill, type DeviceDetection } from "@/domain/esim/device-detection";
+import { resolveCheckerPrefill, type DeviceDetection } from "@/domain/esim/device-detection";
 import { noopAnalyticsSink } from "@/domain/analytics";
 import type { Locale } from "@/domain/enums";
 import { localize } from "@/i18n/overlay";
@@ -622,14 +622,6 @@ export function DeviceCompatibilityInline() {
     </div>
   );
 }
-
-type NavigatorWithUserAgentData = Navigator & {
-  userAgentData?: {
-    model?: string;
-    platform?: string;
-    getHighEntropyValues?: (hints: string[]) => Promise<{ model?: string; platform?: string }>;
-  };
-};
 
 function partialDetectionLabel(copy: Copy, detection: DeviceDetection) {
   if (detection.kind !== "partial") return copy.sectionLead;
