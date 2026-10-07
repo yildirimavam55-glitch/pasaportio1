@@ -67,9 +67,10 @@ export function resolveCheckerPrefill(
   detection: DeviceDetection,
 ): CheckerPrefill {
   if (manual?.model) {
+    const manualModel = manual.model;
     const brand = manual.brand ? canonicalBrand(devices, manual.brand) : null;
-    const matches = devices.filter((d) => normalize(d.model) === normalize(manual.model!) && (!brand || d.brand === brand));
-    const device = matches.length === 1 ? matches[0]! : null;
+    const matches = devices.filter((d) => normalize(d.model) === normalize(manualModel) && (!brand || d.brand === brand));
+    const device = matches.length === 1 ? matches[0] ?? null : null;
     if (device || brand) return { brand: device?.brand ?? brand, device };
   }
   if (detection.kind === "exact") return { brand: detection.device.brand, device: detection.device };

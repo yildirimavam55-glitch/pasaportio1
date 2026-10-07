@@ -35,10 +35,12 @@ import {
   type DeviceRecord,
 } from "@/domain/esim/device-compatibility";
 import { useDeviceCheck } from "@/domain/esim/device-check-session";
-import { detectDeviceFromSignals, resolveCheckerPrefill, type DeviceDetection } from "@/domain/esim/device-detection";
+import { resolveCheckerPrefill, type DeviceDetection } from "@/domain/esim/device-detection";
 import { noopAnalyticsSink } from "@/domain/analytics";
 import type { Locale } from "@/domain/enums";
 import { localize } from "@/i18n/overlay";
+import { useBrowserDevice } from "@/domain/esim/use-browser-device";
+import { V2PickerSheet } from "@/components/design-v2/V2PickerSheet";
 
 const COPY = localize({
   tr: {
@@ -183,6 +185,45 @@ const COPY = localize({
 } satisfies Record<Locale, Record<string, string>>);
 
 type Copy = (typeof COPY)["tr"];
+
+const HERO_DEVICE_COPY = {
+  tr: { title: "Telefonun eSIM uyumlu mu?", brand: "Marka seç", model: "Model seç", search: "Model ara", unknown: "Doğrulanamadı", ok: "Uyumlu", no: "Uyumlu değil", missing: "Kesin model algılanamadı; modelini seç.", caution: "Operatör kilidi ve bölgesel model farklılıklarını kontrol et." },
+  de: { title: "Ist dein Handy eSIM-fähig?", brand: "Marke wählen", model: "Modell wählen", search: "Modell suchen", unknown: "Nicht bestätigt", ok: "Kompatibel", no: "Nicht kompatibel", missing: "Genaues Modell nicht erkannt; wähle dein Modell.", caution: "Prüfe SIM-Lock und regionale Modellvarianten." },
+  en: { title: "Is your phone eSIM compatible?", brand: "Choose brand", model: "Choose model", search: "Search model", unknown: "Not verified", ok: "Compatible", no: "Not compatible", missing: "Exact model not detected; choose your model.", caution: "Check carrier lock and regional model variants." },
+  ar: { title: "هل هاتفك متوافق مع eSIM؟", brand: "اختر العلامة", model: "اختر الطراز", search: "ابحث عن الطراز", unknown: "لم يتم التحقق", ok: "متوافق", no: "غير متوافق", missing: "لم يُكتشف الطراز الدقيق؛ اختر طراز هاتفك.", caution: "تحقق من قفل شركة الاتصالات واختلافات الطراز الإقليمية." },
+};
+
+/** Same catalogue, strict detection and manually persisted check as the account/product checker. */
+export function HeroDeviceCompatibility() {
+  const { uiLocale, locale } = useI18n();
+  const c = HERO_DEVICE_COPY[uiLocale as keyof typeof HERO_DEVICE_COPY] ?? HERO_DEVICE_COPY[locale];
+  const { data: devices = [], isPending, isError } = useQuery({ queryKey: ["device-compatibility"], queryFn: () => listDeviceCompatibility(), staleTime: 10 * 60 * 1000 });
+  const { detection, os } = useBrowserDevice(devices);
+  const saved = useDeviceCheck();
+  const [override, setOverride] = useState<{ brand: string; device: DeviceRecord | null } | null>(null);
+  const [modelOpen, setModelOpen] = useState(false);
+  const [query, setQuery] = useState("");
+  const prefill = resolveCheckerPrefill(devices, saved.compatibilityChecked ? { model: saved.deviceModel, ...(saved.deviceBrand ? { brand: saved.deviceBrand } : {}) } : null, detection);
+  const brand = override?.brand ?? prefill.brand ?? "";
+  const device = override ? override.device : prefill.device;
+  const brands = useMemo(() => [...new Set(devices.map((d) => d.brand))].sort(), [devices]);
+  const models = useMemo(() => searchDevices(devices, query, brand || undefined), [devices, query, brand]);
+  const result = device?.status ?? "UNCERTAIN";
+  return <div className="mt-4 border-t border-border pt-3" data-testid="hero-device-check">
+    <h2 className="mb-2 text-sm font-bold">{c.title}</h2>
+    <div className="grid grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] gap-2">
+      <select aria-label={c.brand} value={brand} onChange={(e) => { setOverride({ brand: e.target.value, device: null }); saved.reset(); setQuery(""); }} className="h-11 min-w-0 rounded-lg border border-input bg-card px-2 text-sm text-foreground focus-visible:ring-2 focus-visible:ring-ring">
+        <option value="">{c.brand}</option>{brands.map((b) => <option key={b} value={b}>{b}</option>)}
+      </select>
+      <V2PickerSheet open={modelOpen} onOpenChange={(open) => { setModelOpen(open); if (!open) setQuery(""); }} title={c.model} searchLabel={c.search} query={query} onQueryChange={setQuery} {...(device ? { selectedId: device.id } : {})} emptyLabel={isPending ? "…" : c.unknown} items={models.map((d) => ({ id: d.id, label: d.model }))} onSelect={(id) => { const d = devices.find((item) => item.id === id); if (!d) return; setOverride({ brand: d.brand, device: d }); saved.setResult(d.model, d.status, d.brand); setModelOpen(false); setQuery(""); }}>
+        <Button variant="outline" className="h-11 min-w-0 justify-between bg-card px-2 font-normal"><span className="truncate">{device?.model ?? c.model}</span><ChevronRight className="size-4 shrink-0 rotate-90" /></Button>
+      </V2PickerSheet>
+    </div>
+    <div aria-live="polite" className="mt-2 min-h-8 text-[11px] leading-4 text-muted-foreground">
+      {device ? <><span className="flex items-center gap-1 font-semibold text-foreground"><StatusIcon status={result} />{result === "COMPATIBLE" ? c.ok : result === "NOT_COMPATIBLE" ? c.no : c.unknown}{os ? ` · ${os}` : ""}</span><span>{c.caution}</span></> : <span>{os ? `${os} · ` : ""}{isError ? c.unknown : c.missing}</span>}
+    </div>
+  </div>;
+}
 
 function statusLabel(copy: Copy, status: CompatibilityStatus) {
   if (status === "COMPATIBLE") return copy.statusCompatible;
@@ -582,14 +623,6 @@ export function DeviceCompatibilityInline() {
   );
 }
 
-type NavigatorWithUserAgentData = Navigator & {
-  userAgentData?: {
-    model?: string;
-    platform?: string;
-    getHighEntropyValues?: (hints: string[]) => Promise<{ model?: string; platform?: string }>;
-  };
-};
-
 function partialDetectionLabel(copy: Copy, detection: DeviceDetection) {
   if (detection.kind !== "partial") return copy.sectionLead;
   if (detection.family === "iphone") return copy.detectedIphone;
@@ -607,28 +640,7 @@ export function DeviceCompatibilityProductCard() {
     queryFn: () => listDeviceCompatibility(),
     staleTime: 10 * 60 * 1000,
   });
-  const [detected, setDetected] = useState<DeviceDetection>({ kind: "unknown" });
-
-  useEffect(() => {
-    if (compatibilityChecked || devices.length === 0) return;
-    let cancelled = false;
-    const browserNavigator = navigator as NavigatorWithUserAgentData;
-    const inspect = async () => {
-      const highEntropy: { model?: string; platform?: string } = browserNavigator.userAgentData?.getHighEntropyValues
-        ? await browserNavigator.userAgentData.getHighEntropyValues(["model", "platform"]).catch(() => ({}))
-        : {};
-      if (cancelled) return;
-      const model = highEntropy.model ?? browserNavigator.userAgentData?.model;
-      setDetected(detectDeviceFromSignals(devices, {
-        ...(model ? { model } : {}),
-        userAgent: browserNavigator.userAgent,
-        platform: highEntropy.platform ?? browserNavigator.userAgentData?.platform ?? browserNavigator.platform,
-        maxTouchPoints: browserNavigator.maxTouchPoints,
-      }));
-    };
-    void inspect();
-    return () => { cancelled = true; };
-  }, [compatibilityChecked, devices]);
+  const { detection: detected } = useBrowserDevice(devices);
 
   const manualVerified = Boolean(compatibilityChecked && compatibilityResult && compatibilityResult !== "UNCERTAIN");
   const automaticDevice = !compatibilityChecked && detected.kind === "exact" && detected.device.status !== "UNCERTAIN" ? detected.device : null;

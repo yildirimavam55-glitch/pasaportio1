@@ -15,6 +15,7 @@ export type PublicBanner = {
   currency: string;
   text: Record<string, string>;
   showCopy: boolean;
+  endsAt: string;
 } | null;
 
 /** Public: the one running, banner-visible promotion (server time). Never throws. */
@@ -34,6 +35,7 @@ export const getPromotionBanner = createServerFn({ method: "GET" }).handler(asyn
       currency: row.currency,
       text,
       showCopy: Boolean(row.show_code && row.show_copy),
+      endsAt: row.ends_at,
     };
   } catch {
     return null;

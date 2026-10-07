@@ -1555,6 +1555,27 @@ html[data-quick-search-lock] body {
   transform: scale(var(--hero-mobile-scale, 1));
   transform-origin: var(--hero-mobile-origin, center);
 }
+
+/* Approved seaside hero; semantic theme colors remain Admin-controlled. */
+.pasaport-esim-hero { display: grid; padding: 1.5rem 1rem 1rem; isolation: isolate; }
+.pasaport-hero-photo { position: absolute; inset: 0 0 auto; height: 20rem; overflow: hidden; z-index: -2; }
+.pasaport-hero-shade { position: absolute; inset: 0 0 auto; height: 20rem; z-index: -1; background: linear-gradient(180deg, var(--card) 0%, color-mix(in oklab, var(--card) 94%, transparent) 30%, color-mix(in oklab, var(--card) 20%, transparent) 65%, var(--background) 100%); }
+.pasaport-hero-content { max-width: 37rem; }
+.pasaport-search-card { margin-top: 5rem; }
+.pasaport-hero-promotion { position: relative; margin-top: .75rem; }
+.pasaport-hero-promotion > div:last-child { padding-inline-end: 2rem; }
+@media (min-width: 1024px) {
+  .pasaport-esim-hero { min-height: 39rem; padding: 2.5rem 3rem 2rem; }
+  .pasaport-hero-photo { inset: 0; height: auto; }
+  .pasaport-hero-shade { inset: 0; height: auto; background: linear-gradient(90deg, var(--card) 0%, color-mix(in oklab, var(--card) 96%, transparent) 28%, color-mix(in oklab, var(--card) 55%, transparent) 47%, transparent 68%); }
+  .pasaport-hero-content { width: 48%; max-width: 35rem; }
+  .pasaport-search-card { margin-top: 1.5rem; }
+  .pasaport-hero-promotion { position: absolute; right: 2rem; bottom: 2rem; width: 20rem; margin: 0; }
+  [dir="rtl"] .pasaport-hero-content { margin-inline-start: auto; }
+  [dir="rtl"] .pasaport-hero-shade { transform: scaleX(-1); }
+  [dir="rtl"] .pasaport-hero-promotion { right: auto; left: 2rem; }
+  [dir="rtl"] .pasaport-hero-photo { transform: scaleX(-1); }
+}
 @media (min-width: 640px) {
   .v2-hero-image {
     object-fit: var(--hero-desktop-fit, cover);

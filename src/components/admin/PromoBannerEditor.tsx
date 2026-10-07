@@ -91,6 +91,16 @@ export function PromoBannerEditor({ value, onChange, discountType, discountValue
         <span className="text-[10px] font-normal text-muted-foreground">İndirim ve kupon kodu kampanya ayarlarından otomatik eklenir; buraya yazmayın.</span>
       </label>
 
+      <details className="border-t border-border pt-2">
+        <summary className="cursor-pointer text-xs font-semibold">Hero kartı başlık, açıklama ve koşulları — tüm diller</summary>
+        <div className="mt-2 grid max-h-96 gap-3 overflow-y-auto">
+          {UI_LOCALES.map((l) => <div key={l} className="grid gap-1.5" dir={LOCALE_REGISTRY[l].dir}>
+            <strong className="text-xs">{LOCALE_REGISTRY[l].nativeName}</strong>
+            {([['title', 'Başlık'], ['description', 'Açıklama'], ['conditions', 'Geçerlilik koşulları']] as const).map(([key, label]) => <label key={key} className="grid gap-1 text-[11px]">{label}<input className="admin-field w-full" maxLength={160} lang={LOCALE_REGISTRY[l].bcp47} value={value[`${key}:${l}`] ?? ''} onChange={(e) => onChange({ ...value, [`${key}:${l}`]: e.target.value })} /></label>)}
+          </div>)}
+        </div>
+      </details>
+
       {structured && tr.trim() && (
         <div className="flex flex-wrap items-center gap-2">
           <Button type="button" size="sm" variant={stale || !ready ? "default" : "outline"} disabled={busy} onClick={() => translate(false)}>
@@ -108,7 +118,7 @@ export function PromoBannerEditor({ value, onChange, discountType, discountValue
         </p>
       )}
 
-      {structured && ready > 0 && (
+      {structured && (
         <div>
           <button type="button" className="flex items-center gap-1 text-xs font-semibold text-primary" aria-expanded={open} onClick={() => setOpen(!open)}>
             Çevirileri görüntüle / düzenle <ChevronDown className={`size-3.5 transition-transform ${open ? "rotate-180" : ""}`} />

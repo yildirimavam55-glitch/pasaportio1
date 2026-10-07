@@ -3,7 +3,8 @@ import { queryOptions, useQuery } from "@tanstack/react-query";
 import { useMemo, useRef, useState, type ReactNode } from "react";
 import { ArrowRight, BarChart3, BookOpen, Box, CheckCircle2, Globe2, Infinity as InfinityIcon, MapPin, MessageCircle, Search, Share2, Smartphone, Sparkles, Video, Zap } from "lucide-react";
 import { DeviceCompatibilityProductCard } from "@/components/travel/DeviceCompatibility";
-import { CartBar, HeroField, heroInputClass, money, PhotoCard, PhotoRail, pick, SectionTitle, TrustRow, useV2StickySearch, V2Hero, V2Shell, V2StickySearchButton } from "@/components/design-v2/V2Shell";
+import { PasaportEsimHero } from "@/components/design-v2/PasaportEsimHero";
+import { CartBar, money as formatMoney, PhotoCard, PhotoRail, pick, SectionTitle, TrustRow, useV2StickySearch, V2Shell, V2StickySearchButton } from "@/components/design-v2/V2Shell";
 import { V2PickerSheet } from "@/components/design-v2/V2PickerSheet";
 import { Button } from "@/components/ui/button";
 import { countryPhotoRegistry } from "@/components/travel/countryPhotos";
@@ -55,7 +56,8 @@ export const destinationPricesQuery = queryOptions({
 });
 
 export function EsimHomePage() {
-  const { locale } = useI18n();
+  const { locale, uiLocale } = useI18n();
+  const money = (value: number, currency: string) => formatMoney(value, currency, uiLocale);
   const c = pick(locale, T);
   const country = String((useSearch({ strict: false }) as { country?: string }).country ?? "").slice(0, 2).toUpperCase();
   const navigateRaw = useNavigate();
@@ -144,7 +146,7 @@ export function EsimHomePage() {
   ) : undefined;
 
   return (
-    <V2Shell service="esim" commerceSelection={Boolean(selectedPackage)} stickySearch={stickySearch} purchaseSummary={purchaseSummary}>
+    <V2Shell service="esim" commerceSelection={Boolean(selectedPackage)} stickySearch={stickySearch} purchaseSummary={purchaseSummary} heroPromotion={!selected}>
 
       {selected ? (
         <>
@@ -164,8 +166,8 @@ export function EsimHomePage() {
             slots={{
               faq: <V2CategorizedEsimFaq />,
               hero: (section) => (
-<V2Hero image={mediaUrl(section.mobileMediaId ?? section.mediaId, media) ?? ""} desktopImage={mediaUrl(section.mediaId, media)} desktopFocus="phone" imageDisplay={section.imageDisplay} mobileImageDisplay={section.mobileImageDisplay} eyebrow={v2Text(section, "eyebrow", locale)} title={v2Text(section, "title", locale)} subtitle={v2Text(section, "subtitle", locale)} align={section.align} height={section.height} overlay={section.overlay} desktopFooter={desktopBenefits.length ? <ul className="grid grid-cols-4 gap-5 border-t border-primary-foreground/25 pt-4">{desktopBenefits.map((item) => <li key={item.id} className="flex min-w-0 items-center gap-2 text-sm font-semibold text-primary-foreground"><StorefrontIcon name={item.icon} className="size-5 shrink-0" /><span className="truncate">{v2ItemText(item.title, locale)}</span></li>)}</ul> : undefined}>
-        <div ref={heroSearchRef}><HeroField icon={<Search className="size-5" />}>
+<PasaportEsimHero section={section} image={mediaUrl(section.mediaId, media) ?? ""} mobileImage={section.mobileMediaId ? mediaUrl(section.mobileMediaId, media) : undefined}>
+        <div ref={heroSearchRef}>
           <V2PickerSheet
             open={pickerOpen}
             autoFocusSearch
@@ -181,12 +183,14 @@ export function EsimHomePage() {
             })}
             onSelect={choose}
           >
-            <Button type="button" variant="ghost" onClick={() => setPickerOpen(true)} className={`${heroInputClass} justify-start font-normal hover:bg-transparent`}>
+            <Button type="button" variant="outline" onClick={() => setPickerOpen(true)} className="h-11 w-full justify-start gap-2 rounded-lg bg-card text-sm font-normal text-muted-foreground">
+              <Search className="size-4 shrink-0" />
               <span className="truncate">{v2Text(section, "placeholder", locale) || c.ph}</span>
             </Button>
           </V2PickerSheet>
-        </HeroField></div>
-      </V2Hero>
+          <Button type="button" onClick={() => setPickerOpen(true)} className="mt-2 h-11 w-full rounded-lg text-sm font-bold">{c.discoverPlans}<ArrowRight className="size-4 rtl:rotate-180" /></Button>
+        </div>
+      </PasaportEsimHero>
               ),
               destinations: (section) => <Popular c={c} section={section} onPick={choose} />,
               regions: (section) => <RegionalDiscovery section={section} summaries={regionalSummaries.data ?? []} loading={regionalSummaries.isLoading} c={c} />,
@@ -221,7 +225,8 @@ function CountryProductHero({ country, name, subtitle, changeLabel, onChange }: 
 }
 
 function Popular({ c, section, onPick }: { c: (typeof T)["tr"]; section: V2Section; onPick: (iso: string) => void }) {
-  const { locale } = useI18n();
+  const { locale, uiLocale } = useI18n();
+  const money = (value: number, currency: string) => formatMoney(value, currency, uiLocale);
   const list = section.items.filter((item) => item.visible).flatMap((item) => { const country = getCountryByIso(item.entity); return country ? [country] : []; });
   // Same authoritative country "from" prices as the search list: one shared request.
   const { data, isLoading } = useQuery(destinationPricesQuery);
@@ -256,7 +261,8 @@ function Popular({ c, section, onPick }: { c: (typeof T)["tr"]; section: V2Secti
 }
 
 function RegionalDiscovery({ section, summaries, loading, c }: { section: V2Section; summaries: EsimRegionalSummary[]; loading: boolean; c: (typeof T)["tr"] }) {
-  const { locale } = useI18n();
+  const { locale, uiLocale } = useI18n();
+  const money = (value: number, currency: string) => formatMoney(value, currency, uiLocale);
   const worldwide = summaries.find((item) => item.region === "GLOBAL" && item.unlimitedCount > 0);
   const regions = summaries.filter((item) => item.region !== "GLOBAL");
   return (
@@ -286,7 +292,8 @@ const HELP = localize({
 });
 
 function Packages({ iso, name, c, selectedPackage, onSelectPackage, desktopAfter }: { desktopAfter?: ReactNode; iso: string; name: string; c: (typeof T)["tr"]; selectedPackage: EsimPackage | null; onSelectPackage: (pkg: EsimPackage) => void }) {
-  const { locale } = useI18n();
+  const { locale, uiLocale } = useI18n();
+  const money = (value: number, currency: string) => formatMoney(value, currency, uiLocale);
   const h = pick(locale, HELP);
   const { lines } = useCart();
   const [type, setType] = useState<"standard" | "unlimited">("standard");
