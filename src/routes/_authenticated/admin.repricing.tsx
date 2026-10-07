@@ -130,3 +130,55 @@ function QueueCard({ r }: { r: RepricingRow }) {
     </div>
   );
 }
+
+const CATEGORY: Record<ManualReviewCategory, string> = {
+  AIRALO_BELOW_COST: "AIRALO MALİYETİN ALTINDA",
+  LOW_PROFIT: "DÜŞÜK KÂR",
+  NO_ESSENTIAL: "ESSENTIAL MEVCUT DEĞİL",
+};
+
+function ManualReview() {
+  const fetchReview = useServerFn(getManualPriceReview);
+  const q = useQuery({ queryKey: ["manual-price-review"], queryFn: () => fetchReview() });
+  const [cat, setCat] = useState<ManualReviewCategory | "ALL">("ALL");
+  const [country, setCountry] = useState("");
+  const rows = useMemo(() => (q.data?.rows ?? []).filter((r) => (cat === "ALL" || r.category === cat) && (!country || r.iso === country)), [q.data, cat, country]);
+  const countries = useMemo(() => [...new Set((q.data?.rows ?? []).map((r) => r.iso))].sort((a, b) => countryName(a).localeCompare(countryName(b), "tr")), [q.data]);
+  if (q.isLoading) return <AdminLoading />;
+  if (q.error) return <AdminError error={q.error} />;
+  const c = q.data?.counts ?? {};
+  return (
+    <div className="min-w-0 space-y-4">
+      <p className="text-xs text-muted-foreground">Ticari fiyat kararı bekleyen paketler. Maliyet değişikliği uyarılarından ayrıdır. İzleme başlangıç maliyeti olması mevcut fiyatın onaylandığı anlamına gelmez. Otomatik fiyat değişikliği yok; satış devam eder.</p>
+      <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+        {(["ALL", "AIRALO_BELOW_COST", "LOW_PROFIT", "NO_ESSENTIAL"] as const).map((k) => (
+          <button key={k} type="button" onClick={() => setCat(k)} className={`rounded-md border p-3 text-left ${cat === k ? "border-primary" : "border-border"}`}>
+            <div className="text-xs">{k === "ALL" ? `Tümü · ${q.data?.packages ?? 0} paket` : CATEGORY[k]}</div>
+            <div className="text-xl font-bold">{k === "ALL" ? q.data?.rows.length ?? 0 : c[k] ?? 0}</div>
+          </button>
+        ))}
+      </div>
+      <p className="text-xs text-muted-foreground">Korunan manuel fiyatlar ayrıca işaretlenir ({q.data?.protectedManualCount ?? 0} ürün; Manuel fiyatlar sayfasında yönetilir).</p>
+      <select className="admin-field" value={country} onChange={(e) => setCountry(e.target.value)} aria-label="Ülke">
+        <option value="">Tüm ülkeler</option>{countries.map((iso) => <option key={iso} value={iso}>{countryName(iso)}</option>)}
+      </select>
+      <div className="text-xs text-muted-foreground">{rows.length} ürün</div>
+      <div className="space-y-2">{rows.slice(0, 200).map((r) => (
+        <div key={r.id} className="rounded-md border border-border p-3 text-sm">
+          <div className="flex flex-wrap items-baseline justify-between gap-2">
+            <div className="font-semibold">{countryName(r.iso)} · {packageKeyLabel(r.key)}</div>
+            <div className="text-xs font-semibold">{CATEGORY[r.category]}{r.protectedManual ? " · KORUNAN MANUEL FİYAT" : ""}{r.resolvedByAdmin ? " · Admin yeni fiyat onayladı" : ""}</div>
+          </div>
+          <dl className="mt-2 grid grid-cols-2 gap-x-3 gap-y-1 text-xs sm:grid-cols-4">
+            <div><dt className="text-muted-foreground">Güncel maliyet</dt><dd>{euro(r.cost)}</dd></div>
+            <div><dt className="text-muted-foreground">MEVCUT FİYAT</dt><dd className="font-semibold">{euro(r.price)}</dd></div>
+            <div><dt className="text-muted-foreground">Kâr / markup</dt><dd>{euro(r.profit)} · {pct(r.markup)}</dd></div>
+            <div><dt className="text-muted-foreground">AIRALO</dt><dd>{r.airalo == null ? "—" : euro(r.airalo)}</dd></div>
+            <div className="col-span-2 sm:col-span-4"><dt className="text-muted-foreground">İzleme başlangıcı</dt><dd>{r.baseline == null ? "Yok" : `${euro(r.baseline)} · ${BASELINE_LABEL[r.baselineKind!]}`}</dd></div>
+          </dl>
+        </div>
+      ))}</div>
+      {rows.length > 200 && <p className="text-xs text-muted-foreground">İlk 200 gösteriliyor; filtreyle daraltın.</p>}
+    </div>
+  );
+}
