@@ -11,6 +11,7 @@ import { createClient } from "@supabase/supabase-js";
 import type { Database } from "@/integrations/supabase/types";
 import { isTestCatalogueVisible } from "@/lib/test-catalogue.functions";
 import { classifyCoverageRegion, type CoverageRegionKey } from "@/domain/geo/coverage-regions";
+import { planTierOf } from "@/domain/esim/supplier-metadata";
 
 export type EsimCountryDestination = {
   iso: string;
@@ -61,7 +62,7 @@ export const listEsimDestinations = createServerFn({ method: "GET" }).handler(
     for (let from = 0; ; from += pageSize) {
       const { data, error } = await client
         .from("service_products")
-        .select("currency, sale_price, is_test, esim_product_details!inner(coverage_country_isos)")
+        .select("currency, sale_price, is_test, esim_product_details!inner(coverage_country_isos, unlimited_data, supplier_groups)")
         .eq("service_type", "ESIM")
         .eq("lifecycle", "PUBLISHED")
         .eq("customer_visible", true)
