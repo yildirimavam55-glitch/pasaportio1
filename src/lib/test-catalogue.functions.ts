@@ -37,11 +37,27 @@ export function testPublicClient() {
   });
 }
 
+/**
+ * Short per-server-instance cache for this single configuration flag only.
+ * Never extend it to prices, orders, eSIM usage, checkout or customer data.
+ */
+const TEST_FLAG_TTL_MS = 60_000;
+let testFlagCache: { value: boolean; expires: number } | null = null;
+let testFlagInflight: Promise<boolean> | null = null;
+
 /** Storefront kill switch: when off, INTERNAL_TEST products never reach customers. */
 export async function isTestCatalogueVisible(): Promise<boolean> {
-  const { data, error } = await testPublicClient().from("feature_flags").select("enabled").eq("key", TEST_FLAG_KEY).maybeSingle();
-  if (error || !data) return false;
-  return Boolean(data.enabled);
+  if (testFlagCache && testFlagCache.expires > Date.now()) return testFlagCache.value;
+  if (testFlagInflight) return testFlagInflight;
+  testFlagInflight = (async () => {
+    const { data, error } = await testPublicClient().from("feature_flags").select("enabled").eq("key", TEST_FLAG_KEY).maybeSingle();
+    // Errors are not cached, so a transient failure is retried on the next request.
+    if (error) return false;
+    const value = Boolean(data?.enabled);
+    testFlagCache = { value, expires: Date.now() + TEST_FLAG_TTL_MS };
+    return value;
+  })().finally(() => { testFlagInflight = null; });
+  return testFlagInflight;
 }
 
 export const getTestCatalogueFlag = createServerFn({ method: "GET" }).handler(async () => ({
@@ -189,5 +205,6 @@ export const setTestCatalogueVisible = createServerFn({ method: "POST" })
       .update({ enabled: data.enabled })
       .eq("key", TEST_FLAG_KEY);
     if (error) throw new Error(error.message);
+    testFlagCache = null;
     return { showTestCatalogue: data.enabled };
   });

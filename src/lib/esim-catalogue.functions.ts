@@ -8,7 +8,6 @@ import { networkGenerationsOf, planTierOf, standardUnlimitedOnly, regionFamilyOf
 import { classifyCoverageRegion, COVERAGE_REGION_ORDER, type CoverageRegionKey } from "@/domain/geo/coverage-regions";
 import { resolvePackageScope } from "@/domain/esim/package-scope";
 import { dedupeStorefrontPackages } from "@/domain/esim/storefront-packages";
-import { lowestByCountry, type StartingPriceRow } from "@/domain/esim/starting-price";
 
 export type ActivationPolicy = "ON_INSTALL" | "ON_FIRST_NETWORK_CONNECTION" | "ON_PURCHASE" | "UNKNOWN";
 
@@ -237,10 +236,36 @@ export const listGlobalUnlimitedEsimPackages = createServerFn({ method: "GET" })
   },
 );
 
+/**
+ * Slim multi-country rows for regional cards. The database applies the same
+ * visibility rules and Essential-only Unlimited filter as listEsimPackages;
+ * only the fields regional cards and deduplication need are transferred.
+ */
+async function regionalCardRows() {
+  const showTest = await isTestCatalogueVisible();
+  const { data, error } = await publicClient().rpc("storefront_regional_package_rows", { _show_test: showTest });
+  if (error) throw new Error(error.message);
+  return (data ?? []).map((r) => {
+    const coverage = r.coverage ?? [];
+    return {
+      salePrice: Number(r.sale_price),
+      currency: r.currency ?? "EUR",
+      countryIso: r.country_iso ?? null,
+      packageKind: r.package_kind ?? null,
+      unlimited: Boolean(r.unlimited),
+      dataGb: r.unlimited || r.data_gb == null ? null : commercialDataGb(Number(r.data_gb)),
+      validityDays: r.validity_days ?? null,
+      coverage,
+      networks: r.network_operators ?? [],
+      networkGenerations: networkGenerationsOf(r.supplier_speed),
+    };
+  });
+}
+
 /** Real published multi-country inventory summarized for V2 regional discovery. */
 export const listEsimRegionalSummaries = createServerFn({ method: "GET" }).handler(
   async (): Promise<EsimRegionalSummary[]> => {
-    const packages = dedupeStorefrontPackages(await listEsimPackages({ data: { coverageIsos: [] } }));
+    const packages = dedupeStorefrontPackages(await regionalCardRows()) as unknown as EsimPackage[];
     return COVERAGE_REGION_ORDER.flatMap((region) => {
       if (region === "MULTI") return [];
       const rows = packages.filter((pkg) => regionalIdentity(pkg) === region && pkg.salePrice != null);
@@ -281,35 +306,21 @@ export const listEsimRegionPackages = createServerFn({ method: "GET" })
     return packages.filter((pkg) => regionalIdentity(pkg) === data.region);
   });
 
-const STARTING_SELECT = "currency, sale_price, is_test, esim_product_details!inner(country_iso, package_kind, unlimited_data, supplier_groups)";
-
-/** Live, customer-visible single-country rows: the only input for "from" prices. */
+/**
+ * Live, customer-visible single-country "from" prices. The database returns one
+ * row per country (lowest current sale_price, same rules as lowestByCountry in
+ * domain/esim/starting-price), so no package rows are transferred.
+ */
 async function liveCountryLowest(isos?: string[]) {
-  const client = publicClient();
   const showTest = await isTestCatalogueVisible();
-  const rows: StartingPriceRow[] = [];
-  for (let from = 0; ; from += 1000) {
-    let q = client
-      .from("service_products")
-      .select(STARTING_SELECT)
-      .eq("service_type", "ESIM")
-      .eq("lifecycle", "PUBLISHED")
-      .eq("customer_visible", true)
-      .eq("provider_available", true)
-      .eq("margin_flagged", false)
-      .gt("sale_price", 0)
-      .eq("esim_product_details.package_kind", "COUNTRY");
-    if (isos?.length) q = q.in("esim_product_details.country_iso", isos);
-    const { data, error } = await q.order("id").range(from, from + 999);
-    if (error) throw new Error(error.message);
-    for (const r of (data ?? []) as any[]) {
-      if (!showTest && r.is_test) continue;
-      const d = Array.isArray(r.esim_product_details) ? r.esim_product_details[0] : r.esim_product_details;
-      if (d) rows.push({ sale_price: r.sale_price, currency: r.currency, ...d });
-    }
-    if ((data ?? []).length < 1000) break;
-  }
-  return lowestByCountry(rows);
+  const { data, error } = await publicClient().rpc("storefront_country_starting_prices", {
+    ...(isos?.length ? { _isos: isos } : {}),
+    _show_test: showTest,
+  });
+  if (error) throw new Error(error.message);
+  const out = new Map<string, { amount: number; currency: string }>();
+  for (const r of data ?? []) out.set(r.iso, { amount: Number(r.amount), currency: r.currency ?? "EUR" });
+  return out;
 }
 
 /** Lowest current customer price per country card; route cards use packages covering every country. */

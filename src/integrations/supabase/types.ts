@@ -3504,6 +3504,7 @@ export type Database = {
         Args: { _bucket: string; _limit: number; _window_seconds: number }
         Returns: boolean
       }
+      esim_plan_tier: { Args: { _groups: Json }; Returns: string }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -3558,6 +3559,29 @@ export type Database = {
       }
       revoke_admin: { Args: { _user_id: string }; Returns: undefined }
       security_baseline_status: { Args: never; Returns: Json }
+      storefront_country_starting_prices: {
+        Args: { _isos?: string[]; _show_test?: boolean }
+        Returns: {
+          amount: number
+          currency: string
+          iso: string
+        }[]
+      }
+      storefront_regional_package_rows: {
+        Args: { _show_test?: boolean }
+        Returns: {
+          country_iso: string
+          coverage: string[]
+          currency: string
+          data_gb: number
+          network_operators: string[]
+          package_kind: string
+          sale_price: number
+          supplier_speed: Json
+          unlimited: boolean
+          validity_days: number
+        }[]
+      }
     }
     Enums: {
       alert_status: "OPEN" | "ACKNOWLEDGED" | "RESOLVED"
