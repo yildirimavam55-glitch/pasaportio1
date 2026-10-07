@@ -718,11 +718,15 @@ html.dark .destination-scene {
 }
 .reveal-item {
   opacity: 0;
-  transform: translate3d(0, 30px, 0) scale(0.985);
+  transform: translate3d(0, 12px, 0);
   transition:
-    opacity 1.15s cubic-bezier(0.16, 1, 0.3, 1) 0.15s,
-    transform 1.15s cubic-bezier(0.16, 1, 0.3, 1) 0.15s;
+    opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
   will-change: opacity, transform;
+}
+/* Hidden off-screen without animating out; only the entrance animates. */
+.reveal-item.reveal-pending {
+  transition: none;
 }
 .reveal-item.is-revealed {
   opacity: 1;
@@ -738,8 +742,8 @@ html.dark .destination-scene {
   transform: translate3d(0, 0, 0);
 }
 .trust-section-reveal {
-  transform: translate3d(0, 20px, 0);
-  transition-duration: 0.55s;
+  transform: translate3d(0, 12px, 0);
+  transition-duration: 0.3s;
   transition-delay: 0s;
   transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
 }
@@ -748,8 +752,8 @@ html.dark .destination-scene {
   transform: translate3d(0, 0, 0);
 }
 .trust-section-chip {
-  transform: translate3d(0, 14px, 0);
-  transition-duration: 0.5s;
+  transform: translate3d(0, 10px, 0);
+  transition-duration: 0.3s;
   transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
 }
 .finder-result-reveal {

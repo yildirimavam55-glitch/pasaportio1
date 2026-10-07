@@ -1,5 +1,5 @@
 import { Link, useNavigate, useSearch } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
+import { queryOptions, useQuery } from "@tanstack/react-query";
 import { useMemo, useRef, useState, type ReactNode } from "react";
 import { ArrowRight, BarChart3, BookOpen, Box, CheckCircle2, Globe2, Infinity as InfinityIcon, MapPin, MessageCircle, Search, Share2, Smartphone, Sparkles, Video, Zap } from "lucide-react";
 import { DeviceCompatibilityProductCard } from "@/components/travel/DeviceCompatibility";
@@ -44,6 +44,16 @@ const T = localize({
   en: { h: "Stay connected abroad.", q: "Which country do you need an eSIM for?", ph: "Search country, e.g. Italy", stickyPh: "Search Turkey or another country", picker: "Choose country", empty: "No matching country found.", setup: "Easy setup", net: "Real packages", pay: "Easy plan choice", benefitDelivery: "Account access", benefitCoverage: "Wide coverage", support: "WhatsApp support", popular: "Popular eSIM destinations", regionalEyebrow: "Travelling to multiple countries?", regionalTitle: "Regional eSIM plans", regionalHomeLead: "Stay connected across multiple countries with one eSIM.", multiCountry: "Multi-country", worldwideBanner: "Unlimited data worldwide", upTo: "countries covered", discoverPlans: "Explore plans", from: "from", day: "day", days: "days", select: "Add to cart", adding: "Adding…", added: "In cart", cart: "Go to cart", decrease: "Decrease", increase: "Increase", detailsLabel: "Plan details", none: "No published plans for this country right now.", noPrices: "Prices coming soon.", back: "Change country", unlimited: "Unlimited", standard: "Standard", countries: "countries", local: "This country only", packages: "eSIM", chooseTitle: "Choose your package", chooseLead: "Flexible data packages for your trip.", details: "Plan details", data: "Data", validity: "Validity", coverage: "Coverage", network: "Network", activation: "Activation", activationUnknown: "Setup details appear in your account after purchase.", fiveG: "5G support", regional: "Travelling to multiple countries?", regionalLead: "Discover regional and global packages.", assistant: "Not sure which package fits?", assistantLead: "Get a recommendation in 30 seconds.", assistantOpen: "Open plan assistant", assistantClose: "Close plan assistant", estimate: "Estimated need", recommended: "Matching plan", usage: ["Messaging", "Maps", "Social media", "Video"], installTitle: "eSIM installation guide", installLead: "Simple step-by-step instructions.", installCta: "View installation guide", promo: "More comfort before your flight", promoSub: "Discover Lounge", vignettePromo: "Get ready for Europe's roads", vignettePromoSub: "Discover Vignette" },
 });
 
+/**
+ * Authoritative country "from" prices (Phase 2 database function). The homepage
+ * loader primes this so Popular Countries renders with the first page response.
+ */
+export const destinationPricesQuery = queryOptions({
+  queryKey: ["v2-esim-destinations"],
+  queryFn: () => listEsimDestinationStartingPrices(),
+  staleTime: 60_000,
+});
+
 export function EsimHomePage() {
   const { locale } = useI18n();
   const c = pick(locale, T);
@@ -55,7 +65,7 @@ export function EsimHomePage() {
   const { lines, addLine, updateQuantity, count } = useCart();
   const [selectedPackage, setSelectedPackage] = useState<EsimPackage | null>(null);
   const [selectionQuantity, setSelectionQuantity] = useState(1);
-  const prices = useQuery({ queryKey: ["v2-esim-destinations"], queryFn: () => listEsimDestinationStartingPrices() });
+  const prices = useQuery(destinationPricesQuery);
   const regionalSummaries = useQuery({ queryKey: ["v2-esim-regions"], queryFn: () => listEsimRegionalSummaries() });
   const priceMap = useMemo(() => new Map((prices.data ?? []).map((price) => [price.targetId, price])), [prices.data]);
   const matches = useMemo(
@@ -213,11 +223,8 @@ function CountryProductHero({ country, name, subtitle, changeLabel, onChange }: 
 function Popular({ c, section, onPick }: { c: (typeof T)["tr"]; section: V2Section; onPick: (iso: string) => void }) {
   const { locale } = useI18n();
   const list = section.items.filter((item) => item.visible).flatMap((item) => { const country = getCountryByIso(item.entity); return country ? [country] : []; });
-  const { data, isLoading } = useQuery({
-    // Same authoritative country "from" prices as the search list: one shared request.
-    queryKey: ["v2-esim-destinations"],
-    queryFn: () => listEsimDestinationStartingPrices(),
-  });
+  // Same authoritative country "from" prices as the search list: one shared request.
+  const { data, isLoading } = useQuery(destinationPricesQuery);
   // Only countries with a real published price are shown.
   const priced = list.flatMap((country) => {
     const p = data?.find((d) => d.targetId === country.iso);
@@ -227,7 +234,7 @@ function Popular({ c, section, onPick }: { c: (typeof T)["tr"]; section: V2Secti
     <>
       <div id="popular" className="scroll-mt-28"><SectionTitle>{v2Text(section, "title", locale) || c.popular}</SectionTitle></div>
       {isLoading ? (
-        <div className="h-40 animate-pulse rounded-2xl bg-muted" />
+        <div className="h-[8.4rem] rounded-2xl bg-muted lg:h-56" aria-hidden />
       ) : priced.length === 0 ? (
         <p className="rounded-2xl bg-card p-4 text-sm text-muted-foreground ring-1 ring-border">{c.noPrices}</p>
       ) : (
@@ -257,7 +264,7 @@ function RegionalDiscovery({ section, summaries, loading, c }: { section: V2Sect
       <p className="mt-5 text-[11px] font-bold uppercase text-primary lg:mt-12">{v2Text(section, "eyebrow", locale)}</p>
       <div className="lg:[&>div]:mt-1"><SectionTitle><span id="regional-esim-title">{v2Text(section, "title", locale) || c.regionalTitle}</span></SectionTitle></div>
       <p className="mb-3 text-xs text-muted-foreground">{v2Text(section, "lead", locale)}</p>
-      {loading ? <div className="h-40 animate-pulse rounded-xl bg-muted" /> : (
+      {loading ? <div className="h-[16.1rem] rounded-xl bg-muted/70 lg:h-[36rem]" aria-hidden /> : (
         <ul className="-mx-4 flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-2 [overscroll-behavior-inline:contain] [scrollbar-width:none] sm:mx-0 sm:grid sm:grid-cols-3 sm:px-0 lg:grid-cols-3 lg:gap-4">
            {regions.map((item) => <li key={item.region} className="w-[64%] shrink-0 snap-start sm:w-auto"><V2RegionCard item={item} countries={c.countries} multi={c.multiCountry} from={c.from} /></li>)}
         </ul>

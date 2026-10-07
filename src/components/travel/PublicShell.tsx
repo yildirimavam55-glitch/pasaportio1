@@ -200,7 +200,7 @@ function PublicFooter({ fallback, supportLabel, bottomSafe = false }: { fallback
   ] as const;
   const socials = (data?.footer.socials ?? []).filter((social) => social.active && social.url);
   return (
-    <footer id="support" className={`border-t border-primary-foreground/10 bg-primary text-primary-foreground ${bottomSafe === "purchase" ? "pb-[calc(12.5rem+env(safe-area-inset-bottom))] sm:pb-8" : bottomSafe ? "pb-[calc(8.5rem+env(safe-area-inset-bottom))] sm:pb-8" : "pb-8"}`}>
+    <footer id="support" className={`${config.isPending ? "lg:min-h-[23.6rem]" : ""} border-t border-primary-foreground/10 bg-primary text-primary-foreground ${bottomSafe === "purchase" ? "pb-[calc(12.5rem+env(safe-area-inset-bottom))] sm:pb-8" : bottomSafe ? "pb-[calc(8.5rem+env(safe-area-inset-bottom))] sm:pb-8" : "pb-8"}`}>
       <div className="mx-auto max-w-site px-4 py-8 sm:px-6 sm:py-10">
         <div className="grid gap-7 lg:grid-cols-[1.15fr_repeat(3,minmax(0,1fr))] lg:gap-10">
           <div>
@@ -237,7 +237,7 @@ function PublicFooter({ fallback, supportLabel, bottomSafe = false }: { fallback
           <div><div className="flex gap-2"><input disabled aria-label={itemText(data.footer.newsletterPlaceholder, locale)} placeholder={itemText(data.footer.newsletterPlaceholder, locale)} className="min-h-11 min-w-0 flex-1 rounded-md border border-primary-foreground/20 bg-primary-foreground/10 px-3 text-sm placeholder:text-primary-foreground/50"/><Button disabled variant="secondary">{itemText(data.footer.newsletterCta, locale)}</Button></div><p className="mt-1.5 text-[10px] text-primary-foreground/55">{footerCopy.newsletterUnavailable}</p></div>
         </div>}
         <div className="mt-8 flex flex-col gap-4 border-t border-primary-foreground/15 pt-5 text-xs text-primary-foreground/60 sm:flex-row sm:items-center sm:justify-between">
-          <span>{copyright}</span>
+          <span className="min-h-4">{copyright}</span>
           {socials.length > 0 && <nav aria-label={footerCopy.social} className="flex flex-wrap gap-3">{socials.map((social) => <a key={social.id} href={social.url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 hover:text-primary-foreground"><ExternalLink className="size-3"/>{social.id}</a>)}</nav>}
         </div>
       </div>
