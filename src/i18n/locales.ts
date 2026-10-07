@@ -74,7 +74,12 @@ export function resolveLocale(input: {
 }): UiLocale {
   if (isUiLocale(input.urlLocale)) return input.urlLocale;
   if (isUiLocale(input.stored)) return input.stored;
-  return detectFromLanguages(input.navigatorLanguages ?? []) ?? FALLBACK_UI_LOCALE;
+  // Automatic device selection is limited to the launch languages; other locales remain selectable manually and by URL.
+  for (const tag of input.navigatorLanguages ?? []) {
+    const candidate = normalizeLanguageTag(tag);
+    if (candidate && (["tr", "de", "en", "ar"] as string[]).includes(candidate)) return candidate;
+  }
+  return FALLBACK_UI_LOCALE;
 }
 
 /** Leading path segment locale, e.g. "/fr/..." → "fr". */

@@ -10,6 +10,9 @@ describe("device language detection", () => {
   ])("%s → %s", (tag, expected) => expect(normalizeLanguageTag(tag)).toBe(expected));
 
   it("unsupported only → EN", () => expect(resolveLocale({ navigatorLanguages: ["sv-SE"] })).toBe("en"));
+  it("automatic selection uses TR DE EN AR only", () => expect(resolveLocale({ navigatorLanguages: ["fr-FR", "ar-SA", "en-US"] })).toBe("ar"));
+  it("preserves other supported manual languages", () => expect(resolveLocale({ stored: "fr", navigatorLanguages: ["de-DE"] })).toBe("fr"));
+  it("uses EN when no launch language matches", () => expect(resolveLocale({ navigatorLanguages: ["fr-FR"] })).toBe("en"));
   it("uses first supported, not EN early", () =>
     expect(detectFromLanguages(["sv-SE", "de-DE", "en-US"])).toBe("de"));
   it("URL beats stored beats device", () => {

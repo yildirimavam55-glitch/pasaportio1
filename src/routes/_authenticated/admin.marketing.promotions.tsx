@@ -11,6 +11,7 @@ import { listPromotions, savePromotion, searchPromotionProducts, setPromotionSta
 import { COUNTRIES, foldText, getCountryByIso } from "@/domain/geo/countries";
 import { formatDiscount } from "@/domain/promotions";
 import { PromoBannerEditor } from "@/components/admin/PromoBannerEditor";
+import { notifyPromotionChanged } from "@/lib/promotion-banner-query";
 
 export const Route = createFileRoute("/_authenticated/admin/marketing/promotions")({
   head: () => adminHead("İndirimler", "Kupon kodları ve kampanya bannerı."),
@@ -71,7 +72,10 @@ function Promotions() {
   const [draft, setDraft] = useState<Draft | null>(null);
   const [showArchived, setShowArchived] = useState(false);
   const list = useQuery({ queryKey: ["promotions"], queryFn: () => listPromotions() });
-  const refresh = () => qc.invalidateQueries({ queryKey: ["promotions"] });
+  const refresh = async () => {
+    notifyPromotionChanged();
+    await Promise.all([qc.invalidateQueries({ queryKey: ["promotions"] }), qc.invalidateQueries({ queryKey: ["promotion-banner"] })]);
+  };
 
   const save = useMutation({
     mutationFn: (d: Draft) => savePromotion({ data: {

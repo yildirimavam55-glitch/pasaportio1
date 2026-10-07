@@ -36,6 +36,7 @@ export function I18nProvider({ children }: { children: ReactNode }) {
   // Explicit locale routes (/de, /en/…) render in their language from the first paint.
   const pathname = useRouterState({ select: (state) => state.location.pathname });
   const [uiLocale, setUiLocale] = useState<UiLocale>(() => localeFromPath(pathname) ?? DEFAULT_LOCALE);
+  const [resolved, setResolved] = useState(false);
 
   useEffect(() => {
     let stored: string | null = null;
@@ -45,6 +46,7 @@ export function I18nProvider({ children }: { children: ReactNode }) {
       stored,
       navigatorLanguages: navigator.languages?.length ? navigator.languages : [navigator.language],
     }));
+    setResolved(true);
   }, []);
 
   const meta = LOCALE_REGISTRY[uiLocale];
@@ -83,7 +85,11 @@ export function I18nProvider({ children }: { children: ReactNode }) {
     };
   }, [meta, uiLocale, setLocale]);
 
-  return <I18nContext.Provider value={value}>{children}</I18nContext.Provider>;
+  // Browser language/storage are unavailable to SSR. Never paint the fallback language while resolving them.
+  // Overlay languages are also gated because their static resources activate in the browser, not a shared SSR global.
+  const explicit = localeFromPath(pathname);
+  const canRender = resolved || explicit === "tr" || explicit === "de" || explicit === "en";
+  return <I18nContext.Provider value={value}>{canRender ? children : <div className="min-h-screen bg-background" aria-busy="true"><div className="mx-auto max-w-site px-4 pt-6"><div className="h-10 w-32 rounded-lg bg-muted" /><div className="mt-8 h-[32rem] rounded-lg bg-muted/50" /></div></div>}</I18nContext.Provider>;
 }
 
 export function useI18n(): I18nValue {
