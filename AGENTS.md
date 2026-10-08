@@ -36,4 +36,6 @@ Public install help stays in V2; QR, activation credentials, and package policy 
 - eSIM home shares CMS/search/gift/trust and the loading-gated device status — why: missing data never implies incompatibility.
 - Mobile hero photo fixtures are independent from desktop fixtures and remain subordinate to CMS-selected media — why: mobile reference corrections must not replace approved desktop imagery or Admin uploads.
 - Browser-only locale decisions render a neutral shell until resolved while TR/DE/EN URL routes remain server-rendered — why: navigator and stored manual preferences cannot be known during SSR and must never flash the wrong language.
-- Testimonials use V2 CMS, container capacity and verified source aggregates — why: preserve surrounding sections and evidence ownership.
+- Reviews reuse CMS and verified aggregates to preserve evidence ownership.
+
+- Antenna SVG maps photo coordinates through cover/crop/scale inside its clipped wrapper; hide when cropped out to retain alignment.

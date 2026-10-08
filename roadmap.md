@@ -1,6 +1,7 @@
 # Roadmap
 
 ## Current request
+- [ ] Replace only hero photo and verify anchored four-line antenna animation, cropped hiding and reduced motion.
 - [x] Apply combined-rating review reference and six-second dots-only carousel; extend existing Admin source metadata safely.
 - [x] Verify 390/768/1440 in four languages, partial stars, dots/autoplay/hover/focus/resume/simulated touch/loop/reduced-motion and preserved family/comparison; screenshots and limitations supplied. 41 focused tests passed; broader CMS suite has two unrelated default-fixture failures. Physical touch, hidden-tab/offscreen lifecycle, long-review dialog and actual Admin save remain untested. Not published.
 - [x] Replace only testimonial widget with approved desktop/mobile carousel; preserve CMS and public gates.
