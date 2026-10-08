@@ -32,7 +32,7 @@ export function PasaportEsimHero({ section, image, children }: { section: V2Sect
   <div className="final-hero-shade" aria-hidden="true" />
   <div className="final-hero-heading"><h1>{approved ? c.title : storedTitle}</h1><p>{approved ? c.subtitle : v2Text(section, "subtitle", locale)}</p></div>
   <div className="final-hero-search">{children}</div>
-  <div className="final-hero-compatibility"><HeroDeviceCompatibility compact /></div>
+  <div id="device-compatibility" className="final-hero-compatibility scroll-mt-24"><HeroDeviceCompatibility compact /></div>
   <div className="final-hero-gift"><HeroPromotion /></div>
  </section><PasaportMobileBenefits /></>;
 }

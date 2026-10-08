@@ -1352,8 +1352,8 @@
           "icon": "",
           "entity": "",
           "title": {
-            "tr": "",
-            "en": "",
+            "tr": "Laura M.",
+            "en": "Laura M.",
             "de": "Laura M."
           },
           "text": {
@@ -1396,8 +1396,8 @@
           "entity": "",
           "title": {
             "tr": "Sophie V.",
-            "en": "",
-            "de": "",
+            "en": "Sophie V.",
+            "de": "Sophie V.",
             "nl": "Sophie V."
           },
           "text": {
@@ -1440,9 +1440,9 @@
           "icon": "",
           "entity": "",
           "title": {
-            "tr": "",
+            "tr": "James W. – United Kingdom",
             "en": "James W. – United Kingdom",
-            "de": ""
+            "de": "James W. – United Kingdom"
           },
           "text": {
             "tr": "İtalya gezimizde, Roma'dan Floransa'ya kadar kullandık. Kurulumu kolaydı ve bağlantı gezinin büyük bölümünde iyi çalıştı.",
@@ -1484,8 +1484,8 @@
           "entity": "",
           "title": {
             "tr": "Mert M.",
-            "en": "",
-            "de": ""
+            "en": "Mert M.",
+            "de": "Mert M."
           },
           "text": {
             "tr": "Almanya seyahatimde ilk kez eSIM kullandım. QR kod ile kurulumu yaptım, uçaktan indiğimde internetim direkt çalıştı. Gerçekten çok pratik.",
@@ -1526,9 +1526,9 @@
           "icon": "",
           "entity": "",
           "title": {
-            "tr": "",
-            "en": "",
-            "de": "",
+            "tr": "Lucía R.",
+            "en": "Lucía R.",
+            "de": "Lucía R.",
             "es": "Lucía R."
           },
           "text": {
@@ -1571,9 +1571,9 @@
           "icon": "",
           "entity": "",
           "title": {
-            "tr": "",
-            "en": "",
-            "de": "",
+            "tr": "Mario B.",
+            "en": "Mario B.",
+            "de": "Mario B.",
             "it": "Mario B."
           },
           "text": {
@@ -1617,8 +1617,8 @@
           "entity": "",
           "title": {
             "tr": "Anna K.",
-            "en": "",
-            "de": "",
+            "en": "Anna K.",
+            "de": "Anna K.",
             "pl": "Anna K."
           },
           "text": {
@@ -2147,40 +2147,6 @@
           "published": false
         }
       ],
-      "showDots": true,
-      "showArrows": true,
-      "cardGap": "normal",
-      "mobilePreview": "normal",
-      "claims": {
-        "countries": "190+",
-        "refundDays": "14",
-        "savingPercent": "60",
-        "setupSeconds": "60"
-      },
-      "showDemoReviews": false
-    },
-    {
-      "id": "compatibility",
-      "type": "COMPATIBILITY",
-      "visible": true,
-      "showOnResults": false,
-      "variant": "default",
-      "align": "left",
-      "height": "normal",
-      "overlay": "normal",
-      "mediaId": null,
-      "mobileMediaId": null,
-      "href": "/esim",
-      "startsAt": "",
-      "endsAt": "",
-      "text": {
-        "title": {
-          "tr": "Telefonum eSIM uyumlu mu?",
-          "en": "Is my phone eSIM compatible?",
-          "de": "Ist mein Handy eSIM-fähig?"
-        }
-      },
-      "items": [],
       "showDots": true,
       "showArrows": true,
       "cardGap": "normal",
