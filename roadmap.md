@@ -1,6 +1,8 @@
 # Roadmap
 
 ## Current request
+- [ ] Restore localized platform preview samples and complete comparison prices with reveal-once cost bars; preserve public evidence gates.
+- [ ] Validate four widths/locales, carousel/search and animation; provide screenshots and a short actual preview recording.
 - [x] Replace family/reviews/comparison presentation, extend existing CMS source metadata and preserve production gates.
 - [x] Validate 16 language/width combinations, card proportions, arrows/dots/resume, conversion and preview gates; 24 tests passed. Screenshots supplied; real touch swipe, Admin publication and hidden-tab/off-screen lifecycle remain untested.
 - [x] Show readable device outcomes using actual catalogue status; compact trust labels and restore photo/panel country cards.
