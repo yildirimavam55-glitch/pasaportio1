@@ -36,5 +36,3 @@ Public install help stays in V2; QR, activation credentials, and package policy 
 - eSIM home reuses CMS/search/gift and one trust band; device outcomes beneath selectors use the shared status gate, hiding during loading — why: missing data never implies incompatibility; scoped styles preserve commerce.
 - Mobile hero photo fixtures are independent from desktop fixtures and remain subordinate to CMS-selected media — why: mobile reference corrections must not replace approved desktop imagery or Admin uploads.
 - Browser-only locale decisions render a neutral shell until resolved while TR/DE/EN URL routes remain server-rendered — why: navigator and stored manual preferences cannot be known during SSR and must never flash the wrong language.
-
-- Final family/reviews/comparison presentation stays in the existing V2 CMS section; source-tagged reviews and structured comparable evidence remain sanitized CMS fields, with shared price/review gates — why: preview fixtures must never become public evidence or fork commerce/search.
