@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { comparisonScale, verifiedComparison, publicReview, reviewAutoplay, trustPreviewHost, type ComparisonEntry } from "../trust-comparison";
+import { comparisonScale, verifiedComparison, publicReview, reviewAutoplay, trustPreviewHost, comparisonForPresentation, type ComparisonEntry } from "../trust-comparison";
 const rows: ComparisonEntry[] = ["roaming", "other", "pasaport"].map((kind,i) => ({kind: kind as ComparisonEntry["kind"],price:[21.99,16.99,10.99][i] ?? 0,currency:"EUR",destination:"IT",allowance:"1 GB",validity:"7 days",provider:kind,sourceUrl:"https://example.com/source",checkedAt:"2026-10-08"}));
 describe("trust evidence gates",()=>{
  it("calculates all bars using the same maximum",()=>expect(comparisonScale([21.99,16.99,10.99])).toEqual([1,16.99/21.99,10.99/21.99]));
@@ -10,6 +10,11 @@ describe("trust evidence gates",()=>{
  it("never shows samples publicly",()=>expect(publicReview({visible:true,reviewType:"DEMO",verified:true,published:true,reviewStatus:"PUBLISHED"})).toBe(false));
  it("requires genuine published verification",()=>expect(publicReview({visible:true,reviewType:"REAL",verified:false,published:true,reviewStatus:"PUBLISHED"})).toBe(false));
  it("does not classify the published site as preview",()=>expect(trustPreviewHost("pasaport2.lovable.app")).toBe(false));
+ it.each(['localhost','127.0.0.1','id-preview--650631d3-fa00-4c84-b30e-e472947470da.lovable.app','preview--650631d3-fa00-4c84-b30e-e472947470da.lovable.app','project-dev.lovable.app','project.lovableproject.com'])('recognizes the isolated preview host %s',host=>expect(trustPreviewHost(host)).toBe(true));
+ it('rejects a spoofed preview hostname',()=>expect(trustPreviewHost('id-preview--fake.example.com')).toBe(false));
+ it('completes missing preview prices with the three exact examples',()=>expect(comparisonForPresentation(null,true)?.map(e=>e.price)).toEqual([21.99,16.99,10.99]));
+ it('does not render preview prices on the public site',()=>expect(comparisonForPresentation(null,false)).toBeNull());
+ it('retains approved genuine figures in preview',()=>expect(comparisonForPresentation(rows,true)).toBe(rows));
  const play={enough:true,paused:false,hover:false,focused:false,visible:true,tab:true,reduced:false};
  it("allows eligible autoplay",()=>expect(reviewAutoplay(play)).toBe(true));
  it.each(["paused","hover","focused","reduced"] as const)("stops when %s",key=>expect(reviewAutoplay({...play,[key]:true})).toBe(false));

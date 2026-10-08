@@ -1,6 +1,8 @@
 # Roadmap
 
 ## Current request
+- [x] Restore localized Google/Trustpilot preview samples and complete comparison prices with reveal-once cost bars; preserve public evidence gates and Direct attribution.
+- [x] Validate 16 locale/width combinations, carousel arrows/dots/pause/resume, hover/focus/off-screen/reduced-motion guards, zero/intermediate/final bars and search; 34 tests passed. Local independent-preview screenshots and recording supplied; hosted private preview login, real touch swipe and hidden-tab lifecycle remain untested.
 - [x] Replace family/reviews/comparison presentation, extend existing CMS source metadata and preserve production gates.
 - [x] Validate 16 language/width combinations, card proportions, arrows/dots/resume, conversion and preview gates; 24 tests passed. Screenshots supplied; real touch swipe, Admin publication and hidden-tab/off-screen lifecycle remain untested.
 - [x] Show readable device outcomes using actual catalogue status; compact trust labels and restore photo/panel country cards.
