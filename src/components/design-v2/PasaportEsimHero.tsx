@@ -1,11 +1,13 @@
+// ============= Full file contents =============
+
 import type { CSSProperties, ReactNode } from "react";
-import { Headphones, ShieldCheck, Smartphone, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { waLink } from "@/lib/whatsapp";
 import { useI18n } from "@/i18n";
 import { HeroDeviceCompatibility } from "@/components/travel/DeviceCompatibility";
 import { HeroPromotion } from "./HeroPromotion";
 import { v2Text, type V2Section } from "@/domain/storefront/v2";
+import { StorefrontIcon } from "@/domain/storefront/icons";
+import { trustBandItems } from "./hero-trust-band";
 import coast from "@/assets/pasaport-antenna-coast.png.asset.json";
 import { AntennaSignal } from "./AntennaSignal";
 
@@ -16,7 +18,7 @@ const COPY = {
  ar: { title: "إنترنت رحلتك جاهز.", subtitle: "ابقَ متصلاً عبر eSIM في أكثر من 190 دولة.", delivery: "تسليم سريع", setup: "إعداد سهل", payment: "معلومات الدفع", support: "دعم واتساب", deliveryInfo: "معلومات تسليم eSIM", setupInfo: "التثبيت خطوة بخطوة", paymentInfo: "اطّلع على خيارات الدفع", supportInfo: "المساعدة في التثبيت" },
 };
 const oldTitles = ["Yurt dışında bağlantıda kal.", "Im Ausland verbunden bleiben.", "Stay connected abroad.", "Her yerde bağlantıda kal.", "Überall verbunden bleiben.", "Stay connected everywhere.", "ابقَ متصلاً أينما كنت.", "ابقَ على اتصال في الخارج."];
-export function PasaportEsimHero({ section, image, children }: { section: V2Section; image: string; mobileImage?: string | undefined; benefits?: V2Section | undefined; children: ReactNode }) {
+export function PasaportEsimHero({ section, image, benefits, children }: { section: V2Section; image: string; mobileImage?: string | undefined; benefits?: V2Section | undefined; children: ReactNode }) {
  const { locale, uiLocale } = useI18n();
  const c = COPY[uiLocale as keyof typeof COPY] ?? COPY[locale];
  const storedTitle = v2Text(section, "title", locale);
@@ -34,10 +36,11 @@ export function PasaportEsimHero({ section, image, children }: { section: V2Sect
   <div className="final-hero-search">{children}</div>
   <div id="device-compatibility" className="final-hero-compatibility scroll-mt-24"><HeroDeviceCompatibility compact /></div>
   <div className="final-hero-gift"><HeroPromotion /></div>
- </section><PasaportMobileBenefits /></>;
+ </section><PasaportMobileBenefits section={benefits} /></>;
 }
-export function PasaportMobileBenefits(_props: { section?: V2Section | undefined }) {
- const { locale, uiLocale } = useI18n(); const c = COPY[uiLocale as keyof typeof COPY] ?? COPY[locale];
- const items = [{ icon: Zap, label: c.delivery, description: c.deliveryInfo, href: "/legal/terms" }, { icon: Smartphone, label: c.setup, description: c.setupInfo, href: "/esim/kurulum" }, { icon: ShieldCheck, label: c.payment, description: c.paymentInfo, href: "/odeme" }, { icon: Headphones, label: c.support, description: c.supportInfo, href: waLink() }];
- return <ul className="final-trust-band">{items.map(({ icon: Icon, label, description, href }) => <li key={href}><Button asChild variant="ghost"><a href={href} {...(href.startsWith("https:") ? { target: "_blank", rel: "noopener noreferrer" } : {})}><Icon aria-hidden="true"/><span><strong>{label}</strong><small>{description}</small></span></a></Button></li>)}</ul>;
+/** The four-column trust row: content, icons, links, order and visibility come from the Admin-edited BENEFIT_ROW section. */
+export function PasaportMobileBenefits({ section }: { section?: V2Section | undefined }) {
+ const { locale } = useI18n();
+ const items = trustBandItems(section, locale);
+ return <ul className="final-trust-band">{items.map(({ id, icon, label, description, href }) => <li key={id}><Button asChild variant="ghost"><a href={href} {...(href.startsWith("https:") ? { target: "_blank", rel: "noopener noreferrer" } : {})}><span aria-hidden="true" className="contents"><StorefrontIcon name={icon} /></span><span><strong>{label}</strong><small>{description}</small></span></a></Button></li>)}</ul>;
 }
