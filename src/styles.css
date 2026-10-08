@@ -1828,7 +1828,7 @@ body:has([role="dialog"][data-state="open"]) .pasaport-mobile-reference [data-wh
 .pay-klarna{display:inline-block;background:oklch(0.85 0.09 355);color:oklch(0.15 0 0);font-weight:800;font-size:14px;letter-spacing:-.02em;padding:4px 8px;border-radius:6px;line-height:1}
 .pay-note{grid-column:1/-1;font-size:9px;opacity:.65;text-align:center}
 @media(max-width:1023px){
-.pay-strip{display:flex;flex-direction:column;align-items:center;gap:6px;background:none;border-radius:0;border-block:1px solid var(--story-mint);padding:10px 2px;margin:10px 0 14px;min-height:0}
+.pay-strip{display:flex;flex-direction:column;align-items:center;gap:6px;background:none;border-radius:0;border-block:1px solid var(--story-border);padding:10px 2px;margin:10px 0 14px;min-height:0}
 .pay-strip:before,.pay-shield,.pay-title-d,.pay-stripe-d{display:none}
 .pay-lock{display:block;width:16px;height:16px}.pay-head{gap:6px}.pay-title-m{display:block;font-size:14px;font-weight:600}
 .pay-logos{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:4px 12px;width:100%}
