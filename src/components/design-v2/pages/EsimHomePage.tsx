@@ -146,7 +146,7 @@ export function EsimHomePage() {
   ) : undefined;
 
   return (
-    <V2Shell service="esim" hideWhatsApp={!selected && heroSearchVisible} commerceSelection={Boolean(selectedPackage)} stickySearch={stickySearch} purchaseSummary={purchaseSummary} heroPromotion={!selected}>
+    <V2Shell service="esim" commerceSelection={Boolean(selectedPackage)} stickySearch={stickySearch} purchaseSummary={purchaseSummary} heroPromotion={!selected}>
 
       {selected ? (
         <>

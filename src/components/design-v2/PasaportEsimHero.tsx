@@ -23,7 +23,8 @@ export function PasaportEsimHero({ section, image, mobileImage, children }: { se
  const approved = !storedTitle || oldTitles.includes(storedTitle);
  const fixture = section.mediaId === "2096d4af-5b89-49ad-b19f-7ca95ec54160" || section.mediaId === "builtin:esim-hero" || !image;
  const heroImage = fixture ? terraceDesktop.url : image;
- const heroMobile = section.mobileMediaId && mobileImage ? mobileImage : fixture ? terraceMobile.url : heroImage;
+ const customMobile = section.mobileMediaId && section.mobileMediaId !== "2096d4af-5b89-49ad-b19f-7ca95ec54160" && section.mobileMediaId !== "builtin:esim-hero";
+ const heroMobile = customMobile && mobileImage ? mobileImage : fixture ? terraceMobile.url : heroImage;
  const desktop = fixture ? undefined : section.imageDisplay;
  const mobile = fixture ? undefined : section.mobileImageDisplay;
  const style = { "--hero-desktop-position": `${desktop?.x ?? 50}% ${desktop?.y ?? 50}%`, "--hero-desktop-scale": (desktop?.zoom ?? 100) / 100, "--hero-desktop-fit": desktop?.fit ?? "cover", "--hero-mobile-position": `${mobile?.x ?? 50}% ${mobile?.y ?? 62}%`, "--hero-mobile-scale": (mobile?.zoom ?? 100) / 100, "--hero-mobile-fit": mobile?.fit ?? "cover" } as CSSProperties;
