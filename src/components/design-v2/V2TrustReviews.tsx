@@ -11,6 +11,7 @@ import familyImage from '@/assets/pasaport-family-arrivals.jpg';
 import { displayMoney } from '@/domain/currency/store';
 import { useCurrency } from '@/components/currency/CurrencyProvider';
 import { V2ReviewCarousel } from './V2ReviewCarousel';
+import { PaymentStrip } from './PaymentStrip';
 
 export function V2TrustReviews({section,media,preview=false,onDestinationSearch}:{section:V2Section;media:V2Media;preview?:boolean;onDestinationSearch?:(()=>void)|undefined}) {
  const {locale,uiLocale}=useI18n(); useCurrency();
@@ -32,7 +33,7 @@ export function V2TrustReviews({section,media,preview=false,onDestinationSearch}
   <div className="family-story"><div className="family-story-copy"><h2><span>{custom('familyTitle',c.title)}</span><span>{custom('familyAccent',c.accent)}</span></h2><p>{custom('familySubtitle',c.subtitle)}</p></div>
    <div className="family-scene"><img src={photo} alt="" width={1400} height={1000} loading="lazy" decoding="async"/><div className="family-phone" aria-label={c.chatNote}><div className="phone-status" aria-hidden="true">14:21 <Signal size={10}/></div><div className="phone-group"><ChevronLeft size={13}/><span>👨‍👩‍👧‍👦</span><strong>{custom("familyGroup",c.family)}</strong></div><div className="phone-chat">{c.chat.map((message,i)=><div key={i} className={`chat-bubble ${i>0&&i<4?'outgoing':''}`}>{custom(`familyChat${i}`,message)}<small aria-hidden="true">14:{12+i} {i>0&&i<4?'✓✓':''}</small></div>)}</div><div className="phone-input" aria-hidden="true">＋ <span>···</span> ♧</div></div></div>
   </div>
-  <ul className="family-benefits">{[Zap,Globe2,Sparkles].map((Icon,i)=><li key={i}><span><Icon aria-hidden="true"/></span><strong>{custom(`familyBenefit${i}`,c.benefits[i]??"")}</strong></li>)}</ul>
+  <PaymentStrip preview={designPreview}/>
   <V2ReviewCarousel section={section} preview={designPreview}/>
    <div className="family-comparison" ref={comparison} data-bars-revealed={barsRevealed}><div className="family-compare-heading"><div><h3>{entries&&saving>0?<>{c.save} <em>{saving}%</em>*</>:c.neutral}</h3><p>{c.desc}</p></div>{designPreview&&!verified&&<span className="sample-badge"><Info size={12}/>{c.illustrative}</span>}</div>
     <div className="family-price-grid">{[RadioTower,Smartphone,Signal].map((Icon,i)=><article className={`family-price-option option-${i}`} key={i}><span className="compare-icon"><Icon/></span><div className="price-copy"><strong>{c.options[i]}</strong>{ordered[i]&&<small>{verified?ordered[i]?.currency:c.example}</small>}</div>{ordered[i]&&<><bdi>{verified?displayMoney(ordered[i]?.price??0,ordered[i]?.currency??'EUR',uiLocale):new Intl.NumberFormat(uiLocale,{style:'currency',currency:'EUR'}).format(ordered[i]?.price??0)}</bdi><div className="compare-track"><span className="compare-bar-track"><span className="compare-bar-fill" data-price-ratio={bars[i]} style={{'--price-ratio':bars[i],'--bar-delay':`${i*125}ms`} as CSSProperties}/></span></div></>}</article>)}</div>
