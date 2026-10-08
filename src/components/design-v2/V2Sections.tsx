@@ -8,6 +8,8 @@ import { DesktopDeviceCompatibilityBanner } from "@/components/travel/DeviceComp
 import { V2SectionFrame } from "@/components/design-v2/V2SectionFrame";
 import { StorefrontIcon } from "@/domain/storefront/icons";
 import { defaultV2Page, isInWindow, sanitizeV2Page, v2ItemText, v2Text, type V2PageConfig, type V2PageId, type V2Section } from "@/domain/storefront/v2";
+import terraceDesktop from "@/assets/pasaport-final-coast.webp.asset.json";
+import terraceMobile from "@/assets/pasaport-final-coast-mobile.webp.asset.json";
 import { getPublishedV2Page, type V2Media } from "@/lib/v2-storefront.functions";
 import { useI18n, isUiLocale } from "@/i18n";
 import esimHero from "@/assets/pasaport-seaside-hero.jpg";
@@ -67,6 +69,8 @@ export const V2_BUILTIN_URLS: Record<string, string> = {
   "4800b8e8-f92b-4acc-8615-7eec881e7031": restoredHomepage5.url,
   "2096d4af-5b89-49ad-b19f-7ca95ec54160": restoredHomepage6.url,
   "533377df-ddd6-4803-a0cb-6f5727c933b6": restoredHomepage7.url,
+  "e0e0ec51-7fe7-4f43-9507-84e58844f69c": terraceDesktop.url,
+  "b1c94163-3267-4784-a65c-8b5a37bfd68c": terraceMobile.url,
 };
 
 export const V2_PREVIEW_WINDOW = "v2-cms-preview";

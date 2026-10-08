@@ -1734,3 +1734,6 @@ html[data-quick-search-lock] body {
 @media (prefers-reduced-motion:reduce) {.gift-art,.gift-ticket-panel {animation:none;}.gift-lid {transition:none;}}
 .final-trust-band span { min-width:0; }.final-trust-band strong { overflow-wrap:anywhere; }
 .pasaport-mobile-reference > header > div > div > button:first-child { order:4; }.pasaport-mobile-reference .header-currency {order:2;}.pasaport-mobile-reference > header > div > div > button:nth-of-type(2) {order:1;}.pasaport-mobile-reference > header > div > div > button:nth-of-type(3) {order:3;}
+/* Picker and coupon portals live outside the page root. */
+body:has([role="dialog"][data-state="open"]) .pasaport-mobile-reference [data-whatsapp-widget] { visibility:hidden;pointer-events:none; }
+@media (max-width:1023px) { .pasaport-mobile-reference > header > div > div {display:grid;grid-template-columns:auto auto auto auto;}.pasaport-mobile-reference > header > div > div > button:first-child {grid-column:4;grid-row:1;}.pasaport-mobile-reference .header-currency {grid-column:2;grid-row:1;}.pasaport-mobile-reference > header > div > div > button:nth-of-type(2) {grid-column:1;grid-row:1;}.pasaport-mobile-reference > header > div > div > button:nth-of-type(3) {grid-column:3;grid-row:1;} }
