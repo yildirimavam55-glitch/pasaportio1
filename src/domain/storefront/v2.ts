@@ -71,7 +71,7 @@ export const V2_SAFE_LINKS = [
 export type V2SafeLink = (typeof V2_SAFE_LINKS)[number];
 
 /** Images bundled with the app, referenced as `builtin:<key>`. */
-export const V2_BUILTIN_MEDIA = ["esim-hero", "lounge-hero", "vignette-hero", "lounge-card", "esim-cross-sell", "info-products", "info-roaming", "info-delivery", "info-install", "info-payment", "info-support", "trust-refund", "trust-traveler", "trust-demo-giulia", "trust-demo-haruto", "trust-demo-emily", "trust-benefit-globe", "trust-benefit-refund", "trust-benefit-install", "trust-benefit-payment"] as const;
+export const V2_BUILTIN_MEDIA = ["esim-hero", "lounge-hero", "vignette-hero", "lounge-card", "esim-cross-sell", "info-products", "info-roaming", "info-delivery", "info-install", "info-payment", "info-support", "trust-refund", "trust-traveler", "trust-family-arrivals", "trust-demo-giulia", "trust-demo-haruto", "trust-demo-emily", "trust-benefit-globe", "trust-benefit-refund", "trust-benefit-install", "trust-benefit-payment"] as const;
 
 /** Existing trust cards from before image editing receive their approved visuals once on read. */
 const TRUST_BENEFIT_MEDIA: Record<string, string> = {
@@ -141,6 +141,8 @@ export type V2Item = {
   originalLanguage?: UiLocale;
   countryCode?: string;
   reviewDate?: string;
+  reviewSource?: "Google" | "Trustpilot" | "Direct";
+  reviewSourceUrl?: string;
   createdAt?: string;
   updatedAt?: string;
 };
@@ -187,6 +189,7 @@ export type V2Section = {
     /** Structured, locale-independent comparison prices (EUR). Saving and percentage are derived. */
     comparisonRoamingPrice?: number | null;
     comparisonTravelyPrice?: number | null;
+    comparisonEntries?: import("./trust-comparison").ComparisonEntry[];
     /** Presentation only. Structured fields stay stored while IMAGE is active. */
     comparisonMode?: "STRUCTURED" | "IMAGE";
     comparisonImageId?: string | null;
@@ -221,7 +224,8 @@ export const V2_TEXT_FIELDS: Record<V2SectionType, Array<[string, string]>> = {
   SEARCH_HERO: [["eyebrow", "Üst başlık"], ["title", "Başlık"], ["subtitle", "Alt başlık"], ["placeholder", "Arama metni"], ["sticky", "Sabit arama metni"]],
   BENEFIT_ROW: [],
   DESTINATION_CAROUSEL: [["title", "Başlık"]],
-  TRUST_REVIEWS: [["eyebrow", "Güven etiketi"], ["title", "Başlık"], ["accent", "Yeşil başlık satırı"], ["subtitle", "Açıklama"], ["imageAlt", "Seyahat görseli alt metni"], ["cta", "Buton metni"], ["whyEyebrow", "Neden Travely üst başlığı"], ["whyTitle", "Neden Travely başlığı"], ["whyDescription", "Neden Travely açıklaması"], ["statisticPrefix", "Tasarruf ön eki (ör. \"…'e kadar\")"], ["statisticLabel", "Tasarruf başlığı"], ["comparisonTitle", "Karşılaştırma son mesaj başlığı"], ["comparisonDescription", "Karşılaştırma son mesaj açıklaması"], ["comparisonCta", "Karşılaştırma buton metni"], ["comparisonALabel", "Roaming etiketi"], ["comparisonASupport", "Roaming alt metni"], ["comparisonBLabel", "Travely etiketi"], ["comparisonBSupport", "Travely alt metni"], ["comparisonFootnote", "Kaynak / yöntem notu"], ["comparisonSavingLabel", "Tasarruf etiketi"], ["comparisonAdvantageLabel", "Fiyat avantajı etiketi"], ["comparisonDestination", "Karşılaştırılan destinasyon / referans"], ["comparisonAllowance", "Karşılaştırılan veri miktarı"], ["comparisonValidity", "Karşılaştırılan geçerlilik süresi"]],
+  TRUST_REVIEWS: [
+    ["familyTitle", "Aile başlığı"], ["familyAccent", "Aile vurgusu"], ["familySubtitle", "Aile açıklaması"], ["familyGroup","Sohbet grup adı"], ["familyChat0","Sohbet mesajı 1"], ["familyChat1","Sohbet mesajı 2"], ["familyChat2","Sohbet mesajı 3"], ["familyChat3","Sohbet mesajı 4"], ["familyChat4","Sohbet mesajı 5"], ["familyBenefit0","Kompakt fayda 1"], ["familyBenefit1","Kompakt fayda 2"], ["familyBenefit2","Kompakt fayda 3"], ["familyReviewsTitle","Yorum başlığı"], ["familyBudget","Dönüşüm başlığı"], ["familyPlan","Dönüşüm açıklaması"], ["familyCta","Arama butonu"],["eyebrow", "Güven etiketi"], ["title", "Başlık"], ["accent", "Yeşil başlık satırı"], ["subtitle", "Açıklama"], ["imageAlt", "Seyahat görseli alt metni"], ["cta", "Buton metni"], ["whyEyebrow", "Neden Travely üst başlığı"], ["whyTitle", "Neden Travely başlığı"], ["whyDescription", "Neden Travely açıklaması"], ["statisticPrefix", "Tasarruf ön eki (ör. \"…'e kadar\")"], ["statisticLabel", "Tasarruf başlığı"], ["comparisonTitle", "Karşılaştırma son mesaj başlığı"], ["comparisonDescription", "Karşılaştırma son mesaj açıklaması"], ["comparisonCta", "Karşılaştırma buton metni"], ["comparisonALabel", "Roaming etiketi"], ["comparisonASupport", "Roaming alt metni"], ["comparisonBLabel", "Travely etiketi"], ["comparisonBSupport", "Travely alt metni"], ["comparisonFootnote", "Kaynak / yöntem notu"], ["comparisonSavingLabel", "Tasarruf etiketi"], ["comparisonAdvantageLabel", "Fiyat avantajı etiketi"], ["comparisonDestination", "Karşılaştırılan destinasyon / referans"], ["comparisonAllowance", "Karşılaştırılan veri miktarı"], ["comparisonValidity", "Karşılaştırılan geçerlilik süresi"]],
   INFO_CAROUSEL: [["title", "Başlık"], ["subtitle", "Alt başlık"]],
   REGION_DISCOVERY: [["eyebrow", "Üst başlık"], ["title", "Başlık"], ["lead", "Açıklama"], ["worldwide", "Dünya bannerı"], ["cta", "Buton metni"]],
   NOTICE: [["title", "Başlık"], ["text", "Metin"]],
@@ -566,6 +570,8 @@ function cleanItem(raw: any, index: number): V2Item {
       originalLanguage: (UI_LOCALES as readonly string[]).includes(raw?.originalLanguage) ? raw.originalLanguage as UiLocale : "en" as const,
       countryCode: /^[A-Z]{2}$/.test(String(raw?.countryCode)) ? raw.countryCode as string : "",
       reviewDate: DATE.test(String(raw?.reviewDate)) ? raw.reviewDate as string : "",
+      reviewSource: pick(raw?.reviewSource, ["Google", "Trustpilot", "Direct"] as const, "Direct"),
+      reviewSourceUrl: /^https:\/\//.test(String(raw?.reviewSourceUrl)) ? cleanText(raw.reviewSourceUrl, 500) : "",
       createdAt: typeof raw?.createdAt === "string" ? cleanText(raw.createdAt, 40) : "",
       updatedAt: typeof raw?.updatedAt === "string" ? cleanText(raw.updatedAt, 40) : "",
     } : {}),
@@ -647,6 +653,7 @@ function cleanSection(raw: any): V2Section | null {
       autoplay: raw.trust?.autoplay === true,
       whyEnabled: raw.trust?.whyEnabled !== false,
       ...cleanComparison(raw.trust),
+      comparisonEntries: Array.isArray(raw.trust?.comparisonEntries) ? raw.trust.comparisonEntries.slice(0,3).map((e: any) => ({kind: pick(e.kind,["roaming","other","pasaport"] as const,"other"),price: price(e.price) ?? 0,currency: cleanText(e.currency,3),destination:cleanText(e.destination,100),allowance:cleanText(e.allowance,80),validity:cleanText(e.validity,80),provider:cleanText(e.provider,100),sourceUrl:/^https:\/\//.test(String(e.sourceUrl))?cleanText(e.sourceUrl,500):"",checkedAt:DATE.test(String(e.checkedAt))?e.checkedAt:""})) : [],
       comparisonMode: raw.trust?.comparisonMode === "IMAGE" ? "IMAGE" : "STRUCTURED",
       comparisonImageId: cleanMediaId(raw.trust?.comparisonImageId),
       comparisonMobileImageId: cleanMediaId(raw.trust?.comparisonMobileImageId),

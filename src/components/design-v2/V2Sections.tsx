@@ -10,6 +10,7 @@ import { StorefrontIcon } from "@/domain/storefront/icons";
 import { defaultV2Page, isInWindow, sanitizeV2Page, v2ItemText, v2Text, type V2PageConfig, type V2PageId, type V2Section } from "@/domain/storefront/v2";
 import { getPublishedV2Page, type V2Media } from "@/lib/v2-storefront.functions";
 import { useI18n, isUiLocale } from "@/i18n";
+import familyArrivals from "@/assets/pasaport-family-arrivals.jpg";
 import esimHero from "@/assets/pasaport-seaside-hero.jpg";
 import loungeHero from "@/assets/lounge-hero-mobile.jpg";
 import vignetteHero from "@/assets/v2-vignette-hero.jpg";
@@ -40,6 +41,7 @@ import restoredHomepage6 from "@/assets/restored-homepage/6-2096d4af-5b89-49ad-b
 import restoredHomepage7 from "@/assets/restored-homepage/7-533377df-ddd6-4803-a0cb-6f5727c933b6.png.asset.json";
 
 export const V2_BUILTIN_URLS: Record<string, string> = {
+  "builtin:trust-family-arrivals": familyArrivals,
   "builtin:esim-hero": esimHero,
   "builtin:lounge-hero": loungeHero,
   "builtin:vignette-hero": vignetteHero,
