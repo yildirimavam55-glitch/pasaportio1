@@ -1,0 +1,1 @@
+- Lounge/Vignette visibility uses only storefront/checkout feature flags through useOptionalServices, isHiddenServiceHref and OptionalServiceGate, hidden while loading — why: one shared setting, no flash.
