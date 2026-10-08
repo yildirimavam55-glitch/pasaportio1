@@ -46,7 +46,7 @@ export function HeroPromotion() {
        <Gift className="shrink-0 text-primary" aria-hidden="true" />
        <Popover><PopoverTrigger asChild><Button variant="ghost" className="pasaport-promotion-discount min-w-0 h-11 w-auto px-0 font-normal" aria-label={detailsLabel}><span className="truncate">{discount}</span></Button></PopoverTrigger><PopoverContent dir={dir} className="max-h-72 max-w-[calc(100vw-32px)] overflow-y-auto text-sm" align="end"><h2 className="font-semibold">{title || detailsLabel}</h2>{description && <p className="mt-2">{description}</p>}{conditions && <p className="mt-2 whitespace-pre-line text-muted-foreground">{conditions}</p>}<p className="mt-2 text-xs text-muted-foreground">{new Intl.DateTimeFormat(uiLocale, { dateStyle: "medium" }).format(new Date(data.endsAt))}</p></PopoverContent></Popover>
        {data.code && <span className="pasaport-promotion-code font-semibold" dir="ltr" translate="no" title={data.code}>{data.code}</span>}
-       {data.showCopy && <Button variant="ghost" size="icon" title={copied ? feedback.copied : feedback.copy} aria-label={copied ? feedback.copied : feedback.copy} onClick={async () => { if (await copyText(data.code ?? "")) { setCopied(true); toast.success(feedback.copied); } else toast.error(feedback.copyFailed); }}>{copied ? <Check /> : <Copy />}</Button>}
+        {data.code && data.showCopy && <Button variant="ghost" size="icon" title={copied ? feedback.copied : feedback.copy} aria-label={copied ? feedback.copied : feedback.copy} onClick={async () => { if (await copyText(data.code ?? "")) { setCopied(true); toast.success(feedback.copied); } else toast.error(feedback.copyFailed); }}>{copied ? <Check /> : <Copy />}</Button>}
      </div>
   </aside>;
 }

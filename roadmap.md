@@ -1,8 +1,8 @@
 # Roadmap
 
 ## Current request
-- [ ] Apply October 8 Mediterranean terrace references separately for mobile/desktop, compact campaign/device overlays and single country search.
-- [ ] Verify responsive layout, TR/DE/EN/AR, search/device/campaign behaviors; share mobile/desktop screenshots without publishing.
+- [x] Apply October 8 Mediterranean terrace references separately for mobile/desktop, compact campaign/device overlays and single country search.
+- [x] Verify responsive layout, TR/DE/EN/AR and search/device/campaign behaviors; capture mobile/desktop screenshots without publishing. Real-device detection and an actual Admin campaign edit remain untested; no campaign data was changed.
 - [x] Match supplied pasaport.io reference on mobile in the selected stacked layout; preserve desktop and existing functions.
 - [x] Verify TR/DE/EN/AR at 360/390/430 and desktop, campaign copying and 67 regression tests; standalone screenshots captured.
 - [x] Compact mobile hero for 390×740, ensure headings clear header, move benefits after countries; preserve desktop and functionality.
