@@ -1,8 +1,8 @@
 # Roadmap
 
 ## Current request
-- [ ] Replace only testimonial widget with approved desktop/mobile carousel; preserve CMS and public gates.
-- [ ] Verify widths/languages, controls and autoplay guards; provide independent-preview screenshots.
+- [x] Replace only testimonial widget with approved desktop/mobile carousel; preserve CMS and public gates.
+- [x] Verify 16 width/locale combinations, three desktop cards, mobile next-card preview, controls, hover/manual/resume/reduced-motion, simulated swipe and preserved bars; 36 tests passed. Independent screenshots and limitations report supplied. Long-review dialog, physical touch and hidden-tab/off-screen lifecycle remain untested end-to-end.
 - [x] Restore localized Google/Trustpilot preview samples and complete comparison prices with reveal-once cost bars; preserve public evidence gates and Direct attribution.
 - [x] Validate 16 locale/width combinations, carousel arrows/dots/pause/resume, hover/focus/off-screen/reduced-motion guards, zero/intermediate/final bars and search; 34 tests passed. Local independent-preview screenshots and recording supplied; hosted private preview login, real touch swipe and hidden-tab lifecycle remain untested.
 - [x] Replace family/reviews/comparison presentation, extend existing CMS source metadata and preserve production gates.
