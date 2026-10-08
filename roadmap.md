@@ -1,6 +1,7 @@
 # Roadmap
 
 ## Current request
+- [ ] Trust row below the compatibility selectors: third item is "14 gün iade" (DE/EN/AR) with a calendar icon linking to the refund page; row now reads its icon, localized label, link, visibility and order from the existing Admin homepage section instead of hardcoded copy. 6 new tests plus the storefront suite pass; saved values verified in the preview at 390/1440. No publication.
 - [ ] Trust row below the compatibility selectors: third item becomes "14 gün iade" (DE/EN/AR given) with an outlined calendar/return icon in the existing petrol stroke, linking to the existing localized refund policy page; other three items unchanged. Wire the row to the existing homepage/theme editor so icon, localized label, link, visibility and order are editable and persist to the storefront; remove hardcoded overrides, reuse existing settings, keep the compact four-column layout. Verify TR label and an admin edit round-trip. No publication.
 - [x] Remove the standalone phone-compatibility block below the "Dünya çapında" section from default and published layouts; keep hero checker, section type re-addable by Admin, and verify 360/390/430/1440 in TR/DE/EN/AR. No publication.
 - [x] Replace only closed hero gift with localized 196×60px mobile / 232×68px desktop coupon ticket; verify 16 width/locale combinations, keyboard/popup close, active campaign and simulated null inactive response. 13 tests passed; no Admin campaign data changed, no publication.

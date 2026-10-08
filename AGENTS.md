@@ -39,3 +39,4 @@ Public install help stays in V2; QR, activation credentials, and package policy 
 - Reviews reuse CMS and verified aggregates to preserve evidence ownership.
 
 - Antenna SVG follows photo cover/crop/scale in its clipped wrapper; hide off-crop to preserve alignment.
+- The hero trust row renders the Admin-edited BENEFIT_ROW section (icon, localized label, link, order, visibility); built-in copy is only a fallback so saved values always win.
