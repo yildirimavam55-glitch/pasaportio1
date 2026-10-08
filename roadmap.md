@@ -1,6 +1,8 @@
 # Roadmap
 
 ## Current request
+- [ ] Refine hero only: photo-overlay heading, small upper ticket, lower device card and capsule search; preserve all surrounding sections.
+- [ ] Compare unchanged country/benefit dimensions and verify mobile/desktop interactions and screenshots.
 - [x] Apply October 8 Mediterranean terrace references separately for mobile/desktop, compact campaign/device overlays and single country search.
 - [x] Verify responsive layout, TR/DE/EN/AR and search/device/campaign behaviors; capture mobile/desktop screenshots without publishing. Real-device detection and an actual Admin campaign edit remain untested; no campaign data was changed.
 - [x] Match supplied pasaport.io reference on mobile in the selected stacked layout; preserve desktop and existing functions.
