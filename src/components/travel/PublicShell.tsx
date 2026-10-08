@@ -94,8 +94,8 @@ function Brand({ mobilePasaport = false }: { mobilePasaport?: boolean }) {
       aria-label="Ana sayfa"
       className="flex shrink-0 items-center gap-2 text-primary"
     >
-      {mobilePasaport && <span className="flex items-center gap-2 lg:hidden"><span className="grid size-9 place-items-center rounded-xl bg-primary text-primary-foreground"><Signal className="size-5" aria-hidden="true" /></span><span className="font-display text-[23px] font-bold">pasaport.io</span></span>}
-      <span className={mobilePasaport ? "hidden items-center gap-2 lg:flex" : "flex items-center gap-2"}>
+       {mobilePasaport && !theme.logoUrl && <span className="flex items-center gap-2"><span className="grid size-9 place-items-center rounded-xl bg-primary text-primary-foreground"><Signal className="size-5" aria-hidden="true" /></span><span className="font-display text-[23px] font-bold">pasaport.io</span></span>}
+       <span className={mobilePasaport && !theme.logoUrl ? "hidden" : "flex items-center gap-2"}>
       {theme.logoUrl ? <img src={theme.logoUrl} alt={BRAND.logoLabel} width={144} height={36} className="h-9 w-auto max-w-36 object-contain" /> : <>
         <span className="grid size-9 place-items-center rounded-xl bg-primary text-primary-foreground shadow-brand"><Signal className="size-5" aria-hidden="true" /></span>
         <span className="font-display text-xl font-bold">{BRAND.name}</span>

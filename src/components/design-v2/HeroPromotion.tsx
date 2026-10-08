@@ -3,6 +3,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Check, Copy, Gift } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { useI18n } from "@/i18n";
 import { promotionBannerQuery, PROMOTION_CHANGE_KEY } from "@/lib/promotion-banner-query";
 import { bannerTagline, formatDiscount, PROMO_HEADLINE } from "@/domain/promotions";
@@ -33,21 +34,19 @@ export function HeroPromotion() {
     return () => window.clearTimeout(timer);
   }, [data?.endsAt, qc]);
   if (!data || (now && new Date(data.endsAt).getTime() <= now)) return null;
-  const c = PROMO_COPY[locale];
+   const c = PROMO_COPY[locale];
+   const feedback = uiLocale === "ar" ? { copy: "نسخ الرمز", copied: "تم نسخ الرمز", copyFailed: "تعذر النسخ" } : c;
   const title = localizedField(data.text, "title", uiLocale) || bannerTagline(data.text, uiLocale);
   const description = localizedField(data.text, "description", uiLocale);
   const conditions = localizedField(data.text, "conditions", uiLocale);
   const discount = (PROMO_HEADLINE[uiLocale] ?? PROMO_HEADLINE["en"] ?? "{discount}").split("|")[0]?.replace("{discount}", formatDiscount(data.discountType, data.discountValue, uiLocale, data.currency)).trim();
-  return <aside data-testid="hero-promotion" dir={dir} className="pasaport-hero-promotion rounded-2xl bg-card p-4 text-card-foreground shadow-panel ring-1 ring-border/50 lg:p-5">
-    <div className="grid grid-cols-[auto_minmax(0,1fr)] items-center gap-3">
-      <Gift className="size-9 shrink-0 text-primary lg:size-10" />
-      <div className="min-w-0">{title && <p className="text-xs font-semibold lg:text-sm">{title}</p>}<p className="font-display text-2xl font-bold leading-tight text-primary lg:text-3xl">{discount}</p></div>
-    </div>
-    {description && <p className="mt-2 text-xs text-muted-foreground">{description}</p>}
-    {data.code && <div className="mt-3 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2">
-      <span className="truncate rounded-lg border border-dashed border-primary/35 bg-primary-soft px-3 py-2 font-mono text-base font-bold text-primary" dir="ltr" translate="no">{data.code}</span>
-      {data.showCopy && <Button variant="ghost" size="icon" title={copied ? c.copied : c.copy} aria-label={copied ? c.copied : c.copy} onClick={async () => { if (await copyText(data.code ?? "")) { setCopied(true); toast.success(c.copied); } else toast.error(c.copyFailed); }}>{copied ? <Check /> : <Copy />}</Button>}
-    </div>}
-    {conditions && <p className="mt-2 text-[11px] leading-4 text-muted-foreground">{conditions}</p>}
+   const detailsLabel = ({ tr: "Kampanya detayları", de: "Aktionsdetails", en: "Promotion details", ar: "تفاصيل العرض" } as Record<string, string>)[uiLocale] ?? "Promotion details";
+   return <aside data-testid="hero-promotion" dir={dir} className="pasaport-hero-promotion bg-card text-card-foreground shadow-panel ring-1 ring-border/50">
+     <div className="pasaport-promotion-strip">
+       <Gift className="shrink-0 text-primary" aria-hidden="true" />
+       <Popover><PopoverTrigger asChild><Button variant="ghost" className="pasaport-promotion-discount min-w-0 h-11 w-auto px-0 font-normal" aria-label={detailsLabel}><span className="truncate">{discount}</span></Button></PopoverTrigger><PopoverContent dir={dir} className="max-h-72 max-w-[calc(100vw-32px)] overflow-y-auto text-sm" align="end"><h2 className="font-semibold">{title || detailsLabel}</h2>{description && <p className="mt-2">{description}</p>}{conditions && <p className="mt-2 whitespace-pre-line text-muted-foreground">{conditions}</p>}<p className="mt-2 text-xs text-muted-foreground">{new Intl.DateTimeFormat(uiLocale, { dateStyle: "medium" }).format(new Date(data.endsAt))}</p></PopoverContent></Popover>
+       {data.code && <span className="pasaport-promotion-code font-semibold" dir="ltr" translate="no" title={data.code}>{data.code}</span>}
+        {data.code && data.showCopy && <Button variant="ghost" size="icon" title={copied ? feedback.copied : feedback.copy} aria-label={copied ? feedback.copied : feedback.copy} onClick={async () => { if (await copyText(data.code ?? "")) { setCopied(true); toast.success(feedback.copied); } else toast.error(feedback.copyFailed); }}>{copied ? <Check /> : <Copy />}</Button>}
+     </div>
   </aside>;
 }

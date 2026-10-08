@@ -12,6 +12,15 @@ const run = (p: Promotion | null, lines: PricedLine[], extra: { usage?: { total:
   evaluateCoupon({ promotion: p, lines, now: extra.at ?? now, usage: extra.usage ?? { total: 0, customer: 0 }, customerId: extra.customerId ?? null });
 
 describe("coupon evaluation", () => {
+  it("does not allow a paused campaign", () => {
+    expect(run(promo({ status: "PAUSED" }), [line()])).toMatchObject({ ok: false, reason: "PAUSED" });
+  });
+  it("does not allow a campaign before its start date", () => {
+    expect(run(promo({ startsAt: "2026-09-28T00:00:00Z" }), [line()])).toMatchObject({ ok: false, reason: "NOT_STARTED" });
+  });
+  it("does not allow a campaign at its expiry boundary", () => {
+    expect(run(promo({ endsAt: now.toISOString() }), [line()])).toMatchObject({ ok: false, reason: "EXPIRED" });
+  });
   it("applies an active percentage coupon", () => {
     const r = run(promo(), [line({ unitPrice: 19.99 })]);
     expect(r).toMatchObject({ ok: true, discount: 3, total: 16.99 });

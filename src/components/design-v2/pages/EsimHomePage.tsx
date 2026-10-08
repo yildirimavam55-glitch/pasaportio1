@@ -183,12 +183,12 @@ export function EsimHomePage() {
             })}
             onSelect={choose}
           >
-            <Button type="button" variant="outline" onClick={() => setPickerOpen(true)} className="h-11 w-full justify-start gap-2 rounded-lg bg-card text-sm font-normal text-muted-foreground">
+             <Button type="button" variant="outline" onClick={() => setPickerOpen(true)} className="pasaport-country-field w-full justify-start gap-3 bg-card text-sm font-normal text-muted-foreground">
               <Search className="size-4 shrink-0" />
-              <span className="truncate">{v2Text(section, "placeholder", locale) || c.ph}</span>
+               <span className="min-w-0 flex-1 truncate">{v2Text(section, "placeholder", locale) || c.ph}</span>
+               <span className="pasaport-country-arrow grid size-11 shrink-0 place-items-center rounded-full bg-primary text-primary-foreground"><ArrowRight className="size-5 rtl:rotate-180" /></span>
             </Button>
           </V2PickerSheet>
-          <Button type="button" onClick={() => setPickerOpen(true)} className="mt-2 h-11 w-full rounded-lg text-sm font-bold">{c.discoverPlans}<ArrowRight className="size-4 rtl:rotate-180" /></Button>
         </div>
       </PasaportEsimHero>
               ),
@@ -238,7 +238,7 @@ function Popular({ c, section, onPick }: { c: (typeof T)["tr"]; section: V2Secti
   });
   return (
     <>
-      <div id="popular" className="popular-country-heading grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2 scroll-mt-28"><SectionTitle>{v2Text(section, "title", locale) || c.popular}</SectionTitle><Link to="/esim/ulkeler" className="flex min-h-11 items-center gap-1 text-xs font-semibold text-primary lg:hidden">{uiLocale === "ar" ? "عرض الكل" : locale === "tr" ? "Tümünü gör" : locale === "de" ? "Alle ansehen" : "View all"}<ArrowRight className="size-4 rtl:rotate-180" /></Link></div>
+       <div id="popular" className="popular-country-heading grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2 scroll-mt-28"><SectionTitle>{v2Text(section, "title", locale) || c.popular}</SectionTitle><Link to="/esim/ulkeler" className="flex min-h-11 items-center gap-1 text-xs font-semibold text-primary">{uiLocale === "ar" ? "عرض الكل" : locale === "tr" ? "Tümünü gör" : locale === "de" ? "Alle ansehen" : "View all"}<ArrowRight className="size-4 rtl:rotate-180" /></Link></div>
       {isLoading ? (
         <div className="h-[8.4rem] rounded-2xl bg-muted lg:h-56" aria-hidden />
       ) : priced.length === 0 ? (
