@@ -8,9 +8,9 @@ export const Route = createFileRoute("/_home/en/")({
   validateSearch: (s) => validateEsimSearch(s),
   head: () => ({
     meta: [
-      { title: "Travely | eSIM & Airport Lounge" },
+      { title: "Pasaport.io | eSIM & Airport Lounge" },
       { name: "description", content: "Discover travel eSIM plans and airport lounges for your trip." },
-      { property: "og:title", content: "Travely | eSIM & Airport Lounge" },
+      { property: "og:title", content: "Pasaport.io | eSIM & Airport Lounge" },
       { property: "og:description", content: "Discover travel eSIM plans and airport lounges for your trip." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },

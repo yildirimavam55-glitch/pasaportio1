@@ -12,7 +12,7 @@ export const Route = createFileRoute("/_home/$locale/")({
   },
   head: ({ params }) => {
     const meta = isUiLocale(params.locale) ? LOCALE_REGISTRY[params.locale] : null;
-    const title = `travely | eSIM${meta ? ` · ${meta.nativeName}` : ""}`;
+    const title = `Pasaport.io | eSIM${meta ? ` · ${meta.nativeName}` : ""}`;
     const description = "Travel eSIM packages for your trip.";
     return {
       meta: [

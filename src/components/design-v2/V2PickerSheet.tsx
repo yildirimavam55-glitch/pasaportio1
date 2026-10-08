@@ -145,6 +145,11 @@ export function V2PickerSheet({
             value={query}
             onChange={(event) => onQueryChange(event.target.value)}
             onKeyDown={(event) => {
+              if (event.key === "ArrowDown") {
+                event.preventDefault();
+                inputRef.current?.closest('[role="dialog"]')?.querySelector<HTMLButtonElement>("ul button")?.focus();
+                return;
+              }
               if (event.key !== "Enter" || event.nativeEvent.isComposing || !query.trim()) return;
               const first = items[0];
               if (!first) return;
@@ -172,6 +177,14 @@ export function V2PickerSheet({
                     <Button
                       type="button"
                       variant="ghost"
+                      onKeyDown={(event) => {
+                        if (event.key !== "ArrowDown" && event.key !== "ArrowUp") return;
+                        event.preventDefault();
+                        const sibling = event.key === "ArrowDown" ? event.currentTarget.closest("li")?.nextElementSibling : event.currentTarget.closest("li")?.previousElementSibling;
+                        const target = sibling?.querySelector<HTMLButtonElement>("button");
+                        if (target) target.focus();
+                        else if (event.key === "ArrowUp") inputRef.current?.focus();
+                      }}
                       onPointerDown={(event) => {
                         // Do not let a result button steal focus from the input.
                         // On iOS that blur dismisses the keyboard and can cancel

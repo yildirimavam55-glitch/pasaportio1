@@ -6,9 +6,9 @@ export const Route = createFileRoute("/_home/")({
   validateSearch: (s) => validateEsimSearch(s),
   head: () => ({
     meta: [
-      { title: "travely | eSIM, Lounge & Vignette" },
+      { title: "Pasaport.io | eSIM, Lounge & Vignette" },
       { name: "description", content: "Seyahatiniz için eSIM paketleri, havalimanı Lounge ve Vignette tek yerde." },
-      { property: "og:title", content: "travely | eSIM, Lounge & Vignette" },
+      { property: "og:title", content: "Pasaport.io | eSIM, Lounge & Vignette" },
       { property: "og:description", content: "Seyahatiniz için eSIM paketleri, havalimanı Lounge ve Vignette tek yerde." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
