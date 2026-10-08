@@ -6,7 +6,7 @@ import { HeroPromotion } from "./HeroPromotion";
 import { v2Text, type V2Section } from "@/domain/storefront/v2";
 import type { ImageDisplay } from "@/domain/storefront/image-display";
 import terraceDesktop from "@/assets/pasaport-terrace-desktop.webp";
-import terraceMobile from "@/assets/pasaport-terrace-mobile.webp";
+import terraceMobile from "@/assets/pasaport-reference-terrace.webp";
 
 const COPY = {
   tr: { eyebrow: "SINIRSIZ SEYAHAT ÖZGÜRLÜĞÜ", title: "Her yerde bağlantıda kal.", subtitle: "Seyahatin için kolay ve güvenilir eSIM.", search: "Nereye seyahat ediyorsun?", delivery: "Anında teslimat", coverage: "Global bağlantı", support: "WhatsApp destek" },
