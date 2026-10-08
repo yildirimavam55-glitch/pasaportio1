@@ -38,4 +38,4 @@ Public install help stays in V2; QR, activation credentials, and package policy 
 - Browser-only locale decisions render a neutral shell until resolved while TR/DE/EN URL routes remain server-rendered — why: navigator and stored manual preferences cannot be known during SSR and must never flash the wrong language.
 - Reviews reuse CMS and verified aggregates to preserve evidence ownership.
 
-- Antenna SVG maps photo coordinates through cover/crop/scale inside its clipped wrapper; hide when cropped out to retain alignment.
+- Antenna SVG follows photo cover/crop/scale in its clipped wrapper; hide off-crop to preserve alignment.
