@@ -35,7 +35,7 @@ export function PasaportEsimHero({ section, image, mobileImage, benefits, childr
    const heroImage = legacyMedia ? terraceDesktop : image;
    const heroMobile = !section.mobileMediaId || section.mobileMediaId === "2096d4af-5b89-49ad-b19f-7ca95ec54160" ? (legacyMedia ? terraceMobile : heroImage) : mobileImage;
   const display = (value: ImageDisplay | undefined, fallbackX: number) => ({ x: value?.x ?? fallbackX, y: value?.y ?? 50, zoom: value?.zoom ?? 100, fit: value?.fit ?? "cover" });
-  const desktop = display(section.imageDisplay, 50);
+  const desktop = legacyMedia ? { ...display(undefined, 50), y: 0 } : display(section.imageDisplay, 50);
    const mobile = display(section.mobileImageDisplay, 50);
   const style = { "--hero-desktop-position": `${desktop.x}% ${desktop.y}%`, "--hero-desktop-scale": desktop.zoom / 100, "--hero-desktop-fit": desktop.fit, "--hero-mobile-position": `${mobile.x}% ${mobile.y}%`, "--hero-mobile-scale": mobile.zoom / 100, "--hero-mobile-fit": mobile.fit } as CSSProperties;
    return <><section data-testid="pasaport-esim-hero" className="pasaport-esim-hero pasaport-summit-hero relative -mx-4 sm:-mx-6" style={style}>
