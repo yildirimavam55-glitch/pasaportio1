@@ -3,7 +3,7 @@ import { queryOptions, useQuery } from "@tanstack/react-query";
 import { useMemo, useRef, useState, type ReactNode } from "react";
 import { ArrowRight, BarChart3, BookOpen, Box, CheckCircle2, Globe2, Infinity as InfinityIcon, MapPin, MessageCircle, Search, Share2, Smartphone, Sparkles, Video, Zap } from "lucide-react";
 import { DeviceCompatibilityProductCard } from "@/components/travel/DeviceCompatibility";
-import { PasaportEsimHero, PasaportMobileBenefits } from "@/components/design-v2/PasaportEsimHero";
+import { PasaportEsimHero } from "@/components/design-v2/PasaportEsimHero";
 import { CartBar, money as formatMoney, PhotoCard, PhotoRail, pick, SectionTitle, TrustRow, useV2StickySearch, V2Shell, V2StickySearchButton } from "@/components/design-v2/V2Shell";
 import { V2PickerSheet } from "@/components/design-v2/V2PickerSheet";
 import { Button } from "@/components/ui/button";
@@ -166,7 +166,7 @@ export function EsimHomePage() {
             slots={{
               faq: <V2CategorizedEsimFaq />,
               hero: (section) => (
-<PasaportEsimHero section={section} image={mediaUrl(section.mediaId, media) ?? ""} mobileImage={section.mobileMediaId ? mediaUrl(section.mobileMediaId, media) : undefined}>
+<PasaportEsimHero section={section} benefits={benefitSection} image={mediaUrl(section.mediaId, media) ?? ""} mobileImage={section.mobileMediaId ? mediaUrl(section.mobileMediaId, media) : undefined}>
         <div ref={heroSearchRef}>
           <V2PickerSheet
             open={pickerOpen}
@@ -193,7 +193,6 @@ export function EsimHomePage() {
       </PasaportEsimHero>
               ),
               destinations: (section) => <Popular c={c} section={section} onPick={choose} />,
-               afterDestinations: <PasaportMobileBenefits />,
               regions: (section) => <RegionalDiscovery section={section} summaries={regionalSummaries.data ?? []} loading={regionalSummaries.isLoading} c={c} />,
               benefitsInDesktopHero: true,
             }}

@@ -49,6 +49,11 @@ export function detectDeviceFromSignals(devices: DeviceRecord[], signals: Browse
 }
 export type CheckerPrefill = { brand: string | null; device: DeviceRecord | null };
 
+/** Desktop browsers must never prefill a phone from automatic detection. */
+export function checkerDetectionForViewport(detection: DeviceDetection, isMobile: boolean): DeviceDetection {
+  return isMobile ? detection : { kind: "unknown" };
+}
+
 const FAMILY_BRAND: Record<string, string> = { iphone: "apple", samsung: "samsung" };
 
 function canonicalBrand(devices: DeviceRecord[], wanted: string) {
