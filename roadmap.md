@@ -1,6 +1,8 @@
 # Roadmap
 
 ## Current request
+- [ ] Apply combined-rating review reference and six-second dots-only carousel; extend existing Admin source metadata safely.
+- [ ] Verify 390/768/1440 in four languages, partial stars, carousel interactions and unchanged surrounding sections; do not publish.
 - [x] Replace only testimonial widget with approved desktop/mobile carousel; preserve CMS and public gates.
 - [x] Verify 16 width/locale combinations, three desktop cards, mobile next-card preview, controls, hover/manual/resume/reduced-motion, simulated swipe and preserved bars; 36 tests passed. Independent screenshots and limitations report supplied. Long-review dialog, physical touch and hidden-tab/off-screen lifecycle remain untested end-to-end.
 - [x] Restore localized Google/Trustpilot preview samples and complete comparison prices with reveal-once cost bars; preserve public evidence gates and Direct attribution.

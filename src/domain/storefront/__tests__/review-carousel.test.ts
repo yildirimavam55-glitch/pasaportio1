@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
-import { REVIEW_INTERVAL_MS, reviewCapacity, reviewPositionCount, reviewExcerpt } from '../review-carousel';
+import { REVIEW_INTERVAL_MS, reviewCapacity, reviewPositionCount, reviewExcerpt, combinedSourceRating, starFill } from '../review-carousel';
 describe('approved testimonial behavior', () => {
-  it('advances approximately every seven seconds', () => expect(REVIEW_INTERVAL_MS).toBe(7000));
+  it('advances every six seconds', () => expect(REVIEW_INTERVAL_MS).toBe(6000));
   it('fits three complete desktop cards', () => expect(reviewCapacity(1100)).toBe(3));
   it('fits two tablet cards', () => expect(reviewCapacity(720)).toBe(2));
   it.each([360, 390, 430])('fits one full mobile card at %s', width => expect(reviewCapacity(width)).toBe(1));
@@ -9,4 +9,7 @@ describe('approved testimonial behavior', () => {
   it('advances by one card on mobile', () => expect(reviewPositionCount(3, 1)).toBe(3));
   it('does not expand short reviews', () => expect(reviewExcerpt('A short review.')).toEqual({ text: 'A short review.', truncated: false }));
   it('offers expansion only beyond the text limit', () => expect(reviewExcerpt('x'.repeat(181))).toEqual({ text: 'x'.repeat(180) + '…', truncated: true }));
+  it('combines counts and count-weighted ratings rounded to one decimal', () => expect(combinedSourceRating([{source:'Google',rating:5,count:100,sourceUrl:'https://google.com/reviews',verified:true},{source:'Trustpilot',rating:4.5,count:110,sourceUrl:'https://trustpilot.com/reviews',verified:true}])).toEqual({rating:995/210,displayRating:4.7,count:210}));
+  it('never uses unverified source statistics', () => expect(combinedSourceRating([{source:'Google',rating:4.8,count:210,sourceUrl:'https://google.com',verified:false}])).toBeNull());
+  it('fills the fifth star to eighty percent at 4.8', () => expect(starFill(4.8,4)).toBeCloseTo(80));
 });
