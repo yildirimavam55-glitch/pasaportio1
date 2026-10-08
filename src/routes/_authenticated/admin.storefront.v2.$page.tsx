@@ -36,6 +36,7 @@ import {
   V2_DESIGN_WIDTHS,
   V2_HEIGHTS,
   V2_ITEM_MODE,
+  V2_ITEM_LINKS,
   V2_OVERLAYS,
   V2_PAGES,
   comparisonFigures,
@@ -48,6 +49,7 @@ import {
   ltStatus,
   type LT,
   type V2Item,
+  type V2ItemLink,
   type V2PageConfig,
   type V2PageId,
   type V2Section,
@@ -58,7 +60,7 @@ import type { Locale } from "@/domain/enums";
 import { LOCALE_REGISTRY, UI_LOCALES, type UiLocale } from "@/i18n/locales";
 
 const PAGE_LABEL: Record<V2PageId, string> = { esim: "eSIM ana sayfası", lounge: "Lounge ana sayfası", vignette: "Vignette ana sayfası" };
-const LINK_LABEL: Record<string, string> = { "/esim": "eSIM", "/lounge": "Lounge", "/vignette": "Vignette", "/destek": "Destek / kurulum rehberi", "/sepet": "Sepet", "/account": "Hesabım" };
+const LINK_LABEL: Record<string, string> = { "": "Varsayılan hedef", "/esim": "eSIM", "/lounge": "Lounge", "/vignette": "Vignette", "/destek": "Destek / kurulum rehberi", "/sepet": "Sepet", "/account": "Hesabım", "/legal/terms": "Kullanım koşulları", "/legal/refund": "İade koşulları" };
 const DEVICES = [{ id: "360", w: 360 }, { id: "390", w: 390 }, { id: "430", w: 430 }, { id: "Masaüstü", w: 1280 }] as const;
 const PRESET = { left: "Sola", center: "Orta", compact: "Kompakt", normal: "Normal", tall: "Yüksek", light: "Hafif", strong: "Güçlü" } as Record<string, string>;
 const DESIGN_LABELS: Record<string, string> = { default: "Travely varsayılanı", narrow: "Dar", wide: "Geniş", full: "Tam genişlik", brand: "Marka", dark: "Koyu", custom: "Özel renk", small: "Küçük", medium: "Orta", large: "Büyük", theme: "Tema varsayılanı", heading: "Başlık yazı tipi", body: "Gövde yazı tipi", semibold: "Yarı kalın", bold: "Kalın", tight: "Sıkı", relaxed: "Rahat", right: "Sağ" };
@@ -615,6 +617,7 @@ function ItemsEditor({ mode, page, items, lang, onChange }: { mode: NonNullable<
                 {mode === "benefit" && <IconPicker value={it.icon} onChange={(icon) => set(it.id, { icon })} />}
                 <LTInput label={mode === "faq" ? "Soru" : "Başlık"} lang={lang} value={it.title} onChange={(title) => set(it.id, { title })} />
                 {(mode === "card" || mode === "faq") && <LTInput label={mode === "faq" ? "Cevap" : "Metin"} lang={lang} value={it.text} onChange={(text) => set(it.id, { text })} multiline />}
+                {mode === "benefit" && <Select label="Bağlantı" value={(it.href || "") as V2ItemLink} options={V2_ITEM_LINKS} labels={LINK_LABEL} onChange={(href) => set(it.id, { href })} />}
               </div>
             )}
           </li>

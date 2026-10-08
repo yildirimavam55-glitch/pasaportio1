@@ -10,6 +10,7 @@ import { DeviceCompatibilityPrompt } from "@/components/travel/DeviceCompatibili
 import { SeoPathLink } from "@/components/seo/SeoPathLink";
 import { seoPath } from "@/domain/seo/paths";
 import { useI18n } from "@/i18n";
+import type { V2SafeLink } from "@/domain/storefront/v2";
 import { listFeaturedGuides } from "@/lib/guides.functions";
 import { SectionTitle } from "./V2Shell";
 import { V2InstallAnimation } from "./V2InstallAnimation";
@@ -156,7 +157,7 @@ export function V2Compatibility({ title, desktopCard = false }: { title?: string
   return <section className={desktopCard ? "lg:flex lg:flex-col" : undefined}><SectionTitle>{title || c.compatibility}</SectionTitle><div className={desktopCard ? "lg:flex lg:h-48 lg:items-stretch" : undefined}><DeviceCompatibilityPrompt /></div></section>;
 }
 
-type InstallProps = { title?: string; subtitle?: string; steps?: string[]; ready?: string; adding?: string; cta?: string; href?: "/esim" | "/lounge" | "/vignette" | "/destek" | "/esim/kurulum" | "/sepet" | "/account"; variant?: "animated" | "simple" };
+type InstallProps = { title?: string; subtitle?: string; steps?: string[]; ready?: string; adding?: string; cta?: string; href?: V2SafeLink; variant?: "animated" | "simple" };
 
 /** Copy/link/variant can come from the storefront builder; animation stays decorative (no real QR). */
 export function V2Installation({ title, subtitle, steps, ready, adding, cta, href = "/esim/kurulum", variant = "animated" }: InstallProps = {}) {

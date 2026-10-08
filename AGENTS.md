@@ -21,7 +21,7 @@ Public install help stays in V2; QR, activation credentials, and package policy 
 - Refund authority stays server-side; snapshots are immutable, events append-only, and REFUNDED requires confirmed payment refund.
 - The security baseline is owner-controlled; unapproved sensitive changes must stop, be logged, and never weaken baseline tests.
 - Product commercial columns stay hidden via column grants; Admin cost reads happen only after server role checks.
-- The eSIM homepage groups compatibility with Lounge/Vignette only at `lg`; sub-1024 keeps the configured mobile sequence and media.
+- The eSIM homepage keeps compatibility only in its hero band; the standalone compatibility section ships removed from both layouts.
 - Legal content uses two CMS rows: an Admin-only DRAFT row and a PUBLISHED row holding only explicitly published documents, so RLS never exposes drafts; text uses the safe LegalRichText markup, never HTML.
 - Public eSIM installation education shares presentation-only method, phone, QR, success, and travel-use components; protected real install data remains account-only so public demos can never expose credentials.
 
@@ -32,10 +32,6 @@ Public install help stays in V2; QR, activation credentials, and package policy 
 - Sync/import never write price/flags/publication of existing products; new ones arrive DRAFT with a suggestion only. Repricing queue derives baselines from approved snapshots, read-only; prices change only by single Admin approval — why: legacy markup must never overwrite approved prices.
 - Storefront country "from" prices and regional-card inputs are computed by the database functions `storefront_country_starting_prices` / `storefront_regional_package_rows` (security invoker); any change to visibility or Essential-only rules must be mirrored there and in `listEsimPackages` — why: initial page loads must never scan the full catalogue.
 - The homepage loader primes only the layout and the shared country-price query; regional cards, guides, footer, theme and availability stay client-loaded with fixed-size placeholders, and `Reveal` renders visible by default, hiding only items below the viewport after hydration — why: the first viewport must be complete without making the server response heavier.
-- The eSIM hero reuses the V2 CMS media/crop settings, shared country picker and device catalogue; localized campaign display fields live in the existing banner_text map, with shared-query invalidation and cross-tab notification — why: Admin remains the sole content source without duplicating search, compatibility or discount logic.
 - eSIM home shares CMS/search/gift/trust and the loading-gated device status — why: missing data never implies incompatibility.
-- Mobile hero photo fixtures are independent from desktop fixtures and remain subordinate to CMS-selected media — why: mobile reference corrections must not replace approved desktop imagery or Admin uploads.
 - Browser-only locale decisions render a neutral shell until resolved while TR/DE/EN URL routes remain server-rendered — why: navigator and stored manual preferences cannot be known during SSR and must never flash the wrong language.
 - Reviews reuse CMS and verified aggregates to preserve evidence ownership.
-
-- Antenna SVG follows photo cover/crop/scale in its clipped wrapper; hide off-crop to preserve alignment.

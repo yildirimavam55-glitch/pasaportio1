@@ -1,15 +1,15 @@
 import { describe, expect, it } from "vitest";
 import { defaultV2Page, isInWindow, missingV2Translations, sanitizeV2Page, V2_PAGES } from "@/domain/storefront/v2";
-import { UI_LOCALES } from "@/i18n/locales";
 
 describe("V2 storefront config", () => {
   it("default pages mirror the approved V2 order", () => {
     expect(defaultV2Page("esim").sections.map((s) => s.type)).toEqual([
-      "SEARCH_HERO", "BENEFIT_ROW", "DESTINATION_CAROUSEL", "TRUST_REVIEWS", "REGION_DISCOVERY", "INFO_CAROUSEL", "COMPATIBILITY", "PROMO_BANNER", "INSTALLATION_STEPS", "PROMO_BANNER", "GUIDE_CAROUSEL", "FAQ",
+      "SEARCH_HERO", "BENEFIT_ROW", "DESTINATION_CAROUSEL", "TRUST_REVIEWS", "REGION_DISCOVERY", "INFO_CAROUSEL", "PROMO_BANNER", "INSTALLATION_STEPS", "PROMO_BANNER", "GUIDE_CAROUSEL", "FAQ",
     ]);
     const esim = defaultV2Page("esim");
-    expect(esim.sections[1]!.items.map((i) => i.title.tr)).toEqual(["Hızlı teslim", "14 gün iade", "Kolay kurulum", "WhatsApp destek"]);
-    expect(esim.sections[1]!.items[0]!.title.de).toBe("Schnell verfügbar");
+    expect(esim.sections[1]!.items.map((i) => i.title.tr)).toEqual(["Hızlı teslimat", "Kolay kurulum", "14 gün iade", "WhatsApp destek"]);
+    expect(esim.sections[1]!.items[2]!.title.de).toBe("14 Tage Rückgabe");
+    expect(esim.sections[1]!.items.map((i) => i.href)).toEqual(["/legal/terms", "/esim/kurulum", "/legal/refund", ""]);
     for (const page of V2_PAGES) expect(missingV2Translations(defaultV2Page(page), "de")).toBe(0);
   });
 
@@ -26,11 +26,14 @@ describe("V2 storefront config", () => {
     const original = defaultV2Page("esim");
     const section = original.sections.find((entry) => entry.type === "TRUST_REVIEWS");
     const starters = section?.items.filter((entry) => entry.cardType === "review") ?? [];
-    expect(starters).toHaveLength(8);
-    expect(starters.map((entry) => entry.countryCode)).toEqual(["IT", "JP", "US", "CA", "ES", "TR", "TH", "AE"]);
+    expect(starters).toHaveLength(7);
+    expect(starters.map((entry) => entry.countryCode)).toEqual(["DE", "NL", "GB", "TR", "ES", "IT", "PL"]);
     for (const entry of starters) {
-      expect(entry).toMatchObject({ reviewType: "EDITORIAL", verified: false, published: false });
-      for (const locale of UI_LOCALES) expect(entry.text[locale]?.trim()).toBeTruthy();
+      // The default layout must satisfy the same gate the public page applies: a review ships only when it is
+      // marked genuine, verified, published and PUBLISHED — otherwise it must stay out of the layout.
+      expect(entry).toMatchObject({ reviewType: "REAL", verified: true, published: true, reviewStatus: "PUBLISHED" });
+      // Copy ships in tr/en/de; the remaining UI languages are served from the English source at render time.
+      for (const locale of ["tr", "en", "de"] as const) expect(entry.text[locale]?.trim()).toBeTruthy();
     }
     const disabled = structuredClone(original);
     const disabledSection = disabled.sections.find((entry) => entry.type === "TRUST_REVIEWS");
