@@ -1,3 +1,4 @@
+import { OptionalServiceGate, serviceAvailabilityQuery } from "@/components/travel/ServiceAvailability";
 import { createFileRoute } from "@tanstack/react-router";
 import { useQueries, useQuery } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
@@ -21,7 +22,7 @@ const validateLoungeSearch = (s: Record<string, unknown>): { iata?: string } => 
 
 export const Route = createFileRoute("/lounge/")({
   validateSearch: validateLoungeSearch,
-  loader: ({ context }) => context.queryClient.ensureQueryData(v2PageQuery("lounge")),
+  loader: async ({ context }) => { await Promise.all([context.queryClient.ensureQueryData(v2PageQuery("lounge")), context.queryClient.ensureQueryData(serviceAvailabilityQuery())]); },
   head: () => ({
     meta: [
       { title: "Havalimanı Lounge | travely" },
@@ -33,7 +34,7 @@ export const Route = createFileRoute("/lounge/")({
     ],
     links: [{ rel: "canonical", href: "https://wanderpath-engine.lovable.app/lounge" }],
   }),
-  component: LoungeV2,
+  component: () => <OptionalServiceGate service="lounge"><LoungeV2 /></OptionalServiceGate>,
 });
 
 const T = localize({

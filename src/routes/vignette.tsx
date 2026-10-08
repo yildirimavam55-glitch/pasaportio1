@@ -1,3 +1,4 @@
+import { OptionalServiceGate, serviceAvailabilityQuery } from "@/components/travel/ServiceAvailability";
 import { createFileRoute } from "@tanstack/react-router";
 import { Car } from "lucide-react";
 import { useState } from "react";
@@ -10,7 +11,7 @@ import { v2Text } from "@/domain/storefront/v2";
 import { localize } from "@/i18n/overlay";
 
 export const Route = createFileRoute("/vignette")({
-  loader: ({ context }) => context.queryClient.ensureQueryData(v2PageQuery("vignette")),
+  loader: async ({ context }) => { await Promise.all([context.queryClient.ensureQueryData(v2PageQuery("vignette")), context.queryClient.ensureQueryData(serviceAvailabilityQuery())]); },
   head: () => ({
     meta: [
       { title: "Vignette | travely" },
@@ -22,7 +23,7 @@ export const Route = createFileRoute("/vignette")({
       ...V2_NOINDEX,
     ],
   }),
-  component: VignetteV2,
+  component: () => <OptionalServiceGate service="vignette"><VignetteV2 /></OptionalServiceGate>,
 });
 
 const T = localize({

@@ -1,6 +1,8 @@
 import { queryOptions, useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { Wrench } from "lucide-react";
+import type { ReactNode } from "react";
+import { PublicShell } from "./PublicShell";
 import { Button } from "@/components/ui/button";
 import { useI18n } from "@/i18n";
 import { getServiceAvailability } from "@/lib/platform-settings.functions";
@@ -132,4 +134,12 @@ export function CheckoutPausedNote({ service, className = "" }: { service: Servi
       {settingsText(settings.maintenance[service].checkoutMessage, locale, "Yeni siparişler kısa süreliğine durduruldu.")}
     </p>
   );
+}
+
+/** Renders the service page only when enabled; disabled URLs show the unavailable state inside the public shell. */
+export function OptionalServiceGate({ service, children }: { service: OptionalService; children: ReactNode }) {
+  const services = useOptionalServices();
+  if (!services.ready) return null;
+  if (!services[service]) return <PublicShell><ServiceUnavailableState /></PublicShell>;
+  return <>{children}</>;
 }
