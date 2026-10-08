@@ -46,6 +46,7 @@ import { useIsV2 } from "@/components/design-v2/v2-context";
 import { useCurrency } from "@/components/currency/CurrencyProvider";
 import { isCurrencyCode } from "@/domain/currency/currencies";
 import { useCart } from "@/domain/cart/store";
+import { useOptionalServices } from "./ServiceAvailability";
 import { localize } from "@/i18n/overlay";
 
 /** Flag shown next to each language (language, not location). */
@@ -274,6 +275,7 @@ export function PublicShell({
 }) {
   const publishedTheme = usePublishedTheme();
   const isV2 = useIsV2();
+  const optionalServices = useOptionalServices();
   const { locale, uiLocale } = useI18n();
   const copy = localized(GLOBAL_CONTENT, locale);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -460,6 +462,7 @@ export function PublicShell({
                           type="button"
                           className="mobile-menu-link"
                           onClick={() => onServiceChange("lounge")}
+                          hidden={!optionalServices.lounge}
                         >
                           {copy.nav.lounge}
                         </button>

@@ -186,9 +186,9 @@ export function V2Sections({ config, media, slots, only, onDestinationSearch }: 
             return <div key={s.id} id="how" className="scroll-mt-28"><V2Installation title={t("title")} subtitle={t("subtitle")} steps={items.map((item) => v2ItemText(item.title, locale))} ready={t("ready")} adding={t("adding")} cta={t("cta")} href={s.href === "/destek" ? "/esim/kurulum" : s.href} variant={s.variant === "simple" ? "simple" : "animated"} /></div>;
           case "COMPATIBILITY": {
             const pairedPromo = sections[index + 1];
-            if (pairedPromo?.type === "PROMO_BANNER" && pairedPromo.href === "/lounge" && isInWindow(pairedPromo)) {
+            if (pairedPromo?.type === "PROMO_BANNER" && pairedPromo.href === "/lounge" && isInWindow(pairedPromo) && optionalServices.lounge) {
               const loungeImage = mediaUrl(pairedPromo.mediaId, media);
-              const vignettePromo = sections.find((candidate) => candidate.type === "PROMO_BANNER" && candidate.href === "/vignette" && isInWindow(candidate));
+              const vignettePromo = optionalServices.vignette ? sections.find((candidate) => candidate.type === "PROMO_BANNER" && candidate.href === "/vignette" && isInWindow(candidate)) : undefined;
               return (
                 <div key={`${s.id}-${pairedPromo.id}`} id="device-compatibility" className="scroll-mt-24">
                   <div className="lg:hidden">
@@ -211,10 +211,11 @@ export function V2Sections({ config, media, slots, only, onDestinationSearch }: 
           }
           case "PROMO_BANNER": {
             const previous = sections[index - 1];
+            if (isHiddenServiceHref(s.href, optionalServices)) return null;
             if (s.href === "/lounge" && previous?.type === "COMPATIBILITY") return null;
             const image = mediaUrl(s.mediaId, media);
             if (!isInWindow(s) || !t("title")) return null;
-            const pairedDesktopVignette = s.href === "/vignette" && sections.some((candidate, candidateIndex) => candidate.type === "COMPATIBILITY" && sections[candidateIndex + 1]?.href === "/lounge");
+            const pairedDesktopVignette = s.href === "/vignette" && optionalServices.lounge && sections.some((candidate, candidateIndex) => candidate.type === "COMPATIBILITY" && sections[candidateIndex + 1]?.href === "/lounge");
             const promo = <PromoCard image={image ?? ""} title={t("title")} {...(t("subtitle") ? { sub: t("subtitle") } : {})} to={s.href === "/esim/kurulum" ? "/esim" : s.href} />;
             return pairedDesktopVignette ? <div key={s.id} className="lg:hidden">{promo}</div> : <V2Fragment key={s.id}>{promo}</V2Fragment>;
           }
