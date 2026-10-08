@@ -8,7 +8,7 @@ import { HeroDeviceCompatibility } from "@/components/travel/DeviceCompatibility
 import { HeroPromotion } from "./HeroPromotion";
 import { v2ItemText, v2Text, type V2Section } from "@/domain/storefront/v2";
 import type { ImageDisplay } from "@/domain/storefront/image-display";
-import terraceDesktop from "@/assets/pasaport-summit-desktop.webp";
+import terraceDesktop from "@/assets/pasaport-summit-wide.webp";
 import terraceMobile from "@/assets/pasaport-summit-mobile.webp";
 
 const COPY = {

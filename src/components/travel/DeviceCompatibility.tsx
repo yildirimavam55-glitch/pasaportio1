@@ -225,7 +225,7 @@ export function HeroDeviceCompatibility({ compact = false }: { compact?: boolean
         <option value="">{c.brand}</option>{brands.map((b) => <option key={b} value={b}>{b}</option>)}
       </select>
       <V2PickerSheet open={modelOpen} onOpenChange={(open) => { setModelOpen(open); if (!open) setQuery(""); }} title={modelLabel} searchLabel={c.search} query={query} onQueryChange={setQuery} {...(device ? { selectedId: device.id } : {})} emptyLabel={isPending ? "…" : c.unknown} items={models.map((d) => ({ id: d.id, label: d.model, ...(d.regionVariantWarning || d.notes ? { detail: [d.regionVariantWarning ? c.caution : "", d.notes ?? ""].filter(Boolean).join(" ") } : {}) }))} onSelect={(id) => { const d = devices.find((item) => item.id === id); if (!d) return; setOverride({ brand: d.brand, device: d }); saved.setResult(d.model, d.status, d.brand); setModelOpen(false); setQuery(""); }}>
-        <Button variant="outline" title={device?.model ?? modelLabel} className="h-11 min-w-0 justify-between bg-card px-2 font-normal"><span className="truncate">{device?.model ?? (compact ? modelLabel : c.model)}</span><ChevronRight className="size-4 shrink-0 rotate-90" /></Button>
+        <Button variant="outline" disabled={!brand || isPending} title={device?.model ?? modelLabel} className="h-11 min-w-0 justify-between bg-card px-2 font-normal"><span className="truncate">{device?.model ?? (compact ? modelLabel : c.model)}</span><ChevronRight className="size-4 shrink-0 rotate-90" /></Button>
       </V2PickerSheet>
     </div>
      <div aria-live="polite" className="hero-device-result text-[11px] leading-4 text-muted-foreground" data-has-result={Boolean(device) || isError || undefined}>
