@@ -220,7 +220,7 @@ export function HeroDeviceCompatibility({ compact = false }: { compact?: boolean
      <Smartphone className="hero-device-icon" aria-hidden="true" />
      <h2 className="text-sm font-semibold">{compact ? compactTitle : shortTitle}</h2>
      <div className="hero-device-selectors grid grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
-      {brand && !editingBrand && <Button variant="outline" aria-label={`${c.brand}: ${brand}`} onClick={() => setEditingBrand(true)} className="h-11 min-w-0 justify-between bg-card px-2 lg:hidden"><span className="truncate rounded bg-muted px-2 py-1 text-xs font-bold">{brand}</span><Pencil className="size-4 shrink-0" /></Button>}
+      {brand && !editingBrand && <Button variant="outline" aria-label={`${c.brand}: ${brand}`} onClick={() => setEditingBrand(true)} className="h-11 min-w-0 justify-between bg-card px-2 lg:hidden"><span className="rounded bg-muted px-1 py-1 text-xs font-bold">{brand}</span><Pencil className="size-4 shrink-0" /></Button>}
       <select aria-label={c.brand} value={brand} data-known-brand={Boolean(brand) || undefined} onChange={(e) => { setOverride({ brand: e.target.value, device: null }); saved.reset(); setQuery(""); setEditingBrand(false); }} className={`${brand && !editingBrand ? "hidden lg:block" : ""} h-11 min-w-0 rounded-lg border border-input bg-card px-2 text-sm text-foreground focus-visible:ring-2 focus-visible:ring-ring`}>
         <option value="">{c.brand}</option>{brands.map((b) => <option key={b} value={b}>{b}</option>)}
       </select>

@@ -106,7 +106,7 @@ export function WhatsAppSupportWidget({ surface, placement = "inline" }: { surfa
       : "pointer-events-auto relative shrink-0";
 
   return (
-    <div ref={rootRef} className={rootClass}>
+    <div ref={rootRef} data-whatsapp-widget className={rootClass}>
       {open && (
         <div
           ref={cardRef}

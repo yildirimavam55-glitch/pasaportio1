@@ -43,6 +43,8 @@ import { StickyQuickSearch } from "./StickyQuickSearch";
 import { useThemePreference, type ThemePreference } from "@/components/ThemePreference";
 import { usePublishedTheme } from "@/components/PublishedTheme";
 import { useIsV2 } from "@/components/design-v2/v2-context";
+import { useCurrency } from "@/components/currency/CurrencyProvider";
+import { isCurrencyCode } from "@/domain/currency/currencies";
 import { useCart } from "@/domain/cart/store";
 import { localize } from "@/i18n/overlay";
 
@@ -279,6 +281,7 @@ export function PublicShell({
   const [accountOpen, setAccountOpen] = useState(false);
   const [signedIn, setSignedIn] = useState(false);
   const { count } = useCart();
+  const currency = useCurrency();
   const isHeaderOverlayOpen = menuOpen || languageOpen || accountOpen;
   useEffect(() => {
     void supabase.auth.getSession().then(({ data }) => setSignedIn(Boolean(data.session)));
@@ -312,7 +315,7 @@ export function PublicShell({
       <header className="sticky top-0 z-50 border-b border-border/60 bg-background/95 backdrop-blur-lg">
         <div className="mx-auto grid min-h-14 max-w-site grid-cols-[minmax(0,1fr)_auto] items-center gap-2 px-3 sm:min-h-16 sm:gap-3 sm:px-6 lg:flex">
           <Brand mobilePasaport={mobilePasaport} />
-          <nav
+          {!mobilePasaport && <nav
             className="hidden min-w-0 flex-1 items-center justify-center gap-1 lg:flex"
             aria-label="Ana menü"
           >
@@ -340,14 +343,15 @@ export function PublicShell({
               </>
             )}
             <Link to="/vignette" className="nav-link">Vignette</Link>
-          </nav>
+          </nav>}
           <div className="flex shrink-0 items-center gap-1 sm:gap-1.5">
-            <Button asChild variant="ghost" size="icon" className="relative hidden size-11 lg:inline-flex">
+            <Button asChild variant="ghost" size="icon" className={`relative size-11 ${mobilePasaport ? "inline-flex" : "hidden lg:inline-flex"}`}>
               <Link to="/sepet" aria-label={locale === "tr" ? "Sepet" : locale === "de" ? "Warenkorb" : "Cart"}>
                 <ShoppingBag className="size-5" />
                 {count > 0 && <span className="absolute right-0.5 top-0.5 grid size-4 place-items-center rounded-full bg-accent text-[9px] font-bold text-accent-foreground">{count}</span>}
               </Link>
             </Button>
+            {mobilePasaport && <select aria-label={uiLocale === "tr" ? "Para birimi" : uiLocale === "de" ? "Währung" : uiLocale === "ar" ? "العملة" : "Currency"} value={currency.code} onChange={(event) => { if (isCurrencyCode(event.target.value)) currency.setCurrency(event.target.value); }} className="header-currency min-h-11 rounded bg-transparent text-xs">{currency.available.map((code) => <option key={code} value={code}>{code}</option>)}</select>}
             <LanguageMenu
               open={languageOpen}
               onOpenChange={(open) => {
@@ -414,7 +418,7 @@ export function PublicShell({
               }}
             >
               <SheetTrigger asChild>
-                <Button variant="ghost" size="icon" className="size-11 lg:hidden" aria-label="Menü">
+                <Button variant="ghost" size="icon" className={`${mobilePasaport ? "hidden" : "size-11 lg:hidden"}`} aria-label="Menü">
                   <Menu className="size-[18px] sm:size-5" />
                 </Button>
               </SheetTrigger>
