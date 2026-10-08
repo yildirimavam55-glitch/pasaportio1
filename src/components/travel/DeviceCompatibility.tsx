@@ -11,6 +11,7 @@ import {
   Pencil,
   Search,
   Smartphone,
+  TriangleAlert,
   XCircle,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -31,6 +32,7 @@ import {
 import { useI18n } from "@/i18n";
 import { listDeviceCompatibility } from "@/lib/device-compatibility.functions";
 import {
+  checkedDeviceStatus,
   searchDevices,
   type CompatibilityStatus,
   type DeviceRecord,
@@ -195,10 +197,18 @@ const HERO_DEVICE_COPY = {
   ar: { title: "هل هاتفك متوافق مع eSIM؟", brand: "اختر العلامة", model: "اختر الطراز", search: "ابحث عن الطراز", unknown: "لم يتم التحقق", ok: "متوافق", no: "غير متوافق", missing: "لم يُكتشف الطراز الدقيق؛ اختر طراز هاتفك.", caution: "تحقق من قفل شركة الاتصالات واختلافات الطراز الإقليمية." },
 };
 
+const HERO_RESULT_COPY = {
+  tr: { ok: "Telefonun eSIM destekliyor.", no: "Telefonun eSIM desteklemiyor.", unknown: "Bu modelin eSIM desteğini doğrulayamadık.", change: "Cihazı değiştir" },
+  de: { ok: "Dein Handy unterstützt eSIM.", no: "Dein Handy unterstützt keine eSIM.", unknown: "Wir konnten die eSIM-Unterstützung dieses Modells nicht bestätigen.", change: "Gerät ändern" },
+  en: { ok: "Your phone supports eSIM.", no: "Your phone does not support eSIM.", unknown: "We could not verify this model’s eSIM support.", change: "Change device" },
+  ar: { ok: "هاتفك يدعم eSIM.", no: "هاتفك لا يدعم eSIM.", unknown: "لم نتمكن من التحقق من دعم هذا الطراز لـ eSIM.", change: "تغيير الجهاز" },
+};
+
 /** Same catalogue, strict detection and manually persisted check as the account/product checker. */
 export function HeroDeviceCompatibility({ compact = false }: { compact?: boolean }) {
   const { uiLocale, locale } = useI18n();
   const c = HERO_DEVICE_COPY[uiLocale as keyof typeof HERO_DEVICE_COPY] ?? HERO_DEVICE_COPY[locale];
+  const outcomeCopy = HERO_RESULT_COPY[uiLocale as keyof typeof HERO_RESULT_COPY] ?? HERO_RESULT_COPY[locale];
   const { data: devices = [], isPending, isError } = useQuery({ queryKey: ["device-compatibility"], queryFn: () => listDeviceCompatibility(), staleTime: 10 * 60 * 1000 });
    const { detection } = useBrowserDevice(devices);
    const isMobile = useIsMobile();
@@ -212,7 +222,7 @@ export function HeroDeviceCompatibility({ compact = false }: { compact?: boolean
   const device = override ? override.device : prefill.device;
   const brands = useMemo(() => [...new Set(devices.map((d) => d.brand))].sort(), [devices]);
   const models = useMemo(() => searchDevices(devices, query, brand || undefined), [devices, query, brand]);
-  const result = device?.status ?? "UNCERTAIN";
+  const result = checkedDeviceStatus(device, isPending);
     const shortTitle = ({ tr: "eSIM uyumluluğu", de: "eSIM-Kompatibilität", en: "eSIM compatibility", ar: "توافق eSIM" } as Record<string, string>)[uiLocale] ?? "eSIM compatibility";
     const compactTitle = ({ tr: "Telefonum eSIM destekliyor mu?", de: "Unterstützt mein Handy eSIM?", en: "Does my phone support eSIM?", ar: "هل يدعم هاتفي eSIM؟" } as Record<string, string>)[uiLocale] ?? c.title;
     const modelLabel = ({ tr: "Modelini seç", de: "Modell wählen", en: "Select your model", ar: "اختر طراز هاتفك" } as Record<string, string>)[uiLocale] ?? c.model;
@@ -228,9 +238,14 @@ export function HeroDeviceCompatibility({ compact = false }: { compact?: boolean
         <Button variant="outline" disabled={!brand || isPending} title={device?.model ?? modelLabel} className="h-11 min-w-0 justify-between bg-card px-2 font-normal"><span className="truncate">{device?.model ?? (compact ? modelLabel : c.model)}</span><ChevronRight className="size-4 shrink-0 rotate-90" /></Button>
       </V2PickerSheet>
     </div>
-     <div aria-live="polite" className="hero-device-result text-[11px] leading-4 text-muted-foreground" data-has-result={Boolean(device) || isError || undefined}>
-       {(device || isError) && <span className="flex items-center gap-1 font-semibold text-foreground"><StatusIcon status={result} />{result === "COMPATIBLE" ? c.ok : result === "NOT_COMPATIBLE" ? c.no : c.unknown}</span>}
-    </div>
+      <div aria-live="polite" className="hero-device-result" data-has-result={Boolean(device && result) || undefined}>
+        {device && result && <div className="hero-device-outcome" data-status={result}>
+          {result === "COMPATIBLE" ? <CheckCircle2 aria-hidden="true" /> : result === "NOT_COMPATIBLE" ? <TriangleAlert aria-hidden="true" /> : <CircleHelp aria-hidden="true" />}
+          <div className="min-w-0"><strong>{result === "COMPATIBLE" ? outcomeCopy.ok : result === "NOT_COMPATIBLE" ? outcomeCopy.no : outcomeCopy.unknown}</strong><p>{device.brand} · {device.model}</p>
+          {(device.regionVariantWarning || device.notes) && <p className="hero-device-warning">{device.regionVariantWarning && c.caution} {device.notes}</p>}
+          <Button variant="ghost" className="hero-device-change" onClick={() => { setOverride({ brand, device: null }); saved.reset(); setModelOpen(true); setQuery(""); }}>{outcomeCopy.change}</Button></div>
+        </div>}
+      </div>
   </div>;
 }
 
