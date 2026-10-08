@@ -328,6 +328,7 @@ export function PublicShell({
                   type="button"
                   className="nav-link"
                   onClick={() => onServiceChange("lounge")}
+                  hidden={!optionalServices.lounge}
                 >
                   {copy.nav.lounge}
                 </button>
@@ -337,12 +338,12 @@ export function PublicShell({
                 <Link to="/esim" className="nav-link">
                   {copy.nav.esim}
                 </Link>
-                <Link to="/lounge" className="nav-link">
+                {optionalServices.lounge && <Link to="/lounge" className="nav-link">
                   {copy.nav.lounge}
-                </Link>
+                </Link>}
               </>
             )}
-            <Link to="/vignette" className="nav-link">Vignette</Link>
+            {optionalServices.vignette && <Link to="/vignette" className="nav-link">Vignette</Link>}
           </nav>}
           <div className="flex shrink-0 items-center gap-1 sm:gap-1.5">
             <Button asChild variant="ghost" size="icon" className={`relative size-11 ${mobilePasaport ? "inline-flex" : "hidden lg:inline-flex"}`}>
@@ -471,11 +472,11 @@ export function PublicShell({
                           {copy.nav.esim}
                         </Link>
                       </SheetClose>
-                      <SheetClose asChild>
+                      {optionalServices.lounge && <SheetClose asChild>
                         <Link to="/lounge" className="mobile-menu-link">
                           {copy.nav.lounge}
                         </Link>
-                      </SheetClose>
+                      </SheetClose>}
                     </>
                   )}
                   <SheetClose asChild>
