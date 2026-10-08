@@ -141,6 +141,8 @@ export type V2Item = {
   originalLanguage?: UiLocale;
   countryCode?: string;
   reviewDate?: string;
+  reviewSource?: "Google" | "Trustpilot" | "Direct";
+  reviewSourceUrl?: string;
   createdAt?: string;
   updatedAt?: string;
 };
@@ -187,6 +189,7 @@ export type V2Section = {
     /** Structured, locale-independent comparison prices (EUR). Saving and percentage are derived. */
     comparisonRoamingPrice?: number | null;
     comparisonTravelyPrice?: number | null;
+    comparisonEntries?: import("./trust-comparison").ComparisonEntry[];
     /** Presentation only. Structured fields stay stored while IMAGE is active. */
     comparisonMode?: "STRUCTURED" | "IMAGE";
     comparisonImageId?: string | null;
@@ -566,6 +569,8 @@ function cleanItem(raw: any, index: number): V2Item {
       originalLanguage: (UI_LOCALES as readonly string[]).includes(raw?.originalLanguage) ? raw.originalLanguage as UiLocale : "en" as const,
       countryCode: /^[A-Z]{2}$/.test(String(raw?.countryCode)) ? raw.countryCode as string : "",
       reviewDate: DATE.test(String(raw?.reviewDate)) ? raw.reviewDate as string : "",
+      reviewSource: pick(raw?.reviewSource, ["Google", "Trustpilot", "Direct"] as const, "Direct"),
+      reviewSourceUrl: /^https:\/\//.test(String(raw?.reviewSourceUrl)) ? cleanText(raw.reviewSourceUrl, 500) : "",
       createdAt: typeof raw?.createdAt === "string" ? cleanText(raw.createdAt, 40) : "",
       updatedAt: typeof raw?.updatedAt === "string" ? cleanText(raw.updatedAt, 40) : "",
     } : {}),
@@ -647,6 +652,7 @@ function cleanSection(raw: any): V2Section | null {
       autoplay: raw.trust?.autoplay === true,
       whyEnabled: raw.trust?.whyEnabled !== false,
       ...cleanComparison(raw.trust),
+      comparisonEntries: Array.isArray(raw.trust?.comparisonEntries) ? raw.trust.comparisonEntries.slice(0,3).map((e: any) => ({kind: pick(e.kind,["roaming","other","pasaport"] as const,"other"),price: price(e.price) ?? 0,currency: cleanText(e.currency,3),destination:cleanText(e.destination,100),allowance:cleanText(e.allowance,80),validity:cleanText(e.validity,80),provider:cleanText(e.provider,100),sourceUrl:/^https:\/\//.test(String(e.sourceUrl))?cleanText(e.sourceUrl,500):"",checkedAt:DATE.test(String(e.checkedAt))?e.checkedAt:""})) : [],
       comparisonMode: raw.trust?.comparisonMode === "IMAGE" ? "IMAGE" : "STRUCTURED",
       comparisonImageId: cleanMediaId(raw.trust?.comparisonImageId),
       comparisonMobileImageId: cleanMediaId(raw.trust?.comparisonMobileImageId),

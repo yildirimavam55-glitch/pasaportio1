@@ -1,6 +1,8 @@
 # Roadmap
 
 ## Current request
+- [ ] Replace family/reviews/comparison presentation, extend existing CMS source metadata and preserve production gates.
+- [ ] Validate languages, responsive composition/carousel/conversion and preview exclusions; provide screenshots.
 - [x] Show readable device outcomes using actual catalogue status; compact trust labels and restore photo/panel country cards.
 - [x] Verify TR/DE/EN/AR at 360/390/430/1440; actual iPhone 15 compatible, iPhone 7 incompatible and Pixel 4 uncertain outcomes, selection clearing and 33 tests passed; deliver screenshots without publishing. Physical-device detection not tested.
 - [x] Apply final coastal photo/gift composition with retained header controls, compact search/checker and unchanged country cards.
