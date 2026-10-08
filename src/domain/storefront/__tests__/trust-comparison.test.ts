@@ -10,7 +10,7 @@ describe("trust evidence gates",()=>{
  it("never shows samples publicly",()=>expect(publicReview({visible:true,reviewType:"DEMO",verified:true,published:true,reviewStatus:"PUBLISHED"})).toBe(false));
  it("requires genuine published verification",()=>expect(publicReview({visible:true,reviewType:"REAL",verified:false,published:true,reviewStatus:"PUBLISHED"})).toBe(false));
  it("does not classify the published site as preview",()=>expect(trustPreviewHost("pasaport2.lovable.app")).toBe(false));
- it.each(['localhost','127.0.0.1','id-preview--650631d3-fa00-4c84-b30e-e472947470da.lovable.app','preview--650631d3-fa00-4c84-b30e-e472947470da.lovable.app'])('recognizes the isolated preview host %s',host=>expect(trustPreviewHost(host)).toBe(true));
+ it.each(['localhost','127.0.0.1','id-preview--650631d3-fa00-4c84-b30e-e472947470da.lovable.app','preview--650631d3-fa00-4c84-b30e-e472947470da.lovable.app','project-dev.lovable.app','project.lovableproject.com'])('recognizes the isolated preview host %s',host=>expect(trustPreviewHost(host)).toBe(true));
  it('rejects a spoofed preview hostname',()=>expect(trustPreviewHost('id-preview--fake.example.com')).toBe(false));
  it('completes missing preview prices with the three exact examples',()=>expect(comparisonForPresentation(null,true)?.map(e=>e.price)).toEqual([21.99,16.99,10.99]));
  it('does not render preview prices on the public site',()=>expect(comparisonForPresentation(null,false)).toBeNull());
