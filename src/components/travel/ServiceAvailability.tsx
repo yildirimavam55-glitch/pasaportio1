@@ -61,8 +61,9 @@ const UNAVAILABLE = {
 
 /** Localized unavailable state for a disabled optional service URL. */
 export function ServiceUnavailableState() {
-  const { locale } = useI18n();
-  const c = (UNAVAILABLE as Record<string, (typeof UNAVAILABLE)["en"]>)[locale] ?? UNAVAILABLE.en;
+  const { uiLocale, locale } = useI18n();
+  const table = UNAVAILABLE as Record<string, (typeof UNAVAILABLE)["en"]>;
+  const c = table[uiLocale] ?? table[locale] ?? UNAVAILABLE.en;
   return (
     <section className="mx-auto w-full max-w-2xl px-4 py-14 sm:py-20" data-service-unavailable>
       <div className="rounded-3xl border border-border bg-card p-6 text-center shadow-card sm:p-10">
