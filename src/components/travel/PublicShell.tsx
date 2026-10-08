@@ -46,6 +46,7 @@ import { useIsV2 } from "@/components/design-v2/v2-context";
 import { useCurrency } from "@/components/currency/CurrencyProvider";
 import { isCurrencyCode } from "@/domain/currency/currencies";
 import { useCart } from "@/domain/cart/store";
+import { isHiddenServiceHref, useOptionalServices } from "./ServiceAvailability";
 import { localize } from "@/i18n/overlay";
 
 /** Flag shown next to each language (language, not location). */
@@ -195,7 +196,8 @@ function PublicFooter({ fallback, supportLabel, bottomSafe = false }: { fallback
   });
   const data = config.data?.config;
   const text = itemText(data?.footerText, locale, fallback) || fallback;
-  const links = (data?.footerLinks ?? []).filter((link) => link.visible && link.href);
+  const optionalServices = useOptionalServices();
+  const links = (data?.footerLinks ?? []).filter((link) => link.visible && link.href && !isHiddenServiceHref(link.href, optionalServices));
   const copyright = itemText(data?.copyright, locale, "");
   const footerCopy = FOOTER_COPY[locale];
   const groups = [
@@ -274,6 +276,7 @@ export function PublicShell({
 }) {
   const publishedTheme = usePublishedTheme();
   const isV2 = useIsV2();
+  const optionalServices = useOptionalServices();
   const { locale, uiLocale } = useI18n();
   const copy = localized(GLOBAL_CONTENT, locale);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -328,6 +331,7 @@ export function PublicShell({
                   type="button"
                   className="nav-link"
                   onClick={() => onServiceChange("lounge")}
+                  hidden={!optionalServices.lounge}
                 >
                   {copy.nav.lounge}
                 </button>
@@ -337,12 +341,12 @@ export function PublicShell({
                 <Link to="/esim" className="nav-link">
                   {copy.nav.esim}
                 </Link>
-                <Link to="/lounge" className="nav-link">
+                {optionalServices.lounge && <Link to="/lounge" className="nav-link">
                   {copy.nav.lounge}
-                </Link>
+                </Link>}
               </>
             )}
-            <Link to="/vignette" className="nav-link">Vignette</Link>
+            {optionalServices.vignette && <Link to="/vignette" className="nav-link">Vignette</Link>}
           </nav>}
           <div className="flex shrink-0 items-center gap-1 sm:gap-1.5">
             <Button asChild variant="ghost" size="icon" className={`relative size-11 ${mobilePasaport ? "inline-flex" : "hidden lg:inline-flex"}`}>
@@ -459,6 +463,7 @@ export function PublicShell({
                           type="button"
                           className="mobile-menu-link"
                           onClick={() => onServiceChange("lounge")}
+                          hidden={!optionalServices.lounge}
                         >
                           {copy.nav.lounge}
                         </button>
@@ -471,11 +476,11 @@ export function PublicShell({
                           {copy.nav.esim}
                         </Link>
                       </SheetClose>
-                      <SheetClose asChild>
+                      {optionalServices.lounge && <SheetClose asChild>
                         <Link to="/lounge" className="mobile-menu-link">
                           {copy.nav.lounge}
                         </Link>
-                      </SheetClose>
+                      </SheetClose>}
                     </>
                   )}
                   <SheetClose asChild>

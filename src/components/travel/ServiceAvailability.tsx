@@ -1,6 +1,8 @@
-import { useQuery } from "@tanstack/react-query";
+import { queryOptions, useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { Wrench } from "lucide-react";
+import type { ReactNode } from "react";
+import { PublicShell } from "./PublicShell";
 import { Button } from "@/components/ui/button";
 import { useI18n } from "@/i18n";
 import { getServiceAvailability } from "@/lib/platform-settings.functions";
@@ -14,18 +16,69 @@ import { localize } from "@/i18n/overlay";
  * A paused service NEVER produces a 404, a blank page or a technical error —
  * it produces a branded, configurable service state.
  */
+export const serviceAvailabilityQuery = () =>
+  queryOptions({ queryKey: ["service-availability"], queryFn: () => getServiceAvailability(), staleTime: 60 * 1000 });
+
 export function useServiceAvailability() {
-  const query = useQuery({
-    queryKey: ["service-availability"],
-    queryFn: () => getServiceAvailability(),
-    staleTime: 60 * 1000,
-  });
+  const query = useQuery(serviceAvailabilityQuery());
   const data = query.data ?? {
     esim: { storefront: true, checkout: true },
     lounge: { storefront: true, checkout: true },
+    vignette: { storefront: true, checkout: true },
     settings: DEFAULT_SETTINGS,
   };
   return { ...data, isPending: query.isPending };
+}
+
+export type OptionalService = "lounge" | "vignette";
+
+/**
+ * Single shared visibility rule for optional services. While the setting is
+ * still loading the service is treated as hidden, so disabled content never flashes.
+ */
+export function useOptionalServices() {
+  const query = useQuery(serviceAvailabilityQuery());
+  const d = query.data;
+  return {
+    ready: Boolean(d),
+    lounge: Boolean(d?.lounge.storefront),
+    vignette: Boolean(d?.vignette.storefront),
+  };
+}
+
+/** True for a public href that belongs to a currently hidden optional service. */
+export function isHiddenServiceHref(href: string | undefined, services: { lounge: boolean; vignette: boolean }) {
+  if (!href) return false;
+  href = href.split(/[?#]/)[0]!.replace(/\/+$/, "") || "/";
+  if (href === "/lounge" || href.startsWith("/lounge/")) return !services.lounge;
+  if (href === "/vignette" || href.startsWith("/vignette/")) return !services.vignette;
+  return false;
+}
+
+const UNAVAILABLE: Record<"tr" | "de" | "en" | "ar", { title: string; body: string; cta: string }> = {
+  tr: { title: "Bu hizmet şu anda kullanılamıyor", body: "Daha önce satın aldığın hizmetler hesabında erişilebilir kalır.", cta: "eSIM ana sayfasına git" },
+  de: { title: "Dieser Service ist derzeit nicht verfügbar", body: "Bereits gekaufte Leistungen bleiben in deinem Konto verfügbar.", cta: "Zur eSIM-Startseite" },
+  en: { title: "This service is currently unavailable", body: "Services you already purchased stay available in your account.", cta: "Go to the eSIM homepage" },
+  ar: { title: "هذه الخدمة غير متاحة حاليًا", body: "تبقى الخدمات التي اشتريتها متاحة في حسابك.", cta: "الانتقال إلى صفحة eSIM الرئيسية" },
+};
+
+/** Localized unavailable state for a disabled optional service URL. */
+export function ServiceUnavailableState() {
+  const { uiLocale, locale } = useI18n();
+  const table: Record<string, { title: string; body: string; cta: string } | undefined> = UNAVAILABLE;
+  const c = table[uiLocale] ?? table[locale] ?? UNAVAILABLE.en;
+  return (
+    <section className="mx-auto w-full max-w-2xl px-4 py-14 sm:py-20" data-service-unavailable>
+      <div className="rounded-3xl border border-border bg-card p-6 text-center shadow-card sm:p-10">
+        <span className="mx-auto grid size-14 place-items-center rounded-2xl bg-primary-soft text-primary">
+          <Wrench className="size-6 stroke-[1.8]" aria-hidden="true" />
+        </span>
+        <h1 className="mt-5 font-display text-2xl font-bold sm:text-3xl">{c.title}</h1>
+        <p className="mx-auto mt-3 max-w-lg text-sm text-muted-foreground">{c.body}</p>
+        <Button asChild className="mt-6"><Link to="/">{c.cta}</Link></Button>
+      </div>
+    </section>
+  );
 }
 
 const OTHER_LABEL: Record<ServiceSlug, { tr: string; de: string; en: string }> = {
@@ -82,4 +135,12 @@ export function CheckoutPausedNote({ service, className = "" }: { service: Servi
       {settingsText(settings.maintenance[service].checkoutMessage, locale, "Yeni siparişler kısa süreliğine durduruldu.")}
     </p>
   );
+}
+
+/** Renders the service page only when enabled; disabled URLs show the unavailable state inside the public shell. */
+export function OptionalServiceGate({ service, children }: { service: OptionalService; children: ReactNode }) {
+  const services = useOptionalServices();
+  if (!services.ready) return null;
+  if (!services[service]) return <PublicShell><ServiceUnavailableState /></PublicShell>;
+  return <>{children}</>;
 }

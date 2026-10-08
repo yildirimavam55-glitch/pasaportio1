@@ -9,6 +9,7 @@ import { WhatsAppSupportWidget } from "@/components/travel/WhatsAppSupportWidget
 import { useCart } from "@/domain/cart/store";
 import { useI18n } from "@/i18n";
 import type { Locale } from "@/domain/enums";
+import { useOptionalServices } from "@/components/travel/ServiceAvailability";
 import { localize } from "@/i18n/overlay";
 import { PromoBanner } from "./PromoBanner";
 import { DEFAULT_IMAGE_DISPLAY, ESIM_DESKTOP_IMAGE_DISPLAY, type ImageDisplay } from "@/domain/storefront/image-display";
@@ -114,13 +115,14 @@ export const NAV_LABELS = localize({
 function useNavItems() {
   const { locale } = useI18n();
   const l = pick(locale, NAV_LABELS);
-  return [
+  const services = useOptionalServices();
+  return ([
     { id: "esim" as const, to: "/esim", search: { country: "" }, icon: Smartphone, label: "eSIM" },
     { id: "lounge" as const, to: "/lounge", search: { iata: "" }, icon: Plane, label: "Lounge" },
     { id: "vignette" as const, to: "/vignette", search: undefined, icon: Car, label: "Vignette" },
     { id: "cart" as const, to: "/sepet", search: undefined, icon: ShoppingBag, label: l.cart },
     { id: "account" as const, to: "/account", search: undefined, icon: UserRound, label: l.account },
-  ];
+  ]).filter((item) => (item.id === "lounge" || item.id === "vignette" ? services[item.id] : true));
 }
 
 function CountBadge() {
