@@ -1733,6 +1733,7 @@ html[data-quick-search-lock] body {
  .final-hero-shade {position:absolute;inset:0;z-index:-1;background:linear-gradient(90deg,var(--card),color-mix(in oklab,var(--card) 95%,transparent) 26%,transparent 62%);}
  .final-hero-heading {padding:0;max-width:48%;}.final-hero-heading h1 {font-size:52px;max-width:460px;}.final-hero-heading p {font-size:18px;max-width:480px;}
  .final-hero-search {margin:22px 0 0;max-width:480px;}.final-hero-compatibility {margin:16px 0 0;max-width:480px;}
+ .pasaport-final-hero:has(.hero-device-outcome) {height:auto;min-height:420px;}.pasaport-final-hero:has(.hero-device-outcome) .final-hero-photo {height:100%;}
  .final-hero-gift {top:auto;bottom:24px;inset-inline-end:48px;}.gift-trigger {width:110px;height:112px;}.gift-art {transform:scale(1.2);margin-bottom:5px;}.gift-label {font-size:12px;min-height:32px;}
  .final-trust-band {margin:0 -24px;padding:16px 48px;border-bottom:1px solid var(--border);}.final-trust-band a {gap:6px;padding-inline:20px;}.final-trust-band svg {width:24px;height:24px;}.final-trust-band strong {font-size:13px;font-weight:600;}.final-trust-band small {display:block;font-size:12px;color:var(--muted-foreground);margin-top:3px;}
  .pasaport-mobile-reference > header > div > a span.font-display {font-size:23px;}.pasaport-mobile-reference > header > div > a span.grid {width:36px;height:36px;}

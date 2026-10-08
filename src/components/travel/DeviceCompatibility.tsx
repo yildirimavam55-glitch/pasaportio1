@@ -209,7 +209,7 @@ export function HeroDeviceCompatibility({ compact = false }: { compact?: boolean
   const { uiLocale, locale } = useI18n();
   const c = HERO_DEVICE_COPY[uiLocale as keyof typeof HERO_DEVICE_COPY] ?? HERO_DEVICE_COPY[locale];
   const outcomeCopy = HERO_RESULT_COPY[uiLocale as keyof typeof HERO_RESULT_COPY] ?? HERO_RESULT_COPY[locale];
-  const { data: devices = [], isPending, isError } = useQuery({ queryKey: ["device-compatibility"], queryFn: () => listDeviceCompatibility(), staleTime: 10 * 60 * 1000 });
+  const { data: devices = [], isPending } = useQuery({ queryKey: ["device-compatibility"], queryFn: () => listDeviceCompatibility(), staleTime: 10 * 60 * 1000 });
    const { detection } = useBrowserDevice(devices);
    const isMobile = useIsMobile();
   const saved = useDeviceCheck();
