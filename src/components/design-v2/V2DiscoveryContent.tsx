@@ -10,6 +10,7 @@ import { DeviceCompatibilityPrompt } from "@/components/travel/DeviceCompatibili
 import { SeoPathLink } from "@/components/seo/SeoPathLink";
 import { seoPath } from "@/domain/seo/paths";
 import { useI18n } from "@/i18n";
+import type { V2SafeLink } from "@/domain/storefront/v2";
 import { listFeaturedGuides } from "@/lib/guides.functions";
 import { SectionTitle } from "./V2Shell";
 import { V2InstallAnimation } from "./V2InstallAnimation";

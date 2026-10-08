@@ -9,6 +9,7 @@ import { WhatsAppSupportWidget } from "@/components/travel/WhatsAppSupportWidget
 import { useCart } from "@/domain/cart/store";
 import { useI18n } from "@/i18n";
 import type { Locale } from "@/domain/enums";
+import type { V2SafeLink } from "@/domain/storefront/v2";
 import { useOptionalServices } from "@/components/travel/ServiceAvailability";
 import { localize } from "@/i18n/overlay";
 import { PromoBanner } from "./PromoBanner";
