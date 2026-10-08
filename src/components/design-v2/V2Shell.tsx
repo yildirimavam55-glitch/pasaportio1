@@ -276,7 +276,7 @@ export function PhotoCard({ image, badge, title, sub, price, onClick }: { image?
   );
 }
 
-export function PromoCard({ image, title, sub, to, compactDesktop = false }: { image: string; title: string; sub?: string; to: "/esim" | "/lounge" | "/vignette" | "/destek" | "/sepet" | "/account"; compactDesktop?: boolean }) {
+export function PromoCard({ image, title, sub, to, compactDesktop = false }: { image: string; title: string; sub?: string; to: V2SafeLink; compactDesktop?: boolean }) {
   return (
     <Link to={to} search={(to === "/esim" ? { country: "" } : to === "/lounge" ? { iata: "" } : undefined) as never} className={`relative mt-5 block h-24 overflow-hidden rounded-xl text-primary-foreground lg:h-48 lg:rounded-2xl ${compactDesktop ? "lg:mt-14" : "lg:mt-14"}`}>
       {image && <img src={image} alt="" loading="lazy" decoding="async" className="absolute inset-0 size-full object-cover" />}
