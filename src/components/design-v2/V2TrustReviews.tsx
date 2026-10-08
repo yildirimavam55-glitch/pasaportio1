@@ -11,7 +11,7 @@ import familyImage from '@/assets/pasaport-family-arrivals.jpg';
 import { displayMoney } from '@/domain/currency/store';
 import { useCurrency } from '@/components/currency/CurrencyProvider';
 
-export function V2TrustReviews({section,media,preview=false,onDestinationSearch}:{section:V2Section;media:V2Media;preview?:boolean;onDestinationSearch?:()=>void}) {
+export function V2TrustReviews({section,media,preview=false,onDestinationSearch}:{section:V2Section;media:V2Media;preview?:boolean;onDestinationSearch?:(()=>void)|undefined}) {
  const {locale,uiLocale}=useI18n(); useCurrency();
  const c=STORY_COPY[uiLocale as keyof typeof STORY_COPY]??STORY_COPY[locale];
  const [designPreview,setDesignPreview]=useState(preview);
@@ -31,9 +31,9 @@ export function V2TrustReviews({section,media,preview=false,onDestinationSearch}
  const ordered=entries?['roaming','other','pasaport'].map(k=>entries.find(e=>e.kind===k)).filter((e):e is NonNullable<typeof e>=>Boolean(e)):[];
  const bars=comparisonScale(ordered.map(e=>e.price));
  const saving=ordered.length===3?Math.floor((1-(ordered[2]?.price??0)/Math.max(...ordered.slice(0,2).map(e=>e.price)))*100):0;
- const custom=(key:string,fallback:string)=> {const text=v2Text(section,key,locale);return text && section.internalKey==='family-final'?text:fallback;};
+ const custom=(key:string,fallback:string)=> {const text=v2Text(section,key,locale);return text && key.startsWith('family')?text:fallback;};
  return <section className="family-proof" data-family-proof>
-  <div className="family-story"><div className="family-story-copy"><h2><span>{custom('title',c.title)}</span><span>{custom('accent',c.accent)}</span></h2><p>{custom('subtitle',c.subtitle)}</p></div>
+  <div className="family-story"><div className="family-story-copy"><h2><span>{custom('familyTitle',c.title)}</span><span>{custom('familyAccent',c.accent)}</span></h2><p>{custom('familySubtitle',c.subtitle)}</p></div>
    <div className="family-scene"><img src={photo} alt="" width={1400} height={1000} loading="lazy" decoding="async"/><div className="family-phone" aria-label={c.chatNote}><div className="phone-status" aria-hidden="true">14:21 <Signal size={10}/></div><div className="phone-group"><ChevronLeft size={13}/><span>👨‍👩‍👧‍👦</span><strong>{c.family}</strong></div><div className="phone-chat">{c.chat.map((message,i)=><div key={i} className={`chat-bubble ${i>0&&i<4?'outgoing':''}`}>{message}<small aria-hidden="true">14:{12+i} {i>0&&i<4?'✓✓':''}</small></div>)}</div><div className="phone-input" aria-hidden="true">＋ <span>···</span> ♧</div></div></div>
   </div>
   <ul className="family-benefits">{[Zap,Globe2,Sparkles].map((Icon,i)=><li key={i}><span><Icon aria-hidden="true"/></span><strong>{c.benefits[i]}</strong></li>)}</ul>
