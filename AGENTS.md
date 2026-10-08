@@ -37,3 +37,4 @@ Public install help stays in V2; QR, activation credentials, and package policy 
 - Mobile hero photo fixtures are independent from desktop fixtures and remain subordinate to CMS-selected media — why: mobile reference corrections must not replace approved desktop imagery or Admin uploads.
 - Browser-only locale decisions render a neutral shell until resolved while TR/DE/EN URL routes remain server-rendered — why: navigator and stored manual preferences cannot be known during SSR and must never flash the wrong language.
 - Testimonials use V2 CMS, container capacity and verified source aggregates — why: preserve surrounding sections and evidence ownership.
+- Optional services (Lounge, Vignette) use the storefront.<service>/checkout.<service> feature flags via useOptionalServices/isHiddenServiceHref and OptionalServiceGate — why: one shared setting hides nav, promos, footer and direct URLs consistently; treated as hidden while loading to avoid flashes.
