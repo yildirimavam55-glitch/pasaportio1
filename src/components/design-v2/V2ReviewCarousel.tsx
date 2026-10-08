@@ -31,7 +31,7 @@ export function V2ReviewCarousel({ section, preview }: { section: V2Section; pre
     const node=rail.current,card=node?.firstElementChild as HTMLElement|null;
     if(!node||!card)return;
     const count=reviews.length,n=(index+count)%count,loop=index===count;
-    const left=(getComputedStyle(node).direction==='rtl'?-1:1)*(card.offsetWidth+12);
+    const left=(getComputedStyle(node).direction==='rtl'?-1:1)*(card.getBoundingClientRect().width+12);
     node.scrollTo({left:(loop?count:n)*left,behavior:reduced?'instant':'smooth'});
     if(settle.current)clearTimeout(settle.current);
     if(loop)settle.current=setTimeout(()=>node.scrollTo({left:0,behavior:'instant'}),650);
@@ -60,14 +60,14 @@ export function V2ReviewCarousel({ section, preview }: { section: V2Section; pre
     <div className="family-review-heading"><h3>{heading}</h3></div>
     <div className="review-rating-summary">
       <div className="family-source-marks"><ReviewSourceMark source="Google"/><span className="review-source-divider" aria-hidden="true"/><ReviewSourceMark source="Trustpilot"/></div>
-      {summary&&<><RatingStars rating={summary.rating}/><div className="combined-score"><bdi>{summary.displayRating.toFixed(1)} / 5</bdi><span>{new Intl.NumberFormat(uiLocale).format(summary.count)} {c.reviewCountLabel}</span></div></>}
+      {summary&&<><RatingStars rating={summary.rating}/><div className="combined-score"><bdi>{new Intl.NumberFormat(uiLocale,{minimumFractionDigits:1,maximumFractionDigits:1}).format(summary.displayRating)} / 5</bdi><span>{new Intl.NumberFormat(uiLocale).format(summary.count)} {c.reviewCountLabel}</span></div></>}
     </div>
     {summary&&<p className="combined-caption">{realSummary?c.combinedLabel:c.combinedCaption}</p>}
     <div className="family-review-rail" ref={rail} tabIndex={0} aria-label={heading}
       onPointerDown={()=>{setTouch(true);if(touchTimer.current)clearTimeout(touchTimer.current);}} onPointerUp={releaseTouch} onPointerCancel={releaseTouch}
       onWheel={()=>{setTouch(true);releaseTouch();}}
       onKeyDown={e=>{if(e.key==='ArrowRight'||e.key==='ArrowLeft'){e.preventDefault();move(active+(e.key==='ArrowRight'?1:-1)*(getComputedStyle(e.currentTarget).direction==='rtl'?-1:1));}}}
-      onScroll={e=>{const card=e.currentTarget.firstElementChild as HTMLElement|null;if(card){const n=Math.round(Math.abs(e.currentTarget.scrollLeft)/(card.offsetWidth+12));if(n<reviews.length)setActive(n);}}}>
+      onScroll={e=>{const card=e.currentTarget.firstElementChild as HTMLElement|null;if(card){const n=Math.round(Math.abs(e.currentTarget.scrollLeft)/(card.getBoundingClientRect().width+12));if(n<reviews.length)setActive(n);}}}>
       {renderCards.map((r,i)=>{const excerpt=reviewExcerpt(r.text),clone=i>=reviews.length;return <article key={`${r.id}-${i}`} className="family-review-card" data-review-source={r.source} aria-hidden={clone||undefined} inert={clone||undefined}>
         <div className="review-card-top">{r.url?<a href={r.url} target="_blank" rel="noopener noreferrer"><ReviewSourceMark source={r.source}/></a>:<ReviewSourceMark source={r.source}/>}<div className="family-stars" aria-label={`${r.rating} / 5`}>{Array.from({length:r.rating},(_,i)=><Star key={i} fill="currentColor" aria-hidden="true"/>)}</div></div>
         <p>“{excerpt.text}”</p>
