@@ -52,7 +52,7 @@ export function V2ReviewCarousel({ section, preview }: { section: V2Section; pre
   }, [positions, paused, hover, focused, visible, tab, reduced, active]);
   if (!reviews.length) return null;
   const hasSamples = reviews.some(r => r.sample);
-  const heading = section.text.familyReviewsTitle?.[uiLocale] || section.text.familyReviewsTitle?.[locale] || c.reviews;
+  const heading = section.text['familyReviewsTitle']?.[uiLocale] || section.text['familyReviewsTitle']?.[locale] || c.reviews;
   return <div className="family-reviews approved-reviews" ref={region} role="region" aria-label={heading}
     onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)}
     onFocusCapture={() => setFocused(true)} onBlurCapture={e => { if (!e.currentTarget.contains(e.relatedTarget)) setFocused(false); }}>
