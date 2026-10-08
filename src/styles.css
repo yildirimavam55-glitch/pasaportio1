@@ -1820,22 +1820,23 @@ body:has([role="dialog"][data-state="open"]) .pasaport-mobile-reference [data-wh
 .pay-strip:before{content:'';grid-column:2;grid-row:1;align-self:stretch;background:var(--story-border)}
 .pay-head{grid-column:1;grid-row:1;display:flex;align-items:center;gap:12px;color:var(--story-ink)}
 .pay-shield{display:grid;place-items:center;width:44px;height:44px;border-radius:50%;background:var(--story-card);color:var(--story-petrol)}.pay-shield svg{width:22px;height:22px}
-.pay-lock,.pay-title-m,.pay-stripe-m{display:none}
+.pay-strip .pay-lock,.pay-strip .pay-title-m,.pay-strip .pay-stripe-m{display:none}
+.pay-paypal{display:inline-flex;align-items:center;gap:2px;font-weight:800;font-style:italic;font-size:15px;letter-spacing:-.02em}.pay-paypal b{color:#002991}.pay-paypal i{color:#0070e0}.pay-paypal svg{max-width:none!important}
 .pay-head strong{display:block;font-size:16px}.pay-head small{display:block;font-size:12px;opacity:.7}
 .pay-logos{grid-column:3;grid-row:1;list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px}
 .pay-logos li{display:grid;place-items:center;height:48px;border-radius:10px;background:var(--story-card);border:1px solid var(--story-border);min-width:0}
 .pay-logos svg{display:block;max-width:85%;height:auto}
 .pay-klarna{display:inline-block;background:oklch(0.85 0.09 355);color:oklch(0.15 0 0);font-weight:800;font-size:14px;letter-spacing:-.02em;padding:4px 8px;border-radius:6px;line-height:1}
-.pay-note{grid-column:1/-1;font-size:9px;opacity:.65;text-align:center}
+.pay-note{grid-column:1/-1;font-size:9px;opacity:.65;text-align:center;margin-top:-2px}
 @media(max-width:1023px){
 .pay-strip{display:flex;flex-direction:column;align-items:center;gap:6px;background:none;border-radius:0;border-block:1px solid var(--story-border);padding:10px 2px;margin:10px 0 14px;min-height:0}
-.pay-strip:before,.pay-shield,.pay-title-d,.pay-stripe-d{display:none}
-.pay-lock{display:block;width:16px;height:16px}.pay-head{gap:6px}.pay-title-m{display:block;font-size:14px;font-weight:600}
+.pay-strip:before,.pay-strip .pay-shield,.pay-strip .pay-title-d,.pay-strip .pay-stripe-d{display:none}
+.pay-strip .pay-lock{display:block;width:16px;height:16px}.pay-head{gap:6px}.pay-strip .pay-title-m{display:block;font-size:14px;font-weight:600}
 .pay-logos{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:4px 12px;width:100%}
 .pay-logos li{height:26px;background:none;border:0;border-radius:0}
 .pay-logos li svg{max-width:none;width:auto;height:auto}
-.pay-logos li:nth-child(2) svg{width:54px;height:54px}.pay-logos li:nth-child(3) svg{width:40px;height:40px}.pay-logos li:nth-child(4) svg,.pay-logos li:nth-child(5) svg{width:40px;height:40px}
+.pay-logos li:nth-child(2) svg{width:14px;height:14px;margin:0}.pay-paypal{font-size:13px}.pay-logos li:nth-child(3) svg{width:40px;height:40px}.pay-logos li:nth-child(4) svg,.pay-logos li:nth-child(5) svg{width:40px;height:40px}
 .pay-logos svg{margin-block:-13px}
 .pay-klarna{font-size:12px;padding:4px 6px}
-.pay-stripe-m{display:block;font-size:11px;opacity:.65}.pay-note{font-size:8px}
+.pay-strip .pay-stripe-m{display:block;font-size:11px;opacity:.65}.pay-note{font-size:8px}
 }

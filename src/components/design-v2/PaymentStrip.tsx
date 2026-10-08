@@ -19,7 +19,7 @@ function Logos() {
   return (
     <ul className="pay-logos" dir="ltr">
       <li><span className="pay-klarna" aria-label="Klarna">Klarna.</span></li>
-      <li><Svg icon={siPaypal} width={64} /></li>
+      <li><span className="pay-paypal" aria-label="PayPal"><Svg icon={siPaypal} width={16} /><b aria-hidden="true">Pay</b><i aria-hidden="true">Pal</i></span></li>
       <li><Svg icon={siVisa} width={48} /></li>
       <li><Svg icon={siApplepay} width={48} /></li>
       <li><Svg icon={siGooglepay} width={50} color="#3C4043" /></li>
