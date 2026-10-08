@@ -20,7 +20,7 @@ export function V2TrustReviews({section,media,preview=false,onDestinationSearch}
  const photo=section.mediaId && !['builtin:trust-traveler','536a6bd7-2418-4668-8149-6b85bfd2b98d','533377df-ddd6-4803-a0cb-6f5727c933b6'].includes(section.mediaId)?mediaUrl(section.mediaId,media)??familyImage:familyImage;
  const genuine=section.items.filter(publicReview).filter(r=>r.cardType==='review').map(r=>({id:r.id,text:r.text[r.originalLanguage??'en']||v2ItemText(r.text,locale),name:r.title[r.originalLanguage??'en']||v2ItemText(r.title,locale),rating:r.rating,source:r.reviewSource??'Direct',url:r.reviewSourceUrl,date:r.reviewDate,sample:false}));
  const samples=c.samples.map((text,i)=>({id:`sample-${i}`,text,name:c.traveler,rating:5,source:i===0?'Google':'Trustpilot',url:undefined,date:undefined,sample:true}));
- const reviews=designPreview?[...genuine,...samples.filter(s=>!genuine.some(r=>r.source===s.source)),...samples.filter(s=>!genuine.some(r=>r.source===s.source)).map(s=>({...s,id:`${s.id}-next`}))]:genuine;
+ const reviews=designPreview?[...samples.filter(s=>!genuine.some(r=>r.source===s.source)),...genuine]:genuine;
  const rail=useRef<HTMLDivElement>(null),region=useRef<HTMLDivElement>(null);
  const [active,setActive]=useState(0),[paused,setPaused]=useState(false),[hover,setHover]=useState(false),[focused,setFocused]=useState(false),[visible,setVisible]=useState(false),[tab,setTab]=useState(true),[reduced,setReduced]=useState(false),[capacity,setCapacity]=useState(1);
  const canAdvance=reviews.length>capacity;
