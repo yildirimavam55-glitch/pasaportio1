@@ -84,55 +84,21 @@
           "icon": "Zap",
           "entity": "",
           "title": {
-            "tr": "Hızlı teslim",
+            "tr": "Hızlı teslimat",
+            "de": "Schnelle Lieferung",
             "en": "Fast delivery",
-            "de": "Schnell verfügbar"
+            "ar": "تسليم سريع"
           },
           "text": {
-            "tr": "",
-            "en": "",
-            "de": ""
+            "tr": "eSIM teslim bilgileri",
+            "de": "Informationen zur eSIM-Lieferung",
+            "en": "eSIM delivery information",
+            "ar": "معلومات تسليم eSIM"
           },
           "internalKey": "delivery",
           "cardType": "products",
           "mediaId": null,
-          "href": "",
-          "labels": [],
-          "cta": {
-            "tr": "",
-            "en": "",
-            "de": ""
-          },
-          "imageAlt": {
-            "tr": "",
-            "en": "",
-            "de": ""
-          },
-          "focalX": 50,
-          "focalY": 50,
-          "rating": 5,
-          "verified": false,
-          "published": false
-        },
-        {
-          "id": "refund",
-          "visible": true,
-          "icon": "ShieldCheck",
-          "entity": "",
-          "title": {
-            "tr": "14 gün iade",
-            "en": "14-day refund",
-            "de": "14 Tage Rückgabe"
-          },
-          "text": {
-            "tr": "",
-            "en": "",
-            "de": ""
-          },
-          "internalKey": "refund",
-          "cardType": "products",
-          "mediaId": null,
-          "href": "",
+          "href": "/legal/terms",
           "labels": [],
           "cta": {
             "tr": "",
@@ -157,18 +123,58 @@
           "entity": "",
           "title": {
             "tr": "Kolay kurulum",
-            "en": "Easy setup",
-            "de": "Einfache Einrichtung"
+            "de": "Einfach einrichten",
+            "en": "Easy installation",
+            "ar": "إعداد سهل"
           },
           "text": {
-            "tr": "",
-            "en": "",
-            "de": ""
+            "tr": "Adım adım kurulum",
+            "de": "Installation Schritt für Schritt",
+            "en": "Step-by-step installation",
+            "ar": "التثبيت خطوة بخطوة"
           },
           "internalKey": "setup",
           "cardType": "products",
           "mediaId": null,
-          "href": "",
+          "href": "/esim/kurulum",
+          "labels": [],
+          "cta": {
+            "tr": "",
+            "en": "",
+            "de": ""
+          },
+          "imageAlt": {
+            "tr": "",
+            "en": "",
+            "de": ""
+          },
+          "focalX": 50,
+          "focalY": 50,
+          "rating": 5,
+          "verified": false,
+          "published": false
+        },
+        {
+          "id": "refund",
+          "visible": true,
+          "icon": "CalendarCheck",
+          "entity": "",
+          "title": {
+            "tr": "14 gün iade",
+            "de": "14 Tage Rückgabe",
+            "en": "14-day refunds",
+            "ar": "استرداد خلال 14 يومًا"
+          },
+          "text": {
+            "tr": "İade koşullarını gör",
+            "de": "Rückgabebedingungen ansehen",
+            "en": "See the refund conditions",
+            "ar": "اطّلع على شروط الاسترداد"
+          },
+          "internalKey": "refund",
+          "cardType": "products",
+          "mediaId": null,
+          "href": "/legal/refund",
           "labels": [],
           "cta": {
             "tr": "",
@@ -193,13 +199,15 @@
           "entity": "",
           "title": {
             "tr": "WhatsApp destek",
+            "de": "WhatsApp Support",
             "en": "WhatsApp support",
-            "de": "WhatsApp-Support"
+            "ar": "دعم واتساب"
           },
           "text": {
-            "tr": "",
-            "en": "",
-            "de": ""
+            "tr": "Kurulum için yardım",
+            "de": "Hilfe bei der Einrichtung",
+            "en": "Help with installation",
+            "ar": "المساعدة في التثبيت"
           },
           "internalKey": "support",
           "cardType": "products",
