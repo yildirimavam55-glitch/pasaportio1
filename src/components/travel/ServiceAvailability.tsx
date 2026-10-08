@@ -49,6 +49,7 @@ export function useOptionalServices() {
 /** True for a public href that belongs to a currently hidden optional service. */
 export function isHiddenServiceHref(href: string | undefined, services: { lounge: boolean; vignette: boolean }) {
   if (!href) return false;
+  href = href.split(/[?#]/)[0]!.replace(/\/+$/, "") || "/";
   if (href === "/lounge" || href.startsWith("/lounge/")) return !services.lounge;
   if (href === "/vignette" || href.startsWith("/vignette/")) return !services.vignette;
   return false;
