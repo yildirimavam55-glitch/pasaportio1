@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { normalizeStatus, searchDevices, type DeviceRecord } from "../device-compatibility";
-import { detectDeviceFromSignals } from "../device-detection";
+import { checkerDetectionForViewport, detectDeviceFromSignals } from "../device-detection";
 
 const base: Omit<DeviceRecord, "id" | "brand" | "model" | "aliases"> = {
   family: null,
@@ -41,6 +41,12 @@ describe("device compatibility search", () => {
 });
 
 describe("safe browser device detection", () => {
+  it("never prefills a phone automatically on desktop", () => {
+    expect(checkerDetectionForViewport({ kind: "partial", family: "samsung" }, false)).toEqual({ kind: "unknown" });
+  });
+  it("retains reliable mobile brand detection", () => {
+    expect(checkerDetectionForViewport({ kind: "partial", family: "samsung" }, true)).toEqual({ kind: "partial", family: "samsung" });
+  });
   it("matches one exact Android model identifier from browser data", () => {
     const result = detectDeviceFromSignals(devices, { model: "s24", userAgent: "Android" });
     expect(result.kind).toBe("exact");

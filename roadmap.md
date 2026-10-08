@@ -1,6 +1,9 @@
 # Roadmap
 
 ## Current request
+- [x] Apply summit photo and real HTML heading/coupon/search, mobile and desktop, retaining CMS overrides.
+- [x] Move strict compatibility checker below search; keep four accessible trust actions above unchanged countries using existing information/links.
+- [x] Verify four widths/locales, coupon copy, device/model and country workflows; present 390×844 and desktop screenshots. Physical-device detection and an actual Admin campaign edit remain untested; no campaign data changed.
 - [x] Correct only the mobile hero against the supplied reference, including the front/profile-facing traveler photo; leave header, desktop and following sections untouched.
 - [x] Verify mobile layout in four languages and four widths, country/model/campaign dialogs, no runtime errors and 66 passing tests; physical-device detection remains untested.
 - [x] Refine hero only: photo-overlay heading, small upper ticket, lower device card and capsule search; preserve all surrounding sections.

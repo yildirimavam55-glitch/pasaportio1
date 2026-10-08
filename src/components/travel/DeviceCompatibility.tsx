@@ -36,7 +36,8 @@ import {
   type DeviceRecord,
 } from "@/domain/esim/device-compatibility";
 import { useDeviceCheck } from "@/domain/esim/device-check-session";
-import { resolveCheckerPrefill, type DeviceDetection } from "@/domain/esim/device-detection";
+import { resolveCheckerPrefill, checkerDetectionForViewport, type DeviceDetection } from "@/domain/esim/device-detection";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { noopAnalyticsSink } from "@/domain/analytics";
 import type { Locale } from "@/domain/enums";
 import { localize } from "@/i18n/overlay";
@@ -195,33 +196,36 @@ const HERO_DEVICE_COPY = {
 };
 
 /** Same catalogue, strict detection and manually persisted check as the account/product checker. */
-export function HeroDeviceCompatibility() {
+export function HeroDeviceCompatibility({ compact = false }: { compact?: boolean }) {
   const { uiLocale, locale } = useI18n();
   const c = HERO_DEVICE_COPY[uiLocale as keyof typeof HERO_DEVICE_COPY] ?? HERO_DEVICE_COPY[locale];
   const { data: devices = [], isPending, isError } = useQuery({ queryKey: ["device-compatibility"], queryFn: () => listDeviceCompatibility(), staleTime: 10 * 60 * 1000 });
    const { detection } = useBrowserDevice(devices);
+   const isMobile = useIsMobile();
   const saved = useDeviceCheck();
   const [override, setOverride] = useState<{ brand: string; device: DeviceRecord | null } | null>(null);
   const [modelOpen, setModelOpen] = useState(false);
   const [editingBrand, setEditingBrand] = useState(false);
   const [query, setQuery] = useState("");
-  const prefill = resolveCheckerPrefill(devices, saved.compatibilityChecked ? { model: saved.deviceModel, ...(saved.deviceBrand ? { brand: saved.deviceBrand } : {}) } : null, detection);
+  const prefill = resolveCheckerPrefill(devices, saved.compatibilityChecked ? { model: saved.deviceModel, ...(saved.deviceBrand ? { brand: saved.deviceBrand } : {}) } : null, checkerDetectionForViewport(detection, isMobile));
   const brand = override?.brand ?? prefill.brand ?? "";
   const device = override ? override.device : prefill.device;
   const brands = useMemo(() => [...new Set(devices.map((d) => d.brand))].sort(), [devices]);
   const models = useMemo(() => searchDevices(devices, query, brand || undefined), [devices, query, brand]);
   const result = device?.status ?? "UNCERTAIN";
     const shortTitle = ({ tr: "eSIM uyumluluğu", de: "eSIM-Kompatibilität", en: "eSIM compatibility", ar: "توافق eSIM" } as Record<string, string>)[uiLocale] ?? "eSIM compatibility";
-    return <div className="hero-device-check bg-card text-card-foreground shadow-panel" data-testid="hero-device-check">
+    const compactTitle = ({ tr: "Telefonum eSIM destekliyor mu?", de: "Unterstützt mein Handy eSIM?", en: "Does my phone support eSIM?", ar: "هل يدعم هاتفي eSIM؟" } as Record<string, string>)[uiLocale] ?? c.title;
+    const modelLabel = ({ tr: "Modelini seç", de: "Modell wählen", en: "Select your model", ar: "اختر طراز هاتفك" } as Record<string, string>)[uiLocale] ?? c.model;
+    return <div className={`hero-device-check bg-card text-card-foreground ${compact ? "hero-device-inline" : "shadow-panel"}`} data-testid="hero-device-check">
      <Smartphone className="hero-device-icon" aria-hidden="true" />
-     <h2 className="text-sm font-semibold">{shortTitle}</h2>
+     <h2 className="text-sm font-semibold">{compact ? compactTitle : shortTitle}</h2>
      <div className="hero-device-selectors grid grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
       {brand && !editingBrand && <Button variant="outline" aria-label={`${c.brand}: ${brand}`} onClick={() => setEditingBrand(true)} className="h-11 min-w-0 justify-between bg-card px-2 lg:hidden"><span className="truncate rounded bg-muted px-2 py-1 text-xs font-bold">{brand}</span><Pencil className="size-4 shrink-0" /></Button>}
       <select aria-label={c.brand} value={brand} data-known-brand={Boolean(brand) || undefined} onChange={(e) => { setOverride({ brand: e.target.value, device: null }); saved.reset(); setQuery(""); setEditingBrand(false); }} className={`${brand && !editingBrand ? "hidden lg:block" : ""} h-11 min-w-0 rounded-lg border border-input bg-card px-2 text-sm text-foreground focus-visible:ring-2 focus-visible:ring-ring`}>
         <option value="">{c.brand}</option>{brands.map((b) => <option key={b} value={b}>{b}</option>)}
       </select>
-      <V2PickerSheet open={modelOpen} onOpenChange={(open) => { setModelOpen(open); if (!open) setQuery(""); }} title={c.model} searchLabel={c.search} query={query} onQueryChange={setQuery} {...(device ? { selectedId: device.id } : {})} emptyLabel={isPending ? "…" : c.unknown} items={models.map((d) => ({ id: d.id, label: d.model }))} onSelect={(id) => { const d = devices.find((item) => item.id === id); if (!d) return; setOverride({ brand: d.brand, device: d }); saved.setResult(d.model, d.status, d.brand); setModelOpen(false); setQuery(""); }}>
-        <Button variant="outline" className="h-11 min-w-0 justify-between bg-card px-2 font-normal"><span className="truncate">{device?.model ?? c.model}</span><ChevronRight className="size-4 shrink-0 rotate-90" /></Button>
+      <V2PickerSheet open={modelOpen} onOpenChange={(open) => { setModelOpen(open); if (!open) setQuery(""); }} title={modelLabel} searchLabel={c.search} query={query} onQueryChange={setQuery} {...(device ? { selectedId: device.id } : {})} emptyLabel={isPending ? "…" : c.unknown} items={models.map((d) => ({ id: d.id, label: d.model, ...(d.regionVariantWarning || d.notes ? { detail: [d.regionVariantWarning ? c.caution : "", d.notes ?? ""].filter(Boolean).join(" ") } : {}) }))} onSelect={(id) => { const d = devices.find((item) => item.id === id); if (!d) return; setOverride({ brand: d.brand, device: d }); saved.setResult(d.model, d.status, d.brand); setModelOpen(false); setQuery(""); }}>
+        <Button variant="outline" disabled={!brand || isPending} title={device?.model ?? modelLabel} className="h-11 min-w-0 justify-between bg-card px-2 font-normal"><span className="truncate">{device?.model ?? (compact ? modelLabel : c.model)}</span><ChevronRight className="size-4 shrink-0 rotate-90" /></Button>
       </V2PickerSheet>
     </div>
      <div aria-live="polite" className="hero-device-result text-[11px] leading-4 text-muted-foreground" data-has-result={Boolean(device) || isError || undefined}>
