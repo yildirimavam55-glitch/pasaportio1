@@ -1,6 +1,7 @@
 # Roadmap
 
 ## Current request
+- [ ] Replace only closed hero gift with localized compact coupon ticket; verify four widths, keyboard/popup close, active and simulated inactive campaign states without changing campaign data or publishing.
 - [x] Correct mobile hero crop to 88% horizontal position without resizing; couple/antenna visually verified at 360/390/430, desktop unchanged at 1440. Four source-anchored arcs, off-crop hiding, reduced-motion and no overflow/runtime errors checked; no publication.
 - [x] Replace hero photo and verify four SVG lines, three-second CSS cycle, crop-aware hiding and static reduced-motion; mobile/desktop checked, no publication.
 - [x] Apply combined-rating review reference and six-second dots-only carousel; extend existing Admin source metadata safely.
