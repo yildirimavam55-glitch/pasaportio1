@@ -1757,3 +1757,6 @@ body:has([role="dialog"][data-state="open"]) .pasaport-mobile-reference [data-wh
 @media(prefers-reduced-motion:reduce){.family-review-rail{scroll-behavior:auto}}
 
 @media(min-width:1024px){.family-proof{max-width:1200px;margin:24px auto}.family-scene{aspect-ratio:1.6}.family-phone{width:30%;height:94%;font-size:11px}.phone-group{font-size:10px}.chat-bubble{font-size:11px;padding:6px}.phone-chat{gap:8px}.chat-bubble small{font-size:7px}}
+
+.family-review-card>p{flex:initial}.family-stars{margin-top:10px}.family-review-card footer{margin-top:auto}.family-story-copy{align-self:start;padding-top:48px}.family-scene{background:var(--story-card)}
+@media(max-width:1023px){.family-story-copy{padding-top:0}.family-review-card{min-height:162px}.family-stars{margin-top:10px}}

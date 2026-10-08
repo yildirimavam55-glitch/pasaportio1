@@ -3,7 +3,7 @@ import { ArrowLeft, ArrowRight, ChevronLeft, ChevronRight, Globe2, Info, Pause, 
 import { Button } from '@/components/ui/button';
 import { useI18n } from '@/i18n';
 import { v2ItemText, v2Text, type V2Section } from '@/domain/storefront/v2';
-import { comparisonScale, publicReview, verifiedComparison } from '@/domain/storefront/trust-comparison';
+import { comparisonScale, publicReview, verifiedComparison, reviewAutoplay, trustPreviewHost } from '@/domain/storefront/trust-comparison';
 import type { V2Media } from '@/lib/v2-storefront.functions';
 import { mediaUrl } from './V2Sections';
 import { STORY_COPY } from './trust-story-copy';
@@ -15,7 +15,7 @@ export function V2TrustReviews({section,media,preview=false,onDestinationSearch}
  const {locale,uiLocale}=useI18n(); useCurrency();
  const c=STORY_COPY[uiLocale as keyof typeof STORY_COPY]??STORY_COPY[locale];
  const [designPreview,setDesignPreview]=useState(preview);
- useEffect(()=>setDesignPreview(preview || window.location.hostname==='localhost' || window.location.hostname.startsWith('id-preview--')), [preview]);
+ useEffect(()=>setDesignPreview(preview || trustPreviewHost(window.location.hostname)), [preview]);
  const photo=section.mediaId && !['builtin:trust-traveler','536a6bd7-2418-4668-8149-6b85bfd2b98d','533377df-ddd6-4803-a0cb-6f5727c933b6'].includes(section.mediaId)?mediaUrl(section.mediaId,media)??familyImage:familyImage;
  const genuine=section.items.filter(publicReview).filter(r=>r.cardType==='review').map(r=>({id:r.id,text:r.text[r.originalLanguage??'en']||v2ItemText(r.text,locale),name:r.title[r.originalLanguage??'en']||v2ItemText(r.title,locale),rating:r.rating,source:r.reviewSource??'Direct',url:r.reviewSourceUrl,date:r.reviewDate,sample:false}));
  const reviews=designPreview?c.samples.map((text,i)=>({id:`sample-${i}`,text,name:c.traveler,rating:5,source:i===0?'Google':'Trustpilot',url:undefined,date:undefined,sample:true})):genuine;
@@ -24,7 +24,7 @@ export function V2TrustReviews({section,media,preview=false,onDestinationSearch}
  const canAdvance=reviews.length>capacity;
  const move=(index:number,manual=true)=>{ if(manual)setPaused(true); const n=(index+reviews.length)%reviews.length; const node=rail.current; const card=node?.children[n] as HTMLElement|undefined; if(node&&card)node.scrollTo({left:(document.dir==='rtl'?-1:1)*n*(card.offsetWidth+12),behavior:reduced?'instant':'smooth'});setActive(n); };
  useEffect(()=>{const node=region.current;if(!node)return;const io=new IntersectionObserver(([e])=>setVisible(Boolean(e?.isIntersecting)),{threshold:.15});io.observe(node);const mq=matchMedia('(prefers-reduced-motion:reduce)'),desktop=matchMedia('(min-width:1024px)');const update=()=>{setReduced(mq.matches);setCapacity(desktop.matches?2:1);};update();mq.addEventListener('change',update);desktop.addEventListener('change',update);const visibility=()=>setTab(!document.hidden);document.addEventListener('visibilitychange',visibility);return()=>{io.disconnect();mq.removeEventListener('change',update);desktop.removeEventListener('change',update);document.removeEventListener('visibilitychange',visibility);};},[reviews.length]);
- useEffect(()=>{if(!canAdvance||paused||hover||focused||!visible||!tab||reduced)return;const timer=setInterval(()=>move((active+1)%(reviews.length-capacity+1),false),7000);return()=>clearInterval(timer);},[canAdvance,paused,hover,focused,visible,tab,reduced,active,reviews.length,capacity]);
+ useEffect(()=>{if(!reviewAutoplay({enough:canAdvance,paused,hover,focused,visible,tab,reduced}))return;const timer=setInterval(()=>move((active+1)%(reviews.length-capacity+1),false),7000);return()=>clearInterval(timer);},[canAdvance,paused,hover,focused,visible,tab,reduced,active,reviews.length,capacity]);
  const approved=section.trust?.comparisonStatus==='VERIFIED' && !section.trust.comparisonPreviewOnly && Boolean(section.trust.comparisonVerifiedAt);
  const verified=verifiedComparison(section.trust?.comparisonEntries,approved);
  const entries=verified??(designPreview && section.trust?.comparisonStatus!=='HIDDEN'?[{kind:'roaming',price:21.99,currency:'EUR'},{kind:'other',price:16.99,currency:'EUR'},{kind:'pasaport',price:10.99,currency:'EUR'}]:null);
@@ -46,7 +46,7 @@ export function V2TrustReviews({section,media,preview=false,onDestinationSearch}
   <div className="family-comparison"><div className="family-compare-heading"><div><h3>{entries&&saving>0?<>{c.save} <em>{saving}%</em>*</>:c.neutral}</h3><p>{c.desc}</p></div>{designPreview&&!verified&&<span className="sample-badge"><Info size={12}/>{c.illustrative}</span>}</div>
    <div className="family-price-grid">{[RadioTower,Smartphone,Signal].map((Icon,i)=><article className={`family-price-option option-${i}`} key={i}><span className="compare-icon"><Icon/></span><div className="price-copy"><strong>{c.options[i]}</strong>{ordered[i]&&<small>{verified?ordered[i]?.currency:c.example}</small>}</div>{ordered[i]&&<><bdi>{displayMoney(ordered[i]?.price??0,ordered[i]?.currency??'EUR',uiLocale)}</bdi><div className="compare-track"><span data-price-ratio={bars[i]} style={{'--price-ratio':bars[i]} as CSSProperties}/><small>{Math.round((bars[i]??0)*100)}%</small></div></>}</article>)}</div>
    <div className="family-conversion"><Wallet aria-hidden="true"/><div><strong>{custom("familyBudget",c.budget)}</strong><p>{custom("familyPlan",c.plan)}</p></div><Button onClick={onDestinationSearch}>{custom("familyCta",c.cta)}<ArrowRight className="rtl:rotate-180"/></Button></div>
-   <div className="family-compare-foot">{designPreview&&!verified&&<small>{c.foot}</small>}<details><summary>{c.details}</summary>{verified?.map(e=><p key={e.kind}>{e.provider} · {e.destination} · {e.allowance} · {e.validity} · {e.checkedAt} · <a href={e.sourceUrl} target="_blank" rel="noopener noreferrer">{e.sourceUrl}</a></p>)??<p>{c.illustrative} — {c.example}</p>}</details></div>
+   <div className="family-compare-foot">{designPreview&&!verified&&<small>{c.foot}</small>}<details><summary>{c.details}</summary>{verified?.map(e=><p key={e.kind}>{e.provider} · {e.destination} · {e.allowance} · {e.validity} · {e.checkedAt} · <a href={e.sourceUrl} target="_blank" rel="noopener noreferrer">{e.sourceUrl}</a></p>)??<p>{designPreview?`${c.illustrative} — ${c.example}`:c.neutral}</p>}</details></div>
   </div>
  </section>;
 }
