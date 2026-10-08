@@ -33,7 +33,7 @@ function Logos() {
  */
 export function PaymentStrip({ preview }: { preview: boolean }) {
   const { locale, uiLocale } = useI18n();
-  const c = (COPY as Record<string, (typeof COPY)["en"]>)[uiLocale] ?? COPY[locale as "en"] ?? COPY.en;
+  const c = COPY[uiLocale as keyof typeof COPY] ?? COPY[locale as keyof typeof COPY] ?? COPY.en;
   if (!preview) return null;
   return (
     <div className="pay-strip" data-payment-strip>
