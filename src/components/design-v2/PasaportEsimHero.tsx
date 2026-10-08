@@ -25,7 +25,7 @@ const SUMMIT_COPY = {
 };
 const oldTitles = ["Yurt dışında bağlantıda kal.", "Im Ausland verbunden bleiben.", "Stay connected abroad.", ...Object.values(COPY).map((copy) => copy.title)];
 
-export function PasaportEsimHero({ section, image, mobileImage, benefits, children }: { section: V2Section; image: string; mobileImage?: string | undefined; benefits?: V2Section; children: ReactNode }) {
+export function PasaportEsimHero({ section, image, mobileImage, benefits, children }: { section: V2Section; image: string; mobileImage?: string | undefined; benefits?: V2Section | undefined; children: ReactNode }) {
   const { locale, uiLocale } = useI18n();
   const c = SUMMIT_COPY[uiLocale as keyof typeof SUMMIT_COPY] ?? SUMMIT_COPY[locale];
   const storedTitle = v2Text(section, "title", locale);
@@ -54,7 +54,7 @@ export function PasaportEsimHero({ section, image, mobileImage, benefits, childr
   </section><div className="pasaport-summit-compatibility"><HeroDeviceCompatibility compact /></div><PasaportMobileBenefits section={benefits} /></>;
 }
 
-export function PasaportMobileBenefits({ section }: { section?: V2Section }) {
+export function PasaportMobileBenefits({ section }: { section?: V2Section | undefined }) {
   const { locale, uiLocale } = useI18n();
   const c = SUMMIT_COPY[uiLocale as keyof typeof SUMMIT_COPY] ?? SUMMIT_COPY[locale];
   const items = [{ key: "delivery", icon: Zap, label: c.delivery, href: "/legal/terms" }, { key: "refund", icon: ShieldCheck, label: c.refund, href: "/legal/refund" }, { key: "setup", icon: Smartphone, label: c.setup, href: "/esim/kurulum" }, { key: "support", icon: Headphones, label: c.support, href: waLink() }];
