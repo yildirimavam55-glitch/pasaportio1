@@ -19,6 +19,7 @@ export function HeroPromotion() {
   const qc = useQueryClient();
   const isMobile = useIsMobile();
   const [copied, setCopied] = useState(false);
+  const [open, setOpen] = useState(false);
   const [now, setNow] = useState(0);
   const data = query.data;
   useEffect(() => {
@@ -45,7 +46,7 @@ export function HeroPromotion() {
   const discount = (PROMO_HEADLINE[uiLocale] ?? PROMO_HEADLINE["en"] ?? "{discount}").split("|")[0]?.replace("{discount}", formatDiscount(data.discountType, data.discountValue, uiLocale, data.currency)).trim();
    const detailsLabel = ({ tr: "Kampanya detayları", de: "Aktionsdetails", en: "Promotion details", ar: "تفاصيل العرض" } as Record<string, string>)[uiLocale] ?? "Promotion details";
    const viewLabel = ({ tr: "Kuponu gör", de: "Gutschein ansehen", en: "View coupon", ar: "عرض القسيمة" } as Record<string, string>)[uiLocale] ?? "View coupon";
-   const trigger = <Button variant="outline" className="pasaport-coupon-trigger min-h-11 bg-card text-card-foreground"><Gift className="size-5 text-primary" /><span>{viewLabel}</span></Button>;
+   const trigger = <Button variant="outline" onClick={() => setOpen(true)} className="pasaport-coupon-trigger min-h-11 bg-card text-card-foreground"><Gift className="size-5 text-primary" /><span>{viewLabel}</span></Button>;
    const details = <div className="space-y-3 text-sm"><p className="font-semibold">{discount}</p>{description && <p>{description}</p>}{data.code && <div className="flex min-w-0 items-center justify-between gap-3 rounded-lg border border-border bg-muted p-3"><span className="min-w-0 break-all font-semibold" dir="ltr" translate="no">{data.code}</span>{data.showCopy && <Button variant="ghost" size="icon" aria-label={copied ? feedback.copied : feedback.copy} onClick={async () => { if (await copyText(data.code ?? "")) { setCopied(true); toast.success(feedback.copied); } else toast.error(feedback.copyFailed); }}>{copied ? <Check /> : <Copy />}</Button>}</div>}{conditions && <p className="whitespace-pre-line text-muted-foreground">{conditions}</p>}<p className="text-xs text-muted-foreground">{new Intl.DateTimeFormat(uiLocale, { dateStyle: "medium" }).format(new Date(data.endsAt))}</p></div>;
-   return <aside data-testid="hero-promotion" dir={dir}>{isMobile ? <Sheet><SheetTrigger asChild>{trigger}</SheetTrigger><SheetContent side="bottom" dir={dir} className="max-h-[80dvh] overflow-y-auto rounded-t-2xl"><SheetTitle className="mb-4">{title || detailsLabel}</SheetTitle>{details}</SheetContent></Sheet> : <Popover><PopoverTrigger asChild>{trigger}</PopoverTrigger><PopoverContent dir={dir} align="start" className="max-h-[70dvh] w-80 overflow-y-auto"><h2 className="mb-3 font-semibold">{title || detailsLabel}</h2>{details}</PopoverContent></Popover>}</aside>;
+   return <aside data-testid="hero-promotion" dir={dir}>{isMobile ? <Sheet open={open} onOpenChange={setOpen}><SheetTrigger asChild>{trigger}</SheetTrigger><SheetContent side="bottom" dir={dir} className="max-h-[80dvh] overflow-y-auto rounded-t-2xl"><SheetTitle className="mb-4">{title || detailsLabel}</SheetTitle>{details}</SheetContent></Sheet> : <Popover open={open} onOpenChange={setOpen}><PopoverTrigger asChild>{trigger}</PopoverTrigger><PopoverContent dir={dir} align="start" className="max-h-[70dvh] w-80 overflow-y-auto"><h2 className="mb-3 font-semibold">{title || detailsLabel}</h2>{details}</PopoverContent></Popover>}</aside>;
 }
