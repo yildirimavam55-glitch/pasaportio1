@@ -38,7 +38,6 @@ export function PasaportEsimHero({ section, image, mobileImage, children }: { se
       <p className="mt-2 text-sm text-muted-foreground lg:mt-3 lg:text-xl">{useApprovedCopy ? c.subtitle : v2Text(section, "subtitle", locale)}</p>
       </div>
       <div className="pasaport-search-card mt-5 rounded-2xl bg-card/95 p-4 shadow-panel lg:mt-6 lg:p-6">
-        <p className="mb-2 text-sm font-bold">{c.search}</p>
         {children}
       </div>
     </div>
