@@ -243,7 +243,7 @@ export function HeroDeviceCompatibility({ compact = false }: { compact?: boolean
           {result === "COMPATIBLE" ? <CheckCircle2 aria-hidden="true" /> : result === "NOT_COMPATIBLE" ? <TriangleAlert aria-hidden="true" /> : <CircleHelp aria-hidden="true" />}
           <div className="min-w-0"><strong>{result === "COMPATIBLE" ? outcomeCopy.ok : result === "NOT_COMPATIBLE" ? outcomeCopy.no : outcomeCopy.unknown}</strong><p>{device.brand} · {device.model}</p>
           {(device.regionVariantWarning || device.notes) && <p className="hero-device-warning">{device.regionVariantWarning && c.caution} {device.notes}</p>}
-          <Button variant="ghost" className="hero-device-change" onClick={() => { setOverride({ brand, device: null }); saved.reset(); setModelOpen(true); setQuery(""); }}>{outcomeCopy.change}</Button></div>
+          </div>
         </div>}
       </div>
   </div>;
