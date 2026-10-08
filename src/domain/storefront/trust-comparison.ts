@@ -8,3 +8,5 @@ export function verifiedComparison(entries: ComparisonEntry[] | undefined, appro
 }
 export function comparisonScale(prices: number[]) { const max = Math.max(...prices, 0); return prices.map(p => max > 0 ? p / max : 0); }
 export function publicReview(item: { reviewType?: string; verified: boolean; published: boolean; reviewStatus?: string; visible: boolean }) { return item.visible && item.reviewType === "REAL" && item.verified && item.published && item.reviewStatus === "PUBLISHED"; }
+export function reviewAutoplay(s: { enough: boolean; paused: boolean; hover: boolean; focused: boolean; visible: boolean; tab: boolean; reduced: boolean }) { return s.enough && !s.paused && !s.hover && !s.focused && s.visible && s.tab && !s.reduced; }
+export function trustPreviewHost(host: string) { return host === "localhost" || host.startsWith("id-preview--"); }
