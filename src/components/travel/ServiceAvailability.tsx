@@ -54,17 +54,17 @@ export function isHiddenServiceHref(href: string | undefined, services: { lounge
   return false;
 }
 
-const UNAVAILABLE = {
+const UNAVAILABLE: Record<"tr" | "de" | "en" | "ar", { title: string; body: string; cta: string }> = {
   tr: { title: "Bu hizmet şu anda kullanılamıyor", body: "Daha önce satın aldığın hizmetler hesabında erişilebilir kalır.", cta: "eSIM ana sayfasına git" },
   de: { title: "Dieser Service ist derzeit nicht verfügbar", body: "Bereits gekaufte Leistungen bleiben in deinem Konto verfügbar.", cta: "Zur eSIM-Startseite" },
   en: { title: "This service is currently unavailable", body: "Services you already purchased stay available in your account.", cta: "Go to the eSIM homepage" },
   ar: { title: "هذه الخدمة غير متاحة حاليًا", body: "تبقى الخدمات التي اشتريتها متاحة في حسابك.", cta: "الانتقال إلى صفحة eSIM الرئيسية" },
-} as const;
+};
 
 /** Localized unavailable state for a disabled optional service URL. */
 export function ServiceUnavailableState() {
   const { uiLocale, locale } = useI18n();
-  const table = UNAVAILABLE as Record<string, (typeof UNAVAILABLE)["en"]>;
+  const table: Record<string, { title: string; body: string; cta: string } | undefined> = UNAVAILABLE;
   const c = table[uiLocale] ?? table[locale] ?? UNAVAILABLE.en;
   return (
     <section className="mx-auto w-full max-w-2xl px-4 py-14 sm:py-20" data-service-unavailable>
