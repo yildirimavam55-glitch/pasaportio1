@@ -35,4 +35,3 @@ Public install help stays in V2; QR, activation credentials, and package policy 
 - eSIM home shares CMS/search/gift/trust and the loading-gated device status — why: missing data never implies incompatibility.
 - Browser-only locale decisions render a neutral shell until resolved while TR/DE/EN URL routes remain server-rendered — why: navigator and stored manual preferences cannot be known during SSR and must never flash the wrong language.
 - Reviews reuse CMS and verified aggregates to preserve evidence ownership.
-
