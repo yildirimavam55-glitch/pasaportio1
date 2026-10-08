@@ -1,6 +1,8 @@
 # Roadmap
 
 ## Current request
+- [ ] Correct only the mobile hero against the supplied reference, including the front/profile-facing traveler photo; leave header, desktop and following sections untouched.
+- [ ] Verify mobile layout and shared search/device/campaign interactions without claiming physical-device tests.
 - [x] Refine hero only: photo-overlay heading, small upper ticket, lower device card and capsule search; preserve all surrounding sections.
 - [x] Compare unchanged country/benefit dimensions across four locales and four widths; verify copy/search, 42 tests and screenshots. Physical device detection remains untested.
 - [x] Apply October 8 Mediterranean terrace references separately for mobile/desktop, compact campaign/device overlays and single country search.
