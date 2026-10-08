@@ -1732,3 +1732,5 @@ html[data-quick-search-lock] body {
  [dir="rtl"] .final-hero-photo,[dir="rtl"] .final-hero-shade {transform:scaleX(-1);}
 }
 @media (prefers-reduced-motion:reduce) {.gift-art,.gift-ticket-panel {animation:none;}.gift-lid {transition:none;}}
+.final-trust-band span { min-width:0; }.final-trust-band strong { overflow-wrap:anywhere; }
+.pasaport-mobile-reference > header > div > div > button:first-child { order:4; }.pasaport-mobile-reference .header-currency {order:2;}.pasaport-mobile-reference > header > div > div > button:nth-of-type(2) {order:1;}.pasaport-mobile-reference > header > div > div > button:nth-of-type(3) {order:3;}
