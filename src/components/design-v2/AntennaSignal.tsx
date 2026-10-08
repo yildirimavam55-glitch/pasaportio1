@@ -17,7 +17,7 @@ export function AntennaSignal() {
    const [px, py] = css.objectPosition.split(" ").map(value => Number.parseFloat(value) / 100);
    const matrix = new DOMMatrixReadOnly(css.transform === "none" ? undefined : css.transform);
    const x = width / 2 + (1197 / 1365 * image.naturalWidth * scale + (width - image.naturalWidth * scale) * (px ?? .5) - width / 2) * matrix.a;
-   const y = height / 2 + (180 / 768 * image.naturalHeight * scale + (height - image.naturalHeight * scale) * (py ?? .5) - height / 2) * matrix.d;
+    const y = height / 2 + (164 / 768 * image.naturalHeight * scale + (height - image.naturalHeight * scale) * (py ?? .5) - height / 2) * matrix.d;
    setGeometry({ width, height, x, y, visible: x >= 0 && x <= width && y >= 0 && y <= height });
   };
   const observer = new ResizeObserver(update);
