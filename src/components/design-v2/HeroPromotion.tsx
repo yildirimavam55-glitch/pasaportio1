@@ -4,6 +4,8 @@ import { Check, Copy, Gift } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { useI18n } from "@/i18n";
 import { promotionBannerQuery, PROMOTION_CHANGE_KEY } from "@/lib/promotion-banner-query";
 import { bannerTagline, formatDiscount, PROMO_HEADLINE } from "@/domain/promotions";
@@ -15,6 +17,7 @@ export function HeroPromotion() {
   const { uiLocale, locale, dir } = useI18n();
   const query = useQuery(promotionBannerQuery);
   const qc = useQueryClient();
+  const isMobile = useIsMobile();
   const [copied, setCopied] = useState(false);
   const [now, setNow] = useState(0);
   const data = query.data;
@@ -41,12 +44,8 @@ export function HeroPromotion() {
   const conditions = localizedField(data.text, "conditions", uiLocale);
   const discount = (PROMO_HEADLINE[uiLocale] ?? PROMO_HEADLINE["en"] ?? "{discount}").split("|")[0]?.replace("{discount}", formatDiscount(data.discountType, data.discountValue, uiLocale, data.currency)).trim();
    const detailsLabel = ({ tr: "Kampanya detayları", de: "Aktionsdetails", en: "Promotion details", ar: "تفاصيل العرض" } as Record<string, string>)[uiLocale] ?? "Promotion details";
-   return <aside data-testid="hero-promotion" dir={dir} className="pasaport-hero-promotion bg-card text-card-foreground shadow-panel ring-1 ring-border/50">
-     <div className="pasaport-promotion-strip">
-       <Gift className="shrink-0 text-primary" aria-hidden="true" />
-       <Popover><PopoverTrigger asChild><Button variant="ghost" className="pasaport-promotion-discount min-w-0 h-11 w-auto px-0 font-normal" aria-label={detailsLabel}><span className="truncate">{discount}</span></Button></PopoverTrigger><PopoverContent dir={dir} className="max-h-72 max-w-[calc(100vw-32px)] overflow-y-auto text-sm" align="end"><h2 className="font-semibold">{title || detailsLabel}</h2>{description && <p className="mt-2">{description}</p>}{conditions && <p className="mt-2 whitespace-pre-line text-muted-foreground">{conditions}</p>}<p className="mt-2 text-xs text-muted-foreground">{new Intl.DateTimeFormat(uiLocale, { dateStyle: "medium" }).format(new Date(data.endsAt))}</p></PopoverContent></Popover>
-       {data.code && <span className="pasaport-promotion-code font-semibold" dir="ltr" translate="no" title={data.code}>{data.code}</span>}
-        {data.code && data.showCopy && <Button variant="ghost" size="icon" title={copied ? feedback.copied : feedback.copy} aria-label={copied ? feedback.copied : feedback.copy} onClick={async () => { if (await copyText(data.code ?? "")) { setCopied(true); toast.success(feedback.copied); } else toast.error(feedback.copyFailed); }}>{copied ? <Check /> : <Copy />}</Button>}
-     </div>
-  </aside>;
+   const viewLabel = ({ tr: "Kuponu gör", de: "Gutschein ansehen", en: "View coupon", ar: "عرض القسيمة" } as Record<string, string>)[uiLocale] ?? "View coupon";
+   const trigger = <Button variant="outline" className="pasaport-coupon-trigger min-h-11 bg-card text-card-foreground"><Gift className="size-5 text-primary" /><span>{viewLabel}</span></Button>;
+   const details = <div className="space-y-3 text-sm"><p className="font-semibold">{discount}</p>{description && <p>{description}</p>}{data.code && <div className="flex min-w-0 items-center justify-between gap-3 rounded-lg border border-border bg-muted p-3"><span className="min-w-0 break-all font-semibold" dir="ltr" translate="no">{data.code}</span>{data.showCopy && <Button variant="ghost" size="icon" aria-label={copied ? feedback.copied : feedback.copy} onClick={async () => { if (await copyText(data.code ?? "")) { setCopied(true); toast.success(feedback.copied); } else toast.error(feedback.copyFailed); }}>{copied ? <Check /> : <Copy />}</Button>}</div>}{conditions && <p className="whitespace-pre-line text-muted-foreground">{conditions}</p>}<p className="text-xs text-muted-foreground">{new Intl.DateTimeFormat(uiLocale, { dateStyle: "medium" }).format(new Date(data.endsAt))}</p></div>;
+   return <aside data-testid="hero-promotion" dir={dir}>{isMobile ? <Sheet><SheetTrigger asChild>{trigger}</SheetTrigger><SheetContent side="bottom" dir={dir} className="max-h-[80dvh] rounded-t-2xl"><SheetTitle className="mb-4">{title || detailsLabel}</SheetTitle>{details}</SheetContent></Sheet> : <Popover><PopoverTrigger asChild>{trigger}</PopoverTrigger><PopoverContent dir={dir} align="start" className="max-h-[70dvh] w-80 overflow-y-auto"><h2 className="mb-3 font-semibold">{title || detailsLabel}</h2>{details}</PopoverContent></Popover>}</aside>;
 }
