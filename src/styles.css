@@ -1556,61 +1556,77 @@ html[data-quick-search-lock] body {
   transform-origin: var(--hero-mobile-origin, center);
 }
 
-/* Approved seaside hero; semantic theme colors remain Admin-controlled. */
-.pasaport-esim-hero { display: grid; padding: 1.5rem 1rem 1rem; isolation: isolate; }
-.pasaport-hero-photo { position: absolute; inset: 0 0 auto; height: 20rem; overflow: hidden; z-index: -2; }
-.pasaport-hero-shade { position: absolute; inset: 0 0 auto; height: 20rem; z-index: -1; background: linear-gradient(180deg, var(--card) 0%, color-mix(in oklab, var(--card) 94%, transparent) 30%, color-mix(in oklab, var(--card) 20%, transparent) 65%, var(--background) 100%); }
-.pasaport-hero-content { max-width: 37rem; }
-.pasaport-search-card { margin-top: 5rem; }
-.pasaport-hero-promotion { position: relative; margin-top: .75rem; }
-.pasaport-hero-promotion > div:last-child { padding-inline-end: 2rem; }
-@media (max-width: 1023px) {
-  .pasaport-mobile-reference { --foreground: oklch(0.25 0.045 220); --card-foreground: var(--foreground); --muted-foreground: oklch(0.52 0.04 235); }
-  .pasaport-mobile-reference > header { border-bottom-color: transparent; }
-  .pasaport-mobile-reference > header > div { padding-inline: 16px; }
-  .pasaport-esim-hero { padding: 10px 16px 0; grid-template-columns: minmax(0,1fr); }
-  .pasaport-hero-content { display: contents; }
-  .pasaport-hero-heading { grid-row: 1; padding-bottom: 8px; }
-  .pasaport-hero-heading h1 { max-width: 250px; font-size: 28px; line-height: 1.08; margin-top: 6px; }
-  .pasaport-hero-heading > p:last-of-type { font-size: 13px; line-height: 1.4; margin-top: 6px; }
-  .pasaport-hero-heading ul { display: none; }
-  .pasaport-hero-photo { position: relative; grid-row: 2; grid-column: 1; height: 180px; margin-inline: -16px; z-index: 0; }
-  .pasaport-hero-photo img { object-position: var(--hero-mobile-position, 75% 50%); object-fit: cover; transform: scaleX(-1); }
-  .pasaport-hero-photo::after { content: ""; position: absolute; inset: 0; pointer-events: none; background: linear-gradient(180deg, var(--background), transparent 16%, transparent 90%, var(--background)); }
-  .pasaport-hero-shade { display: none; }
-  .pasaport-hero-promotion { grid-row: 2; grid-column: 1; align-self: end; justify-self: end; position: relative; width: 156px; margin: 0 0 12px; padding: 10px; border-radius: 16px; z-index: 1; }
-  .pasaport-hero-promotion > div:first-child { gap: 6px; }
-  .pasaport-hero-promotion > div:first-child > svg { width: 25px; height: 25px; }
-  .pasaport-hero-promotion p.font-display { font-size: 19px; }
-  .pasaport-hero-promotion p { font-size: 10px; }
-  .pasaport-hero-promotion > div:last-child { padding-inline-end: 0; }
-  .pasaport-hero-promotion span.font-mono { font-size: 12px; padding: 6px; }
-  .pasaport-hero-promotion > div.mt-3 { margin-top: 5px; gap: 0; }
-  .pasaport-search-card { grid-row: 3; grid-column: 1; position: relative; z-index: 2; margin: -3px 0 0; padding: 12px 14px; border-radius: 20px; background: var(--card); }
-  .pasaport-search-card button, .pasaport-search-card select { border-radius: 10px; }
-  .pasaport-hero-promotion span.font-mono { background: color-mix(in oklab, var(--primary-soft) 50%, var(--card)); }
-  .pasaport-search-card button, .pasaport-search-card select { height: 44px; }
-  .hero-device-check { margin-top: 8px; padding-top: 8px; }
-  .hero-device-check h2 { font-size: 14px; }
-  .hero-device-check select[data-known-brand] { font-size: 12px; font-weight: 700; }
-  .hero-device-result:not([data-has-result]) { display: none; }
-  .hero-device-result[data-has-result] { min-height: 0; }
-  .hero-device-result > span:last-child:not(:first-child) { display: none; }
-  .pasaport-mobile-benefits { margin: 16px 0 10px; }
-  .pasaport-mobile-home #popular { margin-top: 16px; }
-  .pasaport-mobile-home .popular-country-heading > div { margin-top: 0; }
-  .popular-country-heading h2 { font-size: 22px; margin-bottom: 0; }
-}
-@media (min-width: 1024px) {
-  .pasaport-esim-hero { min-height: 39rem; padding: 2.5rem 3rem 2rem; }
-  .pasaport-hero-photo { inset: 0; height: auto; }
-  .pasaport-hero-shade { inset: 0; height: auto; background: linear-gradient(90deg, var(--card) 0%, color-mix(in oklab, var(--card) 96%, transparent) 28%, color-mix(in oklab, var(--card) 55%, transparent) 47%, transparent 68%); }
-  .pasaport-hero-content { width: 48%; max-width: 35rem; }
-  .pasaport-search-card { margin-top: 1.5rem; }
-  .pasaport-hero-promotion { position: absolute; right: 2rem; bottom: 2rem; width: 20rem; margin: 0; }
-  [dir="rtl"] .pasaport-hero-content { margin-inline-start: auto; }
+/* Mediterranean reference: scoped to the existing eSIM homepage only. */
+.pasaport-mobile-reference { --font-editorial: "DM Serif Display", Georgia, serif; --foreground: oklch(0.25 0.045 220); --card-foreground: var(--foreground); --muted-foreground: oklch(0.52 0.025 250); }
+.pasaport-mobile-reference > header { border-bottom-color: transparent; }
+.pasaport-mobile-reference > header > div { padding-inline: 16px; }
+.pasaport-esim-hero { display: grid; grid-template-columns: minmax(0,1fr); padding: 14px 16px 0; isolation: isolate; }
+.pasaport-hero-content { display: contents; }
+.pasaport-hero-heading { grid-row: 1; grid-column: 1; padding-bottom: 12px; z-index: 1; }
+.pasaport-hero-heading h1 { font-family: var(--font-editorial); max-width: 310px; font-size: 32px; font-weight: 400; line-height: 1.05; margin: 0; }
+.pasaport-hero-heading > p { font-size: 14px; line-height: 1.45; margin-top: 9px; }
+.pasaport-hero-photo { grid-row: 2; grid-column: 1; height: 340px; margin-inline: -16px; overflow: hidden; }
+.pasaport-hero-photo img { object-fit: var(--hero-mobile-fit,cover); object-position: var(--hero-mobile-position,50% 50%); }
+.pasaport-hero-shade { pointer-events: none; grid-row: 2; grid-column: 1; margin-inline: -16px; background: linear-gradient(180deg,var(--background),transparent 12%,transparent 90%,var(--background)); }
+.pasaport-hero-tools { grid-row: 2; grid-column: 1; align-self: end; justify-self: end; width: min(258px,76%); margin-bottom: 36px; display: grid; gap: 8px; z-index: 2; min-width: 0; }
+.pasaport-hero-promotion { position: relative; min-width: 0; border-radius: 14px; }
+.pasaport-promotion-strip { display: grid; grid-template-columns: auto minmax(0,1fr) auto auto; align-items: center; min-height: 48px; gap: 6px; padding-inline: 9px 2px; }
+.pasaport-promotion-strip > svg { width: 18px; height: 18px; }
+.pasaport-promotion-discount { font-size: 11px; line-height: 1.2; }
+.pasaport-promotion-code { font-size: 12px; max-width: 85px; overflow: hidden; text-overflow: ellipsis; border-inline-start: 1px solid var(--border); padding-inline-start: 7px; }
+.pasaport-promotion-strip button { width: 44px; height: 44px; border-radius: 50%; }
+.pasaport-promotion-strip button svg { width: 16px; height: 16px; }
+.hero-device-check { display: grid; grid-template-columns: 24px minmax(0,1fr); gap: 0 6px; padding: 10px 8px 3px; border-radius: 14px; min-width: 0; }
+.hero-device-icon { width: 24px; height: 32px; grid-row: 1 / span 2; }
+.hero-device-check h2 { font-family: var(--font-sans); font-size: 12px; margin: 0; line-height: 1.4; }
+.hero-device-selectors { grid-column: 2; min-width: 0; }
+.hero-device-selectors button, .hero-device-selectors select { min-width: 0; height: 44px; min-height: 44px; padding-inline: 4px; font-size: 11px; border: 0; border-radius: 0; background: transparent; box-shadow: none; }
+.hero-device-selectors button > span { background: transparent; padding: 0; font-weight: 400; }
+.hero-device-selectors > :last-child { border-inline-start: 1px solid var(--border); }
+.hero-device-selectors svg { width: 12px; height: 12px; }
+.hero-device-result { grid-column: 2; }
+.hero-device-result:not([data-has-result]) { display: none; }
+.hero-device-result svg { width: 14px; height: 14px; }
+.pasaport-search-card { grid-row: 3; grid-column: 1; margin: -20px 0 0; padding: 14px; border-radius: 16px; background: var(--card); z-index: 3; }
+.pasaport-search-card > p { font-family: var(--font-editorial); font-size: 18px; font-weight: 400; margin-bottom: 10px; }
+.pasaport-country-field { height: 56px; min-height: 56px; border-radius: 999px; padding-inline: 13px 5px; box-shadow: none; }
+.pasaport-country-arrow { min-height: 44px; min-width: 44px; }
+.pasaport-mobile-benefits { margin: 20px 0; }
+.pasaport-mobile-home #popular { margin-top: 16px; }
+.pasaport-mobile-home .popular-country-heading > div { margin: 0; }
+.pasaport-mobile-home .popular-country-heading h2 { font-family: var(--font-editorial); font-size: 25px; font-weight: 400; }
+.pasaport-mobile-home .popular-country-heading + ul { margin-top: 10px; }
+.pasaport-mobile-home .popular-country-heading + ul > li { width: calc((100% - 20px) / 3); }
+.pasaport-mobile-home .popular-country-heading + ul > li > button { position: relative; height: 170px; border-radius: 8px; }
+.pasaport-mobile-home .popular-country-heading + ul > li > button > div:first-child { height: 100%; }
+.pasaport-mobile-home .popular-country-heading + ul > li > button > div:last-child { position: absolute; inset: auto 0 0; padding: 30px 8px 9px; background: linear-gradient(0deg,color-mix(in oklab,var(--foreground) 85%,transparent),transparent); }
+.pasaport-mobile-home .popular-country-heading + ul p { color: var(--primary-foreground); }
+.pasaport-mobile-home .popular-country-heading + ul p:first-child { font-family: var(--font-editorial); font-size: 18px; font-weight: 400; }
+.pasaport-mobile-home .popular-country-heading + ul p:last-child { font-size: 10px; }
+@media (min-width:1024px) {
+  .pasaport-mobile-home { max-width: none; }
+  .pasaport-esim-hero { height: 470px; padding: 38px max(48px,calc((100vw - 1280px)/2)) 0; display: block; }
+  .pasaport-hero-photo { position: absolute; inset: -64px 0 0; height: auto; margin: 0; z-index: -2; }
+  .pasaport-hero-photo img { object-position: var(--hero-desktop-position,50% 50%); }
+  .pasaport-hero-shade { position: absolute; inset: -64px 0 0; margin: 0; z-index: -1; background: linear-gradient(90deg,var(--card),color-mix(in oklab,var(--card) 85%,transparent) 24%,transparent 55%); }
+  .pasaport-hero-heading { width: 45%; }
+  .pasaport-hero-heading h1 { max-width: 540px; font-size: 64px; line-height: 1.05; }
+  .pasaport-hero-heading > p { font-size: 21px; max-width: 510px; }
+  .pasaport-hero-tools { position: absolute; inset-inline-end: max(32px,calc((100vw - 1280px)/2)); top: 86px; width: 270px; margin: 0; }
+  .pasaport-promotion-discount { font-size: 12px; }
+  .pasaport-promotion-code { font-size: 13px; }
+  .hero-device-check h2 { font-size: 13px; }
+  .hero-device-selectors button,.hero-device-selectors select { font-size: 12px; }
+  .pasaport-search-card { position: absolute; width: min(900px,75%); inset-inline: 0; bottom: -42px; margin: 0 auto; padding: 18px 22px; }
+  .pasaport-search-card > p { font-size: 22px; }
+  .pasaport-country-field { height: 62px; font-size: 16px; }
+  .pasaport-mobile-home #popular { max-width: 1200px; margin: 62px auto 0; }
+  .pasaport-mobile-home .popular-country-heading + ul { max-width: 1200px; margin: 12px auto 0; }
+  .pasaport-mobile-home .popular-country-heading + ul > li { width: calc((100% - 32px) / 3); }
+  .pasaport-mobile-home .popular-country-heading + ul > li > button { height: 210px; }
+  .pasaport-mobile-home .popular-country-heading + ul p:first-child { font-size: 27px; }
+  .pasaport-mobile-home .popular-country-heading h2 { font-size: 32px; }
   [dir="rtl"] .pasaport-hero-shade { transform: scaleX(-1); }
-  [dir="rtl"] .pasaport-hero-promotion { right: auto; left: 2rem; }
   [dir="rtl"] .pasaport-hero-photo { transform: scaleX(-1); }
 }
 @media (min-width: 640px) {
