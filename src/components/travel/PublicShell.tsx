@@ -46,7 +46,7 @@ import { useIsV2 } from "@/components/design-v2/v2-context";
 import { useCurrency } from "@/components/currency/CurrencyProvider";
 import { isCurrencyCode } from "@/domain/currency/currencies";
 import { useCart } from "@/domain/cart/store";
-import { useOptionalServices } from "./ServiceAvailability";
+import { isHiddenServiceHref, useOptionalServices } from "./ServiceAvailability";
 import { localize } from "@/i18n/overlay";
 
 /** Flag shown next to each language (language, not location). */
@@ -196,7 +196,8 @@ function PublicFooter({ fallback, supportLabel, bottomSafe = false }: { fallback
   });
   const data = config.data?.config;
   const text = itemText(data?.footerText, locale, fallback) || fallback;
-  const links = (data?.footerLinks ?? []).filter((link) => link.visible && link.href);
+  const optionalServices = useOptionalServices();
+  const links = (data?.footerLinks ?? []).filter((link) => link.visible && link.href && !isHiddenServiceHref(link.href, optionalServices));
   const copyright = itemText(data?.copyright, locale, "");
   const footerCopy = FOOTER_COPY[locale];
   const groups = [
