@@ -1692,19 +1692,19 @@ html[data-quick-search-lock] body {
 .pasaport-final-hero .pasaport-country-field { height: 52px; min-height: 52px; border: 0; padding-inline: 14px 4px; font-size: 14px; color: var(--muted-foreground); }
 .pasaport-final-hero .pasaport-country-arrow { background: var(--gift-ribbon); }
 .final-hero-compatibility { margin: 12px 16px 0; }
-.pasaport-final-hero .hero-device-inline { display: grid; grid-template-columns: minmax(0,1fr); gap: 6px; padding: 0; background: transparent; border-radius: 0; box-shadow: none; }
-.pasaport-final-hero .hero-device-inline h2 { grid-area: auto; font-size: 12px; font-weight: 400; }
+.pasaport-final-hero .hero-device-inline { display: grid; grid-template-columns: minmax(0,1fr); gap: 8px; padding: 0; background: transparent; border-radius: 0; box-shadow: none; }
+.pasaport-final-hero .hero-device-inline h2 { grid-area: auto; font-size: 14px; font-weight: 600; }
 .pasaport-final-hero .hero-device-icon { display: none; }
 .pasaport-final-hero .hero-device-selectors { grid-area: auto; display: grid; grid-template-columns: minmax(110px,.35fr) minmax(0,.65fr); gap: 8px; }
-.pasaport-final-hero .hero-device-selectors button,.pasaport-final-hero .hero-device-selectors select { height: 44px; border: 1px solid var(--border); border-radius: 6px; padding-inline: 8px; font-size: 12px; background: var(--card); }
+.pasaport-final-hero .hero-device-selectors button,.pasaport-final-hero .hero-device-selectors select { height: 44px; border: 1px solid var(--border); border-radius: 6px; padding-inline: 8px; font-size: 14px; background: var(--card); }
+.pasaport-final-hero .hero-device-selectors button > span { font-size: 14px; }
 .pasaport-final-hero .hero-device-result { grid-column: 1; }
-.pasaport-final-hero .hero-device-outcome { --outcome-bg: oklch(.96 .035 85); --outcome-ink: oklch(.38 .075 70); display: grid; grid-template-columns: 22px minmax(0,1fr); gap: 8px; padding: 10px 12px; border-radius: 6px; background: var(--outcome-bg); color: var(--outcome-ink); font-size: 12px; line-height: 1.35; }
+.pasaport-final-hero .hero-device-outcome { --outcome-bg: oklch(.96 .035 85); --outcome-ink: oklch(.38 .075 70); display: grid; grid-template-columns: 20px minmax(0,1fr); align-items: center; gap: 8px; min-height: 52px; padding: 8px 10px; border-radius: 6px; background: var(--outcome-bg); color: var(--outcome-ink); font-size: 12px; line-height: 1.25; }
 .pasaport-final-hero .hero-device-outcome[data-status="COMPATIBLE"] { --outcome-bg: oklch(.95 .035 155); --outcome-ink: oklch(.33 .065 160); }
 .pasaport-final-hero .hero-device-outcome[data-status="NOT_COMPATIBLE"] { --outcome-bg: oklch(.96 .028 20); --outcome-ink: oklch(.4 .11 25); }
-.pasaport-final-hero .hero-device-outcome svg { width: 22px; height: 22px; }
-.pasaport-final-hero .hero-device-outcome strong { display: block; font-size: 13px; font-weight: 700; }
-.pasaport-final-hero .hero-device-outcome p { margin-top: 4px; overflow-wrap: anywhere; }
-.pasaport-final-hero .hero-device-change { height: 44px; margin: 0 -6px -6px; padding: 0 6px; font-size: 12px; color: inherit; text-decoration: underline; }
+.pasaport-final-hero .hero-device-outcome svg { width: 20px; height: 20px; }
+.pasaport-final-hero .hero-device-outcome strong { display: block; font-size: 14px; font-weight: 600; }
+.pasaport-final-hero .hero-device-outcome p { margin-top: 2px; font-size: 12px; overflow-wrap: anywhere; }
 .final-hero-gift { position: absolute; z-index: 2; top: 223px; inset-inline-end: 16px; }
 .gift-trigger { display: flex; flex-direction: column; justify-content: end; gap: 0; height: 90px; width: 96px; padding: 0; background: transparent !important; }
 .gift-art { position: relative; display: block; width: 74px; height: 61px; flex-shrink: 0; animation: gift-wiggle 650ms ease-out 400ms 1; }
