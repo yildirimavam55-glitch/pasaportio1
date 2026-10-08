@@ -7,8 +7,9 @@ describe("V2 storefront config", () => {
       "SEARCH_HERO", "BENEFIT_ROW", "DESTINATION_CAROUSEL", "TRUST_REVIEWS", "REGION_DISCOVERY", "INFO_CAROUSEL", "PROMO_BANNER", "INSTALLATION_STEPS", "PROMO_BANNER", "GUIDE_CAROUSEL", "FAQ",
     ]);
     const esim = defaultV2Page("esim");
-    expect(esim.sections[1]!.items.map((i) => i.title.tr)).toEqual(["Hızlı teslim", "14 gün iade", "Kolay kurulum", "WhatsApp destek"]);
-    expect(esim.sections[1]!.items[0]!.title.de).toBe("Schnell verfügbar");
+    expect(esim.sections[1]!.items.map((i) => i.title.tr)).toEqual(["Hızlı teslimat", "Kolay kurulum", "14 gün iade", "WhatsApp destek"]);
+    expect(esim.sections[1]!.items[2]!.title.de).toBe("14 Tage Rückgabe");
+    expect(esim.sections[1]!.items.map((i) => i.href)).toEqual(["/legal/terms", "/esim/kurulum", "/legal/refund", ""]);
     for (const page of V2_PAGES) expect(missingV2Translations(defaultV2Page(page), "de")).toBe(0);
   });
 
