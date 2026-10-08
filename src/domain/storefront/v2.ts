@@ -13,6 +13,7 @@ import { POPULAR_COUNTRIES } from "@/domain/geo/countries";
 import { getAirport, POPULAR_AIRPORT_IDS } from "@/domain/geo/airports";
 import { DISCOVERY_COPY, ESIM_COPY, LOUNGE_COPY, VIGNETTE_COPY } from "@/domain/storefront/v2-copy";
 import { TRUST_EDITORIAL } from "./trust-editorial";
+import { cleanSourceRatings, type ReviewSourceRating } from './review-carousel';
 import { TRUST_TRANSLATIONS } from "@/i18n/trust-translations";
 import { DEFAULT_IMAGE_DISPLAY, ESIM_DESKTOP_IMAGE_DISPLAY, sanitizeImageDisplay, type ImageDisplay } from "./image-display";
 import restoredEsimHomepage from "./restored-esim-homepage.json";
@@ -180,6 +181,8 @@ export type V2Section = {
     manualRating: number;
     maxRating: number;
     manualCaption: LT;
+    sourceRatings?: ReviewSourceRating[];
+    reviewSampleMode?: boolean;
     autoplay: boolean;
     whyEnabled: boolean;
     comparisonEnabled: boolean;
@@ -650,6 +653,8 @@ function cleanSection(raw: any): V2Section | null {
       manualRating: Math.min(5, Math.max(0, Number(raw.trust?.manualRating ?? 4.8) || 0)),
       maxRating: 5,
       manualCaption: cleanLT(raw.trust?.manualCaption, 160),
+      sourceRatings: cleanSourceRatings(raw.trust?.sourceRatings),
+      reviewSampleMode: raw.trust?.reviewSampleMode !== false,
       autoplay: raw.trust?.autoplay === true,
       whyEnabled: raw.trust?.whyEnabled !== false,
       ...cleanComparison(raw.trust),
