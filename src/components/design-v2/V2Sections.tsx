@@ -1,3 +1,4 @@
+import { isHiddenServiceHref, useOptionalServices } from "@/components/travel/ServiceAvailability";
 import { useEffect, useState, type ReactNode } from "react";
 import { queryOptions, replaceEqualDeep, useQuery } from "@tanstack/react-query";
 import { DesktopPromoCard, HowItWorks, PromoCard, TrustRow } from "@/components/design-v2/V2Shell";
@@ -152,6 +153,7 @@ export type V2Slots = {
 /** Renders the configured, visible sections in order through the approved V2 components. */
 export function V2Sections({ config, media, slots, only, onDestinationSearch }: { config: V2PageConfig; media: V2Media; slots: V2Slots; only?: (section: V2Section) => boolean; onDestinationSearch?: () => void }) {
   const { locale } = useI18n();
+  const optionalServices = useOptionalServices();
   const [isPreview, setIsPreview] = useState(false);
   useEffect(() => {
     const previewHost = window.location.hostname === "localhost" || window.location.hostname.startsWith("id-preview--");
