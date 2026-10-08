@@ -353,7 +353,7 @@ function ActionDock({ showCart, showWhatsApp, purchaseSummary }: { showCart: boo
             <span className="grid h-7 min-w-7 shrink-0 place-items-center rounded-full bg-primary-foreground/15 px-2 text-xs">{count}</span>
           </Link>
         )}
-        {showWhatsApp && <WhatsAppSupportWidget surface="v2-dock" placement="inline" />}
+        {showWhatsApp && <WhatsAppSupportWidget surface="v2-dock" placement="fixed" />}
       </div>
     </div>
   );
