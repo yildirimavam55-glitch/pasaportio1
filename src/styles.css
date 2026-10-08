@@ -1620,7 +1620,7 @@ html[data-quick-search-lock] body {
 @media (max-width:1023px) {
   .pasaport-hero-photo { height: auto; aspect-ratio: 5 / 4; }
   .pasaport-hero-heading { max-width: none; width: 100%; padding: 28px 6px 12px; background: transparent; }
-  .pasaport-hero-heading h1 { max-width: 252px; font-size: 30px; line-height: 1.02; overflow-wrap: normal; }
+  .pasaport-hero-heading h1 { max-width: 225px; font-size: 30px; line-height: 1.02; overflow-wrap: normal; }
   .pasaport-hero-heading > p { max-width: 320px; margin-top: 9px; color: var(--foreground); font-size: 13px; line-height: 1.4; }
   .pasaport-hero-shade { background: linear-gradient(110deg,color-mix(in oklab,var(--card) 30%,transparent),transparent 58%); }
   .pasaport-hero-tools .pasaport-hero-promotion { top: 32px; width: 130px; transform: rotate(-7deg); border: 0; border-radius: 3px; background: var(--accent-soft); box-shadow: var(--shadow-panel); }
@@ -1631,7 +1631,8 @@ html[data-quick-search-lock] body {
   .pasaport-hero-tools .pasaport-promotion-strip { grid-template-rows: 44px 20px; padding-inline: 12px 0; }
   .pasaport-hero-tools .pasaport-promotion-discount { border: 0; font-size: 12px; font-weight: 700; }
   .pasaport-hero-tools .pasaport-promotion-code { font-size: 11px; }
-  .pasaport-hero-tools .hero-device-check { bottom: 37px; width: 178px; grid-template-columns: 20px minmax(0,1fr); padding: 8px 10px 0; border-radius: 14px; }
+  .pasaport-hero-tools .hero-device-check { bottom: 37px; width: 178px; grid-template-columns: 20px minmax(0,1fr); padding: 6px 10px 0; border-radius: 14px; }
+  .pasaport-hero-tools .hero-device-icon { height: 24px; grid-row: 1; }
   .pasaport-hero-tools .hero-device-check h2 { font-size: 12px; font-weight: 500; }
   .pasaport-hero-tools .hero-device-selectors { grid-column: 1 / -1; }
   .pasaport-hero-tools .hero-device-selectors button,
