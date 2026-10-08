@@ -442,6 +442,8 @@ export const FLAG_DEFINITIONS = [
   { key: "checkout.esim", label: "eSIM satın alma", detail: "eSIM ödeme akışı.", critical: true },
   { key: "storefront.lounge", label: "Lounge mağazası", detail: "Lounge hizmetinin müşteriye görünürlüğü.", critical: true },
   { key: "checkout.lounge", label: "Lounge satın alma", detail: "Lounge ödeme akışı.", critical: true },
+  { key: "storefront.vignette", label: "Vignette mağazası", detail: "Vignette hizmetinin müşteriye görünürlüğü.", critical: true },
+  { key: "checkout.vignette", label: "Vignette satın alma", detail: "Vignette ödeme akışı.", critical: true },
   { key: "showTestCatalogue", label: "Test kataloğu", detail: "INTERNAL_TEST ürünlerini mağazada gösterir. Yayın öncesi kapatılmalı.", critical: true },
   { key: "provider.sync", label: "Provider senkronu", detail: "Katalog senkronizasyonunun çalışmasına izin verir.", critical: false },
   { key: "esim_auto_publish", label: "Yeni eSIM paketlerini otomatik yayınla", detail: "Kapalıyken senkron yeni paketleri tedarikçi kataloğuna alır ama mağazada yayınlamaz; mevcut yayında olan paketler etkilenmez.", critical: true },
@@ -468,6 +470,23 @@ export const setFeatureFlag = createServerFn({ method: "POST" })
     const { error } = await db.from("feature_flags").update({ enabled: data.enabled }).eq("key", data.key);
     if (error) throw new Error(error.message);
     await audit(db, "feature_flag.update", "feature_flag", data.key, { enabled: before?.enabled ?? null }, { enabled: data.enabled });
+    return { ok: true };
+  });
+
+/** One Enabled/Disabled switch per optional service: sets its storefront and checkout flags together. */
+export const setServiceEnabled = createServerFn({ method: "POST" })
+  .inputValidator((input: { service: "lounge" | "vignette"; enabled: boolean }) => {
+    if (input.service !== "lounge" && input.service !== "vignette") throw new Error("Bilinmeyen servis.");
+    return { service: input.service, enabled: Boolean(input.enabled) };
+  })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context, data }) => {
+    const db = await adminDb(context as Ctx);
+    const keys = [`storefront.${data.service}`, `checkout.${data.service}`];
+    const { data: before } = await db.from("feature_flags").select("key, enabled").in("key", keys);
+    const { error } = await db.from("feature_flags").update({ enabled: data.enabled }).in("key", keys);
+    if (error) throw new Error(error.message);
+    await audit(db, "service.update", "service", data.service, { flags: before ?? [] }, { enabled: data.enabled });
     return { ok: true };
   });
 

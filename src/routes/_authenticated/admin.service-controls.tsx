@@ -6,7 +6,8 @@ import { AdminGate } from "@/components/AdminGate";
 import { AdminError, AdminLoading, AdminPanel, StatusBadge } from "@/components/admin/AdminUi";
 import { adminHead } from "@/components/admin/AdminSectionPage";
 import { Button } from "@/components/ui/button";
-import { listFeatureFlags, setFeatureFlag } from "@/lib/admin-control.functions";
+import { listFeatureFlags, setFeatureFlag, setServiceEnabled } from "@/lib/admin-control.functions";
+import { Switch } from "@/components/ui/switch";
 
 export const Route = createFileRoute("/_authenticated/admin/service-controls")({
   head: () => adminHead("Servis kontrolleri", "Mağaza ve satın alma durumlarının yönetimi."),
@@ -36,6 +37,16 @@ function ServiceControls() {
     onError: (mutationError) => setError(mutationError instanceof Error ? mutationError.message : "Değiştirilemedi."),
   });
 
+  const serviceUpdate = useMutation({
+    mutationFn: (input: { service: "lounge" | "vignette"; enabled: boolean }) => setServiceEnabled({ data: input }),
+    onSuccess: async () => {
+      setError(null);
+      await queryClient.invalidateQueries({ queryKey: ["feature-flags"] });
+      await queryClient.invalidateQueries({ queryKey: ["service-availability"] });
+    },
+    onError: (mutationError) => setError(mutationError instanceof Error ? mutationError.message : "Değiştirilemedi."),
+  });
+
   const rowOf = (key: string) => (flags.data ?? []).find((flag: any) => flag.key === key);
 
   return (
@@ -51,6 +62,20 @@ function ServiceControls() {
                 return (
                   <AdminPanel key={service.key} title={service.label} action={<Icon className="size-4 text-muted-foreground" />}>
                     <div className="grid gap-3">
+                      {service.key !== "esim" && (
+                        <label className="flex items-center justify-between gap-3 rounded-md border border-border bg-muted/40 p-3">
+                          <span>
+                            <strong className="block text-sm">Hizmet: {storefront?.enabled ? "Açık (Enabled)" : "Kapalı (Disabled)"}</strong>
+                            <span className="text-xs text-muted-foreground">Kapalıyken menü, ana sayfa kartları ve yeni satın almalar gizlenir; mevcut siparişler hesapta kalır.</span>
+                          </span>
+                          <Switch
+                            aria-label={`${service.label} hizmeti`}
+                            checked={Boolean(storefront?.enabled)}
+                            disabled={serviceUpdate.isPending || !storefront}
+                            onCheckedChange={(enabled) => serviceUpdate.mutate({ service: service.key as "lounge" | "vignette", enabled })}
+                          />
+                        </label>
+                      )}
                       <p className="text-xs"><span className="font-semibold">Ticari durum: </span><StatusBadge value={!storefront?.enabled ? "PAUSED" : checkout?.enabled ? "ACTIVE" : "NOT_FOR_SALE"} /></p>
                       <ControlRow
                         title="Mağaza"
