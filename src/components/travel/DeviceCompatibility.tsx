@@ -199,7 +199,7 @@ export function HeroDeviceCompatibility() {
   const { uiLocale, locale } = useI18n();
   const c = HERO_DEVICE_COPY[uiLocale as keyof typeof HERO_DEVICE_COPY] ?? HERO_DEVICE_COPY[locale];
   const { data: devices = [], isPending, isError } = useQuery({ queryKey: ["device-compatibility"], queryFn: () => listDeviceCompatibility(), staleTime: 10 * 60 * 1000 });
-  const { detection, os } = useBrowserDevice(devices);
+   const { detection } = useBrowserDevice(devices);
   const saved = useDeviceCheck();
   const [override, setOverride] = useState<{ brand: string; device: DeviceRecord | null } | null>(null);
   const [modelOpen, setModelOpen] = useState(false);
@@ -211,9 +211,11 @@ export function HeroDeviceCompatibility() {
   const brands = useMemo(() => [...new Set(devices.map((d) => d.brand))].sort(), [devices]);
   const models = useMemo(() => searchDevices(devices, query, brand || undefined), [devices, query, brand]);
   const result = device?.status ?? "UNCERTAIN";
-   return <div className="hero-device-check mt-4 border-t border-border pt-3" data-testid="hero-device-check">
-    <h2 className="mb-2 text-sm font-bold">{c.title}</h2>
-    <div className="grid grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] gap-2">
+    const shortTitle = ({ tr: "eSIM uyumluluğu", de: "eSIM-Kompatibilität", en: "eSIM compatibility", ar: "توافق eSIM" } as Record<string, string>)[uiLocale] ?? "eSIM compatibility";
+    return <div className="hero-device-check bg-card text-card-foreground shadow-panel" data-testid="hero-device-check">
+     <Smartphone className="hero-device-icon" aria-hidden="true" />
+     <h2 className="text-sm font-semibold">{shortTitle}</h2>
+     <div className="hero-device-selectors grid grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
       {brand && !editingBrand && <Button variant="outline" aria-label={`${c.brand}: ${brand}`} onClick={() => setEditingBrand(true)} className="h-11 min-w-0 justify-between bg-card px-2 lg:hidden"><span className="truncate rounded bg-muted px-2 py-1 text-xs font-bold">{brand}</span><Pencil className="size-4 shrink-0" /></Button>}
       <select aria-label={c.brand} value={brand} data-known-brand={Boolean(brand) || undefined} onChange={(e) => { setOverride({ brand: e.target.value, device: null }); saved.reset(); setQuery(""); setEditingBrand(false); }} className={`${brand && !editingBrand ? "hidden lg:block" : ""} h-11 min-w-0 rounded-lg border border-input bg-card px-2 text-sm text-foreground focus-visible:ring-2 focus-visible:ring-ring`}>
         <option value="">{c.brand}</option>{brands.map((b) => <option key={b} value={b}>{b}</option>)}
@@ -222,8 +224,8 @@ export function HeroDeviceCompatibility() {
         <Button variant="outline" className="h-11 min-w-0 justify-between bg-card px-2 font-normal"><span className="truncate">{device?.model ?? c.model}</span><ChevronRight className="size-4 shrink-0 rotate-90" /></Button>
       </V2PickerSheet>
     </div>
-    <div aria-live="polite" className="hero-device-result mt-2 min-h-8 text-[11px] leading-4 text-muted-foreground" data-has-result={Boolean(device) || undefined}>
-      {device ? <><span className="flex items-center gap-1 font-semibold text-foreground"><StatusIcon status={result} />{result === "COMPATIBLE" ? c.ok : result === "NOT_COMPATIBLE" ? c.no : c.unknown}{os ? ` · ${os}` : ""}</span><span>{c.caution}</span></> : <span>{os ? `${os} · ` : ""}{isError ? c.unknown : c.missing}</span>}
+     <div aria-live="polite" className="hero-device-result text-[11px] leading-4 text-muted-foreground" data-has-result={Boolean(device) || isError || undefined}>
+       {(device || isError) && <span className="flex items-center gap-1 font-semibold text-foreground"><StatusIcon status={result} />{result === "COMPATIBLE" ? c.ok : result === "NOT_COMPATIBLE" ? c.no : c.unknown}</span>}
     </div>
   </div>;
 }
