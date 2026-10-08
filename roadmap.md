@@ -1,6 +1,8 @@
 # Roadmap
 
 ## Current request
+- [x] Show readable device outcomes using actual catalogue status; compact trust labels and restore photo/panel country cards.
+- [x] Verify TR/DE/EN/AR at 360/390/430/1440; actual iPhone 15 compatible, iPhone 7 incompatible and Pixel 4 uncertain outcomes, selection clearing and 33 tests passed; deliver screenshots without publishing. Physical-device detection not tested.
 - [x] Apply final coastal photo/gift composition with retained header controls, compact search/checker and unchanged country cards.
 - [x] Gate entire gift with existing campaign; test open-ticket removal using a simulated server response (no Admin data change), one linked trust band, fixed WhatsApp.
 - [x] Verify 16 locale/width combinations, copy, close, model selection/reset, keyboard/arrow country routing, language and EUR selector, fixed WhatsApp and screenshots; 49 tests passed. Physical-device detection, real Admin disable, signed-in account/cart contents and non-EUR conversion remain untested.
