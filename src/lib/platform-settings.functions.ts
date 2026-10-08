@@ -13,6 +13,7 @@ import { DEFAULT_SETTINGS, sanitizeSettings, toPublicSettings, type PlatformSett
 export type ServiceAvailability = {
   esim: { storefront: boolean; checkout: boolean };
   lounge: { storefront: boolean; checkout: boolean };
+  vignette: { storefront: boolean; checkout: boolean };
   settings: PublicPlatformSettings;
 };
 
@@ -34,6 +35,7 @@ function publicClient() {
 const OPEN: ServiceAvailability = {
   esim: { storefront: true, checkout: true },
   lounge: { storefront: true, checkout: true },
+  vignette: { storefront: true, checkout: true },
   settings: toPublicSettings(DEFAULT_SETTINGS),
 };
 
@@ -52,6 +54,7 @@ export const getServiceAvailability = createServerFn({ method: "GET" }).handler(
     return {
       esim: { storefront: on("storefront.esim"), checkout: on("checkout.esim") },
       lounge: { storefront: on("storefront.lounge"), checkout: on("checkout.lounge") },
+      vignette: { storefront: on("storefront.vignette"), checkout: on("checkout.vignette") },
       settings: toPublicSettings(sanitizeSettings((settings as any).data ?? undefined)),
     };
   } catch {
@@ -64,13 +67,14 @@ export const getServiceAvailability = createServerFn({ method: "GET" }).handler(
  * so every purchase action must pass through this check.
  */
 export const assertCheckoutAllowed = createServerFn({ method: "POST" })
-  .inputValidator((input: { service: "esim" | "lounge" }) => input)
+  .inputValidator((input: { service: "esim" | "lounge" | "vignette" }) => input)
   .handler(async ({ data }) => {
-    const service = data.service === "lounge" ? "lounge" : "esim";
+    const service = data.service === "lounge" || data.service === "vignette" ? data.service : "esim";
     const availability = await getServiceAvailability();
     const open = availability[service].storefront && availability[service].checkout;
     if (!open) {
-      return { allowed: false as const, message: availability.settings.maintenance[service].checkoutMessage };
+      const maintenance = service === "vignette" ? availability.settings.maintenance.lounge : availability.settings.maintenance[service];
+      return { allowed: false as const, message: maintenance.checkoutMessage };
     }
     return { allowed: true as const, message: null };
   });
