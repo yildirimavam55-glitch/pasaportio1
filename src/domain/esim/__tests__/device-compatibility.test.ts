@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { normalizeStatus, searchDevices, type DeviceRecord } from "../device-compatibility";
+import { checkedDeviceStatus, normalizeStatus, searchDevices, type DeviceRecord } from "../device-compatibility";
 import { checkerDetectionForViewport, detectDeviceFromSignals } from "../device-detection";
 
 const base: Omit<DeviceRecord, "id" | "brand" | "model" | "aliases"> = {
@@ -18,6 +18,10 @@ const devices: DeviceRecord[] = [
 ];
 
 describe("device compatibility search", () => {
+  it("does not show a result before a model is selected", () => expect(checkedDeviceStatus(null, false)).toBeNull());
+  it("does not show a negative result during loading", () => expect(checkedDeviceStatus({ ...devices[0], status: "NOT_COMPATIBLE" } as DeviceRecord, true)).toBeNull());
+  it("missing support data is unverified, not incompatible", () => expect(checkedDeviceStatus({ ...devices[0], status: undefined } as unknown as DeviceRecord, false)).toBe("UNCERTAIN"));
+  it("retains confirmed incompatible catalogue status", () => expect(checkedDeviceStatus({ ...devices[0], status: "NOT_COMPATIBLE" } as DeviceRecord, false)).toBe("NOT_COMPATIBLE"));
   it("matches by model", () => {
     expect(searchDevices(devices, "iphone 15").map((d) => d.id)).toEqual(["1"]);
   });

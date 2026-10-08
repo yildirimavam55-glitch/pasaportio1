@@ -46,6 +46,11 @@ export function normalizeStatus(value: unknown): CompatibilityStatus {
     : "UNCERTAIN";
 }
 
+/** No outcome before selection or while checking; missing support data is never negative. */
+export function checkedDeviceStatus(device: DeviceRecord | null, loading: boolean): CompatibilityStatus | null {
+  return device && !loading ? normalizeStatus(device.status) : null;
+}
+
 function normalizeText(value: string) {
   return value
     .toLocaleLowerCase("en")
