@@ -68,8 +68,13 @@ export const V2_SAFE_LINKS = [
   "/esim/kurulum",
   "/sepet",
   "/account",
+  "/legal/terms",
+  "/legal/refund",
 ] as const;
 export type V2SafeLink = (typeof V2_SAFE_LINKS)[number];
+/** Item links may also be left unset, which keeps the item's approved default target. */
+export const V2_ITEM_LINKS = ["", ...V2_SAFE_LINKS] as const;
+export type V2ItemLink = (typeof V2_ITEM_LINKS)[number];
 
 /** Images bundled with the app, referenced as `builtin:<key>`. */
 export const V2_BUILTIN_MEDIA = ["esim-hero", "lounge-hero", "vignette-hero", "lounge-card", "esim-cross-sell", "info-products", "info-roaming", "info-delivery", "info-install", "info-payment", "info-support", "trust-refund", "trust-traveler", "trust-family-arrivals", "trust-demo-giulia", "trust-demo-haruto", "trust-demo-emily", "trust-benefit-globe", "trust-benefit-refund", "trust-benefit-install", "trust-benefit-payment"] as const;
