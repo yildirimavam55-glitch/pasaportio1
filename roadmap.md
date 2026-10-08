@@ -1,6 +1,9 @@
 # Roadmap
 
 ## Current request
+- [ ] Match final coastal woman/gift references; compact left desktop search and checker, mobile stack, retained header controls only.
+- [ ] Gate complete animated gift with existing campaign; single linked trust band and viewport-fixed WhatsApp.
+- [ ] Verify four locales/widths, interactions, campaign deactivation, selectors and screenshots; no physical-device claims.
 - [x] Apply summit photo and real HTML heading/coupon/search, mobile and desktop, retaining CMS overrides.
 - [x] Move strict compatibility checker below search; keep four accessible trust actions above unchanged countries using existing information/links.
 - [x] Verify four widths/locales, coupon copy, device/model and country workflows; present 390×844 and desktop screenshots. Physical-device detection and an actual Admin campaign edit remain untested; no campaign data changed.
