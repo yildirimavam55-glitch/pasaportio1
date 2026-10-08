@@ -1737,3 +1737,6 @@ html[data-quick-search-lock] body {
 /* Picker and coupon portals live outside the page root. */
 body:has([role="dialog"][data-state="open"]) .pasaport-mobile-reference [data-whatsapp-widget] { visibility:hidden;pointer-events:none; }
 @media (max-width:1023px) { .pasaport-mobile-reference > header > div > div {display:grid;grid-template-columns:auto auto auto auto;}.pasaport-mobile-reference > header > div > div > button:first-child {grid-column:4;grid-row:1;}.pasaport-mobile-reference .header-currency {grid-column:2;grid-row:1;}.pasaport-mobile-reference > header > div > div > button:nth-of-type(2) {grid-column:1;grid-row:1;}.pasaport-mobile-reference > header > div > div > button:nth-of-type(3) {grid-column:3;grid-row:1;} }
+/* Subtle depth, without adding an image download or animation dependency. */
+.gift-base { transform:skewY(-3deg);background:linear-gradient(90deg,var(--gift-cream) 72%,var(--gift-side) 72%); }
+.gift-lid { transform:skewY(-3deg); }.gift-lid::before {content:"";position:absolute;left:0;right:0;top:-5px;height:6px;background:var(--gift-side);transform:skewX(-20deg);border-radius:2px;}
