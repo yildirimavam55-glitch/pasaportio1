@@ -26,7 +26,7 @@ export function PasaportEsimHero({ section, image, children }: { section: V2Sect
  const heroMobile = coast.url;
  const desktop = fixture ? undefined : section.imageDisplay;
  const mobile = fixture ? undefined : section.mobileImageDisplay;
- const style = { "--hero-desktop-position": `${desktop?.x ?? 50}% ${desktop?.y ?? 50}%`, "--hero-desktop-scale": (desktop?.zoom ?? 100) / 100, "--hero-desktop-fit": desktop?.fit ?? "cover", "--hero-mobile-position": `${mobile?.x ?? 50}% ${mobile?.y ?? 62}%`, "--hero-mobile-scale": (mobile?.zoom ?? 100) / 100, "--hero-mobile-fit": mobile?.fit ?? "cover" } as CSSProperties;
+  const style = { "--hero-desktop-position": `${desktop?.x ?? 50}% ${desktop?.y ?? 50}%`, "--hero-desktop-scale": (desktop?.zoom ?? 100) / 100, "--hero-desktop-fit": desktop?.fit ?? "cover", "--hero-mobile-position": `${mobile?.x ?? 88}% ${mobile?.y ?? 62}%`, "--hero-mobile-scale": (mobile?.zoom ?? 100) / 100, "--hero-mobile-fit": mobile?.fit ?? "cover" } as CSSProperties;
  return <><section data-testid="pasaport-esim-hero" className="pasaport-final-hero" style={style}>
   <picture className="final-hero-photo"><source media="(min-width:1024px)" srcSet={heroImage}/><img src={heroMobile} alt="" width={1365} height={768} fetchPriority="high" loading="eager" decoding="async" /><AntennaSignal /></picture>
   <div className="final-hero-shade" aria-hidden="true" />
