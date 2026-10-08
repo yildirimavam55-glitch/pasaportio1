@@ -1567,7 +1567,7 @@ html[data-quick-search-lock] body {
 .pasaport-hero-heading > p { font-size: 14px; line-height: 1.45; margin-top: 9px; }
 .pasaport-hero-photo { grid-row: 1; grid-column: 1; height: 420px; margin-inline: -16px; overflow: hidden; }
 .pasaport-hero-photo img { object-fit: var(--hero-mobile-fit,cover); object-position: var(--hero-mobile-position,50% 50%); }
-.pasaport-hero-shade { pointer-events: none; grid-row: 1; grid-column: 1; margin-inline: -16px; background: linear-gradient(120deg,color-mix(in oklab,var(--card) 94%,transparent),color-mix(in oklab,var(--card) 65%,transparent) 25%,transparent 52%); }
+.pasaport-hero-shade { pointer-events: none; grid-row: 1; grid-column: 1; margin-inline: -16px; background: linear-gradient(120deg,var(--card),color-mix(in oklab,var(--card) 90%,transparent) 27%,transparent 58%); }
 .pasaport-hero-tools { grid-row: 1; grid-column: 1; align-self: stretch; justify-self: stretch; position: relative; z-index: 2; pointer-events: none; min-width: 0; }
 .pasaport-hero-tools > * { pointer-events: auto; }
 .pasaport-hero-tools .pasaport-hero-promotion { position: absolute; top: 18px; inset-inline-end: 0; width: 132px; border-radius: 4px; background: var(--accent-soft); border-block: 1px dashed var(--border); }
@@ -1575,7 +1575,7 @@ html[data-quick-search-lock] body {
 .pasaport-hero-tools .pasaport-promotion-strip > svg { display: none; }
 .pasaport-hero-tools .pasaport-promotion-discount { grid-column: 1; grid-row: 1; border-inline-end: 1px dashed var(--border); font-size: 12px; }
 .pasaport-hero-tools .pasaport-promotion-code { grid-column: 1; grid-row: 2; border: 0; padding: 0; text-align: center; max-width: 100%; }
-.pasaport-hero-tools .pasaport-promotion-strip > button { grid-column: 2; grid-row: 1 / span 2; }
+.pasaport-hero-tools .pasaport-promotion-strip > button:not(.pasaport-promotion-discount) { grid-column: 2; grid-row: 1 / span 2; }
 .pasaport-hero-tools .hero-device-check { position: absolute; inset-inline-end: 0; bottom: 44px; width: 190px; grid-template-columns: 20px minmax(0,1fr); padding: 8px 6px 2px; }
 .pasaport-hero-tools .hero-device-icon { width: 20px; }
 .pasaport-hero-tools .hero-device-check h2 { font-size: 11px; }
