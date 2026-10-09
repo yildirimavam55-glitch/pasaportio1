@@ -4,8 +4,7 @@ import { Button } from '@/components/ui/button';
 import { useI18n } from '@/i18n';
 import { v2ItemText, type V2Section } from '@/domain/storefront/v2';
 import { publicReview, reviewAutoplay } from '@/domain/storefront/trust-comparison';
-import { REVIEW_INTERVAL_MS, reviewCapacity, reviewDotIndices, combinedSourceRating, starFill } from '@/domain/storefront/review-carousel';
-import { isPreviewHost } from '@/security/headers';
+import { REVIEW_INTERVAL_MS, reviewCapacity, reviewDotIndices, combinedSourceRating, starFill, reviewDesignPreviewHost } from '@/domain/storefront/review-carousel';
 import { STORY_COPY } from './trust-story-copy';
 import { ReviewSourceMark } from './ReviewSourceMark';
 
@@ -36,7 +35,7 @@ export function V2ReviewCarousel({ section, preview }: { section: V2Section; pre
   const { locale, uiLocale } = useI18n();
   const c = STORY_COPY[uiLocale as keyof typeof STORY_COPY] ?? STORY_COPY[locale];
   const [previewHost, setPreviewHost] = useState(false);
-  useEffect(() => setPreviewHost(isPreviewHost(window.location.hostname) || /^preview--[a-z0-9-]+\.lovable\.app$/i.test(window.location.hostname)), []);
+  useEffect(() => setPreviewHost(reviewDesignPreviewHost(window.location.hostname)), []);
   const sampleMode = preview && previewHost && section.trust?.reviewSampleMode !== false;
   const genuine = section.items.filter(publicReview).filter(r => r.cardType === 'review').map(r => ({
     id:r.id, text:r.text[r.originalLanguage ?? 'en'] || v2ItemText(r.text,locale), name:r.title[r.originalLanguage ?? 'en'] || v2ItemText(r.title,locale),
@@ -48,6 +47,19 @@ export function V2ReviewCarousel({ section, preview }: { section: V2Section; pre
   const summary = realSummary ?? (sampleMode ? {rating:4.8,displayRating:4.8,count:210} : null);
   const rail=useRef<HTMLDivElement>(null),region=useRef<HTMLDivElement>(null),settle=useRef<ReturnType<typeof setTimeout>|null>(null),touchTimer=useRef<ReturnType<typeof setTimeout>|null>(null);
   const [active,setActive]=useState(0),[capacity,setCapacity]=useState(1),[touch,setTouch]=useState(false),[hover,setHover]=useState(false),[focused,setFocused]=useState(false),[visible,setVisible]=useState(false),[tab,setTab]=useState(true),[reduced,setReduced]=useState(false);
+  const [railHeight, setRailHeight] = useState<number | undefined>();
+  useEffect(() => {
+    const node = rail.current;
+    if (!node) return;
+    const measure = () => {
+      const cards = Array.from(node.children).slice(active, active + capacity);
+      setRailHeight(Math.max(0, ...cards.map(card => card.getBoundingClientRect().height)) + 2);
+    };
+    const observer = new ResizeObserver(measure);
+    Array.from(node.children).forEach(card => observer.observe(card));
+    measure();
+    return () => observer.disconnect();
+  }, [active, capacity, reviews.length, uiLocale]);
   const enough=reviews.length>capacity;
   const move=(index:number)=>{
     const node=rail.current,card=node?.firstElementChild as HTMLElement|null;
@@ -85,7 +97,7 @@ export function V2ReviewCarousel({ section, preview }: { section: V2Section; pre
       {summary&&<><div className="combined-score"><RatingStars rating={summary.rating}/><bdi>{new Intl.NumberFormat(uiLocale,{minimumFractionDigits:1,maximumFractionDigits:1}).format(summary.displayRating)} / 5</bdi></div><span className="combined-count">{new Intl.NumberFormat(uiLocale).format(summary.count)} {c.reviewCountLabel}</span></>}
     </div>
     {(sampleMode || summary)&&<p className="combined-caption">{sampleMode ? c.previewNotice : c.combinedLabel}</p>}
-    <div className="family-review-rail" ref={rail} tabIndex={0} aria-label={heading}
+    <div className="family-review-rail" ref={rail} style={{height:railHeight}} tabIndex={0} aria-label={heading}
       onPointerDown={()=>{setTouch(true);if(touchTimer.current)clearTimeout(touchTimer.current);}} onPointerUp={releaseTouch} onPointerCancel={releaseTouch}
       onWheel={()=>{setTouch(true);releaseTouch();}}
       onKeyDown={e=>{if(e.key==='ArrowRight'||e.key==='ArrowLeft'){e.preventDefault();move(active+(e.key==='ArrowRight'?1:-1)*(getComputedStyle(e.currentTarget).direction==='rtl'?-1:1));}}}

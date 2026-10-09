@@ -1,7 +1,9 @@
 import { describe, expect, it } from 'vitest';
-import { REVIEW_INTERVAL_MS, reviewCapacity, reviewPositionCount, reviewExcerpt, combinedSourceRating, starFill, reviewDotIndices } from '../review-carousel';
+import { REVIEW_INTERVAL_MS, reviewCapacity, reviewPositionCount, reviewExcerpt, combinedSourceRating, starFill, reviewDotIndices, reviewDesignPreviewHost } from '../review-carousel';
 describe('approved testimonial behavior', () => {
   it('advances every six seconds', () => expect(REVIEW_INTERVAL_MS).toBe(6000));
+  it('never permits illustrative review statistics on the public demo site', () => expect(reviewDesignPreviewHost('pasaport2.lovable.app')).toBe(false));
+  it('allows clearly labeled review examples in design preview', () => expect(reviewDesignPreviewHost('localhost')).toBe(true));
   it('limits pagination to five positions around the active review', () => expect(reviewDotIndices(20, 10)).toEqual([8, 9, 10, 11, 12]));
   it('keeps the final review reachable without extra dots', () => expect(reviewDotIndices(20, 19)).toEqual([15, 16, 17, 18, 19]));
   it('uses only existing review positions for small carousels', () => expect(reviewDotIndices(3, 2)).toEqual([0, 1, 2]));

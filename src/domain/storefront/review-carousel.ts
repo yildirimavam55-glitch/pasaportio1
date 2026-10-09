@@ -1,3 +1,7 @@
+import { isPreviewHost } from '@/security/headers';
+export function reviewDesignPreviewHost(host: string) {
+  return isPreviewHost(host) || /^preview--[a-z0-9-]+\.lovable\.app$/i.test(host);
+}
 export const REVIEW_INTERVAL_MS = 6000;
 export const REVIEW_TEXT_LIMIT = 180;
 export function reviewDotIndices(count: number, active: number) {
