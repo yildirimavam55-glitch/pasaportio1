@@ -13,3 +13,4 @@
 - Mobile hero photo fixtures are independent from desktop fixtures and remain subordinate to CMS-selected media — why: mobile reference corrections must not replace approved desktop imagery or Admin uploads.
 - The antenna signal SVG follows the photo's cover/crop/scale inside its clipped wrapper and hides when the antenna falls outside the crop, so the arcs stay anchored across widths.
 - The hero trust row renders the Admin-edited BENEFIT_ROW section (icon, localized label, link, order, visibility); built-in copy is only a fallback so saved values always win.
+- Review presentation uses the existing CMS source statistics and count-weighted aggregate; review samples require a genuine preview host independently of payment/comparison demo flags, so public demo approval never substitutes for review evidence.
