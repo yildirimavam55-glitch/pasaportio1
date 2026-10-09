@@ -91,3 +91,12 @@ describe("status protection", () => {
     expect(normalizeRefundStatus("under_review")).toBe("UNDER_REVIEW");
   });
 });
+
+describe('unconditional 14-day refund for non-activated packages', () => {
+  it('paid, within 14 days, activation unknown → request allowed for admin review', () => {
+    expect(assessEligibility({ hasOrderItem: true, isDemo: false, paymentStatus: 'PAID', usage: 'UNKNOWN', windowOpen: true, hasOpenRequest: false, activation: 'UNKNOWN' })).toEqual({ eligibility: 'REVIEW_REQUIRED', canRequest: true });
+  });
+  it('activated package stays blocked', () => {
+    expect(assessEligibility({ hasOrderItem: true, isDemo: false, paymentStatus: 'PAID', usage: 'UNKNOWN', windowOpen: true, hasOpenRequest: false, activation: 'ACTIVATED' }).canRequest).toBe(false);
+  });
+});
