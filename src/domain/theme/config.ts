@@ -16,6 +16,7 @@ export type ThemeConfig = {
   pageWidth: "narrow" | "default" | "wide";
   buttonRadius: "small" | "default" | "pill";
   cardRadius: "small" | "default" | "large";
+  homepageScrollAnimations: boolean;
 };
 
 export type PublishedThemeConfig = ThemeConfig & { logoUrl: string | null; faviconUrl: string | null };
@@ -36,6 +37,7 @@ export const DEFAULT_THEME: ThemeConfig = {
   pageWidth: "default",
   buttonRadius: "default",
   cardRadius: "default",
+  homepageScrollAnimations: true,
 };
 
 const HEX = /^#[0-9a-fA-F]{6}$/;
@@ -71,6 +73,7 @@ export function sanitizeTheme(input: unknown): ThemeConfig {
     pageWidth: pick(raw.pageWidth, ["narrow", "default", "wide"] as const, base.pageWidth),
     buttonRadius: pick(raw.buttonRadius, ["small", "default", "pill"] as const, base.buttonRadius),
     cardRadius: pick(raw.cardRadius, ["small", "default", "large"] as const, base.cardRadius),
+    homepageScrollAnimations: typeof raw.homepageScrollAnimations === "boolean" ? raw.homepageScrollAnimations : base.homepageScrollAnimations,
   };
 }
 

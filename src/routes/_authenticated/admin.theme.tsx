@@ -6,6 +6,7 @@ import { AdminGate } from "@/components/AdminGate";
 import { AdminError, AdminLoading, AdminPanel, Field } from "@/components/admin/AdminUi";
 import { adminHead } from "@/components/admin/AdminSectionPage";
 import { Button } from "@/components/ui/button";
+import { Switch } from "@/components/ui/switch";
 import { getThemeSettings, publishTheme, restoreThemeVersion, saveThemeDraft } from "@/lib/admin-theme.functions";
 import { listMedia } from "@/lib/admin-media.functions";
 import { DEFAULT_THEME, type ThemeConfig } from "@/domain/theme/config";
@@ -112,6 +113,10 @@ function Theme() {
           </AdminPanel>
 
           <div className="flex flex-wrap items-center gap-2">
+            <label className="flex w-full items-center justify-between gap-3 border-b border-border py-3 text-sm font-semibold">
+              <span>Homepage scroll animations <span className="block text-xs font-normal text-muted-foreground">Ana sayfa kaydırma animasyonları</span></span>
+              <Switch aria-label="Homepage scroll animations" checked={theme.homepageScrollAnimations} onCheckedChange={(homepageScrollAnimations) => set({ homepageScrollAnimations })} />
+            </label>
             <Button variant="outline" onClick={() => save.mutate()} disabled={save.isPending}>Taslağı kaydet</Button>
             <Button onClick={() => { if (window.confirm("Kaydedilmiş tema taslağı canlı V2 mağazada yayınlansın mı?")) publish.mutate(); }} disabled={publish.isPending || hasUnsavedChanges || !draftDiffersFromPublished}>Yayınla</Button>
             <span className={`rounded-full px-2 py-1 text-[11px] font-bold ${hasUnsavedChanges ? "bg-warning/15 text-warning" : draftDiffersFromPublished ? "bg-info/15 text-info" : "bg-success/15 text-success"}`}>{hasUnsavedChanges ? "Kaydedilmemiş değişiklik" : draftDiffersFromPublished ? "Yayınlanmamış taslak" : "Canlı sürümle aynı"}</span>
