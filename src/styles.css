@@ -1889,3 +1889,21 @@ body:has([role="dialog"][data-state="open"]) .pasaport-mobile-reference [data-wh
 @keyframes antenna-inner { 0%,85%,100% {opacity:0;} 25%,48% {opacity:.48;} }
 @keyframes antenna-outer { 0%,20%,85%,100% {opacity:0;} 45%,55% {opacity:.34;} }
 @media (prefers-reduced-motion:reduce) { .hero-antenna-signal path { animation:none; opacity:.2; } }
+
+/* Meaningful phone content stays in normal flow; only scan decoration is contained. */
+.installation-phone { position:relative; width:12rem; max-width:100%; margin-inline:auto; padding:.5rem; border-radius:2rem; background:var(--foreground); }
+.installation-notch { position:absolute; z-index:1; top:1rem; left:50%; transform:translateX(-50%); width:3rem; height:.5rem; border-radius:1rem; background:var(--foreground); }
+.installation-screen { display:grid; align-items:center; min-height:21rem; padding:2.25rem .75rem 1.75rem; border-radius:1.5rem; background:var(--secondary); }
+.installation-content { width:100%; min-width:0; display:grid; align-items:center; text-align:center; font-size:.875rem; line-height:1.5; overflow-wrap:anywhere; }
+.installation-content :where(div,p,span) { min-width:0; max-width:100%; white-space:normal; }
+.installation-stack { display:flex; width:100%; min-width:0; flex-direction:column; align-items:center; justify-content:center; gap:.75rem; text-align:center; }
+.installation-action { position:relative; width:100%; padding:.75rem .5rem; border-radius:.5rem; font-weight:700; }
+.installation-row { display:grid; width:100%; grid-template-columns:minmax(0,1fr) auto; align-items:center; gap:.5rem; padding:.5rem; border-radius:.5rem; font-weight:600; text-align:start; }
+.installation-row > span:not(:first-child) { max-width:4.25rem; }
+.installation-home-indicator { position:absolute; bottom:1rem; left:50%; transform:translateX(-50%); width:3rem; height:.25rem; border-radius:1rem; background:var(--foreground); }
+.installation-qr-wrap { position:relative; width:100%; aspect-ratio:1; isolation:isolate; contain:paint; }
+.installation-qr { width:100%; height:auto; aspect-ratio:1; padding:12%; }
+.installation-scanline { position:absolute; inset-inline:12%; top:12%; height:2px; animation:installation-scan 1.2s ease-in-out infinite alternate; }
+@keyframes installation-scan { from { top:12%; } to { top:88%; } }
+@media (min-width:1024px) { .installation-phone { width:13rem; } .installation-screen { min-height:22rem; } }
+@media (prefers-reduced-motion:reduce) { .installation-scanline { animation:none; top:50%; } }

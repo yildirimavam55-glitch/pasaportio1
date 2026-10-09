@@ -910,7 +910,7 @@
   "Demo · no payment": "تجريبي · لا دفع",
   "Not activated": "لم يتم التفعيل",
   "Unknown": "غير معروف",
-  "Install via link": "التثبيت عبر رابط",
+  "Install via link": "التثبيت عبر الرابط",
   "Copy installation link": "نسخ رابط التثبيت",
   "Top up": "إضافة بيانات",
   "Buy a new package": "شراء باقة جديدة",
@@ -930,5 +930,6 @@
   "Activated packages are not eligible for refund.": "الباقات التي تم تفعيلها غير مؤهلة للاسترداد.",
   "Eligibility could not be confirmed.": "تعذر تأكيد الأهلية.",
   "Refund request period has ended.": "انتهت فترة طلب الاسترداد.",
-  "A refund request has already been completed for this package.": "تم إكمال طلب استرداد لهذه الباقة بالفعل."
+  "A refund request has already been completed for this package.": "تم إكمال طلب استرداد لهذه الباقة بالفعل.",
+  "Via link": "عبر الرابط"
 }

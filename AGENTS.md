@@ -38,3 +38,5 @@ Public install help stays in V2; QR, activation credentials, and package policy 
 
 - Account demo fixtures are opt-in on preview hosts under the existing account authentication gate and never enter server writes or real order counts — why: simulations cannot become production purchases.
 - Standard refund requests use stored activation history and confirmed never-activated provider evidence in the shared server verdict, not current status alone — why: past activation and duplicate completed requests must remain blocked.
+
+- Public installation phones share InstallationPhone with normal-flow localized content; only QR decoration is paint-contained, so enlarged text never depends on clipping.
