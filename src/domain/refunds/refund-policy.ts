@@ -118,12 +118,13 @@ export function assessEligibility(args: {
   if (args.hasCompletedRequest) return { eligibility: "COMPLETED_REQUEST", canRequest: false };
   if (args.activation === "ACTIVATED") return { eligibility: "NOT_ELIGIBLE_ACTIVATED", canRequest: false };
   if (!args.windowOpen) return { eligibility: "NOT_ELIGIBLE_EXPIRED", canRequest: false };
-  if (args.activation !== "NEVER_ACTIVATED") return { eligibility: "ACTIVATION_UNKNOWN", canRequest: false };
+  // Owner decision: unconditional 14-day refund for every package not shown as activated.
+  // Unknown activation may still request; it goes to Admin review instead of being blocked.
   if (args.isDemo) return { eligibility: "DEMO", canRequest: true };
   if (!args.hasOrderItem) return { eligibility: "NO_ORDER", canRequest: false };
   if (!PAID.has(String(args.paymentStatus ?? "").toUpperCase())) return { eligibility: "NOT_ELIGIBLE_UNPAID", canRequest: false };
   if (args.usage === "VERIFIED_USED") return { eligibility: "NOT_ELIGIBLE_USED", canRequest: false };
-  if (args.usage === "VERIFIED_UNUSED") return { eligibility: "LIKELY_ELIGIBLE", canRequest: true };
+  if (args.activation === "NEVER_ACTIVATED" && args.usage === "VERIFIED_UNUSED") return { eligibility: "LIKELY_ELIGIBLE", canRequest: true };
   return { eligibility: "REVIEW_REQUIRED", canRequest: true };
 }
 
