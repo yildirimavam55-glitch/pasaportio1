@@ -24,7 +24,10 @@ export type RefundEligibility =
   | "NOT_ELIGIBLE_USED"
   | "NOT_ELIGIBLE_UNPAID"
   | "NO_ORDER"
-  | "OPEN_REQUEST";
+  | "OPEN_REQUEST"
+  | "NOT_ELIGIBLE_ACTIVATED"
+  | "ACTIVATION_UNKNOWN"
+  | "COMPLETED_REQUEST";
 
 export function normalizeRefundStatus(value: unknown): RefundRequestStatus {
   const v = String(value ?? "").toUpperCase();
@@ -74,9 +77,29 @@ export function assessUsage(args: { installInfo: unknown; productIsTest?: boolea
   return {
     verification: used > 0 || started ? "VERIFIED_USED" : "VERIFIED_UNUSED",
     usedMb: used,
-    checkedAt: checked!.toISOString(),
+    checkedAt: checked ? checked.toISOString() : null,
     source: typeof usage["source"] === "string" ? (usage["source"] as string) : "provider",
   };
+}
+
+export type ActivationHistoryState = "ACTIVATED" | "NEVER_ACTIVATED" | "UNKNOWN";
+
+/** Only stored provider/history evidence can prove never activated; current READY is not proof. */
+export function assessActivationHistory(status: string | null, installInfo: unknown): ActivationHistoryState {
+  const info = record(installInfo);
+  const provider = record(info["provider_activation"]);
+  const usage = record(info["provider_usage"]);
+  const history = Array.isArray(info["activation_history"]) ? info["activation_history"] : [];
+  const sources = [info, provider, usage, ...history.map(record)];
+  const timestampKeys = ["activated_at", "activation_at", "activation_date", "first_activated_at", "first_use_at", "deactivated_at"];
+  if (["ACTIVE", "IN_USE", "ENABLED"].includes(String(status).toUpperCase()) || sources.some(s =>
+    s["ever_activated"] === true || s["activated"] === true || s["started"] === true ||
+    ["ACTIVE", "ACTIVATED", "DEACTIVATED"].includes(String(s["status"] ?? s["event"] ?? "").toUpperCase()) ||
+    timestampKeys.some(key => typeof s[key] === "string" && Boolean(String(s[key]).trim())) ||
+    (typeof s["used_mb"] === "number" && s["used_mb"] > 0)
+  )) return "ACTIVATED";
+  if (provider["verified"] === true && provider["ever_activated"] === false) return "NEVER_ACTIVATED";
+  return "UNKNOWN";
 }
 
 const PAID = new Set(["PAID", "PARTIALLY_REFUNDED"]);
@@ -88,9 +111,14 @@ export function assessEligibility(args: {
   windowOpen: boolean;
   usage: UsageVerification;
   hasOpenRequest: boolean;
+  hasCompletedRequest?: boolean;
+  activation?: ActivationHistoryState;
 }): { eligibility: RefundEligibility; canRequest: boolean } {
   if (args.hasOpenRequest) return { eligibility: "OPEN_REQUEST", canRequest: false };
+  if (args.hasCompletedRequest) return { eligibility: "COMPLETED_REQUEST", canRequest: false };
+  if (args.activation === "ACTIVATED") return { eligibility: "NOT_ELIGIBLE_ACTIVATED", canRequest: false };
   if (!args.windowOpen) return { eligibility: "NOT_ELIGIBLE_EXPIRED", canRequest: false };
+  if (args.activation !== "NEVER_ACTIVATED") return { eligibility: "ACTIVATION_UNKNOWN", canRequest: false };
   if (args.isDemo) return { eligibility: "DEMO", canRequest: true };
   if (!args.hasOrderItem) return { eligibility: "NO_ORDER", canRequest: false };
   if (!PAID.has(String(args.paymentStatus ?? "").toUpperCase())) return { eligibility: "NOT_ELIGIBLE_UNPAID", canRequest: false };

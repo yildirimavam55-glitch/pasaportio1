@@ -7,6 +7,7 @@ import {
   ACTION_EVENT,
   adminTransition,
   assessEligibility,
+  assessActivationHistory,
   assessUsage,
   isDemoEsim,
   itemRefundBasis,
@@ -89,6 +90,8 @@ async function buildRefundState(supabase: any, userId: string, esimId: string, n
     .or(item ? `customer_esim_id.eq.${esim.id},order_item_id.eq.${item.id}` : `customer_esim_id.eq.${esim.id}`)
     .order("created_at", { ascending: false });
   const history: ReturnType<typeof customerRequest>[] = ((requests ?? []) as Record<string, any>[]).map(customerRequest);
+  const activation = assessActivationHistory(esim.status, esim.install_info);
+  const hasCompletedRequest = history.some(r => r.status === "REFUNDED" || r.status === "REJECTED");
   const hasOpenRequest = history.some((r: { status: RefundRequestStatus }) => OPEN_REFUND_STATUSES.includes(r.status));
 
   const basis = item && order
@@ -105,6 +108,8 @@ async function buildRefundState(supabase: any, userId: string, esimId: string, n
     windowOpen: window.open,
     usage: usage.verification,
     hasOpenRequest,
+    hasCompletedRequest,
+    activation,
   });
 
   const label = [esim.destination_label, esim.package_label].filter(Boolean).join(" · ") || item?.product_name_snapshot || "eSIM";
@@ -184,7 +189,7 @@ export const createRefundRequest = createServerFn({ method: "POST" })
       purchase_at: state.window.purchaseAt,
       window_ends_at: state.window.endsAt,
       usage_verification: state.usage.verification,
-      usage_snapshot: { ...state.usage, esimStatus: state.esim.status, providerLinked: Boolean(state.esim.provider_reference), assessedAt: now.toISOString() },
+      usage_snapshot: { ...state.usage, activation: assessActivationHistory(state.esim.status, state.esim.install_info), esimStatus: state.esim.status, providerLinked: Boolean(state.esim.provider_reference), assessedAt: now.toISOString() },
       eligibility: state.verdict.eligibility,
       is_test: state.isDemo,
       product_snapshot: { label: state.summary.label, destination: state.summary.destination, package: state.summary.packageLabel, orderNumber: state.summary.orderNumber, productId: state.item?.product_id ?? null },
