@@ -33,10 +33,11 @@ Public install help stays in V2; QR, activation credentials, and package policy 
 - Storefront country "from" prices and regional-card inputs are computed by the database functions `storefront_country_starting_prices` / `storefront_regional_package_rows` (security invoker); any change to visibility or Essential-only rules must be mirrored there and in `listEsimPackages` — why: initial page loads must never scan the full catalogue.
 - The homepage loader primes only the layout and the shared country-price query; regional cards, guides, footer, theme and availability stay client-loaded with fixed-size placeholders, and `Reveal` renders visible by default, hiding only items below the viewport after hydration — why: the first viewport must be complete without making the server response heavier.
 - eSIM home shares CMS/search/gift/trust and the loading-gated device status — why: missing data never implies incompatibility.
-- Browser-only locale decisions render a neutral shell until resolved while TR/DE/EN URL routes remain server-rendered — why: navigator and stored manual preferences cannot be known during SSR and must never flash the wrong language.
+- Browser-only locales await resolution in a neutral shell; TR/DE/EN URLs remain SSR — why: unknown browser preferences must not flash another language.
 - Reviews reuse CMS and verified aggregates to preserve evidence ownership.
+- One shared PaymentStrip uses story CSS ordering for desktop copy/mobile below-photo placement — why: never duplicate availability data.
 
-- Account demo fixtures are opt-in on preview hosts under the existing account authentication gate and never enter server writes or real order counts — why: simulations cannot become production purchases.
+- Account demos require preview opt-in and account auth, with no writes/order counts — why: simulations cannot become purchases.
 - Standard refund requests use stored activation history and confirmed never-activated provider evidence in the shared server verdict, not current status alone — why: past activation and duplicate completed requests must remain blocked.
 
 - Install phones use normal flow, not clipping; antenna crop/arcs share source coordinates and cover offsets for stable resizing.
