@@ -12,6 +12,7 @@ import { canShowGift } from "@/domain/gift-eligibility";
 import { useCart } from "@/domain/cart/store";
 import { copyText, PROMO_COPY } from "./promo-copy";
 import { COMMERCE_COPY } from "./commerce-copy";
+import { VOUCHER_COPY } from "./voucher-copy";
 import { useCommercePanels } from "./commerce-panels";
 import { useCartCoupon } from "./CartCoupon";
 import { money } from "./V2Shell";
@@ -24,7 +25,7 @@ export function HeroPromotion() {
   const [copied, setCopied] = useState(false); const [submitted, setSubmitted] = useState(false);
   const [now, setNow] = useState(0); const data = query.data;
   const { lines } = useCart(); const coupon = useCartCoupon(lines);
-  const c = PROMO_COPY[locale]; const labels = COMMERCE_COPY[locale];
+   const c = PROMO_COPY[locale]; const labels = COMMERCE_COPY[locale]; const voucher = VOUCHER_COPY[locale];
   useEffect(() => { setNow(Date.now()); const timer = window.setInterval(() => setNow(Date.now()), 1000); return () => clearInterval(timer); }, []);
   useEffect(() => { const refresh = () => { void qc.invalidateQueries({queryKey:["promotion-banner"]}); }; const storage = (e:StorageEvent) => { if(e.key === PROMOTION_CHANGE_KEY) refresh(); }; window.addEventListener(PROMOTION_CHANGE_KEY,refresh);window.addEventListener("storage",storage);return () => {window.removeEventListener(PROMOTION_CHANGE_KEY,refresh);window.removeEventListener("storage",storage);}; },[qc]);
   const eligible = canShowGift(data,!query.isPending && !query.isError && now > 0,now);
@@ -39,11 +40,15 @@ export function HeroPromotion() {
     <Sheet open={open} onOpenChange={(value) => setPanel(value ? "coupon" : null)}>
       <SheetTrigger asChild><Button variant="ghost" aria-label={`${ticket.title} — ${ticket.action}`} className="hero-coupon-ticket"><Gift className="coupon-ticket-icon" aria-hidden="true"/><span className="coupon-ticket-copy"><strong>{ticket.title}</strong><span>{ticket.action}<ArrowRight className="coupon-ticket-arrow" aria-hidden="true"/></span></span></Button></SheetTrigger>
       <SheetContent side="bottom" dir={dir} showCloseButton={false} aria-describedby={undefined} className={`coupon-open-panel ${mobile ? "coupon-open-mobile" : "coupon-open-desktop"}`}>
-        <div className="flex items-center justify-between gap-3"><div className="flex min-w-0 items-center gap-2"><Gift className="size-5 shrink-0"/><SheetTitle className="coupon-panel-title">{field(data.text,"title",uiLocale) || labels.heading}</SheetTitle></div><SheetClose asChild><Button variant="ghost" size="icon" aria-label={c.close} className="shrink-0"><X className="size-5"/></Button></SheetClose></div>
-        <p className="coupon-benefit">{formatDiscount(data.discountType,data.discountValue,uiLocale,data.currency)}</p>
-        {field(data.text,"description",uiLocale) && <p className="text-sm">{field(data.text,"description",uiLocale)}</p>}
-        <div className="coupon-code-ticket"><span dir="ltr" translate="no" className="min-w-0 break-all text-lg font-bold">{data.code}</span>{data.showCopy && <Button size="icon" variant="ghost" aria-label={copied?c.copied:c.copy} onClick={async()=>{if(await copyText(data.code ?? "")){setCopied(true);toast.success(c.copied);}else toast.error(c.copyFailed);}}>{copied?<Check/>:<Copy/>}</Button>}</div>
-        <Button className="coupon-apply w-full whitespace-normal" disabled={coupon.pending} onClick={() => { coupon.apply(data.code ?? ""); setSubmitted(true); }}>{coupon.pending ? c.applying : applied ? labels.applied : labels.apply}</Button>
+        <div className="coupon-panel-header"><div className="flex min-w-0 items-center gap-2"><Gift className="size-4 shrink-0" aria-hidden="true"/><SheetTitle className="coupon-panel-title">{field(data.text,"title",uiLocale) || labels.heading}</SheetTitle></div><SheetClose asChild><Button variant="ghost" size="icon" aria-label={c.close} className="coupon-panel-close"><X className="size-5"/></Button></SheetClose></div>
+        <div className="coupon-voucher">
+          <div className="coupon-voucher-benefit">
+            <p className="coupon-benefit"><bdi>{formatDiscount(data.discountType,data.discountValue,uiLocale,data.currency)}</bdi> <span>{c.discount}</span></p>
+            <p className="coupon-support">{field(data.text,"description",uiLocale) || voucher.journey}</p>
+          </div>
+          <div className="coupon-code-ticket"><span dir="ltr" translate="no" className="min-w-0 break-all text-lg font-bold">{data.code}</span>{data.showCopy && <Button size="icon" variant="ghost" aria-label={copied?c.copied:c.copy} onClick={async()=>{if(await copyText(data.code ?? "")){setCopied(true);toast.success(c.copied);}else toast.error(c.copyFailed);}}>{copied?<Check className="size-4"/>:<Copy className="size-4"/>}</Button>}</div>
+        </div>
+        <Button className="coupon-apply w-full whitespace-normal" disabled={coupon.pending} onClick={() => { coupon.apply(data.code ?? ""); setSubmitted(true); }}>{coupon.pending ? c.applying : applied ? labels.applied : voucher.apply}</Button>
         {!lines.length && <p role="status" className="text-sm">{submitted ? labels.saved : labels.empty}</p>}
         {failure && <p role="alert" className="text-sm text-destructive">{failure}</p>}
         {applied && <p role="status" className="text-sm">{labels.applied}</p>}
