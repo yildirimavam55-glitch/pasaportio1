@@ -27,8 +27,6 @@ Public install help stays in V2; QR, activation credentials, and package policy 
 
 - Loader-fetched queries are dehydrated with the router and signed media URLs stay stable across refetches, so hydration reuses the server-rendered image sources instead of swapping or re-downloading them.
 - Storefront theme editing extends the existing V2 section registry and global theme document; optional sanitized settings must fall back exactly to the approved Travely presentation.
-- Manual eSIM prices (country > global package > automatic rule) are stored in the Admin-only `platform_settings` row `manual_pricing` and written to `service_products.sale_price` with `price_overridden`, so the existing sync never overwrites them and no schema change is needed.
-- Pasaport's standard Unlimited product is the supplier's Essential tier: catalogue listings and Admin pricing keep only Essential where it exists for a structure, while Lite/Plus stay stored untouched so a premium tier can be added later.
 - Sync/import never write price/flags/publication of existing products; new ones arrive DRAFT with a suggestion only. Repricing queue derives baselines from approved snapshots, read-only; prices change only by single Admin approval — why: legacy markup must never overwrite approved prices.
 - Storefront country "from" prices and regional-card inputs are computed by the database functions `storefront_country_starting_prices` / `storefront_regional_package_rows` (security invoker); any change to visibility or Essential-only rules must be mirrored there and in `listEsimPackages` — why: initial page loads must never scan the full catalogue.
 - The homepage loader primes only the layout and the shared country-price query; regional cards, guides, footer, theme and availability stay client-loaded with fixed-size placeholders, and `Reveal` renders visible by default, hiding only items below the viewport after hydration — why: the first viewport must be complete without making the server response heavier.
@@ -41,4 +39,4 @@ Public install help stays in V2; QR, activation credentials, and package policy 
 - Standard refund requests use stored activation history and confirmed never-activated provider evidence in the shared server verdict, not current status alone — why: past activation and duplicate completed requests must remain blocked.
 
 - Install phones use normal flow, not clipping; antenna crop/arcs share source coordinates and cover offsets for stable resizing.
-- Storefront currency is resolved once by the root-mounted CurrencyProvider and converted only via displayMoney; prices stay in EUR, a currency without a real rate is never shown, and only payment-verified currencies are charge currencies — why: no fake or 1:1 prices.
+- Root CurrencyProvider + displayMoney are the only currency path; EUR stays canonical, rateless currencies are hidden, only payment-verified ones charge — why: no fake prices.
