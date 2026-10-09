@@ -1,6 +1,33 @@
 import { Check, ChevronLeft, ChevronRight, Link2, Pointer, QrCode, Signal, Smartphone } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import type { ReactNode } from "react";
+import { useI18n } from "@/i18n";
+import { localize } from "@/i18n/overlay";
+
+const PHONE_COPY = localize({
+  tr: { link: "Link ile kur", quickTab: "Link ile", qrTab: "QR kodu" },
+  de: { link: "Per Link installieren", quickTab: "Per Link", qrTab: "QR-Code" },
+  en: { link: "Install via link", quickTab: "Via link", qrTab: "QR code" },
+});
+
+export function useInstallationLabels() {
+  const { locale } = useI18n();
+  return PHONE_COPY[locale];
+}
+
+/** One safe screen for both educational phones; credentials remain account-only. */
+export function InstallationPhone({ children, android = false, phase }: { children: ReactNode; android?: boolean; phase: string }) {
+  return (
+    <div className="installation-phone" data-install-phone aria-hidden="true">
+      <span className="installation-notch" />
+      <div className="installation-screen" data-install-screen>
+        <div key={phase} data-install-content className="installation-content motion-safe:animate-in motion-safe:fade-in">{children}</div>
+      </div>
+      <span className="installation-home-indicator" data-platform={android ? "android" : "ios"} />
+    </div>
+  );
+}
 
 export type InstallationMethod = "quick" | "qr";
 
@@ -35,7 +62,7 @@ export function InstallationMethodSelector({
     { value: "qr" as const, label: qrLabel, icon: QrCode },
   ];
   return (
-    <div className={cn("grid gap-1 bg-secondary p-1 ring-1 ring-border", compact || !recommendedLabel ? "grid-cols-2" : "grid-cols-[1.15fr_0.85fr]", compact ? "rounded-full" : "rounded-2xl")} role="tablist" aria-label={ariaLabel}>
+    <div className={cn("grid grid-cols-2 gap-1 bg-secondary p-1 ring-1 ring-border", compact ? "rounded-full" : "rounded-2xl")} role="tablist" aria-label={ariaLabel}>
       {options.map(({ value: method, label, icon: Icon }) => (
         <Button
           key={method}
@@ -46,15 +73,15 @@ export function InstallationMethodSelector({
           onClick={() => onChange(method)}
           className={cn(
             "min-w-0 cursor-pointer px-2 transition-colors",
-            compact ? "h-8 min-h-8 rounded-full text-[10px] sm:px-3 sm:text-xs" : "min-h-11 rounded-xl text-xs sm:text-sm",
+             compact ? "h-auto min-h-11 rounded-full text-xs sm:px-3" : "h-auto min-h-11 rounded-xl text-sm",
+             "whitespace-normal py-2",
             value === method
               ? "bg-primary-soft text-primary shadow-sm ring-1 ring-primary/25 hover:bg-primary-soft hover:text-primary"
               : "text-muted-foreground hover:bg-card hover:text-foreground",
           )}
         >
           <Icon className="size-4 shrink-0" aria-hidden="true" />
-          <span className="truncate">{label}</span>
-          {!compact && method === "quick" && recommendedLabel && <span className="shrink-0 rounded-full bg-primary px-1 py-0.5 text-[8px] font-bold text-primary-foreground">{recommendedLabel}</span>}
+           <span className="min-w-0 text-center leading-snug">{label}</span>
         </Button>
       ))}
     </div>
@@ -67,7 +94,7 @@ export function DecorativeQr({ className }: { className?: string }) {
   const finder = (row: number, column: number) =>
     (row < 3 && column < 3) || (row < 3 && column > 5) || (row > 5 && column < 3);
   return (
-    <div className={cn("grid size-24 grid-cols-9 gap-[2px] rounded-md bg-card p-1.5", className)} aria-hidden="true">
+    <div className={cn("installation-qr grid grid-cols-9 gap-[2px] rounded-md bg-card", className)} dir="ltr" aria-hidden="true">
       {cells.map((on, index) => {
         const row = Math.floor(index / 9);
         const column = index % 9;
@@ -83,7 +110,7 @@ export function InstallationSuccess({ label, compact = false }: { label: string;
       <span className={cn("grid place-items-center rounded-full bg-primary text-primary-foreground motion-safe:animate-in motion-safe:zoom-in-50", compact ? "size-12" : "size-16")}>
         <Check className={compact ? "size-7" : "size-9"} strokeWidth={3} aria-hidden="true" />
       </span>
-      <span className={cn("font-bold text-foreground", compact ? "text-[10px]" : "text-sm")}>{label}</span>
+       <span className="min-w-0 text-sm font-bold text-foreground">{label}</span>
     </div>
   );
 }
