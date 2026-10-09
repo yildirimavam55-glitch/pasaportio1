@@ -92,7 +92,7 @@ async function buildRefundState(supabase: any, userId: string, esimId: string, n
   if (requestError) throw new Error("REFUND_STATE_UNAVAILABLE");
   const history: ReturnType<typeof customerRequest>[] = ((requests ?? []) as Record<string, any>[]).map(customerRequest);
   const activation = assessActivationHistory(esim.status, esim.install_info);
-  const hasCompletedRequest = history.some(r => r.status === "REFUNDED" || r.status === "REJECTED");
+  const hasCompletedRequest = history.some(r => r.status === "REFUNDED" || r.status === "REJECTED" || r.status === "CANCELLED");
   const hasOpenRequest = history.some((r: { status: RefundRequestStatus }) => OPEN_REFUND_STATUSES.includes(r.status));
 
   const basis = item && order
