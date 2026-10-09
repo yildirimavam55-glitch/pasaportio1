@@ -14,3 +14,4 @@
 - The antenna signal SVG follows the photo's cover/crop/scale inside its clipped wrapper and hides when the antenna falls outside the crop, so the arcs stay anchored across widths.
 - The hero trust row renders the Admin-edited BENEFIT_ROW section (icon, localized label, link, order, visibility); built-in copy is only a fallback so saved values always win.
 - Review presentation uses the existing CMS source statistics and count-weighted aggregate; review samples require a genuine preview host independently of payment/comparison demo flags, so public demo approval never substitutes for review evidence.
+- Reviews use the existing Embla engine with a naturally sized non-scrolling track and horizontal-only transforms; localized CMS texts retain original attribution and expanded reading pauses autoplay — why: main-page gestures and reading position must remain independent of slide changes.

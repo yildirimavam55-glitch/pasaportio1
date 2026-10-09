@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { REVIEW_INTERVAL_MS, reviewCapacity, reviewPositionCount, reviewExcerpt, combinedSourceRating, starFill, reviewDotIndices, reviewDesignPreviewHost } from '../review-carousel';
+import { REVIEW_INTERVAL_MS, reviewCapacity, reviewPositionCount, reviewExcerpt, combinedSourceRating, starFill, reviewDotIndices, reviewDesignPreviewHost, reviewLanguagePresentation, reviewRatingSummary } from '../review-carousel';
 describe('approved testimonial behavior', () => {
   it('advances every six seconds', () => expect(REVIEW_INTERVAL_MS).toBe(6000));
   it('never permits illustrative review statistics on the public demo site', () => expect(reviewDesignPreviewHost('pasaport2.lovable.app')).toBe(false));
@@ -20,4 +20,14 @@ describe('approved testimonial behavior', () => {
   it('requires both verified sources', () => expect(combinedSourceRating([{source:'Google',rating:4.8,count:210,sourceUrl:'https://google.com',verified:true}])).toBeNull());
   it('rejects unsafe aggregate URLs', () => expect(combinedSourceRating([{source:'Google',rating:5,count:100,sourceUrl:'javascript:alert(1)',verified:true},{source:'Trustpilot',rating:4,count:110,sourceUrl:'https://trustpilot.com',verified:true}])).toBeNull());
   it('fills the fifth star to eighty percent at 4.8', () => expect(starFill(4.8,4)).toBeCloseTo(80));
+  it('leaves public aggregates unavailable when platform data is missing', () => expect(reviewRatingSummary(undefined, false)).toBeNull());
+  it('allows the illustrative aggregate only with design preview enabled', () => expect(reviewRatingSummary(undefined, true)).toEqual({ rating: 4.8, displayRating: 4.8, count: 210 }));
+  it('prioritizes original page-language reviews ahead of translated reviews', () => {
+    const native = reviewLanguagePresentation({ originalLanguage: 'de', text: { de: 'Original' } }, 'de');
+    const translated = reviewLanguagePresentation({ originalLanguage: 'en', text: { en: 'Original', de: 'Übersetzung' } }, 'de');
+    expect(native.priority).toBe(0); expect(translated.priority).toBe(1);
+  });
+  it('retains the original alongside a translation and never relabels Direct', () => expect(reviewLanguagePresentation({ originalLanguage: 'en', reviewSource: 'Direct', text: { en: 'Original', de: 'Übersetzung' } }, 'de')).toEqual({ text: 'Übersetzung', originalText: 'Original', originalLanguage: 'en', translated: true, source: 'Direct', priority: 1 }));
+  it('identifies untranslated foreign reviews without pretending they are translated', () => expect(reviewLanguagePresentation({ originalLanguage: 'en', text: { en: 'Original' } }, 'ar')).toMatchObject({ text: 'Original', originalLanguage: 'en', translated: false, priority: 2 }));
+  it('preserves a real weighted aggregate even in preview', () => expect(reviewRatingSummary([{source:'Google',rating:5,count:90,sourceUrl:'https://google.com/reviews',verified:true},{source:'Trustpilot',rating:3,count:10,sourceUrl:'https://trustpilot.com/reviews',verified:true}], true)).toEqual({rating:4.8,displayRating:4.8,count:100}));
 });

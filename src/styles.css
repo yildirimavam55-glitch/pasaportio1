@@ -1832,7 +1832,20 @@ body:has([role="dialog"][data-state="open"]) .pasaport-mobile-reference [data-wh
 .combined-reviews .family-review-rail{margin-top:16px;align-items:flex-start;padding:0 0 2px}.combined-reviews .family-review-card{background:var(--review-white);border-color:var(--review-edge);border-radius:16px;min-height:210px;padding:16px;gap:0;box-shadow:none}.review-card-top{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:14px;min-height:24px}.review-card-top .google-wordmark{font-size:18px}.review-card-top .trustpilot-wordmark{font-size:12px}.review-card-top .trustpilot-wordmark svg{width:18px;height:18px}.review-card-top .combined-stars{gap:1px}.review-card-top .partial-star,.review-card-top .partial-star>svg,.review-card-top .partial-star>span>svg{width:16px;height:16px}
 .combined-reviews .family-review-card>p{font-size:14px;line-height:21px;flex:none;margin:0;min-height:0;overflow-wrap:anywhere;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:4;overflow:hidden}.combined-reviews .family-review-card[data-expanded=true]>p{display:block;overflow:visible}.combined-reviews .review-read-more{min-height:44px;height:auto;margin-bottom:-8px;font-size:12px}.combined-reviews .review-card-identity{margin-top:15px;padding:0;border:0;width:100%;gap:8px;min-height:32px;flex-wrap:nowrap}.combined-reviews .review-avatar{width:30px;height:30px;font-size:11px}.combined-reviews .reviewer-name{font-size:12px;gap:3px}.combined-reviews .sample-badge{background:var(--story-mint);font-size:9px}.combined-reviews .review-card-identity>.reviewer-name{margin-inline-start:0}.review-pagination{display:flex;justify-content:center;gap:0;margin:8px auto 0;max-width:100%}.review-pagination button{height:44px;width:36px;min-width:36px;padding:0}.review-pagination .review-dot{width:6px;height:6px}.review-pagination button:focus-visible{outline:2px solid var(--story-petrol);outline-offset:-4px}
 @media(max-width:599px){.combined-reviews{padding:20px 16px 12px;margin:16px -10px;border-radius:0}.combined-reviews .family-review-heading h3{font-size:24px;line-height:30px}.review-rating-summary{flex-direction:column;gap:8px;padding:14px 16px;min-height:114px}.combined-reviews .family-source-marks{gap:14px}.combined-reviews .family-review-card{flex-basis:88%}.combined-count{font-size:12px}.combined-reviews .combined-caption{font-size:10px}.combined-reviews .family-review-rail{margin-top:16px}}
-@container(min-width:600px){.combined-reviews .family-review-card>p{min-height:42px}}
+/* The viewport clips horizontally; the track sizes naturally to its tallest card.
+   Neither track nor cards are scrolling elements, so vertical touch belongs to the page. */
+.combined-reviews{overflow:visible;min-width:0;overflow-anchor:none}
+.combined-reviews .review-carousel-viewport{position:relative;margin-top:16px;overflow:clip;min-width:0;touch-action:pan-y pinch-zoom}
+.combined-reviews .family-review-rail{position:relative;margin:0;padding:0;overflow:visible;scroll-snap-type:none;align-items:flex-start;touch-action:pan-y pinch-zoom;will-change:transform}
+.combined-reviews .family-review-card{flex-shrink:0;scroll-snap-align:none;min-height:210px;max-height:none;overflow:visible}
+.combined-reviews .review-rating-summary{min-height:0}
+.review-rating-unavailable{font-size:13px;line-height:20px;color:var(--story-petrol);text-align:center}
+.review-language-note{font-size:11px;line-height:16px;color:var(--story-petrol);margin-bottom:8px}
+.combined-reviews .review-original-toggle{align-self:flex-start;min-height:44px;height:auto;white-space:normal;padding:0;font-size:12px;color:var(--story-petrol)}
+.review-original-text{font-size:14px;line-height:21px;margin-top:8px;overflow-wrap:anywhere}
+.combined-reviews .family-review-card[data-expanded=true]>p{-webkit-line-clamp:unset}
+@media(prefers-reduced-motion:reduce){.combined-reviews .family-review-rail{will-change:auto}}
+@container(min-width:900px){.combined-reviews .family-review-rail{align-items:stretch}}
 /* Payment strip (family section) */
 .pay-strip{margin:14px 0 20px;display:grid;grid-template-columns:auto 1px minmax(0,1fr);align-items:center;gap:6px 24px;padding:14px 24px;background:var(--story-mint);border-radius:14px;min-height:80px}
 .pay-strip:before{content:'';grid-column:2;grid-row:1;align-self:stretch;background:var(--story-border)}
