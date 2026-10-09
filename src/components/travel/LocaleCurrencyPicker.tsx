@@ -23,7 +23,7 @@ export function LocaleCurrencyPicker({ open, onOpenChange, onChooseLocale }: { o
   const mobile = useIsMobile();
   const { uiLocale, uiLocales } = useI18n();
   const currency = useCurrency();
-  const c = COPY[uiLocale] ?? COPY.en!;
+  const c = COPY[uiLocale] ?? COPY['en']!;
   const [tab, setTab] = useState<"lang" | "cur">("lang");
   const [q, setQ] = useState("");
   const tag = LOCALE_REGISTRY[uiLocale].bcp47;
