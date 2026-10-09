@@ -65,7 +65,7 @@ export function V2InstallAnimation({ quickSteps, qrSteps, ready, adding, quickLa
       </div>
       <div className="grid min-w-0 gap-4 sm:grid-cols-[auto_minmax(0,1fr)] sm:items-center lg:flex lg:justify-center">
       <InstallationPhone phase={`${method}-${methodPhase}`}>
-        {method === "quick" && methodPhase < 2 ? <div className="installation-stack"><span className="grid size-10 shrink-0 place-items-center rounded-lg bg-primary-soft text-primary"><Link2 className="size-5" /></span><p className="font-bold">{labels.link}</p><div className={`installation-action bg-primary text-primary-foreground ${methodPhase === 1 ? "install-tap-target" : ""}`}>{labels.link}{methodPhase === 1 && <TapIndicator className="bottom-1 end-1" />}</div></div>
+        {method === "quick" && methodPhase < 2 ? <div className="installation-stack"><span className="grid size-10 shrink-0 place-items-center rounded-lg bg-primary-soft text-primary"><Link2 className="size-5" /></span><p className="font-bold">{labels.link}</p><div className={`installation-action bg-primary text-primary-foreground ${methodPhase === 1 ? "install-tap-target" : ""}`}>{labels.link}{methodPhase === 1 && <TapIndicator className="bottom-3 end-3" />}</div></div>
           : method === "qr" && methodPhase < 2 ? <div className="installation-qr-wrap"><DecorativeQr />{methodPhase === 1 && <span className="installation-scanline bg-primary" />}</div>
           : methodPhase === 2 ? <div className="installation-stack"><p className="font-semibold">{adding}</p><div className="h-1.5 w-full rounded-full bg-muted"><div className="v2-progress h-full rounded-full bg-primary" /></div></div>
           : <InstallationSuccess label={ready} compact />}
