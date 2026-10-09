@@ -30,6 +30,7 @@ import { V2ProductSelectionCard, V2SelectedProductSummary } from "@/components/d
 import { V2RegionCard } from "@/components/design-v2/V2RegionCard";
 import { localize } from "@/i18n/overlay";
 import { StorefrontIcon } from "@/domain/storefront/icons";
+import { useNearViewport } from "@/components/travel/use-near-viewport";
 import { ESSENTIAL_FAIR_USE } from "@/domain/esim/fair-use";
 
 /** Public home/eSIM search: optional country + legacy `service` hint (V1 links used `/?service=lounge`). */
@@ -68,7 +69,6 @@ export function EsimHomePage() {
   const [selectedPackage, setSelectedPackage] = useState<EsimPackage | null>(null);
   const [selectionQuantity, setSelectionQuantity] = useState(1);
   const prices = useQuery(destinationPricesQuery);
-  const regionalSummaries = useQuery({ queryKey: ["v2-esim-regions"], queryFn: () => listEsimRegionalSummaries() });
   const priceMap = useMemo(() => new Map((prices.data ?? []).map((price) => [price.targetId, price])), [prices.data]);
   const matches = useMemo(
     () => searchCountries(query, 250, locale),
@@ -193,7 +193,7 @@ export function EsimHomePage() {
       </PasaportEsimHero>
               ),
               destinations: (section) => <Popular c={c} section={section} onPick={choose} />,
-              regions: (section) => <RegionalDiscovery section={section} summaries={regionalSummaries.data ?? []} loading={regionalSummaries.isLoading} c={c} />,
+              regions: (section) => <RegionalDiscovery section={section} c={c} />,
               benefitsInDesktopHero: true,
             }}
           />
@@ -260,19 +260,23 @@ function Popular({ c, section, onPick }: { c: (typeof T)["tr"]; section: V2Secti
   );
 }
 
-function RegionalDiscovery({ section, summaries, loading, c }: { section: V2Section; summaries: EsimRegionalSummary[]; loading: boolean; c: (typeof T)["tr"] }) {
+function RegionalDiscovery({ section, c }: { section: V2Section; c: (typeof T)["tr"] }) {
+  const { ref, ready } = useNearViewport();
+  const regionalSummaries = useQuery({ queryKey: ["v2-esim-regions"], queryFn: () => listEsimRegionalSummaries(), enabled: ready });
+  const summaries = regionalSummaries.data ?? [];
+  const loading = regionalSummaries.isPending;
   const { locale, uiLocale } = useI18n();
   const money = (value: number, currency: string) => formatMoney(value, currency, uiLocale);
   const worldwide = summaries.find((item) => item.region === "GLOBAL" && item.unlimitedCount > 0);
   const regions = summaries.filter((item) => item.region !== "GLOBAL");
   return (
-    <section aria-labelledby="regional-esim-title">
+    <section ref={ref} aria-labelledby="regional-esim-title">
       <p className="mt-5 text-[11px] font-bold uppercase text-primary lg:mt-12">{v2Text(section, "eyebrow", locale)}</p>
       <div className="lg:[&>div]:mt-1"><SectionTitle><span id="regional-esim-title">{v2Text(section, "title", locale) || c.regionalTitle}</span></SectionTitle></div>
       <p className="mb-3 text-xs text-muted-foreground">{v2Text(section, "lead", locale)}</p>
       {loading ? <div className="h-[16.1rem] rounded-xl bg-muted/70 lg:h-[36rem]" aria-hidden /> : (
         <ul className="-mx-4 flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-2 [overscroll-behavior-inline:contain] [scrollbar-width:none] sm:mx-0 sm:grid sm:grid-cols-3 sm:px-0 lg:grid-cols-3 lg:gap-4">
-           {regions.map((item) => <li key={item.region} className="w-[64%] shrink-0 snap-start sm:w-auto"><V2RegionCard item={item} countries={c.countries} multi={c.multiCountry} from={c.from} /></li>)}
+           {regions.map((item) => <li data-reveal-card key={item.region} className="w-[64%] shrink-0 snap-start sm:w-auto"><V2RegionCard item={item} countries={c.countries} multi={c.multiCountry} from={c.from} /></li>)}
         </ul>
       )}
       {worldwide?.lowestUnlimitedPrice != null && worldwide.maxUnlimitedCoverageCount != null && <Link to="/esim/bolge/$region" params={{ region: "GLOBAL" }} search={{ country: "" }} className="relative mt-2 grid min-h-20 grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 overflow-hidden rounded-xl bg-primary px-3.5 py-3 text-primary-foreground shadow-sm lg:mt-6 lg:min-h-32 lg:gap-5 lg:px-7">

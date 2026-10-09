@@ -6,6 +6,7 @@ import { V2InfoCarousel } from "@/components/design-v2/V2InfoCarousel";
 import { V2TrustReviews } from "@/components/design-v2/V2TrustReviews";
 import { V2Compatibility, V2CompactFaq, V2GuidesRail, V2InfoGrid, V2Installation } from "@/components/design-v2/V2DiscoveryContent";
 import { DesktopDeviceCompatibilityBanner } from "@/components/travel/DeviceCompatibility";
+import { Reveal } from "@/components/travel/Reveal";
 import { V2SectionFrame } from "@/components/design-v2/V2SectionFrame";
 import { StorefrontIcon } from "@/domain/storefront/icons";
 import { defaultV2Page, isInWindow, sanitizeV2Page, v2ItemText, v2Text, type V2PageConfig, type V2PageId, type V2Section } from "@/domain/storefront/v2";
@@ -165,7 +166,7 @@ export function V2Sections({ config, media, slots, only, onDestinationSearch }: 
       {sections.map((s, index) => {
         const t = (key: string) => v2Text(s, key, locale);
         const items = s.items.filter((item) => item.visible);
-        const framed = (node: ReactNode) => <V2SectionFrame key={s.id} section={s}>{node}</V2SectionFrame>;
+        const framed = (node: ReactNode) => <V2SectionFrame key={s.id} section={s}>{config.page === "esim" && s.type !== "SEARCH_HERO" && s.type !== "BENEFIT_ROW" ? <Reveal stagger={s.type === "DESTINATION_CAROUSEL" || s.type === "GUIDE_CAROUSEL"}>{node}</Reveal> : node}</V2SectionFrame>;
         switch (s.type) {
           case "SEARCH_HERO":
             return framed(slots.hero(s));
@@ -177,7 +178,7 @@ export function V2Sections({ config, media, slots, only, onDestinationSearch }: 
           case "TRUST_REVIEWS":
             return <V2TrustReviews key={s.id} section={s} media={media} preview={isPreview} onDestinationSearch={onDestinationSearch} />;
           case "REGION_DISCOVERY":
-            return <V2Fragment key={s.id}>{slots.regions?.(s)}{slots.afterRegions}</V2Fragment>;
+            return config.page === "esim" ? <Reveal key={s.id} stagger>{slots.regions?.(s)}{slots.afterRegions}</Reveal> : <V2Fragment key={s.id}>{slots.regions?.(s)}{slots.afterRegions}</V2Fragment>;
           case "NOTICE":
             return <div key={s.id} className="mt-6 rounded-3xl bg-card p-5 ring-1 ring-border"><p className="font-display text-base font-bold text-foreground">{t("title")}</p>{t("text") && <p className="mt-1 text-sm text-muted-foreground">{t("text")}</p>}</div>;
           case "INFO_GRID":

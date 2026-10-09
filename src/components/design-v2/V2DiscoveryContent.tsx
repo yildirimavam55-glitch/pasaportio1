@@ -15,6 +15,7 @@ import { listFeaturedGuides } from "@/lib/guides.functions";
 import { SectionTitle } from "./V2Shell";
 import { V2InstallAnimation } from "./V2InstallAnimation";
 import { localize } from "@/i18n/overlay";
+import { useNearViewport } from "@/components/travel/use-near-viewport";
 import faqTravelEsim from "@/assets/faq-travel-esim.jpg";
 
 const COPY = localize({
@@ -205,10 +206,11 @@ export function V2CompactFaq({ title, questions, relaxed = false }: { title: str
 export function V2GuidesRail({ title, lead, allLabel }: { title?: string; lead?: string; allLabel?: string } = {}) {
   const { locale } = useI18n();
   const c = COPY[locale];
-  const { data = [], isPending } = useQuery({ queryKey: ["v2-guides", locale], queryFn: () => listFeaturedGuides({ data: { locale, limit: 4 } }), staleTime: 5 * 60_000 });
+  const { ref, ready } = useNearViewport();
+  const { data = [], isPending } = useQuery({ queryKey: ["v2-guides", locale], queryFn: () => listFeaturedGuides({ data: { locale, limit: 4 } }), staleTime: 5 * 60_000, enabled: ready });
   // Reserve the final section footprint while guides load so the page never jumps.
   if (isPending) return (
-    <section className="mb-4 pb-4" aria-hidden>
+    <section ref={ref} className="mb-4 pb-4">
       <SectionTitle>{title || c.guides}</SectionTitle>
       {(lead ?? c.guideLead) && <p className="-mt-0.5 mb-4 text-xs text-muted-foreground">{lead ?? c.guideLead}</p>}
       <div className="-mx-4 flex gap-3 overflow-hidden px-4 pb-1 lg:mx-0 lg:grid lg:grid-cols-3 lg:gap-6 lg:px-0">
@@ -218,11 +220,11 @@ export function V2GuidesRail({ title, lead, allLabel }: { title?: string; lead?:
   );
   if (!data.length) return null;
   return (
-    <section className="mb-4 pb-4">
+    <section ref={ref} className="mb-4 pb-4">
       <SectionTitle action={<SeoPathLink path={`/${locale}/${locale === "tr" ? "rehber" : locale === "de" ? "ratgeber" : "guides"}`} className="inline-flex items-center gap-0.5 text-xs font-semibold text-primary">{allLabel || c.allGuides}<ArrowRight className="size-3.5" /></SeoPathLink>}>{title || c.guides}</SectionTitle>
       {(lead ?? c.guideLead) && <p className="-mt-0.5 mb-4 text-xs text-muted-foreground">{lead ?? c.guideLead}</p>}
       <ul className="-mx-4 flex snap-x snap-mandatory scroll-px-4 gap-3 overflow-x-auto px-4 pb-1 [overscroll-behavior-inline:contain] [scrollbar-width:none] lg:mx-0 lg:grid lg:grid-cols-3 lg:gap-6 lg:overflow-visible lg:px-0">
-        {data.slice(0, 3).map((guide) => <li key={guide.id} className="w-[84vw] max-w-[22rem] shrink-0 snap-start sm:w-[17rem] lg:w-auto lg:max-w-none"><SeoPathLink path={seoPath(guide.translationLocale, guide.contentType, guide.slug)} className="group block h-full overflow-hidden rounded-xl bg-card ring-1 ring-border">{guide.heroImageUrl ? <img src={guide.heroImageUrl} alt={guide.heroAlt ?? guide.title} loading="lazy" decoding="async" className="h-[8.5rem] w-full object-cover lg:h-48"/> : <div className="grid h-[8.5rem] place-items-center bg-muted lg:h-48"><BookOpen className="size-6 text-muted-foreground"/></div>}<div className="p-4">{guide.categoryName && <span className="text-[9px] font-bold uppercase text-primary">{guide.categoryName}</span>}<h3 className="mt-0.5 line-clamp-2 text-sm font-bold leading-snug text-foreground lg:text-lg">{guide.title}</h3>{guide.excerpt && <p className="mt-1 line-clamp-2 text-xs leading-snug text-muted-foreground lg:text-sm">{guide.excerpt}</p>}<ArrowRight className="ml-auto mt-1.5 size-4 text-primary"/></div></SeoPathLink></li>)}
+        {data.slice(0, 3).map((guide) => <li data-reveal-card key={guide.id} className="w-[84vw] max-w-[22rem] shrink-0 snap-start sm:w-[17rem] lg:w-auto lg:max-w-none"><SeoPathLink path={seoPath(guide.translationLocale, guide.contentType, guide.slug)} className="group block h-full overflow-hidden rounded-xl bg-card ring-1 ring-border">{guide.heroImageUrl ? <img src={guide.heroImageUrl} alt={guide.heroAlt ?? guide.title} loading="lazy" decoding="async" className="h-[8.5rem] w-full object-cover lg:h-48"/> : <div className="grid h-[8.5rem] place-items-center bg-muted lg:h-48"><BookOpen className="size-6 text-muted-foreground"/></div>}<div className="p-4">{guide.categoryName && <span className="text-[9px] font-bold uppercase text-primary">{guide.categoryName}</span>}<h3 className="mt-0.5 line-clamp-2 text-sm font-bold leading-snug text-foreground lg:text-lg">{guide.title}</h3>{guide.excerpt && <p className="mt-1 line-clamp-2 text-xs leading-snug text-muted-foreground lg:text-sm">{guide.excerpt}</p>}<ArrowRight className="ml-auto mt-1.5 size-4 text-primary"/></div></SeoPathLink></li>)}
       </ul>
     </section>
   );
