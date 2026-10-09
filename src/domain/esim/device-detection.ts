@@ -43,11 +43,21 @@ export function detectDeviceFromSignals(devices: DeviceRecord[], signals: Browse
 
   const iphoneLike = /iPhone|iPad|iPod/i.test(ua) || (/Mac/i.test(platform) && (signals.maxTouchPoints ?? 0) > 1);
   if (iphoneLike) return { kind: "partial", family: "iphone" };
-  if (/Samsung|SM-[A-Z0-9-]+/i.test(`${explicitModel} ${ua}`)) return { kind: "partial", family: "samsung" };
+  // Brand only from the device identifier — "SamsungBrowser" in the UA is a browser, installable on any Android phone.
+  const deviceId = androidModel.trim();
+  if (/^SM-[A-Z0-9]/i.test(deviceId) || /^(Samsung|Galaxy)\b/i.test(deviceId)) return { kind: "partial", family: "samsung" };
   if (/Android/i.test(`${platform} ${ua}`)) return { kind: "partial", family: "android" };
   return { kind: "unknown" };
 }
 export type CheckerPrefill = { brand: string | null; device: DeviceRecord | null };
+
+/** Mobile from the browser's own declaration (Client Hints / UA token), never from screen size. */
+export function isMobileBrowser(signals: BrowserDeviceSignals, uaDataMobile?: boolean): boolean {
+  const ua = signals.userAgent ?? "";
+  if (/iPhone|iPad|iPod|Android/i.test(ua)) return true;
+  if (/Mac/i.test(signals.platform ?? "") && (signals.maxTouchPoints ?? 0) > 1) return true;
+  return uaDataMobile === true;
+}
 
 /** Desktop browsers must never prefill a phone from automatic detection. */
 export function checkerDetectionForViewport(detection: DeviceDetection, isMobile: boolean): DeviceDetection {
