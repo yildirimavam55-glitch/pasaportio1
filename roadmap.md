@@ -1,6 +1,7 @@
 # Roadmap
 
 ## Current request
+- [ ] Refine only reviews: compact localized heading, shared weighted rating summary, four-line expandable cards, six-second carousel with at most five dots; verify 360/390/430/1440 in four languages without publishing.
 - [x] Trust row below the compatibility selectors: third item is "14 gün iade" (DE/EN/AR) with a calendar icon linking to the refund page; row now reads its icon, localized label, link, visibility and order from the existing Admin homepage section instead of hardcoded copy. 6 new tests plus the storefront suite pass; saved values verified in the preview at 390/1440. No publication.
 - [x] Trust row below the compatibility selectors: third item becomes "14 gün iade" (DE/EN/AR given) with an outlined calendar/return icon in the existing petrol stroke, linking to the existing localized refund policy page; other three items unchanged. Wire the row to the existing homepage/theme editor so icon, localized label, link, visibility and order are editable and persist to the storefront; remove hardcoded overrides, reuse existing settings, keep the compact four-column layout. Verify TR label and an admin edit round-trip. No publication.
 - [x] Remove the standalone phone-compatibility block below the "Dünya çapında" section from default and published layouts; keep hero checker, section type re-addable by Admin, and verify 360/390/430/1440 in TR/DE/EN/AR. No publication.
