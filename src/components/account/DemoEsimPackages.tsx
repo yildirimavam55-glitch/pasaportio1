@@ -4,12 +4,13 @@ import { CLink as Link } from '@/components/design-v2/v2-context';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Progress } from '@/components/ui/progress';
+import { CountryFlag } from '@/components/travel/CountryFlag';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '@/components/ui/sheet';
 import { formatDate } from './copy';
 import { ACCOUNT_DEMO_COPY, ACCOUNT_REFUND_MESSAGES } from './demo-copy';
 import { createAccountDemo, demoRefund, demoUsage, type DemoEsim } from '@/domain/esim/account-demo';
 import { remainingDays } from '@/domain/esim/customer-esim';
-import { getCountryByIso, flagOf } from '@/domain/geo/countries';
+import { getCountryByIso } from '@/domain/geo/countries';
 import { useI18n } from '@/i18n';
 
 export function DemoEsimPackages() {
@@ -58,7 +59,7 @@ function DemoPackageCard({ esim, now, open, onToggle, onAction }: { esim: DemoEs
   const simulate = (kind: 'refund' | 'alert') => { try { sessionStorage.setItem(`${esim.id}-${kind}`, '1'); } catch { /* Still isolated to this mounted demo. */ } if (kind === 'refund') setPending(true); else setNotified(true); };
   return <article data-demo-esim={esim.id} className="min-w-0 rounded-2xl border border-border bg-card p-4 shadow-card">
     <header className="flex items-start justify-between gap-2 border-b border-border pb-3">
-      <div className="flex min-w-0 gap-3"><span className="text-3xl" aria-hidden="true">{flagOf(esim.iso)}</span><div className="min-w-0"><h2 className="text-base font-bold sm:text-lg">{getCountryByIso(esim.iso)?.name[locale]} · {esim.total} GB</h2>
+      <div className="flex min-w-0 gap-3"><CountryFlag iso={esim.iso} className="mt-1 h-7 w-9" /><div className="min-w-0"><h2 className="text-base font-bold sm:text-lg">{getCountryByIso(esim.iso)?.name[locale]} · {esim.total} GB</h2>
         {editing ? <form className="mt-1 flex max-w-64 items-center gap-1" onSubmit={e => { e.preventDefault(); setNickname(draft.trim() || name); setEditing(false); }}><Input aria-label={c.edit} value={draft} maxLength={40} onChange={e => setDraft(e.target.value)} className="min-w-0" autoFocus /><Button size="sm" type="submit">{c.save}</Button></form> : <div className="flex items-center gap-1 text-sm text-muted-foreground"><span className="break-words">{name}</span><Button variant="ghost" size="icon" className="size-9 shrink-0" aria-label={`${c.edit} · ${esim.id}`} onClick={() => { setDraft(name); setEditing(true); }}><Pencil className="size-4" /></Button></div>}
       </div></div>
       <div className="shrink-0 text-end"><span className={`inline-block rounded-full px-2 py-1 text-[11px] font-semibold ${esim.active ? 'bg-success/10 text-success' : 'bg-info/10 text-info'}`}>{esim.active ? c.active : c.ready}</span><p className="mt-1 text-xs text-muted-foreground">DEMO · ••{esim.id.slice(-4)}</p></div>

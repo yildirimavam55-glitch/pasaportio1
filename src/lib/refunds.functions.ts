@@ -83,12 +83,13 @@ async function buildRefundState(supabase: any, userId: string, esimId: string, n
   const window = refundWindow(purchaseAt, now);
   const usage = assessUsage({ installInfo: esim.install_info, productIsTest, now });
 
-  const { data: requests } = await supabase
+  const { data: requests, error: requestError } = await supabase
     .from("refund_requests")
     .select(CUSTOMER_REQUEST_COLUMNS)
     .eq("requested_by", userId)
     .or(item ? `customer_esim_id.eq.${esim.id},order_item_id.eq.${item.id}` : `customer_esim_id.eq.${esim.id}`)
     .order("created_at", { ascending: false });
+  if (requestError) throw new Error("REFUND_STATE_UNAVAILABLE");
   const history: ReturnType<typeof customerRequest>[] = ((requests ?? []) as Record<string, any>[]).map(customerRequest);
   const activation = assessActivationHistory(esim.status, esim.install_info);
   const hasCompletedRequest = history.some(r => r.status === "REFUNDED" || r.status === "REJECTED");

@@ -2,11 +2,9 @@ import { useRouterState } from "@tanstack/react-router";
 import { CLink as Link, useIsV2 } from "@/components/design-v2/v2-context";
 import { V2Shell } from "@/components/design-v2/V2Shell";
 import {
-  Bell,
   ChevronLeft,
   ChevronRight,
   LayoutGrid,
-  LifeBuoy,
   PackageCheck,
   ShieldCheck,
   Signal,
