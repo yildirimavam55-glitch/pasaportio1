@@ -1,4 +1,4 @@
-import { useNavigate } from "@tanstack/react-router";
+import { useNavigate, useLocation } from "@tanstack/react-router";
 import { CLink as Link } from "@/components/design-v2/v2-context";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { getPublishedStorefront } from "@/lib/storefront.functions";
@@ -22,7 +22,7 @@ import {
   UserRound,
   X,
 } from "lucide-react";
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import {
@@ -48,6 +48,11 @@ import { isCurrencyCode } from "@/domain/currency/currencies";
 import { useCart } from "@/domain/cart/store";
 import { isHiddenServiceHref, useOptionalServices } from "./ServiceAvailability";
 import { localize } from "@/i18n/overlay";
+import { CommercePanels, type CommercePanel } from "@/components/design-v2/commerce-panels";
+import { CartContents } from "@/components/design-v2/CartContents";
+import { COMMERCE_COPY } from "@/components/design-v2/commerce-copy";
+import { cartBadge } from "@/domain/cart/presentation";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 /** Flag shown next to each language (language, not location). */
 const LOCALE_FLAG: Record<UiLocale, string> = localize({
@@ -284,8 +289,19 @@ export function PublicShell({
   const [accountOpen, setAccountOpen] = useState(false);
   const [signedIn, setSignedIn] = useState(false);
   const { count } = useCart();
+  const [panel, setPanel] = useState<CommercePanel>(null);
+  const cartTrigger = useRef<HTMLButtonElement>(null);
+  const location = useLocation();
+  const mobile = useIsMobile();
+  const commerce = COMMERCE_COPY[locale];
+  useEffect(() => { setPanel(null); }, [location.href]);
+  useEffect(() => {
+    const added = () => { toast.success(commerce.added, { duration: 3000, action: { label: commerce.view, onClick: () => setPanel("cart") } }); };
+    window.addEventListener("cart:item-added", added);
+    return () => { window.removeEventListener("cart:item-added", added); };
+  }, [commerce]);
   const currency = useCurrency();
-  const isHeaderOverlayOpen = menuOpen || languageOpen || accountOpen;
+   const isHeaderOverlayOpen = menuOpen || languageOpen || accountOpen || panel !== null;
   useEffect(() => {
     void supabase.auth.getSession().then(({ data }) => setSignedIn(Boolean(data.session)));
     const { data } = supabase.auth.onAuthStateChange((_event, session) =>
@@ -314,6 +330,7 @@ export function PublicShell({
     }
   };
   return (
+    <CommercePanels.Provider value={{ panel, setPanel }}>
     <div className={`${isV2 ? "v2-theme theme-surface" : ""} ${mobilePasaport ? "pasaport-mobile-reference" : ""} min-h-screen bg-background text-foreground`} data-theme-button={isV2 ? publishedTheme.buttonStyle : undefined} data-theme-surface={isV2 ? publishedTheme.surface : undefined}>
       <header className="sticky top-0 z-50 border-b border-border/60 bg-background/95 backdrop-blur-lg">
         <div className="mx-auto grid min-h-14 max-w-site grid-cols-[minmax(0,1fr)_auto] items-center gap-2 px-3 sm:min-h-16 sm:gap-3 sm:px-6 lg:flex">
@@ -349,11 +366,9 @@ export function PublicShell({
             {optionalServices.vignette && <Link to="/vignette" className="nav-link">Vignette</Link>}
           </nav>}
           <div className="flex shrink-0 items-center gap-1 sm:gap-1.5">
-            <Button asChild variant="ghost" size="icon" className={`relative size-11 ${mobilePasaport ? "inline-flex" : "hidden lg:inline-flex"}`}>
-              <Link to="/sepet" aria-label={locale === "tr" ? "Sepet" : locale === "de" ? "Warenkorb" : "Cart"}>
+            <Button ref={cartTrigger} onClick={() => { setMenuOpen(false); setAccountOpen(false); setLanguageOpen(false); setPanel("cart"); }} variant="ghost" size="icon" aria-label={`${commerce.cart} (${count})`} data-testid="header-cart" className="relative inline-flex size-11 overflow-visible">
                 <ShoppingBag className="size-5" />
-                {count > 0 && <span className="absolute right-0.5 top-0.5 grid size-4 place-items-center rounded-full bg-accent text-[9px] font-bold text-accent-foreground">{count}</span>}
-              </Link>
+                {count > 0 && <span data-testid="cart-count" aria-hidden="true" className="absolute end-0 top-0 grid h-4 min-w-4 place-items-center rounded-full bg-accent px-1 text-[9px] font-bold text-accent-foreground">{cartBadge(count)}</span>}
             </Button>
             {mobilePasaport && <select aria-label={uiLocale === "tr" ? "Para birimi" : uiLocale === "de" ? "Währung" : uiLocale === "ar" ? "العملة" : "Currency"} value={currency.code} onChange={(event) => { if (isCurrencyCode(event.target.value)) currency.setCurrency(event.target.value); }} className="header-currency min-h-11 rounded bg-transparent text-xs">{currency.available.map((code) => <option key={code} value={code}>{code}</option>)}</select>}
             <LanguageMenu
@@ -551,9 +566,16 @@ export function PublicShell({
         <StickyQuickSearch service="esim" suppressed={isHeaderOverlayOpen} />
       )}
       <main>{children}</main>
+      <Sheet open={panel === "cart"} onOpenChange={(open) => setPanel(open ? "cart" : null)}>
+        <SheetContent side={mobile ? "bottom" : "right"} dir={uiLocale === "ar" ? "rtl" : "ltr"} showCloseButton={false} aria-describedby={undefined} onCloseAutoFocus={(event) => { event.preventDefault(); cartTrigger.current?.focus(); }} className={mobile ? "max-h-[85dvh] rounded-t-lg px-4 pb-[calc(1rem+env(safe-area-inset-bottom))] pt-4" : "w-full sm:max-w-[440px]"}>
+          <div className="flex items-center justify-between gap-3"><SheetTitle>{commerce.cart} ({count})</SheetTitle><SheetClose asChild><Button variant="ghost" size="icon" aria-label={commerce.closeCart}><X className="size-5" /></Button></SheetClose></div>
+          <CartContents inPanel />
+        </SheetContent>
+      </Sheet>
       <PublicFooter fallback={copy.footer} supportLabel={copy.nav.support} bottomSafe={footerBottomSafe} />
       {!hideFloatingWhatsApp && <WhatsAppSupportWidget surface="shell" placement="fixed" />}
 
     </div>
+    </CommercePanels.Provider>
   );
 }

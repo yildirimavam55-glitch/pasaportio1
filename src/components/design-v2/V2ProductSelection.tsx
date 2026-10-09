@@ -8,6 +8,7 @@ import { cn } from "@/lib/utils";
 import { waLink } from "@/lib/whatsapp";
 import type { V2Service } from "@/components/design-v2/V2Shell";
 import { CountryFlag } from "@/components/travel/CountryFlag";
+import { useCommercePanels } from "./commerce-panels";
 
 export function V2ProductSelectionCard({
   service,
@@ -87,6 +88,7 @@ export function V2SelectedProductSummary({
   onAdd: () => void;
 }) {
   const [adding, setAdding] = useState(false);
+  const { setPanel } = useCommercePanels();
   const addingRef = useRef(false);
   const frameRef = useRef<number | null>(null);
   useEffect(() => () => {
@@ -108,6 +110,7 @@ export function V2SelectedProductSummary({
       });
     });
   };
+  if (inCart) return null;
   return (
     <section aria-label={title} className="pointer-events-auto w-full rounded-2xl border border-[var(--v2-service)]/40 bg-card/98 p-3 shadow-xl backdrop-blur lg:w-[25rem] lg:p-4">
       <div className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-start gap-3">
@@ -128,8 +131,8 @@ export function V2SelectedProductSummary({
           <Button type="button" variant="ghost" size="icon" disabled={adding || quantity >= 9} onClick={() => onQuantityChange(quantity + 1)} aria-label={increaseLabel} className="size-10 rounded-xl"><Plus className="size-4" /></Button>
         </div>
         {inCart ? (
-          <Button asChild variant="default" className="h-10 min-w-0 flex-1 rounded-xl px-3">
-            <Link to="/sepet" aria-label={cartLabel}><Check className="size-4 shrink-0" /><span className="truncate">{cartLabel}</span><ArrowRight className="size-4 shrink-0" /></Link>
+          <Button onClick={() => setPanel("cart")} variant="default" className="h-10 min-w-0 flex-1 rounded-xl px-3">
+            <Check className="size-4 shrink-0" /><span className="truncate">{cartLabel}</span><ArrowRight className="size-4 shrink-0" />
           </Button>
         ) : (
           <Button type="button" onClick={addOnce} disabled={adding} aria-busy={adding} className="h-10 min-w-0 flex-1 rounded-xl px-3"><ShoppingBag className="size-4 shrink-0" /><span className="truncate">{adding ? addingLabel : addLabel}</span></Button>

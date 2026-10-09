@@ -1,0 +1,7 @@
+import { localize } from "@/i18n/overlay";
+
+export const COMMERCE_COPY = localize({
+  tr: { cart: "Sepet", closeCart: "Sepeti kapat", added: "Sepete eklendi", view: "Sepeti görüntüle", heading: "Sana özel kupon", apply: "Kuponu uygula", applied: "Kupon uygulandı", empty: "Sepetin boş. Kod ödeme için kaydedilir; ürün eklediğinde uygunluğu kontrol edilir.", saved: "Kod ödeme için kaydedildi; henüz uygulanmadı.", expiry: "Son kullanım", min: "Minimum sepet tutarı" },
+  de: { cart: "Warenkorb", closeCart: "Warenkorb schließen", added: "Zum Warenkorb hinzugefügt", view: "Warenkorb ansehen", heading: "Dein Gutschein", apply: "Gutschein einlösen", applied: "Gutschein angewendet", empty: "Dein Warenkorb ist leer. Der Code wird für die Kasse gespeichert und nach dem Hinzufügen von Produkten geprüft.", saved: "Code für die Kasse gespeichert; noch nicht angewendet.", expiry: "Gültig bis", min: "Mindestbestellwert" },
+  en: { cart: "Cart", closeCart: "Close cart", added: "Added to cart", view: "View cart", heading: "Your coupon", apply: "Apply coupon", applied: "Coupon applied", empty: "Your cart is empty. The code is saved for checkout; eligibility is checked when you add products.", saved: "Code saved for checkout; not applied yet.", expiry: "Expires", min: "Minimum spend" },
+});

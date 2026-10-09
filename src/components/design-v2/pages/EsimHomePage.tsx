@@ -122,6 +122,7 @@ export function EsimHomePage() {
       regionFamily: selectedPackage.regionFamily,
       isTest: selectedPackage.isTest,
     });
+    setSelectedPackage(null);
   };
   const purchaseSummary = selectedPackage ? <V2SelectedProductSummary
     key={selectedPackage.id}

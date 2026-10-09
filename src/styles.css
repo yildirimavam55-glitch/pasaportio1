@@ -1907,3 +1907,17 @@ body:has([role="dialog"][data-state="open"]) .pasaport-mobile-reference [data-wh
 @keyframes installation-scan { from { top:12%; } to { top:88%; } }
 @media (min-width:1024px) { .installation-phone { width:13rem; } .installation-screen { min-height:22rem; } }
 @media (prefers-reduced-motion:reduce) { .installation-scanline { animation:none; top:50%; } }
+
+/* Campaign dialog uses its own tokens, including when portaled outside the hero. */
+.coupon-open-panel { --coupon-panel-ivory:oklch(.985 .012 90); --coupon-panel-petrol:oklch(.335 .083 176); --coupon-panel-mint:oklch(.94 .035 160); background:var(--coupon-panel-ivory); color:var(--coupon-panel-petrol); display:grid; gap:14px; border-color:color-mix(in oklab,var(--coupon-panel-petrol) 16%,transparent); max-height:85dvh; }
+.coupon-panel-title { color:var(--coupon-panel-petrol); font-size:18px; line-height:1.35; }
+.coupon-benefit { font-family:var(--font-display); font-size:30px; line-height:1.2; font-weight:700; margin:0; }
+.coupon-code-ticket { display:flex; align-items:center; justify-content:space-between; gap:14px; padding:12px 16px; border:1px dashed color-mix(in oklab,var(--coupon-panel-petrol) 35%,transparent); border-radius:8px; background:var(--coupon-panel-mint); }
+.coupon-code-ticket > button { border-inline-start:1px dashed color-mix(in oklab,var(--coupon-panel-petrol) 35%,transparent); border-radius:0; padding-inline-start:12px; width:56px; flex-shrink:0; }
+.coupon-apply { background:var(--coupon-panel-petrol); color:var(--coupon-panel-ivory); min-height:44px; border-radius:8px; }
+.coupon-apply:hover { background:var(--coupon-panel-petrol); opacity:.9; }
+.coupon-conditions { display:grid; gap:6px; font-size:12px; line-height:1.5; border-top:1px solid color-mix(in oklab,var(--coupon-panel-petrol) 15%,transparent); padding-top:12px; }
+.coupon-open-mobile { padding:16px 20px calc(20px + env(safe-area-inset-bottom)); border-radius:8px 8px 0 0; }
+.coupon-open-desktop { width:420px; max-width:calc(100vw - 32px); inset-inline:auto; left:50%; top:50%; bottom:auto; transform:translate(-50%,-50%); padding:20px 24px; border:1px solid; border-radius:8px; }
+.coupon-open-desktop[data-state] { animation:none; transition:opacity 160ms ease; }
+@media(prefers-reduced-motion:reduce) { .coupon-open-panel { animation:none; transition:none; } }

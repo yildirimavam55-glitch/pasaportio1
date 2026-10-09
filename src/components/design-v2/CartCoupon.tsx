@@ -9,6 +9,7 @@ import { money } from "./V2Shell";
 import { PROMO_COPY } from "./promo-copy";
 
 const CODE_KEY = "travely.coupon.v1";
+const CODE_EVENT = "cart:coupon-changed";
 
 /**
  * Only the typed code is stored locally. Every render of the summary comes from the
@@ -17,18 +18,22 @@ const CODE_KEY = "travely.coupon.v1";
  */
 export function useCartCoupon(lines: CartLine[]) {
   const [code, setCode] = useState<string | null>(null);
-  useEffect(() => { try { setCode(window.localStorage.getItem(CODE_KEY)); } catch { /* ignore */ } }, []);
+  useEffect(() => {
+    const read = () => { try { setCode(window.localStorage.getItem(CODE_KEY)); } catch { /* ignore */ } };
+    read(); window.addEventListener(CODE_EVENT, read); window.addEventListener("storage", read);
+    return () => { window.removeEventListener(CODE_EVENT, read); window.removeEventListener("storage", read); };
+  }, []);
   const payload = useMemo(() => lines.map((l) => ({ productId: l.productId, quantity: l.quantity })), [lines]);
   const query = useQuery({
     queryKey: ["coupon", code, payload],
-    queryFn: () => validateCoupon({ data: { code: code!, lines: payload } }),
+    queryFn: () => { if (!code) throw new Error("Missing coupon"); return validateCoupon({ data: { code, lines: payload } }); },
     enabled: Boolean(code) && payload.length > 0,
     staleTime: 0,
     refetchOnWindowFocus: true,
     retry: false,
   });
-  const apply = (next: string) => { const v = next.trim().toUpperCase(); try { window.localStorage.setItem(CODE_KEY, v); } catch { /* ignore */ } setCode(v); };
-  const remove = () => { try { window.localStorage.removeItem(CODE_KEY); } catch { /* ignore */ } setCode(null); };
+  const apply = (next: string) => { const v = next.trim().toUpperCase(); try { window.localStorage.setItem(CODE_KEY, v); } catch { /* ignore */ } setCode(v); window.dispatchEvent(new Event(CODE_EVENT)); if (v === code && payload.length) void query.refetch(); };
+  const remove = () => { try { window.localStorage.removeItem(CODE_KEY); } catch { /* ignore */ } setCode(null); window.dispatchEvent(new Event(CODE_EVENT)); };
   return { code, result: query.data as CouponResult | undefined, pending: query.isFetching, error: query.error, apply, remove };
 }
 

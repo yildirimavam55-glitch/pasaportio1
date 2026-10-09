@@ -8,6 +8,7 @@ import { useCart } from "@/domain/cart/store";
 import { useI18n } from "@/i18n";
 import { CART_COPY, lineFacts, lineTitle } from "@/components/design-v2/cart-copy";
 import { localize } from "@/i18n/overlay";
+import { CouponSummary, useCartCoupon } from "@/components/design-v2/CartCoupon";
 
 const COPY = localize({
   tr: { title: "Ödeme", back: "Sepete dön", summary: "Sipariş özeti", account: "Hesap", signedAs: "Giriş yapıldı", signIn: "Siparişi hesabına bağlamak için giriş yap", signInCta: "Giriş yap", payment: "Ödeme", notLive: "Ödeme henüz aktif değil", notLiveText: "Şu anda gerçek ödeme alınmıyor. Ödeme yöntemi bağlandığında siparişini buradan tamamlayabilirsin.", cta: "Ödeme entegrasyonu bekleniyor", empty: "Sepetin boş", browse: "eSIM paketlerine bak" },
@@ -17,7 +18,7 @@ const COPY = localize({
 
 export const Route = createFileRoute("/odeme")({
   ssr: false,
-  head: () => ({ meta: [{ title: "Ödeme | travely" }, ...V2_NOINDEX] }),
+  head: () => ({ meta: [{ title: "Ödeme | Pasaport.io" }, { name: "description", content: "Pasaport.io eSIM siparişinizi ve doğrulanmış toplamınızı inceleyin." }, { property: "og:title", content: "Ödeme | Pasaport.io" }, { property: "og:description", content: "eSIM sipariş özeti ve kupon doğrulaması." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }, ...V2_NOINDEX] }),
   component: V2Checkout,
 });
 
@@ -26,6 +27,8 @@ function V2Checkout() {
   const c = pick(locale, COPY);
   const cc = pick(locale, CART_COPY);
   const { lines } = useCart();
+  const coupon = useCartCoupon(lines);
+  const applied = coupon.result?.ok && !coupon.pending ? coupon.result : null;
   const [email, setEmail] = useState<string | null | undefined>(undefined);
   useEffect(() => {
     void supabase.auth.getUser().then(({ data }) => setEmail(data.user?.email ?? null));
@@ -74,9 +77,10 @@ function V2Checkout() {
                   </li>
                 ))}
               </ul>
+              {applied && <CouponSummary result={applied} currency={currency} />}
               <div className="mt-1 flex items-center justify-between border-t border-border pt-3">
                 <span className="text-sm font-semibold text-muted-foreground">{cc.total}</span>
-                <strong className="font-display text-xl">{money(total, currency)}</strong>
+                <strong className="font-display text-xl">{money(applied ? applied.total : total, currency)}</strong>
               </div>
             </V2Card>
           </div>
