@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import type { ServiceType } from "@/domain/enums";
+import { cartQuantity } from "./presentation";
 
 /**
  * Local cart foundation (no payment, no provider transaction).
@@ -79,9 +80,11 @@ export function useCart() {
     const existing = lines.find((item) => item.productId === line.productId);
     if (existing) {
       publish(lines.map((item) => (item.productId === line.productId ? { ...item, quantity: item.quantity + quantity } : item)));
+      window.dispatchEvent(new Event("cart:item-added"));
       return;
     }
     publish([...lines, { ...line, quantity, id: `${line.productId}-${Date.now()}` }]);
+    window.dispatchEvent(new Event("cart:item-added"));
   }, []);
 
   const removeLine = useCallback((productId: string) => publish(lines.filter((item) => item.productId !== productId)), []);
@@ -91,7 +94,7 @@ export function useCart() {
   }, []);
   const clear = useCallback(() => publish([]), []);
 
-  return { lines: state, addLine, removeLine, updateQuantity, clear, count: state.reduce((total, line) => total + line.quantity, 0) };
+  return { lines: state, addLine, removeLine, updateQuantity, clear, count: cartQuantity(state) };
 }
 
 /**

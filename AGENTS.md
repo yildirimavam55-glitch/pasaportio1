@@ -16,7 +16,7 @@ Public install help stays in V2; QR, activation credentials, and package policy 
 - V2 country pages reuse central photos, device checker, catalogue queries, and cart state; never duplicate these systems.
 - Compatibility claims require one exact curated model match; ambiguous/iPhone-family signals stay manual, and only manual confirmations persist.
 - Regional discovery uses published summaries, coverage classification, and product routes; eligibility comes from package coverage only.
-- Coupons are server-priced only through `evaluateCoupon`/`validateCouponServer`; checkout revalidates and snapshots discounts/redemptions.
+- Coupons use server validation and shared code state for cart/checkout totals; panels share shell-local exclusive state and CartContents, never persist opening — why: preserve items without stacked panels or divergent totals.
 - V2 promotion copy stores one Turkish source plus locale translations; storefront never runtime-translates campaigns or duplicates codes/values.
 - Refund authority stays server-side; snapshots are immutable, events append-only, and REFUNDED requires confirmed payment refund.
 - The security baseline is owner-controlled; unapproved sensitive changes must stop, be logged, and never weaken baseline tests.
