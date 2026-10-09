@@ -1883,7 +1883,7 @@ body:has([role="dialog"][data-state="open"]) .pasaport-mobile-reference [data-wh
 /* Source-photo anchored, non-interactive antenna signal. */
 .hero-antenna-signal { --signal-stroke: oklch(1 0 0); position:absolute; inset:0; width:100%; height:100%; pointer-events:none; color:var(--signal-stroke); }
 .hero-antenna-signal[data-visible="false"] { visibility:hidden; }
-.hero-antenna-signal path { fill:none; stroke:currentColor; stroke-width:1.15; stroke-linecap:round; filter:drop-shadow(0 0 1.5px color-mix(in oklab,var(--signal-stroke) 30%,transparent)); opacity:0; }
+.hero-antenna-signal path { fill:none; stroke:currentColor; stroke-width:1.15; stroke-linecap:round; filter:drop-shadow(0 1px 1px color-mix(in oklab,var(--foreground) 45%,transparent)); opacity:0; }
 .antenna-signal-inner { animation:antenna-inner 3s ease-in-out infinite; }
 .antenna-signal-outer { animation:antenna-outer 3s ease-in-out infinite; }
 @keyframes antenna-inner { 0%,85%,100% {opacity:0;} 25%,48% {opacity:.48;} }
