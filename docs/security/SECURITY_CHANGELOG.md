@@ -78,3 +78,8 @@ Never edit or delete past entries. Never record secrets here.
 
 ## 2026-09-29 — OWNER APPROVED: customer refund request insert hardening
 - New BEFORE INSERT trigger `refund_requests_force_initial_state` (file `drizzle/migrations/0020_refund_request_force_initial_state.sql`, applied directly): every new refund request starts REQUESTED; non-server callers cannot set requester or amount fields. Existing guard triggers, policies and server refund logic unchanged. No customer INSERT policy exists; customers create requests only through `createRefundRequest`.
+
+
+## 2026-10-09 — OWNER APPROVED: standard account refund activation guard
+- Owner explicitly requested backend enforcement: active or historically activated eSIMs blocked, unknown activation blocked with support, confirmed never-activated packages eligible only within 14 days and without pending/completed requests.
+- Existing authenticated owner-scoped refund reader/writer, rate limits, immutable snapshots, payment confirmation guards and RLS unchanged; no migration or financial action. Preview fixtures never call the refund writer.
