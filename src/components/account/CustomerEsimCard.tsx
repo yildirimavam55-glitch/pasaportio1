@@ -42,6 +42,7 @@ import {
   type CustomerEsimRecord,
 } from "@/lib/customer-account.functions";
 import { localize } from "@/i18n/overlay";
+import { ACCOUNT_DEMO_COPY } from "./demo-copy";
 
 const STATUS_LABELS: Record<Locale, Record<CustomerEsimStatus, string>> = localize({
   tr: {
@@ -159,7 +160,8 @@ export function CustomerEsimCard({
   const lowData =
     esim.totalDataMb != null &&
     esim.remainingDataMb != null &&
-    esim.remainingDataMb / esim.totalDataMb <= 0.2;
+    esim.totalDataMb > 0 &&
+    esim.remainingDataMb / esim.totalDataMb < 0.1;
   const canShowActivation = !expired && (esim.hasQr || esim.hasInstallInfo);
   const canTopUp = esim.topupSupported && hasCapability(esim, "TOPUP");
   const policy = activationPolicy ?? esim.productInfo?.activationPolicy ?? null;
@@ -244,11 +246,7 @@ export function CustomerEsimCard({
               {lowData && (
                 <p className="mt-1.5 flex items-center gap-1.5 text-[11px] font-semibold text-foreground">
                   <AlertTriangle className="size-3.5 text-warning" />
-                  {locale === "tr"
-                    ? "Verinin %20'sinden azı kaldı"
-                    : locale === "de"
-                      ? "Weniger als 20 % übrig"
-                      : "Less than 20% left"}
+                  {ACCOUNT_DEMO_COPY[locale].low}
                 </p>
               )}
             </>
