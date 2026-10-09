@@ -1863,14 +1863,14 @@ body:has([role="dialog"][data-state="open"]) .pasaport-mobile-reference [data-wh
  .family-story-payment .pay-strip{display:grid;grid-template-columns:minmax(0,1fr);gap:8px;margin:0;padding:12px 0;background:none;border-radius:0;border-block:1px solid var(--story-border);min-height:0}
  .family-story-payment .pay-strip:before,.family-story-payment .pay-shield,.family-story-payment .pay-stripe-d{display:none}
  .family-story-payment .pay-head{grid-column:1;grid-row:auto;gap:6px;justify-content:center}
- .family-story-payment .pay-lock{display:block;width:16px;height:16px}
+ .family-story-payment .pay-strip .pay-lock{display:block;width:16px;height:16px}
  .family-story-payment .pay-title-d{font-size:16px;font-weight:600;line-height:1.4}
  .family-story-payment .pay-logos{grid-column:1;grid-row:auto;display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:6px 10px}
  .family-story-payment .pay-logos li{height:32px;border-radius:0;background:none;border:0}
  .family-story-payment .pay-logos svg{max-width:none}
  .family-story-payment .pay-paypal{font-size:13px}
  .family-story-payment .pay-klarna{font-size:12px;padding:4px 6px}
- .family-story-payment .pay-stripe-m{display:block;text-align:center;font-size:12px;opacity:.65}
+ .family-story-payment .pay-strip .pay-stripe-m{display:block;text-align:center;font-size:12px;opacity:.65}
  .family-story-payment .pay-note{margin:0;text-align:center;font-size:10px;line-height:1.4}
 }
 @media(max-width:1023px){
