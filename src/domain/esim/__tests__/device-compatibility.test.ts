@@ -59,7 +59,15 @@ describe("safe browser device detection", () => {
 
   it("keeps Android and Samsung family-only signals partial", () => {
     expect(detectDeviceFromSignals(devices, { userAgent: "Android 14" })).toEqual({ kind: "partial", family: "android" });
-    expect(detectDeviceFromSignals(devices, { userAgent: "Samsung Android" })).toEqual({ kind: "partial", family: "samsung" });
+    expect(detectDeviceFromSignals(devices, { model: "SM-S921B", userAgent: "Android 14" })).toEqual({ kind: "partial", family: "samsung" });
+  });
+  it("does not treat the Samsung Internet browser as a Samsung phone", () => {
+    expect(detectDeviceFromSignals(devices, { userAgent: "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 SamsungBrowser/25.0 Chrome/121 Mobile" })).toEqual({ kind: "partial", family: "android" });
+  });
+  it("decides mobile from browser signals, not screen size", async () => {
+    const { isMobileBrowser } = await import("../device-detection");
+    expect(isMobileBrowser({ userAgent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/130" }, false)).toBe(false);
+    expect(isMobileBrowser({ userAgent: "Mozilla/5.0 (Linux; Android 14; K)" })).toBe(true);
   });
 
   it("never guesses an iPhone model from Safari signals", () => {
