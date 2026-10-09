@@ -54,4 +54,4 @@
 - OAuth (Google/Apple) reconfiguration for the new project.
 - Old domain references (wanderpath-engine.lovable.app) — await approved target domain before rewriting.
 - Multi-currency implementation — deferred until migration verified.
-- [ ] Demo eSIM paketleri yildirim.avam55@gmail.com hesabına (test)
+- [x] Demo eSIM paketleri yildirim.avam55@gmail.com hesabına (test)

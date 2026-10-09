@@ -73,7 +73,7 @@ function RefundDrawer({ row, onClose }: { row: Row; onClose: () => void }) {
       updateAdminRefundRequest({ data: { id: row.id, action, ...(adminNote.trim() ? { adminNote: adminNote.trim() } : {}), customerMessage: customerMessage.trim() } }),
     onSuccess: async () => {
       setAdminNote("");
-      await Promise.all([qc.invalidateQueries({ queryKey: ["admin-refund-requests"] }), qc.invalidateQueries({ queryKey: ["admin-refund-events", row.id] })]);
+      await Promise.all([qc.invalidateQueries({ queryKey: ["admin-refund-requests"] }), qc.invalidateQueries({ queryKey: ["admin-refund-events", row.id] }), qc.invalidateQueries({ queryKey: ["admin-alerts"] })]);
     },
   });
   const openStatus = row.status === "REQUESTED" || row.status === "UNDER_REVIEW";
