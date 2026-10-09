@@ -1911,8 +1911,9 @@ body:has([role="dialog"][data-state="open"]) .pasaport-mobile-reference [data-wh
 .hero-antenna-signal path { fill:none; stroke:currentColor; stroke-width:1.15; stroke-linecap:round; filter:drop-shadow(0 1px 1px color-mix(in oklab,var(--foreground) 45%,transparent)); opacity:0; }
 .antenna-signal-inner { animation:antenna-inner 3s ease-in-out infinite; }
 .antenna-signal-outer { animation:antenna-outer 3s ease-in-out infinite; }
-@keyframes antenna-inner { 0%,85%,100% {opacity:0;} 25%,48% {opacity:.48;} }
-@keyframes antenna-outer { 0%,20%,85%,100% {opacity:0;} 45%,55% {opacity:.34;} }
+/* Outward wave: inner pair lights first, outer pair follows as the signal radiates away. */
+@keyframes antenna-inner { 0% {opacity:0;} 12% {opacity:.5;} 30% {opacity:.5;} 45%,100% {opacity:0;} }
+@keyframes antenna-outer { 0%,18% {opacity:0;} 36% {opacity:.36;} 52% {opacity:.36;} 68%,100% {opacity:0;} }
 @media (prefers-reduced-motion:reduce) { .hero-antenna-signal path { animation:none; opacity:.2; } }
 
 /* Meaningful phone content stays in normal flow; only scan decoration is contained. */
