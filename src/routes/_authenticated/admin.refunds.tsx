@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { AlertTriangle } from "lucide-react";
 
 import { AdminGate } from "@/components/AdminGate";
@@ -8,10 +8,11 @@ import { AdminDrawer, AdminError, AdminLoading, AdminPanel, DataRow, EmptyState,
 import { adminHead } from "@/components/admin/AdminSectionPage";
 import { Button } from "@/components/ui/button";
 import { REFUND_COPY } from "@/components/refunds/refund-copy";
-import { getAdminRefundEvents, listAdminRefundRequests, updateAdminRefundRequest } from "@/lib/refunds.functions";
+import { getAdminRefundEvents, listAdminRefundRequests, markRefundAlertRead, updateAdminRefundRequest } from "@/lib/refunds.functions";
 
 export const Route = createFileRoute("/_authenticated/admin/refunds")({
   head: () => adminHead("İade Talepleri", "14 gün iade güvencesi talepleri: inceleme, onay ve ret."),
+  validateSearch: (s: Record<string, unknown>): { id?: string } => (typeof s["id"] === "string" ? { id: s["id"] } : {}),
   component: Refunds,
 });
 
@@ -22,7 +23,11 @@ const date = (v: string | null) => (v ? new Date(v).toLocaleString("tr-TR", { da
 
 function Refunds() {
   const q = useQuery({ queryKey: ["admin-refund-requests"], queryFn: () => listAdminRefundRequests() });
-  const [openId, setOpenId] = useState<string | null>(null);
+  const search = Route.useSearch();
+  const qc = useQueryClient();
+  const [openId, setOpenId] = useState<string | null>(search.id ?? null);
+  useEffect(() => { if (search.id) setOpenId(search.id); }, [search.id]);
+  useEffect(() => { if (openId) void markRefundAlertRead({ data: { id: openId } }).then(() => qc.invalidateQueries({ queryKey: ["admin-alerts"] })).catch(() => {}); }, [openId, qc]);
   const current = q.data?.find((r) => r.id === openId) ?? null;
   return (
     <AdminGate title="İade Talepleri">
@@ -68,7 +73,7 @@ function RefundDrawer({ row, onClose }: { row: Row; onClose: () => void }) {
       updateAdminRefundRequest({ data: { id: row.id, action, ...(adminNote.trim() ? { adminNote: adminNote.trim() } : {}), customerMessage: customerMessage.trim() } }),
     onSuccess: async () => {
       setAdminNote("");
-      await Promise.all([qc.invalidateQueries({ queryKey: ["admin-refund-requests"] }), qc.invalidateQueries({ queryKey: ["admin-refund-events", row.id] })]);
+      await Promise.all([qc.invalidateQueries({ queryKey: ["admin-refund-requests"] }), qc.invalidateQueries({ queryKey: ["admin-refund-events", row.id] }), qc.invalidateQueries({ queryKey: ["admin-alerts"] })]);
     },
   });
   const openStatus = row.status === "REQUESTED" || row.status === "UNDER_REVIEW";
@@ -79,6 +84,8 @@ function RefundDrawer({ row, onClose }: { row: Row; onClose: () => void }) {
         <div className="grid gap-1">
           <DataRow label="Müşteri" value={`${row.customer.name ?? ""} ${row.customer.email ?? row.customer.id ?? ""}`.trim()} />
           <DataRow label="Sipariş" value={row.orderNumber ? `#${row.orderNumber} (${row.paymentStatus ?? "—"})` : "—"} />
+          <DataRow label="eSIM" value={row.esimId ?? "—"} />
+          <DataRow label="Aktivasyon" value={row.activation} />
           <DataRow label="Sipariş kalemi" value={row.orderItemId ?? "—"} />
           <DataRow label="Ülke" value={row.country ?? "—"} />
           <DataRow label="Satın alma" value={date(row.purchaseAt)} />

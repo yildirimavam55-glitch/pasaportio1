@@ -15,6 +15,14 @@ import { ACCOUNT_REFUND_MESSAGES } from "@/components/account/demo-copy";
 import { CLink as Link } from "@/components/design-v2/v2-context";
 import { RefundPolicyLink } from "./RefundTrust";
 import { REFUND_COPY } from "./refund-copy";
+import { localize } from "@/i18n/overlay";
+
+const FLOW = localize({
+  tr: { order: "Sipariş", confirm: "Talebi göndermek istediğine emin misin?", yes: "Evet, gönder", back: "Geri", ref: "Talep no", received: "Talep alındı — inceleme bekleniyor", noOrder: "Demo · sipariş yok" },
+  de: { order: "Bestellung", confirm: "Möchtest du den Antrag wirklich senden?", yes: "Ja, senden", back: "Zurück", ref: "Antragsnr.", received: "Antrag erhalten — Prüfung ausstehend", noOrder: "Demo · keine Bestellung" },
+  en: { order: "Order", confirm: "Do you want to submit this request?", yes: "Yes, submit", back: "Back", ref: "Request ref.", received: "Request received — awaiting review", noOrder: "Demo · no order" },
+  ar: { order: "الطلب", confirm: "هل تريد إرسال هذا الطلب؟", yes: "نعم، أرسل", back: "رجوع", ref: "رقم الطلب", received: "تم استلام الطلب — بانتظار المراجعة", noOrder: "تجريبي · لا يوجد طلب" },
+});
 
 const OPEN = new Set(["REQUESTED", "UNDER_REVIEW", "APPROVED"]);
 
@@ -29,12 +37,15 @@ export function EsimRefundPanel({ esimId }: { esimId: string }) {
   const [note, setNote] = useState("");
   const [ack, setAck] = useState(false);
   const [justSent, setJustSent] = useState(false);
+  const [confirming, setConfirming] = useState(false);
+  const f = FLOW[locale];
 
   const state = useQuery({ queryKey: ["esim-refund-state", esimId], queryFn: () => getEsimRefundState({ data: { esimId } }), staleTime: 30_000 });
   const submit = useMutation({
     mutationFn: () => createRefundRequest({ data: { esimId, reasonCode: reason as RefundReason, ...(note.trim() ? { note: note.trim() } : {}), acknowledged: true } }),
     onSuccess: async () => {
       setJustSent(true);
+      setConfirming(false);
       setOpen(false);
       await qc.invalidateQueries({ queryKey: ["esim-refund-state", esimId] });
       await qc.invalidateQueries({ queryKey: ["my-refund-requests"] });
@@ -59,7 +70,8 @@ export function EsimRefundPanel({ esimId }: { esimId: string }) {
 
       {openRequest ? (
         <div className="mt-3 grid gap-1 text-sm">
-          {justSent && <p className="flex items-center gap-1.5 font-semibold text-success"><CheckCircle2 className="size-4" />{c.received}</p>}
+          {justSent && <p className="flex items-center gap-1.5 font-semibold text-success"><CheckCircle2 className="size-4" />{f.received}</p>}
+          <p className="text-xs text-muted-foreground">{f.ref}: <strong className="font-mono">{openRequest.id.slice(0, 8).toUpperCase()}</strong></p>
           <p><span className="text-muted-foreground">{c.status}: </span><strong>{c.statuses[openRequest.status]}</strong></p>
           <p className="text-xs text-muted-foreground">{c.requestDate}: {formatDate(openRequest.createdAt, locale)}</p>
           {openRequest.customerMessage && <p className="mt-1 rounded-lg bg-secondary px-3 py-2 text-xs">{openRequest.customerMessage}</p>}
@@ -76,7 +88,7 @@ export function EsimRefundPanel({ esimId }: { esimId: string }) {
         <>
           <p className="mt-2 text-sm font-semibold">{c.daysLeft(s.daysLeft)}</p>
           {s.usageVerification !== "VERIFIED_UNUSED" && <p className="mt-1 text-xs text-muted-foreground">{s.isDemo ? c.demo : c.reviewNote}</p>}
-          <Button variant="outline" className="mt-3 min-h-11 w-full" onClick={() => { submit.reset(); setOpen(true); }}>{c.create}</Button>
+          <Button variant="outline" className="mt-3 min-h-11 w-full" onClick={() => { submit.reset(); setConfirming(false); setOpen(true); }}>{c.create}</Button>
         </>
       ) : (
         <p className="mt-2 text-sm text-muted-foreground">
@@ -103,6 +115,7 @@ export function EsimRefundPanel({ esimId }: { esimId: string }) {
           <SheetHeader className="text-left">
             <SheetTitle>{c.sheetTitle}</SheetTitle>
             <SheetDescription className="font-semibold text-foreground">{s.label}</SheetDescription>
+            <p className="text-xs text-muted-foreground">{f.order}: {s.orderNumber ? `#${s.orderNumber}` : f.noOrder}</p>
           </SheetHeader>
           {s.isDemo && <p className="mt-2 rounded-lg bg-warning/10 px-3 py-2 text-xs font-semibold">{c.demo}</p>}
           <dl className="mt-3 grid grid-cols-3 gap-2 text-xs">
@@ -113,7 +126,7 @@ export function EsimRefundPanel({ esimId }: { esimId: string }) {
           <p className="mt-3 text-xs leading-5 text-muted-foreground">{c.explain}</p>
           <form
             className="mt-3 grid gap-3"
-            onSubmit={(event) => { event.preventDefault(); if (reason && ack) submit.mutate(); }}
+            onSubmit={(event) => { event.preventDefault(); if (!reason || !ack) return; if (!confirming) { setConfirming(true); return; } if (!submit.isPending) submit.mutate(); }}
           >
             <label className="grid gap-1 text-sm font-semibold">
               {c.reason}
@@ -131,7 +144,7 @@ export function EsimRefundPanel({ esimId }: { esimId: string }) {
               {c.ack}
             </label>
             {errorMessage && <p className="text-xs font-semibold text-destructive" role="alert">{errorMessage}</p>}
-            <Button type="submit" variant="cta" className="min-h-11" disabled={!reason || !ack || submit.isPending}>{submit.isPending ? c.sending : c.submit}</Button>
+            {confirming ? <div className="grid gap-2 rounded-xl border border-border p-3"><p className="text-sm font-semibold">{f.confirm}</p><div className="grid grid-cols-2 gap-2"><Button type="button" variant="outline" className="min-h-11" onClick={() => setConfirming(false)} disabled={submit.isPending}>{f.back}</Button><Button type="submit" variant="cta" className="min-h-11" disabled={submit.isPending}>{submit.isPending ? c.sending : f.yes}</Button></div></div> : <Button type="submit" variant="cta" className="min-h-11" disabled={!reason || !ack}>{c.submit}</Button>}
           </form>
         </SheetContent>
       </Sheet>

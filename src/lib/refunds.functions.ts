@@ -212,6 +212,16 @@ export const createRefundRequest = createServerFn({ method: "POST" })
       order_item_id: row.order_item_id,
       note: state.isDemo ? "TEST / DEMO — no payment refund, no supplier action" : null,
     });
+    // In-app admin notification; unique index on (entity_id) prevents duplicates.
+    await supabaseAdmin.from("ops_alerts").insert({
+      type: "REFUND_REQUEST",
+      severity: "medium",
+      status: "OPEN",
+      entity_type: "refund_requests",
+      entity_id: inserted.id,
+      message: `${state.isDemo ? "TEST / DEMO · " : ""}İade talebi: ${state.summary.label}${state.summary.orderNumber ? ` · #${state.summary.orderNumber}` : ""}`,
+      context: { isTest: state.isDemo, esimId: state.esim.id },
+    } as any);
     return { id: inserted.id as string, status: "REQUESTED" as const };
   });
 
@@ -263,6 +273,8 @@ export const listAdminRefundRequests = createServerFn({ method: "GET" })
         orderNumber: (order?.order_number ?? snapshot["orderNumber"] ?? null) as string | null,
         paymentStatus: (order?.payment_status ?? null) as string | null,
         orderItemId: (r["order_item_id"] ?? null) as string | null,
+        esimId: (r["customer_esim_id"] ?? null) as string | null,
+        activation: esim ? assessActivationHistory(esim.status, esim.install_info) : String(((r["usage_snapshot"] ?? {}) as Record<string, unknown>)["activation"] ?? "UNKNOWN"),
         product: (item?.product_name_snapshot ?? snapshot["package"] ?? snapshot["label"] ?? null) as string | null,
         country: (item?.destination_snapshot ?? snapshot["destination"] ?? esim?.destination_label ?? null) as string | null,
         purchaseAt: (r["purchase_at"] ?? null) as string | null,
@@ -347,5 +359,17 @@ export const updateAdminRefundRequest = createServerFn({ method: "POST" })
     const { error: eventError } = await db.from("refund_request_events").insert({ refund_request_id: data.id, actor_id: ctx.userId, actor_type: "ADMIN", event: ACTION_EVENT[data.action], from_status: from, to_status: to, order_id: current.order_id, order_item_id: current.order_item_id, note: data.adminNote || null });
     if (eventError) throw new Error(eventError.message);
     await audit(db, `refund.${data.action.toLowerCase()}`, "refund_requests", data.id, { status: from }, { status: to, isTest: current.is_test, paymentRefundExecuted: false });
+    const terminal = to === "APPROVED" || to === "REJECTED" || to === "CANCELLED";
+    await db.from("ops_alerts").update(terminal ? { status: "RESOLVED", resolved_by: ctx.userId, resolved_at: new Date().toISOString() } : { status: "ACKNOWLEDGED" }).eq("type", "REFUND_REQUEST").eq("entity_id", data.id).neq("status", "RESOLVED");
     return { status: to };
+  });
+
+/** Marks the refund notification as read when an admin opens the request. */
+export const markRefundAlertRead = createServerFn({ method: "POST" })
+  .inputValidator((input) => z.object({ id: z.string().uuid() }).parse(input))
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context, data }) => {
+    const db = await adminDb(context as AdminCtx);
+    await db.from("ops_alerts").update({ status: "ACKNOWLEDGED" }).eq("type", "REFUND_REQUEST").eq("entity_id", data.id).eq("status", "OPEN");
+    return { ok: true };
   });
