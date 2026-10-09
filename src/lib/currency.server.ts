@@ -2,7 +2,7 @@ import { CURRENCY_CODES, USD_PEGS, type CurrencyCode } from "@/domain/currency/c
 import { CURRENCY_SETTINGS_ID, FX_TTL_MS, sanitizeCurrencySettings, type CurrencySettings } from "@/domain/currency/settings";
 
 /** ECB reference rates (free, keyless). AED/SAR are derived from their official USD pegs. */
-const FX_URL = "https://api.frankfurter.app/latest?from=EUR";
+const FX_URL = "https://api.frankfurter.dev/v1/latest?from=EUR";
 const PROVIDER = "ECB/frankfurter";
 
 export async function readCurrencySettings(db: any): Promise<CurrencySettings> {

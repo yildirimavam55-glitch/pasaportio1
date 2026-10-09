@@ -9,6 +9,16 @@ import { useI18n } from "@/i18n";
 import { CART_COPY, lineFacts, lineTitle } from "@/components/design-v2/cart-copy";
 import { localize } from "@/i18n/overlay";
 import { CouponSummary, useCartCoupon } from "@/components/design-v2/CartCoupon";
+import { useCurrency } from "@/components/currency/CurrencyProvider";
+import { formatCurrencyAmount } from "@/domain/currency/store";
+
+/** Display currency ≠ charge currency: always show the real amount that would be charged. */
+function chargeNote(locale: string, shown: string, charged: string) {
+  if (locale === "tr") return `Fiyatlar ${shown} olarak bilgi amaçlı gösterilir. Ödeme ${charged} olarak alınır.`;
+  if (locale === "de") return `Preise in ${shown} dienen zur Orientierung. Belastet werden ${charged}.`;
+  if (locale === "ar") return `الأسعار بعملة ${shown} للعرض فقط. سيتم تحصيل ${charged}.`;
+  return `Prices in ${shown} are for reference. You will be charged ${charged}.`;
+}
 
 const COPY = localize({
   tr: { title: "Ödeme", back: "Sepete dön", summary: "Sipariş özeti", account: "Hesap", signedAs: "Giriş yapıldı", signIn: "Siparişi hesabına bağlamak için giriş yap", signInCta: "Giriş yap", payment: "Ödeme", notLive: "Ödeme henüz aktif değil", notLiveText: "Şu anda gerçek ödeme alınmıyor. Ödeme yöntemi bağlandığında siparişini buradan tamamlayabilirsin.", cta: "Ödeme entegrasyonu bekleniyor", empty: "Sepetin boş", browse: "eSIM paketlerine bak" },
@@ -28,6 +38,7 @@ function V2Checkout() {
   const cc = pick(locale, CART_COPY);
   const { lines } = useCart();
   const coupon = useCartCoupon(lines);
+  const display = useCurrency();
   const applied = coupon.result?.ok && !coupon.pending ? coupon.result : null;
   const [email, setEmail] = useState<string | null | undefined>(undefined);
   useEffect(() => {
@@ -82,6 +93,7 @@ function V2Checkout() {
                 <span className="text-sm font-semibold text-muted-foreground">{cc.total}</span>
                 <strong className="font-display text-xl">{money(applied ? applied.total : total, currency)}</strong>
               </div>
+              {display.code !== currency && <p data-testid="charge-currency-note" className="mt-2 rounded-lg bg-secondary px-3 py-2 text-xs text-muted-foreground">{chargeNote(locale, display.code, formatCurrencyAmount(applied ? applied.total : total, currency, locale))}</p>}
             </V2Card>
           </div>
         )}

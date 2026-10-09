@@ -9,12 +9,14 @@ export const BASE_CURRENCY = "EUR" as const;
 export const CURRENCY_CODES = [
   "EUR", "USD", "GBP", "TRY", "CHF", "CAD", "AUD", "JPY", "PLN", "SEK",
   "NOK", "DKK", "SGD", "NZD", "MXN", "ZAR", "THB", "AED", "SAR", "BRL",
+  "CNY", "HKD", "CZK", "HUF", "QAR",
 ] as const;
 export type CurrencyCode = (typeof CURRENCY_CODES)[number];
 
 export const CURRENCY_SYMBOL: Record<CurrencyCode, string> = {
   EUR: "€", USD: "$", GBP: "£", TRY: "₺", CHF: "CHF", CAD: "C$", AUD: "A$", JPY: "¥", PLN: "zł", SEK: "kr",
   NOK: "kr", DKK: "kr", SGD: "S$", NZD: "NZ$", MXN: "MX$", ZAR: "R", THB: "฿", AED: "د.إ", SAR: "﷼", BRL: "R$",
+  CNY: "¥", HKD: "HK$", CZK: "Kč", HUF: "Ft", QAR: "ر.ق",
 };
 
 export function isCurrencyCode(value: unknown): value is CurrencyCode {
@@ -38,16 +40,22 @@ export const DEFAULT_ROUNDING: Record<CurrencyCode, RoundingRule> = {
   CAD: { mode: "99" }, AUD: { mode: "99" }, JPY: { mode: "increment", increment: 10 }, PLN: { mode: "99" }, SEK: { mode: "integer" },
   NOK: { mode: "integer" }, DKK: { mode: "integer" }, SGD: { mode: "99" }, NZD: { mode: "99" }, MXN: { mode: "integer" },
   ZAR: { mode: "99" }, THB: { mode: "integer" }, AED: { mode: "99" }, SAR: { mode: "99" }, BRL: { mode: "90" },
+  CNY: { mode: "integer" }, HKD: { mode: "integer" }, CZK: { mode: "integer" }, HUF: { mode: "increment", increment: 10 }, QAR: { mode: "99" },
 };
 
 export function defaultCurrencyConfig(code: CurrencyCode): CurrencyConfig {
-  return { enabled: true, display: true, checkout: code === "EUR" || code === "USD", autoUpdate: true, overrideRate: null, rounding: DEFAULT_ROUNDING[code] };
+  // Checkout stays base-only until a payment provider verifies other charge currencies.
+  return { enabled: code !== "BRL", display: code !== "BRL", checkout: code === BASE_CURRENCY, autoUpdate: true, overrideRate: null, rounding: DEFAULT_ROUNDING[code] };
 }
+
+/** The 24 currencies the storefront offers. BRL stays stored but off by default. */
+export const STOREFRONT_CURRENCIES: readonly CurrencyCode[] = CURRENCY_CODES.filter((c) => c !== "BRL");
 
 /** Customer-location → currency. Only supported currencies; everything else falls back. */
 export const COUNTRY_CURRENCY: Record<string, CurrencyCode> = {
   US: "USD", GB: "GBP", TR: "TRY", CH: "CHF", LI: "CHF", CA: "CAD", AU: "AUD", JP: "JPY", PL: "PLN", SE: "SEK",
   NO: "NOK", DK: "DKK", SG: "SGD", NZ: "NZD", MX: "MXN", ZA: "ZAR", TH: "THB", AE: "AED", SA: "SAR", BR: "BRL",
+  CN: "CNY", HK: "HKD", CZ: "CZK", HU: "HUF", QA: "QAR",
   // Eurozone + euro-using territories
   DE: "EUR", FR: "EUR", ES: "EUR", IT: "EUR", NL: "EUR", AT: "EUR", BE: "EUR", IE: "EUR", PT: "EUR", FI: "EUR",
   GR: "EUR", LU: "EUR", SK: "EUR", SI: "EUR", EE: "EUR", LV: "EUR", LT: "EUR", CY: "EUR", MT: "EUR", HR: "EUR",
@@ -55,7 +63,7 @@ export const COUNTRY_CURRENCY: Record<string, CurrencyCode> = {
 };
 
 /** European markets without a supported local currency prefer EUR; the rest of the world uses USD. */
-const EUROPEAN_EUR_FALLBACK = new Set(["CZ", "HU", "RO", "BG", "RS", "BA", "MK", "AL", "MD", "UA", "IS", "BY", "GE", "AM", "AZ", "FO", "GI", "GL"]);
+const EUROPEAN_EUR_FALLBACK = new Set(["RO", "BG", "RS", "BA", "MK", "AL", "MD", "UA", "IS", "BY", "GE", "AM", "AZ", "FO", "GI", "GL"]);
 
 export function currencyForCountry(iso: string | null | undefined): CurrencyCode | null {
   if (!iso) return null;
@@ -124,7 +132,7 @@ export function convertAmount(amountInBase: number, rate: number, rule: Rounding
   return applyCurrencyRounding(amountInBase * rate, rule);
 }
 
-export const FRACTION_DIGITS: Partial<Record<CurrencyCode, number>> = { JPY: 0 };
+export const FRACTION_DIGITS: Partial<Record<CurrencyCode, number>> = { JPY: 0, HUF: 0 };
 
 /**
  * Checkout currency: the selected currency is charged only when it is checkout-enabled
@@ -137,4 +145,4 @@ export function resolveCheckoutCurrency(selected: CurrencyCode, checkoutEnabled:
 }
 
 /** USD-pegged currencies not published by the ECB feed. */
-export const USD_PEGS: Partial<Record<CurrencyCode, number>> = { AED: 3.6725, SAR: 3.75 };
+export const USD_PEGS: Partial<Record<CurrencyCode, number>> = { AED: 3.6725, SAR: 3.75, QAR: 3.64 };

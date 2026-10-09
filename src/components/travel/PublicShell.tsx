@@ -44,7 +44,6 @@ import { useThemePreference, type ThemePreference } from "@/components/ThemePref
 import { usePublishedTheme } from "@/components/PublishedTheme";
 import { useIsV2 } from "@/components/design-v2/v2-context";
 import { useCurrency } from "@/components/currency/CurrencyProvider";
-import { isCurrencyCode } from "@/domain/currency/currencies";
 import { useCart } from "@/domain/cart/store";
 import { isHiddenServiceHref, useOptionalServices } from "./ServiceAvailability";
 import { localize } from "@/i18n/overlay";
@@ -53,6 +52,7 @@ import { CartContents } from "@/components/design-v2/CartContents";
 import { COMMERCE_COPY } from "@/components/design-v2/commerce-copy";
 import { cartBadge } from "@/domain/cart/presentation";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { LocaleCurrencyPicker } from "./LocaleCurrencyPicker";
 
 /** Flag shown next to each language (language, not location). */
 const LOCALE_FLAG: Record<UiLocale, string> = localize({
@@ -119,7 +119,7 @@ function LanguageMenu({
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }) {
-  const { locale, uiLocale, uiLocales, setLocale } = useI18n();
+  const { locale, uiLocale, setLocale } = useI18n();
   const navigate = useNavigate();
   const copy = localized(GLOBAL_CONTENT, locale);
   const choose = (code: UiLocale) => {
@@ -130,32 +130,23 @@ function LanguageMenu({
       void navigate({ to: "/$locale", params: { locale: code }, search: ((s: object) => s) as never });
     }
   };
+  const currency = useCurrency();
   return (
-    <DropdownMenu open={open} onOpenChange={onOpenChange}>
-      <DropdownMenuTrigger asChild>
-        <Button
-          variant="ghost"
-          size="sm"
-          aria-label={copy.language.label}
-          className="min-h-10 gap-1 px-2 text-xs sm:min-h-11 sm:px-3"
-        >
-          <CountryFlag iso={LOCALE_FLAG[uiLocale]} />
-          <span>{uiLocale.toUpperCase()}</span>
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="max-h-[min(70vh,26rem)] min-w-44 overflow-y-auto">
-        {uiLocales.map((code) => (
-          <DropdownMenuItem key={code} onSelect={() => choose(code)} className="min-h-11 gap-3">
-            <CountryFlag iso={LOCALE_FLAG[code]} />
-            <span lang={LOCALE_REGISTRY[code].bcp47} dir={LOCALE_REGISTRY[code].dir} className="flex-1">
-              {LOCALE_REGISTRY[code].nativeName}
-            </span>
-            <span className="text-[10px] font-semibold text-muted-foreground">{code.toUpperCase()}</span>
-            {uiLocale === code && <Check className="size-4 text-primary" aria-hidden="true" />}
-          </DropdownMenuItem>
-        ))}
-      </DropdownMenuContent>
-    </DropdownMenu>
+    <>
+      <Button
+        variant="ghost"
+        size="sm"
+        aria-label={copy.language.label}
+        aria-haspopup="dialog"
+        onClick={() => onOpenChange(true)}
+        className="min-h-10 gap-1 px-2 text-xs sm:min-h-11 sm:px-3"
+      >
+        <CountryFlag iso={LOCALE_FLAG[uiLocale]} />
+        <span>{uiLocale.toUpperCase()}</span>
+        <span className="text-muted-foreground" data-testid="header-currency-code">· {currency.code}</span>
+      </Button>
+      <LocaleCurrencyPicker open={open} onOpenChange={onOpenChange} onChooseLocale={choose} />
+    </>
   );
 }
 
@@ -370,7 +361,6 @@ export function PublicShell({
                 <ShoppingBag className="size-5" />
                 {count > 0 && <span data-testid="cart-count" aria-hidden="true" className="absolute end-0 top-0 grid h-4 min-w-4 place-items-center rounded-full bg-accent px-1 text-[9px] font-bold text-accent-foreground">{cartBadge(count)}</span>}
             </Button>
-            {mobilePasaport && <select aria-label={uiLocale === "tr" ? "Para birimi" : uiLocale === "de" ? "Währung" : uiLocale === "ar" ? "العملة" : "Currency"} value={currency.code} onChange={(event) => { if (isCurrencyCode(event.target.value)) currency.setCurrency(event.target.value); }} className="header-currency min-h-11 rounded bg-transparent text-xs">{currency.available.map((code) => <option key={code} value={code}>{code}</option>)}</select>}
             <LanguageMenu
               open={languageOpen}
               onOpenChange={(open) => {
