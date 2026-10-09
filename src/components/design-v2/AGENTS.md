@@ -15,3 +15,4 @@
 - The hero trust row renders the Admin-edited BENEFIT_ROW section (icon, localized label, link, order, visibility); built-in copy is only a fallback so saved values always win.
 - Review presentation uses the existing CMS source statistics and count-weighted aggregate; review samples require a genuine preview host independently of payment/comparison demo flags, so public demo approval never substitutes for review evidence.
 - Reviews use the existing Embla engine with a naturally sized non-scrolling track and horizontal-only transforms; localized CMS texts retain original attribution and expanded reading pauses autoplay — why: main-page gestures and reading position must remain independent of slide changes.
+- Homepage entrances reuse Reveal, shared entry/resource observers and the sanitized theme toggle; motion never gates data or transforms sticky controls — why: first rendering and carousel scrolling stay independent.
