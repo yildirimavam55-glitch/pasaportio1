@@ -1,21 +1,24 @@
-import { useEffect, useRef, useState, type CSSProperties } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
+import useEmblaCarousel from 'embla-carousel-react';
 import { ArrowRight, Star } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useI18n } from '@/i18n';
-import { v2ItemText, type V2Section } from '@/domain/storefront/v2';
+import { type V2Section } from '@/domain/storefront/v2';
 import { publicReview, reviewAutoplay } from '@/domain/storefront/trust-comparison';
-import { REVIEW_INTERVAL_MS, reviewCapacity, reviewDotIndices, combinedSourceRating, starFill, reviewDesignPreviewHost } from '@/domain/storefront/review-carousel';
+import { REVIEW_INTERVAL_MS, reviewDotIndices, reviewRatingSummary, reviewLanguagePresentation, starFill, reviewDesignPreviewHost } from '@/domain/storefront/review-carousel';
 import { STORY_COPY } from './trust-story-copy';
 import { ReviewSourceMark } from './ReviewSourceMark';
+import { REVIEW_COPY } from './review-copy';
 
 function RatingStars({ rating }: { rating: number }) {
   return <div className="combined-stars" role="img" aria-label={`${rating.toFixed(1)} / 5`}>{Array.from({length:5},(_,i)=><span className="partial-star" key={i}><Star aria-hidden="true"/><span style={{width:`${starFill(rating,i)}%`} as CSSProperties}><Star aria-hidden="true" fill="currentColor"/></span></span>)}</div>;
 }
 const REVIEW_HEADINGS = { tr: 'Gezginler ne diyor?', de: 'Das sagen Reisende', en: 'What travelers say', ar: 'ماذا يقول المسافرون' };
-type PresentedReview = { id: string; text: string; name: string; rating: number; source: string; url?: string | undefined; date?: string | undefined; sample: boolean };
-function ReviewCard({ review: r, clone, readMore, sampleLabel }: { review: PresentedReview; clone: boolean; readMore: string; sampleLabel: string }) {
+type PresentedReview = { id: string; text: string; name: string; rating: number; source: string; url?: string | undefined; date?: string | undefined; sample: boolean; originalText?: string; originalLanguage?: string; translated?: boolean };
+function ReviewCard({ review: r, readMore, sampleLabel, locale, onReading }: { review: PresentedReview; readMore: string; sampleLabel: string; locale: string; onReading: (id: string, reading: boolean) => void }) {
   const text = useRef<HTMLParagraphElement>(null);
-  const [expanded, setExpanded] = useState(false), [long, setLong] = useState(false);
+  const [expanded, setExpanded] = useState(false), [long, setLong] = useState(false), [original, setOriginal] = useState(false);
+  const copy = REVIEW_COPY[locale as keyof typeof REVIEW_COPY] ?? REVIEW_COPY.en;
   useEffect(() => {
     const node = text.current;
     if (!node || expanded) return;
@@ -24,10 +27,16 @@ function ReviewCard({ review: r, clone, readMore, sampleLabel }: { review: Prese
     observer.observe(node); measure();
     return () => observer.disconnect();
   }, [r.text, expanded]);
-  return <article className="family-review-card" data-review-source={r.source} data-expanded={expanded} aria-hidden={clone || undefined} inert={clone || undefined}>
+  const language = r.originalLanguage ? new Intl.DisplayNames([locale], { type: 'language' }).of(r.originalLanguage) : '';
+  const toggleExpanded = () => { const next = !expanded; setExpanded(next); onReading(r.id, next || original); };
+  const toggleOriginal = () => { const next = !original; setOriginal(next); onReading(r.id, next || expanded); };
+  return <article className="family-review-card" data-review-source={r.source} data-expanded={expanded}>
     <div className="review-card-top">{r.url ? <a href={r.url} target="_blank" rel="noopener noreferrer"><ReviewSourceMark source={r.source}/></a> : <ReviewSourceMark source={r.source}/>}<RatingStars rating={r.rating}/></div>
-    <p ref={text} className="review-text">“{r.text}”</p>
-    {long && !expanded && !clone && <Button className="review-read-more" variant="ghost" aria-expanded={expanded} onClick={() => setExpanded(true)}>{readMore}<ArrowRight className="rtl:rotate-180"/></Button>}
+    {!r.sample && r.originalLanguage && (r.translated || r.originalLanguage !== locale) && <div className="review-language-note">{r.translated ? copy.translated : copy.language} · {language}</div>}
+    <p ref={text} className="review-text" dir="auto" lang={r.translated ? locale : r.originalLanguage}>“{r.text}”</p>
+    {(long || expanded) && <Button className="review-read-more" variant="ghost" aria-expanded={expanded} onClick={toggleExpanded}>{expanded ? copy.less : readMore}<ArrowRight className="rtl:rotate-180"/></Button>}
+    {r.translated && <Button className="review-original-toggle" variant="ghost" aria-expanded={original} onClick={toggleOriginal}>{original ? copy.hideOriginal : copy.original}</Button>}
+    {original && <div className="review-original-text" lang={r.originalLanguage} dir="auto">{r.originalText}</div>}
     <footer className="review-card-identity"><span className="review-avatar" aria-hidden="true">{r.sample ? 'EX' : r.name.slice(0,2).toUpperCase()}</span><div className="reviewer-name"><strong>{r.name}</strong>{r.sample ? <span className="sample-badge">{sampleLabel}</span> : r.date && <time dateTime={r.date}>{r.date}</time>}</div></footer>
   </article>;
 }
@@ -37,73 +46,55 @@ export function V2ReviewCarousel({ section, preview }: { section: V2Section; pre
   const [previewHost, setPreviewHost] = useState(false);
   useEffect(() => setPreviewHost(reviewDesignPreviewHost(window.location.hostname)), []);
   const sampleMode = preview && previewHost && section.trust?.reviewSampleMode !== false;
-  const genuine = section.items.filter(publicReview).filter(r => r.cardType === 'review').map(r => ({
-    id:r.id, text:r.text[r.originalLanguage ?? 'en'] || v2ItemText(r.text,locale), name:r.title[r.originalLanguage ?? 'en'] || v2ItemText(r.title,locale),
-    rating:r.rating, source:r.reviewSource ?? 'Direct', url:r.reviewSourceUrl, date:r.reviewDate, sample:false,
-  }));
-  const samples = c.samples.map((text,i)=>({id:`sample-${i}`,text,name:c.traveler,rating:5,source:i===1?'Trustpilot':'Google',url:undefined,date:undefined,sample:true}));
-  const reviews = sampleMode ? [...samples.filter(r=>!genuine.some(g=>g.source===r.source)),...genuine] : genuine;
-  const realSummary = combinedSourceRating(section.trust?.sourceRatings);
-  const summary = realSummary ?? (sampleMode ? {rating:4.8,displayRating:4.8,count:210} : null);
-  const rail=useRef<HTMLDivElement>(null),region=useRef<HTMLDivElement>(null),settle=useRef<ReturnType<typeof setTimeout>|null>(null),touchTimer=useRef<ReturnType<typeof setTimeout>|null>(null);
-  const [active,setActive]=useState(0),[capacity,setCapacity]=useState(1),[touch,setTouch]=useState(false),[hover,setHover]=useState(false),[focused,setFocused]=useState(false),[visible,setVisible]=useState(false),[tab,setTab]=useState(true),[reduced,setReduced]=useState(false);
-  const [railHeight, setRailHeight] = useState<number | undefined>();
+  const genuine = useMemo(() => section.items.filter(publicReview).filter(r => r.cardType === 'review')
+    .map(r => ({ ...reviewLanguagePresentation(r, uiLocale), id: r.id, name: r.title[r.originalLanguage ?? 'en'] || r.title[locale] || '', rating: r.rating, url: r.reviewSourceUrl, date: r.reviewDate, sample: false }))
+    .sort((a,b) => a.priority - b.priority), [section.items, uiLocale, locale]);
+  const samples = c.samples.map((text,i)=>({id:`sample-${i}`,text,name:c.traveler,rating:5,source:i===1?'Trustpilot':'Google',sample:true}));
+  const reviews: PresentedReview[] = sampleMode ? [...samples.filter(r=>!genuine.some(g=>g.source===r.source)),...genuine] : genuine;
+  const summary = reviewRatingSummary(section.trust?.sourceRatings, sampleMode);
+  const copy = REVIEW_COPY[uiLocale as keyof typeof REVIEW_COPY] ?? REVIEW_COPY[locale];
+  const region=useRef<HTMLDivElement>(null), touchTimer=useRef<ReturnType<typeof setTimeout>|null>(null);
+  const [active,setActive]=useState(0), [enough,setEnough]=useState(false), [touch,setTouch]=useState(false), [hover,setHover]=useState(false), [focused,setFocused]=useState(false), [visible,setVisible]=useState(false), [tab,setTab]=useState(true), [reduced,setReduced]=useState(false);
+  const [reading, setReading] = useState<string[]>([]);
+  const onReading = useCallback((id: string, expanded: boolean) => setReading(ids => expanded ? [...new Set([...ids,id])] : ids.filter(value => value !== id)), []);
+  const [viewport, carousel] = useEmblaCarousel({ loop: true, align: 'start', direction: uiLocale === 'ar' ? 'rtl' : 'ltr', containScroll: false, duration: reduced ? 0 : 25 });
+  const releaseTouch=useCallback(()=>{if(touchTimer.current)clearTimeout(touchTimer.current);touchTimer.current=setTimeout(()=>setTouch(false),1200);},[]);
   useEffect(() => {
-    const node = rail.current;
-    if (!node) return;
-    const measure = () => {
-      const cards = Array.from(node.children).slice(active, active + capacity);
-      setRailHeight(Math.max(0, ...cards.map(card => card.getBoundingClientRect().height)) + 2);
-    };
-    const observer = new ResizeObserver(measure);
-    Array.from(node.children).forEach(card => observer.observe(card));
-    measure();
-    return () => observer.disconnect();
-  }, [active, capacity, reviews.length, uiLocale]);
-  const enough=reviews.length>capacity;
-  const move=(index:number)=>{
-    const node=rail.current,card=node?.firstElementChild as HTMLElement|null;
-    if(!node||!card)return;
-    const count=reviews.length,n=(index+count)%count,loop=index===count;
-    const left=(getComputedStyle(node).direction==='rtl'?-1:1)*(card.getBoundingClientRect().width+12);
-    node.scrollTo({left:(loop?count:n)*left,behavior:reduced?'instant':'smooth'});
-    if(settle.current)clearTimeout(settle.current);
-    if(loop)settle.current=setTimeout(()=>node.scrollTo({left:0,behavior:'instant'}),650);
-    setActive(n);
-  };
-  const releaseTouch=()=>{if(touchTimer.current)clearTimeout(touchTimer.current);touchTimer.current=setTimeout(()=>setTouch(false),1200);};
+    if (!carousel) return;
+    const sync = () => { setActive(carousel.selectedScrollSnap()); setEnough(carousel.scrollSnapList().length > 1 && (carousel.canScrollNext() || carousel.canScrollPrev())); };
+    const down = () => { setTouch(true); if(touchTimer.current)clearTimeout(touchTimer.current); };
+    sync(); carousel.on('select',sync).on('reInit',sync).on('pointerDown',down).on('pointerUp',releaseTouch);
+    return () => { carousel.off('select',sync).off('reInit',sync).off('pointerDown',down).off('pointerUp',releaseTouch); };
+  }, [carousel, releaseTouch]);
   useEffect(()=>{
-    const node=region.current,track=rail.current;if(!node||!track)return;
+    const node=region.current;if(!node)return;
     const observer=new IntersectionObserver(([e])=>setVisible(Boolean(e?.isIntersecting)),{threshold:.15});observer.observe(node);
-    const resize=new ResizeObserver(()=>setCapacity(reviewCapacity(track.clientWidth)));resize.observe(track);
     const mq=matchMedia('(prefers-reduced-motion: reduce)'),motion=()=>setReduced(mq.matches),visibility=()=>setTab(!document.hidden);
     motion();visibility();mq.addEventListener('change',motion);document.addEventListener('visibilitychange',visibility);
-    return()=>{observer.disconnect();resize.disconnect();mq.removeEventListener('change',motion);document.removeEventListener('visibilitychange',visibility);if(settle.current)clearTimeout(settle.current);if(touchTimer.current)clearTimeout(touchTimer.current);};
-  },[reviews.length]);
-  useEffect(()=>{setActive(0);rail.current?.scrollTo({left:0,behavior:'instant'});},[capacity,uiLocale,reviews.length]);
+    return()=>{observer.disconnect();mq.removeEventListener('change',motion);document.removeEventListener('visibilitychange',visibility);if(touchTimer.current)clearTimeout(touchTimer.current);};
+  },[]);
+  useEffect(()=>{setReading([]);carousel?.scrollTo(0,true);},[uiLocale,carousel,reviews.length]);
   useEffect(()=>{
-    if(!reviewAutoplay({enough,paused:touch,hover,focused,visible,tab,reduced}))return;
-    const timer=setInterval(()=>move(active+1),REVIEW_INTERVAL_MS);return()=>clearInterval(timer);
-  },[enough,touch,hover,focused,visible,tab,reduced,active]);
-  if(!reviews.length&&!summary)return null;
+    if(!carousel || !reviewAutoplay({enough,paused:touch || reading.length > 0,hover,focused,visible,tab,reduced}))return;
+    const timer=setInterval(()=>carousel.scrollNext(),REVIEW_INTERVAL_MS);return()=>clearInterval(timer);
+  },[carousel,enough,touch,reading.length,hover,focused,visible,tab,reduced]);
   const savedHeading=section.text['familyReviewsTitle']?.[uiLocale]||section.text['familyReviewsTitle']?.[locale];
   const heading=savedHeading && !Object.values(STORY_COPY).some(copy => copy.reviews === savedHeading) ? savedHeading : REVIEW_HEADINGS[uiLocale as keyof typeof REVIEW_HEADINGS] ?? REVIEW_HEADINGS[locale];
-  const renderCards=enough?[...reviews,...reviews.slice(0,capacity)]:reviews;
   return <div id="traveler-reviews" className="family-reviews approved-reviews combined-reviews" ref={region} role="region" aria-label={heading}
     onMouseEnter={()=>setHover(true)} onMouseLeave={()=>setHover(false)} onFocusCapture={()=>setFocused(true)} onBlurCapture={e=>{if(!e.currentTarget.contains(e.relatedTarget))setFocused(false);}}>
     <div className="family-review-heading"><h3>{heading}</h3></div>
-    <div className="review-rating-summary">
+    <div className="review-rating-summary" data-rating-available={Boolean(summary)}>
       <div className="family-source-marks"><ReviewSourceMark source="Google"/><span className="review-source-divider" aria-hidden="true"/><ReviewSourceMark source="Trustpilot"/></div>
       {summary&&<><div className="combined-score"><RatingStars rating={summary.rating}/><bdi>{new Intl.NumberFormat(uiLocale,{minimumFractionDigits:1,maximumFractionDigits:1}).format(summary.displayRating)} / 5</bdi></div><span className="combined-count">{new Intl.NumberFormat(uiLocale).format(summary.count)} {c.reviewCountLabel}</span></>}
+      {!summary && <span className="review-rating-unavailable" role="status">{copy.unavailable}</span>}
     </div>
     {(sampleMode || summary)&&<p className="combined-caption">{sampleMode ? c.previewNotice : c.combinedLabel}</p>}
-    <div className="family-review-rail" ref={rail} style={{height:railHeight}} tabIndex={0} aria-label={heading}
-      onPointerDown={()=>{setTouch(true);if(touchTimer.current)clearTimeout(touchTimer.current);}} onPointerUp={releaseTouch} onPointerCancel={releaseTouch}
-      onWheel={()=>{setTouch(true);releaseTouch();}}
-      onKeyDown={e=>{if(e.key==='ArrowRight'||e.key==='ArrowLeft'){e.preventDefault();move(active+(e.key==='ArrowRight'?1:-1)*(getComputedStyle(e.currentTarget).direction==='rtl'?-1:1));}}}
-      onScroll={e=>{const card=e.currentTarget.firstElementChild as HTMLElement|null;if(card){const n=Math.round(Math.abs(e.currentTarget.scrollLeft)/(card.getBoundingClientRect().width+12));if(n<reviews.length)setActive(n);}}}>
-      {renderCards.map((r,i)=><ReviewCard key={`${r.id}-${i}`} review={r} clone={i>=reviews.length} readMore={c.readMore} sampleLabel={c.sample}/>)}
-    </div>
-    {enough&&<div className="review-pagination">{reviewDotIndices(reviews.length,active).map(i=><Button key={i} variant="ghost" size="icon" aria-label={`${c.slide} ${i+1}`} aria-current={active===i?'true':undefined} onClick={()=>{setTouch(true);releaseTouch();move(i);}}><span className="review-dot"/></Button>)}</div>}
+    {reviews.length > 0 && <div className="review-carousel-viewport" ref={viewport} onWheel={()=>{setTouch(true);releaseTouch();}}>
+      <div className="family-review-rail" tabIndex={0} aria-label={heading}
+        onKeyDown={e=>{if(e.key==='ArrowRight'||e.key==='ArrowLeft'){e.preventDefault();setTouch(true);releaseTouch();if((e.key==='ArrowRight') !== (uiLocale==='ar'))carousel?.scrollNext();else carousel?.scrollPrev();}}}>
+        {reviews.map(r=><ReviewCard key={`${uiLocale}-${r.id}`} review={r} readMore={c.readMore} sampleLabel={c.sample} locale={uiLocale} onReading={onReading}/>)}
+      </div>
+    </div>}
+    {enough&&<div className="review-pagination">{reviewDotIndices(carousel?.scrollSnapList().length ?? reviews.length,active).map(i=><Button key={i} variant="ghost" size="icon" aria-label={`${c.slide} ${i+1}`} aria-current={active===i?'true':undefined} onClick={()=>{setTouch(true);releaseTouch();carousel?.scrollTo(i,reduced);}}><span className="review-dot"/></Button>)}</div>}
   </div>;
 }

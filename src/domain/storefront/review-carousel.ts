@@ -40,3 +40,17 @@ export function combinedSourceRating(raw: ReviewSourceRating[] | undefined) {
   return { rating, displayRating: Math.round(rating * 10) / 10, count };
 }
 export function starFill(rating: number, index: number) { return Math.max(0, Math.min(1, rating - index)) * 100; }
+
+type LocalizedReview = { originalLanguage?: string; text: Record<string, unknown>; reviewSource?: string };
+export function reviewLanguagePresentation(review: LocalizedReview, locale: string) {
+  const originalLanguage = review.originalLanguage ?? 'en';
+  const originalValue = review.text[originalLanguage], localizedValue = review.text[locale];
+  const originalText = typeof originalValue === 'string' ? originalValue.trim() : '';
+  const localizedText = typeof localizedValue === 'string' ? localizedValue.trim() : '';
+  const translated = locale !== originalLanguage && Boolean(localizedText) && localizedText !== originalText;
+  return { text: localizedText || originalText, originalText, originalLanguage, translated,
+    source: review.reviewSource ?? 'Direct', priority: originalLanguage === locale ? 0 : translated ? 1 : 2 };
+}
+export function reviewRatingSummary(raw: ReviewSourceRating[] | undefined, sampleMode: boolean) {
+  return combinedSourceRating(raw) ?? (sampleMode ? { rating: 4.8, displayRating: 4.8, count: 210 } : null);
+}
