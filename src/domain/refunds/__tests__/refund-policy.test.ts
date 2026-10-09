@@ -44,8 +44,8 @@ describe("eligibility", () => {
   it("<14 days + verified used → blocked", () => {
     expect(assessEligibility({ ...base, usage: "VERIFIED_USED" }).canRequest).toBe(false);
   });
-  it("unknown activation blocks an unconfirmed request", () => {
-    expect(assessEligibility({ ...base, activation: "UNKNOWN", usage: "UNKNOWN" })).toEqual({ eligibility: "ACTIVATION_UNKNOWN", canRequest: false });
+  it("unknown activation may request; goes to admin review", () => {
+    expect(assessEligibility({ ...base, activation: "UNKNOWN", usage: "UNKNOWN" })).toEqual({ eligibility: "REVIEW_REQUIRED", canRequest: true });
   });
   it(">14 days → expired", () => {
     expect(assessEligibility({ ...base, windowOpen: false, usage: "VERIFIED_UNUSED" }).eligibility).toBe("NOT_ELIGIBLE_EXPIRED");
