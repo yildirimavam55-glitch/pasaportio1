@@ -11,6 +11,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { REFUND_REASONS, type RefundReason } from "@/domain/refunds/refund-policy";
 import { useI18n } from "@/i18n";
 import { createRefundRequest, getEsimRefundState } from "@/lib/refunds.functions";
+import { ACCOUNT_REFUND_MESSAGES } from "@/components/account/demo-copy";
+import { CLink as Link } from "@/components/design-v2/v2-context";
 import { RefundPolicyLink } from "./RefundTrust";
 import { REFUND_COPY } from "./refund-copy";
 
@@ -20,6 +22,7 @@ const OPEN = new Set(["REQUESTED", "UNDER_REVIEW", "APPROVED"]);
 export function EsimRefundPanel({ esimId }: { esimId: string }) {
   const { locale } = useI18n();
   const c = REFUND_COPY[locale];
+  const messages = ACCOUNT_REFUND_MESSAGES[locale];
   const qc = useQueryClient();
   const [open, setOpen] = useState(false);
   const [reason, setReason] = useState<RefundReason | "">("");
@@ -61,6 +64,12 @@ export function EsimRefundPanel({ esimId }: { esimId: string }) {
           <p className="text-xs text-muted-foreground">{c.requestDate}: {formatDate(openRequest.createdAt, locale)}</p>
           {openRequest.customerMessage && <p className="mt-1 rounded-lg bg-secondary px-3 py-2 text-xs">{openRequest.customerMessage}</p>}
         </div>
+      ) : s.eligibility === "NOT_ELIGIBLE_ACTIVATED" ? (
+        <p className="mt-2 text-sm text-muted-foreground">{messages.activated}</p>
+      ) : s.eligibility === "ACTIVATION_UNKNOWN" ? (
+        <p className="mt-2 text-sm text-muted-foreground">{messages.unknown}</p>
+      ) : s.eligibility === "COMPLETED_REQUEST" ? (
+        <p className="mt-2 text-sm text-muted-foreground">{messages.completed}</p>
       ) : !s.windowOpen ? (
         <p className="mt-2 text-sm text-muted-foreground">{c.expired}</p>
       ) : s.canRequest ? (
@@ -76,6 +85,7 @@ export function EsimRefundPanel({ esimId }: { esimId: string }) {
       )}
 
       <RefundPolicyLink className="mt-3 text-xs" />
+      <Link to="/account/support" className="mt-2 block text-xs text-primary underline">{messages.support}</Link>
 
       {s.history.filter((r) => r !== openRequest).length > 0 && (
         <ul className="mt-4 grid gap-2 border-t border-border pt-3 text-xs">

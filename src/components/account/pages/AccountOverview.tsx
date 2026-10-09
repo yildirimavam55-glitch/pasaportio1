@@ -1,3 +1,4 @@
+import { EsimsPage, useAccountDemo } from "./EsimsPage";
 import { CLink as Link } from "@/components/design-v2/v2-context";
 import { useQuery } from "@tanstack/react-query";
 import { ChevronRight, Clock3, PackageCheck, RefreshCcw, Signal } from "lucide-react";
@@ -14,6 +15,7 @@ import { getCustomerAccount } from "@/lib/customer-account.functions";
 
 export function AccountOverview() {
   const { locale } = useI18n();
+  const demo = useAccountDemo();
   const copy = ACCOUNT_COPY[locale];
   const account = useQuery({
     queryKey: ["customer-account"],
@@ -51,6 +53,8 @@ export function AccountOverview() {
         minute: "2-digit",
       }).format(new Date(account.data.fetchedAt))
     : "—";
+
+  if (demo) return <EsimsPage />;
 
   return (
     <AccountLayout
@@ -116,7 +120,7 @@ export function AccountOverview() {
         </section>
       )}
 
-      <div className="mt-8 grid gap-3 sm:grid-cols-2">
+      <div className="mt-8 hidden gap-3 sm:grid-cols-2 lg:grid">
         <Link
           to="/account/esims"
           className="flex min-h-14 items-center gap-3 rounded-2xl border border-border bg-card px-4 font-semibold shadow-card"

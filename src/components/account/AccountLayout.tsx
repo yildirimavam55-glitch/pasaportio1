@@ -28,13 +28,10 @@ export type AccountSectionKey =
   | "support";
 
 const NAV: Array<{ key: AccountSectionKey; to: string; icon: typeof LayoutGrid }> = [
-  { key: "overview", to: "/account", icon: LayoutGrid },
   { key: "esims", to: "/account/esims", icon: Signal },
   { key: "orders", to: "/account/orders", icon: PackageCheck },
   { key: "profile", to: "/account/profile", icon: UserRound },
   { key: "security", to: "/account/security", icon: ShieldCheck },
-  { key: "notifications", to: "/account/notifications", icon: Bell },
-  { key: "support", to: "/account/support", icon: LifeBuoy },
 ];
 
 /** Shared chrome for every customer-portal page. */
@@ -101,7 +98,7 @@ export function AccountLayout({
             </header>
             <div className={v2 ? "mt-4 lg:mt-6" : "mt-6"}>{children}</div>
 
-            {active === "overview" && (
+            {(active === "overview" || active === "esims") && (
               <nav className={v2 ? "mt-6 grid gap-2 lg:hidden" : "mt-10 grid gap-2 lg:hidden"} aria-label={copy.eyebrow}>
                 {NAV.filter((item) => item.key !== "overview").map(({ key, to, icon: Icon }) => (
                   <Link

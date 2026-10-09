@@ -1,4 +1,9 @@
 import { CLink as Link } from "@/components/design-v2/v2-context";
+import { useEffect, useState } from "react";
+import { useRouterState } from "@tanstack/react-router";
+import { DemoEsimPackages } from "../DemoEsimPackages";
+import { ACCOUNT_DEMO_COPY } from "../demo-copy";
+import { accountDemoAllowed } from "@/domain/esim/account-demo";
 import { useQuery } from "@tanstack/react-query";
 
 import { AccountLayout } from "@/components/account/AccountLayout";
@@ -17,6 +22,7 @@ import { getCustomerAccount, type CustomerEsimRecord } from "@/lib/customer-acco
 export function EsimsPage() {
   const { locale } = useI18n();
   const copy = ACCOUNT_COPY[locale];
+  const demo = useAccountDemo();
   const account = useQuery({
     queryKey: ["customer-account"],
     queryFn: () => getCustomerAccount(),
@@ -30,13 +36,15 @@ export function EsimsPage() {
   const pending = live.filter((esim) => normalizeCustomerEsimStatus(esim.status) !== "ACTIVE");
 
   return (
-    <AccountLayout active="esims" title={copy.nav.esims}>
+    <AccountLayout active="esims" title={ACCOUNT_DEMO_COPY[locale].title}>
+      {demo && <DemoEsimPackages />}
+      {demo && esims.length > 0 && <h2 className="mt-8 text-lg font-bold">{ACCOUNT_DEMO_COPY[locale].real} ({esims.length})</h2>}
       {account.isError && (
         <p className="rounded-xl border border-destructive/20 bg-destructive/10 p-4 text-sm text-destructive">
           {copy.loadError}
         </p>
       )}
-      {!esims.length && !account.isLoading && (
+      {!demo && !esims.length && !account.isLoading && (
         <div className="rounded-2xl border border-dashed border-border bg-secondary/45 px-5 py-10 text-center">
           <p className="text-sm text-muted-foreground">{copy.emptyEsims}</p>
           <Button asChild variant="cta" className="mt-4">
@@ -94,4 +102,15 @@ function Group({
       )}
     </section>
   );
+}
+
+/** Query flag is opt-in and never permits fixtures on the published hostname. Auth gate stays intact. */
+export function useAccountDemo() {
+  const href = useRouterState({ select: s => s.location.href });
+  const [enabled, setEnabled] = useState(false);
+  useEffect(() => {
+    const url = new URL(href, window.location.origin);
+    setEnabled(accountDemoAllowed(window.location.hostname, url.searchParams.get('demo') === '1'));
+  }, [href]);
+  return enabled;
 }
