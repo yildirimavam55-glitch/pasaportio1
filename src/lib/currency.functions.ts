@@ -30,7 +30,8 @@ export const getPublicCurrencyConfig = createServerFn({ method: "GET" }).handler
       memo = { at: Date.now(), settings };
     }
     return toPublicCurrencyConfig(memo.settings, country);
-  } catch {
+  } catch (error) {
+    console.error("[currency] config load failed", error);
     // Never break the storefront: base currency only.
     return memo ? toPublicCurrencyConfig(memo.settings, country) : { base: "EUR", checkoutFallback: "EUR", currencies: [{ code: "EUR", rate: 1, rounding: { mode: "none" }, checkout: true }], country };
   }

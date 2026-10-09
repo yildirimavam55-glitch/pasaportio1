@@ -49,6 +49,7 @@ import { Route as AuthenticatedAdminAlertsRouteImport } from './routes/_authenti
 import { Route as AuthenticatedAdminAnalyticsRouteImport } from './routes/_authenticated/admin.analytics'
 import { Route as AuthenticatedAdminAuditRouteImport } from './routes/_authenticated/admin.audit'
 import { Route as AuthenticatedAdminCmsRouteImport } from './routes/_authenticated/admin.cms'
+import { Route as AuthenticatedAdminCurrenciesRouteImport } from './routes/_authenticated/admin.currencies'
 import { Route as AuthenticatedAdminCustomersRouteImport } from './routes/_authenticated/admin.customers'
 import { Route as AuthenticatedAdminDestinationsRouteImport } from './routes/_authenticated/admin.destinations'
 import { Route as AuthenticatedAdminFinanceRouteImport } from './routes/_authenticated/admin.finance'
@@ -331,6 +332,12 @@ const AuthenticatedAdminCmsRoute = AuthenticatedAdminCmsRouteImport.update({
   path: '/admin/cms',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedAdminCurrenciesRoute =
+  AuthenticatedAdminCurrenciesRouteImport.update({
+    id: '/admin/currencies',
+    path: '/admin/currencies',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedAdminCustomersRoute =
   AuthenticatedAdminCustomersRouteImport.update({
     id: '/admin/customers',
@@ -826,6 +833,7 @@ export interface FileRoutesByFullPath {
   '/admin/analytics': typeof AuthenticatedAdminAnalyticsRoute
   '/admin/audit': typeof AuthenticatedAdminAuditRoute
   '/admin/cms': typeof AuthenticatedAdminCmsRoute
+  '/admin/currencies': typeof AuthenticatedAdminCurrenciesRoute
   '/admin/customers': typeof AuthenticatedAdminCustomersRoute
   '/admin/destinations': typeof AuthenticatedAdminDestinationsRoute
   '/admin/finance': typeof AuthenticatedAdminFinanceRoute
@@ -944,6 +952,7 @@ export interface FileRoutesByTo {
   '/admin/analytics': typeof AuthenticatedAdminAnalyticsRoute
   '/admin/audit': typeof AuthenticatedAdminAuditRoute
   '/admin/cms': typeof AuthenticatedAdminCmsRoute
+  '/admin/currencies': typeof AuthenticatedAdminCurrenciesRoute
   '/admin/customers': typeof AuthenticatedAdminCustomersRoute
   '/admin/destinations': typeof AuthenticatedAdminDestinationsRoute
   '/admin/finance': typeof AuthenticatedAdminFinanceRoute
@@ -1067,6 +1076,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/analytics': typeof AuthenticatedAdminAnalyticsRoute
   '/_authenticated/admin/audit': typeof AuthenticatedAdminAuditRoute
   '/_authenticated/admin/cms': typeof AuthenticatedAdminCmsRoute
+  '/_authenticated/admin/currencies': typeof AuthenticatedAdminCurrenciesRoute
   '/_authenticated/admin/customers': typeof AuthenticatedAdminCustomersRoute
   '/_authenticated/admin/destinations': typeof AuthenticatedAdminDestinationsRoute
   '/_authenticated/admin/finance': typeof AuthenticatedAdminFinanceRoute
@@ -1189,6 +1199,7 @@ export interface FileRouteTypes {
     | '/admin/analytics'
     | '/admin/audit'
     | '/admin/cms'
+    | '/admin/currencies'
     | '/admin/customers'
     | '/admin/destinations'
     | '/admin/finance'
@@ -1307,6 +1318,7 @@ export interface FileRouteTypes {
     | '/admin/analytics'
     | '/admin/audit'
     | '/admin/cms'
+    | '/admin/currencies'
     | '/admin/customers'
     | '/admin/destinations'
     | '/admin/finance'
@@ -1429,6 +1441,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/analytics'
     | '/_authenticated/admin/audit'
     | '/_authenticated/admin/cms'
+    | '/_authenticated/admin/currencies'
     | '/_authenticated/admin/customers'
     | '/_authenticated/admin/destinations'
     | '/_authenticated/admin/finance'
@@ -1834,6 +1847,13 @@ declare module '@tanstack/react-router' {
       path: '/admin/cms'
       fullPath: '/admin/cms'
       preLoaderRoute: typeof AuthenticatedAdminCmsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/admin/currencies': {
+      id: '/_authenticated/admin/currencies'
+      path: '/admin/currencies'
+      fullPath: '/admin/currencies'
+      preLoaderRoute: typeof AuthenticatedAdminCurrenciesRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/admin/customers': {
@@ -2470,6 +2490,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminAnalyticsRoute: typeof AuthenticatedAdminAnalyticsRoute
   AuthenticatedAdminAuditRoute: typeof AuthenticatedAdminAuditRoute
   AuthenticatedAdminCmsRoute: typeof AuthenticatedAdminCmsRoute
+  AuthenticatedAdminCurrenciesRoute: typeof AuthenticatedAdminCurrenciesRoute
   AuthenticatedAdminCustomersRoute: typeof AuthenticatedAdminCustomersRoute
   AuthenticatedAdminDestinationsRoute: typeof AuthenticatedAdminDestinationsRoute
   AuthenticatedAdminFinanceRoute: typeof AuthenticatedAdminFinanceRoute
@@ -2519,6 +2540,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminAnalyticsRoute: AuthenticatedAdminAnalyticsRoute,
   AuthenticatedAdminAuditRoute: AuthenticatedAdminAuditRoute,
   AuthenticatedAdminCmsRoute: AuthenticatedAdminCmsRoute,
+  AuthenticatedAdminCurrenciesRoute: AuthenticatedAdminCurrenciesRoute,
   AuthenticatedAdminCustomersRoute: AuthenticatedAdminCustomersRoute,
   AuthenticatedAdminDestinationsRoute: AuthenticatedAdminDestinationsRoute,
   AuthenticatedAdminFinanceRoute: AuthenticatedAdminFinanceRoute,

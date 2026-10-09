@@ -13,6 +13,7 @@ import { useEffect, type ReactNode } from "react";
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { I18nProvider } from "@/i18n";
+import { CurrencyProvider } from "@/components/currency/CurrencyProvider";
 import { ServiceSwitchTransitionProvider } from "@/components/travel/ServiceSwitchTransition";
 import { PublishedTheme } from "@/components/PublishedTheme";
 import { Toaster } from "@/components/ui/sonner";
@@ -152,7 +153,7 @@ function RootComponent() {
           <I18nProvider>
             <ServiceSwitchTransitionProvider>
               {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-              <Outlet />
+              <CurrencyProvider><Outlet /></CurrencyProvider>
               <Toaster richColors position="top-center" />
             </ServiceSwitchTransitionProvider>
           </I18nProvider>
