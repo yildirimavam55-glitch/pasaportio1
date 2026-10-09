@@ -1,7 +1,11 @@
 import { describe, expect, it } from 'vitest';
-import { REVIEW_INTERVAL_MS, reviewCapacity, reviewPositionCount, reviewExcerpt, combinedSourceRating, starFill } from '../review-carousel';
+import { REVIEW_INTERVAL_MS, reviewCapacity, reviewPositionCount, reviewExcerpt, combinedSourceRating, starFill, reviewDotIndices } from '../review-carousel';
 describe('approved testimonial behavior', () => {
   it('advances every six seconds', () => expect(REVIEW_INTERVAL_MS).toBe(6000));
+  it('limits pagination to five positions around the active review', () => expect(reviewDotIndices(20, 10)).toEqual([8, 9, 10, 11, 12]));
+  it('keeps the final review reachable without extra dots', () => expect(reviewDotIndices(20, 19)).toEqual([15, 16, 17, 18, 19]));
+  it('uses only existing review positions for small carousels', () => expect(reviewDotIndices(3, 2)).toEqual([0, 1, 2]));
+  it('weights unequal source counts rather than averaging platform scores', () => expect(combinedSourceRating([{source:'Google',rating:5,count:90,sourceUrl:'https://google.com/reviews',verified:true},{source:'Trustpilot',rating:3,count:10,sourceUrl:'https://trustpilot.com/reviews',verified:true}])).toEqual({rating:4.8,displayRating:4.8,count:100}));
   it('fits three complete desktop cards', () => expect(reviewCapacity(1100)).toBe(3));
   it('fits two tablet cards', () => expect(reviewCapacity(720)).toBe(2));
   it.each([360, 390, 430])('fits one full mobile card at %s', width => expect(reviewCapacity(width)).toBe(1));

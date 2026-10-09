@@ -1,5 +1,10 @@
 export const REVIEW_INTERVAL_MS = 6000;
 export const REVIEW_TEXT_LIMIT = 180;
+export function reviewDotIndices(count: number, active: number) {
+  const size = Math.min(5, Math.max(0, count));
+  const start = Math.max(0, Math.min(active - 2, count - size));
+  return Array.from({ length: size }, (_, index) => start + index);
+}
 export function reviewCapacity(width: number) {
   return width >= 900 ? 3 : width >= 600 ? 2 : 1;
 }
