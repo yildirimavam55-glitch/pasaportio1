@@ -2,6 +2,11 @@ import { describe, expect, it } from "vitest";
 import { DEFAULT_THEME, sanitizeTheme, themeCssVariables, themeFontUrl } from "@/domain/theme/config";
 
 describe("storefront theme", () => {
+  it("persists the global animation toggle without enabling a disabled value", () => {
+    expect(sanitizeTheme({ homepageScrollAnimations: false }).homepageScrollAnimations).toBe(false);
+    expect(sanitizeTheme({ homepageScrollAnimations: true }).homepageScrollAnimations).toBe(true);
+    expect(sanitizeTheme({ homepageScrollAnimations: "false" }).homepageScrollAnimations).toBe(true);
+  });
   it("round-trips the default theme", () => {
     expect(sanitizeTheme(DEFAULT_THEME)).toEqual(DEFAULT_THEME);
   });
