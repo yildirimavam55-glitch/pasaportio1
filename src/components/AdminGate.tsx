@@ -13,7 +13,7 @@ import { useEffect, useState, type ReactNode } from "react";
 import { BRAND } from "@/domain/experience/config";
 import { supabase } from "@/integrations/supabase/client";
 import { getMyAccess } from "@/lib/platform.functions";
-import { adminSearch, getAdminIdentity } from "@/lib/admin-control.functions";
+import { adminSearch, getAdminAlerts, getAdminIdentity } from "@/lib/admin-control.functions";
 import { Button } from "@/components/ui/button";
 
 
@@ -120,7 +120,7 @@ export function AdminGate({ title, children }: { title: string; children: ReactN
         <Button variant="ghost" size="icon" className="lg:hidden" onClick={() => setMobileOpen(true)} aria-label="Yönetim menüsünü aç"><Menu /></Button>
         <div className="min-w-0 flex-1"><span className="block text-[10px] font-bold uppercase text-muted-foreground">İş kontrol merkezi</span><h1 className="truncate font-display text-lg font-bold">{title}</h1></div>
         <Button variant="ghost" size="icon" aria-label="Yönetimde ara" onClick={() => setSearchOpen(true)}><Search /></Button>
-        <Link to="/admin/alerts" className="relative grid size-9 place-items-center rounded-md border border-border" aria-label="Operasyon uyarıları"><AlertTriangle className="size-4" /></Link>
+        <Link to="/admin/alerts" className="relative grid size-9 place-items-center rounded-md border border-border" aria-label="Operasyon uyarıları"><AlertTriangle className="size-4" /><UnreadBadge /></Link>
         <AdminAccount />
       </header>
       <AdminSearch open={searchOpen} onClose={() => setSearchOpen(false)} />
@@ -220,4 +220,10 @@ function AdminSearch({ open, onClose }: { open: boolean; onClose: () => void }) 
       </div>
     </div>
   </div>;
+}
+
+function UnreadBadge() {
+  const q = useQuery({ queryKey: ["admin-alerts"], queryFn: () => getAdminAlerts(), refetchInterval: 60_000 });
+  const n = (q.data ?? []).filter((a: any) => a.status === "OPEN").length;
+  return n ? <span className="absolute -end-1.5 -top-1.5 grid min-w-5 place-items-center rounded-full bg-destructive px-1 text-[10px] font-bold text-destructive-foreground" aria-label={`${n} okunmamış`}>{n}</span> : null;
 }
