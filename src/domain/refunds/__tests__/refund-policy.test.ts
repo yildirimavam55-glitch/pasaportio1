@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 import { adminTransition, assessEligibility, assessUsage, itemRefundBasis, normalizeRefundStatus, refundWindow } from "../refund-policy";
 
 const now = new Date("2026-09-27T12:00:00Z");
-const base = { hasOrderItem: true, isDemo: false, paymentStatus: "PAID", windowOpen: true, hasOpenRequest: false } as const;
+const base = { hasOrderItem: true, isDemo: false, paymentStatus: "PAID", windowOpen: true, hasOpenRequest: false, activation: "NEVER_ACTIVATED" } as const;
 
 describe("refund window (server time)", () => {
   it("counts 14 days from purchase", () => {
@@ -44,8 +44,8 @@ describe("eligibility", () => {
   it("<14 days + verified used → blocked", () => {
     expect(assessEligibility({ ...base, usage: "VERIFIED_USED" }).canRequest).toBe(false);
   });
-  it("<14 days + unknown → admin review", () => {
-    expect(assessEligibility({ ...base, usage: "UNKNOWN" })).toEqual({ eligibility: "REVIEW_REQUIRED", canRequest: true });
+  it("unknown activation blocks an unconfirmed request", () => {
+    expect(assessEligibility({ ...base, activation: "UNKNOWN", usage: "UNKNOWN" })).toEqual({ eligibility: "ACTIVATION_UNKNOWN", canRequest: false });
   });
   it(">14 days → expired", () => {
     expect(assessEligibility({ ...base, windowOpen: false, usage: "VERIFIED_UNUSED" }).eligibility).toBe("NOT_ELIGIBLE_EXPIRED");
