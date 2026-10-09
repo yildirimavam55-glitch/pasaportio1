@@ -210,8 +210,7 @@ export function HeroDeviceCompatibility({ compact = false }: { compact?: boolean
   const c = HERO_DEVICE_COPY[uiLocale as keyof typeof HERO_DEVICE_COPY] ?? HERO_DEVICE_COPY[locale];
   const outcomeCopy = HERO_RESULT_COPY[uiLocale as keyof typeof HERO_RESULT_COPY] ?? HERO_RESULT_COPY[locale];
   const { data: devices = [], isPending } = useQuery({ queryKey: ["device-compatibility"], queryFn: () => listDeviceCompatibility(), staleTime: 10 * 60 * 1000 });
-   const { detection } = useBrowserDevice(devices);
-   const isMobile = useIsMobile();
+   const { detection, mobile: isMobile, diagnostics } = useBrowserDevice(devices);
   const saved = useDeviceCheck();
   const [override, setOverride] = useState<{ brand: string; device: DeviceRecord | null } | null>(null);
   const [modelOpen, setModelOpen] = useState(false);
@@ -246,7 +245,34 @@ export function HeroDeviceCompatibility({ compact = false }: { compact?: boolean
           </div>
         </div>}
       </div>
+      <DeviceDiagnostics diagnostics={diagnostics} detection={detection} prefill={prefill} />
   </div>;
+}
+
+/** Preview-only (?devicedebug=1 on preview/localhost hosts): shows the raw browser values locally; nothing is stored or sent. */
+function DeviceDiagnostics({ diagnostics, detection, prefill }: { diagnostics: ReturnType<typeof useBrowserDevice>["diagnostics"]; detection: DeviceDetection; prefill: { brand: string | null; device: DeviceRecord | null } }) {
+  const [enabled, setEnabled] = useState(false);
+  useEffect(() => {
+    const host = window.location.hostname;
+    const previewHost = host === "localhost" || host.startsWith("id-preview--") || host.endsWith(".lovableproject.com");
+    setEnabled(previewHost && new URLSearchParams(window.location.search).has("devicedebug"));
+  }, []);
+  if (!enabled || !diagnostics) return null;
+  const rows: [string, string][] = [
+    ["User-Agent", diagnostics.userAgent ?? "—"],
+    ["Client Hints", diagnostics.clientHints ? "yes" : "no"],
+    ["UA-CH mobile", String(diagnostics.uaMobile)],
+    ["UA-CH model", diagnostics.model ?? "—"],
+    ["platform", diagnostics.platform ?? "—"],
+    ["maxTouchPoints", String(diagnostics.maxTouchPoints ?? "—")],
+    ["secure (HTTPS)", String(diagnostics.secure)],
+    ["treated as mobile", String(diagnostics.mobile)],
+    ["detection", detection.kind === "exact" ? `exact: ${detection.device.brand} ${detection.device.model}` : detection.kind === "partial" ? `partial: ${detection.family}` : "unknown"],
+    ["selected brand / model", `${prefill.brand ?? "—"} / ${prefill.device?.model ?? "—"}`],
+  ];
+  return <dl className="mt-2 grid gap-1 rounded-md border border-dashed border-border bg-muted p-2 text-[11px] break-all" data-testid="device-diagnostics">
+    {rows.map(([k, v]) => <div key={k}><dt className="inline font-semibold">{k}: </dt><dd className="inline">{v}</dd></div>)}
+  </dl>;
 }
 
 function statusLabel(copy: Copy, status: CompatibilityStatus) {
