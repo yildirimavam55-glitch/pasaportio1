@@ -41,3 +41,4 @@ Public install help stays in V2; QR, activation credentials, and package policy 
 - Standard refund requests use stored activation history and confirmed never-activated provider evidence in the shared server verdict, not current status alone — why: past activation and duplicate completed requests must remain blocked.
 
 - Install phones use normal flow, not clipping; antenna crop/arcs share source coordinates and cover offsets for stable resizing.
+- Storefront currency is resolved once by the root-mounted CurrencyProvider and converted only via displayMoney; prices stay in EUR, a currency without a real rate is never shown, and only payment-verified currencies are charge currencies — why: no fake or 1:1 prices.
