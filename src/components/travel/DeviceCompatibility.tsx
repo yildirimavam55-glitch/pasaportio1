@@ -39,7 +39,6 @@ import {
 } from "@/domain/esim/device-compatibility";
 import { useDeviceCheck } from "@/domain/esim/device-check-session";
 import { resolveCheckerPrefill, checkerDetectionForViewport, type DeviceDetection } from "@/domain/esim/device-detection";
-import { useIsMobile } from "@/hooks/use-mobile";
 import { noopAnalyticsSink } from "@/domain/analytics";
 import type { Locale } from "@/domain/enums";
 import { localize } from "@/i18n/overlay";
