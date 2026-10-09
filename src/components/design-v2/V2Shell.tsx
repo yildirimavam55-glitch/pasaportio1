@@ -261,7 +261,7 @@ export function PhotoRail({ children }: { children: ReactNode }) {
 
 export function PhotoCard({ image, badge, title, sub, price, onClick }: { image?: string | undefined; badge?: ReactNode; title: string; sub?: string | undefined; price?: string | undefined; onClick: () => void }) {
   return (
-    <li className="w-[7.55rem] shrink-0 snap-start">
+    <li data-reveal-card className="w-[7.55rem] shrink-0 snap-start">
       <button type="button" onClick={onClick} className="w-full overflow-hidden rounded-xl bg-card text-left shadow-sm ring-1 ring-border">
         <div className="relative h-[5.35rem] bg-muted lg:h-40">
           {image && <img src={image} alt="" loading="lazy" decoding="async" width={256} height={192} className="size-full object-cover" />}
