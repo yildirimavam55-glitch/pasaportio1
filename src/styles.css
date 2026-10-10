@@ -1967,7 +1967,7 @@ body:has([role="dialog"][data-state="open"]) .pasaport-mobile-reference [data-wh
 .home-region-rail::-webkit-scrollbar { display:none; }
 .home-region-rail > li { flex:0 0 122px; min-width:0; scroll-snap-align:start; }
 .home-region-card { display:block; overflow:hidden; border-radius:14px; background:var(--card); box-shadow:var(--shadow-sm); border:1px solid var(--border); color:var(--foreground); }
-.home-region-card > img { display:block; width:100%; height:auto; aspect-ratio:2.4; object-fit:cover; }
+.home-region-card > img { display:block; width:100%; height:auto; aspect-ratio:1.8; object-fit:cover; }
 .home-region-card > div { padding:8px; min-width:0; }
 .home-region-card h3 { font-family:var(--font-sans); font-size:13px; font-weight:700; line-height:1.3; overflow-wrap:anywhere; }
 .home-region-card p { font-size:11px; line-height:1.4; color:var(--muted-foreground); margin-top:2px; }
@@ -1981,14 +1981,15 @@ body:has([role="dialog"][data-state="open"]) .pasaport-mobile-reference [data-wh
 .home-worldwide-copy .home-worldwide-cta { display:flex; align-items:center; gap:6px; min-height:44px; font-weight:700; color:var(--primary); }
 .home-worldwide-banner > img { width:100%; height:100%; min-height:180px; object-fit:cover; }
 @media(min-width:640px) {
-  .home-region-rail > li { flex-basis:160px; }
+  .home-region-rail > li { flex-basis:224px; }
   .home-region-placeholder { height:155px; }
 }
 @media(min-width:1024px) {
   .regional-home-arrows { display:flex; }
   .regional-home-heading h2 { font-size:28px; }
-  .home-region-rail { margin-inline:0; padding-inline:1px; scroll-padding-inline:1px; gap:16px; }
-  .home-region-rail > li { flex-basis:calc((100% - 64px)/4.5); }
+  .home-region-rail { max-width:1100px; margin-inline:0; padding-inline:1px; scroll-padding-inline:1px; gap:16px; }
+  .home-region-rail > li { flex-basis:227px; }
+  .home-region-card > img { height:110px; aspect-ratio:auto; }
   .home-region-card h3,.home-region-card strong { font-size:15px; }
   .home-region-card p { font-size:12px; }
   .home-region-placeholder { height:196px; }

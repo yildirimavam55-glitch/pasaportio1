@@ -11,7 +11,7 @@ export function V2RegionCard({ item, from, countries, multi, compact = false }: 
   const photo = getRegionPhoto(item.region);
   if (compact) return <Link to="/esim/bolge/$region" params={{region:item.region}} search={{country:""}} className="home-region-card">
     {photo && <img src={photo.url} alt={photo.alt[locale]} width={320} height={180} loading="lazy" decoding="async"/>}
-    <div><h3>{COVERAGE_REGION_LABELS[item.region][locale]}</h3><p>{item.coverageCount ? `${item.coverageCount} ${countries}` : multi}</p><strong>{from} {money(item.startingPrice,item.currency)}</strong></div>
+    <div><h3>{COVERAGE_REGION_LABELS[item.region][locale]}</h3><p>{item.coverageCount ? `${item.coverageCount} ${countries}` : item.minCoverageCount > 0 ? `${item.minCoverageCount}–${item.maxCoverageCount} ${countries}` : multi}</p><strong>{from} {money(item.startingPrice,item.currency)}</strong></div>
   </Link>;
   return <Link to="/esim/bolge/$region" params={{ region: item.region }} search={{ country: "" }} className="group relative block h-40 overflow-hidden rounded-xl bg-card shadow-sm ring-1 ring-border lg:h-52">
     {photo && <img src={photo.url} alt={photo.alt[locale]} loading="lazy" className="absolute inset-0 size-full object-cover transition-transform duration-300 group-hover:scale-[1.03]" />}
