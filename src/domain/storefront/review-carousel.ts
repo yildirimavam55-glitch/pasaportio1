@@ -3,6 +3,10 @@ export function reviewDesignPreviewHost(_host: string) { return false; }
 export function reviewAdminSampleMode(preview: boolean, isAdmin: boolean, enabled: boolean | undefined) {
   return preview && isAdmin && enabled !== false;
 }
+/** Failed refreshes must not overwrite a successful CMS response; explicit clears still apply. */
+export function lastKnownPublished<T>(previous: T | undefined, incoming: T, refreshFailed: boolean): T {
+  return refreshFailed && previous !== undefined ? previous : incoming;
+}
 export const REVIEW_INTERVAL_MS = 6000;
 export const REVIEW_TEXT_LIMIT = 180;
 export function reviewDotIndices(count: number, active: number) {

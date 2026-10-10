@@ -4,6 +4,7 @@ import { queryOptions, replaceEqualDeep, useQuery } from "@tanstack/react-query"
 import { DesktopPromoCard, HowItWorks, PromoCard, TrustRow } from "@/components/design-v2/V2Shell";
 import { V2InfoCarousel } from "@/components/design-v2/V2InfoCarousel";
 import { V2TrustReviews } from "@/components/design-v2/V2TrustReviews";
+import { lastKnownPublished } from "@/domain/storefront/review-carousel";
 import { V2Compatibility, V2CompactFaq, V2GuidesRail, V2InfoGrid, V2Installation } from "@/components/design-v2/V2DiscoveryContent";
 import { DesktopDeviceCompatibilityBanner } from "@/components/travel/DeviceCompatibility";
 import { Reveal } from "@/components/travel/Reveal";
@@ -75,7 +76,7 @@ export const V2_BUILTIN_URLS: Record<string, string> = {
 
 export const V2_PREVIEW_WINDOW = "v2-cms-preview";
 
-type V2PageData = { config: V2PageConfig; media: V2Media };
+type V2PageData = { config: V2PageConfig; media: V2Media; refreshFailed?: boolean };
 const signedBase = (url: string) => url.split("?")[0];
 
 /**
@@ -86,6 +87,8 @@ const signedBase = (url: string) => url.split("?")[0];
 function keepStableMedia(previous: unknown, next: unknown): unknown {
   const prev = previous as V2PageData | undefined;
   const incoming = next as V2PageData;
+  const retained = lastKnownPublished(prev, incoming, incoming.refreshFailed === true && prev?.refreshFailed !== true);
+  if (retained !== incoming) return retained;
   if (!prev?.media || !incoming?.media) return incoming;
   const media: V2Media = {};
   for (const [id, asset] of Object.entries(incoming.media)) {
