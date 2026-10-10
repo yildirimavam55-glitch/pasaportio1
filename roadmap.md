@@ -1,6 +1,7 @@
 # Roadmap
 
 ## Current request
+- [ ] Diagnose and fix review aggregate data/error handling, authenticated editor-only samples, fractional SVG stars; verify real/demo/empty/error and locale changes on mobile/desktop, without publication.
 - [x] Desktop family payment logos now unboxed in one row beneath left copy, with secure checkout label and preview disclosure; 1024/1440 and unchanged 390 mobile checked, no provider or publication changes.
 - [x] Desktop payment block now in left story column 24px below description; single shared component, secure-checkout label and three-column cards in requested order, 52px/10px/12px geometry, max 380px. Browser verified exact layout at 1024/1440; 390 text/image/payment bounds match pre-change within 1px, right image bounds unchanged at all three widths. Preview disclosure retained; 27 review tests pass, build OK, zero runtime errors. No checkout/provider/publication changes.
 - [x] Opened coupon compact ivory/petrol/mint voucher, dynamic benefit and 49px code row; closed ticket/validation unchanged. 390/1440 TR/DE/EN/AR copy/empty/close/focus/scroll-lock checks passed; real validation success and browser-cache-only ineligible error passed at both widths. 52 tests passed, build OK. Earlier broad cart script had one desktop invalid-result timing assertion; popup-specific error independently verified. No purchase/publication.

@@ -1,6 +1,7 @@
-import { isPreviewHost } from '@/security/headers';
-export function reviewDesignPreviewHost(host: string) {
-  return isPreviewHost(host) || /^preview--[a-z0-9-]+\.lovable\.app$/i.test(host);
+/** Hostnames never grant permission to display sample review statistics. */
+export function reviewDesignPreviewHost(_host: string) { return false; }
+export function reviewAdminSampleMode(preview: boolean, isAdmin: boolean, enabled: boolean | undefined) {
+  return preview && isAdmin && enabled !== false;
 }
 export const REVIEW_INTERVAL_MS = 6000;
 export const REVIEW_TEXT_LIMIT = 180;
@@ -27,6 +28,7 @@ export function cleanSourceRatings(raw: unknown): ReviewSourceRating[] {
   return ['Google', 'Trustpilot'].flatMap(source => {
     const r = raw.find(v => v && typeof v === 'object' && v.source === source);
     if (!r) return [];
+    if (!Number.isFinite(Number(r.rating)) || Number(r.rating) < 0 || Number(r.rating) > 5 || !Number.isInteger(Number(r.count)) || Number(r.count) <= 0) return [];
     return [{ source: source as ReviewSourceRating['source'], rating: Number.isFinite(Number(r.rating)) ? Math.min(5, Math.max(0, Number(r.rating))) : 0,
       count: Number.isFinite(Number(r.count)) ? Math.min(10000000, Math.max(0, Math.floor(Number(r.count)))) : 0,
       sourceUrl: typeof r.sourceUrl === 'string' && /^https:\/\//.test(r.sourceUrl) ? r.sourceUrl.slice(0, 500) : '', verified: r.verified === true }];

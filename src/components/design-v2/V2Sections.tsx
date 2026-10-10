@@ -157,8 +157,7 @@ export function V2Sections({ config, media, slots, only, onDestinationSearch }: 
   const optionalServices = useOptionalServices();
   const [isPreview, setIsPreview] = useState(false);
   useEffect(() => {
-    const previewHost = window.location.hostname === "localhost" || window.location.hostname.startsWith("id-preview--");
-    setIsPreview(previewHost && window.parent !== window && window.name === V2_PREVIEW_WINDOW);
+    setIsPreview(window.parent !== window && window.name === V2_PREVIEW_WINDOW);
   }, []);
   const sections = config.sections.filter((s) => s.visible && (!only || only(s)));
   return (
