@@ -41,4 +41,4 @@ Public install help stays in V2; QR, activation credentials, and package policy 
 - Install phones use normal flow, not clipping; antenna crop/arcs share source coordinates and cover offsets for stable resizing.
 - Root CurrencyProvider + displayMoney are the only currency path; EUR stays canonical, rateless currencies are hidden, only payment-verified ones charge — why: no fake prices.
 
-- Review samples are gated in the carousel by explicit editor-frame intent and the existing server-backed Admin access query, never hostnames; CMS refresh errors must remain errors so Query retains last-known published data rather than caching an empty fallback.
+- Review samples are gated in the carousel by explicit editor-frame intent and the existing server-backed Admin access query, never hostnames; CMS refresh failures are explicitly marked so Query retains last-known successful published data rather than caching an empty fallback.
