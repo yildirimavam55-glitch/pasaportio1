@@ -35,9 +35,9 @@ import { ESSENTIAL_FAIR_USE } from "@/domain/esim/fair-use";
 import worldwideTravel from "@/assets/airplane-window-travel.webp";
 
 const DISCOVERY_COPY = localize({
-  tr: { subtitle: "Birden fazla ülke, tek eSIM.", previous: "Önceki bölgeler", next: "Sonraki bölgeler" },
-  de: { subtitle: "Mehrere Länder, eine eSIM.", previous: "Vorherige Regionen", next: "Weitere Regionen" },
-  en: { subtitle: "Multiple countries, one eSIM.", previous: "Previous regions", next: "Next regions" },
+  tr: { title: "Bölgesel eSIM paketleri", worldwide: "Dünya çapında internet", cta: "Paketleri keşfet", previous: "Önceki bölgeler", next: "Sonraki bölgeler" },
+  de: { title: "Regionale eSIM-Pakete", worldwide: "Weltweit online", cta: "Pakete entdecken", previous: "Vorherige Regionen", next: "Weitere Regionen" },
+  en: { title: "Regional eSIM packages", worldwide: "Global internet", cta: "Explore packages", previous: "Previous regions", next: "Next regions" },
 });
 
 /** Public home/eSIM search: optional country + legacy `service` hint (V1 links used `/?service=lounge`). */
@@ -279,23 +279,34 @@ function RegionalDiscovery({ section, c }: { section: V2Section; c: (typeof T)["
   const worldwide = summaries.find((item) => item.region === "GLOBAL" && item.unlimitedCount > 0);
   const regions = summaries.filter((item) => item.region !== "GLOBAL");
   const copy = DISCOVERY_COPY[locale];
+  const [edge, setEdge] = useState({ start: true, end: false });
+  const updateEdges = () => {
+    const node = rail.current;
+    if (!node) return;
+    const pos = Math.abs(node.scrollLeft);
+    setEdge({ start: pos < 4, end: pos + node.clientWidth >= node.scrollWidth - 4 });
+  };
+  useEffect(() => { updateEdges(); window.addEventListener("resize", updateEdges); return () => window.removeEventListener("resize", updateEdges); }, [loading, regions.length]);
   const scrollRegions = (next: boolean) => {
     const node = rail.current;
     if (!node) return;
     node.scrollBy({ left: node.clientWidth * .8 * (next ? 1 : -1) * (uiLocale === "ar" ? -1 : 1), behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth' });
   };
+  const title = v2Text(section, "title", locale) || copy.title;
   return (
-    <section ref={ref} aria-labelledby="regional-esim-title">
-      <p className="mt-5 text-[11px] font-bold uppercase text-primary lg:mt-12">{v2Text(section, "eyebrow", locale)}</p>
-      <div className="regional-home-heading"><SectionTitle><span id="regional-esim-title">{v2Text(section, "title", locale) || c.regionalTitle}</span></SectionTitle><div className="regional-home-arrows"><Button variant="outline" size="icon" aria-label={copy.previous} title={copy.previous} onClick={()=>scrollRegions(false)}><ArrowLeft className="rtl:rotate-180"/></Button><Button variant="outline" size="icon" aria-label={copy.next} title={copy.next} onClick={()=>scrollRegions(true)}><ArrowRight className="rtl:rotate-180"/></Button></div></div>
-      <p className="mb-3 text-xs text-muted-foreground">{copy.subtitle}</p>
+    <section ref={ref} aria-labelledby="regional-esim-title" className="home-region-section">
+      <div className="regional-home-heading"><SectionTitle><span id="regional-esim-title">{title}</span></SectionTitle></div>
       {loading ? <div className="home-region-placeholder bg-muted/70" aria-hidden /> : (
-        <ul ref={rail} className="home-region-rail" aria-label={v2Text(section, "title", locale) || c.regionalTitle}>
-           {regions.map((item) => <li data-reveal-card key={item.region}><V2RegionCard item={item} countries={c.countries} multi={c.multiCountry} from={c.from} compact /></li>)}
-        </ul>
+        <div className="home-region-carousel">
+          <button type="button" className="home-region-arrow is-prev" aria-label={copy.previous} title={copy.previous} disabled={edge.start} onClick={()=>scrollRegions(false)}><ChevronLeft className="size-5 rtl:rotate-180" aria-hidden /></button>
+          <ul ref={rail} onScroll={updateEdges} className="home-region-rail" aria-label={title}>
+             {regions.map((item) => <li data-reveal-card key={item.region}><V2RegionCard item={item} countries={c.countries} multi={c.multiCountry} from={c.from} compact /></li>)}
+          </ul>
+          <button type="button" className="home-region-arrow is-next" aria-label={copy.next} title={copy.next} disabled={edge.end} onClick={()=>scrollRegions(true)}><ChevronRight className="size-5 rtl:rotate-180" aria-hidden /></button>
+        </div>
       )}
       {worldwide?.lowestUnlimitedPrice != null && worldwide.maxUnlimitedCoverageCount != null && <Link to="/esim/bolge/$region" params={{ region: "GLOBAL" }} search={{ country: "" }} className="home-worldwide-banner">
-        <span className="home-worldwide-copy" dir={uiLocale === 'ar' ? 'rtl' : undefined}><strong>{v2Text(section, "worldwide", locale) || c.worldwideBanner}</strong><span>{worldwide.maxUnlimitedCoverageCount} {c.upTo}</span><bdi>{c.from} {money(worldwide.lowestUnlimitedPrice, worldwide.currency)}</bdi><span className="home-worldwide-cta">{v2Text(section, "cta", locale) || c.discoverPlans}<ArrowRight className="size-4 shrink-0 rtl:rotate-180" /></span></span>
+        <span className="home-worldwide-copy" dir={uiLocale === 'ar' ? 'rtl' : undefined}><strong>{copy.worldwide}</strong><span className="home-worldwide-meta"><span>{worldwide.maxUnlimitedCoverageCount} {c.countries}</span> · <bdi>{c.from} {money(worldwide.lowestUnlimitedPrice, worldwide.currency)}</bdi></span><span className="home-worldwide-cta">{copy.cta}<ArrowRight className="size-4 shrink-0 rtl:rotate-180" /></span></span>
         <img src={worldwideTravel} alt="" width={960} height={640} loading="lazy" decoding="async"/>
       </Link>}
     </section>
