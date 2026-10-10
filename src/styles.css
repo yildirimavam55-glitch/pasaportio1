@@ -2000,3 +2000,30 @@ body:has([role="dialog"][data-state="open"]) .pasaport-mobile-reference [data-wh
   .home-worldwide-copy > span,.home-worldwide-copy > bdi { font-size:15px; }
   .home-worldwide-banner > img { max-height:240px; }
 }
+
+/* Regional carousel side arrows + compact worldwide banner refinement. */
+.home-region-section { margin-top:32px; }
+.regional-home-heading > div:first-child { margin:0 0 10px; }
+.home-region-carousel { position:relative; }
+.home-region-arrow { display:none; }
+.home-worldwide-banner { margin-top:16px; }
+.home-worldwide-copy { padding:12px; gap:4px; justify-content:center; }
+.home-worldwide-copy > strong { font-size:17px; }
+.home-worldwide-meta { font-size:13px; line-height:1.4; color:var(--muted-foreground); }
+.home-worldwide-meta bdi { font-weight:700; color:var(--primary); }
+.home-worldwide-copy .home-worldwide-cta { min-height:40px; margin-top:2px; padding:0 14px; border-radius:999px; background:var(--primary); color:var(--primary-foreground); font-size:13px; }
+.home-worldwide-banner > img { min-height:0; max-height:150px; }
+@media(min-width:1024px) {
+  .home-region-section { margin-top:40px; }
+  .home-region-carousel { padding-inline:52px; }
+  .home-region-rail { max-width:none; }
+  .home-region-arrow { display:grid; place-items:center; position:absolute; top:50%; transform:translateY(-50%); width:40px; height:40px; border-radius:999px; background:var(--card); color:var(--primary); border:1px solid var(--border); box-shadow:var(--shadow-sm); z-index:1; }
+  .home-region-arrow.is-prev { inset-inline-start:0; }
+  .home-region-arrow.is-next { inset-inline-end:0; }
+  .home-region-arrow:disabled { opacity:.35; cursor:default; }
+  .home-worldwide-copy { padding:18px 24px; display:grid; grid-template-columns:auto auto; justify-content:start; column-gap:24px; align-items:center; }
+  .home-worldwide-copy > strong { font-size:26px; grid-column:1; }
+  .home-worldwide-meta { grid-column:1; font-size:16px; }
+  .home-worldwide-copy .home-worldwide-cta { grid-column:2; grid-row:1 / span 2; font-size:15px; min-height:44px; }
+  .home-worldwide-banner > img { max-height:120px; }
+}
