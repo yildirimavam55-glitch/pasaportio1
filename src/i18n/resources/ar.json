@@ -970,5 +970,8 @@
   "Please sign in to use this code.": "يرجى تسجيل الدخول لاستخدام هذا الرمز.",
   "Minimum cart value for this code: {min}.": "الحد الأدنى للسلة لهذا الرمز: {min}.",
   "No products in your cart qualify for this code.": "لا توجد منتجات مؤهلة لهذا الرمز في سلتك.",
-  "We couldn't check the code right now. Please try again.": "تعذر التحقق من الرمز الآن. يرجى المحاولة مرة أخرى."
+  "We couldn't check the code right now. Please try again.": "تعذر التحقق من الرمز الآن. يرجى المحاولة مرة أخرى.",
+  "Multiple countries, one eSIM.": "بلدان متعددة، شريحة eSIM واحدة.",
+  "Previous regions": "المناطق السابقة",
+  "Next regions": "المناطق التالية"
 }
