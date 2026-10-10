@@ -1955,3 +1955,48 @@ body:has([role="dialog"][data-state="open"]) .pasaport-mobile-reference [data-wh
 .coupon-open-desktop { width:420px; max-width:calc(100vw - 32px); inset-inline:auto; left:50%; top:50%; bottom:auto; transform:translate(-50%,-50%); padding:20px; border:1px solid; border-radius:8px; }
 .coupon-open-desktop[data-state] { animation:none; transition:opacity 160ms ease; }
 @media(prefers-reduced-motion:reduce) { .coupon-open-panel { animation:none; transition:none; } }
+
+/* Homepage discovery only: shared horizontal composition at every viewport. */
+.pasaport-mobile-home .popular-country-heading + ul { flex-wrap:nowrap; }
+.pasaport-mobile-home .popular-country-heading + ul p { white-space:normal; overflow-wrap:anywhere; }
+.regional-home-heading { display:grid; grid-template-columns:minmax(0,1fr) auto; gap:12px; align-items:center; }
+.regional-home-heading > div:first-child { margin:4px 0 8px; }
+.regional-home-heading h2 { font-family:var(--font-sans); font-size:20px; line-height:1.25; }
+.regional-home-arrows { display:none; gap:8px; }
+.home-region-rail { display:flex; flex-wrap:nowrap; gap:10px; margin-inline:-16px; padding:2px 16px 6px; overflow-x:auto; scroll-snap-type:x mandatory; scroll-padding-inline:16px; overscroll-behavior-inline:contain; scrollbar-width:none; }
+.home-region-rail::-webkit-scrollbar { display:none; }
+.home-region-rail > li { flex:0 0 122px; min-width:0; scroll-snap-align:start; }
+.home-region-card { display:block; overflow:hidden; border-radius:14px; background:var(--card); box-shadow:var(--shadow-sm); border:1px solid var(--border); color:var(--foreground); }
+.home-region-card > img { display:block; width:100%; height:auto; aspect-ratio:1.8; object-fit:cover; }
+.home-region-card > div { padding:8px; min-width:0; }
+.home-region-card h3 { font-family:var(--font-sans); font-size:13px; font-weight:700; line-height:1.3; overflow-wrap:anywhere; }
+.home-region-card p { font-size:11px; line-height:1.4; color:var(--muted-foreground); margin-top:2px; }
+.home-region-card strong { display:block; font-size:13px; line-height:1.3; color:var(--primary); margin-top:2px; overflow-wrap:anywhere; }
+.home-region-placeholder { height:132px; border-radius:14px; }
+.home-worldwide-banner { display:grid; grid-template-columns:minmax(0,1fr) minmax(100px,34%); direction:ltr; margin-top:16px; overflow:hidden; border-radius:14px; border:1px solid var(--border); background:var(--primary-soft); color:var(--foreground); }
+.home-worldwide-copy { display:flex; flex-direction:column; align-items:flex-start; min-width:0; padding:16px 12px; gap:5px; overflow-wrap:anywhere; }
+.home-worldwide-copy > strong { font-family:var(--font-sans); font-size:18px; line-height:1.25; }
+.home-worldwide-copy > span,.home-worldwide-copy > bdi { font-size:13px; line-height:1.4; }
+.home-worldwide-copy > bdi { font-weight:700; color:var(--primary); }
+.home-worldwide-copy .home-worldwide-cta { display:flex; align-items:center; gap:6px; min-height:44px; font-weight:700; color:var(--primary); }
+.home-worldwide-banner > img { width:100%; height:100%; min-height:180px; object-fit:cover; }
+@media(min-width:640px) {
+  .home-region-rail > li { flex-basis:224px; }
+  .home-region-card > img { height:132px; aspect-ratio:auto; }
+  .home-region-placeholder { height:155px; }
+}
+@media(min-width:1024px) {
+  .regional-home-arrows { display:flex; }
+  .regional-home-heading h2 { font-size:28px; }
+  .home-region-rail { max-width:1100px; margin-inline:0; padding-inline:1px; scroll-padding-inline:1px; gap:16px; }
+  .home-region-rail > li { flex-basis:227px; }
+  .home-region-card > img { height:110px; aspect-ratio:auto; }
+  .home-region-card h3,.home-region-card strong { font-size:15px; }
+  .home-region-card p { font-size:12px; }
+  .home-region-placeholder { height:196px; }
+  .home-worldwide-banner { grid-template-columns:minmax(0,1fr) 38%; margin-top:24px; }
+  .home-worldwide-copy { padding:24px; gap:7px; }
+  .home-worldwide-copy > strong { font-size:24px; }
+  .home-worldwide-copy > span,.home-worldwide-copy > bdi { font-size:15px; }
+  .home-worldwide-banner > img { max-height:240px; }
+}

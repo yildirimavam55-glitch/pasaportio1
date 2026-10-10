@@ -1,7 +1,7 @@
 import { Link, useNavigate, useSearch } from "@tanstack/react-router";
 import { queryOptions, useQuery } from "@tanstack/react-query";
 import { useMemo, useRef, useState, type ReactNode } from "react";
-import { ArrowRight, BarChart3, BookOpen, Box, CheckCircle2, Globe2, Infinity as InfinityIcon, MapPin, MessageCircle, Search, Share2, Smartphone, Sparkles, Video, Zap } from "lucide-react";
+import { ArrowLeft, ArrowRight, BarChart3, BookOpen, Box, CheckCircle2, Globe2, Infinity as InfinityIcon, MapPin, MessageCircle, Search, Share2, Smartphone, Sparkles, Video, Zap } from "lucide-react";
 import { DeviceCompatibilityProductCard } from "@/components/travel/DeviceCompatibility";
 import { PasaportEsimHero } from "@/components/design-v2/PasaportEsimHero";
 import { CartBar, money as formatMoney, PhotoCard, PhotoRail, pick, SectionTitle, TrustRow, useV2StickySearch, V2Shell, V2StickySearchButton } from "@/components/design-v2/V2Shell";
@@ -32,6 +32,13 @@ import { localize } from "@/i18n/overlay";
 import { StorefrontIcon } from "@/domain/storefront/icons";
 import { useNearViewport } from "@/components/travel/use-near-viewport";
 import { ESSENTIAL_FAIR_USE } from "@/domain/esim/fair-use";
+import worldwideTravel from "@/assets/airplane-window-travel.webp";
+
+const DISCOVERY_COPY = localize({
+  tr: { subtitle: "Birden fazla ülke, tek eSIM.", previous: "Önceki bölgeler", next: "Sonraki bölgeler" },
+  de: { subtitle: "Mehrere Länder, eine eSIM.", previous: "Vorherige Regionen", next: "Weitere Regionen" },
+  en: { subtitle: "Multiple countries, one eSIM.", previous: "Previous regions", next: "Next regions" },
+});
 
 /** Public home/eSIM search: optional country + legacy `service` hint (V1 links used `/?service=lounge`). */
 export const validateEsimSearch = (s: Record<string, unknown>): { country?: string; service?: "esim" | "lounge" } => ({
@@ -263,6 +270,7 @@ function Popular({ c, section, onPick }: { c: (typeof T)["tr"]; section: V2Secti
 
 function RegionalDiscovery({ section, c }: { section: V2Section; c: (typeof T)["tr"] }) {
   const { ref, ready } = useNearViewport();
+  const rail = useRef<HTMLUListElement>(null);
   const regionalSummaries = useQuery({ queryKey: ["v2-esim-regions"], queryFn: () => listEsimRegionalSummaries(), enabled: ready });
   const summaries = regionalSummaries.data ?? [];
   const loading = regionalSummaries.isPending;
@@ -270,20 +278,25 @@ function RegionalDiscovery({ section, c }: { section: V2Section; c: (typeof T)["
   const money = (value: number, currency: string) => formatMoney(value, currency, uiLocale);
   const worldwide = summaries.find((item) => item.region === "GLOBAL" && item.unlimitedCount > 0);
   const regions = summaries.filter((item) => item.region !== "GLOBAL");
+  const copy = DISCOVERY_COPY[locale];
+  const scrollRegions = (next: boolean) => {
+    const node = rail.current;
+    if (!node) return;
+    node.scrollBy({ left: node.clientWidth * .8 * (next ? 1 : -1) * (uiLocale === "ar" ? -1 : 1), behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth' });
+  };
   return (
     <section ref={ref} aria-labelledby="regional-esim-title">
       <p className="mt-5 text-[11px] font-bold uppercase text-primary lg:mt-12">{v2Text(section, "eyebrow", locale)}</p>
-      <div className="lg:[&>div]:mt-1"><SectionTitle><span id="regional-esim-title">{v2Text(section, "title", locale) || c.regionalTitle}</span></SectionTitle></div>
-      <p className="mb-3 text-xs text-muted-foreground">{v2Text(section, "lead", locale)}</p>
-      {loading ? <div className="h-[16.1rem] rounded-xl bg-muted/70 lg:h-[36rem]" aria-hidden /> : (
-        <ul className="-mx-4 flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-2 [overscroll-behavior-inline:contain] [scrollbar-width:none] sm:mx-0 sm:grid sm:grid-cols-3 sm:px-0 lg:grid-cols-3 lg:gap-4">
-           {regions.map((item) => <li data-reveal-card key={item.region} className="w-[64%] shrink-0 snap-start sm:w-auto"><V2RegionCard item={item} countries={c.countries} multi={c.multiCountry} from={c.from} /></li>)}
+      <div className="regional-home-heading"><SectionTitle><span id="regional-esim-title">{v2Text(section, "title", locale) || c.regionalTitle}</span></SectionTitle><div className="regional-home-arrows"><Button variant="outline" size="icon" aria-label={copy.previous} title={copy.previous} onClick={()=>scrollRegions(false)}><ArrowLeft className="rtl:rotate-180"/></Button><Button variant="outline" size="icon" aria-label={copy.next} title={copy.next} onClick={()=>scrollRegions(true)}><ArrowRight className="rtl:rotate-180"/></Button></div></div>
+      <p className="mb-3 text-xs text-muted-foreground">{copy.subtitle}</p>
+      {loading ? <div className="home-region-placeholder bg-muted/70" aria-hidden /> : (
+        <ul ref={rail} className="home-region-rail" aria-label={v2Text(section, "title", locale) || c.regionalTitle}>
+           {regions.map((item) => <li data-reveal-card key={item.region}><V2RegionCard item={item} countries={c.countries} multi={c.multiCountry} from={c.from} compact /></li>)}
         </ul>
       )}
-      {worldwide?.lowestUnlimitedPrice != null && worldwide.maxUnlimitedCoverageCount != null && <Link to="/esim/bolge/$region" params={{ region: "GLOBAL" }} search={{ country: "" }} className="relative mt-2 grid min-h-20 grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 overflow-hidden rounded-xl bg-primary px-3.5 py-3 text-primary-foreground shadow-sm lg:mt-6 lg:min-h-32 lg:gap-5 lg:px-7">
-        <span className="grid size-10 place-items-center rounded-full bg-card text-primary lg:size-14"><InfinityIcon className="size-5 lg:size-7" /></span>
-        <span className="min-w-0"><strong className="block font-display text-sm lg:text-2xl">{v2Text(section, "worldwide", locale) || c.worldwideBanner}</strong><span className="block text-[11px] opacity-90 lg:mt-1 lg:text-sm">{worldwide.maxUnlimitedCoverageCount} {c.upTo} · {c.from} {money(worldwide.lowestUnlimitedPrice, worldwide.currency)}</span><span className="mt-1 block text-xs font-bold lg:text-sm">{v2Text(section, "cta", locale) || c.discoverPlans} →</span></span>
-        <ArrowRight className="size-4 shrink-0" />
+      {worldwide?.lowestUnlimitedPrice != null && worldwide.maxUnlimitedCoverageCount != null && <Link to="/esim/bolge/$region" params={{ region: "GLOBAL" }} search={{ country: "" }} className="home-worldwide-banner">
+        <span className="home-worldwide-copy" dir={uiLocale === 'ar' ? 'rtl' : undefined}><strong>{v2Text(section, "worldwide", locale) || c.worldwideBanner}</strong><span>{worldwide.maxUnlimitedCoverageCount} {c.upTo}</span><bdi>{c.from} {money(worldwide.lowestUnlimitedPrice, worldwide.currency)}</bdi><span className="home-worldwide-cta">{v2Text(section, "cta", locale) || c.discoverPlans}<ArrowRight className="size-4 shrink-0 rtl:rotate-180" /></span></span>
+        <img src={worldwideTravel} alt="" width={960} height={640} loading="lazy" decoding="async"/>
       </Link>}
     </section>
   );
