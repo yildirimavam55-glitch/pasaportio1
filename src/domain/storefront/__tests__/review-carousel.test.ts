@@ -1,9 +1,21 @@
 import { describe, expect, it } from 'vitest';
-import { REVIEW_INTERVAL_MS, reviewCapacity, reviewPositionCount, reviewExcerpt, combinedSourceRating, starFill, reviewDotIndices, reviewDesignPreviewHost, reviewLanguagePresentation, reviewRatingSummary } from '../review-carousel';
+import { REVIEW_INTERVAL_MS, reviewCapacity, reviewPositionCount, reviewExcerpt, combinedSourceRating, starFill, reviewDotIndices, reviewDesignPreviewHost, reviewLanguagePresentation, reviewRatingSummary, reviewAdminSampleMode, lastKnownPublished } from '../review-carousel';
 describe('approved testimonial behavior', () => {
   it('advances every six seconds', () => expect(REVIEW_INTERVAL_MS).toBe(6000));
   it('never permits illustrative review statistics on the public demo site', () => expect(reviewDesignPreviewHost('pasaport2.lovable.app')).toBe(false));
-  it('allows clearly labeled review examples in design preview', () => expect(reviewDesignPreviewHost('localhost')).toBe(true));
+  it.each(['localhost', 'id-preview--example.lovable.app', 'preview--example.lovable.app'])('never grants demo access from host %s', host => expect(reviewDesignPreviewHost(host)).toBe(false));
+  it('requires authenticated Admin access for preview samples', () => expect(reviewAdminSampleMode(true, false, true)).toBe(false));
+  it('requires explicit design preview even for an Admin', () => expect(reviewAdminSampleMode(false, true, true)).toBe(false));
+  it('honors the Admin sample toggle being disabled', () => expect(reviewAdminSampleMode(true, true, false)).toBe(false));
+  it('shows exactly 4.8 and 210 only in opted-in Admin preview', () => expect(reviewRatingSummary(undefined, reviewAdminSampleMode(true, true, true))).toEqual({rating:4.8,displayRating:4.8,count:210}));
+  it('retains successful platform data when a refresh fails', () => {
+    const saved = { sourceRatings: [{source:'Google',rating:5,count:90,sourceUrl:'https://google.com',verified:true},{source:'Trustpilot',rating:3,count:10,sourceUrl:'https://trustpilot.com',verified:true}] };
+    expect(lastKnownPublished(saved, {sourceRatings:[]}, true)).toBe(saved);
+  });
+  it('applies an intentional empty published configuration instead of stale ratings', () => expect(lastKnownPublished({sourceRatings:[1]}, {sourceRatings:[]}, false)).toEqual({sourceRatings:[]}));
+  it('does not fabricate last-known data on a first-load failure', () => expect(lastKnownPublished(undefined, {sourceRatings:[]}, true)).toEqual({sourceRatings:[]}));
+  it('never uses Direct as a second platform', () => expect(combinedSourceRating([{source:'Google',rating:5,count:90,sourceUrl:'https://google.com',verified:true}, {source:'Direct',rating:3,count:10,sourceUrl:'https://example.com',verified:true}] as unknown as Parameters<typeof combinedSourceRating>[0])).toBeNull());
+  it('rejects invalid platform ratings rather than inventing zero', () => expect(combinedSourceRating([{source:'Google',rating:NaN,count:90,sourceUrl:'https://google.com',verified:true},{source:'Trustpilot',rating:3,count:10,sourceUrl:'https://trustpilot.com',verified:true}])).toBeNull());
   it('limits pagination to five positions around the active review', () => expect(reviewDotIndices(20, 10)).toEqual([8, 9, 10, 11, 12]));
   it('keeps the final review reachable without extra dots', () => expect(reviewDotIndices(20, 19)).toEqual([15, 16, 17, 18, 19]));
   it('uses only existing review positions for small carousels', () => expect(reviewDotIndices(3, 2)).toEqual([0, 1, 2]));

@@ -1,17 +1,20 @@
-import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
+import { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react';
 import useEmblaCarousel from 'embla-carousel-react';
-import { ArrowRight, Star } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useI18n } from '@/i18n';
 import { type V2Section } from '@/domain/storefront/v2';
 import { publicReview, reviewAutoplay } from '@/domain/storefront/trust-comparison';
-import { REVIEW_INTERVAL_MS, reviewDotIndices, reviewRatingSummary, reviewLanguagePresentation, starFill, reviewDesignPreviewHost } from '@/domain/storefront/review-carousel';
+import { REVIEW_INTERVAL_MS, reviewDotIndices, reviewRatingSummary, reviewLanguagePresentation, starFill, reviewAdminSampleMode } from '@/domain/storefront/review-carousel';
 import { STORY_COPY } from './trust-story-copy';
 import { ReviewSourceMark } from './ReviewSourceMark';
 import { REVIEW_COPY } from './review-copy';
+import { useIsAdmin } from '@/components/AdminGate';
 
 function RatingStars({ rating }: { rating: number }) {
-  return <div className="combined-stars" role="img" aria-label={`${rating.toFixed(1)} / 5`}>{Array.from({length:5},(_,i)=><span className="partial-star" key={i}><Star aria-hidden="true"/><span style={{width:`${starFill(rating,i)}%`} as CSSProperties}><Star aria-hidden="true" fill="currentColor"/></span></span>)}</div>;
+  const id = useId();
+  const path = 'm12 2 3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01Z';
+  return <div className="combined-stars" role="img" aria-label={`${rating.toFixed(1)} / 5`}>{Array.from({length:5},(_,i)=><svg className="rating-star-svg" key={i} width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><defs><clipPath id={`${id}-${i}`}><rect width={24 * starFill(rating,i) / 100} height="24"/></clipPath></defs><path className="rating-star-base" d={path} fill="currentColor" stroke="none"/><path className="rating-star-fill" d={path} fill="currentColor" stroke="none" clipPath={`url(#${id}-${i})`}/></svg>)}</div>;
 }
 const REVIEW_HEADINGS = { tr: 'Gezginler ne diyor?', de: 'Das sagen Reisende', en: 'What travelers say', ar: 'ماذا يقول المسافرون' };
 type PresentedReview = { id: string; text: string; name: string; rating: number; source: string; url?: string | undefined; date?: string | undefined; sample: boolean; originalText?: string; originalLanguage?: string; translated?: boolean };
@@ -41,11 +44,16 @@ function ReviewCard({ review: r, readMore, sampleLabel, locale, onReading }: { r
   </article>;
 }
 export function V2ReviewCarousel({ section, preview }: { section: V2Section; preview: boolean }) {
+  return preview ? <AdminReviewPreview section={section}/> : <ReviewCarousel section={section} adminPreview={false}/>;
+}
+function AdminReviewPreview({ section }: { section: V2Section }) {
+  const isAdmin = useIsAdmin();
+  return <ReviewCarousel section={section} adminPreview={isAdmin}/>;
+}
+function ReviewCarousel({ section, adminPreview }: { section: V2Section; adminPreview: boolean }) {
   const { locale, uiLocale } = useI18n();
   const c = STORY_COPY[uiLocale as keyof typeof STORY_COPY] ?? STORY_COPY[locale];
-  const [previewHost, setPreviewHost] = useState(false);
-  useEffect(() => setPreviewHost(reviewDesignPreviewHost(window.location.hostname)), []);
-  const sampleMode = preview && previewHost && section.trust?.reviewSampleMode !== false;
+  const sampleMode = reviewAdminSampleMode(adminPreview, adminPreview, section.trust?.reviewSampleMode);
   const genuine = useMemo(() => section.items.filter(publicReview).filter(r => r.cardType === 'review')
     .map(r => ({ ...reviewLanguagePresentation(r, uiLocale), id: r.id, name: r.title[r.originalLanguage ?? 'en'] || r.title[locale] || '', rating: r.rating, url: r.reviewSourceUrl, date: r.reviewDate, sample: false }))
     .sort((a,b) => a.priority - b.priority), [section.items, uiLocale, locale]);
@@ -88,7 +96,7 @@ export function V2ReviewCarousel({ section, preview }: { section: V2Section; pre
       {summary&&<><div className="combined-score"><RatingStars rating={summary.rating}/><bdi>{new Intl.NumberFormat(uiLocale,{minimumFractionDigits:1,maximumFractionDigits:1}).format(summary.displayRating)} / 5</bdi></div><span className="combined-count">{new Intl.NumberFormat(uiLocale).format(summary.count)} {c.reviewCountLabel}</span></>}
       {!summary && <span className="review-rating-unavailable" role="status">{copy.unavailable}</span>}
     </div>
-    {(sampleMode || summary)&&<p className="combined-caption">{sampleMode ? c.previewNotice : c.combinedLabel}</p>}
+    {(sampleMode || summary)&&<p className="combined-caption">{sampleMode && !reviewRatingSummary(section.trust?.sourceRatings, false) ? copy.sampleRatings : c.combinedLabel}</p>}
     {reviews.length > 0 && <div className="review-carousel-viewport" ref={viewport} onWheel={()=>{setTouch(true);releaseTouch();}}>
       <div className="family-review-rail" tabIndex={0} aria-label={heading}
         onKeyDown={e=>{if(e.key==='ArrowRight'||e.key==='ArrowLeft'){e.preventDefault();setTouch(true);releaseTouch();if((e.key==='ArrowRight') !== (uiLocale==='ar'))carousel?.scrollNext();else carousel?.scrollPrev();}}}>
