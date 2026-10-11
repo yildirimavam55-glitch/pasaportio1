@@ -46,6 +46,15 @@ function pickCopy(locale: Locale) {
   return (COPY as Record<string, typeof COPY.en>)[locale] ?? COPY.en;
 }
 
+/** The one support conversation link shared by every WhatsApp entry point (number + localized prefill from settings). */
+export function useWhatsAppHref() {
+  const { locale } = useI18n();
+  const { settings } = useServiceAvailability();
+  const cfg = settings.whatsappWidget;
+  const prefill = settingsText(cfg.prefill, locale as Locale, "") || pickCopy(locale).prefill;
+  return waLink(prefill, cfg.number);
+}
+
 /**
  * The single floating WhatsApp support control. First tap opens an in-page
  * preview card; WhatsApp only opens from the card's explicit CTA.
