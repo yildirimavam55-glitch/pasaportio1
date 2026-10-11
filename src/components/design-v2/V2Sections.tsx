@@ -157,7 +157,7 @@ export type V2Slots = {
 };
 
 /** Renders the configured, visible sections in order through the approved V2 components. */
-export function V2Sections({ config, media, slots, only, onDestinationSearch }: { config: V2PageConfig; media: V2Media; slots: V2Slots; only?: (section: V2Section) => boolean; onDestinationSearch?: () => void }) {
+export function V2Sections({ config, media, slots, only, onDestinationSearch, searchField }: { config: V2PageConfig; media: V2Media; slots: V2Slots; only?: (section: V2Section) => boolean; onDestinationSearch?: () => void; searchField?: ReactNode }) {
   const { locale } = useI18n();
   const optionalServices = useOptionalServices();
   const [isPreview, setIsPreview] = useState(false);
@@ -180,7 +180,7 @@ export function V2Sections({ config, media, slots, only, onDestinationSearch }: 
           case "DESTINATION_CAROUSEL":
             return framed(<>{slots.destinations?.(s)}{slots.afterDestinations}</>);
           case "TRUST_REVIEWS":
-            return <V2TrustReviews key={s.id} section={s} media={media} preview={isPreview} onDestinationSearch={onDestinationSearch} />;
+            return <V2TrustReviews key={s.id} section={s} media={media} preview={isPreview} onDestinationSearch={onDestinationSearch} searchField={searchField} />;
           case "REGION_DISCOVERY":
             return config.page === "esim" ? <Reveal key={s.id} stagger>{slots.regions?.(s)}{slots.afterRegions}</Reveal> : <V2Fragment key={s.id}>{slots.regions?.(s)}{slots.afterRegions}</V2Fragment>;
           case "NOTICE":
