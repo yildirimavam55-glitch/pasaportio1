@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import earth from "@/assets/earth-final.mp4.asset.json";
+import earthWebm from "@/assets/earth-final.webm.asset.json";
 import poster from "@/assets/earth-final-poster.webp.asset.json";
 
 /** Native decoding avoids a runtime 3D renderer. */
@@ -37,6 +38,6 @@ export function WorldwideEarth() {
   }, [near, visible, pageVisible, reduced]);
   return <span ref={root} className="home-worldwide-earth" aria-hidden="true">
     <img src={poster.url} alt="" width={384} height={384} loading="lazy" decoding="async" />
-    {near && !reduced && !failed && <video ref={video} src={earth.url} poster={poster.url} width={320} height={320} muted loop playsInline preload="none" disablePictureInPicture onError={() => setFailed(true)} />}
+    {near && !reduced && !failed && <video ref={video} poster={poster.url} width={320} height={320} muted loop playsInline preload="none" disablePictureInPicture onError={() => setFailed(true)}><source src={earthWebm.url} type="video/webm" /><source src={earth.url} type="video/mp4" /></video>}
   </span>;
 }
