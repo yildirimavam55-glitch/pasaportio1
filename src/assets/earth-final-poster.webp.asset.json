@@ -1,11 +1,11 @@
 {
-  "version": 1,
   "asset_id": "8a3dc18b-0b0f-4cfe-9ee6-85e0904f3f11",
-  "project_id": "650631d3-fa00-4c84-b30e-e472947470da",
-  "url": "/__l5e/assets-v1/8a3dc18b-0b0f-4cfe-9ee6-85e0904f3f11/earth-final-poster.webp",
-  "r2_key": "a/v1/650631d3-fa00-4c84-b30e-e472947470da/8a3dc18b-0b0f-4cfe-9ee6-85e0904f3f11/earth-final-poster.webp",
-  "original_filename": "earth-final-poster.webp",
-  "size": 20466,
   "content_type": "image/webp",
-  "created_at": "2026-10-11T08:03:55Z"
+  "created_at": "2026-10-11T08:03:55Z",
+  "original_filename": "earth-final-poster.webp",
+  "project_id": "ed0f8579-1540-47b9-bec6-0457d4cc0267",
+  "r2_key": "a/v1/ed0f8579-1540-47b9-bec6-0457d4cc0267/8a3dc18b-0b0f-4cfe-9ee6-85e0904f3f11/earth-final-poster.webp",
+  "size": 20466,
+  "url": "/__l5e/assets-v1/8a3dc18b-0b0f-4cfe-9ee6-85e0904f3f11/earth-final-poster.webp",
+  "version": 1
 }

@@ -1,1 +1,0 @@
-CREATE UNIQUE INDEX IF NOT EXISTS ops_alerts_one_refund_alert_per_request ON public.ops_alerts (entity_id) WHERE type = 'REFUND_REQUEST' AND entity_type = 'refund_requests';
