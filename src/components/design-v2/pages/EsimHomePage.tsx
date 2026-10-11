@@ -32,7 +32,7 @@ import { localize } from "@/i18n/overlay";
 import { StorefrontIcon } from "@/domain/storefront/icons";
 import { useNearViewport } from "@/components/travel/use-near-viewport";
 import { ESSENTIAL_FAIR_USE } from "@/domain/esim/fair-use";
-import worldwideTravel from "@/assets/airplane-window-travel.webp";
+import { WorldwideEarth } from "@/components/design-v2/WorldwideEarth";
 
 const DISCOVERY_COPY = localize({
   tr: { title: "Bölgesel eSIM paketleri", worldwide: "Dünya çapında internet", cta: "Paketleri keşfet", previous: "Önceki bölgeler", next: "Sonraki bölgeler" },
@@ -305,9 +305,9 @@ function RegionalDiscovery({ section, c }: { section: V2Section; c: (typeof T)["
           <button type="button" className="home-region-arrow is-next" aria-label={copy.next} title={copy.next} disabled={edge.end} onClick={()=>scrollRegions(true)}><ChevronRight className="size-5 rtl:rotate-180" aria-hidden /></button>
         </div>
       )}
-      {worldwide?.lowestUnlimitedPrice != null && worldwide.maxUnlimitedCoverageCount != null && <Link to="/esim/bolge/$region" params={{ region: "GLOBAL" }} search={{ country: "" }} className="home-worldwide-banner">
-        <span className="home-worldwide-copy" dir={uiLocale === 'ar' ? 'rtl' : undefined}><strong>{copy.worldwide}</strong><span className="home-worldwide-meta"><span>{worldwide.maxUnlimitedCoverageCount} {c.countries}</span> · <bdi>{c.from} {money(worldwide.lowestUnlimitedPrice, worldwide.currency)}</bdi></span><span className="home-worldwide-cta">{copy.cta}<ArrowRight className="size-4 shrink-0 rtl:rotate-180" /></span></span>
-        <img src={worldwideTravel} alt="" width={960} height={640} loading="lazy" decoding="async"/>
+      {worldwide?.unlimitedBanner && <Link to="/esim/bolge/$region" params={{ region: "GLOBAL" }} search={{ country: "" }} className="home-worldwide-banner">
+        <span className="home-worldwide-copy" dir={uiLocale === 'ar' ? 'rtl' : undefined}><strong>{copy.worldwide}</strong><span className="home-worldwide-meta"><span>{worldwide.unlimitedBanner.coverageCount} {c.countries}</span> · <bdi>{c.from} {money(worldwide.unlimitedBanner.price, worldwide.unlimitedBanner.currency)}</bdi></span><span className="home-worldwide-cta">{copy.cta}<ArrowRight className="size-4 shrink-0 rtl:rotate-180" /></span></span>
+        <WorldwideEarth />
       </Link>}
     </section>
   );
