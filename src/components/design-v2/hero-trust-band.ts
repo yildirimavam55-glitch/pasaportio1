@@ -26,7 +26,7 @@ const byId = new Map(DEFAULTS.map((entry) => [entry.id, entry]));
  * admin's icon, localized label, link and description. A field the Admin left empty falls back to
  * the approved default for that item, so saved values always win over the built-in copy.
  */
-export function trustBandItems(section: V2Section | undefined, locale: Locale): TrustBandItem[] {
+export function trustBandItems(section: V2Section | undefined, locale: Locale, whatsAppHref?: string): TrustBandItem[] {
   const stored = (section?.items ?? []).filter((item) => item.visible);
   const rows: Row[] = stored.length ? stored : DEFAULTS;
   return rows.map((row) => {
@@ -34,7 +34,7 @@ export function trustBandItems(section: V2Section | undefined, locale: Locale): 
     const label = v2ItemText(row.title, locale) || v2ItemText(fallback?.title, locale);
     const description = v2ItemText(row.text, locale) || v2ItemText(fallback?.text, locale);
     const toWhatsApp = row.whatsapp === true || row.internalKey === "support" || fallback?.whatsapp === true;
-    const href = row.href?.trim() || (toWhatsApp ? waLink() : fallback?.href ?? "");
+    const href = row.href?.trim() || (toWhatsApp ? whatsAppHref || waLink() : fallback?.href ?? "");
     return { id: row.id, icon: row.icon?.trim() || fallback?.icon || "Sparkles", label, description, href };
   }).filter((item) => item.label !== "" && item.href !== "");
 }

@@ -8,6 +8,7 @@ import { HeroPromotion } from "./HeroPromotion";
 import { v2Text, type V2Section } from "@/domain/storefront/v2";
 import { StorefrontIcon } from "@/domain/storefront/icons";
 import { trustBandItems } from "./hero-trust-band";
+import { useWhatsAppHref } from "@/components/travel/WhatsAppSupportWidget";
 import coast from "@/assets/pasaport-antenna-coast.png.asset.json";
 import { AntennaSignal } from "./AntennaSignal";
 
@@ -41,6 +42,6 @@ export function PasaportEsimHero({ section, image, benefits, children }: { secti
 /** The four-column trust row: content, icons, links, order and visibility come from the Admin-edited BENEFIT_ROW section. */
 export function PasaportMobileBenefits({ section }: { section?: V2Section | undefined }) {
  const { locale } = useI18n();
- const items = trustBandItems(section, locale);
+ const items = trustBandItems(section, locale, useWhatsAppHref());
  return <ul className="final-trust-band">{items.map(({ id, icon, label, description, href }) => <li key={id}><Button asChild variant="ghost"><a href={href} {...(href.startsWith("https:") ? { target: "_blank", rel: "noopener noreferrer" } : {})}><span aria-hidden="true" className="contents"><StorefrontIcon name={icon} /></span><span><strong>{label}</strong><small>{description}</small></span></a></Button></li>)}</ul>;
 }

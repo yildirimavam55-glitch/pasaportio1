@@ -116,6 +116,9 @@ function SettingsPage() {
                 <input type="checkbox" checked={form.whatsappWidget.enabled} onChange={(event) => set({ whatsappWidget: { ...form.whatsappWidget, enabled: event.target.checked } })} />
                 Widget açık
               </label>
+              <Field label="WhatsApp destek numarası" hint="Ülke koduyla, yalnız rakam (örn. 4915203555596). Boş bırakılırsa mevcut yerleşik numara kullanılır. Ana sayfa güven öğesi ve yüzen buton aynı numarayı kullanır.">
+                <input className="admin-field mt-1 w-full" inputMode="tel" value={form.whatsappWidget.number} onChange={(event) => set({ whatsappWidget: { ...form.whatsappWidget, number: event.target.value.replace(/[^\d]/g, "").slice(0, 15) } })} placeholder="4915203555596" />
+              </Field>
               <div className="mt-3 grid gap-3 sm:grid-cols-2">
                 {([
                   ["title", "Başlık", "travely Destek"],

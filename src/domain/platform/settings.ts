@@ -28,6 +28,8 @@ export type PlatformSettings = {
   /** Floating WhatsApp support preview. Empty texts fall back to built-in localized copy; the number stays in src/lib/whatsapp.ts. */
   whatsappWidget: {
     enabled: boolean;
+    /** Support number, international digits only (8–15). Empty = built-in number from src/lib/whatsapp.ts. */
+    number: string;
     title: SettingsText;
     message: SettingsText;
     cta: SettingsText;
@@ -93,7 +95,7 @@ export const DEFAULT_SETTINGS: PlatformSettings = {
       ),
     },
   },
-  whatsappWidget: { enabled: true, title: EMPTY_TEXT(), message: EMPTY_TEXT(), cta: EMPTY_TEXT(), prefill: EMPTY_TEXT() },
+  whatsappWidget: { enabled: true, number: "", title: EMPTY_TEXT(), message: EMPTY_TEXT(), cta: EMPTY_TEXT(), prefill: EMPTY_TEXT() },
   refundTrust: { enabled: true, homepage: true, productPage: true, policyUrl: "" },
 };
 
@@ -126,6 +128,7 @@ export function sanitizeSettings(raw: any): PlatformSettings {
   const wa = source?.whatsappWidget ?? {};
   const whatsappWidget: PlatformSettings["whatsappWidget"] = {
     enabled: wa.enabled === undefined ? true : Boolean(wa.enabled),
+    number: /^\d{8,15}$/.test(String(wa.number ?? "").replace(/[\s+()-]/g, "")) ? String(wa.number).replace(/[\s+()-]/g, "") : "",
     title: cleanText(wa.title, EMPTY_TEXT()),
     message: cleanText(wa.message, EMPTY_TEXT()),
     cta: cleanText(wa.cta, EMPTY_TEXT()),
