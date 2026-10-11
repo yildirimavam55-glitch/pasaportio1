@@ -4,10 +4,10 @@ import photo from "@/assets/worldwide-window-photo.webp.asset.json";
 
 /** Static photo using the existing CMS's responsive crop values. */
 export function WorldwideBannerPhoto({ image, mobileImage, display, mobileDisplay }: {
-  image?: string;
-  mobileImage?: string;
-  display?: ImageDisplay;
-  mobileDisplay?: ImageDisplay;
+  image?: string | undefined;
+  mobileImage?: string | undefined;
+  display?: ImageDisplay | undefined;
+  mobileDisplay?: ImageDisplay | undefined;
 }) {
   const desktop = sanitizeImageDisplay(display);
   const mobile = sanitizeImageDisplay(mobileDisplay, { ...desktop, x: display?.x ?? 76 });
