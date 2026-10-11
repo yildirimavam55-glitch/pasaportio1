@@ -2032,3 +2032,4 @@ body:has([role="dialog"][data-state="open"]) .pasaport-mobile-reference [data-wh
 :root { --earth-space: oklch(0.17 0.028 225); }
 .home-worldwide-earth { position:relative; display:block; min-width:0; overflow:hidden; background:var(--earth-space); pointer-events:none; }
 .home-worldwide-earth > img,.home-worldwide-earth > video { position:absolute; inset:0; width:100%; height:100%; object-fit:contain; object-position:center; }
+@media(min-width:1024px) { .home-worldwide-earth > img,.home-worldwide-earth > video { top:-40%; height:180%; } }

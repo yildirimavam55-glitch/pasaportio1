@@ -28,7 +28,11 @@ export function WorldwideEarth() {
   useEffect(() => {
     const node = video.current;
     if (!node) return;
-    if (visible && pageVisible && !reduced) void node.play().catch(() => setFailed(true));
+    if (visible && pageVisible && !reduced) void node.play().catch((error: unknown) => {
+      // A scroll/visibility pause can abort an in-flight play request; it is not a media failure.
+      if (error instanceof DOMException && error.name === "AbortError") return;
+      setFailed(true);
+    });
     else node.pause();
   }, [near, visible, pageVisible, reduced]);
   return <span ref={root} className="home-worldwide-earth" aria-hidden="true">
