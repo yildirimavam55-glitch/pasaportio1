@@ -93,7 +93,6 @@ export function EsimHomePage() {
     requestAnimationFrame(() => setPickerOpen(true));
   };
   const { config, media } = useV2Page("esim");
-  const heroSection = config.sections[0];
   const benefitSection = config.sections.find((section) => section.type === "BENEFIT_ROW" && section.visible);
   const desktopBenefits = benefitSection?.items.filter((item) => item.visible) ?? [];
   const choose = (iso: string) => {

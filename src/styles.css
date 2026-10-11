@@ -2015,8 +2015,7 @@ body:has([role="dialog"][data-state="open"]) .pasaport-mobile-reference [data-wh
 .home-worldwide-banner > img { min-height:0; max-height:150px; }
 @media(min-width:1024px) {
   .home-region-section { margin-top:22px; }
-  .home-region-carousel { padding-inline:52px; }
-  .home-region-rail { max-width:none; }
+  .home-region-rail { max-width:none; padding-inline:0; scroll-padding-inline:0; }
   .home-region-arrow { display:grid; place-items:center; position:absolute; top:50%; transform:translateY(-50%); width:40px; height:40px; border-radius:999px; background:var(--card); color:var(--primary); border:1px solid var(--border); box-shadow:var(--shadow-sm); z-index:1; }
   .home-region-arrow.is-prev { inset-inline-start:0; }
   .home-region-arrow.is-next { inset-inline-end:0; }
