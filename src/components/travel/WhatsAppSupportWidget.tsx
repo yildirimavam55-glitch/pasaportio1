@@ -102,7 +102,7 @@ export function WhatsAppSupportWidget({ surface, placement = "inline" }: { surfa
 
   const rootClass =
     placement === "fixed"
-      ? "fixed bottom-[calc(5rem+env(safe-area-inset-bottom))] right-4 z-40 sm:bottom-6 sm:right-6"
+      ? "pointer-events-auto fixed bottom-[calc(5rem+env(safe-area-inset-bottom))] right-4 z-40 sm:bottom-6 sm:right-6"
       : "pointer-events-auto relative shrink-0";
 
   return (
@@ -140,7 +140,7 @@ export function WhatsAppSupportWidget({ surface, placement = "inline" }: { surfa
               <p className="mt-1 text-muted-foreground">{copy.message}</p>
             </div>
             <a
-              href={waLink(copy.prefill)}
+              href={waLink(copy.prefill, cfg.number)}
               target="_blank"
               rel="noopener noreferrer"
               onClick={() => {
@@ -163,7 +163,7 @@ export function WhatsAppSupportWidget({ surface, placement = "inline" }: { surfa
         aria-label={base.label}
         aria-expanded={open}
         aria-controls={open ? cardId : undefined}
-        className={`grid size-[3.25rem] place-items-center rounded-full shadow-lg hover:brightness-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ${surface === "v2-dock" ? "lg:max-[1399px]:size-[2.625rem]" : ""}`}
+        className={`grid size-[3.25rem] place-items-center rounded-full shadow-lg hover:brightness-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 cursor-pointer transition-[filter,transform] active:scale-95 motion-reduce:transition-none ${surface === "v2-dock" ? "lg:max-[1399px]:size-[2.625rem]" : ""}`}
         style={{ backgroundColor: "#25D366", color: "#fff" }}
       >
         {open ? <X className="size-6" /> : <WhatsAppLogo className="size-6" />}
