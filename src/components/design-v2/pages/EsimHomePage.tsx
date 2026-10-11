@@ -32,7 +32,7 @@ import { localize } from "@/i18n/overlay";
 import { StorefrontIcon } from "@/domain/storefront/icons";
 import { useNearViewport } from "@/components/travel/use-near-viewport";
 import { ESSENTIAL_FAIR_USE } from "@/domain/esim/fair-use";
-import { WorldwideEarth } from "@/components/design-v2/WorldwideEarth";
+import { WorldwideBannerPhoto } from "@/components/design-v2/WorldwideBannerPhoto";
 
 const DISCOVERY_COPY = localize({
   tr: { title: "Bölgesel eSIM paketleri", worldwide: "Dünya çapında internet", cta: "Paketleri keşfet", previous: "Önceki bölgeler", next: "Sonraki bölgeler" },
@@ -269,6 +269,7 @@ function Popular({ c, section, onPick }: { c: (typeof T)["tr"]; section: V2Secti
 }
 
 function RegionalDiscovery({ section, c }: { section: V2Section; c: (typeof T)["tr"] }) {
+  const { media } = useV2Page("esim");
   const { ref, ready } = useNearViewport();
   const rail = useRef<HTMLUListElement>(null);
   const regionalSummaries = useQuery({ queryKey: ["v2-esim-regions"], queryFn: () => listEsimRegionalSummaries(), enabled: ready });
@@ -307,7 +308,7 @@ function RegionalDiscovery({ section, c }: { section: V2Section; c: (typeof T)["
       )}
       {worldwide?.unlimitedBanner && <Link to="/esim/bolge/$region" params={{ region: "GLOBAL" }} search={{ country: "" }} className="home-worldwide-banner">
         <span className="home-worldwide-copy" dir={uiLocale === 'ar' ? 'rtl' : undefined}><strong>{copy.worldwide}</strong><span className="home-worldwide-meta"><span>{worldwide.unlimitedBanner.coverageCount} {c.countries}</span> · <bdi>{c.from} {money(worldwide.unlimitedBanner.price, worldwide.unlimitedBanner.currency)}</bdi></span><span className="home-worldwide-cta">{copy.cta}<ArrowRight className="size-4 shrink-0 rtl:rotate-180" /></span></span>
-        <WorldwideEarth />
+        <WorldwideBannerPhoto image={mediaUrl(section.mediaId, media)} mobileImage={mediaUrl(section.mobileMediaId, media)} display={section.imageDisplay} mobileDisplay={section.mobileImageDisplay} />
       </Link>}
     </section>
   );

@@ -32,7 +32,7 @@ Public install help stays in V2; QR, activation credentials, and package policy 
 - The homepage loader primes only the layout and the shared country-price query; regional cards, guides, footer, theme and availability stay client-loaded with fixed-size placeholders, and `Reveal` renders visible by default, hiding only items below the viewport after hydration — why: the first viewport must be complete without making the server response heavier.
 - eSIM home shares CMS/search/gift/trust and the loading-gated device status — why: missing data never implies incompatibility.
 - Browser-only locales await resolution in a neutral shell; TR/DE/EN URLs remain SSR — why: unknown browser preferences must not flash another language.
-- Home regions share cards/queries. Earth uses lazy video with offscreen/static-motion guards; banner price/coverage share one row to avoid false claims.
+- Worldwide static photos reuse REGION_DISCOVERY media/crops/preview; price/coverage share one catalogue row — why: no duplicate tools or false claims.
 - One shared PaymentStrip uses story CSS ordering for desktop copy/mobile below-photo placement — why: never duplicate availability data.
 
 - Account demos require preview opt-in and account auth, with no writes/order counts — why: simulations cannot become purchases.
