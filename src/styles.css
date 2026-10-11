@@ -2068,4 +2068,4 @@ body:has([role="dialog"][data-state="open"]) .pasaport-mobile-reference [data-wh
  .final-trust-icon { width:44px; height:44px; }
  .final-trust-band strong { font-size:14px; }
 }
-@media (min-width:1024px) { .pasaport-mobile-home .final-trust-band + * .popular-country-heading, .pasaport-mobile-home .popular-country-heading { margin-top:36px; } }
+@media (min-width:1024px) { .pasaport-mobile-home #popular { margin-top:36px; } }
