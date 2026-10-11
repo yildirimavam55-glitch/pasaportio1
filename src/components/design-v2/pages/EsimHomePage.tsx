@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { ArrowRight, BarChart3, BookOpen, Box, ChevronLeft, ChevronRight, CheckCircle2, Globe2, Infinity as InfinityIcon, MapPin, MessageCircle, Search, Share2, Smartphone, Sparkles, Video, Zap } from "lucide-react";
 import { DeviceCompatibilityProductCard } from "@/components/travel/DeviceCompatibility";
 import { PasaportEsimHero } from "@/components/design-v2/PasaportEsimHero";
-import { CartBar, money as formatMoney, PhotoCard, PhotoRail, pick, SectionTitle, TrustRow, useV2StickySearch, V2Shell, V2StickySearchButton } from "@/components/design-v2/V2Shell";
+import { CartBar, money as formatMoney, PhotoCard, PhotoRail, pick, SectionTitle, TrustRow, V2Shell } from "@/components/design-v2/V2Shell";
 import { V2PickerSheet } from "@/components/design-v2/V2PickerSheet";
 import { Button } from "@/components/ui/button";
 import { countryPhotoRegistry } from "@/components/travel/countryPhotos";
@@ -83,7 +83,7 @@ export function EsimHomePage() {
     [query, locale],
   );
   const selected = country ? getCountryByIso(country.toUpperCase()) : undefined;
-  const { heroSearchRef, heroSearchVisible } = useV2StickySearch();
+  const heroSearchRef = useRef<HTMLDivElement | null>(null);
   const openHeroSearch = () => {
     const target = heroSearchRef.current;
     if (target) {
@@ -93,10 +93,8 @@ export function EsimHomePage() {
     requestAnimationFrame(() => setPickerOpen(true));
   };
   const { config, media } = useV2Page("esim");
-  const heroSection = config.sections[0];
   const benefitSection = config.sections.find((section) => section.type === "BENEFIT_ROW" && section.visible);
   const desktopBenefits = benefitSection?.items.filter((item) => item.visible) ?? [];
-  const stickyLabel = v2Text(heroSection, "sticky", locale) || v2Text(heroSection, "placeholder", locale) || c.stickyPh;
   const choose = (iso: string) => {
     setSelectedPackage(null);
     setSelectionQuantity(1);
@@ -150,12 +148,8 @@ export function EsimHomePage() {
     onQuantityChange={(quantity) => selectedCartLine ? updateQuantity(selectedCartLine.productId, quantity) : setSelectionQuantity(quantity)}
     onAdd={addSelectedPackage}
   /> : undefined;
-  const stickySearch = !selected ? (
-    <V2StickySearchButton heroSearchVisible={heroSearchVisible} label={stickyLabel} onOpen={() => setPickerOpen(true)} />
-  ) : undefined;
-
   return (
-    <V2Shell service="esim" commerceSelection={Boolean(selectedPackage)} stickySearch={stickySearch} purchaseSummary={purchaseSummary} heroPromotion={!selected}>
+    <V2Shell service="esim" commerceSelection={Boolean(selectedPackage)} purchaseSummary={purchaseSummary} heroPromotion={!selected}>
 
       {selected ? (
         <>

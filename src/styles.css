@@ -1616,14 +1616,14 @@ html[data-quick-search-lock] body {
 .pasaport-mobile-home #popular { margin-top: 16px; }
 .pasaport-mobile-home .popular-country-heading > div { margin: 0; }
 .pasaport-mobile-home .popular-country-heading h2 { font-family: var(--font-sans); font-size: 20px; font-weight: 700; line-height: 1.25; }
-.pasaport-mobile-home .popular-country-heading + ul { margin-top: 10px; }
-.pasaport-mobile-home .popular-country-heading + ul { gap: 10px; }
-.pasaport-mobile-home .popular-country-heading + ul > li { width: calc((100% - 36px) / 2.7); min-width: 122px; }
-.pasaport-mobile-home .popular-country-heading + ul > li > button { border-radius: 14px; background: var(--card); box-shadow: var(--shadow-sm); }
-.pasaport-mobile-home .popular-country-heading + ul > li > button > div:first-child { height: auto; aspect-ratio: 1.42; }
-.pasaport-mobile-home .popular-country-heading + ul > li > button > div:last-child { position: static; padding: 8px; background: var(--card); }
-.pasaport-mobile-home .popular-country-heading + ul p { color: var(--foreground); font-family: var(--font-sans); font-size: 13px; font-weight: 700; line-height: 1.3; }
-.pasaport-mobile-home .popular-country-heading + ul p:last-child { color: var(--primary); margin-top: 2px; }
+.pasaport-mobile-home .popular-country-heading + .home-rail-frame > ul { margin-top: 10px; }
+.pasaport-mobile-home .popular-country-heading + .home-rail-frame > ul { gap: 10px; }
+.pasaport-mobile-home .popular-country-heading + .home-rail-frame > ul > li { width: calc((100% - 36px) / 2.7); min-width: 122px; }
+.pasaport-mobile-home .popular-country-heading + .home-rail-frame > ul > li > button { border-radius: 14px; background: var(--card); box-shadow: var(--shadow-sm); }
+.pasaport-mobile-home .popular-country-heading + .home-rail-frame > ul > li > button > div:first-child { height: auto; aspect-ratio: 1.42; }
+.pasaport-mobile-home .popular-country-heading + .home-rail-frame > ul > li > button > div:last-child { position: static; padding: 8px; background: var(--card); }
+.pasaport-mobile-home .popular-country-heading + .home-rail-frame > ul p { color: var(--foreground); font-family: var(--font-sans); font-size: 13px; font-weight: 700; line-height: 1.3; }
+.pasaport-mobile-home .popular-country-heading + .home-rail-frame > ul p:last-child { color: var(--primary); margin-top: 2px; }
 /* Mobile hero reference only: never restyle the country or benefit sections. */
 @media (max-width:1023px) {
   .pasaport-hero-photo { height: auto; aspect-ratio: 5 / 4; }
@@ -1671,10 +1671,10 @@ html[data-quick-search-lock] body {
   .pasaport-search-card > p { font-size: 22px; }
   .pasaport-country-field { height: 62px; font-size: 16px; }
   .pasaport-mobile-home #popular { max-width: 1200px; margin: 62px auto 0; }
-  .pasaport-mobile-home .popular-country-heading + ul { max-width: 1200px; margin: 12px auto 0; }
-  .pasaport-mobile-home .popular-country-heading + ul > li { width: calc((100% - 64px) / 5); }
-  .pasaport-mobile-home .popular-country-heading + ul { gap: 16px; }
-  .pasaport-mobile-home .popular-country-heading + ul p { font-size: 15px; }
+  .pasaport-mobile-home .popular-country-heading + .home-rail-frame > ul { max-width: 1200px; margin: 12px auto 0; }
+  .pasaport-mobile-home .popular-country-heading + .home-rail-frame > ul > li { width: calc((100% - 64px) / 5); }
+  .pasaport-mobile-home .popular-country-heading + .home-rail-frame > ul { gap: 16px; }
+  .pasaport-mobile-home .popular-country-heading + .home-rail-frame > ul p { font-size: 15px; }
   .pasaport-mobile-home .popular-country-heading h2 { font-size: 28px; }
   [dir="rtl"] .pasaport-hero-shade { transform: scaleX(-1); }
   [dir="rtl"] .pasaport-hero-photo { transform: scaleX(-1); }
@@ -1957,8 +1957,8 @@ body:has([role="dialog"][data-state="open"]) .pasaport-mobile-reference [data-wh
 @media(prefers-reduced-motion:reduce) { .coupon-open-panel { animation:none; transition:none; } }
 
 /* Homepage discovery only: shared horizontal composition at every viewport. */
-.pasaport-mobile-home .popular-country-heading + ul { flex-wrap:nowrap; }
-.pasaport-mobile-home .popular-country-heading + ul p { white-space:normal; overflow-wrap:anywhere; }
+.pasaport-mobile-home .popular-country-heading + .home-rail-frame > ul { flex-wrap:nowrap; }
+.pasaport-mobile-home .popular-country-heading + .home-rail-frame > ul p { white-space:normal; overflow-wrap:anywhere; }
 .regional-home-heading { display:grid; grid-template-columns:minmax(0,1fr) auto; gap:12px; align-items:center; }
 .regional-home-heading > div:first-child { margin:4px 0 8px; }
 .regional-home-heading h2 { font-family:var(--font-sans); font-size:20px; line-height:1.25; }
@@ -2014,9 +2014,8 @@ body:has([role="dialog"][data-state="open"]) .pasaport-mobile-reference [data-wh
 .home-worldwide-copy .home-worldwide-cta { min-height:40px; margin-top:2px; padding:0 14px; border-radius:999px; background:var(--primary); color:var(--primary-foreground); font-size:13px; }
 .home-worldwide-banner > img { min-height:0; max-height:150px; }
 @media(min-width:1024px) {
-  .home-region-section { margin-top:22px; }
-  .home-region-carousel { padding-inline:52px; }
-  .home-region-rail { max-width:none; }
+  .home-region-section { max-width:1200px; margin:22px auto 0; }
+  .home-region-rail { max-width:none; padding-inline:0; scroll-padding-inline:0; }
   .home-region-arrow { display:grid; place-items:center; position:absolute; top:50%; transform:translateY(-50%); width:40px; height:40px; border-radius:999px; background:var(--card); color:var(--primary); border:1px solid var(--border); box-shadow:var(--shadow-sm); z-index:1; }
   .home-region-arrow.is-prev { inset-inline-start:0; }
   .home-region-arrow.is-next { inset-inline-end:0; }
