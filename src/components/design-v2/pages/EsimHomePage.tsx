@@ -96,7 +96,6 @@ export function EsimHomePage() {
   const heroSection = config.sections[0];
   const benefitSection = config.sections.find((section) => section.type === "BENEFIT_ROW" && section.visible);
   const desktopBenefits = benefitSection?.items.filter((item) => item.visible) ?? [];
-  const stickyLabel = v2Text(heroSection, "sticky", locale) || v2Text(heroSection, "placeholder", locale) || c.stickyPh;
   const choose = (iso: string) => {
     setSelectedPackage(null);
     setSelectionQuantity(1);
@@ -150,12 +149,8 @@ export function EsimHomePage() {
     onQuantityChange={(quantity) => selectedCartLine ? updateQuantity(selectedCartLine.productId, quantity) : setSelectionQuantity(quantity)}
     onAdd={addSelectedPackage}
   /> : undefined;
-  const stickySearch = !selected ? (
-    <V2StickySearchButton heroSearchVisible={heroSearchVisible} label={stickyLabel} onOpen={() => setPickerOpen(true)} />
-  ) : undefined;
-
   return (
-    <V2Shell service="esim" commerceSelection={Boolean(selectedPackage)} stickySearch={stickySearch} purchaseSummary={purchaseSummary} heroPromotion={!selected}>
+    <V2Shell service="esim" commerceSelection={Boolean(selectedPackage)} purchaseSummary={purchaseSummary} heroPromotion={!selected}>
 
       {selected ? (
         <>
