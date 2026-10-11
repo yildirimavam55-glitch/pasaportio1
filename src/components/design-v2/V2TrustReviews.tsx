@@ -15,7 +15,7 @@ import { PaymentStrip } from './PaymentStrip';
 import { Reveal } from '@/components/travel/Reveal';
 import { usePublishedTheme } from '@/components/PublishedTheme';
 
-export function V2TrustReviews({section,media,preview=false,onDestinationSearch}:{section:V2Section;media:V2Media;preview?:boolean;onDestinationSearch?:(()=>void)|undefined}) {
+export function V2TrustReviews({section,media,preview=false,onDestinationSearch,searchField}:{section:V2Section;media:V2Media;preview?:boolean;onDestinationSearch?:(()=>void)|undefined;searchField?:React.ReactNode}) {
  const {locale,uiLocale}=useI18n(); useCurrency();
  const motionEnabled=usePublishedTheme().homepageScrollAnimations;
  const c=STORY_COPY[uiLocale as keyof typeof STORY_COPY]??STORY_COPY[locale];
@@ -39,7 +39,7 @@ export function V2TrustReviews({section,media,preview=false,onDestinationSearch}
   <Reveal><V2ReviewCarousel section={section} preview={preview}/></Reveal>
    <Reveal><div className="family-comparison" ref={comparison} data-bars-revealed={barsRevealed}><div className="family-compare-heading"><div><h3>{entries&&saving>0?<>{c.save} <em>{saving}%</em>*</>:c.neutral}</h3><p>{c.desc}</p></div>{designPreview&&!verified&&<span className="sample-badge"><Info size={12}/>{c.illustrative}</span>}</div>
     <div className="family-price-grid">{[RadioTower,Smartphone,Signal].map((Icon,i)=><article className={`family-price-option option-${i}`} key={i}><span className="compare-icon"><Icon/></span><div className="price-copy"><strong>{c.options[i]}</strong>{ordered[i]&&<small>{verified?ordered[i]?.currency:c.example}</small>}</div>{ordered[i]&&<><bdi>{verified?displayMoney(ordered[i]?.price??0,ordered[i]?.currency??'EUR',uiLocale):new Intl.NumberFormat(uiLocale,{style:'currency',currency:'EUR'}).format(ordered[i]?.price??0)}</bdi><div className="compare-track"><span className="compare-bar-track"><span className="compare-bar-fill" data-price-ratio={bars[i]} style={{'--price-ratio':bars[i],'--bar-delay':`${i*125}ms`} as CSSProperties}/></span></div></>}</article>)}</div>
-   <div className="family-conversion"><Wallet aria-hidden="true"/><div><strong>{custom("familyBudget",c.budget)}</strong><p>{custom("familyPlan",c.plan)}</p></div><Button onClick={onDestinationSearch}>{custom("familyCta",c.cta)}<ArrowRight className="rtl:rotate-180"/></Button></div>
+   <div className="family-conversion"><Wallet aria-hidden="true"/><div><strong>{custom("familyBudget",c.budget)}</strong><p>{custom("familyPlan",c.plan)}</p></div>{searchField ?? <Button onClick={onDestinationSearch}>{custom("familyCta",c.cta)}<ArrowRight className="rtl:rotate-180"/></Button>}</div>
    <div className="family-compare-foot">{designPreview&&!verified&&<small>{c.foot}</small>}<details><summary>{c.details}</summary>{verified?.map(e=><p key={e.kind}>{e.provider} · {e.destination} · {e.allowance} · {e.validity} · {e.checkedAt} · <a href={e.sourceUrl} target="_blank" rel="noopener noreferrer">{e.sourceUrl}</a></p>)??<p>{designPreview?`${c.illustrative} — ${c.example}`:c.neutral}</p>}</details></div>
   </div></Reveal>
  </section>;
