@@ -2054,9 +2054,9 @@ body:has([role="dialog"][data-state="open"]) .pasaport-mobile-reference [data-wh
 .final-hero-compatibility { margin:24px 16px 0; }
 .pasaport-final-hero .hero-device-selectors { grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; }
 .pasaport-final-hero .hero-device-selectors button,.pasaport-final-hero .hero-device-selectors select { height:52px; border:1px solid color-mix(in oklab,var(--foreground) 16%,transparent); border-radius:10px; padding-inline:12px; background:var(--card); color:var(--foreground); opacity:1; }
-.final-trust-band { margin:20px 16px 0; padding:14px 4px; border-radius:18px; background:color-mix(in oklab,var(--primary) 9%,var(--card)); list-style:none; }
-.final-trust-band li { border-inline-end-color:color-mix(in oklab,var(--primary) 20%,transparent); }
-.final-trust-icon { display:grid; place-items:center; width:40px; height:40px; border-radius:999px; background:color-mix(in oklab,var(--primary) 16%,var(--card)); color:var(--primary); }
+.final-trust-band { --trust-mint:oklch(.955 .03 165); margin:20px 0 0; padding:14px 4px; border-radius:18px; background:var(--trust-mint); list-style:none; }
+.final-trust-band li { border-inline-end-color:oklch(.86 .04 165); }
+.final-trust-icon { display:grid; place-items:center; width:40px; height:40px; border-radius:999px; background:oklch(.9 .05 165); color:var(--primary); }
 .final-trust-band .final-trust-icon svg { width:22px; height:22px; }
 .final-trust-band .final-trust-item { gap:8px; cursor:default; }
 .final-trust-band strong { font-size:12px; }
