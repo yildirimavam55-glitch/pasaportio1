@@ -1,7 +1,6 @@
 // ============= Full file contents =============
 
 import type { CSSProperties, ReactNode } from "react";
-import { Button } from "@/components/ui/button";
 import { useI18n } from "@/i18n";
 import { HeroDeviceCompatibility } from "@/components/travel/DeviceCompatibility";
 import { HeroPromotion } from "./HeroPromotion";
@@ -39,9 +38,9 @@ export function PasaportEsimHero({ section, image, benefits, children }: { secti
   <div className="final-hero-gift"><HeroPromotion /></div>
  </section><PasaportMobileBenefits section={benefits} /></>;
 }
-/** The four-column trust row: content, icons, links, order and visibility come from the Admin-edited BENEFIT_ROW section. */
+/** The four-column trust row: content, icons, order and visibility come from the Admin-edited BENEFIT_ROW section. Items are informational only — never clickable. */
 export function PasaportMobileBenefits({ section }: { section?: V2Section | undefined }) {
  const { locale } = useI18n();
  const items = trustBandItems(section, locale, useWhatsAppHref());
- return <ul className="final-trust-band">{items.map(({ id, icon, label, description, href }) => <li key={id}><Button asChild variant="ghost"><a href={href} {...(href.startsWith("https:") ? { target: "_blank", rel: "noopener noreferrer" } : {})}><span aria-hidden="true" className="contents"><StorefrontIcon name={icon} /></span><span><strong>{label}</strong><small>{description}</small></span></a></Button></li>)}</ul>;
+ return <ul className="final-trust-band">{items.map(({ id, icon, label, description }) => <li key={id}><div className="final-trust-item"><span aria-hidden="true" className="contents"><StorefrontIcon name={icon} /></span><span><strong>{label}</strong><small>{description}</small></span></div></li>)}</ul>;
 }
