@@ -1,0 +1,1 @@
+- Each eSIM supplier is a native adapter resolved only through the adapter factory; supplier ordering methods are added only after owner approval — why: catalogue sync must never reach a paid order endpoint.

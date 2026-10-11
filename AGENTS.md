@@ -27,9 +27,9 @@ Public install help stays in V2; QR, activation credentials, and package policy 
 
 - Loader-fetched queries are dehydrated with the router and signed media URLs stay stable across refetches, so hydration reuses the server-rendered image sources instead of swapping or re-downloading them.
 - Storefront theme editing extends the existing V2 section registry and global theme document; optional sanitized settings must fall back exactly to the approved Travely presentation.
-- Sync/import never write price/flags/publication of existing products; new ones arrive DRAFT with a suggestion only. Repricing queue derives baselines from approved snapshots, read-only; prices change only by single Admin approval — why: legacy markup must never overwrite approved prices.
-- Storefront country "from" prices and regional-card inputs are computed by the database functions `storefront_country_starting_prices` / `storefront_regional_package_rows` (security invoker); any change to visibility or Essential-only rules must be mirrored there and in `listEsimPackages` — why: initial page loads must never scan the full catalogue.
-- The homepage loader primes only the layout and the shared country-price query; regional cards, guides, footer, theme and availability stay client-loaded with fixed-size placeholders, and `Reveal` renders visible by default, hiding only items below the viewport after hydration — why: the first viewport must be complete without making the server response heavier.
+- Sync/import never write price/flags/publication of existing products; new ones arrive DRAFT with a suggestion. Repricing baselines come from approved snapshots; prices change only by Admin approval — why: legacy markup must never overwrite approved prices.
+- Country "from" prices and regional-card inputs come from `storefront_country_starting_prices` / `storefront_regional_package_rows`; mirror visibility/Essential-only changes there and in `listEsimPackages` — why: page loads must never scan the full catalogue.
+- Homepage loader primes only layout and the shared country-price query; other sections load client-side with fixed placeholders, and `Reveal` is visible by default — why: complete first viewport without a heavier server response.
 - eSIM home shares CMS/search/gift/trust and the loading-gated device status — why: missing data never implies incompatibility.
 - Browser-only locales await resolution in a neutral shell; TR/DE/EN URLs remain SSR — why: unknown browser preferences must not flash another language.
 - Worldwide static photos reuse REGION_DISCOVERY media/crops/preview; price/coverage share one catalogue row — why: no duplicate tools or false claims.
@@ -41,5 +41,4 @@ Public install help stays in V2; QR, activation credentials, and package policy 
 - Install phones use normal flow, not clipping; antenna crop/arcs share source coordinates and cover offsets for stable resizing.
 - Root CurrencyProvider + displayMoney are the only currency path; EUR stays canonical, rateless currencies are hidden, only payment-verified ones charge — why: no fake prices.
 
-- Review samples are gated in the carousel by explicit editor-frame intent and the existing server-backed Admin access query, never hostnames; CMS refresh failures are explicitly marked so Query retains last-known successful published data rather than caching an empty fallback.
-- Each eSIM supplier is a native adapter resolved only through the adapter factory; supplier ordering methods are added only after owner approval — why: catalogue sync must never reach a paid order endpoint.
+- Review samples are gated by editor-frame intent plus the server Admin query, never hostnames; CMS refresh failures keep last-known published data instead of an empty fallback.
