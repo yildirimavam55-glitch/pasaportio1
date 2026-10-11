@@ -1,11 +1,12 @@
 import type { CatalogueFetch } from "@/domain/providers/sync-engine";
 import type { AuthType, EndpointMap, FieldMap } from "@/domain/providers/field-mapping";
 
-export const ADAPTER_TYPES = ["NATIVE_ESIM_GO", "GENERIC_REST", "CUSTOM"] as const;
+export const ADAPTER_TYPES = ["NATIVE_ESIM_GO", "NATIVE_ESIM_ACCESS", "GENERIC_REST", "CUSTOM"] as const;
 export type AdapterType = (typeof ADAPTER_TYPES)[number];
 
 export const ADAPTER_LABELS: Record<AdapterType, string> = {
   NATIVE_ESIM_GO: "Yerleşik adaptör — eSIM Go",
+  NATIVE_ESIM_ACCESS: "Yerleşik adaptör — eSIM Access",
   GENERIC_REST: "Genel REST adaptörü",
   CUSTOM: "Özel adaptör",
 };

@@ -5,6 +5,7 @@
  */
 import { sanitizeAuthType, sanitizeEndpoints, sanitizeFieldMap } from "@/domain/providers/field-mapping";
 import { createEsimGoAdapter, ESIM_GO_DEFAULT_BASE_URL, ESIM_GO_SECRET_NAME } from "./esim-go.server";
+import { createEsimAccessAdapter, ESIM_ACCESS_DEFAULT_BASE_URL, ESIM_ACCESS_SECRET_NAME } from "./esim-access.server";
 import { createGenericRestAdapter } from "./generic-rest.server";
 import type { AdapterContext, AdapterType, CatalogueAdapter, ConnectionConfig } from "./types";
 
@@ -34,6 +35,7 @@ export type ConnectionRow = {
 
 export function defaultSecretName(adapterType: string, providerCode: string): string {
   if (adapterType === "NATIVE_ESIM_GO") return ESIM_GO_SECRET_NAME;
+  if (adapterType === "NATIVE_ESIM_ACCESS") return ESIM_ACCESS_SECRET_NAME;
   return `${providerCode.toUpperCase().replace(/[^A-Z0-9]+/g, "_")}_API_KEY`;
 }
 
@@ -41,7 +43,7 @@ export function buildAdapter(provider: ProviderRow, connection: ConnectionRow | 
   const adapterType = (provider.adapter_type ?? "GENERIC_REST") as AdapterType;
   const ctx: AdapterContext = {
     providerCode: provider.code,
-    baseUrl: connection?.base_url || (adapterType === "NATIVE_ESIM_GO" ? ESIM_GO_DEFAULT_BASE_URL : null),
+    baseUrl: connection?.base_url || (adapterType === "NATIVE_ESIM_GO" ? ESIM_GO_DEFAULT_BASE_URL : adapterType === "NATIVE_ESIM_ACCESS" ? ESIM_ACCESS_DEFAULT_BASE_URL : null),
     credentialSecretName: connection?.credential_secret_names?.[0] || defaultSecretName(adapterType, provider.code),
     config: sanitizeConnectionConfig(connection?.config),
   };
@@ -49,6 +51,8 @@ export function buildAdapter(provider: ProviderRow, connection: ConnectionRow | 
   switch (adapterType) {
     case "NATIVE_ESIM_GO":
       return createEsimGoAdapter(ctx);
+    case "NATIVE_ESIM_ACCESS":
+      return createEsimAccessAdapter(ctx);
     case "CUSTOM":
       return createGenericRestAdapter(ctx, "CUSTOM");
     case "GENERIC_REST":
