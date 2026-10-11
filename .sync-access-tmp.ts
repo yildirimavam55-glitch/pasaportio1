@@ -1,0 +1,13 @@
+import { runProviderSyncToCompletion } from "@/lib/provider-sync.server";
+const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+const db:any = supabaseAdmin;
+const snap = async () => (await db.from("service_products").select("lifecycle,sale_price,customer_visible,primary_provider_id").eq("service_type","ESIM").limit(20000)).data;
+const before = await snap();
+const { data: p } = await db.from("providers").select("id").eq("code","ESIM_ACCESS").single();
+const r = await runProviderSyncToCompletion(db, p.id, "MANUAL", { budgetMs: 300000 });
+console.log("RESULT", JSON.stringify(r).slice(0,1500));
+const after = await snap();
+const go = (rows:any[]) => rows.filter(x=>x.primary_provider_id!==p.id).map(x=>`${x.lifecycle}|${x.sale_price}|${x.customer_visible}`).sort().join(",");
+console.log("GO_UNCHANGED", go(before)===go(after), before.length, after.length);
+const acc = after.filter((x:any)=>x.primary_provider_id===p.id);
+console.log("ACCESS", acc.length, "visible", acc.filter((x:any)=>x.customer_visible).length, "priced", acc.filter((x:any)=>x.sale_price!=null).length, [...new Set(acc.map((x:any)=>x.lifecycle))]);
