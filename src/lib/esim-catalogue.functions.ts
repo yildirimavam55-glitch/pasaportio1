@@ -8,6 +8,7 @@ import { networkGenerationsOf, planTierOf, standardUnlimitedOnly, regionFamilyOf
 import { classifyCoverageRegion, COVERAGE_REGION_ORDER, type CoverageRegionKey } from "@/domain/geo/coverage-regions";
 import { resolvePackageScope } from "@/domain/esim/package-scope";
 import { dedupeStorefrontPackages } from "@/domain/esim/storefront-packages";
+import { lowestBannerPackage } from "@/domain/esim/banner-package";
 
 export type ActivationPolicy = "ON_INSTALL" | "ON_FIRST_NETWORK_CONNECTION" | "ON_PURCHASE" | "UNKNOWN";
 
@@ -72,6 +73,7 @@ export type EsimRegionalSummary = {
   minCoverageCount: number;
   maxCoverageCount: number;
   maxUnlimitedCoverageCount: number | null;
+  unlimitedBanner?: { coverageCount: number; price: number; currency: string } | null;
   coverageIsos: string[];
 };
 
@@ -286,6 +288,7 @@ export const listEsimRegionalSummaries = createServerFn({ method: "GET" }).handl
       if (!rows.length) return [];
       const standard = rows.filter((pkg) => !pkg.unlimited);
       const unlimited = rows.filter((pkg) => pkg.unlimited);
+      const banner = lowestBannerPackage(unlimited);
       const coverageCounts = [...new Set(rows.map((pkg) => pkg.coverage.length))].sort((a, b) => a - b);
       const cheapest = [...rows].sort((a, b) => (a.salePrice ?? Infinity) - (b.salePrice ?? Infinity))[0];
       if (!cheapest?.salePrice) return [];
@@ -302,6 +305,7 @@ export const listEsimRegionalSummaries = createServerFn({ method: "GET" }).handl
         minCoverageCount: coverageCounts[0] ?? 0,
         maxCoverageCount: coverageCounts.at(-1) ?? 0,
         maxUnlimitedCoverageCount: unlimited.length ? Math.max(...unlimited.map((pkg) => pkg.coverage.length)) : null,
+        unlimitedBanner: banner?.salePrice != null ? { coverageCount: banner.coverage.length, price: banner.salePrice, currency: banner.currency } : null,
          coverageIsos: [...new Set(rows.flatMap((pkg) => pkg.coverage))],
       }];
     });

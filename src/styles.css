@@ -2002,7 +2002,7 @@ body:has([role="dialog"][data-state="open"]) .pasaport-mobile-reference [data-wh
 }
 
 /* Regional carousel side arrows + compact worldwide banner refinement. */
-.home-region-section { margin-top:32px; }
+.home-region-section { margin-top:18px; }
 .regional-home-heading > div:first-child { margin:0 0 10px; }
 .home-region-carousel { position:relative; }
 .home-region-arrow { display:none; }
@@ -2014,7 +2014,7 @@ body:has([role="dialog"][data-state="open"]) .pasaport-mobile-reference [data-wh
 .home-worldwide-copy .home-worldwide-cta { min-height:40px; margin-top:2px; padding:0 14px; border-radius:999px; background:var(--primary); color:var(--primary-foreground); font-size:13px; }
 .home-worldwide-banner > img { min-height:0; max-height:150px; }
 @media(min-width:1024px) {
-  .home-region-section { margin-top:40px; }
+  .home-region-section { margin-top:22px; }
   .home-region-carousel { padding-inline:52px; }
   .home-region-rail { max-width:none; }
   .home-region-arrow { display:grid; place-items:center; position:absolute; top:50%; transform:translateY(-50%); width:40px; height:40px; border-radius:999px; background:var(--card); color:var(--primary); border:1px solid var(--border); box-shadow:var(--shadow-sm); z-index:1; }
@@ -2027,3 +2027,9 @@ body:has([role="dialog"][data-state="open"]) .pasaport-mobile-reference [data-wh
   .home-worldwide-copy .home-worldwide-cta { grid-column:2; grid-row:1 / span 2; font-size:15px; min-height:44px; }
   .home-worldwide-banner > img { max-height:120px; }
 }
+
+/* Media stays inside the existing right-hand track. */
+:root { --earth-space: oklch(0.17 0.028 225); }
+.home-worldwide-earth { position:relative; display:block; min-width:0; overflow:hidden; background:var(--earth-space); pointer-events:none; }
+.home-worldwide-earth > img,.home-worldwide-earth > video { position:absolute; inset:0; width:100%; height:100%; object-fit:contain; object-position:center; }
+@media(min-width:1024px) { .home-worldwide-earth > img,.home-worldwide-earth > video { top:-40%; height:180%; } }
