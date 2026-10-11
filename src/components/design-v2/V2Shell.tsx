@@ -152,11 +152,11 @@ function BottomNav({ active }: { active?: V2Nav | undefined }) {
   );
 }
 
-/** Tablet bridge only. Desktop navigation lives in the shared public header. */
+/** Small-tablet bridge only (640–767px). Desktop navigation lives in the shared public header, so the pill row stays hidden from 768px up. */
 function DesktopNav({ active }: { active?: V2Nav | undefined }) {
   const items = useNavItems();
   return (
-    <nav aria-label="V2" className="mb-4 hidden items-center gap-1 rounded-full border border-border bg-card p-1 shadow-sm sm:flex lg:hidden">
+    <nav aria-label="V2" className="mb-4 hidden items-center gap-1 rounded-full border border-border bg-card p-1 shadow-sm sm:flex md:hidden">
       {items.map(({ id, to, search, icon: Icon, label }) => {
         const on = id === active;
         return (
