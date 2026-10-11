@@ -1744,7 +1744,7 @@ html[data-quick-search-lock] body {
 .gift-ticket-panel { animation:gift-ticket-in 220ms ease-out; }
 .final-trust-band { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); margin:16px 0 0; padding:0; }
 .final-trust-band li { min-width:0; border-inline-end:1px solid var(--border); }.final-trust-band li:last-child { border:0; }
-.final-trust-band a { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:5px; width:100%; height:auto; min-height:64px; padding:6px 4px; white-space:normal; text-align:center; }
+.final-trust-band .final-trust-item { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:5px; width:100%; height:auto; min-height:64px; padding:6px 4px; white-space:normal; text-align:center; }
 .final-trust-band svg { width:24px; height:24px; flex-shrink:0; }.final-trust-band strong { display:block; font-size:11px; font-weight:500; line-height:1.25; text-wrap:balance; }.final-trust-band small { display:none; }
 .pasaport-mobile-reference > header > div { gap:0; padding-inline:12px; }.pasaport-mobile-reference > header > div > div { margin-inline-start:auto; gap:0; }.pasaport-mobile-reference > header > div > a { min-width:0; }.pasaport-mobile-reference > header > div > a > span { gap:5px; }.pasaport-mobile-reference > header > div > a span.font-display { font-size:17px; }.pasaport-mobile-reference > header > div > a span.grid { width:26px; height:26px; }.pasaport-mobile-reference > header > div > a img { max-width:120px; }
 .pasaport-mobile-reference .header-currency { width:52px; }.pasaport-mobile-reference header button { padding-inline:5px; }.pasaport-mobile-reference header button > img { display:none; }
