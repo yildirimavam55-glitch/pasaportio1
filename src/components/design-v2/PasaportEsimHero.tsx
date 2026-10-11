@@ -1,7 +1,6 @@
 // ============= Full file contents =============
 
 import type { CSSProperties, ReactNode } from "react";
-import { Button } from "@/components/ui/button";
 import { useI18n } from "@/i18n";
 import { HeroDeviceCompatibility } from "@/components/travel/DeviceCompatibility";
 import { HeroPromotion } from "./HeroPromotion";
