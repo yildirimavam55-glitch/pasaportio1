@@ -35,6 +35,7 @@ import trustBenefitGlobe from "@/assets/trust-benefit-globe.webp";
 import trustBenefitRefund from "@/assets/trust-benefit-refund.webp";
 import trustBenefitInstall from "@/assets/trust-benefit-install.webp";
 import trustBenefitPayment from "@/assets/trust-benefit-payment.webp";
+import worldwidePhoto from "@/assets/worldwide-window-photo.webp.asset.json";
 import restoredHomepage1 from "@/assets/restored-homepage/1-536a6bd7-2418-4668-8149-6b85bfd2b98d.png.asset.json";
 import restoredHomepage2 from "@/assets/restored-homepage/2-3fb223cb-8c4b-4a22-ab7b-18082e0487fa.png.asset.json";
 import restoredHomepage3 from "@/assets/restored-homepage/3-d00960c2-2105-4f92-abab-553e73485e12.png.asset.json";
@@ -44,6 +45,7 @@ import restoredHomepage6 from "@/assets/restored-homepage/6-2096d4af-5b89-49ad-b
 import restoredHomepage7 from "@/assets/restored-homepage/7-533377df-ddd6-4803-a0cb-6f5727c933b6.png.asset.json";
 
 export const V2_BUILTIN_URLS: Record<string, string> = {
+  "builtin:worldwide-window": worldwidePhoto.url,
   "builtin:trust-family-arrivals": familyArrivals,
   "builtin:esim-hero": esimHero,
   "builtin:lounge-hero": loungeHero,

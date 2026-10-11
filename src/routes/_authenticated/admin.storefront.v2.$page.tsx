@@ -492,7 +492,19 @@ function SectionForm({ section: s, lang, page, trustPreviewLocale, onTrustLocale
       {s.type === "FAQ" && <Select label="Satır yüksekliği" value={s.variant === "comfortable" ? "comfortable" : "default"} options={["default", "comfortable"] as const} labels={{ default: "Kompakt", comfortable: "Rahat" }} onChange={(variant) => onChange({ variant })} />}
       {s.type === "SPACER" && <Select label="Boşluk" value={s.height} options={V2_HEIGHTS} onChange={(height) => onChange({ height })} />}
       {s.type === "DESTINATION_CAROUSEL" && <p className="rounded-md bg-secondary p-2 text-[11px] text-muted-foreground">Fiyatlar her zaman gerçek katalogdan gelir; yalnız yayınlanmış fiyatı olan destinasyonlar müşteriye görünür.</p>}
-      {s.type === "REGION_DISCOVERY" && <p className="rounded-md bg-secondary p-2 text-[11px] text-muted-foreground">Bölgeler, ülke sayıları ve fiyatlar gerçek katalogdan otomatik gelir; burada yalnız metinler düzenlenir.</p>}
+      {s.type === "REGION_DISCOVERY" && <>
+        <p className="rounded-md bg-secondary p-2 text-[11px] text-muted-foreground">Bölgeler, ülke sayıları ve fiyatlar gerçek katalogdan otomatik gelir.</p>
+        {page === "esim" && <div className="grid gap-3 sm:grid-cols-2">
+          <div className="space-y-3">
+            <ImageField label="Dünya bannerı · Masaüstü görseli" value={s.mediaId ?? "builtin:worldwide-window"} category="GLOBAL" onChange={(mediaId) => onChange({ mediaId })} />
+            <ImageDisplayControls value={s.imageDisplay} onChange={(imageDisplay) => onChange({ imageDisplay })} />
+          </div>
+          <div className="space-y-3">
+            <ImageField label="Dünya bannerı · Mobil görsel (isteğe bağlı)" value={s.mobileMediaId} category="GLOBAL" onChange={(mobileMediaId) => onChange({ mobileMediaId })} />
+            <ImageDisplayControls title="Mobil görsel ayarları" value={s.mobileImageDisplay} defaults={{ ...(s.imageDisplay ?? DEFAULT_IMAGE_DISPLAY), x: s.imageDisplay?.x ?? 76 }} onChange={(mobileImageDisplay) => onChange({ mobileImageDisplay })} />
+          </div>
+        </div>}
+      </>}
       {s.type === "TRUST_REVIEWS" && <div className="grid gap-3 sm:grid-cols-2">{V2_TEXT_FIELDS.TRUST_REVIEWS.filter(([key])=>key.startsWith("family")).map(([key,label])=><LTInput key={key} label={label} lang={lang} uiLang={trustPreviewLocale ?? lang} value={s.text[key]} onSourceBlur={onTrustSourceBlur} onChange={value=>setText(key,value)} />)}</div>}
       {s.type === "TRUST_REVIEWS" && <TrustReviewsEditor section={s} lang={lang} uiLang={trustPreviewLocale ?? lang} onUiLang={onTrustLocale} onSourceBlur={onTrustSourceBlur} onChange={onChange} />}
       {page === "lounge" && !V2_PROTECTED.includes(s.type) && s.type !== "DESTINATION_CAROUSEL" && (

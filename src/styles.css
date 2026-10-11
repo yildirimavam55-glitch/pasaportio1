@@ -2028,8 +2028,9 @@ body:has([role="dialog"][data-state="open"]) .pasaport-mobile-reference [data-wh
   .home-worldwide-banner > img { max-height:120px; }
 }
 
-/* Media stays inside the existing right-hand track. */
-:root { --earth-space: oklch(0.17 0.028 225); }
-.home-worldwide-earth { position:relative; display:block; min-width:0; overflow:hidden; background:var(--earth-space); pointer-events:none; }
-.home-worldwide-earth > img,.home-worldwide-earth > video { position:absolute; inset:0; width:100%; height:100%; object-fit:contain; object-position:center; }
-@media(min-width:1024px) { .home-worldwide-earth > img,.home-worldwide-earth > video { top:-40%; height:180%; } }
+/* Static photo stays inside the existing right-hand banner track. */
+.home-worldwide-photo { position:relative; display:block; min-width:0; overflow:hidden; background:var(--primary-soft); pointer-events:none; }
+.home-worldwide-photo picture { position:absolute; inset:0; display:block; }
+.home-worldwide-photo img { width:100%; height:100%; object-fit:var(--worldwide-mobile-fit); object-position:var(--worldwide-mobile-position); transform:scale(var(--worldwide-mobile-zoom)); transform-origin:var(--worldwide-mobile-origin); }
+.home-worldwide-photo::after { content:""; position:absolute; inset:0; background:linear-gradient(to right,var(--primary-soft),transparent 28%); }
+@media(min-width:768px) { .home-worldwide-photo img { object-fit:var(--worldwide-fit); object-position:var(--worldwide-position); transform:scale(var(--worldwide-zoom)); transform-origin:var(--worldwide-origin); } }

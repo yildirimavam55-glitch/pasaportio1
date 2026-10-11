@@ -77,7 +77,7 @@ export const V2_ITEM_LINKS = ["", ...V2_SAFE_LINKS] as const;
 export type V2ItemLink = (typeof V2_ITEM_LINKS)[number];
 
 /** Images bundled with the app, referenced as `builtin:<key>`. */
-export const V2_BUILTIN_MEDIA = ["esim-hero", "lounge-hero", "vignette-hero", "lounge-card", "esim-cross-sell", "info-products", "info-roaming", "info-delivery", "info-install", "info-payment", "info-support", "trust-refund", "trust-traveler", "trust-family-arrivals", "trust-demo-giulia", "trust-demo-haruto", "trust-demo-emily", "trust-benefit-globe", "trust-benefit-refund", "trust-benefit-install", "trust-benefit-payment"] as const;
+export const V2_BUILTIN_MEDIA = ["esim-hero", "lounge-hero", "vignette-hero", "lounge-card", "esim-cross-sell", "info-products", "info-roaming", "info-delivery", "info-install", "info-payment", "info-support", "trust-refund", "trust-traveler", "trust-family-arrivals", "trust-demo-giulia", "trust-demo-haruto", "trust-demo-emily", "trust-benefit-globe", "trust-benefit-refund", "trust-benefit-install", "trust-benefit-payment", "worldwide-window"] as const;
 
 /** Existing trust cards from before image editing receive their approved visuals once on read. */
 const TRUST_BENEFIT_MEDIA: Record<string, string> = {
@@ -615,7 +615,7 @@ function cleanSection(raw: any): V2Section | null {
     overlay: pick(raw.overlay, V2_OVERLAYS, "normal"),
     mediaId: cleanMediaId(raw.mediaId),
     mobileMediaId: cleanMediaId(raw.mobileMediaId),
-    ...(type === "SEARCH_HERO" ? {
+    ...(type === "SEARCH_HERO" || type === "REGION_DISCOVERY" ? {
       ...(raw.imageDisplay != null ? { imageDisplay: sanitizeImageDisplay(raw.imageDisplay, raw.mediaId === "builtin:esim-hero" ? ESIM_DESKTOP_IMAGE_DISPLAY : DEFAULT_IMAGE_DISPLAY) } : {}),
       ...(raw.mobileImageDisplay != null ? { mobileImageDisplay: sanitizeImageDisplay(raw.mobileImageDisplay) } : {}),
     } : {}),
