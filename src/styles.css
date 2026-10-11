@@ -1760,7 +1760,7 @@ html[data-quick-search-lock] body {
  .final-hero-search {margin:22px 0 0;max-width:480px;}.final-hero-compatibility {margin:16px 0 0;max-width:480px;}
  .pasaport-final-hero:has(.hero-device-outcome) {height:auto;min-height:420px;}.pasaport-final-hero:has(.hero-device-outcome) .final-hero-photo {height:100%;}
  .final-hero-gift {top:auto;bottom:24px;inset-inline-end:48px;}.gift-trigger {width:110px;height:112px;}.gift-art {transform:scale(1.2);margin-bottom:5px;}.gift-label {font-size:12px;min-height:32px;}
- .final-trust-band {margin:0 -24px;padding:16px 48px;border-bottom:1px solid var(--border);}.final-trust-band a {gap:6px;padding-inline:20px;}.final-trust-band svg {width:24px;height:24px;}.final-trust-band strong {font-size:13px;font-weight:600;}.final-trust-band small {display:block;font-size:12px;color:var(--muted-foreground);margin-top:3px;}
+ .final-trust-band {margin:0 -24px;padding:16px 48px;border-bottom:1px solid var(--border);}.final-trust-band .final-trust-item {gap:6px;padding-inline:20px;}.final-trust-band svg {width:24px;height:24px;}.final-trust-band strong {font-size:13px;font-weight:600;}.final-trust-band small {display:block;font-size:12px;color:var(--muted-foreground);margin-top:3px;}
  .pasaport-mobile-reference > header > div > a span.font-display {font-size:23px;}.pasaport-mobile-reference > header > div > a span.grid {width:36px;height:36px;}
  [dir="rtl"] .final-hero-photo,[dir="rtl"] .final-hero-shade {transform:scaleX(-1);}
 }
@@ -2027,6 +2027,3 @@ body:has([role="dialog"][data-state="open"]) .pasaport-mobile-reference [data-wh
   .home-worldwide-copy .home-worldwide-cta { grid-column:2; grid-row:1 / span 2; font-size:15px; min-height:44px; }
   .home-worldwide-banner > img { max-height:120px; }
 }
-.final-trust-band a { cursor:pointer; transition:background-color 150ms ease; }
-.final-trust-band a:focus-visible { outline:2px solid var(--ring); outline-offset:-2px; }
-@media (hover:hover) { .final-trust-band a:hover { background:color-mix(in oklab,var(--primary) 6%,transparent); } }
