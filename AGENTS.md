@@ -36,7 +36,7 @@ Public install help stays in V2; QR, activation credentials, and package policy 
 - One shared PaymentStrip uses story CSS ordering for desktop copy/mobile below-photo placement — why: never duplicate availability data.
 
 - Account demos require preview opt-in and account auth, with no writes/order counts — why: simulations cannot become purchases.
-- Standard refund requests use stored activation history and confirmed never-activated provider evidence in the shared server verdict, not current status alone — why: past activation and duplicate completed requests must remain blocked.
+- Refund verdicts use stored activation history plus confirmed never-activated provider evidence, not current status — why: past activation and duplicate requests stay blocked.
 
 - Install phones use normal flow, not clipping; antenna crop/arcs share source coordinates and cover offsets for stable resizing.
 - Root CurrencyProvider + displayMoney are the only currency path; EUR stays canonical, rateless currencies are hidden, only payment-verified ones charge — why: no fake prices.
