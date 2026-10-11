@@ -2048,3 +2048,23 @@ body:has([role="dialog"][data-state="open"]) .pasaport-mobile-reference [data-wh
   .home-region-carousel .home-rail-arrow { top:55px; }
 }
 @media(prefers-reduced-motion:reduce) { .home-rail-arrow { transition:none; } }
+/* Approved homepage reference: search pill, device fields, mint benefit panel. */
+.final-hero-search { margin:-30px 16px 0; padding:6px; border-radius:999px; background:var(--card); border:1px solid color-mix(in oklab,var(--border) 70%,transparent); box-shadow:0 10px 28px -12px color-mix(in oklab,var(--foreground) 28%,transparent),0 2px 6px color-mix(in oklab,var(--foreground) 6%,transparent); }
+.pasaport-final-hero .final-hero-search .pasaport-country-field { background:var(--card); border-radius:999px; }
+.final-hero-compatibility { margin:24px 16px 0; }
+.pasaport-final-hero .hero-device-selectors { grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; }
+.pasaport-final-hero .hero-device-selectors button,.pasaport-final-hero .hero-device-selectors select { height:52px; border:1px solid color-mix(in oklab,var(--foreground) 16%,transparent); border-radius:10px; padding-inline:12px; background:var(--card); color:var(--foreground); opacity:1; }
+.final-trust-band { margin:20px 16px 0; padding:14px 4px; border-radius:18px; background:color-mix(in oklab,var(--primary) 9%,var(--card)); list-style:none; }
+.final-trust-band li { border-inline-end-color:color-mix(in oklab,var(--primary) 20%,transparent); }
+.final-trust-icon { display:grid; place-items:center; width:40px; height:40px; border-radius:999px; background:color-mix(in oklab,var(--primary) 16%,var(--card)); color:var(--primary); }
+.final-trust-band .final-trust-icon svg { width:22px; height:22px; }
+.final-trust-band .final-trust-item { gap:8px; cursor:default; }
+.final-trust-band strong { font-size:12px; }
+@media (min-width:1024px) {
+ .final-hero-search { margin:22px 0 0; }
+ .final-hero-compatibility { margin:20px 0 0; }
+ .pasaport-final-hero .hero-device-selectors { grid-template-columns:repeat(2,minmax(0,1fr)); }
+ .final-trust-band { margin:28px auto 0; max-width:1200px; padding:18px 8px; border:0; }
+ .final-trust-icon { width:44px; height:44px; }
+ .final-trust-band strong { font-size:14px; }
+}

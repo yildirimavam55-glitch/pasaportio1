@@ -42,5 +42,5 @@ export function PasaportEsimHero({ section, image, benefits, children }: { secti
 export function PasaportMobileBenefits({ section }: { section?: V2Section | undefined }) {
  const { locale } = useI18n();
  const items = trustBandItems(section, locale, useWhatsAppHref());
- return <ul className="final-trust-band">{items.map(({ id, icon, label, description }) => <li key={id}><div className="final-trust-item"><span aria-hidden="true" className="contents"><StorefrontIcon name={icon} /></span><span><strong>{label}</strong><small>{description}</small></span></div></li>)}</ul>;
+ return <ul className="final-trust-band">{items.map(({ id, icon, label, description }) => <li key={id}><div className="final-trust-item"><span aria-hidden="true" className="final-trust-icon"><StorefrontIcon name={icon} /></span><span><strong>{label}</strong><small>{description}</small></span></div></li>)}</ul>;
 }
