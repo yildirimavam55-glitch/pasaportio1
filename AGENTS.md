@@ -42,3 +42,4 @@ Public install help stays in V2; QR, activation credentials, and package policy 
 - Root CurrencyProvider + displayMoney are the only currency path; EUR stays canonical, rateless currencies are hidden, only payment-verified ones charge — why: no fake prices.
 
 - Review samples are gated in the carousel by explicit editor-frame intent and the existing server-backed Admin access query, never hostnames; CMS refresh failures are explicitly marked so Query retains last-known successful published data rather than caching an empty fallback.
+- Each eSIM supplier is a native adapter resolved only through the adapter factory; supplier ordering methods are added only after owner approval — why: catalogue sync must never reach a paid order endpoint.
