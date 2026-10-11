@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
-import earth from "@/assets/earth-compact.mp4.asset.json";
-import poster from "@/assets/earth-poster.webp.asset.json";
+import earth from "@/assets/earth-final.mp4.asset.json";
+import poster from "@/assets/earth-final-poster.webp.asset.json";
 
 /** Native decoding avoids a runtime 3D renderer. */
 export function WorldwideEarth() {
