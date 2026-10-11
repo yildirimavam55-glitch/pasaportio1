@@ -2034,3 +2034,18 @@ body:has([role="dialog"][data-state="open"]) .pasaport-mobile-reference [data-wh
 .home-worldwide-photo img { width:100%; height:100%; object-fit:var(--worldwide-mobile-fit); object-position:var(--worldwide-mobile-position); transform:scale(var(--worldwide-mobile-zoom)); transform-origin:var(--worldwide-mobile-origin); }
 .home-worldwide-photo::after { content:""; position:absolute; inset:0; background:linear-gradient(to right,var(--primary-soft),transparent 28%); }
 @media(min-width:768px) { .home-worldwide-photo img { object-fit:var(--worldwide-fit); object-position:var(--worldwide-position); transform:scale(var(--worldwide-zoom)); transform-origin:var(--worldwide-origin); } }
+
+/* Shared homepage rail arrows (popular countries + regional). Sit over the image band, never over title/price. */
+.home-rail-frame { position:relative; }
+.home-rail-arrow { position:absolute; z-index:2; top:2.7rem; transform:translateY(-50%); display:grid; place-items:center; width:30px; height:30px; border-radius:999px; background:color-mix(in oklab,var(--card) 88%,transparent); color:var(--primary); border:1px solid var(--border); box-shadow:var(--shadow-sm); transition:opacity .2s ease; }
+.home-rail-arrow.is-prev { inset-inline-start:-6px; }
+.home-rail-arrow.is-next { inset-inline-end:-6px; }
+.home-rail-arrow:disabled { opacity:0; pointer-events:none; }
+@media(min-width:640px) { .home-region-carousel .home-rail-arrow { top:66px; } }
+@media(min-width:1024px) {
+  .home-rail-arrow { width:40px; height:40px; top:5rem; }
+  .home-rail-arrow.is-prev { inset-inline-start:-20px; }
+  .home-rail-arrow.is-next { inset-inline-end:-20px; }
+  .home-region-carousel .home-rail-arrow { top:55px; }
+}
+@media(prefers-reduced-motion:reduce) { .home-rail-arrow { transition:none; } }

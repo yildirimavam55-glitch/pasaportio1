@@ -27,6 +27,7 @@ import { mediaUrl, useV2Page, V2Sections, v2PageQuery } from "@/components/desig
 import { v2ItemText, v2Text, type V2Section } from "@/domain/storefront/v2";
 import { V2EsimPackageDetails } from "@/components/design-v2/V2EsimPackageDetails";
 import { V2ProductSelectionCard, V2SelectedProductSummary } from "@/components/design-v2/V2ProductSelection";
+import { RailArrows, useRailControls } from "@/components/design-v2/HomeRailControls";
 import { V2RegionCard } from "@/components/design-v2/V2RegionCard";
 import { localize } from "@/i18n/overlay";
 import { StorefrontIcon } from "@/domain/storefront/icons";
@@ -238,6 +239,8 @@ function Popular({ c, section, onPick }: { c: (typeof T)["tr"]; section: V2Secti
   const list = section.items.filter((item) => item.visible).flatMap((item) => { const country = getCountryByIso(item.entity); return country ? [country] : []; });
   // Same authoritative country "from" prices as the search list: one shared request.
   const { data, isLoading } = useQuery(destinationPricesQuery);
+  const popularRail = useRailControls<HTMLUListElement>([isLoading, data?.length]);
+  const railCopy = DISCOVERY_COPY[locale];
   // Only countries with a real published price are shown.
   const priced = list.flatMap((country) => {
     const p = data?.find((d) => d.targetId === country.iso);
@@ -251,7 +254,9 @@ function Popular({ c, section, onPick }: { c: (typeof T)["tr"]; section: V2Secti
       ) : priced.length === 0 ? (
         <p className="rounded-2xl bg-card p-4 text-sm text-muted-foreground ring-1 ring-border">{c.noPrices}</p>
       ) : (
-        <PhotoRail>
+        <div className="home-rail-frame">
+        <RailArrows edge={popularRail.edge} scroll={popularRail.scroll} previous={railCopy.previous} next={railCopy.next} />
+        <PhotoRail railRef={popularRail.ref} onScroll={popularRail.update}>
           {priced.map(({ country, p }) => (
             <PhotoCard
               key={country.iso}
@@ -263,6 +268,7 @@ function Popular({ c, section, onPick }: { c: (typeof T)["tr"]; section: V2Secti
             />
           ))}
         </PhotoRail>
+        </div>
       )}
     </>
   );
@@ -271,7 +277,6 @@ function Popular({ c, section, onPick }: { c: (typeof T)["tr"]; section: V2Secti
 function RegionalDiscovery({ section, c }: { section: V2Section; c: (typeof T)["tr"] }) {
   const { media } = useV2Page("esim");
   const { ref, ready } = useNearViewport();
-  const rail = useRef<HTMLUListElement>(null);
   const regionalSummaries = useQuery({ queryKey: ["v2-esim-regions"], queryFn: () => listEsimRegionalSummaries(), enabled: ready });
   const summaries = regionalSummaries.data ?? [];
   const loading = regionalSummaries.isPending;
@@ -280,30 +285,17 @@ function RegionalDiscovery({ section, c }: { section: V2Section; c: (typeof T)["
   const worldwide = summaries.find((item) => item.region === "GLOBAL" && item.unlimitedCount > 0);
   const regions = summaries.filter((item) => item.region !== "GLOBAL");
   const copy = DISCOVERY_COPY[locale];
-  const [edge, setEdge] = useState({ start: true, end: false });
-  const updateEdges = () => {
-    const node = rail.current;
-    if (!node) return;
-    const pos = Math.abs(node.scrollLeft);
-    setEdge({ start: pos < 4, end: pos + node.clientWidth >= node.scrollWidth - 4 });
-  };
-  useEffect(() => { updateEdges(); window.addEventListener("resize", updateEdges); return () => window.removeEventListener("resize", updateEdges); }, [loading, regions.length]);
-  const scrollRegions = (next: boolean) => {
-    const node = rail.current;
-    if (!node) return;
-    node.scrollBy({ left: node.clientWidth * .8 * (next ? 1 : -1) * (uiLocale === "ar" ? -1 : 1), behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth' });
-  };
+  const rail = useRailControls<HTMLUListElement>([loading, regions.length]);
   const title = v2Text(section, "title", locale) || copy.title;
   return (
     <section ref={ref} aria-labelledby="regional-esim-title" className="home-region-section">
       <div className="regional-home-heading"><SectionTitle><span id="regional-esim-title">{title}</span></SectionTitle></div>
       {loading ? <div className="home-region-placeholder bg-muted/70" aria-hidden /> : (
-        <div className="home-region-carousel">
-          <button type="button" className="home-region-arrow is-prev" aria-label={copy.previous} title={copy.previous} disabled={edge.start} onClick={()=>scrollRegions(false)}><ChevronLeft className="size-5 rtl:rotate-180" aria-hidden /></button>
-          <ul ref={rail} onScroll={updateEdges} className="home-region-rail" aria-label={title}>
+        <div className="home-region-carousel home-rail-frame">
+          <RailArrows edge={rail.edge} scroll={rail.scroll} previous={copy.previous} next={copy.next} />
+          <ul ref={rail.ref} onScroll={rail.update} className="home-region-rail" aria-label={title}>
              {regions.map((item) => <li data-reveal-card key={item.region}><V2RegionCard item={item} countries={c.countries} multi={c.multiCountry} from={c.from} compact /></li>)}
           </ul>
-          <button type="button" className="home-region-arrow is-next" aria-label={copy.next} title={copy.next} disabled={edge.end} onClick={()=>scrollRegions(true)}><ChevronRight className="size-5 rtl:rotate-180" aria-hidden /></button>
         </div>
       )}
       {worldwide?.unlimitedBanner && <Link to="/esim/bolge/$region" params={{ region: "GLOBAL" }} search={{ country: "" }} className="home-worldwide-banner">
