@@ -96,6 +96,13 @@ export function EsimInstallGuide({
         </Button>
       )}
 
+      <Button asChild variant="outline" className="min-h-11">
+        <Link to="/esim/kurulum">
+          <PlayCircle className="size-4" />
+          {copy.guide.title}
+        </Link>
+      </Button>
+
       <Tabs defaultValue="iphone">
         <TabsList className="grid w-full grid-cols-2">
           <TabsTrigger value="iphone" className="gap-1.5">
