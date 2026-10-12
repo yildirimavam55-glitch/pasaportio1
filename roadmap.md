@@ -4,10 +4,9 @@
 - [x] Visible brand "travely" → "pasaport.io" (code; technical keys unchanged)
 - [x] Missing translations for 11 overlay languages, guides hub redirect, Arabic price direction
 - [x] Sign-in review (Google/Apple) — no account changes
-- [ ] E-mail template system in database — WAITING for owner approval of schema + policies
+- [x] E-mail template system: 9 templates (TR/DE/EN, EN fallback), Admin → E-postalar, versions + restore, JSON export/import — sending stays off
 - [ ] Brand name inside database content (CMS/theme rows) — needs approval (data change)
 - [ ] Support e-mail address destek@travely.app — needs new mailbox from owner
-- [ ] E-mail templates: tables created (approved); seeding, admin screen, export/import paused during read-only audit
 - [x] Full hosting & migration audit (read-only) — 6 docs under docs/migration/
 - [x] Full DB + image backup 12.10 (private copy + downloadable zip, restore test passed)
 - [ ] 4 missing media records — owner reviews later
