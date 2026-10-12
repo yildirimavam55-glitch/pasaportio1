@@ -9,3 +9,5 @@
 - [ ] Support e-mail address destek@travely.app — needs new mailbox from owner
 - [ ] E-mail templates: tables created (approved); seeding, admin screen, export/import paused during read-only audit
 - [x] Full hosting & migration audit (read-only) — 6 docs under docs/migration/
+- [x] Full DB + image backup 12.10 (private copy + downloadable zip, restore test passed)
+- [ ] 4 missing media records — owner reviews later
