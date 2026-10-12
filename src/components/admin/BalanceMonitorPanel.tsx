@@ -43,7 +43,7 @@ export function BalanceMonitorPanel() {
           {rows.map((row: any) => {
             const s: BalanceMonitorSettings = row.settings;
             const unit = s.thresholdCurrency ?? row.latest?.currency ?? "";
-            const isEditing = editing?.providerId === row.providerId;
+            const draft = editing?.providerId === row.providerId ? editing : null;
             return (
               <article key={row.providerId} className="min-w-0 rounded-md border border-border p-3">
                 <div className="flex flex-wrap items-center gap-2">
@@ -68,8 +68,8 @@ export function BalanceMonitorPanel() {
                     ))}
                   </ul>
                 )}
-                {isEditing ? (
-                  <form className="mt-3 grid gap-2 sm:grid-cols-2" onSubmit={(event) => { event.preventDefault(); save.mutate(editing); }}>
+                {draft ? (
+                  <form className="mt-3 grid gap-2 sm:grid-cols-2" onSubmit={(event) => { event.preventDefault(); save.mutate(draft); }}>
                     {([
                       ["lowThreshold", "Düşük bakiye eşiği"],
                       ["criticalThreshold", "Kritik bakiye eşiği"],
@@ -79,14 +79,14 @@ export function BalanceMonitorPanel() {
                       ["checkIntervalMinutes", "Kontrol aralığı (dk)"],
                     ] as const).map(([key, label]) => (
                       <Field key={key} label={label}>
-                        <Input type="number" value={String(editing.settings[key])} onChange={(event) => setEditing({ ...editing, settings: { ...editing.settings, [key]: Number(event.target.value) } })} />
+                        <Input type="number" value={String(draft.settings[key])} onChange={(event) => setEditing({ ...draft, settings: { ...draft.settings, [key]: Number(event.target.value) } })} />
                       </Field>
                     ))}
                     <Field label="Eşik para birimi" hint="Boş bırakılırsa sağlayıcının bildirdiği para birimi kullanılır.">
-                      <Input value={editing.settings.thresholdCurrency ?? ""} maxLength={3} onChange={(event) => setEditing({ ...editing, settings: { ...editing.settings, thresholdCurrency: event.target.value.toUpperCase() || null } })} />
+                      <Input value={draft.settings.thresholdCurrency ?? ""} maxLength={3} onChange={(event) => setEditing({ ...draft, settings: { ...draft.settings, thresholdCurrency: event.target.value.toUpperCase() || null } })} />
                     </Field>
                     <label className="flex items-center gap-2 text-xs font-semibold">
-                      <input type="checkbox" checked={editing.settings.enabled} onChange={(event) => setEditing({ ...editing, settings: { ...editing.settings, enabled: event.target.checked } })} /> İzleme açık
+                      <input type="checkbox" checked={draft.settings.enabled} onChange={(event) => setEditing({ ...draft, settings: { ...draft.settings, enabled: event.target.checked } })} /> İzleme açık
                     </label>
                     <div className="flex gap-2 sm:col-span-2">
                       <Button size="sm" type="submit" disabled={save.isPending}>Kaydet ve onayla</Button>
