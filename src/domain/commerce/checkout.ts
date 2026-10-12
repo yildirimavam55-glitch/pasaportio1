@@ -22,7 +22,10 @@ export type OrderLineInput = { productId: string; quantity: number; /** ignored:
 
 export type OrderRecord = {
   id: string;
-  customerId: string;
+  /** Null for guest orders; guests never get an auth user or profile. */
+  customerId: string | null;
+  guestEmail: string | null;
+  locale: string;
   idempotencyKey: string;
   isTest: boolean;
   status: OrderStatus;
@@ -36,7 +39,7 @@ export type OrderRecord = {
 
 export interface CheckoutStore extends ProvisioningStore {
   loadProducts(ids: string[]): Promise<Map<string, ResolvedProduct>>;
-  findOrderByKey(customerId: string, key: string): Promise<OrderRecord | null>;
+  findOrderByKey(owner: OrderOwner, key: string): Promise<OrderRecord | null>;
   insertOrder(order: Omit<OrderRecord, "id" | "lines"> & { lines: Omit<OrderRecord["lines"][number], "orderItemId">[] }): Promise<OrderRecord>;
   insertUnits(orderId: string, units: PlannedUnit[]): Promise<void>;
   getOrder(orderId: string): Promise<OrderRecord | null>;
@@ -44,6 +47,16 @@ export interface CheckoutStore extends ProvisioningStore {
   /** Returns false when the event id was already processed. Must be atomic. */
   recordPaymentEvent(eventId: string, orderId: string): Promise<boolean>;
   audit(action: string, orderId: string, detail: Record<string, unknown>): Promise<void>;
+}
+
+/** Exactly one of customerId (signed-in) or guestEmail (guest checkout). */
+export type OrderOwner = { customerId: string; guestEmail?: null } | { customerId?: null; guestEmail: string };
+
+const EMAIL_RE = /^[^\s@]{1,64}@[^\s@]{1,190}\.[^\s@]{2,}$/;
+export function normalizeGuestEmail(raw: unknown): string | null {
+  if (typeof raw !== "string") return null;
+  const email = raw.trim().toLowerCase();
+  return email.length <= 254 && EMAIL_RE.test(email) ? email : null;
 }
 
 export type CheckoutDeps = {
@@ -56,17 +69,22 @@ export type CheckoutDeps = {
 
 export type PlaceOrderResult =
   | { ok: true; order: OrderRecord; duplicate: boolean }
-  | { ok: false; reason: OrderRejection | "EMPTY" | "MIXED_CURRENCY" | "TEST_FLOW_FORBIDDEN"; productId?: string };
+  | { ok: false; reason: OrderRejection | "EMPTY" | "MIXED_CURRENCY" | "TEST_FLOW_FORBIDDEN" | "INVALID_CUSTOMER"; productId?: string };
 
 export async function placeOrder(
   deps: CheckoutDeps,
-  input: { customerId: string; idempotencyKey: string; lines: OrderLineInput[]; isTest: boolean; testFlowAllowed: boolean },
+  input: { customerId?: string | null; guestEmail?: string | null; locale?: string; idempotencyKey: string; lines: OrderLineInput[]; isTest: boolean; testFlowAllowed: boolean },
 ): Promise<PlaceOrderResult> {
+  const customerId = typeof input.customerId === "string" && input.customerId ? input.customerId : null;
+  const guestEmail = input.guestEmail == null ? null : normalizeGuestEmail(input.guestEmail);
+  if (input.guestEmail != null && !guestEmail) return { ok: false, reason: "INVALID_CUSTOMER" };
+  if ((customerId === null) === (guestEmail === null)) return { ok: false, reason: "INVALID_CUSTOMER" };
+  const owner: OrderOwner = customerId ? { customerId } : { guestEmail: guestEmail! };
   if (input.isTest && !input.testFlowAllowed) return { ok: false, reason: "TEST_FLOW_FORBIDDEN" };
   if (input.isTest && deps.gateway.kind !== "MOCK") return { ok: false, reason: "TEST_FLOW_FORBIDDEN" };
   if (!input.lines.length) return { ok: false, reason: "EMPTY" };
 
-  const existing = await deps.store.findOrderByKey(input.customerId, input.idempotencyKey);
+  const existing = await deps.store.findOrderByKey(owner, input.idempotencyKey);
   if (existing) return { ok: true, order: existing, duplicate: true };
 
   const products = await deps.store.loadProducts(input.lines.map((l) => l.productId));
@@ -83,7 +101,9 @@ export async function placeOrder(
   }
   const total = Math.round(lines.reduce((sum, l) => sum + l.unitPrice * l.quantity, 0) * 100) / 100;
   const order = await deps.store.insertOrder({
-    customerId: input.customerId,
+    customerId,
+    guestEmail,
+    locale: input.locale || "tr",
     idempotencyKey: input.idempotencyKey,
     isTest: input.isTest,
     status: "PENDING",
