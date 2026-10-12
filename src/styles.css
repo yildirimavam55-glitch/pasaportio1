@@ -685,6 +685,8 @@ html.dark .destination-scene {
   }
   .admin-table-wrap {
     max-width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
   }
   .admin-table {
     width: 100%;
