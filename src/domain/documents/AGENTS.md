@@ -1,0 +1,1 @@
+- PDFs render server-side with pdf-lib + fontkit and bundled OFL fonts from an allowlisted data object; invoices/credit notes without issuer data are always samples and numbering stays behind the issuing flag — why: documents must run on any host and never leak secrets or look legally valid by accident.

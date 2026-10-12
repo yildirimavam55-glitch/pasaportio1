@@ -18,6 +18,7 @@ Related: `LOVABLE_DEPENDENCIES.md`, `PROVIDERS_AND_SYNC.md`, `BALANCE_MONITORING
 - [ ] Compare schema with the live one (tables, column grants, RLS policies, SECURITY DEFINER functions, triggers).
 - [ ] Data dump/restore of `public` (products, prices, translations, guides, CMS, campaigns, theme, settings, audit logs, balance snapshots).
 - [ ] Re-check hidden commercial columns (`provider_cost`, `provider_metadata`) are not readable by anon/authenticated.
+- [ ] PDF documents: keep `src/assets/fonts/` + OFL licence; see `PDF_DOCUMENTS.md` for pending tables and storage.
 - [ ] Export e-mail templates from Admin → E-postalar (JSON) and import them on the new server; the code seed in `src/domain/email/catalog.ts` is the fallback.
 
 ## 3. User accounts & authentication
