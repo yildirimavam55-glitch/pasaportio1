@@ -15,6 +15,13 @@
       "when": 1791786937768,
       "tag": "0001_restore_security_protections",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1791786993747,
+      "tag": "0002_restate_refund_guards",
+      "breakpoints": true
     }
   ]
 }
