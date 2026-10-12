@@ -6,6 +6,7 @@ import { AdminDrawer, AdminError, AdminLoading, AdminPanel, AdminTable, DataRow,
 import { adminHead } from "@/components/admin/AdminSectionPage";
 import { Button } from "@/components/ui/button";
 import { getAdminCustomerDetail, getAdminCustomers } from "@/lib/admin-control.functions";
+import { DeletionRequestsPanel } from "@/components/admin/DeletionRequestsPanel";
 
 export const Route = createFileRoute("/_authenticated/admin/customers")({
   head: () => adminHead("Müşteriler", "Müşteri profilleri, satın alma geçmişi ve seyahatler."),
@@ -59,9 +60,6 @@ function Customers() {
           </AdminPanel>
         )}
         <DeletionRequestsPanel />
-        {null && (
-          <span />
-        )}
       </div>
       <CustomerDetail id={openId} onClose={() => setOpenId(null)} />
     </AdminGate>
