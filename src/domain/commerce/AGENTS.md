@@ -1,0 +1,3 @@
+- Checkout talks to payments only through `PaymentGateway` (src/domain/payments); a real provider is added as a new gateway after migration — why: checkout and provisioning stay provider-independent.
+- Mock payment gateway and mock eSIM supplier throw unless constructed with `testEnvironment: true`, and `assertSupplierMatchesOrder` keeps test orders on the mock and real orders off it — why: synthetic flows can never purchase or leak into live data.
+- Mock flows run only in automated tests (in-memory store) until an isolated test database exists — why: preview and live share one database.
