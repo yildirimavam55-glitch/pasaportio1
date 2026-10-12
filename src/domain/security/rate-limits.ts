@@ -12,6 +12,8 @@ export const RATE_LIMITS = {
   refundCreateUser: { limit: 3, windowSeconds: 86_400 },
   orderCreateUser: { limit: 10, windowSeconds: 3_600 },
   checkoutValidateUser: { limit: 20, windowSeconds: 3_600 },
+  guestDeliveryIp: { limit: 30, windowSeconds: 3_600 },
+  guestRenewIp: { limit: 5, windowSeconds: 3_600 },
 } as const satisfies Record<string, RateLimitPolicy>;
 
 export type RateLimitName = keyof typeof RATE_LIMITS;
