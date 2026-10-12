@@ -17,6 +17,7 @@
 - [ ] CJK fonts for PDFs (ja/ko/zh) — later
 - [ ] Real issuer/tax data for invoices — owner input
 - [x] 0008 final hardening drafted + isolated retest (pending folder only)
+- [x] Pre-live backup + isolated restore + 0008 rollback retest (12.10 13:35 UTC)
 - [ ] Apply 0008 live (+ 0008_app_patch) — waits for owner approval
 - [ ] Apply 0009 margin flag + 0009_app_patch together with a publish — waits for owner approval
 - [ ] Close supabase_admin default privileges as superuser on the new server
