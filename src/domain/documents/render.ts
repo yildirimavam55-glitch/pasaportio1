@@ -43,6 +43,27 @@ function runs(text: string, arabicChars: Set<number>): Run[] {
   return out;
 }
 
+/**
+ * Minimal bidi for RTL lines: whitespace between two Latin runs stays Latin, Latin groups keep
+ * their reading order, and groups (plus Arabic words) are laid out right-to-left.
+ */
+function visualOrder(parts: Run[]): Run[] {
+  const isWs = (r: Run) => /^\s+$/.test(r.text);
+  const type = parts.map((r, i) => {
+    if (!isWs(r)) return r.arabic ? "A" : "L";
+    const prev = parts.slice(0, i).reverse().find((p) => !isWs(p));
+    const next = parts.slice(i + 1).find((p) => !isWs(p));
+    return prev && next && !prev.arabic && !next.arabic ? "L" : "A";
+  });
+  const groups: { t: string; runs: Run[] }[] = [];
+  parts.forEach((r, i) => {
+    const g = groups[groups.length - 1];
+    if (g && g.t === type[i] && g.t === "L") g.runs.push(r);
+    else groups.push({ t: type[i]!, runs: [r] });
+  });
+  return groups.reverse().flatMap((g) => g.runs);
+}
+
 class Writer {
   page!: PDFPage;
   y = 0;
@@ -68,7 +89,7 @@ class Writer {
     const startAligned = (opts.align ?? "start") === "start";
     if (!this.rtl) left = startAligned ? x : x + box - total;
     else left = startAligned ? W - x - total : W - x - box;
-    const ordered = this.rtl ? [...parts].reverse() : parts;
+    const ordered = this.rtl ? visualOrder(parts) : parts;
     for (const r of ordered) {
       const font = this.font(r.arabic, !!opts.bold);
       this.page.drawText(r.text, { x: left, y, size, font, color: opts.color ?? C.ink });
