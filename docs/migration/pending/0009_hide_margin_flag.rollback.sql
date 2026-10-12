@@ -1,5 +1,5 @@
 -- ROLLBACK for 0009 (DRAFT). Restores the pre-0009 policy, function mode and column grant.
--- Revert 0009_app_patch.diff at the same time (or keep it: the patched code also works on the old state).
+-- Revert 0009_app_patch.diff at the same time: the patched code relies on the new policy to hide flagged products.
 DROP POLICY IF EXISTS "products public read" ON public.service_products;
 CREATE POLICY "products public read" ON public.service_products FOR SELECT TO authenticated, anon
   USING (lifecycle = 'PUBLISHED'::public.product_lifecycle AND customer_visible = true);

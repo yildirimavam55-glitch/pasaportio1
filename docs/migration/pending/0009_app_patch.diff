@@ -1,0 +1,57 @@
+diff -ru a/src/lib/esim-catalogue.functions.ts b/src/lib/esim-catalogue.functions.ts
+--- a/src/lib/esim-catalogue.functions.ts	2026-10-12 13:05:27.436611465 +0000
++++ b/src/lib/esim-catalogue.functions.ts	2026-10-12 13:05:27.481025975 +0000
+@@ -124,13 +124,12 @@
+       let query = publicClient()
+         .from("service_products")
+         .select(
+-          "id, provider_external_id, slug, name, currency, sale_price, badge, featured, sort_order, lifecycle, customer_visible, provider_available, margin_flagged, service_type, is_test, source, esim_product_details!inner(data_gb, data_type, unlimited_data, validity_days, raw_validity_value, raw_validity_unit, activation_policy, fair_use_note, fair_use_policy, high_speed_allowance, speed_after_fair_use, coverage_country_isos, country_iso, package_kind, supports_5g, supports_hotspot, data_only, topup_supported, network_operators, supplier_groups, supplier_speed, supplier_countries)",
++          "id, provider_external_id, slug, name, currency, sale_price, badge, featured, sort_order, lifecycle, customer_visible, provider_available, service_type, is_test, source, esim_product_details!inner(data_gb, data_type, unlimited_data, validity_days, raw_validity_value, raw_validity_unit, activation_policy, fair_use_note, fair_use_policy, high_speed_allowance, speed_after_fair_use, coverage_country_isos, country_iso, package_kind, supports_5g, supports_hotspot, data_only, topup_supported, network_operators, supplier_groups, supplier_speed, supplier_countries)",
+         )
+         .eq("service_type", "ESIM")
+         .eq("lifecycle", "PUBLISHED")
+         .eq("customer_visible", true)
+         .eq("provider_available", true)
+-        .eq("margin_flagged", false)
+         .gt("sale_price", 0)
+         .order("sort_order")
+         .order("id")
+@@ -365,7 +364,7 @@
+         .from("service_products")
+         .select("currency, sale_price, is_test, esim_product_details!inner(coverage_country_isos, unlimited_data, supplier_groups)")
+         .eq("service_type", "ESIM").eq("lifecycle", "PUBLISHED").eq("customer_visible", true)
+-        .eq("provider_available", true).eq("margin_flagged", false).gt("sale_price", 0)
++        .eq("provider_available", true).gt("sale_price", 0)
+         .contains("esim_product_details.coverage_country_isos", t.coverageIsos)
+         .order("sale_price").limit(30);
+       if (error) throw new Error(error.message);
+diff -ru a/src/lib/esim-destinations.functions.ts b/src/lib/esim-destinations.functions.ts
+--- a/src/lib/esim-destinations.functions.ts	2026-10-12 13:05:27.473366386 +0000
++++ b/src/lib/esim-destinations.functions.ts	2026-10-12 13:05:27.481151706 +0000
+@@ -67,7 +67,6 @@
+         .eq("lifecycle", "PUBLISHED")
+         .eq("customer_visible", true)
+         .eq("provider_available", true)
+-        .eq("margin_flagged", false)
+         .gt("sale_price", 0)
+         .range(from, from + pageSize - 1);
+       if (error) throw new Error(error.message);
+diff -ru a/src/lib/guides.functions.ts b/src/lib/guides.functions.ts
+--- a/src/lib/guides.functions.ts	2026-10-12 13:05:27.456217713 +0000
++++ b/src/lib/guides.functions.ts	2026-10-12 13:05:27.481675080 +0000
+@@ -306,7 +306,6 @@
+       .eq("lifecycle", "PUBLISHED")
+       .eq("customer_visible", true)
+       .eq("provider_available", true)
+-      .eq("margin_flagged", false)
+       .gt("sale_price", 0)
+       .filter("esim_product_details.coverage_country_isos", "cs", `{${iso}}`)
+       .limit(400);
+@@ -355,7 +354,6 @@
+       .eq("lifecycle", "PUBLISHED")
+       .eq("customer_visible", true)
+       .eq("provider_available", true)
+-      .eq("margin_flagged", false)
+       .gt("sale_price", 0)
+       .contains("esim_product_details.coverage_country_isos", route.countryIsos)
+       .limit(400);
