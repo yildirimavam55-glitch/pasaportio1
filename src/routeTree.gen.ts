@@ -16,6 +16,7 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as DestekRouteImport } from './routes/destek'
 import { Route as KayitRouteImport } from './routes/kayit'
 import { Route as OdemeRouteImport } from './routes/odeme'
+import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as SepetRouteImport } from './routes/sepet'
 import { Route as VignetteRouteImport } from './routes/vignette'
 import { Route as AuthenticatedLegacyV1RouteImport } from './routes/_authenticated/legacy-v1'
@@ -162,6 +163,11 @@ const KayitRoute = KayitRouteImport.update({
 const OdemeRoute = OdemeRouteImport.update({
   id: '/odeme',
   path: '/odeme',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ResetPasswordRoute = ResetPasswordRouteImport.update({
+  id: '/reset-password',
+  path: '/reset-password',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SepetRoute = SepetRouteImport.update({
@@ -802,6 +808,7 @@ export interface FileRoutesByFullPath {
   '/destek': typeof DestekRoute
   '/kayit': typeof KayitRoute
   '/odeme': typeof OdemeRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/sepet': typeof SepetRoute
   '/vignette': typeof VignetteRoute
   '/legacy-v1': typeof AuthenticatedLegacyV1RouteWithChildren
@@ -922,6 +929,7 @@ export interface FileRoutesByTo {
   '/destek': typeof DestekRoute
   '/kayit': typeof KayitRoute
   '/odeme': typeof OdemeRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/sepet': typeof SepetRoute
   '/vignette': typeof VignetteRoute
   '/account/notifications': typeof AccountNotificationsRoute
@@ -1044,6 +1052,7 @@ export interface FileRoutesById {
   '/destek': typeof DestekRoute
   '/kayit': typeof KayitRoute
   '/odeme': typeof OdemeRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/sepet': typeof SepetRoute
   '/vignette': typeof VignetteRoute
   '/_authenticated/legacy-v1': typeof AuthenticatedLegacyV1RouteWithChildren
@@ -1168,6 +1177,7 @@ export interface FileRouteTypes {
     | '/destek'
     | '/kayit'
     | '/odeme'
+    | '/reset-password'
     | '/sepet'
     | '/vignette'
     | '/legacy-v1'
@@ -1288,6 +1298,7 @@ export interface FileRouteTypes {
     | '/destek'
     | '/kayit'
     | '/odeme'
+    | '/reset-password'
     | '/sepet'
     | '/vignette'
     | '/account/notifications'
@@ -1409,6 +1420,7 @@ export interface FileRouteTypes {
     | '/destek'
     | '/kayit'
     | '/odeme'
+    | '/reset-password'
     | '/sepet'
     | '/vignette'
     | '/_authenticated/legacy-v1'
@@ -1533,6 +1545,7 @@ export interface RootRouteChildren {
   DestekRoute: typeof DestekRoute
   KayitRoute: typeof KayitRoute
   OdemeRoute: typeof OdemeRoute
+  ResetPasswordRoute: typeof ResetPasswordRoute
   SepetRoute: typeof SepetRoute
   VignetteRoute: typeof VignetteRoute
   DesignV2SplatRoute: typeof DesignV2SplatRoute
@@ -1616,6 +1629,13 @@ declare module '@tanstack/react-router' {
       path: '/odeme'
       fullPath: '/odeme'
       preLoaderRoute: typeof OdemeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/reset-password': {
+      id: '/reset-password'
+      path: '/reset-password'
+      fullPath: '/reset-password'
+      preLoaderRoute: typeof ResetPasswordRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/sepet': {
@@ -2651,6 +2671,7 @@ const rootRouteChildren: RootRouteChildren = {
   DestekRoute: DestekRoute,
   KayitRoute: KayitRoute,
   OdemeRoute: OdemeRoute,
+  ResetPasswordRoute: ResetPasswordRoute,
   SepetRoute: SepetRoute,
   VignetteRoute: VignetteRoute,
   DesignV2SplatRoute: DesignV2SplatRoute,
