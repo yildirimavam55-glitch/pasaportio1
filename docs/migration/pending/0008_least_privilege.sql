@@ -81,12 +81,14 @@ GRANT SELECT ON
   public.traffic_attribution, public.user_roles
 TO authenticated;
 -- Customers read their own orders and order lines, but never supplier cost or payment fee.
+-- guest_claim_token and idempotency_key are server-only (service_role) technical fields: no
+-- browser query reads them, so they are not granted (final hardening, 12.10.2026).
 GRANT SELECT (id, order_id, service_type, product_id, provider_id, traveler_id, product_name_snapshot,
   product_slug_snapshot, sale_price, discount, currency, quantity, destination_snapshot, airport_iata_snapshot,
   fulfillment_status, provider_reference, details_snapshot, created_at) ON public.order_items TO authenticated;
-GRANT SELECT (id, order_number, customer_id, guest_email, guest_claim_token, trip_id, status, payment_status,
+GRANT SELECT (id, order_number, customer_id, guest_email, trip_id, status, payment_status,
   fulfillment_status, currency, gross_revenue, discount_total, tax_total, refunded_total, fx_rate_to_eur, locale,
-  customer_country_iso, idempotency_key, created_at, updated_at, promotion_id, coupon_code, discount_type,
+  customer_country_iso, created_at, updated_at, promotion_id, coupon_code, discount_type,
   discount_value, original_subtotal, final_subtotal) ON public.orders TO authenticated;
 
 -- service_role: unchanged (ALL); stated explicitly so a fresh server ends in the same state.
@@ -103,16 +105,19 @@ ALTER DEFAULT PRIVILEGES FOR ROLE postgres REVOKE EXECUTE ON FUNCTIONS FROM PUBL
 ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA public GRANT ALL ON TABLES TO service_role;
 ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA public GRANT ALL ON SEQUENCES TO service_role;
 ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA public GRANT EXECUTE ON FUNCTIONS TO service_role;
--- supabase_admin also creates objects on managed hosting; the migration role may not be allowed
--- to change its defaults, so this part reports instead of failing.
+-- supabase_admin: on managed hosting the migration role (postgres, not superuser, not a member of
+-- supabase_admin) is NOT allowed to change these defaults. This is reported as a WARNING, never as
+-- success. Section G fails the migration if any app object is owned by another role, so the open
+-- supabase_admin defaults cannot affect application tables. Close them as superuser on the new server.
 DO $$
 BEGIN
   ALTER DEFAULT PRIVILEGES FOR ROLE supabase_admin IN SCHEMA public REVOKE ALL ON TABLES FROM anon, authenticated;
   ALTER DEFAULT PRIVILEGES FOR ROLE supabase_admin IN SCHEMA public REVOKE ALL ON SEQUENCES FROM anon, authenticated;
   ALTER DEFAULT PRIVILEGES FOR ROLE supabase_admin IN SCHEMA public REVOKE ALL ON FUNCTIONS FROM anon, authenticated, PUBLIC;
   ALTER DEFAULT PRIVILEGES FOR ROLE supabase_admin REVOKE EXECUTE ON FUNCTIONS FROM PUBLIC;
+  RAISE NOTICE '0008: supabase_admin default privileges closed.';
 EXCEPTION WHEN insufficient_privilege OR undefined_object THEN
-  RAISE NOTICE '0008: supabase_admin default privileges not changed (%). Check manually on the new server.', SQLERRM;
+  RAISE WARNING '0008 NOT APPLIED: supabase_admin default privileges unchanged (%). Status: FAIL until closed by a superuser.', SQLERRM;
 END $$;
 
 -- ---------------------------------------------------------------------------
@@ -170,3 +175,122 @@ CREATE POLICY "cms versions admin read" ON public.cms_versions FOR SELECT TO aut
 CREATE POLICY "cms versions admin append" ON public.cms_versions FOR INSERT TO authenticated WITH CHECK (public.is_admin());
 
 -- SECURITY DEFINER functions: EXECUTE grants are intentionally left unchanged.
+
+-- ---------------------------------------------------------------------------
+-- F. Security status function: also checks order cost fields and technical fields
+-- ---------------------------------------------------------------------------
+-- Existing keys keep their meaning; supplierCostProtection now also covers orders/order_items.
+-- A listed column that no longer exists counts as FAIL (fail closed, never silently PASS).
+CREATE OR REPLACE FUNCTION public.security_baseline_status() RETURNS jsonb
+    LANGUAGE plpgsql STABLE SECURITY DEFINER
+    SET search_path TO 'public'
+    AS $$
+DECLARE
+  protected text[] := ARRAY['profiles','orders','order_items','customer_esims','refund_requests','refund_request_events','payment_transactions','travelers','user_roles','provisioning_units','customer_trips','customer_lounge_bookings','admin_audit_log','provider_connections','security_rate_limits'];
+  cost_cols text[] := ARRAY['service_products.provider_cost','service_products.provider_currency','service_products.pricing_snapshot','service_products.pricing_rule_id','esim_product_details.provider_metadata','lounge_product_details.provider_metadata','order_items.provider_cost','orders.provider_cost_total','orders.payment_fee'];
+  technical_cols text[] := ARRAY['orders.guest_claim_token','orders.idempotency_key','service_products.price_overridden','service_products.pricing_review_required'];
+  history_tables text[] := ARRAY['admin_audit_log','cms_versions','email_template_versions','pdf_template_versions','refund_request_events'];
+  v_rls_off int; v_cost_exposed boolean; v_role_write boolean; v_rl boolean; v_esim_anon boolean;
+  v_role_lookup boolean; v_settings_private boolean; v_tech_exposed boolean; v_margin_exposed boolean;
+  v_truncate boolean; v_defaults_pg boolean; v_defaults_sa boolean; v_foreign_owner boolean; v_history boolean;
+BEGIN
+  IF NOT public.is_admin() THEN RAISE EXCEPTION 'Yonetici yetkisi gerekiyor.'; END IF;
+  SELECT count(*) INTO v_rls_off FROM pg_class c JOIN pg_namespace n ON n.oid = c.relnamespace
+    WHERE n.nspname = 'public' AND c.relname = ANY(protected) AND NOT c.relrowsecurity;
+  SELECT bool_or(a.attnum IS NULL OR has_column_privilege(r.role, a.attrelid, a.attnum, 'SELECT')) INTO v_cost_exposed
+    FROM unnest(cost_cols) c(spec) CROSS JOIN unnest(ARRAY['anon','authenticated']) r(role)
+    LEFT JOIN pg_attribute a ON a.attrelid = to_regclass('public.' || split_part(c.spec, '.', 1))
+      AND a.attname = split_part(c.spec, '.', 2) AND NOT a.attisdropped;
+  SELECT bool_or(a.attnum IS NULL OR has_column_privilege(r.role, a.attrelid, a.attnum, 'SELECT')) INTO v_tech_exposed
+    FROM unnest(technical_cols) c(spec) CROSS JOIN unnest(ARRAY['anon','authenticated']) r(role)
+    LEFT JOIN pg_attribute a ON a.attrelid = to_regclass('public.' || split_part(c.spec, '.', 1))
+      AND a.attname = split_part(c.spec, '.', 2) AND NOT a.attisdropped;
+  v_margin_exposed := has_column_privilege('anon','public.service_products','margin_flagged','SELECT')
+    OR has_column_privilege('authenticated','public.service_products','margin_flagged','SELECT');
+  v_role_write := EXISTS (SELECT 1 FROM pg_policies WHERE schemaname='public' AND tablename='user_roles'
+    AND cmd IN ('INSERT','UPDATE','ALL','DELETE') AND coalesce(qual,'') NOT ILIKE '%is_admin%' AND coalesce(with_check,'') NOT ILIKE '%is_admin%');
+  v_rl := to_regprocedure('public.consume_rate_limit(text,integer,integer)') IS NOT NULL
+    AND NOT has_function_privilege('anon','public.consume_rate_limit(text,integer,integer)','EXECUTE')
+    AND NOT has_function_privilege('authenticated','public.consume_rate_limit(text,integer,integer)','EXECUTE');
+  v_esim_anon := EXISTS (SELECT 1 FROM pg_policies WHERE schemaname='public' AND tablename='customer_esims' AND 'anon' = ANY(roles));
+  v_role_lookup := NOT has_function_privilege('anon','public.has_role(uuid,public.app_role)','EXECUTE')
+    AND (SELECT prosrc FROM pg_proc WHERE oid = 'public.has_role(uuid,public.app_role)'::regprocedure) ILIKE '%_user_id = auth.uid()%';
+  v_settings_private := NOT has_table_privilege('anon','public.platform_settings','SELECT')
+    AND NOT EXISTS (SELECT 1 FROM pg_policies WHERE schemaname='public' AND tablename='platform_settings'
+      AND cmd IN ('SELECT','ALL') AND coalesce(qual,'') NOT ILIKE '%is_admin%');
+  v_truncate := EXISTS (SELECT 1 FROM pg_class c JOIN pg_namespace n ON n.oid = c.relnamespace
+    CROSS JOIN unnest(ARRAY['anon','authenticated']) r(role)
+    WHERE n.nspname = 'public' AND c.relkind IN ('r','p')
+      AND (has_table_privilege(r.role, c.oid, 'TRUNCATE') OR has_table_privilege(r.role, c.oid, 'TRIGGER') OR has_table_privilege(r.role, c.oid, 'REFERENCES')));
+  -- Default privileges of a creating role are closed when no public/global entry grants anything to
+  -- PUBLIC (0), anon or authenticated, and a global function entry exists that removed PUBLIC EXECUTE.
+  v_defaults_pg := NOT EXISTS (SELECT 1 FROM pg_default_acl d CROSS JOIN LATERAL aclexplode(d.defaclacl) x
+      WHERE d.defaclrole = 'postgres'::regrole AND d.defaclnamespace IN (0, 'public'::regnamespace)
+        AND (x.grantee = 0 OR x.grantee IN ('anon'::regrole, 'authenticated'::regrole)))
+    AND EXISTS (SELECT 1 FROM pg_default_acl d WHERE d.defaclrole = 'postgres'::regrole AND d.defaclnamespace = 0 AND d.defaclobjtype = 'f');
+  v_defaults_sa := to_regrole('supabase_admin') IS NULL OR (
+    NOT EXISTS (SELECT 1 FROM pg_default_acl d CROSS JOIN LATERAL aclexplode(d.defaclacl) x
+      WHERE d.defaclrole = to_regrole('supabase_admin') AND d.defaclnamespace IN (0, 'public'::regnamespace)
+        AND (x.grantee = 0 OR x.grantee IN ('anon'::regrole, 'authenticated'::regrole)))
+    AND EXISTS (SELECT 1 FROM pg_default_acl d WHERE d.defaclrole = to_regrole('supabase_admin') AND d.defaclnamespace = 0 AND d.defaclobjtype = 'f'));
+  v_foreign_owner := EXISTS (SELECT 1 FROM pg_class c JOIN pg_namespace n ON n.oid = c.relnamespace
+      WHERE n.nspname = 'public' AND c.relkind IN ('r','p','S','v','m') AND c.relowner <> 'postgres'::regrole)
+    OR EXISTS (SELECT 1 FROM pg_proc p JOIN pg_namespace n ON n.oid = p.pronamespace
+      WHERE n.nspname = 'public' AND p.proowner <> 'postgres'::regrole);
+  -- Every history table has a row trigger for UPDATE+DELETE and a TRUNCATE trigger (tgtype bits 8/16/32).
+  v_history := (SELECT bool_and(
+      EXISTS (SELECT 1 FROM pg_trigger t WHERE t.tgrelid = to_regclass('public.' || h) AND NOT t.tgisinternal AND (t.tgtype & 1) = 1 AND (t.tgtype & 24) = 24)
+      AND EXISTS (SELECT 1 FROM pg_trigger t WHERE t.tgrelid = to_regclass('public.' || h) AND NOT t.tgisinternal AND (t.tgtype & 32) = 32))
+    FROM unnest(history_tables) h);
+  RETURN jsonb_build_object(
+    'databaseProtection', v_rls_off = 0,
+    'customerIsolation', v_rls_off = 0 AND NOT v_esim_anon,
+    'supplierCostProtection', NOT coalesce(v_cost_exposed, true),
+    'technicalFieldsHidden', NOT coalesce(v_tech_exposed, true),
+    'marginFlagHidden', NOT v_margin_exposed,
+    'browserTruncateBlocked', NOT v_truncate,
+    'defaultPrivilegesPostgres', v_defaults_pg,
+    'defaultPrivilegesSupabaseAdmin', v_defaults_sa,
+    'appObjectsOwnedByMigrationRole', NOT v_foreign_owner,
+    'historyAppendOnly', coalesce(v_history, false),
+    'roleProtection', NOT v_role_write,
+    'rateLimiting', v_rl,
+    'roleLookupSelfOnly', v_role_lookup,
+    'settingsTablePrivate', v_settings_private,
+    'checkedAt', now());
+END $$;
+REVOKE ALL ON FUNCTION public.security_baseline_status() FROM PUBLIC, anon;
+GRANT EXECUTE ON FUNCTION public.security_baseline_status() TO authenticated, service_role;
+
+-- ---------------------------------------------------------------------------
+-- G. Mandatory post-conditions. Any failure aborts the whole migration (nothing is applied).
+-- ---------------------------------------------------------------------------
+DO $$
+DECLARE bad text;
+BEGIN
+  SELECT string_agg(DISTINCT c.relname || ':' || r.role, ', ') INTO bad
+    FROM pg_class c JOIN pg_namespace n ON n.oid = c.relnamespace CROSS JOIN unnest(ARRAY['anon','authenticated']) r(role)
+    WHERE n.nspname = 'public' AND c.relkind IN ('r','p')
+      AND (has_table_privilege(r.role, c.oid, 'TRUNCATE') OR has_table_privilege(r.role, c.oid, 'TRIGGER') OR has_table_privilege(r.role, c.oid, 'REFERENCES'));
+  IF bad IS NOT NULL THEN RAISE EXCEPTION '0008 FAIL: browser roles keep TRUNCATE/TRIGGER/REFERENCES on %', bad; END IF;
+
+  SELECT string_agg(spec || ':' || r.role, ', ') INTO bad
+    FROM unnest(ARRAY['service_products.provider_cost','service_products.pricing_snapshot','esim_product_details.provider_metadata',
+      'lounge_product_details.provider_metadata','order_items.provider_cost','orders.provider_cost_total','orders.payment_fee',
+      'orders.guest_claim_token','orders.idempotency_key']) spec
+    CROSS JOIN unnest(ARRAY['anon','authenticated']) r(role)
+    WHERE has_column_privilege(r.role, 'public.' || split_part(spec, '.', 1), split_part(spec, '.', 2), 'SELECT');
+  IF bad IS NOT NULL THEN RAISE EXCEPTION '0008 FAIL: hidden columns still readable: %', bad; END IF;
+
+  IF EXISTS (SELECT 1 FROM pg_default_acl d CROSS JOIN LATERAL aclexplode(d.defaclacl) x
+      WHERE d.defaclrole = 'postgres'::regrole AND d.defaclnamespace IN (0, 'public'::regnamespace)
+        AND (x.grantee = 0 OR x.grantee IN ('anon'::regrole, 'authenticated'::regrole)))
+     OR NOT EXISTS (SELECT 1 FROM pg_default_acl d WHERE d.defaclrole = 'postgres'::regrole AND d.defaclnamespace = 0 AND d.defaclobjtype = 'f') THEN
+    RAISE EXCEPTION '0008 FAIL: postgres default privileges still open for browser roles or PUBLIC';
+  END IF;
+
+  IF EXISTS (SELECT 1 FROM pg_class c JOIN pg_namespace n ON n.oid = c.relnamespace
+      WHERE n.nspname = 'public' AND c.relkind IN ('r','p','S','v','m') AND c.relowner <> 'postgres'::regrole) THEN
+    RAISE EXCEPTION '0008 FAIL: public objects owned by a role other than postgres; their defaults are not covered';
+  END IF;
+END $$;

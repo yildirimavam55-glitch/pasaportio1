@@ -16,3 +16,7 @@
 - [ ] Document issuance (numbering, issued docs, private storage) — SQL drafted, waits for issuer/tax data + payments approval
 - [ ] CJK fonts for PDFs (ja/ko/zh) — later
 - [ ] Real issuer/tax data for invoices — owner input
+- [x] 0008 final hardening drafted + isolated retest (pending folder only)
+- [ ] Apply 0008 live (+ 0008_app_patch) — waits for owner approval
+- [ ] Apply 0009 margin flag + 0009_app_patch together with a publish — waits for owner approval
+- [ ] Close supabase_admin default privileges as superuser on the new server

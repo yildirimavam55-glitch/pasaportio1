@@ -1,0 +1,17 @@
+diff -ru a/src/lib/security-status.functions.ts b/src/lib/security-status.functions.ts
+--- a/src/lib/security-status.functions.ts	2026-10-12 13:09:55.564713745 +0000
++++ b/src/lib/security-status.functions.ts	2026-10-12 13:09:55.611148717 +0000
+@@ -44,6 +44,13 @@
+         { key: "isolation", label: "Müşteri izolasyonu", state: ok(s["customerIsolation"]) },
+         { key: "cost", label: "Tedarikçi maliyet koruması", state: ok(s["supplierCostProtection"]) },
+         { key: "roles", label: "Admin rol koruması", state: ok(s["roleProtection"]) },
++        { key: "technical", label: "Teknik sipariş alanları gizli (talep kodu, tekrar anahtarı)", state: ok(s["technicalFieldsHidden"]) },
++        { key: "marginFlag", label: "İç marj inceleme işareti gizli", state: ok(s["marginFlagHidden"]) },
++        { key: "truncate", label: "Tarayıcı rolleri tablo boşaltamaz", state: ok(s["browserTruncateBlocked"]) },
++        { key: "history", label: "Denetim ve sürüm geçmişi değiştirilemez", state: ok(s["historyAppendOnly"]) },
++        { key: "defaultsPg", label: "Yeni tablolar kapalı başlar (uygulama rolü)", state: ok(s["defaultPrivilegesPostgres"]) },
++        { key: "defaultsSa", label: "Yeni tablolar kapalı başlar (platform rolü)", state: ok(s["defaultPrivilegesSupabaseAdmin"]) },
++        { key: "owners", label: "Tüm uygulama nesneleri uygulama rolüne ait", state: ok(s["appObjectsOwnedByMigrationRole"]) },
+         { key: "rate", label: "İstek sınırlama", state: ok(s["rateLimiting"]) },
+         { key: "roleLookup", label: "Rol sorgusu yalnızca kendi hesabı için", state: ok(s["roleLookupSelfOnly"]) },
+         { key: "settingsTable", label: "Tam ayar kaydı yalnızca Admin", state: ok(s["settingsTablePrivate"]) },
