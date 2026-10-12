@@ -88,3 +88,14 @@ describe("expired-link renewal", () => {
     expect(await confirmRenewal(m.store, { orderNumber: "PSP-1", email: "attacker@synthetic.test", code }, NOW)).toEqual({ ok: false });
   });
 });
+
+import { readFileSync } from "node:fs";
+describe("guest delivery server guard", () => {
+  const src = readFileSync("src/lib/commerce-guest-delivery.functions.ts", "utf8");
+  it("stays disabled unless explicitly enabled and only reads eSIMs after token verification", () => {
+    expect(src).toMatch(/GUEST_DELIVERY_ENABLED"\] === "1"/);
+    expect(src).toMatch(/if \(!enabled\(\) \|\| \(await limited\("guestDeliveryIp"\)\)\) return \{ ok: false \}/);
+    expect(src).toMatch(/is\("customer_id", null\)/);
+    expect(src).not.toMatch(/sendEmail|resend|smtp/i);
+  });
+});

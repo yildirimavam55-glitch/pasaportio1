@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useI18n } from "@/i18n";
 import { localize } from "@/i18n/overlay";
-import { confirmGuestRenewal, openGuestDeliveryRequest, requestGuestRenewal } from "@/lib/guest-delivery.functions";
+import { confirmGuestRenewal, openGuestDeliveryRequest, requestGuestRenewal } from "@/lib/commerce-guest-delivery.functions";
 
 const COPY = localize({
   tr: { title: "eSIM teslimatın", loading: "Yükleniyor…", order: "Sipariş", status: "Durum", data: "Veri", validUntil: "Geçerlilik", unlimited: "Sınırsız", none: "Bu siparişte henüz hazır eSIM yok. Hazır olduğunda burada görünecek.", invalidTitle: "Bu bağlantı geçerli değil veya süresi dolmuş", invalidBody: "Güvenliğin için teslimat bağlantıları kısa süre geçerlidir. Sipariş numaran ve siparişte kullandığın e-posta ile yeni bağlantı isteyebilirsin.", orderNumber: "Sipariş numarası", email: "E-posta", send: "Doğrulama kodu gönder", sent: "Bilgiler eşleşirse e-postana 6 haneli bir kod gönderilecek.", code: "6 haneli kod", confirm: "Yeni bağlantıyı aç", wrong: "Kod doğrulanamadı. Bilgileri kontrol edip tekrar dene.", support: "Destek al", private: "Bu sayfa yalnızca sana özeldir; bağlantıyı paylaşma." },
