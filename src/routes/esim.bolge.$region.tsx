@@ -38,7 +38,7 @@ export const Route = createFileRoute("/esim/bolge/$region")({
   head: ({ params }) => {
     const region = parseRegion(params.region);
     const name = COVERAGE_REGION_LABELS[region].en;
-    const title = `${name} eSIM | travely`;
+    const title = `${name} eSIM | pasaport.io`;
     const description = `Published Standard and Unlimited eSIM plans for ${name}.`;
     return { meta: [{ title }, { name: "description", content: description }, { property: "og:title", content: title }, { property: "og:description", content: description }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }, ...V2_NOINDEX] };
   },

@@ -65,14 +65,14 @@ export const Route = createFileRoute("/guides/$slug")({
   head: ({ loaderData, params }) => {
     if (!loaderData) {
       return {
-        meta: [{ title: "Rehber bulunamadı — Travely" }, { name: "robots", content: "noindex" }],
+        meta: [{ title: "Rehber bulunamadı — pasaport.io" }, { name: "robots", content: "noindex" }],
       };
     }
     if (loaderData.kind === "COUNTRY") {
       const country = COUNTRIES.find((row) => row.iso === loaderData.hub.countryIso);
       const name = country?.name.tr ?? loaderData.hub.countryIso;
-      const title = `${name} seyahat rehberleri — Travely`;
-      const description = `${name} için Travely rehberleri ve şu anda satın alınabilir seyahat hizmetleri.`;
+      const title = `${name} seyahat rehberleri — pasaport.io`;
+      const description = `${name} için pasaport.io rehberleri ve şu anda satın alınabilir seyahat hizmetleri.`;
       return {
         meta: [
           { title },
@@ -86,7 +86,7 @@ export const Route = createFileRoute("/guides/$slug")({
       };
     }
     const guide = loaderData.guide;
-    const title = guide.seoTitle || `${guide.title} — Travely`;
+    const title = guide.seoTitle || `${guide.title} — pasaport.io`;
     const description = guide.seoDescription || guide.excerpt || guide.title;
     const meta: Array<Record<string, string>> = [
       { title },
@@ -132,7 +132,7 @@ export const Route = createFileRoute("/guides/$slug")({
           datePublished: guide.publishedAt ?? guide.updatedAt,
           dateModified: guide.updatedAt,
           ...(imageUrl ? { image: imageUrl } : {}),
-          publisher: { "@type": "Organization", name: "Travely" },
+          publisher: { "@type": "Organization", name: "pasaport.io" },
         }),
       },
       {
@@ -141,7 +141,7 @@ export const Route = createFileRoute("/guides/$slug")({
           "@context": "https://schema.org",
           "@type": "BreadcrumbList",
           itemListElement: [
-            { "@type": "ListItem", position: 1, name: "Travely", item: "https://wanderpath-engine.lovable.app/" },
+            { "@type": "ListItem", position: 1, name: "pasaport.io", item: "https://wanderpath-engine.lovable.app/" },
             { "@type": "ListItem", position: 2, name: "Rehberler", item: GUIDES_BASE_URL },
             { "@type": "ListItem", position: 3, name: guide.title, item: canonical },
           ],

@@ -25,9 +25,9 @@ export const Route = createFileRoute("/lounge/")({
   loader: async ({ context }) => { await Promise.all([context.queryClient.ensureQueryData(v2PageQuery("lounge")), context.queryClient.ensureQueryData(serviceAvailabilityQuery())]); },
   head: () => ({
     meta: [
-      { title: "Havalimanı Lounge | travely" },
+      { title: "Havalimanı Lounge | pasaport.io" },
       { name: "description", content: "Havalimanını seç, yayınlanmış gerçek Lounge seçeneklerini ve fiyatlarını gör." },
-      { property: "og:title", content: "Havalimanı Lounge | travely" },
+      { property: "og:title", content: "Havalimanı Lounge | pasaport.io" },
       { property: "og:description", content: "Havalimanını seç, yayınlanmış gerçek Lounge seçeneklerini ve fiyatlarını gör." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },

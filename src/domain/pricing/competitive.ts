@@ -40,7 +40,7 @@ export type CompetitivePolicy = {
   targetFactor: number;
   /** Competitor prices older than this are stale. */
   staleDays: number;
-  /** Travely may be this % above market and still count as competitive. */
+  /** pasaport.io may be this % above market and still count as competitive. */
   tolerancePct: number;
   /** Supplier cost at/above this share of market → not suitable for sale. */
   unsuitableCostRatio: number;

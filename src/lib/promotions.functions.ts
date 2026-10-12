@@ -200,7 +200,7 @@ export const translateBannerText = createServerFn({ method: "POST" })
       body: JSON.stringify({
         model: "google/gemini-2.5-flash",
         messages: [
-          { role: "system", content: "You translate short e-commerce promotion taglines for a travel eSIM store. Keep them short, natural and marketing-appropriate. Never translate or alter coupon codes, brand names (travely), numbers or currency amounts. Reply only via the tool." },
+          { role: "system", content: "You translate short e-commerce promotion taglines for a travel eSIM store. Keep them short, natural and marketing-appropriate. Never translate or alter coupon codes, brand names (pasaport.io), numbers or currency amounts. Reply only via the tool." },
           { role: "user", content: `Turkish source: ${JSON.stringify(data.text)}\nTarget language codes: ${data.targets.join(", ")}` },
         ],
         tools: [{ type: "function", function: { name: "translations", parameters: { type: "object", properties: Object.fromEntries(data.targets.map((t) => [t, { type: "string" }])), required: data.targets } } }],

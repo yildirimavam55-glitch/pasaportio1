@@ -26,7 +26,7 @@ export function LegalDocumentView({ doc, locale, lastUpdatedLabel }: { doc: Lega
   return (
     <article className="mx-auto min-h-[55vh] w-full max-w-4xl px-4 py-12 sm:px-6 sm:py-16" lang={text.body.locale} dir={dir}>
       <header className="border-b border-border pb-7">
-        <p className="text-xs font-bold uppercase text-primary">Travely · Legal</p>
+        <p className="text-xs font-bold uppercase text-primary">pasaport.io · Legal</p>
         <h1 className="mt-2 font-display text-3xl font-bold [overflow-wrap:anywhere] sm:text-4xl">{text.title.value}</h1>
         {doc.lastUpdated && <p className="mt-3 flex items-center gap-2 text-xs text-muted-foreground"><CalendarDays className="size-4" />{lastUpdatedLabel}: {doc.lastUpdated}</p>}
       </header>
@@ -44,7 +44,7 @@ export function LegalPage({ documentId }: { documentId: LegalDocumentId }) {
     <PublicShell hideStickySearch>
       {doc ? <LegalDocumentView doc={doc} locale={uiLocale} lastUpdatedLabel={copy.updated} /> : (
         <article className="mx-auto min-h-[55vh] max-w-4xl px-4 py-12 sm:px-6 sm:py-16" lang={uiLocale} dir={LOCALE_REGISTRY[uiLocale].dir}>
-          <p className="text-xs font-bold uppercase text-primary">Travely · Legal</p>
+          <p className="text-xs font-bold uppercase text-primary">pasaport.io · Legal</p>
           {!query.isPending && (
             <div className="mt-6 rounded-md border border-warning/40 bg-warning/10 p-5">
               <AlertTriangle className="size-6 text-warning" />

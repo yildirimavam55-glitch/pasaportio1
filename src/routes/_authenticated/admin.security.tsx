@@ -5,7 +5,7 @@ import { AdminError, AdminLoading, AdminPanel } from "@/components/admin/AdminUi
 import { getSecurityStatus, type ControlState } from "@/lib/security-status.functions";
 
 export const Route = createFileRoute("/_authenticated/admin/security")({
-  head: () => ({ meta: [{ title: "Güvenlik durumu · Travely Admin" }, { name: "robots", content: "noindex" }] }),
+  head: () => ({ meta: [{ title: "Güvenlik durumu · pasaport.io Admin" }, { name: "robots", content: "noindex" }] }),
   component: SecurityPage,
 });
 

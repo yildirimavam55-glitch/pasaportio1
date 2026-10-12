@@ -1062,7 +1062,7 @@ export function defaultStorefront(service: StorefrontService): StorefrontConfig 
       "Der passende Reiseservice an einem Ort.",
       "The right travel service, all in one place.",
     ),
-    copyright: text("© 2026 Travely. Tüm hakları saklıdır.", "© 2026 Travely. Alle Rechte vorbehalten.", "© 2026 Travely. All rights reserved."),
+    copyright: text("© 2026 pasaport.io. Tüm hakları saklıdır.", "© 2026 pasaport.io. Alle Rechte vorbehalten.", "© 2026 pasaport.io. All rights reserved."),
     footer: {
       socials: [], newsletterVisible: false,
       newsletterTitle: text("Yolculuk haberleri", "Reise-Updates", "Travel updates"),

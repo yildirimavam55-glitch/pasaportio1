@@ -2,10 +2,10 @@ import { createFileRoute } from "@tanstack/react-router";
 import { LegalPage } from "@/components/legal/LegalPage";
 export const Route = createFileRoute("/legal/terms")({
   head: () => ({ meta: [
-    { title: "Terms & Conditions — Travely" },
-    { name: "description", content: "Travely terms for eSIM, Lounge and Vignette services." },
-    { property: "og:title", content: "Terms & Conditions — Travely" },
-    { property: "og:description", content: "Travely terms for eSIM, Lounge and Vignette services." },
+    { title: "Terms & Conditions — pasaport.io" },
+    { name: "description", content: "pasaport.io terms for eSIM, Lounge and Vignette services." },
+    { property: "og:title", content: "Terms & Conditions — pasaport.io" },
+    { property: "og:description", content: "pasaport.io terms for eSIM, Lounge and Vignette services." },
     { property: "og:type", content: "website" },
     { name: "twitter:card", content: "summary" },
   ] }),

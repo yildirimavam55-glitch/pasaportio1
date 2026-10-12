@@ -12,7 +12,7 @@ export function ThemePreview({ theme, logoUrl, device }: { theme: ThemeConfig; l
       <div className="v2-theme theme-surface mx-auto overflow-hidden border border-border bg-background text-foreground" data-theme-button={theme.buttonStyle} data-theme-surface={theme.surface} style={{ ...variables, width, maxWidth: "100%" }}>
         <header className="flex min-h-14 items-center gap-3 border-b border-border/60 bg-background/95 px-4">
           <span className="flex min-w-0 flex-1 items-center gap-2 text-primary">
-            {logoUrl ? <img src={logoUrl} alt="Travely" className="h-9 w-auto max-w-36 shrink-0 object-contain" /> : <><span className="grid size-9 shrink-0 place-items-center rounded-xl bg-primary text-primary-foreground shadow-brand"><Signal className="size-5" /></span><span className="font-display text-xl font-bold">{BRAND.name}</span></>}
+            {logoUrl ? <img src={logoUrl} alt="pasaport.io" className="h-9 w-auto max-w-36 shrink-0 object-contain" /> : <><span className="grid size-9 shrink-0 place-items-center rounded-xl bg-primary text-primary-foreground shadow-brand"><Signal className="size-5" /></span><span className="font-display text-xl font-bold">{BRAND.name}</span></>}
           </span>
           {device === "desktop" ? <nav className="flex items-center gap-2 text-xs font-semibold text-muted-foreground"><span>eSIM</span><span>Lounge</span><span>Vignette</span></nav> : <Menu className="size-5" />}
           <UserRound className="size-5" />

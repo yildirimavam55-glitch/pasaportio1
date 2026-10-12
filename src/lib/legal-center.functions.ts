@@ -128,7 +128,7 @@ export const translateLegalDocument = createServerFn({ method: "POST" }).inputVa
       headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
       body: JSON.stringify({
         model: "openai/gpt-6-astra",
-        instructions: "You translate legal website documents from Turkish. Translate faithfully and formally; do not add, remove or invent facts, names, addresses, numbers or legal claims. Keep the exact lightweight markup: lines starting with '# ', '## ', '### ', '- ', '1. ', '---', **bold**, *italic*, [text](url). Never translate URLs, e-mail addresses or the brand name Travely. Translate the marker 'Eksik bilgi' as 'missing information' in the target language. Return JSON with keys title and body only.",
+        instructions: "You translate legal website documents from Turkish. Translate faithfully and formally; do not add, remove or invent facts, names, addresses, numbers or legal claims. Keep the exact lightweight markup: lines starting with '# ', '## ', '### ', '- ', '1. ', '---', **bold**, *italic*, [text](url). Never translate URLs, e-mail addresses or the brand name pasaport.io. Translate the marker 'Eksik bilgi' as 'missing information' in the target language. Return JSON with keys title and body only.",
         input: `Target language code: ${target}\nTitle: ${JSON.stringify(data.title)}\nBody:\n${data.body}`,
         text: { format: { type: "json_schema", name: "translation", strict: true, schema: { type: "object", additionalProperties: false, properties: { title: { type: "string" }, body: { type: "string" } }, required: ["title", "body"] } } },
       }),

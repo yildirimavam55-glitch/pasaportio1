@@ -5,10 +5,10 @@ import { PublicSupportPage } from "@/components/support/PublicSupportPage";
 export const Route = createFileRoute("/destek")({
   head: () => ({
     meta: [
-      { title: "Destek | travely" },
-      { name: "description", content: "WhatsApp ve e-posta ile travely destek ekibine ulaşın." },
-      { property: "og:title", content: "Destek | travely" },
-      { property: "og:description", content: "WhatsApp ve e-posta ile travely destek ekibine ulaşın." },
+      { title: "Destek | pasaport.io" },
+      { name: "description", content: "WhatsApp ve e-posta ile pasaport.io destek ekibine ulaşın." },
+      { property: "og:title", content: "Destek | pasaport.io" },
+      { property: "og:description", content: "WhatsApp ve e-posta ile pasaport.io destek ekibine ulaşın." },
     ],
     links: [{ rel: "canonical", href: "https://wanderpath-engine.lovable.app/destek" }],
   }),
