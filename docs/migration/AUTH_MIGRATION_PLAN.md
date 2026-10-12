@@ -25,3 +25,9 @@ Do not migrate. JWT signing keys differ on the new project → every session end
 6. Redirect allow-list: only new domain(s) + `/reset-password`.
 7. Configure SMTP/e-mail provider for auth mails; translate/brand templates (TR/DE/EN).
 8. Test: signup + verify, sign-in, wrong password, reset, Google, Apple, sign-out, admin-only pages refuse a customer account, RLS tests.
+
+## Preserving the admin identity (verified 12.10.2026: 1 user, Google-only, no password hash)
+Option 1 — keep the same user id (preferred): with platform export approval, restore the owner's `auth.users` + `auth.identities` row unchanged. All links keep working (`user_roles`, `admin_audit_log.admin_user_id`, `cms_versions.created_by`, `customer_esims.customer_id`). Google sign-in matches by the stored Google subject id, which is the same for any Google OAuth client.
+Option 2 — no auth export: on the new project enable Google with your own OAuth client, owner signs in once (creates a new user id), then in one SQL transaction: insert `user_roles(new_id,'admin')` and repoint `admin_audit_log`, `cms_versions`, `customer_esims` from old id to new id. Restore those 4 tables' FKs only after this step.
+Checks after either option: `select public.has_role('<id>','admin')` = true; Admin pages open; a fresh customer test account gets "Yönetici yetkisi gerekiyor"; security test suite green.
+Never grant admin through user metadata or the profiles table.

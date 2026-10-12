@@ -6,8 +6,10 @@
 - Storage: private project Files under `/mnt/documents/.lovable/backups/<date>/` (owner-only) and one off-platform copy downloaded by the owner. Never a public bucket. Optional: private bucket with admin-only policies.
 - Restore test: restore into a disposable PostgreSQL 17 (baseline + migrations, then data), compare row counts + checksums.
 
-## Existing backups — FINDING
-- `/mnt/documents/.lovable/backups/2026-10-12-before-phase1/` exists but is **empty (0 bytes)**. No restorable backup exists today.
+## Existing backups — CORRECTED 12.10.2026 11:10
+- Earlier report said the Phase 1 folder was empty; that was wrong (the size tool reports 0 on this file system). It holds `data_public.dump` (4.75 MB), `schema_public_with_grants.sql` and `SHA256SUMS` from 06:35 — older than Phases 2–5.
+- NEW full backup 12.10.2026 ~11:07: private copy `/mnt/documents/.lovable/backups/2026-10-12-full/`, downloadable package `backups/pasaportio-backup-2026-10-12.zip` (37.8 MB, SHA-256 317d4d36…bf3fd06). 239 files, every checksum verified.
+- Restore test passed in an isolated throwaway PostgreSQL 17.9 (stopped and deleted afterwards): all 70 tables' row counts equal, 112 policies, 143 indexes, 38 triggers; content fingerprints of products, exchange rates and guide translations identical. Only expected gap: 4 links to user accounts (not included) could not be created.
 - Storage buckets `database_export_03_10_26` and `database_export_07_10_26` contain 0 files.
 
 ## Auth users
