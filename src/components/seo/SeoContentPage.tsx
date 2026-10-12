@@ -1,3 +1,4 @@
+import { localize } from "@/i18n/overlay";
 import { SeoPathLink } from "@/components/seo/SeoPathLink";
 import { guideHubPath, localeHomePath } from "@/domain/seo/paths";
 import { Link, useNavigate } from "@tanstack/react-router";
@@ -20,13 +21,13 @@ function countryName(iso: string | null, locale: Locale) {
   return COUNTRIES.find((c) => c.iso === iso)?.name[locale] ?? iso;
 }
 
-const ESIM_CTA: Record<Locale, string> = { tr: "eSIM paketlerini keşfet", de: "eSIM-Pakete entdecken", en: "Explore eSIM packages" };
+const ESIM_CTA: Record<Locale, string> = localize({ tr: "eSIM paketlerini keşfet", de: "eSIM-Pakete entdecken", en: "Explore eSIM packages" });
 
-const FINDER_COPY: Record<Locale, { title: string; destination: string; choose: string; cta: string; region: string }> = {
+const FINDER_COPY: Record<Locale, { title: string; destination: string; choose: string; cta: string; region: string }> = localize({
   tr: { title: "Seyahatin için doğru eSIM'i bul", destination: "Destinasyon", choose: "Ülke seç", cta: "eSIM'imi bul", region: "Bölgesel eSIM paketlerini görüntüle" },
   de: { title: "Finde die passende eSIM für deine Reise", destination: "Reiseziel", choose: "Land wählen", cta: "Meine eSIM finden", region: "Regionale eSIM-Pakete ansehen" },
   en: { title: "Find the right eSIM for your trip", destination: "Destination", choose: "Choose country", cta: "Find my eSIM", region: "View regional eSIM plans" },
-};
+});
 
 /** Guide → commercial page CTA. Target always comes from the live relation resolver. */
 function CommercialCta({ target, locale }: { target: CommercialTarget; locale: Locale }) {

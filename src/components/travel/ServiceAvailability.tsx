@@ -55,12 +55,12 @@ export function isHiddenServiceHref(href: string | undefined, services: { lounge
   return false;
 }
 
-const UNAVAILABLE: Record<"tr" | "de" | "en" | "ar", { title: string; body: string; cta: string }> = {
+const UNAVAILABLE: Record<"tr" | "de" | "en" | "ar", { title: string; body: string; cta: string }> = localize({
   tr: { title: "Bu hizmet şu anda kullanılamıyor", body: "Daha önce satın aldığın hizmetler hesabında erişilebilir kalır.", cta: "eSIM ana sayfasına git" },
   de: { title: "Dieser Service ist derzeit nicht verfügbar", body: "Bereits gekaufte Leistungen bleiben in deinem Konto verfügbar.", cta: "Zur eSIM-Startseite" },
   en: { title: "This service is currently unavailable", body: "Services you already purchased stay available in your account.", cta: "Go to the eSIM homepage" },
   ar: { title: "هذه الخدمة غير متاحة حاليًا", body: "تبقى الخدمات التي اشتريتها متاحة في حسابك.", cta: "الانتقال إلى صفحة eSIM الرئيسية" },
-};
+});
 
 /** Localized unavailable state for a disabled optional service URL. */
 export function ServiceUnavailableState() {

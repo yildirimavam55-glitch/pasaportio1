@@ -1,13 +1,14 @@
+import { localize } from "@/i18n/overlay";
 import { Lock, ShieldCheck } from "lucide-react";
 import { siApplepay, siGooglepay, siPaypal, siVisa } from "simple-icons";
 import { useI18n } from "@/i18n";
 
-const COPY = {
+const COPY = localize({
   tr: { payment: "Güvenli ödeme", checkout: "Güvenli ödeme adımı", stripe: "Stripe altyapısıyla", note: "Örnek ödeme yöntemleri · Tasarım önizlemesi" },
   de: { payment: "Sichere Zahlung", checkout: "Sicherer Checkout", stripe: "Powered by Stripe", note: "Beispielhafte Zahlungsarten · Designvorschau" },
   en: { payment: "Secure payment", checkout: "Secure checkout", stripe: "Powered by Stripe", note: "Illustrative payment methods · Design preview" },
   ar: { payment: "دفع آمن", checkout: "إتمام شراء آمن", stripe: "مدعوم من Stripe", note: "طرق دفع توضيحية · معاينة التصميم" },
-} as const;
+}) as const;
 
 type Icon = { path: string; hex: string; title: string };
 const Svg = ({ icon, width, color }: { icon: Icon; width: number; color?: string }) => (

@@ -189,19 +189,19 @@ const COPY = localize({
 
 type Copy = (typeof COPY)["tr"];
 
-const HERO_DEVICE_COPY = {
+const HERO_DEVICE_COPY = localize({
   tr: { title: "Telefonun eSIM uyumlu mu?", brand: "Marka seç", model: "Model seç", search: "Model ara", unknown: "Doğrulanamadı", ok: "Uyumlu", no: "Uyumlu değil", missing: "Kesin model algılanamadı; modelini seç.", caution: "Operatör kilidi ve bölgesel model farklılıklarını kontrol et." },
   de: { title: "Ist dein Handy eSIM-fähig?", brand: "Marke wählen", model: "Modell wählen", search: "Modell suchen", unknown: "Nicht bestätigt", ok: "Kompatibel", no: "Nicht kompatibel", missing: "Genaues Modell nicht erkannt; wähle dein Modell.", caution: "Prüfe SIM-Lock und regionale Modellvarianten." },
   en: { title: "Is your phone eSIM compatible?", brand: "Choose brand", model: "Choose model", search: "Search model", unknown: "Not verified", ok: "Compatible", no: "Not compatible", missing: "Exact model not detected; choose your model.", caution: "Check carrier lock and regional model variants." },
   ar: { title: "هل هاتفك متوافق مع eSIM؟", brand: "اختر العلامة", model: "اختر الطراز", search: "ابحث عن الطراز", unknown: "لم يتم التحقق", ok: "متوافق", no: "غير متوافق", missing: "لم يُكتشف الطراز الدقيق؛ اختر طراز هاتفك.", caution: "تحقق من قفل شركة الاتصالات واختلافات الطراز الإقليمية." },
-};
+});
 
-const HERO_RESULT_COPY = {
+const HERO_RESULT_COPY = localize({
   tr: { ok: "Telefonun eSIM destekliyor.", no: "Telefonun eSIM desteklemiyor.", unknown: "Bu modelin eSIM desteğini doğrulayamadık.", change: "Cihazı değiştir" },
   de: { ok: "Dein Handy unterstützt eSIM.", no: "Dein Handy unterstützt keine eSIM.", unknown: "Wir konnten die eSIM-Unterstützung dieses Modells nicht bestätigen.", change: "Gerät ändern" },
   en: { ok: "Your phone supports eSIM.", no: "Your phone does not support eSIM.", unknown: "We could not verify this model’s eSIM support.", change: "Change device" },
   ar: { ok: "هاتفك يدعم eSIM.", no: "هاتفك لا يدعم eSIM.", unknown: "لم نتمكن من التحقق من دعم هذا الطراز لـ eSIM.", change: "تغيير الجهاز" },
-};
+});
 
 /** Same catalogue, strict detection and manually persisted check as the account/product checker. */
 export function HeroDeviceCompatibility({ compact = false }: { compact?: boolean }) {

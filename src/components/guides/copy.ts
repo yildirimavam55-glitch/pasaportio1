@@ -1,8 +1,9 @@
+import { localize } from "@/i18n/overlay";
 /** pasaport.io Guides — shared copy and country-slug helpers (TR/DE/EN). */
 import type { Locale } from "@/domain/enums";
 import { COUNTRIES } from "@/domain/geo/countries";
 
-export const GUIDES_COPY = {
+export const GUIDES_COPY = localize({
   tr: {
     hubName: "Rehberler",
     hubTitle: "Seyahatini kolaylaştıran rehberler",
@@ -96,7 +97,7 @@ export const GUIDES_COPY = {
     notFound: "This guide was not found.",
     backToGuides: "Back to guides",
   },
-} as const;
+}) as const;
 
 const CHAR_MAP: Record<string, string> = {
   ı: "i", İ: "i", ş: "s", Ş: "s", ğ: "g", Ğ: "g", ç: "c", Ç: "c",

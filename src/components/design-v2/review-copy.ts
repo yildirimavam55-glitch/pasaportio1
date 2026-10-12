@@ -1,6 +1,7 @@
-export const REVIEW_COPY = {
+import { localize } from "@/i18n/overlay";
+export const REVIEW_COPY = localize({
   tr: { sampleRatings: 'Örnek puanlar — tasarım önizlemesi', unavailable: 'Puanlar şu anda kullanılamıyor', translated: 'Çevrilmiş yorum', original: 'Orijinal metni göster', hideOriginal: 'Orijinal metni gizle', language: 'Yorum dili', less: 'Daha az göster' },
   de: { sampleRatings: 'Beispielbewertungen — Designvorschau', unavailable: 'Bewertungen derzeit nicht verfügbar', translated: 'Übersetzte Bewertung', original: 'Originaltext anzeigen', hideOriginal: 'Originaltext ausblenden', language: 'Originalsprache', less: 'Weniger anzeigen' },
   en: { sampleRatings: 'Sample ratings — design preview', unavailable: 'Ratings currently unavailable', translated: 'Translated review', original: 'Show original text', hideOriginal: 'Hide original text', language: 'Original language', less: 'Read less' },
   ar: { sampleRatings: 'تقييمات نموذجية — معاينة التصميم', unavailable: 'التقييمات غير متاحة حاليًا', translated: 'تقييم مترجم', original: 'عرض النص الأصلي', hideOriginal: 'إخفاء النص الأصلي', language: 'اللغة الأصلية', less: 'عرض أقل' },
-};
+});
