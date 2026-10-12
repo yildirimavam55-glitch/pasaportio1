@@ -212,7 +212,12 @@ function Products() {
   const bulk = useMutation({
     mutationFn: (action: Parameters<typeof bulkUpdateProducts>[0]["data"]["action"]) =>
       bulkUpdateProducts({ data: { ids: selectedIds, action, pricingRuleId: bulkRule || null } }),
-    onSuccess: async () => { setSelectedIds([]); await queryClient.invalidateQueries({ queryKey: ["admin-catalogue-v4"] }); },
+    onSuccess: async (result: { count: number; skipped?: number }) => {
+      if (result.skipped) window.alert(`${result.count} ürün güncellendi; ${result.skipped} ürün yayına uygun olmadığı için atlandı (satış fiyatı, fiyat onayı veya tedarikçi durumu eksik).`);
+      setSelectedIds([]);
+      await queryClient.invalidateQueries({ queryKey: ["admin-catalogue-v4"] });
+    },
+    onError: (error: Error) => window.alert(error.message),
   });
 
   const toggle = (id: string) => setSelectedIds((current) => (current.includes(id) ? current.filter((row) => row !== id) : [...current, id]));

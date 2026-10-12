@@ -1,4 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
+import { isPublishable } from "@/domain/catalogue/publish-gate";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { adminDb, audit, type AdminCtx } from "@/lib/admin-guard";
 import { itemMargin } from "@/domain/finance/formulas";
@@ -197,10 +198,23 @@ export const bulkUpdateProducts = createServerFn({ method: "POST" })
       : data.action === "ASSIGN_RULE" ? { pricing_rule_id: data.pricingRuleId || null }
       : { sort_order: Number(data.sortOrder) || 0 };
 
-    const { error } = await db.from("service_products").update(patch).in("id", ids);
+    let targetIds = ids;
+    let skipped = 0;
+    if (data.action === "PUBLISH") {
+      // Approval gate: only priced, reviewed, supplier-available products can go live.
+      const { data: rows, error: readError } = await db
+        .from("service_products")
+        .select("id, sale_price, pricing_review_required, provider_available")
+        .in("id", ids);
+      if (readError) throw new Error(readError.message);
+      targetIds = (rows ?? []).filter((row: any) => isPublishable(row)).map((row: any) => row.id);
+      skipped = ids.length - targetIds.length;
+      if (!targetIds.length) throw new Error("Seçilen ürünlerin hiçbiri yayına uygun değil (satış fiyatı, fiyat onayı veya tedarikçi durumu eksik).");
+    }
+    const { error } = await db.from("service_products").update(patch).in("id", targetIds);
     if (error) throw new Error(error.message);
-    await audit(db, "product.bulk_update", "service_product", null, { count: ids.length }, { action: data.action, ...patch });
-    return { ok: true, count: ids.length };
+    await audit(db, "product.bulk_update", "service_product", null, { count: targetIds.length }, { action: data.action, skipped, ...patch });
+    return { ok: true, count: targetIds.length, skipped };
   });
 
 /** Pricing rule manager. A manual product price override is never silently replaced. */
