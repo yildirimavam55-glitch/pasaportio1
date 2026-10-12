@@ -59,7 +59,7 @@ export function AuthPage({ redirect, initialMode = "signin", fallback = "/accoun
     try {
       if (mode === "reset") {
         const { error } = await supabase.auth.resetPasswordForEmail(email, {
-          redirectTo: `${window.location.origin}/account`,
+          redirectTo: `${window.location.origin}/reset-password?flow=recovery`,
         });
         if (error) throw error;
         setTone("info");
