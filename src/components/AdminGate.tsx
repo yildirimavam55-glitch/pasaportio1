@@ -60,6 +60,7 @@ const groups: AdminGroup[] = [
     { to: "/admin/storefront/navigation", label: "Menü & alt bilgi", icon: Menu },
     { to: "/admin/legal", label: "Yasal", icon: Scale },
     { to: "/admin/emails", label: "E-postalar", icon: Mail },
+    { to: "/admin/documents", label: "Belgeler (PDF)", icon: ClipboardList },
     { to: "/admin/cms", label: "Sayfalar / CMS", icon: MonitorCog },
     { to: "/admin/storefront/v2/esim", hash: "reviews", label: "İçerik → Yorumlar", icon: Users },
     { to: "/admin/guides", label: "Rehberler", icon: BookOpen },
