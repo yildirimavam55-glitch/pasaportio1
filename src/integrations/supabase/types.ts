@@ -2092,6 +2092,118 @@ export type Database = {
           },
         ]
       }
+      pdf_template_translations: {
+        Row: {
+          draft: boolean
+          id: string
+          labels: Json
+          locale: string
+          template_kind: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          draft?: boolean
+          id?: string
+          labels: Json
+          locale: string
+          template_kind: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          draft?: boolean
+          id?: string
+          labels?: Json
+          locale?: string
+          template_kind?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pdf_template_translations_template_kind_fkey"
+            columns: ["template_kind"]
+            isOneToOne: false
+            referencedRelation: "pdf_templates"
+            referencedColumns: ["kind"]
+          },
+        ]
+      }
+      pdf_template_versions: {
+        Row: {
+          change_note: string
+          created_at: string
+          created_by: string | null
+          id: string
+          restored_from: number | null
+          snapshot: Json
+          template_kind: string
+          version: number
+        }
+        Insert: {
+          change_note?: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          restored_from?: number | null
+          snapshot: Json
+          template_kind: string
+          version: number
+        }
+        Update: {
+          change_note?: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          restored_from?: number | null
+          snapshot?: Json
+          template_kind?: string
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pdf_template_versions_template_kind_fkey"
+            columns: ["template_kind"]
+            isOneToOne: false
+            referencedRelation: "pdf_templates"
+            referencedColumns: ["kind"]
+          },
+        ]
+      }
+      pdf_templates: {
+        Row: {
+          active: boolean
+          created_at: string
+          current_version: number
+          description: string
+          kind: string
+          name: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          current_version?: number
+          description?: string
+          kind: string
+          name: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          current_version?: number
+          description?: string
+          kind?: string
+          name?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
       platform_settings: {
         Row: {
           data: Json
