@@ -10,13 +10,15 @@ Related: `LOVABLE_DEPENDENCIES.md`, `PROVIDERS_AND_SYNC.md`, `BALANCE_MONITORING
 - [ ] Run full test suite (`bunx vitest run`) — must stay green; security baseline tests must never be weakened.
 
 ## 2. Database (PostgreSQL)
+- [ ] **MANDATORY:** take a NEW full backup (DB dump + schema/RLS + images, with SHA-256 checksums) immediately before cutover. The 2026-10-12 package and its checksum files must be kept, but it is NOT sufficient for cutover.
+- [ ] After a dump restore, re-apply the GRANT block of the e-mail template migration (the 2026-10-12 dump did not carry those table grants) and re-run the e-mail RLS test.
 - [ ] Create an empty database (PG 15+; tested on 17).
 - [ ] Apply `db/baseline/0000_baseline_schema.sql` FIRST (the drizzle `0000` migration cannot run on an empty database).
 - [ ] Apply `drizzle/migrations/*` in journal order (0000 → 0001 → 0002 → provider_balance_monitoring → later).
 - [ ] Compare schema with the live one (tables, column grants, RLS policies, SECURITY DEFINER functions, triggers).
 - [ ] Data dump/restore of `public` (products, prices, translations, guides, CMS, campaigns, theme, settings, audit logs, balance snapshots).
 - [ ] Re-check hidden commercial columns (`provider_cost`, `provider_metadata`) are not readable by anon/authenticated.
-- [ ] Verify the e-mail template tables (if approved and created) are exported via the Admin JSON export as well.
+- [ ] Export e-mail templates from Admin → E-postalar (JSON) and import them on the new server; the code seed in `src/domain/email/catalog.ts` is the fallback.
 
 ## 3. User accounts & authentication
 - [ ] Export `auth.users` (including password hashes) and `auth.identities`; import into the new auth system. Users must not need to reset passwords if hashes are compatible (bcrypt).
