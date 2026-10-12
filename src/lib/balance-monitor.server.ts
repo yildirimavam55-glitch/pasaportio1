@@ -137,7 +137,8 @@ export async function runDueBalanceChecks(now = new Date()) {
     if (!adapter.fetchBalance) continue;
     const { data: settingsRow } = await db.from("provider_balance_monitor_settings").select("*").eq("provider_id", provider.id).maybeSingle();
     const settings = settingsFromRow(settingsRow);
-    if (!settings.enabled) continue;
+    // Scheduled checks require an explicit, enabled monitor row (opt-in per provider).
+    if (!settingsRow || !settings.enabled) continue;
     await db.from("provider_balance_monitor_settings").upsert({ provider_id: provider.id, last_scheduled_run_at: now.toISOString() }, { onConflict: "provider_id" });
     const { data: last } = await db.from("provider_balance_snapshots").select("checked_at").eq("provider_id", provider.id).order("checked_at", { ascending: false }).limit(1).maybeSingle();
     if (!isCheckDue(last?.checked_at ?? null, settings.checkIntervalMinutes, now)) {
