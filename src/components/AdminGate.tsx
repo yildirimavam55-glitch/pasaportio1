@@ -2,7 +2,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import { toast } from "sonner";
 import {
-  Globe,
+  Globe, Mail,
   AlertTriangle, BarChart3, BookOpen, Boxes, BriefcaseBusiness, Building2, ChevronDown,
   CircleDollarSign, ClipboardList, CloudUpload, DatabaseZap, ExternalLink, Flag,
   Image, LayoutDashboard, LayoutTemplate, LoaderCircle, LogOut, MapPin, Megaphone, Menu, MonitorCog, PanelLeftClose, Plane, Scale,
@@ -59,6 +59,7 @@ const groups: AdminGroup[] = [
     { to: "/legacy-v1", label: "Legacy V1 (geri dönüş)", icon: LayoutTemplate },
     { to: "/admin/storefront/navigation", label: "Menü & alt bilgi", icon: Menu },
     { to: "/admin/legal", label: "Yasal", icon: Scale },
+    { to: "/admin/emails", label: "E-postalar", icon: Mail },
     { to: "/admin/cms", label: "Sayfalar / CMS", icon: MonitorCog },
     { to: "/admin/storefront/v2/esim", hash: "reviews", label: "İçerik → Yorumlar", icon: Users },
     { to: "/admin/guides", label: "Rehberler", icon: BookOpen },
