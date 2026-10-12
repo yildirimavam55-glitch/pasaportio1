@@ -34,7 +34,7 @@ function runs(text: string, arabicChars: Set<number>): Run[] {
   for (const ch of text) {
     const ws = /\s/.test(ch);
     const code = ch.codePointAt(0)!;
-    const isAr = ARABIC.test(ch) || (!ws && !!last && last.arabic && !last.ws && /[.,:;()\-\/%\u060C\u061B\u061F]/.test(ch) && arabicChars.has(code));
+    const isAr: boolean = ARABIC.test(ch) || (!ws && !!last && last.arabic && !last.ws && /[.,:;()\-\/%\u060C\u061B\u061F]/.test(ch) && arabicChars.has(code));
     if (last && !ws && !last.ws && last.arabic === isAr) { last.text += ch; continue; }
     if (last && ws && last.ws) { last.text += ch; continue; }
     last = { text: ch, arabic: isAr, ws };
