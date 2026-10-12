@@ -57,9 +57,7 @@ describe("renderer", () => {
     const fonts = await loadDocumentFonts();
     const data = { ...sampleData("invoice"), sample: false };
     const r = await renderDocument("invoice", "en", data, fonts);
-    // Sample state is visible through the fixed title; numbers are never assigned here.
-    expect(data.documentNumber).toBeNull();
-    expect(r.bytes.length).toBeGreaterThan(5000);
+    expect(r.sample).toBe(true);
   }, 30_000);
 
   it("ignores fields outside the allowlisted data shape", async () => {

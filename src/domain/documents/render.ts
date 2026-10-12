@@ -140,7 +140,7 @@ class Writer {
   }
 }
 
-export type RenderResult = { bytes: Uint8Array; locale: DocumentLocale; fallback: boolean; pages: number };
+export type RenderResult = { bytes: Uint8Array; locale: DocumentLocale; fallback: boolean; pages: number; sample: boolean };
 
 export async function renderDocument(
   kind: DocumentKind,
@@ -278,5 +278,5 @@ export async function renderDocument(
 
   w.footer();
   const bytes = await doc.save();
-  return { bytes, locale, fallback: resolved.fallback, pages: w.pageNo };
+  return { bytes, locale, fallback: resolved.fallback, pages: w.pageNo, sample };
 }
