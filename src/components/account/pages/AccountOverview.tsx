@@ -88,7 +88,12 @@ export function AccountOverview() {
           <Signal className="size-5 text-primary" />
           <h2 className="font-display text-xl font-bold">{copy.activeEsims}</h2>
         </div>
-        {active.length ? (
+        {account.isPending ? (
+          <div className="grid gap-3" aria-busy="true" aria-label={copy.activeEsims}>
+            <div className="h-40 animate-pulse rounded-2xl bg-secondary/60" />
+            <div className="h-4 w-1/2 animate-pulse rounded bg-secondary/60" />
+          </div>
+        ) : account.isError ? null : active.length ? (
           <EsimCarousel label={copy.activeEsims}>
             {active.map((esim) => (
               <CustomerEsimCard key={esim.id} esim={esim} locale={locale} />

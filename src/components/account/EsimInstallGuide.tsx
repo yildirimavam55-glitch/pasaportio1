@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
-import { Apple, Download, Info, Smartphone } from "lucide-react";
+import { Apple, Download, Info, PlayCircle, Smartphone } from "lucide-react";
 
+import { CLink as Link } from "@/components/design-v2/v2-context";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import type { Locale } from "@/domain/enums";
