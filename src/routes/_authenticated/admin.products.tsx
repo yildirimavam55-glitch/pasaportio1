@@ -313,11 +313,11 @@ function Products() {
               <input className="admin-field mb-2 w-full" value={countrySearch} onChange={(event) => setCountrySearch(event.target.value)} placeholder="Ülke ara (ad veya ISO)" aria-label="Ülke ara" />
               <p className="mb-2 text-[10px] text-muted-foreground">Sayı = o ülkeye özel ürünler (Standard + Unlimited). Ülkeyi de kapsayan bölgesel/global ürünler ayrıca gösterilir ve bu sayıya eklenmez.</p>
               {!countryRows.length ? <EmptyState title="Eşleşen ülke yok." /> : (
-                <div className="grid gap-1.5">
+                <div className="grid min-w-0 gap-1.5">
                   {countryRows.map((row) => {
                     const open = openCountries.includes(row.iso);
                     return (
-                      <div key={row.iso} className="rounded-md border border-border bg-background">
+                      <div key={row.iso} className="min-w-0 overflow-hidden rounded-md border border-border bg-background">
                         <button type="button" aria-expanded={open} onClick={() => setOpenCountries((current) => open ? current.filter((iso) => iso !== row.iso) : [...current, row.iso])} className="flex w-full items-center gap-3 p-2.5 text-left">
                           <CountryFlag iso={row.iso} className="text-base" />
                           <strong className="min-w-0 flex-1 truncate text-sm">{row.name}</strong>
