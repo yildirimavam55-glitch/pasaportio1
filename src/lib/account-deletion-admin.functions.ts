@@ -22,7 +22,8 @@ export const listDeletionRequests = createServerFn({ method: "GET" })
     const { data: profiles } = ids.length
       ? await db.from("profiles").select("id, email, full_name").in("id", ids)
       : { data: [] };
-    const byId = new Map<string, any>((profiles ?? []).map((p: any) => [p.id, p]));
+    const byId = new Map<string, { email: string | null; full_name: string | null }>();
+    for (const p of (profiles ?? []) as Array<{ id: string; email: string | null; full_name: string | null }>) byId.set(p.id, p);
     return (data ?? []).map((row: any) => ({ ...row, email: byId.get(row.user_id)?.email ?? null, full_name: byId.get(row.user_id)?.full_name ?? null }));
   });
 
@@ -47,8 +48,8 @@ export const processDeletionRequest = createServerFn({ method: "POST" })
     if (!deletionTransitionAllowed(request.status, data.status)) throw new Error("Bu durum geçişine izin verilmiyor.");
     if (data.status === "COMPLETED") {
       if (data.confirm !== DELETION_CONFIRM_TEXT) throw new Error(`Onay için "${DELETION_CONFIRM_TEXT}" yazın.`);
-      const { data: isAdmin } = await db.rpc("has_role", { _user_id: request.user_id, _role: "admin" });
-      if (isAdmin === true) throw new Error("Yönetici hesapları bu akışla anonimleştirilemez.");
+      const { data: targetRoles } = await db.from("user_roles").select("role").eq("user_id", request.user_id).eq("role", "admin");
+      if ((targetRoles ?? []).length > 0) throw new Error("Yönetici hesapları bu akışla anonimleştirilemez.");
       const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
       const anonEmail = `deleted+${request.user_id}@deleted.invalid`;
       await db.from("profiles").update({ full_name: null, country_iso: null, email: null }).eq("id", request.user_id);
