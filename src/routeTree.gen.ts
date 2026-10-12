@@ -84,6 +84,7 @@ import { Route as AccountEsimsIndexRouteImport } from './routes/account.esims.in
 import { Route as AccountEsimsIdRouteImport } from './routes/account.esims.$id'
 import { Route as AccountOrdersIndexRouteImport } from './routes/account.orders.index'
 import { Route as AccountOrdersIdRouteImport } from './routes/account.orders.$id'
+import { Route as ApiPublicBalanceMonitorRouteImport } from './routes/api/public/balance-monitor'
 import { Route as ApiPublicProviderSyncRouteImport } from './routes/api/public/provider-sync'
 import { Route as DeEsimSlugRouteImport } from './routes/de.esim.$slug'
 import { Route as DeRatgeberIndexRouteImport } from './routes/de.ratgeber.index'
@@ -530,6 +531,11 @@ const AccountOrdersIdRoute = AccountOrdersIdRouteImport.update({
   path: '/orders/$id',
   getParentRoute: () => AccountRoute,
 } as any)
+const ApiPublicBalanceMonitorRoute = ApiPublicBalanceMonitorRouteImport.update({
+  id: '/api/public/balance-monitor',
+  path: '/api/public/balance-monitor',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicProviderSyncRoute = ApiPublicProviderSyncRouteImport.update({
   id: '/api/public/provider-sync',
   path: '/api/public/provider-sync',
@@ -866,6 +872,7 @@ export interface FileRoutesByFullPath {
   '/legacy-v1/sepet': typeof AuthenticatedLegacyV1SepetRoute
   '/account/esims/$id': typeof AccountEsimsIdRoute
   '/account/orders/$id': typeof AccountOrdersIdRoute
+  '/api/public/balance-monitor': typeof ApiPublicBalanceMonitorRoute
   '/api/public/provider-sync': typeof ApiPublicProviderSyncRoute
   '/de/esim/$slug': typeof DeEsimSlugRoute
   '/de/ratgeber/$slug': typeof DeRatgeberSlugRoute
@@ -986,6 +993,7 @@ export interface FileRoutesByTo {
   '/legacy-v1/sepet': typeof AuthenticatedLegacyV1SepetRoute
   '/account/esims/$id': typeof AccountEsimsIdRoute
   '/account/orders/$id': typeof AccountOrdersIdRoute
+  '/api/public/balance-monitor': typeof ApiPublicBalanceMonitorRoute
   '/api/public/provider-sync': typeof ApiPublicProviderSyncRoute
   '/de/esim/$slug': typeof DeEsimSlugRoute
   '/de/ratgeber/$slug': typeof DeRatgeberSlugRoute
@@ -1111,6 +1119,7 @@ export interface FileRoutesById {
   '/_authenticated/legacy-v1/sepet': typeof AuthenticatedLegacyV1SepetRoute
   '/account/esims/$id': typeof AccountEsimsIdRoute
   '/account/orders/$id': typeof AccountOrdersIdRoute
+  '/api/public/balance-monitor': typeof ApiPublicBalanceMonitorRoute
   '/api/public/provider-sync': typeof ApiPublicProviderSyncRoute
   '/de/esim/$slug': typeof DeEsimSlugRoute
   '/de/ratgeber/$slug': typeof DeRatgeberSlugRoute
@@ -1235,6 +1244,7 @@ export interface FileRouteTypes {
     | '/legacy-v1/sepet'
     | '/account/esims/$id'
     | '/account/orders/$id'
+    | '/api/public/balance-monitor'
     | '/api/public/provider-sync'
     | '/de/esim/$slug'
     | '/de/ratgeber/$slug'
@@ -1355,6 +1365,7 @@ export interface FileRouteTypes {
     | '/legacy-v1/sepet'
     | '/account/esims/$id'
     | '/account/orders/$id'
+    | '/api/public/balance-monitor'
     | '/api/public/provider-sync'
     | '/de/esim/$slug'
     | '/de/ratgeber/$slug'
@@ -1479,6 +1490,7 @@ export interface FileRouteTypes {
     | '/_authenticated/legacy-v1/sepet'
     | '/account/esims/$id'
     | '/account/orders/$id'
+    | '/api/public/balance-monitor'
     | '/api/public/provider-sync'
     | '/de/esim/$slug'
     | '/de/ratgeber/$slug'
@@ -1566,6 +1578,7 @@ export interface RootRouteChildren {
   GuidesIndexRoute: typeof GuidesIndexRoute
   LoungeIndexRoute: typeof LoungeIndexRoute
   RehberlerIndexRoute: typeof RehberlerIndexRoute
+  ApiPublicBalanceMonitorRoute: typeof ApiPublicBalanceMonitorRoute
   ApiPublicProviderSyncRoute: typeof ApiPublicProviderSyncRoute
   DeEsimSlugRoute: typeof DeEsimSlugRoute
   DeRatgeberSlugRoute: typeof DeRatgeberSlugRoute
@@ -2106,6 +2119,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/account/orders/$id'
       preLoaderRoute: typeof AccountOrdersIdRouteImport
       parentRoute: typeof AccountRoute
+    }
+    '/api/public/balance-monitor': {
+      id: '/api/public/balance-monitor'
+      path: '/api/public/balance-monitor'
+      fullPath: '/api/public/balance-monitor'
+      preLoaderRoute: typeof ApiPublicBalanceMonitorRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/api/public/provider-sync': {
       id: '/api/public/provider-sync'
@@ -2692,6 +2712,7 @@ const rootRouteChildren: RootRouteChildren = {
   GuidesIndexRoute: GuidesIndexRoute,
   LoungeIndexRoute: LoungeIndexRoute,
   RehberlerIndexRoute: RehberlerIndexRoute,
+  ApiPublicBalanceMonitorRoute: ApiPublicBalanceMonitorRoute,
   ApiPublicProviderSyncRoute: ApiPublicProviderSyncRoute,
   DeEsimSlugRoute: DeEsimSlugRoute,
   DeRatgeberSlugRoute: DeRatgeberSlugRoute,
