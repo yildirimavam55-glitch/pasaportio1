@@ -7,6 +7,7 @@ import { AdminGate } from "@/components/AdminGate";
 import { AdminDrawer, AdminError, AdminLoading, AdminPanel, DataRow, EmptyState, Field, StatusBadge, money } from "@/components/admin/AdminUi";
 import { adminHead } from "@/components/admin/AdminSectionPage";
 import { EsimAccessCleanupPanel } from "@/components/admin/EsimAccessCleanupPanel";
+import { BalanceMonitorPanel } from "@/components/admin/BalanceMonitorPanel";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -91,7 +92,11 @@ function Providers() {
     enabled: Boolean(detailId) && detailTab === "prices",
   });
 
-  const invalidate = () => queryClient.invalidateQueries({ queryKey: ["provider-hub"] });
+  const invalidate = () => {
+    queryClient.invalidateQueries({ queryKey: ["provider-hub"] });
+    queryClient.invalidateQueries({ queryKey: ["balance-monitor"] });
+    queryClient.invalidateQueries({ queryKey: ["admin-alerts"] });
+  };
 
   const save = useMutation({
     mutationFn: (input: any) => saveProvider({ data: input }),
@@ -187,6 +192,7 @@ function Providers() {
           <Button size="sm" className="ml-auto" onClick={openNew}><Plus />Provider ekle</Button>
         </div>
         {tab === "ESIM" && <EsimAccessCleanupPanel />}
+        {tab === "ESIM" && <BalanceMonitorPanel />}
 
         {hub.isPending ? <AdminLoading /> : hub.error ? <AdminError error={hub.error} /> : (
           <AdminPanel title={tab === "ESIM" ? "eSIM provider’ları" : "Lounge provider’ları"}>

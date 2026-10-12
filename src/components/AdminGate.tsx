@@ -74,7 +74,7 @@ const groups: AdminGroup[] = [
     { to: "/admin/finance", label: "Finans", icon: CircleDollarSign },
     { to: "/admin/currencies", label: "Para birimleri", icon: CircleDollarSign },
     { to: "/admin/refunds", label: "İade Talepleri", icon: RotateCw },
-    { to: "/admin/alerts", label: "Operasyon uyarıları", icon: AlertTriangle },
+    { to: "/admin/alerts", label: "Bildirim merkezi", icon: AlertTriangle },
   ]},
   { label: "Sistem", links: [
     { to: "/admin/service-controls", label: "Servis kontrolleri", icon: ToggleLeft },
@@ -121,7 +121,7 @@ export function AdminGate({ title, children }: { title: string; children: ReactN
         <Button variant="ghost" size="icon" className="lg:hidden" onClick={() => setMobileOpen(true)} aria-label="Yönetim menüsünü aç"><Menu /></Button>
         <div className="min-w-0 flex-1"><span className="block text-[10px] font-bold uppercase text-muted-foreground">İş kontrol merkezi</span><h1 className="truncate font-display text-lg font-bold">{title}</h1></div>
         <Button variant="ghost" size="icon" aria-label="Yönetimde ara" onClick={() => setSearchOpen(true)}><Search /></Button>
-        <Link to="/admin/alerts" className="relative grid size-9 place-items-center rounded-md border border-border" aria-label="Operasyon uyarıları"><AlertTriangle className="size-4" /><UnreadBadge /></Link>
+        <Link to="/admin/alerts" className="relative grid size-9 place-items-center rounded-md border border-border" aria-label="Bildirim merkezi"><AlertTriangle className="size-4" /><UnreadBadge /></Link>
         <AdminAccount />
       </header>
       <AdminSearch open={searchOpen} onClose={() => setSearchOpen(false)} />

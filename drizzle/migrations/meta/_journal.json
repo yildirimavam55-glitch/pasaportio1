@@ -29,6 +29,13 @@
       "when": 1791787487966,
       "tag": "0003_harden_account_deletion_requests",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1791796732870,
+      "tag": "0004_provider_balance_monitoring",
+      "breakpoints": true
     }
   ]
 }
