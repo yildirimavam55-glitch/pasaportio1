@@ -1160,5 +1160,17 @@
   "vs. roaming*": "par rapport au roaming*",
   "you are not alone.": "vous n'êtes pas seul.",
   "© 2026 pasaport.io. All rights reserved.": "© 2026 pasaport.io. Tous droits réservés.",
-  "© Travel Platform": "© Travel Platform"
+  "© Travel Platform": "© Travel Platform",
+  "Your eSIM delivery": "Livraison de votre eSIM",
+  "Loading…": "Chargement…",
+  "Valid until": "Valable jusqu’au",
+  "No eSIM is ready for this order yet. It will appear here once ready.": "Aucune eSIM n’est encore prête pour cette commande. Elle apparaîtra ici dès qu’elle sera prête.",
+  "This link is invalid or has expired": "Ce lien n’est pas valide ou a expiré",
+  "For your security, delivery links are short-lived. Request a new one with your order number and the email used for the order.": "Pour votre sécurité, les liens de livraison ont une durée limitée. Demandez-en un nouveau avec votre numéro de commande et l’e-mail utilisé pour la commande.",
+  "Send verification code": "Envoyer le code de vérification",
+  "If the details match, a 6-digit code will be sent to your email.": "Si les informations correspondent, un code à 6 chiffres sera envoyé à votre e-mail.",
+  "6-digit code": "Code à 6 chiffres",
+  "Open new link": "Ouvrir le nouveau lien",
+  "The code could not be verified. Check the details and try again.": "Le code n’a pas pu être vérifié. Vérifiez les informations et réessayez.",
+  "This page is personal to you — do not share the link.": "Cette page vous est personnelle — ne partagez pas le lien."
 }

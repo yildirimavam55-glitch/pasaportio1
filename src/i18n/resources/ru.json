@@ -1160,5 +1160,17 @@
   "vs. roaming*": "по сравнению с роумингом*",
   "you are not alone.": "you are not alone.",
   "© 2026 pasaport.io. All rights reserved.": "© 2026 pasaport.io. Все права защищены.",
-  "© Travel Platform": "© Travel Platform"
+  "© Travel Platform": "© Travel Platform",
+  "Your eSIM delivery": "Доставка вашей eSIM",
+  "Loading…": "Загрузка…",
+  "Valid until": "Действует до",
+  "No eSIM is ready for this order yet. It will appear here once ready.": "Для этого заказа eSIM ещё не готова. Она появится здесь, когда будет готова.",
+  "This link is invalid or has expired": "Эта ссылка недействительна или устарела",
+  "For your security, delivery links are short-lived. Request a new one with your order number and the email used for the order.": "В целях безопасности ссылки доставки действуют недолго. Запросите новую, указав номер заказа и e-mail из заказа.",
+  "Send verification code": "Отправить код подтверждения",
+  "If the details match, a 6-digit code will be sent to your email.": "Если данные совпадут, мы отправим 6-значный код на ваш e-mail.",
+  "6-digit code": "6-значный код",
+  "Open new link": "Открыть новую ссылку",
+  "The code could not be verified. Check the details and try again.": "Не удалось подтвердить код. Проверьте данные и попробуйте снова.",
+  "This page is personal to you — do not share the link.": "Эта страница только для вас — не делитесь ссылкой."
 }
