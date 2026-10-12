@@ -428,7 +428,7 @@ export const getAdminAlerts = createServerFn({ method: "GET" })
     const db = await adminDb(context as Ctx);
     const { data, error } = await db
       .from("ops_alerts")
-      .select("id, type, severity, status, entity_type, entity_id, message, created_at")
+      .select("id, type, severity, status, entity_type, entity_id, message, created_at, acknowledged_at")
       .neq("status", "RESOLVED")
       .order("created_at", { ascending: false })
       .limit(200);

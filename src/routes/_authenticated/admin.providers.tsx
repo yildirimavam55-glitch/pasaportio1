@@ -92,7 +92,11 @@ function Providers() {
     enabled: Boolean(detailId) && detailTab === "prices",
   });
 
-  const invalidate = () => queryClient.invalidateQueries({ queryKey: ["provider-hub"] });
+  const invalidate = () => {
+    queryClient.invalidateQueries({ queryKey: ["provider-hub"] });
+    queryClient.invalidateQueries({ queryKey: ["balance-monitor"] });
+    queryClient.invalidateQueries({ queryKey: ["admin-alerts"] });
+  };
 
   const save = useMutation({
     mutationFn: (input: any) => saveProvider({ data: input }),
