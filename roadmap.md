@@ -11,7 +11,8 @@
 - [x] Full DB + image backup 12.10 (private copy + downloadable zip, restore test passed)
 - [ ] 4 missing media records — owner reviews later
 - [x] Phase 6 PDF: renderer (TR/DE/EN, AR draft RTL, other languages EN), Admin → Belgeler preview, numbering/tax rules (off)
-- [ ] Phase 6 PDF: template tables + versions/import, numbering tables, private storage — needs DB approval
-- [ ] E-mail table grant fix (migration 0006) — needs approval
+- [x] Phase 6 PDF: template tables (0007), editing, versions/restore, JSON import/export
+- [x] E-mail table grant fix (migration 0006)
+- [ ] Document issuance (numbering, issued docs, private storage) — SQL drafted, waits for issuer/tax data + payments approval
 - [ ] CJK fonts for PDFs (ja/ko/zh) — later
 - [ ] Real issuer/tax data for invoices — owner input
