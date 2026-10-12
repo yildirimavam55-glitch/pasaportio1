@@ -1,0 +1,1 @@
+- E-mail templates live in the database with the code seed in catalog.ts and render through provider-independent render.ts; versions are append-only and imports/restores create new versions — why: templates must move to any host and mail provider without loss.
