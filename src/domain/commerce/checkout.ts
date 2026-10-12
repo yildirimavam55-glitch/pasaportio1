@@ -174,6 +174,6 @@ export function revenueTotals(orders: Array<Pick<OrderRecord, "isTest" | "paymen
 }
 
 /** Customer ownership: a record is visible only to its owner (admins via separate tooling). */
-export function canCustomerView(record: { customerId: string }, userId: string | null | undefined): boolean {
+export function canCustomerView(record: { customerId: string | null }, userId: string | null | undefined): boolean {
   return Boolean(userId) && record.customerId === userId;
 }
