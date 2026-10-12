@@ -125,6 +125,30 @@ export type Database = {
         }
         Relationships: []
       }
+      admin_notification_channels: {
+        Row: {
+          channel: string
+          config: Json
+          enabled: boolean
+          min_severity: string
+          updated_at: string
+        }
+        Insert: {
+          channel: string
+          config?: Json
+          enabled?: boolean
+          min_severity?: string
+          updated_at?: string
+        }
+        Update: {
+          channel?: string
+          config?: Json
+          enabled?: boolean
+          min_severity?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       airport_content: {
         Row: {
           airport_id: string
@@ -1645,8 +1669,11 @@ export type Database = {
       }
       ops_alerts: {
         Row: {
+          acknowledged_at: string | null
+          acknowledged_by: string | null
           context: Json
           created_at: string
+          dedupe_key: string | null
           entity_id: string | null
           entity_type: string | null
           id: string
@@ -1656,10 +1683,14 @@ export type Database = {
           severity: string
           status: Database["public"]["Enums"]["alert_status"]
           type: Database["public"]["Enums"]["alert_type"]
+          updated_at: string
         }
         Insert: {
+          acknowledged_at?: string | null
+          acknowledged_by?: string | null
           context?: Json
           created_at?: string
+          dedupe_key?: string | null
           entity_id?: string | null
           entity_type?: string | null
           id?: string
@@ -1669,10 +1700,14 @@ export type Database = {
           severity?: string
           status?: Database["public"]["Enums"]["alert_status"]
           type: Database["public"]["Enums"]["alert_type"]
+          updated_at?: string
         }
         Update: {
+          acknowledged_at?: string | null
+          acknowledged_by?: string | null
           context?: Json
           created_at?: string
+          dedupe_key?: string | null
           entity_id?: string | null
           entity_type?: string | null
           id?: string
@@ -1682,6 +1717,7 @@ export type Database = {
           severity?: string
           status?: Database["public"]["Enums"]["alert_status"]
           type?: Database["public"]["Enums"]["alert_type"]
+          updated_at?: string
         }
         Relationships: []
       }
@@ -2226,6 +2262,103 @@ export type Database = {
           updated_by?: string | null
         }
         Relationships: []
+      }
+      provider_balance_monitor_settings: {
+        Row: {
+          check_interval_minutes: number
+          critical_threshold: number
+          drop_percent: number
+          drop_window_hours: number
+          enabled: boolean
+          last_scheduled_run_at: string | null
+          low_threshold: number
+          provider_id: string
+          threshold_currency: string | null
+          thresholds_confirmed: boolean
+          unavailable_after_minutes: number
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          check_interval_minutes?: number
+          critical_threshold?: number
+          drop_percent?: number
+          drop_window_hours?: number
+          enabled?: boolean
+          last_scheduled_run_at?: string | null
+          low_threshold?: number
+          provider_id: string
+          threshold_currency?: string | null
+          thresholds_confirmed?: boolean
+          unavailable_after_minutes?: number
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          check_interval_minutes?: number
+          critical_threshold?: number
+          drop_percent?: number
+          drop_window_hours?: number
+          enabled?: boolean
+          last_scheduled_run_at?: string | null
+          low_threshold?: number
+          provider_id?: string
+          threshold_currency?: string | null
+          thresholds_confirmed?: boolean
+          unavailable_after_minutes?: number
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "provider_balance_monitor_settings_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: true
+            referencedRelation: "providers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      provider_balance_snapshots: {
+        Row: {
+          amount: number | null
+          checked_at: string
+          currency: string | null
+          error_code: string | null
+          id: string
+          ok: boolean
+          provider_id: string
+          source: string
+        }
+        Insert: {
+          amount?: number | null
+          checked_at?: string
+          currency?: string | null
+          error_code?: string | null
+          id?: string
+          ok: boolean
+          provider_id: string
+          source?: string
+        }
+        Update: {
+          amount?: number | null
+          checked_at?: string
+          currency?: string | null
+          error_code?: string | null
+          id?: string
+          ok?: boolean
+          provider_id?: string
+          source?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "provider_balance_snapshots_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "providers"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       provider_catalogue_changes: {
         Row: {
@@ -3599,6 +3732,10 @@ export type Database = {
         | "REFUND_REQUEST"
         | "CATALOGUE_DROP_BLOCKED"
         | "SUPPLIER_RESULT_UNKNOWN"
+        | "CRITICAL_PROVIDER_BALANCE"
+        | "EMPTY_PROVIDER_BALANCE"
+        | "PROVIDER_BALANCE_DROP"
+        | "PROVIDER_BALANCE_UNAVAILABLE"
       app_role: "admin" | "customer"
       attribution_source:
         | "GOOGLE_ADS"
@@ -3827,6 +3964,10 @@ export const Constants = {
         "REFUND_REQUEST",
         "CATALOGUE_DROP_BLOCKED",
         "SUPPLIER_RESULT_UNKNOWN",
+        "CRITICAL_PROVIDER_BALANCE",
+        "EMPTY_PROVIDER_BALANCE",
+        "PROVIDER_BALANCE_DROP",
+        "PROVIDER_BALANCE_UNAVAILABLE",
       ],
       app_role: ["admin", "customer"],
       attribution_source: [
