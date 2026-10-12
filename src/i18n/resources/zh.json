@@ -1160,5 +1160,17 @@
   "vs. roaming*": "（相比漫游）*",
   "you are not alone.": "you are not alone.",
   "© 2026 pasaport.io. All rights reserved.": "© 2026 pasaport.io. 保留所有权利。",
-  "© Travel Platform": "© Travel Platform"
+  "© Travel Platform": "© Travel Platform",
+  "Your eSIM delivery": "您的 eSIM 交付",
+  "Loading…": "加载中…",
+  "Valid until": "有效期至",
+  "No eSIM is ready for this order yet. It will appear here once ready.": "此订单暂无可用的 eSIM。准备就绪后将显示在这里。",
+  "This link is invalid or has expired": "此链接无效或已过期",
+  "For your security, delivery links are short-lived. Request a new one with your order number and the email used for the order.": "为保障您的安全，交付链接有效期较短。请使用订单号和下单邮箱申请新链接。",
+  "Send verification code": "发送验证码",
+  "If the details match, a 6-digit code will be sent to your email.": "如果信息匹配，我们会向您的邮箱发送 6 位验证码。",
+  "6-digit code": "6 位验证码",
+  "Open new link": "打开新链接",
+  "The code could not be verified. Check the details and try again.": "无法验证该代码。请检查信息后重试。",
+  "This page is personal to you — do not share the link.": "此页面仅供您本人使用，请勿分享链接。"
 }

@@ -1160,5 +1160,17 @@
   "vs. roaming*": "t.o.v. roaming*",
   "you are not alone.": "you are not alone.",
   "© 2026 pasaport.io. All rights reserved.": "© 2026 pasaport.io. Alle rechten voorbehouden.",
-  "© Travel Platform": "© Travel Platform"
+  "© Travel Platform": "© Travel Platform",
+  "Your eSIM delivery": "Levering van je eSIM",
+  "Loading…": "Laden…",
+  "Valid until": "Geldig tot",
+  "No eSIM is ready for this order yet. It will appear here once ready.": "Er is nog geen eSIM klaar voor deze bestelling. Hij verschijnt hier zodra hij klaar is.",
+  "This link is invalid or has expired": "Deze link is ongeldig of verlopen",
+  "For your security, delivery links are short-lived. Request a new one with your order number and the email used for the order.": "Voor je veiligheid zijn leveringslinks kort geldig. Vraag een nieuwe aan met je bestelnummer en het e-mailadres van de bestelling.",
+  "Send verification code": "Verificatiecode sturen",
+  "If the details match, a 6-digit code will be sent to your email.": "Als de gegevens kloppen, sturen we een 6-cijferige code naar je e-mail.",
+  "6-digit code": "6-cijferige code",
+  "Open new link": "Nieuwe link openen",
+  "The code could not be verified. Check the details and try again.": "De code kon niet worden geverifieerd. Controleer de gegevens en probeer het opnieuw.",
+  "This page is personal to you — do not share the link.": "Deze pagina is persoonlijk — deel de link niet."
 }

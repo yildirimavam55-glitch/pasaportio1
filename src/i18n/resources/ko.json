@@ -1160,5 +1160,17 @@
   "vs. roaming*": "로밍 대비 절약*",
   "you are not alone.": "you are not alone.",
   "© 2026 pasaport.io. All rights reserved.": "© 2026 pasaport.io. All rights reserved.",
-  "© Travel Platform": "© Travel Platform"
+  "© Travel Platform": "© Travel Platform",
+  "Your eSIM delivery": "eSIM 전달",
+  "Loading…": "불러오는 중…",
+  "Valid until": "유효 기간",
+  "No eSIM is ready for this order yet. It will appear here once ready.": "이 주문에 준비된 eSIM이 아직 없습니다. 준비되면 여기에 표시됩니다.",
+  "This link is invalid or has expired": "이 링크는 유효하지 않거나 만료되었습니다",
+  "For your security, delivery links are short-lived. Request a new one with your order number and the email used for the order.": "보안을 위해 전달 링크는 짧은 기간만 유효합니다. 주문 번호와 주문 시 사용한 이메일로 새 링크를 요청하세요.",
+  "Send verification code": "인증 코드 보내기",
+  "If the details match, a 6-digit code will be sent to your email.": "정보가 일치하면 6자리 코드가 이메일로 전송됩니다.",
+  "6-digit code": "6자리 코드",
+  "Open new link": "새 링크 열기",
+  "The code could not be verified. Check the details and try again.": "코드를 확인할 수 없습니다. 정보를 확인한 후 다시 시도하세요.",
+  "This page is personal to you — do not share the link.": "이 페이지는 고객님 전용입니다. 링크를 공유하지 마세요."
 }
