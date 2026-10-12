@@ -1,8 +1,8 @@
 import { createFileRoute, redirect } from "@tanstack/react-router";
 
-/** Legacy hub → final localized hub (single permanent redirect). */
+/** Legacy English hub → English guide hub (overlay locales read English content) (single permanent redirect). */
 export const Route = createFileRoute("/guides/")({
   beforeLoad: () => {
-    throw redirect({ href: "/tr/rehber", statusCode: 301 });
+    throw redirect({ href: "/en/guides", statusCode: 301 });
   },
 });
