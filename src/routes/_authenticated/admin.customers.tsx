@@ -58,6 +58,10 @@ function Customers() {
             )}
           </AdminPanel>
         )}
+        <DeletionRequestsPanel />
+        {null && (
+          <span />
+        )}
       </div>
       <CustomerDetail id={openId} onClose={() => setOpenId(null)} />
     </AdminGate>
