@@ -22,7 +22,7 @@ export const listDeletionRequests = createServerFn({ method: "GET" })
     const { data: profiles } = ids.length
       ? await db.from("profiles").select("id, email, full_name").in("id", ids)
       : { data: [] };
-    const byId = new Map((profiles ?? []).map((p: any) => [p.id, p]));
+    const byId = new Map<string, any>((profiles ?? []).map((p: any) => [p.id, p]));
     return (data ?? []).map((row: any) => ({ ...row, email: byId.get(row.user_id)?.email ?? null, full_name: byId.get(row.user_id)?.full_name ?? null }));
   });
 
