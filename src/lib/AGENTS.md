@@ -1,0 +1,1 @@
+- Provider balance monitoring runs only through adapter.fetchBalance() in balance-monitor.server.ts (manual and scheduled share one runner); alerts dedupe on ops_alerts.dedupe_key — why: read-only supplier calls, no duplicate alerts.
