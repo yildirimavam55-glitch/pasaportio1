@@ -65,6 +65,6 @@ export const purgeEsimAccessData = createServerFn({ method: "POST" })
     // Provider row cascades raw items, price history, mappings, changes, sync runs/errors, connection, pricing rules.
     const del = await db.from("providers").delete().eq("id", s.id);
     if (del.error) throw new Error(del.error.message);
-    await audit(db, "ESIM_ACCESS_PURGED", "providers", s.id, s, null);
+    await audit((context as any).supabase, "ESIM_ACCESS_PURGED", "providers", s.id, s, null).catch(() => undefined);
     return { deleted: true, summary: s };
   });
