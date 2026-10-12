@@ -119,7 +119,7 @@ export async function runBalanceCheck(
     }).eq("id", id);
   }
   if (actions.resolve.length) {
-    await db.from("ops_alerts").update({ status: "RESOLVED", resolved_at: checkedAt, updated_at: checkedAt, context: undefined }).in("id", actions.resolve);
+    await db.from("ops_alerts").update({ status: "RESOLVED", resolved_at: checkedAt, updated_at: checkedAt }).in("id", actions.resolve);
   }
   return { ok: result.ok, amount: result.ok ? result.amount : null, currency: result.ok ? result.currency : null, errorCode: result.ok ? null : result.errorCode, checkedAt, created: actions.create.length, updated: actions.update.length, resolved: actions.resolve.length };
 }
@@ -129,7 +129,7 @@ export async function runDueBalanceChecks(now = new Date()) {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   const db: any = supabaseAdmin;
   const { buildAdapter } = await import("@/providers/adapters/factory.server");
-  const { data: providers } = await db.from("providers").select("*").eq("status", "ACTIVE");
+  const { data: providers } = await db.from("providers").select("*").eq("active", true);
   const results: Array<Record<string, unknown>> = [];
   for (const provider of providers ?? []) {
     const { data: connection } = await db.from("provider_connections").select("*").eq("provider_id", provider.id).order("created_at").limit(1).maybeSingle();
