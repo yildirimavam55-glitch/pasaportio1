@@ -899,6 +899,121 @@ export type Database = {
           },
         ]
       }
+      email_template_translations: {
+        Row: {
+          body: string
+          id: string
+          locale: string
+          preheader: string
+          subject: string
+          template_key: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          body: string
+          id?: string
+          locale: string
+          preheader?: string
+          subject: string
+          template_key: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          body?: string
+          id?: string
+          locale?: string
+          preheader?: string
+          subject?: string
+          template_key?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "email_template_translations_template_key_fkey"
+            columns: ["template_key"]
+            isOneToOne: false
+            referencedRelation: "email_templates"
+            referencedColumns: ["key"]
+          },
+        ]
+      }
+      email_template_versions: {
+        Row: {
+          change_note: string
+          created_at: string
+          created_by: string | null
+          id: string
+          restored_from: number | null
+          snapshot: Json
+          template_key: string
+          version: number
+        }
+        Insert: {
+          change_note?: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          restored_from?: number | null
+          snapshot: Json
+          template_key: string
+          version: number
+        }
+        Update: {
+          change_note?: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          restored_from?: number | null
+          snapshot?: Json
+          template_key?: string
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "email_template_versions_template_key_fkey"
+            columns: ["template_key"]
+            isOneToOne: false
+            referencedRelation: "email_templates"
+            referencedColumns: ["key"]
+          },
+        ]
+      }
+      email_templates: {
+        Row: {
+          active: boolean
+          created_at: string
+          current_version: number
+          description: string
+          key: string
+          name: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          current_version?: number
+          description?: string
+          key: string
+          name: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          current_version?: number
+          description?: string
+          key?: string
+          name?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
       esim_device_compatibility: {
         Row: {
           active: boolean
