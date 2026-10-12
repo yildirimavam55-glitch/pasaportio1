@@ -27,14 +27,18 @@ const ARABIC = /[\u0600-\u06FF\u0750-\u077F\uFB50-\uFDFF\uFE70-\uFEFF]/;
 type Fonts = { r: PDFFont; b: PDFFont; ar: PDFFont; arb: PDFFont };
 type Run = { text: string; arabic: boolean };
 
-function runs(text: string): Run[] {
+/** Splits text into script runs. Spaces are separate runs so RTL reordering keeps word gaps. */
+function runs(text: string, arabicChars: Set<number>): Run[] {
   const out: Run[] = [];
+  let last: (Run & { ws: boolean }) | null = null;
   for (const ch of text) {
-    const isAr = ARABIC.test(ch);
-    const neutral = /[\s.,:;()\-–—/%·]/.test(ch);
-    const last = out[out.length - 1];
-    if (last && (last.arabic === isAr || neutral)) last.text += ch;
-    else out.push({ text: ch, arabic: isAr });
+    const ws = /\s/.test(ch);
+    const code = ch.codePointAt(0)!;
+    const isAr = ARABIC.test(ch) || (!ws && !!last && last.arabic && !last.ws && /[.,:;()\-\/%\u060C\u061B\u061F]/.test(ch) && arabicChars.has(code));
+    if (last && !ws && !last.ws && last.arabic === isAr) { last.text += ch; continue; }
+    if (last && ws && last.ws) { last.text += ch; continue; }
+    last = { text: ch, arabic: isAr, ws };
+    out.push(last);
   }
   return out;
 }
@@ -43,18 +47,21 @@ class Writer {
   page!: PDFPage;
   y = 0;
   pageNo = 0;
-  constructor(private doc: PDFDocument, private f: Fonts, readonly rtl: boolean, private labels: DocumentLabels, private sample: boolean) {}
+  private arChars: Set<number>;
+  constructor(private doc: PDFDocument, private f: Fonts, readonly rtl: boolean, private labels: DocumentLabels, private sample: boolean) {
+    this.arChars = new Set(f.ar.getCharacterSet());
+  }
 
   font(arabic: boolean, bold: boolean) { return arabic ? (bold ? this.f.arb : this.f.ar) : bold ? this.f.b : this.f.r; }
 
   width(text: string, size: number, bold = false) {
-    return runs(text).reduce((s, r) => s + this.font(r.arabic, bold).widthOfTextAtSize(r.text, size), 0);
+    return runs(text, this.arChars).reduce((s, r) => s + this.font(r.arabic, bold).widthOfTextAtSize(r.text, size), 0);
   }
 
   /** Draws one line; `x` is the logical start edge (left in LTR, right in RTL). */
   text(text: string, x: number, y: number, size: number, opts: { bold?: boolean; color?: ReturnType<typeof rgb>; align?: "start" | "end"; boxWidth?: number } = {}) {
     if (!text) return;
-    const parts = runs(text);
+    const parts = runs(text, this.arChars);
     const total = this.width(text, size, opts.bold);
     const box = opts.boxWidth ?? 0;
     let left: number;
