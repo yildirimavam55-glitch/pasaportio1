@@ -3,7 +3,7 @@ import type { CheckoutStore, OrderRecord } from "../checkout";
 import type { UnitRow } from "../engine";
 import { CLAIMABLE_STATUSES, type NormalizedEsim, type ResolvedProduct } from "../provisioning";
 
-export type MemoryEsim = NormalizedEsim & { id: string; customerId: string; orderId: string; isTest: boolean; status: string; packageLabel: string | null; totalDataMb: number | null };
+export type MemoryEsim = NormalizedEsim & { id: string; customerId: string | null; orderId: string; isTest: boolean; status: string; packageLabel: string | null; totalDataMb: number | null };
 
 export function createMemoryStore(products: ResolvedProduct[]) {
   const productMap = new Map(products.map((p) => [p.id, p]));
@@ -18,7 +18,7 @@ export function createMemoryStore(products: ResolvedProduct[]) {
 
   const store: CheckoutStore = {
     async loadProducts(ids) { return new Map(ids.filter((i) => productMap.has(i)).map((i) => [i, productMap.get(i)!])); },
-    async findOrderByKey(customerId, key) { return [...orders.values()].find((o) => o.customerId === customerId && o.idempotencyKey === key) ?? null; },
+    async findOrderByKey(owner, key) { return [...orders.values()].find((o) => (owner.customerId ? o.customerId === owner.customerId : o.customerId === null && o.guestEmail === owner.guestEmail) && o.idempotencyKey === key) ?? null; },
     async insertOrder(input) {
       const order: OrderRecord = { ...input, id: id("order"), lines: input.lines.map((l) => ({ ...l, orderItemId: id("item") })) };
       orders.set(order.id, order);
