@@ -18,7 +18,7 @@ const C = localize({
 });
 
 export const Route = createFileRoute("/esim/bolge/")({
-  head: () => { const title = "Regional & Global eSIM Plans | travely"; const description = "Explore published regional eSIM plans with real multi-country coverage."; return { meta: [{ title }, { name: "description", content: description }, { property: "og:title", content: title }, { property: "og:description", content: description }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }, ...V2_NOINDEX] }; },
+  head: () => { const title = "Regional & Global eSIM Plans | pasaport.io"; const description = "Explore published regional eSIM plans with real multi-country coverage."; return { meta: [{ title }, { name: "description", content: description }, { property: "og:title", content: title }, { property: "og:description", content: description }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }, ...V2_NOINDEX] }; },
   component: RegionalDiscoveryPage,
 });
 

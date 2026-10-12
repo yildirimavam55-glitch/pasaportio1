@@ -1,3 +1,4 @@
+import { localize } from "@/i18n/overlay";
 // ============= Full file contents =============
 
 import type { CSSProperties, ReactNode } from "react";
@@ -11,12 +12,12 @@ import { useWhatsAppHref } from "@/components/travel/WhatsAppSupportWidget";
 import coast from "@/assets/pasaport-antenna-coast.png.asset.json";
 import { AntennaSignal } from "./AntennaSignal";
 
-const COPY = {
+const COPY = localize({
  tr: { title: "Seyahatte internetin hazır.", subtitle: "190+ ülkede eSIM ile bağlantıda kal.", delivery: "Hızlı teslimat", setup: "Kolay kurulum", payment: "Ödeme bilgileri", support: "WhatsApp destek", deliveryInfo: "eSIM teslim bilgileri", setupInfo: "Adım adım kurulum", paymentInfo: "Ödeme seçeneklerini incele", supportInfo: "Kurulum için yardım" },
   de: { title: "Dein Internet für unterwegs.", subtitle: "Mit eSIM in über 190 Ländern verbunden.", delivery: "Schnelle Lieferung", setup: "Einfach einrichten", payment: "Infos zur Zahlung", support: "WhatsApp Support", deliveryInfo: "Informationen zur eSIM-Lieferung", setupInfo: "Installation Schritt für Schritt", paymentInfo: "Zahlungsoptionen ansehen", supportInfo: "Hilfe bei der Einrichtung" },
  en: { title: "Your travel internet is ready.", subtitle: "Stay connected with eSIM in 190+ countries.", delivery: "Fast delivery", setup: "Easy installation", payment: "Payment information", support: "WhatsApp support", deliveryInfo: "eSIM delivery information", setupInfo: "Step-by-step installation", paymentInfo: "Review payment options", supportInfo: "Help with installation" },
  ar: { title: "إنترنت رحلتك جاهز.", subtitle: "ابقَ متصلاً عبر eSIM في أكثر من 190 دولة.", delivery: "تسليم سريع", setup: "إعداد سهل", payment: "معلومات الدفع", support: "دعم واتساب", deliveryInfo: "معلومات تسليم eSIM", setupInfo: "التثبيت خطوة بخطوة", paymentInfo: "اطّلع على خيارات الدفع", supportInfo: "المساعدة في التثبيت" },
-};
+});
 const oldTitles = ["Yurt dışında bağlantıda kal.", "Im Ausland verbunden bleiben.", "Stay connected abroad.", "Her yerde bağlantıda kal.", "Überall verbunden bleiben.", "Stay connected everywhere.", "ابقَ متصلاً أينما كنت.", "ابقَ على اتصال في الخارج."];
 export function PasaportEsimHero({ section, image, benefits, children }: { section: V2Section; image: string; mobileImage?: string | undefined; benefits?: V2Section | undefined; children: ReactNode }) {
  const { locale, uiLocale } = useI18n();

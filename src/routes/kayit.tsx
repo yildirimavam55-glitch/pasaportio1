@@ -6,7 +6,7 @@ export const Route = createFileRoute("/kayit")({
   validateSearch: (s: Record<string, unknown>): { redirect?: string | undefined } => ({
     redirect: typeof s["redirect"] === "string" ? s["redirect"] : undefined,
   }),
-  head: () => ({ meta: [{ title: "Kayıt | travely" }, ...V2_NOINDEX] }),
+  head: () => ({ meta: [{ title: "Kayıt | pasaport.io" }, ...V2_NOINDEX] }),
   component: V2Register,
 });
 

@@ -9,7 +9,7 @@ export type CompanyInformation = { legalName:string; brandName:string; legalForm
 
 export const localeMap = (tr:string,de:string,en:string):LocaleMap => Object.fromEntries(UI_LOCALES.map(l=>[l,l==="tr"?tr:l==="de"?de:en])) as LocaleMap;
 const s=(id:string,tr:string,de:string,en:string,btr:string,bde:string,ben:string,reviewRequired=true):LegalSection=>({id,heading:localeMap(tr,de,en),body:localeMap(btr,bde,ben),reviewRequired});
-const company:CompanyInformation={legalName:"",brandName:"Travely",legalForm:"",representative:"",street:"",houseNumber:"",postalCode:"",city:"",country:"",email:"",telephone:"",commercialRegister:"",registerCourt:"",registrationNumber:"",vatId:"",businessId:"",responsibleContact:"",disputeResolutionStatus:"",supervisoryAuthority:""};
+const company:CompanyInformation={legalName:"",brandName:"pasaport.io",legalForm:"",representative:"",street:"",houseNumber:"",postalCode:"",city:"",country:"",email:"",telephone:"",commercialRegister:"",registerCourt:"",registrationNumber:"",vatId:"",businessId:"",responsibleContact:"",disputeResolutionStatus:"",supervisoryAuthority:""};
 const missing=localeMap("EKSİK YASAL BİLGİ","FEHLENDE RECHTLICHE ANGABEN","MISSING LEGAL INFORMATION");
 
 const docs:Record<LegalDocumentId,LegalTemplate>={
@@ -42,7 +42,7 @@ const docs:Record<LegalDocumentId,LegalTemplate>={
  ]},
  refund:{id:"refund",status:"DRAFT",title:localeMap("İade Politikası","Erstattungsrichtlinie","Refund Policy"),lastUpdated:"",sections:[
   s("statutory","Yasal cayma hakları","Gesetzliche Widerrufsrechte","Statutory withdrawal rights","Yasal haklar gönüllü iade politikasından ayrıdır; nihai metin inceleme gerektirir.","Gesetzliche Rechte sind von der freiwilligen Erstattung getrennt.","Statutory rights are separate from the voluntary refund policy."),
-  s("voluntary","Travely gönüllü iade güvencesi","Freiwillige Travely-Erstattung","Travely voluntary refund promise","Mevcut ilke: uygun ve KULLANILMAMIŞ eSIM alımları için 14 günlük iade güvencesi. Bu koşulsuz iade değildir.","Aktuelles Prinzip: 14 Tage für berechtigte, UNGENUTZTE eSIM-Käufe. Keine bedingungslose Erstattung.","Current principle: 14 days for eligible UNUSED eSIM purchases. This is not an unconditional refund."),
+  s("voluntary","pasaport.io gönüllü iade güvencesi","Freiwillige pasaport.io-Erstattung","pasaport.io voluntary refund promise","Mevcut ilke: uygun ve KULLANILMAMIŞ eSIM alımları için 14 günlük iade güvencesi. Bu koşulsuz iade değildir.","Aktuelles Prinzip: 14 Tage für berechtigte, UNGENUTZTE eSIM-Käufe. Keine bedingungslose Erstattung.","Current principle: 14 days for eligible UNUSED eSIM purchases. This is not an unconditional refund."),
   s("process","Talep ve ödeme iadesi","Antrag und Zahlungsrückerstattung","Request and payment refund","İç iade talebi gerçek ödeme sağlayıcısı iadesi değildir. Gerçek iade ancak sağlayıcı onayıyla tamamlanır.","Ein interner Antrag ist keine tatsächliche Rückzahlung. Diese ist erst mit Anbieterbestätigung abgeschlossen.","An internal request is not a real payment-provider refund. A real refund completes only with provider confirmation."),
  ]},
  cookies:{id:"cookies",status:"DRAFT",title:localeMap("Çerezler ve Gizlilik Ayarları","Cookies & Datenschutzeinstellungen","Cookies & Privacy Settings"),lastUpdated:"",sections:[

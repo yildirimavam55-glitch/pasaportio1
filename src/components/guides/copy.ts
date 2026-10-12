@@ -1,8 +1,9 @@
-/** Travely Guides — shared copy and country-slug helpers (TR/DE/EN). */
+import { localize } from "@/i18n/overlay";
+/** pasaport.io Guides — shared copy and country-slug helpers (TR/DE/EN). */
 import type { Locale } from "@/domain/enums";
 import { COUNTRIES } from "@/domain/geo/countries";
 
-export const GUIDES_COPY = {
+export const GUIDES_COPY = localize({
   tr: {
     hubName: "Rehberler",
     hubTitle: "Seyahatini kolaylaştıran rehberler",
@@ -20,14 +21,14 @@ export const GUIDES_COPY = {
     related: "İlgili rehberler",
     destinations: "İlgili destinasyonlar",
     routeStops: "Rota ülkeleri",
-    servicesTitle: "Bu rehbere uygun Travely hizmetleri",
+    servicesTitle: "Bu rehbere uygun pasaport.io hizmetleri",
     servicesLead: "Yalnızca gerçekten satın alınabilir hizmetleri gösteriyoruz.",
     esimCta: "eSIM paketlerini gör",
     loungeCta: "Lounge seçeneklerini gör",
     from: "Başlangıç",
     countryHubTitle: (name: string) => `${name} rehberleri`,
     countryHubLead: (name: string) =>
-      `${name} için hazırladığımız rehberler ve şu anda satın alınabilir Travely hizmetleri.`,
+      `${name} için hazırladığımız rehberler ve şu anda satın alınabilir pasaport.io hizmetleri.`,
     countryHubEmpty: (name: string) => `${name} için henüz yayınlanmış rehber yok.`,
     allGuides: "Tüm rehberler",
     homeTitle: "Seyahatini kolaylaştıran rehberler",
@@ -51,14 +52,14 @@ export const GUIDES_COPY = {
     related: "Passende Ratgeber",
     destinations: "Passende Reiseziele",
     routeStops: "Länder der Route",
-    servicesTitle: "Passende Travely-Services",
+    servicesTitle: "Passende pasaport.io-Services",
     servicesLead: "Wir zeigen nur Services, die wirklich buchbar sind.",
     esimCta: "eSIM-Pakete ansehen",
     loungeCta: "Lounge-Optionen ansehen",
     from: "ab",
     countryHubTitle: (name: string) => `Ratgeber für ${name}`,
     countryHubLead: (name: string) =>
-      `Unsere Ratgeber für ${name} und die aktuell buchbaren Travely-Services.`,
+      `Unsere Ratgeber für ${name} und die aktuell buchbaren pasaport.io-Services.`,
     countryHubEmpty: (name: string) => `Für ${name} gibt es noch keine veröffentlichten Ratgeber.`,
     allGuides: "Alle Ratgeber",
     homeTitle: "Ratgeber für eine einfachere Reise",
@@ -82,21 +83,21 @@ export const GUIDES_COPY = {
     related: "Related guides",
     destinations: "Related destinations",
     routeStops: "Countries on this route",
-    servicesTitle: "Travely services for this guide",
+    servicesTitle: "pasaport.io services for this guide",
     servicesLead: "We only show services that are genuinely available.",
     esimCta: "See eSIM packages",
     loungeCta: "See lounge options",
     from: "from",
     countryHubTitle: (name: string) => `${name} travel guides`,
     countryHubLead: (name: string) =>
-      `Our guides for ${name} plus the Travely services available right now.`,
+      `Our guides for ${name} plus the pasaport.io services available right now.`,
     countryHubEmpty: (name: string) => `No published guides for ${name} yet.`,
     allGuides: "All guides",
     homeTitle: "Guides that make travel simpler",
     notFound: "This guide was not found.",
     backToGuides: "Back to guides",
   },
-} as const;
+} as const);
 
 const CHAR_MAP: Record<string, string> = {
   ı: "i", İ: "i", ş: "s", Ş: "s", ğ: "g", Ğ: "g", ç: "c", Ç: "c",

@@ -750,20 +750,20 @@
           "zh": "选择目的地"
         },
         "whyEyebrow": {
-          "tr": "Neden Travely?",
-          "en": "Why Travely?",
-          "de": "Warum Travely?",
-          "fr": "Pourquoi Travely ?",
-          "es": "¿Por qué Travely?",
-          "it": "Perché Travely?",
-          "pt": "Porquê Travely?",
-          "nl": "Waarom Travely?",
-          "pl": "Dlaczego Travely?",
-          "ar": "لماذا Travely؟",
-          "ru": "Почему Travely?",
-          "ja": "Travelyを選ぶ理由",
-          "ko": "왜 Travely인가요?",
-          "zh": "为什么选择 Travely？"
+          "tr": "Neden pasaport.io?",
+          "en": "Why pasaport.io?",
+          "de": "Warum pasaport.io?",
+          "fr": "Pourquoi pasaport.io ?",
+          "es": "¿Por qué pasaport.io?",
+          "it": "Perché pasaport.io?",
+          "pt": "Porquê pasaport.io?",
+          "nl": "Waarom pasaport.io?",
+          "pl": "Dlaczego pasaport.io?",
+          "ar": "لماذا pasaport.io؟",
+          "ru": "Почему pasaport.io?",
+          "ja": "pasaport.ioを選ぶ理由",
+          "ko": "왜 pasaport.io인가요?",
+          "zh": "为什么选择 pasaport.io？"
         },
         "whyTitle": {
           "tr": "Daha az risk. Daha uygun internet. Daha kolay seyahat.",
@@ -856,9 +856,9 @@
           "de": "Mobilfunk-Roaming"
         },
         "comparisonBLabel": {
-          "tr": "Travely eSIM",
-          "en": "Travely eSIM",
-          "de": "Travely eSIM"
+          "tr": "pasaport.io eSIM",
+          "en": "pasaport.io eSIM",
+          "de": "pasaport.io eSIM"
         },
         "comparisonFootnote": {
           "tr": "* Örnek karşılaştırma. Fiyatlar operatöre, ülkeye ve döneme göre değişebilir.",

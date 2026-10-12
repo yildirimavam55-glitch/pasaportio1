@@ -307,7 +307,7 @@ function AuthorsTab() {
 function SettingsTab() {
   const settings = useQuery({ queryKey: ["seo-settings"], queryFn: () => getSeoSettings() });
   const [form, setForm] = useState<SeoSettings>({
-    organizationName: "Travely",
+    organizationName: "pasaport.io",
     defaultOgImage: "",
     twitterHandle: "",
     hubs: DEFAULT_HUB_COPY,

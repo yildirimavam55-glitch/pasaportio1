@@ -663,7 +663,7 @@ function StepPhoneVisual({
         <span className="esim-step-speaker" />
         <div className="esim-phone-brand">
           <span className="esim-phone-mark">T</span>
-          <span>Travely</span>
+          <span>pasaport.io</span>
           <span className="esim-phone-badge">eSIM</span>
         </div>
         {step === 0 ? (
@@ -710,7 +710,7 @@ function StepPhoneVisual({
             <div className="esim-signal-stage">
               <SignalHigh className="esim-signal-pulse size-7 text-primary" />
               <strong className="font-display text-xl leading-none text-foreground">5G</strong>
-              <span className="text-[8px] font-bold text-muted-foreground">Travely eSIM</span>
+              <span className="text-[8px] font-bold text-muted-foreground">pasaport.io eSIM</span>
             </div>
             <div className="esim-connected-card">
               <span className="fi fi-tr shrink-0 rounded-sm" />

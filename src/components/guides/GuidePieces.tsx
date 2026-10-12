@@ -1,7 +1,7 @@
 import { SeoPathLink } from "@/components/seo/SeoPathLink";
 import { seoPath } from "@/domain/seo/paths";
 /**
- * Travely Guides presentation pieces.
+ * pasaport.io Guides presentation pieces.
  *
  * Contextual commerce rule: a service card only renders from a real
  * GuideServiceOffer that the catalogue produced. Nothing here invents a

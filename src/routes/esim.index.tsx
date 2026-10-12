@@ -8,9 +8,9 @@ export const Route = createFileRoute("/esim/")({
   loader: ({ context }) => context.queryClient.ensureQueryData(v2PageQuery("esim")),
   head: () => ({
     meta: [
-      { title: "Seyahat eSIM’i | travely" },
+      { title: "Seyahat eSIM’i | pasaport.io" },
       { name: "description", content: "Ülkene veya bölgene uygun gerçek eSIM paketlerini seç ve hemen sepete ekle." },
-      { property: "og:title", content: "Seyahat eSIM’i | travely" },
+      { property: "og:title", content: "Seyahat eSIM’i | pasaport.io" },
       { property: "og:description", content: "Ülkene veya bölgene uygun gerçek eSIM paketlerini seç ve hemen sepete ekle." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },

@@ -121,10 +121,10 @@ function SettingsPage() {
               </Field>
               <div className="mt-3 grid gap-3 sm:grid-cols-2">
                 {([
-                  ["title", "Başlık", "travely Destek"],
+                  ["title", "Başlık", "pasaport.io Destek"],
                   ["cta", "Buton metni", "WhatsApp'ta destek al"],
                   ["message", "Kart mesajı", ""],
-                  ["prefill", "WhatsApp'a hazır mesaj (müşteri kendisi gönderir)", "Merhaba, travely hakkında destek almak istiyorum."],
+                  ["prefill", "WhatsApp'a hazır mesaj (müşteri kendisi gönderir)", "Merhaba, pasaport.io hakkında destek almak istiyorum."],
                 ] as const).map(([key, label, placeholder]) => (
                   <Field key={key} label={label}>
                     <textarea rows={key === "message" ? 3 : 1} className="admin-field mt-1 w-full" placeholder={placeholder} value={form.whatsappWidget[key][locale]} onChange={(event) => set({ whatsappWidget: { ...form.whatsappWidget, [key]: { ...form.whatsappWidget[key], [locale]: event.target.value } } })} />

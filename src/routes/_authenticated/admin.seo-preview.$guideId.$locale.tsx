@@ -13,7 +13,7 @@ import { getSeoPreview } from "@/lib/seo-content.functions";
 export const Route = createFileRoute("/_authenticated/admin/seo-preview/$guideId/$locale")({
   head: () => ({
     meta: [
-      { title: "Önizleme — Travely Admin" },
+      { title: "Önizleme — pasaport.io Admin" },
       { name: "robots", content: "noindex, nofollow" },
       { name: "googlebot", content: "noindex, nofollow" },
     ],

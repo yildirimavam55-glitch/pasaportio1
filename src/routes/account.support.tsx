@@ -4,6 +4,6 @@ import { SupportPage } from "@/components/account/pages/SupportPage";
 
 // Primary V2 storefront: same page component + same server functions as /account — presentation only.
 export const Route = createFileRoute("/account/support")({
-  head: () => ({ meta: [{ title: "Hesabım | travely" }, ...V2_NOINDEX] }),
+  head: () => ({ meta: [{ title: "Hesabım | pasaport.io" }, ...V2_NOINDEX] }),
   component: SupportPage,
 });

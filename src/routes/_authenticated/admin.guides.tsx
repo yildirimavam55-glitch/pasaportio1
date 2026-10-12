@@ -55,7 +55,7 @@ export const Route = createFileRoute("/_authenticated/admin/guides")({
     edit: typeof search["edit"] === "string" ? (search["edit"] as string) : undefined,
     type: typeof search["type"] === "string" ? (search["type"] as string) : undefined,
   }),
-  head: () => adminHead("Rehberler", "Travely Guides içerik yönetimi."),
+  head: () => adminHead("Rehberler", "pasaport.io Guides içerik yönetimi."),
   component: GuidesAdmin,
 });
 
@@ -147,7 +147,7 @@ function GuidesAdminContent() {
 
   return (
     <>
-      <AdminPanel title="Travely Guides">
+      <AdminPanel title="pasaport.io Guides">
         <div className="flex items-center justify-between">
           <p className="text-[11px] text-muted-foreground">
             Yalnızca yayınladığın rehberler sitede görünür. Yayınlanmamış içerik arama motorlarına kapatılır.

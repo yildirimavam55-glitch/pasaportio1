@@ -256,7 +256,7 @@ function CountryPrices({ iso, summary, counts }: { iso: string; summary: Overvie
     </div>
     <div className="hidden overflow-hidden rounded-lg border border-border bg-card md:block">
       <table className="w-full text-sm">
-        <thead className="bg-secondary/50 text-left text-xs text-muted-foreground"><tr><th className="px-3 py-2">Paket</th><th className="px-3 py-2">Maliyet</th><th className="px-3 py-2">Travely</th><th className="px-3 py-2">Pazar</th><th className="px-3 py-2">Fark</th><th className="px-3 py-2">Kâr</th><th className="px-3 py-2">Marj</th><th className="px-3 py-2">Durum</th></tr></thead>
+        <thead className="bg-secondary/50 text-left text-xs text-muted-foreground"><tr><th className="px-3 py-2">Paket</th><th className="px-3 py-2">Maliyet</th><th className="px-3 py-2">pasaport.io</th><th className="px-3 py-2">Pazar</th><th className="px-3 py-2">Fark</th><th className="px-3 py-2">Kâr</th><th className="px-3 py-2">Marj</th><th className="px-3 py-2">Durum</th></tr></thead>
         <tbody>{visible.map((group) => <DesktopPriceRow key={group.key} group={group} iso={iso} market={market} edit={edits[group.key] ?? null} onEdit={(value) => setEdits((current) => ({ ...current, [group.key]: value }))} />)}</tbody>
       </table>
     </div>

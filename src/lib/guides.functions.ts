@@ -1,5 +1,5 @@
 /**
- * Travely Guides — product-independent travel content platform.
+ * pasaport.io Guides — product-independent travel content platform.
  *
  * A guide is travel content first: it can relate to many countries, cities,
  * airports, road routes and services at once. Commerce CTAs are never

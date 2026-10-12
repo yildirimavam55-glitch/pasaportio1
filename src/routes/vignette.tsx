@@ -14,10 +14,10 @@ export const Route = createFileRoute("/vignette")({
   loader: async ({ context }) => { await Promise.all([context.queryClient.ensureQueryData(v2PageQuery("vignette")), context.queryClient.ensureQueryData(serviceAvailabilityQuery())]); },
   head: () => ({
     meta: [
-      { title: "Vignette | travely" },
-      { name: "description", content: "Vignette hizmeti yakında travely’de." },
-      { property: "og:title", content: "Vignette | travely" },
-      { property: "og:description", content: "Vignette hizmeti yakında travely’de." },
+      { title: "Vignette | pasaport.io" },
+      { name: "description", content: "Vignette hizmeti yakında pasaport.io’de." },
+      { property: "og:title", content: "Vignette | pasaport.io" },
+      { property: "og:description", content: "Vignette hizmeti yakında pasaport.io’de." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       ...V2_NOINDEX,

@@ -1,3 +1,4 @@
+import { localize } from "@/i18n/overlay";
 import { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react';
 import useEmblaCarousel from 'embla-carousel-react';
 import { ArrowRight } from 'lucide-react';
@@ -16,7 +17,7 @@ function RatingStars({ rating }: { rating: number }) {
   const path = 'm12 2 3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01Z';
   return <div className="combined-stars" role="img" aria-label={`${rating.toFixed(1)} / 5`}>{Array.from({length:5},(_,i)=><svg className="rating-star-svg" key={i} width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><defs><clipPath id={`${id}-${i}`}><rect width={24 * starFill(rating,i) / 100} height="24"/></clipPath></defs><path className="rating-star-base" d={path} fill="currentColor" stroke="none"/><path className="rating-star-fill" d={path} fill="currentColor" stroke="none" clipPath={`url(#${id}-${i})`}/></svg>)}</div>;
 }
-const REVIEW_HEADINGS = { tr: 'Gezginler ne diyor?', de: 'Das sagen Reisende', en: 'What travelers say', ar: 'ماذا يقول المسافرون' };
+const REVIEW_HEADINGS = localize({ tr: 'Gezginler ne diyor?', de: 'Das sagen Reisende', en: 'What travelers say', ar: 'ماذا يقول المسافرون' });
 type PresentedReview = { id: string; text: string; name: string; rating: number; source: string; url?: string | undefined; date?: string | undefined; sample: boolean; originalText?: string; originalLanguage?: string; translated?: boolean };
 function ReviewCard({ review: r, readMore, sampleLabel, locale, onReading }: { review: PresentedReview; readMore: string; sampleLabel: string; locale: string; onReading: (id: string, reading: boolean) => void }) {
   const text = useRef<HTMLParagraphElement>(null);

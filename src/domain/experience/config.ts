@@ -7,7 +7,7 @@ import { COUNTRIES, getCountryByIso } from "@/domain/geo/countries";
 import type { AirportRef, CountryRef, EsimServiceConfig, LoungeServiceConfig, SectionConfig } from "./types";
 import { localize } from "@/i18n/overlay";
 
-export const BRAND = { name: "travely", logoLabel: "travely", mark: "signal" } as const;
+export const BRAND = { name: "pasaport.io", logoLabel: "pasaport.io", mark: "signal" } as const;
 
 const sections: SectionConfig[] = [
   { id: "hero", kind: "hero", visible: true, order: 1, variant: "default", spacing: "compact", alignment: "left" },

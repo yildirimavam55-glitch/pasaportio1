@@ -1,3 +1,4 @@
+import { localize } from "@/i18n/overlay";
 import { useMemo, useState } from "react";
 import { Check, Info, Search } from "lucide-react";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
@@ -8,12 +9,12 @@ import { useCurrency } from "@/components/currency/CurrencyProvider";
 import { CURRENCY_SYMBOL, type CurrencyCode } from "@/domain/currency/currencies";
 
 type Copy = { title: string; language: string; currency: string; searchLang: string; searchCur: string; remembered: string; empty: string };
-const COPY: Record<string, Copy> = {
+const COPY: Record<string, Copy> = localize({
   tr: { title: "Dil ve para birimi", language: "Dil", currency: "Para birimi", searchLang: "Dil ara", searchCur: "Para birimi ara", remembered: "Tercihlerin bu cihazda hatırlanır.", empty: "Sonuç yok" },
   de: { title: "Sprache und Währung", language: "Sprache", currency: "Währung", searchLang: "Sprache suchen", searchCur: "Währung suchen", remembered: "Deine Auswahl wird auf diesem Gerät gespeichert.", empty: "Keine Ergebnisse" },
   en: { title: "Language and currency", language: "Language", currency: "Currency", searchLang: "Search language", searchCur: "Search currency", remembered: "Your preferences are remembered on this device.", empty: "No results" },
   ar: { title: "اللغة والعملة", language: "اللغة", currency: "العملة", searchLang: "ابحث عن لغة", searchCur: "ابحث عن عملة", remembered: "يتم حفظ تفضيلاتك على هذا الجهاز.", empty: "لا توجد نتائج" },
-};
+});
 
 function currencyName(code: string, locale: string) {
   try { return new Intl.DisplayNames([locale], { type: "currency" }).of(code) ?? code; } catch { return code; }

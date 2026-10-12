@@ -1,3 +1,5 @@
+import { getActiveUiLocale } from "@/i18n/overlay";
+import { LOCALE_REGISTRY, type UiLocale } from "@/i18n/locales";
 import { BASE_CURRENCY, CURRENCY_SYMBOL, FRACTION_DIGITS, convertAmount, isCurrencyCode, type CurrencyCode, type CurrencySource } from "./currencies";
 import type { PublicCurrencyConfig } from "./settings";
 
@@ -54,5 +56,13 @@ export function formatCurrencyAmount(amount: number, currency: string, locale?: 
 /** Shared storefront formatter: converts canonical EUR to the visitor's currency, then formats. */
 export function displayMoney(amount: number, sourceCurrency: string, locale?: string) {
   const c = convertForDisplay(amount, sourceCurrency);
-  return formatCurrencyAmount(c.amount, c.currency, locale);
+  return isolateForRtl(formatCurrencyAmount(c.amount, c.currency, locale));
+}
+
+/**
+ * Right-to-left pages (Arabic) render prices as one left-to-right island (Unicode LRI…PDI),
+ * so "€10.99" never flips into "10.99€" or splits around the currency sign.
+ */
+export function isolateForRtl(text: string, uiLocale: string = getActiveUiLocale()): string {
+  return LOCALE_REGISTRY[uiLocale as UiLocale]?.dir === "rtl" ? `\u2066${text}\u2069` : text;
 }

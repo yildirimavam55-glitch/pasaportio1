@@ -1,5 +1,5 @@
 /**
- * SEO Content Engine — a thin layer on top of the existing Travely Guides
+ * SEO Content Engine — a thin layer on top of the existing pasaport.io Guides
  * tables. Public reads are published + indexable-aware; admin writes reuse
  * the existing admin guard and audit log.
  */
@@ -33,17 +33,17 @@ export type SeoSettings = {
 
 export const DEFAULT_HUB_COPY: Record<Locale, SeoHubCopy> = {
   tr: {
-    title: "eSIM ve Seyahat Rehberleri — Travely",
+    title: "eSIM ve Seyahat Rehberleri — pasaport.io",
     description: "Destinasyon, şehir, eSIM ve seyahat interneti rehberleriyle yolculuğunu planla.",
     h1: "eSIM ve Seyahat Rehberleri",
   },
   de: {
-    title: "eSIM & Reiseratgeber — Travely",
+    title: "eSIM & Reiseratgeber — pasaport.io",
     description: "Ratgeber zu Reisezielen, Städten, eSIM und mobilem Internet auf Reisen.",
     h1: "eSIM & Reiseratgeber",
   },
   en: {
-    title: "eSIM & Travel Guides — Travely",
+    title: "eSIM & Travel Guides — pasaport.io",
     description: "Destination, city, eSIM and travel internet guides to plan your trip.",
     h1: "eSIM & Travel Guides",
   },
@@ -72,7 +72,7 @@ export type SeoPage = {
 
 const LOCALES: Locale[] = ["tr", "de", "en"];
 const DEFAULT_SETTINGS: SeoSettings = {
-  organizationName: "Travely",
+  organizationName: "pasaport.io",
   defaultOgImage: "",
   twitterHandle: "",
   hubs: DEFAULT_HUB_COPY,
@@ -95,7 +95,7 @@ function hubsOf(value: any): Record<Locale, SeoHubCopy> {
 
 function settingsOf(value: any): SeoSettings {
   return {
-    organizationName: String(value?.organizationName ?? "").trim().slice(0, 80) || "Travely",
+    organizationName: String(value?.organizationName ?? "").trim().slice(0, 80) || "pasaport.io",
     defaultOgImage: String(value?.defaultOgImage ?? "").trim().startsWith("https://")
       ? String(value.defaultOgImage).trim().slice(0, 500)
       : "",

@@ -20,7 +20,7 @@ function absoluteImage(url: string | null | undefined) {
 /** Full head for an SEO page: title, description, canonical, robots, OG, Twitter, hreflang, JSON-LD. */
 export function seoHead(page: SeoPage | null | undefined) {
   if (!page) {
-    return { meta: [{ title: "Travely" }, { name: "robots", content: "noindex" }] };
+    return { meta: [{ title: "pasaport.io" }, { name: "robots", content: "noindex" }] };
   }
   const { guide, locale } = page;
   const copy = SEO_COPY[locale];

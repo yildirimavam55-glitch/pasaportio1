@@ -50,12 +50,12 @@ const EMPTY_TEXT = (): SettingsText => ({ tr: "", de: "", en: "" });
 const t = (tr: string, de: string, en: string): SettingsText => ({ tr, de, en });
 
 export const DEFAULT_SETTINGS: PlatformSettings = {
-  brandName: "travely",
+  brandName: "pasaport.io",
   supportEmail: "",
   supportUrl: "",
   defaultLocale: "tr",
   reportingCurrency: "EUR",
-  senderName: "travely",
+  senderName: "pasaport.io",
   timezone: "Europe/Istanbul",
   maintenance: {
     esim: {
