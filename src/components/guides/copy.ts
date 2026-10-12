@@ -97,7 +97,7 @@ export const GUIDES_COPY = localize({
     notFound: "This guide was not found.",
     backToGuides: "Back to guides",
   },
-}) as const;
+} as const);
 
 const CHAR_MAP: Record<string, string> = {
   ı: "i", İ: "i", ş: "s", Ş: "s", ğ: "g", Ğ: "g", ç: "c", Ç: "c",

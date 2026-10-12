@@ -12,7 +12,7 @@ const COPY = localize({
   tr: { missing: "EKSİK YASAL BİLGİ", draft: "Bu yasal belge henüz yayınlanmadı.", updated: "Son güncelleme" },
   de: { missing: "FEHLENDE RECHTLICHE ANGABEN", draft: "Dieses Rechtsdokument wurde noch nicht veröffentlicht.", updated: "Zuletzt aktualisiert" },
   en: { missing: "MISSING LEGAL INFORMATION", draft: "This legal document has not been published yet.", updated: "Last updated" },
-}) as const;
+} as const);
 
 /** Picks the requested language, then English, then the Turkish master — never an empty page. */
 export function legalText(doc: Pick<LegalDocument, "title" | "body">, locale: UiLocale) {

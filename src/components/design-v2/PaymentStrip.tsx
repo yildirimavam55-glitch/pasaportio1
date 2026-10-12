@@ -8,7 +8,7 @@ const COPY = localize({
   de: { payment: "Sichere Zahlung", checkout: "Sicherer Checkout", stripe: "Powered by Stripe", note: "Beispielhafte Zahlungsarten · Designvorschau" },
   en: { payment: "Secure payment", checkout: "Secure checkout", stripe: "Powered by Stripe", note: "Illustrative payment methods · Design preview" },
   ar: { payment: "دفع آمن", checkout: "إتمام شراء آمن", stripe: "مدعوم من Stripe", note: "طرق دفع توضيحية · معاينة التصميم" },
-}) as const;
+} as const);
 
 type Icon = { path: string; hex: string; title: string };
 const Svg = ({ icon, width, color }: { icon: Icon; width: number; color?: string }) => (
