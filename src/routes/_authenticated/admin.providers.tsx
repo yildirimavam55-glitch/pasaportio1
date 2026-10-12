@@ -203,6 +203,8 @@ function Providers() {
                     <p className="mt-1 text-xs text-muted-foreground">{ADAPTER_LABELS[provider.adapterType as keyof typeof ADAPTER_LABELS] ?? provider.adapterType}</p>
                     <p className="mt-1 text-xs text-muted-foreground">
                       {provider.availableProductCount}/{provider.productCount} ürün uygun · Otomatik senkron {provider.autoSync ? `açık (${provider.syncIntervalHours} sa)` : "kapalı"}
+                      {provider.autoSync && <span className="ml-1 font-semibold text-destructive">· Zamanlanmış görev kurulu değil — senkron şu an yalnızca elle çalışıyor</span>}
+                      {(!provider.balance?.checkedAt || Date.now() - Date.parse(provider.balance.checkedAt) > 48 * 3600_000) && <span className="ml-1 font-semibold text-destructive">· Bakiye 48 saatten uzun süredir kontrol edilmedi</span>}
                     </p>
                     <p className="mt-1 text-xs text-muted-foreground">
                       Son başarılı: {dt(provider.connection?.lastSuccessAt)} · Son deneme: {dt(provider.connection?.lastAttemptAt)} · Sıradaki: {dt(provider.connection?.nextSyncAt)}
