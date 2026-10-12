@@ -8,4 +8,4 @@
 - [ ] Brand name inside database content (CMS/theme rows) — needs approval (data change)
 - [ ] Support e-mail address destek@travely.app — needs new mailbox from owner
 - [ ] E-mail templates: tables created (approved); seeding, admin screen, export/import paused during read-only audit
-- [ ] Full hosting & migration audit (read-only) — 6 docs under docs/migration/
+- [x] Full hosting & migration audit (read-only) — 6 docs under docs/migration/
