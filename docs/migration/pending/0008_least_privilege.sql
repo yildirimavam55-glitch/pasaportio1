@@ -81,12 +81,14 @@ GRANT SELECT ON
   public.traffic_attribution, public.user_roles
 TO authenticated;
 -- Customers read their own orders and order lines, but never supplier cost or payment fee.
+-- guest_claim_token and idempotency_key are server-only (service_role) technical fields: no
+-- browser query reads them, so they are not granted (final hardening, 12.10.2026).
 GRANT SELECT (id, order_id, service_type, product_id, provider_id, traveler_id, product_name_snapshot,
   product_slug_snapshot, sale_price, discount, currency, quantity, destination_snapshot, airport_iata_snapshot,
   fulfillment_status, provider_reference, details_snapshot, created_at) ON public.order_items TO authenticated;
-GRANT SELECT (id, order_number, customer_id, guest_email, guest_claim_token, trip_id, status, payment_status,
+GRANT SELECT (id, order_number, customer_id, guest_email, trip_id, status, payment_status,
   fulfillment_status, currency, gross_revenue, discount_total, tax_total, refunded_total, fx_rate_to_eur, locale,
-  customer_country_iso, idempotency_key, created_at, updated_at, promotion_id, coupon_code, discount_type,
+  customer_country_iso, created_at, updated_at, promotion_id, coupon_code, discount_type,
   discount_value, original_subtotal, final_subtotal) ON public.orders TO authenticated;
 
 -- service_role: unchanged (ALL); stated explicitly so a fresh server ends in the same state.
@@ -103,16 +105,19 @@ ALTER DEFAULT PRIVILEGES FOR ROLE postgres REVOKE EXECUTE ON FUNCTIONS FROM PUBL
 ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA public GRANT ALL ON TABLES TO service_role;
 ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA public GRANT ALL ON SEQUENCES TO service_role;
 ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA public GRANT EXECUTE ON FUNCTIONS TO service_role;
--- supabase_admin also creates objects on managed hosting; the migration role may not be allowed
--- to change its defaults, so this part reports instead of failing.
+-- supabase_admin: on managed hosting the migration role (postgres, not superuser, not a member of
+-- supabase_admin) is NOT allowed to change these defaults. This is reported as a WARNING, never as
+-- success. Section G fails the migration if any app object is owned by another role, so the open
+-- supabase_admin defaults cannot affect application tables. Close them as superuser on the new server.
 DO $$
 BEGIN
   ALTER DEFAULT PRIVILEGES FOR ROLE supabase_admin IN SCHEMA public REVOKE ALL ON TABLES FROM anon, authenticated;
   ALTER DEFAULT PRIVILEGES FOR ROLE supabase_admin IN SCHEMA public REVOKE ALL ON SEQUENCES FROM anon, authenticated;
   ALTER DEFAULT PRIVILEGES FOR ROLE supabase_admin IN SCHEMA public REVOKE ALL ON FUNCTIONS FROM anon, authenticated, PUBLIC;
   ALTER DEFAULT PRIVILEGES FOR ROLE supabase_admin REVOKE EXECUTE ON FUNCTIONS FROM PUBLIC;
+  RAISE NOTICE '0008: supabase_admin default privileges closed.';
 EXCEPTION WHEN insufficient_privilege OR undefined_object THEN
-  RAISE NOTICE '0008: supabase_admin default privileges not changed (%). Check manually on the new server.', SQLERRM;
+  RAISE WARNING '0008 NOT APPLIED: supabase_admin default privileges unchanged (%). Status: FAIL until closed by a superuser.', SQLERRM;
 END $$;
 
 -- ---------------------------------------------------------------------------
