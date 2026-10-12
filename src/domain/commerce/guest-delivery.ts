@@ -19,7 +19,7 @@ export type GuestEsimView = {
   remainingDataMb: number | null;
   expiresAt: string | null;
   qrPayload: string | null;
-  installInfo: unknown;
+  installInfo: Record<string, string | number | boolean | null> | null;
   activationPolicy: string | null;
 };
 export type GuestOrderView = { orderNumber: string; locale: string; paymentStatus: string; fulfillmentStatus: string; esims: GuestEsimView[] };

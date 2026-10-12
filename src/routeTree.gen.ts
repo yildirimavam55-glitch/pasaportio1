@@ -44,6 +44,7 @@ import { Route as LoungeIndexRouteImport } from './routes/lounge.index'
 import { Route as LoungeSeceneklerRouteImport } from './routes/lounge.secenekler'
 import { Route as RehberlerIndexRouteImport } from './routes/rehberler.index'
 import { Route as SitemapXmlRouteImport } from './routes/sitemap.xml'
+import { Route as TeslimatTokenRouteImport } from './routes/teslimat.$token'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin.index'
 import { Route as AuthenticatedAdminAirportsRouteImport } from './routes/_authenticated/admin.airports'
 import { Route as AuthenticatedAdminAlertsRouteImport } from './routes/_authenticated/admin.alerts'
@@ -306,6 +307,11 @@ const RehberlerIndexRoute = RehberlerIndexRouteImport.update({
 const SitemapXmlRoute = SitemapXmlRouteImport.update({
   id: '/sitemap/xml',
   path: '/sitemap/xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TeslimatTokenRoute = TeslimatTokenRouteImport.update({
+  id: '/teslimat/$token',
+  path: '/teslimat/$token',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedAdminIndexRoute = AuthenticatedAdminIndexRouteImport.update({
@@ -849,6 +855,7 @@ export interface FileRoutesByFullPath {
   '/legal/withdrawal': typeof LegalWithdrawalRoute
   '/lounge/secenekler': typeof LoungeSeceneklerRoute
   '/sitemap/xml': typeof SitemapXmlRoute
+  '/teslimat/$token': typeof TeslimatTokenRoute
   '/account/': typeof AccountIndexRoute
   '/design-v2/': typeof DesignV2IndexRoute
   '/esim/': typeof EsimIndexRoute
@@ -972,6 +979,7 @@ export interface FileRoutesByTo {
   '/legal/withdrawal': typeof LegalWithdrawalRoute
   '/lounge/secenekler': typeof LoungeSeceneklerRoute
   '/sitemap/xml': typeof SitemapXmlRoute
+  '/teslimat/$token': typeof TeslimatTokenRoute
   '/account': typeof AccountIndexRoute
   '/design-v2': typeof DesignV2IndexRoute
   '/esim': typeof EsimIndexRoute
@@ -1099,6 +1107,7 @@ export interface FileRoutesById {
   '/legal/withdrawal': typeof LegalWithdrawalRoute
   '/lounge/secenekler': typeof LoungeSeceneklerRoute
   '/sitemap/xml': typeof SitemapXmlRoute
+  '/teslimat/$token': typeof TeslimatTokenRoute
   '/_home/': typeof HomeIndexRoute
   '/account/': typeof AccountIndexRoute
   '/design-v2/': typeof DesignV2IndexRoute
@@ -1227,6 +1236,7 @@ export interface FileRouteTypes {
     | '/legal/withdrawal'
     | '/lounge/secenekler'
     | '/sitemap/xml'
+    | '/teslimat/$token'
     | '/account/'
     | '/design-v2/'
     | '/esim/'
@@ -1350,6 +1360,7 @@ export interface FileRouteTypes {
     | '/legal/withdrawal'
     | '/lounge/secenekler'
     | '/sitemap/xml'
+    | '/teslimat/$token'
     | '/account'
     | '/design-v2'
     | '/esim'
@@ -1476,6 +1487,7 @@ export interface FileRouteTypes {
     | '/legal/withdrawal'
     | '/lounge/secenekler'
     | '/sitemap/xml'
+    | '/teslimat/$token'
     | '/_home/'
     | '/account/'
     | '/design-v2/'
@@ -1599,6 +1611,7 @@ export interface RootRouteChildren {
   LegalWithdrawalRoute: typeof LegalWithdrawalRoute
   LoungeSeceneklerRoute: typeof LoungeSeceneklerRoute
   SitemapXmlRoute: typeof SitemapXmlRoute
+  TeslimatTokenRoute: typeof TeslimatTokenRoute
   DesignV2IndexRoute: typeof DesignV2IndexRoute
   EsimIndexRoute: typeof EsimIndexRoute
   GuidesIndexRoute: typeof GuidesIndexRoute
@@ -1864,6 +1877,13 @@ declare module '@tanstack/react-router' {
       path: '/sitemap/xml'
       fullPath: '/sitemap/xml'
       preLoaderRoute: typeof SitemapXmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/teslimat/$token': {
+      id: '/teslimat/$token'
+      path: '/teslimat/$token'
+      fullPath: '/teslimat/$token'
+      preLoaderRoute: typeof TeslimatTokenRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated/admin/': {
@@ -2751,6 +2771,7 @@ const rootRouteChildren: RootRouteChildren = {
   LegalWithdrawalRoute: LegalWithdrawalRoute,
   LoungeSeceneklerRoute: LoungeSeceneklerRoute,
   SitemapXmlRoute: SitemapXmlRoute,
+  TeslimatTokenRoute: TeslimatTokenRoute,
   DesignV2IndexRoute: DesignV2IndexRoute,
   EsimIndexRoute: EsimIndexRoute,
   GuidesIndexRoute: GuidesIndexRoute,
