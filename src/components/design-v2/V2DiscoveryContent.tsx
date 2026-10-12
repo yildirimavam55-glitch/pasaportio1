@@ -45,6 +45,7 @@ const COPY = localize({
     guides: "Seyahat rehberi",
     guideLead: "Yayınlanmış gerçek seyahat içerikleri.",
     allGuides: "Tüm yazılar",
+    guideOtherLanguage: "Türkçe içerik",
     faq: "eSIM hakkında sık sorulanlar",
     questions: [
       ["eSIM nedir?", "eSIM, uyumlu telefona dijital olarak eklenen bir mobil veri hattıdır."],
@@ -82,6 +83,7 @@ const COPY = localize({
     guides: "Reiseratgeber",
     guideLead: "Echte veröffentlichte Reiseinhalte.",
     allGuides: "Alle Ratgeber",
+    guideOtherLanguage: "Nur auf Türkisch verfügbar",
     faq: "Häufige Fragen zur eSIM",
     questions: [
       ["Was ist eine eSIM?", "Eine eSIM ist ein digitaler Mobilfunktarif für ein kompatibles Handy."],
@@ -119,6 +121,7 @@ const COPY = localize({
     guides: "Travel guides",
     guideLead: "Real published travel content.",
     allGuides: "All guides",
+    guideOtherLanguage: "Available in Turkish only",
     faq: "Frequently asked eSIM questions",
     questions: [
       ["What is an eSIM?", "An eSIM is a digital mobile data line added to a compatible phone."],
@@ -224,7 +227,7 @@ export function V2GuidesRail({ title, lead, allLabel }: { title?: string; lead?:
       <SectionTitle action={<SeoPathLink path={`/${locale}/${locale === "tr" ? "rehber" : locale === "de" ? "ratgeber" : "guides"}`} className="inline-flex items-center gap-0.5 text-xs font-semibold text-primary">{allLabel || c.allGuides}<ArrowRight className="size-3.5" /></SeoPathLink>}>{title || c.guides}</SectionTitle>
       {(lead ?? c.guideLead) && <p className="-mt-0.5 mb-4 text-xs text-muted-foreground">{lead ?? c.guideLead}</p>}
       <ul className="-mx-4 flex snap-x snap-mandatory scroll-px-4 gap-3 overflow-x-auto px-4 pb-1 [overscroll-behavior-inline:contain] [scrollbar-width:none] lg:mx-0 lg:grid lg:grid-cols-3 lg:gap-6 lg:overflow-visible lg:px-0">
-        {data.slice(0, 3).map((guide) => <li data-reveal-card key={guide.id} className="w-[84vw] max-w-[22rem] shrink-0 snap-start sm:w-[17rem] lg:w-auto lg:max-w-none"><SeoPathLink path={seoPath(guide.translationLocale, guide.contentType, guide.slug)} className="group block h-full overflow-hidden rounded-xl bg-card ring-1 ring-border">{guide.heroImageUrl ? <img src={guide.heroImageUrl} alt={guide.heroAlt ?? guide.title} loading="lazy" decoding="async" className="h-[8.5rem] w-full object-cover lg:h-48"/> : <div className="grid h-[8.5rem] place-items-center bg-muted lg:h-48"><BookOpen className="size-6 text-muted-foreground"/></div>}<div className="p-4">{guide.categoryName && <span className="text-[9px] font-bold uppercase text-primary">{guide.categoryName}</span>}<h3 className="mt-0.5 line-clamp-2 text-sm font-bold leading-snug text-foreground lg:text-lg">{guide.title}</h3>{guide.excerpt && <p className="mt-1 line-clamp-2 text-xs leading-snug text-muted-foreground lg:text-sm">{guide.excerpt}</p>}<ArrowRight className="ml-auto mt-1.5 size-4 text-primary"/></div></SeoPathLink></li>)}
+        {data.slice(0, 3).map((guide) => <li data-reveal-card key={guide.id} className="w-[84vw] max-w-[22rem] shrink-0 snap-start sm:w-[17rem] lg:w-auto lg:max-w-none"><SeoPathLink path={seoPath(guide.translationLocale, guide.contentType, guide.slug)} className="group block h-full overflow-hidden rounded-xl bg-card ring-1 ring-border">{guide.heroImageUrl ? <img src={guide.heroImageUrl} alt={guide.heroAlt ?? guide.title} loading="lazy" decoding="async" className="h-[8.5rem] w-full object-cover lg:h-48"/> : <div className="grid h-[8.5rem] place-items-center bg-muted lg:h-48"><BookOpen className="size-6 text-muted-foreground"/></div>}<div className="p-4">{guide.categoryName && <span className="text-[9px] font-bold uppercase text-primary">{guide.categoryName}</span>}{guide.translationLocale !== locale && <span className="ms-2 text-[9px] font-semibold text-muted-foreground">{c.guideOtherLanguage}</span>}<h3 lang={guide.translationLocale} className="mt-0.5 line-clamp-2 text-sm font-bold leading-snug text-foreground lg:text-lg">{guide.title}</h3>{guide.excerpt && <p className="mt-1 line-clamp-2 text-xs leading-snug text-muted-foreground lg:text-sm">{guide.excerpt}</p>}<ArrowRight className="ml-auto mt-1.5 size-4 text-primary"/></div></SeoPathLink></li>)}
       </ul>
     </section>
   );
