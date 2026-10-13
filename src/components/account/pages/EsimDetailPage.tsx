@@ -176,7 +176,7 @@ export function EsimDetailPage({ id }: { id: string }) {
                   <Progress className="mt-3 h-2" value={100 - usage} aria-label={pc.remainingData} />
                 </>
               ) : (
-                <div><p className="mt-2 text-sm text-muted-foreground">{copy.usageUnavailable}</p>{esim.totalDataMb != null && <p className="mt-2 text-xs font-semibold">{copy.esim.totalData}: {formatMegabytes(esim.totalDataMb, locale)}</p>}</div>
+                <div><p className="mt-2 text-sm text-muted-foreground">{copy.usageUnavailable}</p>{esim.totalDataMb != null && <p className="mt-2 text-xs font-semibold">{copy.total}: {formatMegabytes(esim.totalDataMb, locale)}</p>}</div>
               )}
             </section>
             <section className="rounded-2xl border border-border bg-card p-5 shadow-card">
