@@ -7,7 +7,6 @@ import { createAccountDemo } from "@/domain/esim/account-demo";
 import { demoEsimRecord } from "../demo-presentation";
 import { ACCOUNT_V1_COPY } from "../v1-copy";
 import { esimCategory } from "@/domain/esim/purchase-categories";
-import { CustomerEsimHistoryRow } from "../CustomerEsimCard";
 import { CustomerEsimCard } from "@/components/account/CustomerEsimCard";
 import { EsimCarousel } from "@/components/account/EsimCarousel";
 import { AccountLayout } from "@/components/account/AccountLayout";
@@ -35,7 +34,6 @@ export function AccountOverview() {
   const c = ACCOUNT_V1_COPY[locale];
   const visible = demo ? createAccountDemo(new Date()).map(demoEsimRecord) : esims;
   const grouped = (category: 'active' | 'pending') => visible.filter(e => esimCategory({status:e.status,totalMb:e.totalDataMb,remainingMb:e.remainingDataMb,expiresAt:e.expiresAt}) === category);
-  const others = visible.filter(e => !['active','pending'].includes(esimCategory({status:e.status,totalMb:e.totalDataMb,remainingMb:e.remainingDataMb,expiresAt:e.expiresAt})));
 
   return (
     <AccountLayout
@@ -71,7 +69,6 @@ export function AccountOverview() {
           {account.isPending && !demo ? <div className="h-48 animate-pulse rounded-lg bg-secondary" aria-busy="true" /> : items.length ? <EsimCarousel label={category === 'active' ? c.active : c.pending}>{items.map(esim => <CustomerEsimCard key={esim.id} esim={esim} locale={locale} demo={demo} />)}</EsimCarousel> : <p className="py-3 text-xs text-muted-foreground">{c.noActive}</p>}
         </section>;
       })}
-      {others.length > 0 && <section className="account-package-section" data-account-group="other"><div className="mb-3 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2"><h2 className="font-display text-base font-bold">{c.other}</h2><Link to="/account/esims" search={demo ? {demo:1} : {}} className="text-[11px] font-semibold text-primary">{c.all} →</Link></div><div className="grid gap-2">{others.slice(0,2).map(esim => <CustomerEsimHistoryRow key={esim.id} esim={esim} locale={locale} />)}</div></section>}
       {!visible.length && !account.isPending && !account.isError && <Button asChild variant="cta" className="mt-3"><Link to="/esim">{copy.findEsim}</Link></Button>}
     </AccountLayout>
   );

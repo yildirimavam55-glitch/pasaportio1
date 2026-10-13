@@ -155,8 +155,7 @@ export function CustomerEsimCard({ esim, locale, activationPolicy, demo = false 
         <Badge variant="outline" className={`account-card-badge ${STATUS_TONE[status]}`}>{pc.cat[category]}</Badge>
       </div>
       <div className="min-w-0">
-        <p className="flex items-center gap-2 text-sm font-bold">{iso && <CountryFlag iso={iso} className="text-base" />}<span className="min-w-0">{name}</span></p>
-        <h3 className="mt-1 text-sm font-bold">{name.includes("eSIM") ? name : `${name} eSIM`} · {subtitle}</h3>
+        <h3 className="flex items-start gap-1.5 text-sm font-bold">{iso && <CountryFlag iso={iso} className="shrink-0 text-base" />}<span className="min-w-0">{name} · {subtitle}</span></h3>
         {demo && <p className="mt-1 text-[10px] font-bold text-warning">DEMO</p>}
         {esim.travelerLabel && <p className="mt-1 text-[11px] font-semibold text-muted-foreground">{esim.travelerLabel}</p>}
         {pending ? <><p className="mt-2 text-[11px] text-muted-foreground">{c.installed}: {c.noInstall}</p><p className="mt-1 flex gap-1 text-[11px] text-muted-foreground"><CalendarDays className="size-3.5 shrink-0" />{copy.esim.purchaseDate}: {purchaseAt ? formatDate(purchaseAt, locale) : pc.noData}</p></> : <div className="mt-2">
@@ -167,7 +166,7 @@ export function CustomerEsimCard({ esim, locale, activationPolicy, demo = false 
         </div>}
       </div>
     </div>
-    {pending && <div className="account-refund-note"><Clock3 className="size-5 shrink-0 text-primary" /><div className="min-w-0"><p className="text-[11px] leading-4">{c.refundInfo}</p><p className="mt-1 text-[10px] text-muted-foreground">{refundInfo.purchaseAt ? refundInfo.open ? `${c.remaining}: ${refundInfo.daysLeft} ${pc.days}` : c.closed : c.purchaseUnknown}</p>{!refundInfo.verifiedEligible && <p className="mt-1 text-[10px] text-muted-foreground">{c.unverified}</p>}</div></div>}
+    {pending && <p className="account-refund-note"><Clock3 className="size-3.5 shrink-0" /><span>{refundInfo.purchaseAt ? refundInfo.open ? c.windowRemaining(refundInfo.daysLeft) : c.closed : c.purchaseUnknown}</span></p>}
     <div className="account-quick-actions mt-auto" data-card-actions>
       <Button variant="outline" className="account-square-action" onClick={() => openMethod('qr')} disabled={expired || (!demo && !esim.hasQr)} aria-label={c.qr}><QrCode /><span>{c.qr}</span></Button>
       <Button variant="outline" className="account-square-action" data-install-trigger={esim.id} onClick={() => openMethod('guide')} disabled={expired} aria-label={c.install}><Smartphone /><span>{c.install}</span></Button>
