@@ -1,1 +1,2 @@
 - Lounge/Vignette visibility uses only storefront/checkout feature flags through useOptionalServices, isHiddenServiceHref and OptionalServiceGate, hidden while loading — why: one shared setting, no flash.
+- Homepage phone imagery resolves through a presentation-only brand asset map; checker selection feedback stays local and failed images use a generic icon — why: imagery updates without altering detection, validation or persistence.

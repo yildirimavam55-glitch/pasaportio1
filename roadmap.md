@@ -1,5 +1,7 @@
 # Roadmap — Phase 5
 
+- [x] Replace homepage phone trio with brand-specific representative imagery and icon fallback; 43 tests passed, real catalogue Samsung/Apple/Google/Xiaomi brand→model→result and unknown/Samsung detection verified at 390/1440; 90px height at five sizes. POCO mapping unit-tested only: no POCO catalogue rows, no fabricated entries. Sources/screenshots reported; UI only, no publish.
+
 - [x] Add illustrative phone imagery only to the compact homepage compatibility card; 90px height and checker opening verified at 320/360/390/430/1440, 27 tests passed, mobile/desktop screenshots saved. No backend or publishing changes.
 
 - [x] Compact homepage phone compatibility card only: banner-aligned width, 88px height, short copy in 14 languages, collision-only WhatsApp movement; 320/360/390/430/1440 real catalogue brand/model/result checks and 27 unit tests passed. No backend or publish.
