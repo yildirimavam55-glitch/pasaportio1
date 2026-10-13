@@ -44,7 +44,7 @@ import type { Locale } from "@/domain/enums";
 import { localize } from "@/i18n/overlay";
 import { useBrowserDevice } from "@/domain/esim/use-browser-device";
 import { V2PickerSheet } from "@/components/design-v2/V2PickerSheet";
-import compatibilityPhones from "@/assets/compatibility-phone-trio.png";
+import { phoneCardImage } from "./phone-card-imagery";
 
 const COPY = localize({
   tr: {
@@ -308,7 +308,7 @@ function CheckerPhone({ badge }: { badge: string }) {
   );
 }
 
-export function DeviceCheckSheet({ surface, trigger, detection }: { surface: string; trigger: ReactNode; detection?: DeviceDetection }) {
+export function DeviceCheckSheet({ surface, trigger, detection, onSelectionChange }: { surface: string; trigger: ReactNode; detection?: DeviceDetection; onSelectionChange?: (selection: { brand: string | null; device: DeviceRecord | null }) => void }) {
   const { locale } = useI18n();
   const copy = COPY[locale];
   const x = EXTRA[locale];
@@ -338,6 +338,11 @@ export function DeviceCheckSheet({ surface, trigger, detection }: { surface: str
     if (prefill.brand) { setBrand(prefill.brand); setListOpen(!prefill.device); }
     if (prefill.device) setPending(prefill.device);
   }, [open, devices, detection, compatibilityChecked, deviceModel, deviceBrand]);
+
+  // Local presentation feedback only; unconfirmed choices are never persisted.
+  useEffect(() => {
+    if (open && prefilled.current) onSelectionChange?.({ brand, device: pending });
+  }, [open, brand, pending, onSelectionChange]);
 
   const brands = useMemo(() => orderBrands(devices), [devices]);
   const results = useMemo(
@@ -765,6 +770,13 @@ const COMPACT_PHONE_COPY = {
   zh: { title: "检查你的手机", lead: "检查 eSIM 兼容性", detected: (b: string) => `检测到 ${b} · 选择型号` },
 } as const;
 
+function HomePhoneImage({ brand }: { brand: string | null }) {
+  const src = phoneCardImage(brand);
+  const [failedSrc, setFailedSrc] = useState<string | null>(null);
+  if (!src || failedSrc === src) return <Smartphone className="size-6 text-primary" aria-hidden="true" />;
+  return <img src={src} alt="" loading="lazy" decoding="async" width={96} height={180} onError={() => setFailedSrc(src)} className="h-full w-full object-contain" />;
+}
+
 /** Homepage card after the destination rails; opens the shared checker (bottom sheet on mobile, modal on desktop). */
 export function HomeCompatibilityCard() {
   const { locale, uiLocale } = useI18n();
@@ -804,19 +816,24 @@ export function HomeCompatibilityCard() {
     };
   }, []);
   const copy = COPY[locale];
-  const { compatibilityChecked, deviceModel, compatibilityResult } = useDeviceCheck();
+  const { compatibilityChecked, deviceModel, deviceBrand, compatibilityResult } = useDeviceCheck();
+  const [cardSelection, setCardSelection] = useState<{ brand: string | null; device: DeviceRecord | null } | null>(null);
   const { data: devices = [] } = useQuery({ queryKey: ["device-compatibility"], queryFn: () => listDeviceCompatibility(), staleTime: 10 * 60 * 1000 });
   const { detection, mobile } = useBrowserDevice(devices);
   // Desktop browsers never claim a phone model; only mobile hints are shown.
   const shown = checkerDetectionForViewport(detection, mobile);
   const detectedBrand = shown.kind === "exact" ? (shown.device.brand === "Apple" ? "iPhone" : shown.device.brand) : shown.kind === "partial" ? (shown.family === "iphone" ? "iPhone" : shown.family === "samsung" ? "Samsung" : "Android") : null;
-  const lead = compatibilityChecked && compatibilityResult ? `${deviceModel} · ${statusLabel(copy, compatibilityResult)}` : detectedBrand ? h.detected(detectedBrand) : h.lead;
+  const prefill = resolveCheckerPrefill(devices, compatibilityChecked ? { model: deviceModel, ...(deviceBrand ? { brand: deviceBrand } : {}) } : null, shown);
+  const imageBrand = cardSelection ? cardSelection.brand : prefill.brand;
+  const chosenModel = cardSelection?.device?.model;
+  const sameConfirmedModel = !cardSelection || (chosenModel === deviceModel && cardSelection.brand === deviceBrand);
+  const lead = compatibilityChecked && compatibilityResult && sameConfirmedModel ? `${deviceModel} · ${statusLabel(copy, compatibilityResult)}` : cardSelection ? (chosenModel ?? (cardSelection.brand ? `${cardSelection.brand} · ${h.lead}` : h.lead)) : detectedBrand ? h.detected(detectedBrand) : h.lead;
   return (
     <section ref={cardRef} id="device-compatibility" data-testid="home-compatibility-card" className="mx-auto w-full max-w-[1200px] scroll-mt-24 py-5 sm:py-6">
-      <DeviceCheckSheet surface="homepage-card" detection={shown} trigger={
+      <DeviceCheckSheet surface="homepage-card" detection={shown} onSelectionChange={setCardSelection} trigger={
         <Button type="button" variant="outline" className="home-phone-card grid h-auto min-h-22 w-full grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2 whitespace-normal rounded-2xl border-border bg-card px-3 py-3 text-start shadow-soft hover:border-primary/40 hover:bg-card sm:gap-4 sm:px-5">
-          <span aria-hidden="true" className="grid h-16 w-14 shrink-0 place-items-center sm:w-24">
-            <img src={compatibilityPhones} alt="" loading="lazy" decoding="async" width={768} height={768} className="h-full w-full object-contain" />
+          <span aria-hidden="true" data-phone-image-brand={imageBrand ?? "unknown"} className="grid h-16 w-14 shrink-0 place-items-center sm:w-24">
+            <HomePhoneImage brand={imageBrand} />
           </span>
           <span className="min-w-0">
             <strong className="block font-display text-base font-bold leading-5 text-foreground sm:text-lg">{h.title}</strong>
