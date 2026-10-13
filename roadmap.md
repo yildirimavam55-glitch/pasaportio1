@@ -1,6 +1,6 @@
 # Roadmap — Phase 5
 
-- [ ] Replace homepage phone trio with selected/detected-brand imagery and safe icon fallback; verify Samsung/Apple/Google/Xiaomi/POCO/unknown, selection updates, mobile/desktop and report image sources (UI only; no publish).
+- [x] Replace homepage phone trio with brand-specific representative imagery and icon fallback; 43 tests passed, real catalogue Samsung/Apple/Google/Xiaomi brand→model→result and unknown/Samsung detection verified at 390/1440; 90px height at five sizes. POCO mapping unit-tested only: no POCO catalogue rows, no fabricated entries. Sources/screenshots reported; UI only, no publish.
 
 - [x] Add illustrative phone imagery only to the compact homepage compatibility card; 90px height and checker opening verified at 320/360/390/430/1440, 27 tests passed, mobile/desktop screenshots saved. No backend or publishing changes.
 
