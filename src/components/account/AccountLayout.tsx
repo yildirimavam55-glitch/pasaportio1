@@ -2,11 +2,15 @@ import { useRouterState } from "@tanstack/react-router";
 import { CLink as Link, useIsV2 } from "@/components/design-v2/v2-context";
 import { V2Shell } from "@/components/design-v2/V2Shell";
 import {
+  Armchair,
+  Car,
   ChevronLeft,
   ChevronRight,
   LayoutGrid,
+  LifeBuoy,
   PackageCheck,
   ShieldCheck,
+  ShoppingBag,
   Signal,
   UserRound,
 } from "lucide-react";
@@ -15,19 +19,28 @@ import type { ReactNode } from "react";
 import { PublicShell } from "@/components/travel/PublicShell";
 import { useI18n } from "@/i18n";
 import { ACCOUNT_COPY } from "./copy";
+import { PURCHASE_COPY } from "./purchases-copy";
 
 export type AccountSectionKey =
   | "overview"
+  | "purchases"
   | "esims"
+  | "lounge"
+  | "vignette"
   | "orders"
   | "profile"
   | "security"
   | "notifications"
   | "support";
 
-const NAV: Array<{ key: AccountSectionKey; to: string; icon: typeof LayoutGrid }> = [
-  { key: "esims", to: "/account/esims", icon: Signal },
+const NAV: Array<{ key: AccountSectionKey; to: string; icon: typeof LayoutGrid; sub?: boolean }> = [
+  { key: "overview", to: "/account", icon: LayoutGrid },
+  { key: "purchases", to: "/account/purchases", icon: ShoppingBag },
+  { key: "esims", to: "/account/esims", icon: Signal, sub: true },
+  { key: "lounge", to: "/account/lounge", icon: Armchair, sub: true },
+  { key: "vignette", to: "/account/vignette", icon: Car, sub: true },
   { key: "orders", to: "/account/orders", icon: PackageCheck },
+  { key: "support", to: "/account/support", icon: LifeBuoy },
   { key: "profile", to: "/account/profile", icon: UserRound },
   { key: "security", to: "/account/security", icon: ShieldCheck },
 ];
