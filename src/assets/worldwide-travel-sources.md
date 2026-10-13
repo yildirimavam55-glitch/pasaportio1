@@ -1,0 +1,5 @@
+# Worldwide homepage travel banner
+
+Original: `worldwide-travel-still-life.jpg`, created for this project with Lovable Image Generation on 2026-10-13. Photographic-style generated illustration, not a sourced real photograph, manufacturer photo or physical passport document. Existing assets had no suitable rights-documented map/passport/camera photograph; no uploaded reference was reused. The requested “4. Seyahat Detayı” reference was not present among mounted uploads; the written brief informed the image.
+
+Responsive outputs: `worldwide-travel-desktop.webp` (960×200), `worldwide-travel-mobile.webp` (480×460), WebP quality 85. Object-focused crops keep the map, representative closed passport and unbranded camera legible in the unchanged narrow frame. Lazy-loaded through the existing WorldwideBannerPhoto component; existing semantic background remains the failure fallback. No external image requests or new animation.
