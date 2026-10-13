@@ -2098,3 +2098,13 @@ body:has([role="dialog"][data-state="open"]) .pasaport-mobile-reference [data-wh
  .final-trust-band strong { font-size:14px; }
 }
 @media (min-width:1024px) { .pasaport-mobile-home #popular { margin-top:36px; } }
+
+/* Account-only presentation: shared rail, stable cards and viewport-safe installation. */
+.account-esim-photo { width:100%; height:112px; flex-shrink:0; object-fit:cover; border-radius:8px; background:var(--secondary); margin-bottom:14px; }
+.customer-esim-card { min-height:390px; border-radius:8px; }
+.account-mobile-nav { border-top:1px solid var(--border); padding-top:8px; }
+.account-mobile-nav a[aria-current="page"] { color:var(--primary); }
+.account-install-sheet { max-height:90dvh; overflow-y:auto; border-radius:16px 16px 0 0; padding:20px 20px calc(20px + env(safe-area-inset-bottom)); }
+@media(min-width:768px) { .account-install-sheet { left:auto; right:0; top:0; bottom:0; width:460px; max-width:100%; max-height:100dvh; border-radius:0; } }
+@media(prefers-reduced-motion:reduce) { .account-install-sheet { animation:none!important; transition:none!important; } }
+@media(min-width:1024px) { .customer-esim-track { grid-template-columns:repeat(3,minmax(0,1fr)); } }

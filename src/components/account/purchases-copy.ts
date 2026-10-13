@@ -3,11 +3,11 @@ import { localize } from "@/i18n/overlay";
 /** Purchases / Lounge / Vignette copy. Other locales fall back to English via localize(). */
 export const PURCHASE_COPY = localize({
   tr: {
-    nav: { purchases: "Satın Aldıklarım", esims: "eSIM Paketlerim", lounge: "Lounge Erişimlerim", vignette: "Vignette / Yol Geçişlerim", orders: "Sipariş Geçmişim", support: "Destek ve İade Taleplerim", profile: "Profil Ayarlarım" },
+    nav: { purchases: "Satın Aldıklarım", esims: "eSIM Paketlerim", lounge: "Lounge Erişimlerim", vignette: "Vignette / Yol Geçişlerim", orders: "Sipariş Geçmişim", support: "Destek ve İade", profile: "Profil Ayarları" },
     lead: "Tüm seyahat ürünlerini tek yerde yönet.",
     newProduct: "Yeni ürün satın al",
     all: "Tümü",
-    view: "Detayı görüntüle",
+    view: "Detayları Görüntüle",
     emptyAll: "Henüz satın aldığın bir ürün yok.",
     emptyLounge: "Henüz Lounge erişimin yok. Lounge hizmeti yakında satışa açılacak.",
     emptyVignette: "Henüz Vignette / yol geçişin yok. Bu hizmet yakında satışa açılacak.",

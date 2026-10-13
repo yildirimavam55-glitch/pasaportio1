@@ -1,8 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Apple, Download, Info, PlayCircle, Smartphone } from "lucide-react";
+import { Apple, Download, Info, Smartphone, QrCode } from "lucide-react";
 
-import { CLink as Link } from "@/components/design-v2/v2-context";
+import { AccountInstallationWalkthrough } from "@/components/design-v2/EsimInstallationPage";
+import { PURCHASE_COPY } from "./purchases-copy";
+import { ACCOUNT_DEMO_COPY } from "./demo-copy";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import type { Locale } from "@/domain/enums";
@@ -31,6 +33,7 @@ export function EsimInstallGuide({
   installInfo,
   activationPolicy,
   expired,
+  demo = false,
 }: {
   locale: Locale;
   esimId: string;
@@ -38,16 +41,18 @@ export function EsimInstallGuide({
   installInfo: unknown;
   activationPolicy?: string | null;
   expired?: boolean;
+  demo?: boolean;
 }) {
   const copy = ACCOUNT_COPY[locale];
   const [qrImage, setQrImage] = useState<string | null>(null);
   const [platform, setPlatform] = useState<"iphone" | "android">("iphone");
-  const quickLink = installString(installInfo, "universal_link") ?? installString(installInfo, "lpa_link");
+  const [method, setMethod] = useState("qr");
+  const pc = PURCHASE_COPY[locale];
   const note = activationNote((activationPolicy as ActivationPolicy) ?? null, locale);
 
   useEffect(() => {
     let active = true;
-    if (!qrPayload || expired) {
+    if (!qrPayload || expired || demo) {
       setQrImage(null);
       return () => {
         active = false;
@@ -65,7 +70,7 @@ export function EsimInstallGuide({
     return () => {
       active = false;
     };
-  }, [qrPayload, expired]);
+  }, [qrPayload, expired, demo]);
 
   return (
     <div className="grid gap-4">
@@ -77,7 +82,19 @@ export function EsimInstallGuide({
         </span>
       </p>
 
-      {expired ? (
+      <Button variant="default" disabled className="h-auto min-h-14 w-full justify-start whitespace-normal py-3 text-left">
+        <Smartphone className="size-5 shrink-0" />
+        <span className="min-w-0 flex-1 text-sm">{pc.iphoneAuto}</span>
+        <span className="text-xs">{pc.soon}</span>
+      </Button>
+      <Tabs value={method} onValueChange={setMethod}>
+        <TabsList className="grid h-auto w-full grid-cols-3">
+          <TabsTrigger value="qr" className="min-h-11 whitespace-normal text-xs">{copy.esim.qr}</TabsTrigger>
+          <TabsTrigger value="manual" className="min-h-11 whitespace-normal text-xs">{copy.guide.manual}</TabsTrigger>
+          <TabsTrigger value="guide" className="min-h-11 whitespace-normal text-xs">{copy.esim.guide}</TabsTrigger>
+        </TabsList>
+        <TabsContent value="qr" className="pt-3">
+      {demo ? <div className="mx-auto grid size-48 place-items-center rounded-lg border border-dashed border-border bg-secondary"><QrCode className="size-16 text-muted-foreground" /><span className="text-xs font-bold">DEMO</span></div> : expired ? (
         <p className="rounded-xl border border-border bg-muted p-4 text-sm text-muted-foreground">
           {copy.esim.expiredQr}
         </p>
@@ -95,21 +112,10 @@ export function EsimInstallGuide({
         </p>
       )}
 
-      {quickLink && !expired && (
-        <Button asChild variant="cta" className="min-h-11">
-          <a href={quickLink}>{copy.guide.quick}</a>
-        </Button>
-      )}
-
-      <Button asChild variant="outline" className="min-h-11">
-        <Link to="/esim/kurulum">
-          <PlayCircle className="size-4" />
-          {copy.guide.title}
-        </Link>
-      </Button>
-
+      {qrImage && !expired && !demo && <Button asChild variant="outline" className="mt-3 min-h-11 w-full"><a href={qrImage} download={`pasaport-esim-${esimId}.png`}><Download />{locale === "tr" ? "QR'ı indir" : locale === "de" ? "QR herunterladen" : "Download QR"}</a></Button>}
+        </TabsContent>
+        <TabsContent value="guide" className="grid gap-4 pt-3">
       <DevicePicker locale={locale} onPlatform={setPlatform} />
-
       <Tabs value={platform} onValueChange={(value) => setPlatform(value as "iphone" | "android")}>
         <TabsList className="grid w-full grid-cols-2">
           <TabsTrigger value="iphone" className="gap-1.5">
@@ -122,14 +128,15 @@ export function EsimInstallGuide({
           </TabsTrigger>
         </TabsList>
         <TabsContent value="iphone">
-          <Steps items={copy.guide.iphoneSteps} />
+          <AccountInstallationWalkthrough platform="ios" />
         </TabsContent>
         <TabsContent value="android">
-          <Steps items={copy.guide.androidSteps} />
+          <AccountInstallationWalkthrough platform="android" />
         </TabsContent>
       </Tabs>
-
-      {MANUAL_KEYS.some((key) => installString(installInfo, key)) && (
+        </TabsContent>
+        <TabsContent value="manual" className="pt-3">
+      {!expired && !demo && MANUAL_KEYS.some((key) => installString(installInfo, key)) ? (
         <section className="grid gap-2">
           <h3 className="text-xs font-bold uppercase text-muted-foreground">{copy.guide.manual}</h3>
           {MANUAL_KEYS.map((key) => {
@@ -144,32 +151,11 @@ export function EsimInstallGuide({
             ) : null;
           })}
         </section>
-      )}
-
-      {qrImage && !expired && (
-        <Button asChild variant="outline" className="min-h-11">
-          <a href={qrImage} download={`travely-esim-${esimId}.png`}>
-            <Download />
-            {locale === "tr" ? "QR'ı indir" : locale === "de" ? "QR herunterladen" : "Download QR"}
-          </a>
-        </Button>
-      )}
+      ) : <p className="rounded-lg bg-secondary p-4 text-sm text-muted-foreground">{demo ? ACCOUNT_DEMO_COPY[locale].simulation : expired ? copy.esim.expiredQr : pc.noData}</p>}
+        </TabsContent>
+      </Tabs>
+      {!demo && !expired && installString(installInfo, "roaming_instructions") && <p className="rounded-lg bg-secondary p-3 text-sm text-muted-foreground">{installString(installInfo, "roaming_instructions")}</p>}
     </div>
-  );
-}
-
-function Steps({ items }: { items: readonly string[] }) {
-  return (
-    <ol className="mt-3 grid gap-3">
-      {items.map((step, index) => (
-        <li key={step} className="flex gap-3 text-sm leading-6">
-          <span className="grid size-6 shrink-0 place-items-center rounded-full bg-primary text-xs font-bold text-primary-foreground">
-            {index + 1}
-          </span>
-          <span>{step}</span>
-        </li>
-      ))}
-    </ol>
   );
 }
 

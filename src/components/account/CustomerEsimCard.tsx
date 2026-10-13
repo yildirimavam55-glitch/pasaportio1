@@ -3,36 +3,27 @@ import { useQuery } from "@tanstack/react-query";
 import { CLink as Link } from "@/components/design-v2/v2-context";
 import {
   AlertTriangle,
-  BookOpen,
   ChevronRight,
-  Infinity as InfinityIcon,
-  Plus,
   QrCode,
   RefreshCcw,
-  UserRound,
 } from "lucide-react";
 
-import { EsimInstallGuide } from "@/components/account/EsimInstallGuide";
+import { EsimInstallSheet } from "./EsimInstallSheet";
+import { Progress } from "@/components/ui/progress";
+import { getCountryPhoto } from "@/components/travel/countryPhotos";
+import { PURCHASE_COPY } from "./purchases-copy";
+import { esimCategory } from "@/domain/esim/purchase-categories";
 import { ACCOUNT_COPY } from "@/components/account/copy";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-} from "@/components/ui/sheet";
 import type { Locale } from "@/domain/enums";
 import { flagOf, getCountryByIso } from "@/domain/geo/countries";
 import { commercialDataGb, customerCataloguePackageTitle } from "@/domain/esim/customer-presentation";
 import { useIsV2 } from "@/components/design-v2/v2-context";
-import { canOfferTopUp, rebuyTarget } from "@/domain/esim/rebuy";
+import { rebuyTarget } from "@/domain/esim/rebuy";
 import {
   boundedUsagePercent,
-  fairUseText,
   formatMegabytes,
-  isHistoryEsim,
   isUnlimitedEsim,
   normalizeCustomerEsimStatus,
   remainingDays,
@@ -134,220 +125,44 @@ function displayInfo(esim: CustomerEsimRecord, locale: Locale, v2: boolean) {
   return { flag, name, subtitle, coverageCount };
 }
 
-export function CustomerEsimCard({
-  esim,
-  locale,
-  activationPolicy,
-}: {
-  esim: CustomerEsimRecord;
-  locale: Locale;
-  activationPolicy?: string | null;
+export function CustomerEsimCard({ esim, locale, activationPolicy, demo = false }: {
+  esim: CustomerEsimRecord; locale: Locale; activationPolicy?: string | null; demo?: boolean;
 }) {
   const copy = ACCOUNT_COPY[locale];
+  const pc = PURCHASE_COPY[locale];
   const v2 = useIsV2();
   const [guideOpen, setGuideOpen] = useState(false);
   const status = normalizeCustomerEsimStatus(esim.status);
-  const expired = isHistoryEsim({
-    status: esim.status,
-    totalMb: esim.totalDataMb,
-    remainingMb: esim.remainingDataMb,
-    expiresAt: esim.expiresAt,
-  });
-  const { flag, name, subtitle, coverageCount } = displayInfo(esim, locale, v2);
-  const unlimited = isUnlimitedEsim(esim.totalDataMb, esim.installInfo);
+  const category = esimCategory({ status: esim.status, totalMb: esim.totalDataMb, remainingMb: esim.remainingDataMb, expiresAt: esim.expiresAt });
+  const expired = category === 'used' || category === 'refunded' || category === 'refunding';
+  const { name, subtitle } = displayInfo(esim, locale, v2);
+  const photo = getCountryPhoto(esim.productInfo?.destinationIso);
   const usage = boundedUsagePercent(esim.totalDataMb, esim.remainingDataMb);
   const days = remainingDays(esim.expiresAt);
-  const fairUse = fairUseText(esim.installInfo);
-  const lowData =
-    esim.totalDataMb != null &&
-    esim.remainingDataMb != null &&
-    esim.totalDataMb > 0 &&
-    esim.remainingDataMb / esim.totalDataMb < 0.1;
   const canShowActivation = !expired && (esim.hasQr || esim.hasInstallInfo);
-  const canTopUp = canOfferTopUp(esim.topupSupported && hasCapability(esim, "TOPUP"));
-  const policy = activationPolicy ?? esim.productInfo?.activationPolicy ?? null;
-  const readyNote =
-    policy === "ON_FIRST_NETWORK_CONNECTION" ? copy.readyNoteFirstUse : copy.readyNote;
-
-  const activation = useQuery({
-    queryKey: ["customer-esim-activation", esim.id],
-    queryFn: () => getCustomerEsimActivation({ data: { esimId: esim.id } }),
-    enabled: guideOpen && canShowActivation,
-    staleTime: 60_000,
-  });
-
-  return (
-    <article className="customer-esim-card snap-start border border-border bg-card shadow-card">
-      <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-2">
-        <div className="min-w-0">
-          <h3 className="truncate text-sm font-bold uppercase tracking-wide">
-            {flag}
-            {name}
-          </h3>
-          <p className="mt-0.5 truncate text-xs font-medium text-muted-foreground">{subtitle}</p>
-          {coverageCount > 1 && (
-            <p className="mt-0.5 text-[11px] text-muted-foreground">
-              {coverageCount} {copy.coverageCountries}
-            </p>
-          )}
-        </div>
-        <Badge variant="outline" className="shrink-0 px-2 py-0 text-[11px]">
-          {STATUS_LABELS[locale][status]}
-        </Badge>
+  const activation = useQuery({ queryKey: ['customer-esim-activation', esim.id], queryFn: () => getCustomerEsimActivation({ data: { esimId: esim.id } }), enabled: !demo && guideOpen && canShowActivation, staleTime: 60_000 });
+  return <article data-demo-esim={demo ? esim.id : undefined} className="customer-esim-card snap-start border border-border bg-card shadow-card">
+    {photo && <img src={photo.cardImage} alt="" loading="lazy" className="account-esim-photo" />}
+    <div className="flex items-start justify-between gap-2">
+      <div className="min-w-0"><h3 className="text-base font-bold">{name}</h3><p className="mt-1 text-xs text-muted-foreground">{subtitle}</p></div>
+      <Badge variant="outline" className="max-w-28 whitespace-normal px-2 py-1 text-[11px]">{pc.cat[category]}</Badge>
+    </div>
+    {demo && <span className="mt-2 text-[11px] font-bold text-warning">DEMO · ••{esim.id.slice(-4)}</span>}
+    {esim.travelerLabel && <p className="mt-2 text-xs text-muted-foreground">{esim.travelerLabel}</p>}
+    <div className="my-4 grid gap-3 rounded-lg bg-secondary/60 p-3">
+      <div><p className="text-xs text-muted-foreground">{pc.remainingData}</p>
+        {isUnlimitedEsim(esim.totalDataMb, esim.installInfo) ? <p className="mt-1 text-xl font-bold">{copy.unlimited}</p> : usage != null && esim.remainingDataMb != null && esim.totalDataMb != null ? <><p className="mt-1 text-xl font-bold">{formatMegabytes(Math.max(0, esim.remainingDataMb), locale)} <span className="text-xs font-medium text-muted-foreground">/ {formatMegabytes(esim.totalDataMb, locale)}</span></p><Progress className="mt-2 h-1.5" value={100 - usage} aria-label={pc.remainingData} /></> : <p className="mt-1 text-xs text-muted-foreground">{copy.usageUnavailable}</p>}
       </div>
-
-      {esim.travelerLabel && (
-        <p className="mt-2 flex items-center gap-1.5 text-[11px] text-muted-foreground">
-          <UserRound className="size-3.5" />
-          {esim.travelerLabel}
-        </p>
-      )}
-
-      {status === "ACTIVE" && (
-        <div className="mt-3 rounded-lg bg-secondary/60 px-3 py-2.5">
-          {unlimited ? (
-            <div className="flex gap-2.5">
-              <InfinityIcon className="mt-0.5 size-4 shrink-0 text-primary" />
-              <div className="min-w-0">
-                <p className="text-sm font-bold">{copy.unlimited}</p>
-                {fairUse && (
-                  <p className="mt-0.5 line-clamp-2 text-[11px] leading-4 text-muted-foreground">
-                    {fairUse}
-                  </p>
-                )}
-              </div>
-            </div>
-          ) : usage != null && esim.totalDataMb != null && esim.remainingDataMb != null ? (
-            <>
-              <div className="flex items-baseline justify-between gap-2">
-                <p className="text-lg font-bold leading-6">
-                  {formatMegabytes(Math.max(0, esim.remainingDataMb), locale)}{" "}
-                  <span className="text-xs font-medium text-muted-foreground">
-                    {copy.remaining}
-                  </span>
-                </p>
-                <span className="text-[11px] text-muted-foreground">
-                  {formatMegabytes(esim.totalDataMb, locale)} {copy.total}
-                </span>
-              </div>
-              <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-primary/15">
-                <div
-                  className="h-full rounded-full bg-primary transition-transform duration-500"
-                  style={{ transform: `translateX(-${usage}%)` }}
-                />
-              </div>
-              <div className="mt-1 flex items-center justify-between gap-2 text-[11px] font-semibold">
-                <span>%{Math.round(100 - usage)}</span>
-                {days != null && (
-                  <span className="font-medium text-muted-foreground">
-                    {days === 0 ? copy.expiresToday : `${days} ${copy.daysLeft}`}
-                  </span>
-                )}
-              </div>
-              {lowData && (
-                <p className="mt-1.5 flex items-center gap-1.5 text-[11px] font-semibold text-foreground">
-                  <AlertTriangle className="size-3.5 text-warning" />
-                  {ACCOUNT_DEMO_COPY[locale].low}
-                </p>
-              )}
-            </>
-          ) : (
-            <p className="flex items-center gap-2 text-xs text-muted-foreground">
-              <RefreshCcw className="size-3.5 shrink-0 text-primary" />
-              {copy.usageUnavailable}
-            </p>
-          )}
-          {!unlimited && usage == null && days != null && (
-            <p className="flex items-center gap-2 text-[11px] font-semibold">
-              {days === 0 ? copy.expiresToday : `${days} ${copy.daysLeft}`}
-            </p>
-          )}
-        </div>
-      )}
-
-      {status === "READY" && (
-        <p className="mt-3 text-xs leading-5 text-muted-foreground">{readyNote}</p>
-      )}
-
-      <div className="mt-auto grid grid-cols-2 gap-2 pt-3">
-        {canTopUp && (
-          <Button variant="cta" className="col-span-2 min-h-10 text-xs">
-            <Plus className="size-4" />
-            {copy.esim.topup}
-          </Button>
-        )}
-        {status === "READY" && canShowActivation && (
-          <Button variant="cta" className="col-span-2 min-h-10 text-xs" onClick={() => setGuideOpen(true)}>
-            <QrCode className="size-4" />
-            {copy.installNow}
-          </Button>
-        )}
-        {status !== "READY" && canShowActivation && (
-          <>
-            <Button variant="outline" className="min-h-10 text-xs" onClick={() => setGuideOpen(true)}>
-              <QrCode className="size-4" />
-              {copy.esim.qr}
-            </Button>
-            <Button variant="outline" className="min-h-10 text-xs" onClick={() => setGuideOpen(true)}>
-              <BookOpen className="size-4" />
-              {copy.esim.guide}
-            </Button>
-          </>
-        )}
-        {status === "READY" && (
-          <Button variant="outline" className="min-h-10 text-xs" onClick={() => setGuideOpen(true)}>
-            <QrCode className="size-4" />
-            {copy.esim.qr}
-          </Button>
-        )}
-        <Button
-          asChild
-          variant={expired ? "cta" : "outline"}
-          className="min-h-10 text-xs"
-        >
-          <Link to="/esim" search={rebuyTarget(esim.productInfo)}>
-            <RefreshCcw className="size-4" />
-            {copy.esim.buyAgain}
-          </Link>
-        </Button>
-        <Button asChild variant="outline" className="min-h-10 text-xs">
-          <Link to="/account/esims/$id" params={{ id: esim.id }}>
-            {copy.detail}
-            <ChevronRight className="size-4" />
-          </Link>
-        </Button>
-      </div>
-
-      <Sheet open={guideOpen} onOpenChange={setGuideOpen}>
-        <SheetContent
-          side="bottom"
-          className="max-h-[88dvh] overflow-y-auto rounded-t-3xl px-5 pb-[calc(1.25rem+env(safe-area-inset-bottom))] sm:left-1/2 sm:max-w-lg sm:-translate-x-1/2"
-        >
-          <SheetHeader className="pr-10 text-left">
-            <SheetTitle>{copy.guide.title}</SheetTitle>
-            <SheetDescription>
-              {flag}
-              {name} · {subtitle}
-            </SheetDescription>
-          </SheetHeader>
-          <div className="mt-5">
-            {activation.isLoading ? (
-              <div className="mx-auto size-48 animate-pulse rounded-xl bg-secondary" />
-            ) : (
-              <EsimInstallGuide
-                locale={locale}
-                esimId={esim.id}
-                qrPayload={activation.data?.qrPayload ?? null}
-                installInfo={activation.data?.installInfo ?? esim.installInfo}
-                activationPolicy={policy}
-                expired={expired}
-              />
-            )}
-          </div>
-        </SheetContent>
-      </Sheet>
-    </article>
-  );
+      <p className="text-xs font-medium">{days != null ? `${days} ${copy.daysLeft}` : `${pc.remainingTime}: ${pc.noData}`}</p>
+      {usage != null && usage > 90 && <p className="flex gap-1 text-xs text-warning"><AlertTriangle className="size-4 shrink-0" />{ACCOUNT_DEMO_COPY[locale].low}</p>}
+    </div>
+    <p className="mb-4 text-[11px] leading-5 text-muted-foreground">{pc.activation}: {status === 'ACTIVE' ? `${pc.activationStored} · ${esimStatusLabel(status, locale)}` : pc.activationUnknown}</p>
+    <div className="mt-auto grid gap-2">
+      {!expired && (canShowActivation || demo) && <Button variant={status === 'READY' ? 'cta' : 'outline'} data-install-trigger={esim.id} className="min-h-11 whitespace-normal text-xs" onClick={() => setGuideOpen(true)}><QrCode className="size-4" />{status === 'READY' ? copy.installNow : copy.guide.title}</Button>}
+      <Button asChild variant="outline" className="min-h-11 whitespace-normal text-xs"><Link to="/account/esims/$id" params={{ id: esim.id }} search={demo ? { demo: 1 } : {}} data-demo-detail-link={demo || undefined}>{pc.view}<ChevronRight className="size-4" /></Link></Button>
+    </div>
+    <EsimInstallSheet open={guideOpen} onOpenChange={setGuideOpen} title={`${name} · ${subtitle}`} locale={locale} esimId={esim.id} qrPayload={activation.data?.qrPayload ?? null} installInfo={activation.data?.installInfo ?? esim.installInfo} activationPolicy={activationPolicy ?? esim.productInfo?.activationPolicy} expired={expired} loading={activation.isLoading} demo={demo} />
+  </article>;
 }
 
 /** Compact row for expired/used-up eSIMs — never a full carousel card. */
@@ -377,7 +192,7 @@ export function CustomerEsimHistoryRow({
       >
         <p className="truncate text-sm font-bold uppercase tracking-wide">{name}</p>
         <p className="mt-0.5 truncate text-[11px] text-muted-foreground">
-          {subtitle} · {STATUS_LABELS[locale][status]}
+          {subtitle} · {PURCHASE_COPY[locale].cat[esimCategory({ status: esim.status, totalMb: esim.totalDataMb, remainingMb: esim.remainingDataMb, expiresAt: esim.expiresAt })]}
           {days != null && days > 0 ? ` · ${days} ${copy.daysLeft}` : ""}
         </p>
       </Link>

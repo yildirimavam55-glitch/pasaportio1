@@ -1,4 +1,5 @@
 import { Children, useRef, useState, type ReactNode } from "react";
+import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
 const SNAP_GAP_PX = 12;
@@ -6,7 +7,7 @@ const SNAP_GAP_PX = 12;
 /**
  * Horizontal scroll-snap rail for eSIM cards on mobile.
  * Cards keep a small peek of the next card so swiping is discoverable;
- * on sm+ the CSS promotes the rail to a responsive grid and dots hide.
+ * on md+ the CSS promotes the rail to a responsive grid and dots hide.
  */
 export function EsimCarousel({ children, label }: { children: ReactNode; label: string }) {
   const cards = Children.toArray(children);
@@ -31,7 +32,7 @@ export function EsimCarousel({ children, label }: { children: ReactNode; label: 
     if (!el) return;
     const step = stepSize();
     if (!step) return;
-    setIndex(Math.min(cards.length - 1, Math.max(0, Math.round(el.scrollLeft / step))));
+    setIndex(Math.min(cards.length - 1, Math.max(0, Math.round(Math.abs(el.scrollLeft) / step))));
   };
 
   const goTo = (i: number) => {
@@ -39,7 +40,8 @@ export function EsimCarousel({ children, label }: { children: ReactNode; label: 
     if (!el) return;
     const step = stepSize();
     if (!step) return;
-    el.scrollTo({ left: i * step, behavior: "smooth" });
+    const direction = getComputedStyle(el).direction === 'rtl' ? -1 : 1;
+    el.scrollTo({ left: direction * i * step, behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
   };
 
   return (
@@ -53,27 +55,25 @@ export function EsimCarousel({ children, label }: { children: ReactNode; label: 
       >
         {cards}
       </div>
-      <div className="mt-1 flex items-center justify-center gap-2 sm:hidden">
-        <button type="button" onClick={() => goTo(Math.max(0, index - 1))} disabled={index === 0} aria-label={`← ${label}`} className="grid size-8 place-items-center rounded-full text-muted-foreground disabled:opacity-30">
+      <div className="mt-1 flex items-center justify-center gap-2 md:hidden">
+        <Button variant="ghost" size="icon" type="button" onClick={() => goTo(Math.max(0, index - 1))} disabled={index === 0} aria-label={`← ${label}`} className="grid size-11 place-items-center rounded-full text-muted-foreground disabled:opacity-30">
           <ChevronLeft className="size-4" />
-        </button>
-        <div className="flex gap-1.5" aria-hidden="true">
+        </Button>
+        <div className="flex" >
         {cards.map((_, i) => (
-          <button
+          <Button variant="ghost" size="icon"
             key={i}
             type="button"
-            tabIndex={-1}
+            aria-pressed={i === index}
             aria-label={`${i + 1} / ${cards.length}`}
             onClick={() => goTo(i)}
-            className={`size-2 rounded-full transition-colors ${
-              i === index ? "bg-primary" : "bg-primary/20"
-            }`}
-          />
+            className="size-11 rounded-full"
+          ><span className={`size-2 rounded-full transition-colors ${i === index ? 'bg-primary' : 'bg-primary/20'}`} /></Button>
         ))}
         </div>
-        <button type="button" onClick={() => goTo(Math.min(cards.length - 1, index + 1))} disabled={index === cards.length - 1} aria-label={`${label} →`} className="grid size-8 place-items-center rounded-full text-muted-foreground disabled:opacity-30">
+        <Button variant="ghost" size="icon" type="button" onClick={() => goTo(Math.min(cards.length - 1, index + 1))} disabled={index === cards.length - 1} aria-label={`${label} →`} className="grid size-11 place-items-center rounded-full text-muted-foreground disabled:opacity-30">
           <ChevronRight className="size-4" />
-        </button>
+        </Button>
       </div>
     </div>
   );

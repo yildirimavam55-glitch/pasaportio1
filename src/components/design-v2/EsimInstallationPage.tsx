@@ -100,6 +100,29 @@ function PhoneVisual({ platform, method, step, c }: { platform: Platform; method
   return <InstallationPhone android={platform === "android"} phase={`${platform}-${method}-${step}`}><PhoneScreen platform={platform} method={method} step={step} c={c}/></InstallationPhone>;
 }
 
+/** Account education reuses the public phone scenes without quick links or activation claims. */
+export function AccountInstallationWalkthrough({ platform }: { platform: Platform }) {
+  const { locale } = useI18n();
+  const c = GUIDE[locale];
+  const [step, setStep] = useState(0);
+  const steps = c.qrSteps.slice(0, 3);
+  const current = steps[step] ?? steps[0];
+  useEffect(() => { setStep(0); }, [platform]);
+  if (!current) return null;
+  return <div data-account-walkthrough className="grid gap-4">
+    <div className="grid place-items-center rounded-lg bg-secondary py-5">
+      <PhoneVisual platform={platform} method="qr" step={step} c={c} />
+      <p className="mt-3 text-xs text-muted-foreground">{c.sample}</p>
+    </div>
+    <div aria-live="polite">
+      <p className="text-xs font-semibold text-primary">{c.step} {step + 1} / {steps.length}</p>
+      <h3 className="mt-1 text-base font-bold">{current.title}</h3>
+      <p className="mt-2 text-sm leading-6 text-muted-foreground">{platform === 'ios' ? current.ios : current.android}</p>
+    </div>
+    <StepNavigation previous={c.previous} next={step === steps.length - 1 ? c.restart : c.next} onPrevious={() => setStep(Math.max(0, step - 1))} onNext={() => setStep((step + 1) % steps.length)} previousDisabled={step === 0} />
+  </div>;
+}
+
 export function EsimInstallationPage({ initialPlatform }: { initialPlatform: Platform }) {
   const { locale } = useI18n();
   const c = GUIDE[locale];
