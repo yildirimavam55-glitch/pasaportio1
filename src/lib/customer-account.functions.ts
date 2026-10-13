@@ -5,6 +5,7 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import type { Json } from "@/integrations/supabase/types";
 
 export type CustomerEsimProductInfo = {
+  productId?: string;
   dataGb: number | null;
   unlimitedData: boolean;
   validityDays: number | null;
@@ -131,6 +132,7 @@ async function loadProductInfo(
     (data ?? []).map((item: Record<string, any>) => [
       item["product_id"],
       {
+        productId: String(item["product_id"]),
         dataGb: item["data_gb"] == null ? null : Number(item["data_gb"]),
         unlimitedData: Boolean(item["unlimited_data"]),
         validityDays: item["validity_days"] == null ? null : Number(item["validity_days"]),

@@ -315,6 +315,9 @@ html.dark .destination-scene {
 
 .customer-esim-card {
   min-width: 0;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
   border-radius: var(--radius-card);
   padding: 1rem;
 }
