@@ -1,6 +1,6 @@
 # V2 storefront CMS rules
 
-- Installation education uses the existing central route and CentralInstallationWalkthrough; homepage/account/detail/delivery actions navigate there, phone scenes stay credential-free, and APN walkthroughs require a provider-supplied value — why: one guide without changing secure reads or starting installation.
+- Installation education shares CentralInstallationWalkthrough: homepage embeds a credential-free autoplay preview, while account/detail/delivery actions use the user-controlled central route; APN requires provider data — why: visible homepage education without a second animation system or unsafe reads.
 
 - Homepage trust and review content lives in the existing V2 CMS document; public reads require both verified and published review flags so unapproved customer content stays private.
 - Fictional editorial review fixtures and inactive payment visuals render only in the V2 CMS preview iframe; public V2 reads strip editorial/demo reviews and never imply unavailable payment methods are active.
