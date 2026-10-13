@@ -44,3 +44,4 @@ Public install help stays in V2; QR, activation credentials, and package policy 
 - Review samples are gated by editor-frame intent plus the server Admin query, never hostnames; CMS refresh failures keep last-known published data instead of an empty fallback.
 - Fresh databases build from db/baseline/0000_baseline_schema.sql, then drizzle/migrations in order; security grants live in migrations — why: copies must reproduce the hardened live schema.
 - Guest orders have customer_id null + normalized guest_email; idempotency is scoped per owner and guest delivery links use hashed, expiring tokens only — why: guests never get accounts and links must never leak access.
+- Public site origin comes only from SITE_URL in src/domain/seo/paths.ts; /sitemap.xml and /sitemap/xml both serve src/lib/sitemap-xml.server.ts — why: one domain switch point and no conflicting sitemaps.
