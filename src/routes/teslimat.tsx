@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
@@ -18,7 +18,7 @@ const COPY = localize({
   en: { title: "Your eSIM delivery", loading: "Loading…", order: "Order", status: "Status", data: "Data", validUntil: "Valid until", unlimited: "Unlimited", none: "No eSIM is ready for this order yet. It will appear here once ready.", invalidTitle: "This link is invalid or has expired", invalidBody: "For your security, delivery links are short-lived. Request a new one with your order number and the email used for the order.", orderNumber: "Order number", email: "Email", send: "Send verification code", sent: "If the details match, a 6-digit code will be sent to your email.", code: "6-digit code", confirm: "Open new link", wrong: "The code could not be verified. Check the details and try again.", support: "Get support", private: "This page is personal to you — do not share the link." },
 } as const);
 
-export const Route = createFileRoute("/teslimat/$token")({
+export const Route = createFileRoute("/teslimat")({
   ssr: false,
   head: () => ({ meta: [
     { title: "eSIM teslimatı | pasaport.io" },
@@ -32,16 +32,24 @@ export const Route = createFileRoute("/teslimat/$token")({
 });
 
 function GuestDeliveryPage() {
-  const { token } = Route.useParams();
+  // S3: the token lives in the URL fragment (#…), which browsers never send to the
+  // server, so it cannot reach access logs. It is removed from the address bar at once,
+  // so later error reports, analytics or shared screenshots never contain it.
+  const [token, setToken] = useState<string | null>(null);
+  useEffect(() => {
+    const raw = window.location.hash.slice(1);
+    setToken(/^[0-9a-f]{64}$/.test(raw) ? raw : "");
+    if (raw) window.history.replaceState(null, "", window.location.pathname);
+  }, []);
   const { locale } = useI18n();
   const c = COPY[locale] ?? COPY.en;
   const open = useServerFn(openGuestDeliveryRequest);
-  const q = useQuery({ queryKey: ["guest-delivery", token], queryFn: () => open({ data: { token } }), retry: false, staleTime: 60_000 });
+  const q = useQuery({ queryKey: ["guest-delivery"], queryFn: () => (token ? open({ data: { token } }) : Promise.resolve({ ok: false } as const)), enabled: token !== null, retry: false, staleTime: 60_000, gcTime: 0 });
 
   return (
     <main className="mx-auto grid w-full max-w-xl gap-5 px-4 py-8 sm:py-12">
       <h1 className="font-display text-2xl font-bold">{c.title}</h1>
-      {q.isPending ? <p className="text-sm text-muted-foreground">{c.loading}</p>
+      {token === null || q.isPending ? <p className="text-sm text-muted-foreground">{c.loading}</p>
         : q.data?.ok ? <Delivered order={q.data.order} c={c} locale={locale} />
         : <Renew c={c} />}
       <Button asChild variant="outline" className="min-h-11 w-fit"><Link to="/destek"><LifeBuoy className="size-4" />{c.support}</Link></Button>
@@ -95,7 +103,7 @@ function Renew({ c }: { c: Copy }) {
         ev.preventDefault(); setBusy(true); setError(false);
         try {
           if (step === "form") { await request({ data: { orderNumber, email } }); setStep("code"); }
-          else { const r = await confirm({ data: { orderNumber, email, code } }); if (r.ok) window.location.replace(`/teslimat/${r.token}`); else setError(true); }
+          else { const r = await confirm({ data: { orderNumber, email, code } }); if (r.ok) { window.location.replace(`/teslimat#${r.token}`); window.location.reload(); }; else setError(true); }
         } finally { setBusy(false); }
       }}>
         <Input aria-label={c.orderNumber} placeholder={c.orderNumber} value={orderNumber} onChange={(e) => setOrderNumber(e.target.value)} required maxLength={40} disabled={step === "code"} />
