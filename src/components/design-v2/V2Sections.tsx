@@ -5,8 +5,7 @@ import { DesktopPromoCard, HowItWorks, PromoCard, TrustRow } from "@/components/
 import { V2InfoCarousel } from "@/components/design-v2/V2InfoCarousel";
 import { V2TrustReviews } from "@/components/design-v2/V2TrustReviews";
 import { lastKnownPublished } from "@/domain/storefront/review-carousel";
-import { V2Compatibility, V2CompactFaq, V2GuidesRail, V2InfoGrid, V2Installation } from "@/components/design-v2/V2DiscoveryContent";
-import { DesktopDeviceCompatibilityBanner } from "@/components/travel/DeviceCompatibility";
+import { V2CompactFaq, V2GuidesRail, V2InfoGrid, V2Installation } from "@/components/design-v2/V2DiscoveryContent";
 import { Reveal } from "@/components/travel/Reveal";
 import { V2SectionFrame } from "@/components/design-v2/V2SectionFrame";
 import { StorefrontIcon } from "@/domain/storefront/icons";
