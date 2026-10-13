@@ -36,8 +36,8 @@ export type AccountSectionKey =
 
 const NAV: Array<{ key: AccountSectionKey; to: string; icon: typeof LayoutGrid; sub?: boolean }> = [
   { key: "overview", to: "/account", icon: LayoutGrid },
+  { key: "esims", to: "/account/esims", icon: Signal },
   { key: "purchases", to: "/account/purchases", icon: ShoppingBag },
-  { key: "esims", to: "/account/esims", icon: Signal, sub: true },
   { key: "lounge", to: "/account/lounge", icon: Armchair, sub: true },
   { key: "vignette", to: "/account/vignette", icon: Car, sub: true },
   { key: "orders", to: "/account/orders", icon: PackageCheck },
@@ -116,14 +116,15 @@ export function AccountLayout({
             <div className={v2 ? "mt-4 lg:mt-6" : "mt-6"}>{children}</div>
 
             {(active === "overview" || active === "purchases") && (
-              <nav className={v2 ? "mt-6 grid gap-2 lg:hidden" : "mt-10 grid gap-2 lg:hidden"} aria-label={copy.eyebrow}>
-                {nav.filter((item) => item.key !== "overview").map(({ key, to, icon: Icon, sub }) => (
+              <nav className="account-mobile-nav mt-7 grid lg:hidden" aria-label={copy.eyebrow}>
+                {nav.map(({ key, to, icon: Icon, sub }) => (
                   <Link
                     key={key}
                     to={to}
-                    className={v2 ? `flex min-h-12 items-center gap-3 rounded-2xl border border-border bg-card px-3 text-sm font-semibold ${sub ? "ml-4" : ""}` : "flex min-h-14 items-center gap-3 rounded-2xl border border-border bg-card px-4 font-semibold shadow-card"}
+                    aria-current={key === active ? "page" : undefined}
+                    className={`flex min-h-11 items-center gap-3 border-b border-border/60 px-2 text-sm font-medium last:border-0 ${sub ? "ml-4" : ""}`}
                   >
-                    <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-primary-soft text-primary">
+                    <span className="grid size-7 shrink-0 place-items-center rounded-full bg-primary-soft text-primary">
                       <Icon className="size-4" />
                     </span>
                     <span className="min-w-0 flex-1 truncate">{label(key)}</span>

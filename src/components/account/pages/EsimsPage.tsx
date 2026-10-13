@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { useRouterState } from "@tanstack/react-router";
 import { DemoEsimPackages } from "../DemoEsimPackages";
 import { ACCOUNT_DEMO_COPY } from "../demo-copy";
-import { accountDemoAllowed } from "@/domain/esim/account-demo";
+import { accountDemoPresentationAllowed } from "@/domain/esim/account-demo";
 import { useQuery } from "@tanstack/react-query";
 
 import { AccountLayout } from "@/components/account/AccountLayout";
@@ -109,7 +109,13 @@ export function useAccountDemo() {
   const [enabled, setEnabled] = useState(false);
   useEffect(() => {
     const url = new URL(href, window.location.origin);
-    setEnabled(accountDemoAllowed(window.location.hostname, url.searchParams.get('demo') === '1'));
+    let editorOrigin: string | null = null;
+    if (window.parent !== window) {
+      try {
+        editorOrigin = window.location.ancestorOrigins?.[0] ?? (document.referrer ? new URL(document.referrer).origin : null);
+      } catch { /* No trusted editor context: demos stay closed. */ }
+    }
+    setEnabled(accountDemoPresentationAllowed(window.location.hostname, url.searchParams.get('demo') === '1', editorOrigin));
   }, [href]);
   return enabled;
 }

@@ -12,7 +12,7 @@
 Public install help stays in V2; QR, activation credentials, and package policy stay in authenticated account views.
 - V2 pickers share `V2PickerSheet`; preserve mobile scroll/x-position and visual-viewport keyboard handling, with guarded pointer-up selection.
 - Keep the eSIM coverage-array GIN index; public catalogue containment queries depend on it.
-- i18n uses one locale registry; overlay locales use English source plus static resources through `localize()`.
+- i18n shares one locale registry; overlays use English source and static `localize()` resources.
 - V2 country pages reuse central photos, device checker, catalogue queries, and cart state; never duplicate these systems.
 - Compatibility claims require one exact curated model match; ambiguous/iPhone-family signals stay manual, and only manual confirmations persist.
 - Regional discovery uses published summaries, coverage classification, and product routes; eligibility comes from package coverage only.
@@ -33,10 +33,10 @@ Public install help stays in V2; QR, activation credentials, and package policy 
 - Browser-only locales await resolution in a neutral shell; TR/DE/EN URLs remain SSR — why: unknown browser preferences must not flash another language.
 - Worldwide static photos reuse REGION_DISCOVERY media/crops/preview; price/coverage share one catalogue row — why: no duplicate tools or false claims.
 - One shared PaymentStrip uses story CSS ordering for desktop copy/mobile below-photo placement — why: never duplicate availability data.
-- Account demos require preview opt-in and account auth, with no writes/order counts — why: simulations cannot become purchases.
+- Account demos require authenticated preview opt-in and credential-free in-memory records; cards/details share EsimInstallSheet and public phone scenes — why: no purchases or duplicated guides.
 - Refund verdicts use stored activation history plus confirmed never-activated provider evidence, not current status — why: past activation and duplicate requests stay blocked.
 - Root CurrencyProvider + displayMoney are the only currency path; EUR stays canonical, rateless currencies are hidden, only payment-verified ones charge — why: no fake prices.
 - Review samples are gated by editor-frame intent plus the server Admin query, never hostnames; CMS refresh failures keep last-known published data instead of an empty fallback.
 - Fresh databases build from db/baseline/0000_baseline_schema.sql, then drizzle/migrations in order; security grants live in migrations — why: copies must reproduce the hardened live schema.
 - Guest orders have customer_id null + normalized guest_email; idempotency is scoped per owner and guest delivery links use hashed, expiring tokens only — why: guests never get accounts and links must never leak access.
-- Site origin = SITE_URL (seo/paths.ts); both sitemap URLs share one builder — why: one domain switch, no conflicting sitemaps.
+- Site origin = SITE_URL; sitemaps share one builder — why: no conflicting domains.

@@ -7,7 +7,8 @@ import { getCountryPhoto } from "@/components/travel/countryPhotos";
 
 import { AccountLayout } from "@/components/account/AccountLayout";
 import { EsimRefundPanel } from "@/components/refunds/EsimRefundPanel";
-import { EsimInstallGuide } from "@/components/account/EsimInstallGuide";
+import { EsimInstallSheet } from "../EsimInstallSheet";
+import { demoEsimRecord } from "../demo-presentation";
 import { esimStatusLabel, hasCapability } from "@/components/account/CustomerEsimCard";
 import { ACCOUNT_COPY, formatDate, formatMoney } from "@/components/account/copy";
 import { Badge } from "@/components/ui/badge";
@@ -40,14 +41,8 @@ import {
 function demoDetail(id: string, now: Date) {
   const d = createAccountDemo(now).find((e) => e.id === id);
   if (!d) return null;
-  const mb = (gb: number) => Math.round(gb * 1024);
   return {
-    esim: {
-      id: d.id, status: d.active ? "ACTIVE" : "READY", totalDataMb: mb(d.total), remainingDataMb: mb(d.remaining),
-      expiresAt: d.expiresAt, createdAt: d.purchaseAt, installInfo: null, topupSupported: false, capabilities: [],
-      productInfo: { destinationIso: d.iso, packageKind: "COUNTRY", productId: null },
-      packageLabel: `${d.iso} eSIM · ${d.total} GB`, destinationLabel: null, hasIccid: false, hasQr: false, hasInstallInfo: false,
-    },
+    esim: demoEsimRecord(d),
     orderRef: null, purchase: null,
     coverage: { countryIsos: [d.iso], dataGb: d.total, validityDays: 30, unlimited: false, activationPolicy: null, networkOperators: [], fairUseNote: null, topupSupported: false },
   } as unknown as Awaited<ReturnType<typeof getCustomerEsimDetail>>;
@@ -59,6 +54,7 @@ export function EsimDetailPage({ id }: { id: string }) {
   const v2 = useIsV2();
   const [countryQuery, setCountryQuery] = useState("");
   const [countriesOpen, setCountriesOpen] = useState(false);
+  const [installOpen, setInstallOpen] = useState(false);
   const isDemoId = id.startsWith("demo-");
   const demoAllowed = useAccountDemo();
   const [now] = useState(() => new Date());
@@ -326,30 +322,12 @@ export function EsimDetailPage({ id }: { id: string }) {
         <aside className="grid gap-4">
           <section className="rounded-2xl border border-border bg-card p-5 shadow-card">
             <h2 className="font-display text-lg font-bold">{pc.installOptions}</h2>
-            <button type="button" disabled aria-disabled="true" className="mt-3 flex w-full items-center gap-3 rounded-xl bg-primary px-4 py-3 text-left text-primary-foreground opacity-90">
-              <Smartphone className="size-5 shrink-0" />
-              <span className="min-w-0 flex-1"><span className="block text-sm font-semibold">{pc.iphoneAuto}</span><span className="block text-xs opacity-80">{pc.iphoneAutoText}</span></span>
-              <span className="rounded-full bg-primary-foreground/20 px-2 py-0.5 text-[11px] font-bold">{pc.soon}</span>
-            </button>
-          </section>
-          <section className="rounded-2xl border border-border bg-card p-5 shadow-card">
-            <h2 className="font-display text-lg font-bold">{copy.guide.title}</h2>
-            <div className="mt-4">
-              {activation.isLoading ? (
-                <div className="h-48 animate-pulse rounded-xl bg-secondary" />
-              ) : (
-                <EsimInstallGuide
-                  locale={locale}
-                  esimId={esim.id}
-                  qrPayload={activation.data?.qrPayload ?? null}
-                  installInfo={activation.data?.installInfo ?? esim.installInfo}
-                  activationPolicy={coverage?.activationPolicy ?? null}
-                  expired={expired}
-                />
-              )}
-            </div>
+            <Button variant="default" disabled className="mt-3 h-auto min-h-14 w-full whitespace-normal py-3 text-left"><Smartphone className="size-5 shrink-0" /><span className="min-w-0 flex-1">{pc.iphoneAuto}</span><span className="text-xs">{pc.soon}</span></Button>
+            <Button variant="cta" data-install-trigger={esim.id} className="mt-3 min-h-11 w-full whitespace-normal" onClick={() => setInstallOpen(true)}>{copy.guide.title}</Button>
+            <EsimInstallSheet open={installOpen} onOpenChange={setInstallOpen} title={v2Identity ?? esim.packageLabel ?? 'eSIM'} locale={locale} esimId={esim.id} qrPayload={activation.data?.qrPayload ?? null} installInfo={activation.data?.installInfo ?? esim.installInfo} activationPolicy={coverage?.activationPolicy} expired={expired} loading={activation.isLoading} demo={isDemoId} />
           </section>
           {!isDemoId && <EsimRefundPanel esimId={esim.id} />}
+          {isDemoId && <Button asChild variant="outline" className="min-h-11"><Link to="/account/support">{pc.nav.support}</Link></Button>}
           <section className="rounded-2xl border border-border bg-card p-5 shadow-card">
             {canTopUp ? (
               <Button variant="cta" className="min-h-11 w-full">

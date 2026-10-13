@@ -1,14 +1,15 @@
-import { EsimsPage, useAccountDemo } from "./EsimsPage";
+import { useAccountDemo } from "./EsimsPage";
 import { CLink as Link } from "@/components/design-v2/v2-context";
 import { useQuery } from "@tanstack/react-query";
 import { ChevronRight, Clock3, PackageCheck, RefreshCcw, Signal } from "lucide-react";
 
+import { DemoEsimPackages } from "../DemoEsimPackages";
+import { PURCHASE_COPY } from "../purchases-copy";
 import { CustomerEsimCard } from "@/components/account/CustomerEsimCard";
 import { EsimCarousel } from "@/components/account/EsimCarousel";
 import { AccountLayout } from "@/components/account/AccountLayout";
 import { ACCOUNT_COPY, formatDate, formatMoney, numberLocale } from "@/components/account/copy";
 import { Button } from "@/components/ui/button";
-import { isHistoryEsim, normalizeCustomerEsimStatus } from "@/domain/esim/customer-esim";
 import { useI18n } from "@/i18n";
 import { getCustomerAccount } from "@/lib/customer-account.functions";
 
@@ -28,24 +29,6 @@ export function AccountOverview() {
   const email = profile?.email ?? "";
   const firstName = (profile?.full_name?.trim() || email.split("@")[0] || "").split(" ")[0] ?? "";
   const esims = account.data?.esims ?? [];
-  const active = esims.filter(
-    (esim) =>
-      !isHistoryEsim({
-        status: esim.status,
-        totalMb: esim.totalDataMb,
-        remainingMb: esim.remainingDataMb,
-        expiresAt: esim.expiresAt,
-      }) && normalizeCustomerEsimStatus(esim.status) === "ACTIVE",
-  );
-  const pending = esims.filter(
-    (esim) =>
-      !isHistoryEsim({
-        status: esim.status,
-        totalMb: esim.totalDataMb,
-        remainingMb: esim.remainingDataMb,
-        expiresAt: esim.expiresAt,
-      }) && normalizeCustomerEsimStatus(esim.status) !== "ACTIVE",
-  );
   const orders = account.data?.orders ?? [];
   const updated = account.data?.fetchedAt
     ? new Intl.DateTimeFormat(numberLocale(locale), {
@@ -54,7 +37,6 @@ export function AccountOverview() {
       }).format(new Date(account.data.fetchedAt))
     : "—";
 
-  if (demo) return <EsimsPage />;
 
   return (
     <AccountLayout
@@ -86,16 +68,16 @@ export function AccountOverview() {
       <section className="mt-6">
         <div className="mb-3 flex items-center gap-2">
           <Signal className="size-5 text-primary" />
-          <h2 className="font-display text-xl font-bold">{copy.activeEsims}</h2>
+          <h2 className="font-display text-xl font-bold">{PURCHASE_COPY[locale].nav.esims}</h2>
         </div>
-        {account.isPending ? (
-          <div className="grid gap-3" aria-busy="true" aria-label={copy.activeEsims}>
+        {demo ? <DemoEsimPackages /> : account.isPending ? (
+          <div className="grid gap-3" aria-busy="true" aria-label={PURCHASE_COPY[locale].nav.esims}>
             <div className="h-40 animate-pulse rounded-2xl bg-secondary/60" />
             <div className="h-4 w-1/2 animate-pulse rounded bg-secondary/60" />
           </div>
-        ) : account.isError ? null : active.length ? (
-          <EsimCarousel label={copy.activeEsims}>
-            {active.map((esim) => (
+        ) : account.isError ? null : esims.length ? (
+          <EsimCarousel label={PURCHASE_COPY[locale].nav.esims}>
+            {esims.map((esim) => (
               <CustomerEsimCard key={esim.id} esim={esim} locale={locale} />
             ))}
           </EsimCarousel>
@@ -110,20 +92,6 @@ export function AccountOverview() {
           </div>
         )}
       </section>
-
-      {pending.length > 0 && (
-        <section className="mt-8">
-          <div className="mb-3 flex items-center gap-2">
-            <Clock3 className="size-5 text-primary" />
-            <h2 className="font-display text-xl font-bold">{copy.pendingEsims}</h2>
-          </div>
-          <EsimCarousel label={copy.pendingEsims}>
-            {pending.map((esim) => (
-              <CustomerEsimCard key={esim.id} esim={esim} locale={locale} />
-            ))}
-          </EsimCarousel>
-        </section>
-      )}
 
       <div className="mt-8 hidden gap-3 sm:grid-cols-2 lg:grid">
         <Link
