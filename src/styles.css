@@ -2140,9 +2140,6 @@ body:has([role="dialog"][data-state="open"]) .pasaport-mobile-reference [data-wh
  .account-detail-metrics section { padding:12px; }
  .account-detail-metrics .font-display { font-size:22px; }
 }
-@media(min-width:768px) {
- .account-square-action { max-height:90px; }
-}
 @media(min-width:1024px) {
  .customer-esim-track { grid-template-columns:repeat(2,minmax(0,1fr)); }
  .account-mobile-nav { grid-template-columns:repeat(2,minmax(0,1fr)); }

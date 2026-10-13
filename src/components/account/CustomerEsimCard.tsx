@@ -109,12 +109,7 @@ function displayInfo(esim: CustomerEsimRecord, locale: Locale, v2: boolean) {
         ? Math.round(structuredGb * 1024)
         : esim.totalDataMb;
   const validityDays =
-    info?.validityDays ??
-    (esim.createdAt && esim.expiresAt
-      ? Math.round(
-          (new Date(esim.expiresAt).getTime() - new Date(esim.createdAt).getTime()) / 86_400_000,
-        )
-      : null);
+    info?.validityDays ?? null;
 
   const parts: string[] = [];
   if (info?.unlimitedData || isUnlimitedEsim(esim.totalDataMb, esim.installInfo)) {
@@ -161,13 +156,14 @@ export function CustomerEsimCard({ esim, locale, activationPolicy, demo = false 
       </div>
       <div className="min-w-0">
         <p className="flex items-center gap-2 text-sm font-bold">{iso && <CountryFlag iso={iso} className="text-base" />}<span className="min-w-0">{name}</span></p>
-        <h3 className="mt-1 text-sm font-bold">{name} eSIM · {subtitle}</h3>
+        <h3 className="mt-1 text-sm font-bold">{name.includes("eSIM") ? name : `${name} eSIM`} · {subtitle}</h3>
         {demo && <p className="mt-1 text-[10px] font-bold text-warning">DEMO</p>}
         {esim.travelerLabel && <p className="mt-1 text-[11px] font-semibold text-muted-foreground">{esim.travelerLabel}</p>}
         {pending ? <><p className="mt-2 text-[11px] text-muted-foreground">{c.installed}: {c.noInstall}</p><p className="mt-1 flex gap-1 text-[11px] text-muted-foreground"><CalendarDays className="size-3.5 shrink-0" />{copy.esim.purchaseDate}: {purchaseAt ? formatDate(purchaseAt, locale) : pc.noData}</p></> : <div className="mt-2">
           <p className="text-xs font-bold">{esim.remainingDataMb != null && usage != null ? `${formatMegabytes(Math.max(0, esim.remainingDataMb), locale)} · ${pc.remainingData}` : c.noUsage}</p>
           {usage != null && <Progress value={100 - usage} className="mt-2 h-1.5" aria-label={pc.remainingData} />}
-          <p className="mt-2 text-[10px] text-muted-foreground">{pc.activation}: {status === 'ACTIVE' ? pc.activationStored : pc.activationUnknown}</p>
+          <p className="mt-2 text-[10px] text-muted-foreground">{pc.remainingTime}: {remainingDays(esim.expiresAt) != null ? `${remainingDays(esim.expiresAt)} ${pc.days}` : pc.noData}</p>
+          <p className="mt-1 text-[10px] text-muted-foreground">{pc.activation}: {status === 'ACTIVE' ? pc.activationStored : pc.activationUnknown}</p>
         </div>}
       </div>
     </div>

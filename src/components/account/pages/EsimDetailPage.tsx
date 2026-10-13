@@ -144,9 +144,7 @@ export function EsimDetailPage({ id }: { id: string }) {
   return (
     <AccountLayout
       active="esims"
-      title={copy.nav.esims /* package identity appears with photo */}
-      /*title={v2Identity ?? (esim.packageLabel || esim.destinationLabel || "eSIM")}
-      lead={v2Identity ? undefined : esim.destinationLabel ?? undefined}*/
+      title={copy.nav.esims}
       actions={<>{isDemoId && <Badge variant="outline" className="border-warning/40 text-warning">DEMO</Badge>}<Badge variant="outline">{esimStatusLabel(status, locale)}</Badge></>}
     >
       <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_22rem]">
@@ -156,7 +154,7 @@ export function EsimDetailPage({ id }: { id: string }) {
             <Badge className="account-detail-badge">{esimStatusLabel(status, locale)}</Badge>
           </div>
           <div>
-            <h2 className="font-display text-xl font-bold">{heroIso && <span className="mr-2" aria-hidden="true">{flagOf(heroIso)}</span>}{v2Identity ?? esim.packageLabel ?? 'eSIM'}{v2Identity && esim.totalDataMb != null ? ` · ${formatMegabytes(esim.totalDataMb, locale)}` : ''}</h2>
+            <h2 className="font-display text-xl font-bold">{heroIso && <CountryFlag iso={heroIso} className="mr-2" />}{v2Identity ?? esim.packageLabel ?? 'eSIM'}{v2Identity && esim.totalDataMb != null ? ` · ${formatMegabytes(esim.totalDataMb, locale)}` : ''}</h2>
             {esim.travelerLabel && <p className="mt-1 text-xs font-semibold text-warning">{esim.travelerLabel}</p>}
             <p className="mt-2 text-xs text-muted-foreground">{[heroIso ? getCountryByIso(heroIso)?.name[locale] : null, coverage?.networkOperators?.join(' / '), coverage?.validityDays ? `${coverage.validityDays} ${pc.days}` : null].filter(Boolean).join(' · ')}</p>
           </div>
@@ -323,7 +321,7 @@ export function EsimDetailPage({ id }: { id: string }) {
             <Button variant="default" disabled className="h-auto min-h-14 w-full justify-start whitespace-normal text-left"><Smartphone className="size-5 shrink-0" /><span className="min-w-0 flex-1 text-xs">{pc.iphoneAuto}<small className="mt-1 block">{pc.iphoneAutoText}</small></span><span className="text-xs">{pc.soon}</span></Button>
             <Button variant="outline" className="h-auto min-h-12 justify-between whitespace-normal text-xs" onClick={() => openInstall('qr')}><QrCode className="size-5 shrink-0" />{copy.esim.qr}<ChevronRight className="size-4 shrink-0" /></Button>
             <Button variant="outline" className="h-auto min-h-12 justify-between whitespace-normal text-xs" onClick={() => openInstall('manual')}><Smartphone className="size-5 shrink-0" />{copy.guide.manual}<ChevronRight className="size-4 shrink-0" /></Button>
-            <EsimInstallGuide initialMethod="guide" locale={locale} esimId={esim.id} qrPayload={null} installInfo={activation.data?.installInfo ?? esim.installInfo} activationPolicy={coverage?.activationPolicy ?? null} expired={expired} demo={isDemoId} />
+            <EsimInstallGuide embedded initialMethod="guide" locale={locale} esimId={esim.id} qrPayload={null} installInfo={activation.data?.installInfo ?? esim.installInfo} activationPolicy={coverage?.activationPolicy ?? null} expired={expired} demo={isDemoId} />
             <EsimInstallSheet open={installOpen} onOpenChange={setInstallOpen} initialMethod={installMethod} title={v2Identity ?? esim.packageLabel ?? 'eSIM'} locale={locale} esimId={esim.id} qrPayload={activation.data?.qrPayload ?? null} installInfo={activation.data?.installInfo ?? esim.installInfo} activationPolicy={coverage?.activationPolicy} expired={expired} loading={activation.isLoading} demo={isDemoId} />
           </section>
           {!isDemoId && <EsimRefundPanel esimId={esim.id} />}

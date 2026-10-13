@@ -40,3 +40,5 @@ Public install help stays in V2; QR, activation credentials, and package policy 
 - Fresh databases build from db/baseline/0000_baseline_schema.sql, then drizzle/migrations in order; security grants live in migrations — why: copies must reproduce the hardened live schema.
 - Guest orders have customer_id null + normalized guest_email; idempotency is scoped per owner and guest delivery links use hashed, expiring tokens only — why: guests never get accounts and links must never leak access.
 - Site origin = SITE_URL; sitemaps share one builder — why: no conflicting domains.
+
+- Account V1 uses shared category, refund-window/server-verdict and installation modules for compact card actions; action destinations never submit a refund — why: presentation must not infer eligibility or fork authenticated installation flows.
