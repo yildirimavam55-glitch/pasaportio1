@@ -8,6 +8,7 @@ import { accountPhotoIso } from "../v1-presentation";
 import { EsimInstallGuide } from "../EsimInstallGuide";
 import { PURCHASE_COPY } from "@/components/account/purchases-copy";
 import { getCountryPhoto } from "@/components/travel/countryPhotos";
+import { CountryFlag } from "@/components/travel/CountryFlag";
 
 import { AccountLayout } from "@/components/account/AccountLayout";
 import { EsimRefundPanel } from "@/components/refunds/EsimRefundPanel";
