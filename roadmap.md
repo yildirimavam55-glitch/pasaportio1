@@ -1,6 +1,6 @@
 # Roadmap — Phase 5
 
-- [ ] Restore only the homepage horizontal comparison presentation; trace history, require verified comparable prices, preserve search/details, test 320/390/1440 and capture before/after.
+- [x] Restore only the homepage horizontal comparison presentation; history traced, verified comparable prices required, search/details preserved, 320/390/1440 and 14-language checks passed; before/after saved. No verified live comparison entries available, so tracks remain empty.
 
 - [x] Shared numbered installation step navigation for public/account guides; edge-disabled arrows, aligned controls, 320/360/390/430/1440, DE/RTL and before/after checks (UI only).
 
