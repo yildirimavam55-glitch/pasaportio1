@@ -28,11 +28,30 @@ import { useIsV2 } from "@/components/design-v2/v2-context";
 import { canOfferTopUp, rebuyTarget } from "@/domain/esim/rebuy";
 import { PANEL_COPY } from "@/components/account/panel-copy";
 import { useI18n } from "@/i18n";
+import { useAccountDemo } from "@/components/account/pages/EsimsPage";
+import { createAccountDemo } from "@/domain/esim/account-demo";
 import {
   getCustomerEsimActivation,
   getCustomerEsimDetail,
 } from "@/lib/customer-account.functions";
 
+
+/** Preview-only, in-memory detail for demo ids. Never fetched, written, or given real codes. */
+function demoDetail(id: string, now: Date) {
+  const d = createAccountDemo(now).find((e) => e.id === id);
+  if (!d) return null;
+  const mb = (gb: number) => Math.round(gb * 1024);
+  return {
+    esim: {
+      id: d.id, status: d.active ? "ACTIVE" : "READY", totalDataMb: mb(d.total), remainingDataMb: mb(d.remaining),
+      expiresAt: d.expiresAt, createdAt: d.purchaseAt, installInfo: null, topupSupported: false, capabilities: [],
+      productInfo: { destinationIso: d.iso, packageKind: "COUNTRY", productId: null },
+      packageLabel: `${d.iso} eSIM · ${d.total} GB`, destinationLabel: null, hasIccid: false, hasQr: false, hasInstallInfo: false,
+    },
+    orderRef: null, purchase: null,
+    coverage: { countryIsos: [d.iso], dataGb: d.total, validityDays: 30, unlimited: false, activationPolicy: null, networkOperators: [], fairUseNote: null, topupSupported: false },
+  } as unknown as Awaited<ReturnType<typeof getCustomerEsimDetail>>;
+}
 
 export function EsimDetailPage({ id }: { id: string }) {
   const { locale } = useI18n();
@@ -40,12 +59,18 @@ export function EsimDetailPage({ id }: { id: string }) {
   const v2 = useIsV2();
   const [countryQuery, setCountryQuery] = useState("");
   const [countriesOpen, setCountriesOpen] = useState(false);
+  const isDemoId = id.startsWith("demo-");
+  const demoAllowed = useAccountDemo();
+  const [now] = useState(() => new Date());
+  const demoData = useMemo(() => (isDemoId && demoAllowed ? demoDetail(id, now) : null), [isDemoId, demoAllowed, id, now]);
 
-  const detail = useQuery({
+  const realDetail = useQuery({
     queryKey: ["customer-esim-detail", id],
     queryFn: () => getCustomerEsimDetail({ data: { esimId: id } }),
+    enabled: !isDemoId,
     staleTime: 30_000,
   });
+  const detail = isDemoId ? { data: demoData, isLoading: false } : realDetail;
   const esim = detail.data?.esim;
   const expired = esim
     ? isHistoryEsim({
@@ -55,7 +80,7 @@ export function EsimDetailPage({ id }: { id: string }) {
         expiresAt: esim.expiresAt,
       })
     : false;
-  const canShowActivation = Boolean(esim && !expired && (esim.hasQr || esim.hasInstallInfo));
+  const canShowActivation = Boolean(!isDemoId && esim && !expired && (esim.hasQr || esim.hasInstallInfo));
   const activation = useQuery({
     queryKey: ["customer-esim-activation", id],
     queryFn: () => getCustomerEsimActivation({ data: { esimId: id } }),
@@ -117,7 +142,7 @@ export function EsimDetailPage({ id }: { id: string }) {
       active="esims"
       title={v2Identity ?? (esim.packageLabel || esim.destinationLabel || "eSIM")}
       lead={v2Identity ? undefined : esim.destinationLabel ?? undefined}
-      actions={<Badge variant="outline">{esimStatusLabel(status, locale)}</Badge>}
+      actions={<>{isDemoId && <Badge variant="outline" className="border-warning/40 text-warning">DEMO</Badge>}<Badge variant="outline">{esimStatusLabel(status, locale)}</Badge></>}
     >
       <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_22rem]">
         <div className="grid gap-5">
@@ -324,7 +349,7 @@ export function EsimDetailPage({ id }: { id: string }) {
               )}
             </div>
           </section>
-          <EsimRefundPanel esimId={esim.id} />
+          {!isDemoId && <EsimRefundPanel esimId={esim.id} />}
           <section className="rounded-2xl border border-border bg-card p-5 shadow-card">
             {canTopUp ? (
               <Button variant="cta" className="min-h-11 w-full">
