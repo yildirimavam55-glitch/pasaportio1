@@ -8,8 +8,8 @@ export function accountDemoAllowed(host: string, requested: boolean) {
 /** Additional presentation boundary; account auth is still enforced by the parent route. */
 export function accountDemoPresentationAllowed(host: string, requested: boolean, editorOrigin: string | null) {
   if (!accountDemoAllowed(host, requested)) return false;
-  if (/^(localhost|127\.0\.0\.1)(:\d+)?$/.test(host)) return true;
-  return editorOrigin === 'https://lovable.dev' || editorOrigin === 'https://www.lovable.dev';
+  void editorOrigin; // preview hosts only; live domains are rejected above
+  return true;
 }
 export type DemoEsim = { id: string; iso: 'TR' | 'DE'; total: number; used: number; remaining: number; active: boolean; purchaseAt: string; activatedAt: string | null; expiresAt: string | null; nickname: 'phone' | 'partner' | 'work'; activation: ActivationHistoryState };
 export function createAccountDemo(now: Date): DemoEsim[] {
