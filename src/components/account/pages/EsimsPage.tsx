@@ -14,7 +14,8 @@ import {
 import { EsimCarousel } from "@/components/account/EsimCarousel";
 import { ACCOUNT_COPY } from "@/components/account/copy";
 import { Button } from "@/components/ui/button";
-import { isHistoryEsim, normalizeCustomerEsimStatus } from "@/domain/esim/customer-esim";
+import { ESIM_CATEGORIES, esimCategory, type EsimCategory } from "@/domain/esim/purchase-categories";
+import { PURCHASE_COPY } from "@/components/account/purchases-copy";
 import { useI18n } from "@/i18n";
 import { getCustomerAccount, type CustomerEsimRecord } from "@/lib/customer-account.functions";
 
@@ -30,10 +31,8 @@ export function EsimsPage() {
     refetchOnWindowFocus: false,
   });
   const esims = account.data?.esims ?? [];
-  const past = esims.filter((esim) => history(esim));
-  const live = esims.filter((esim) => !history(esim));
-  const active = live.filter((esim) => normalizeCustomerEsimStatus(esim.status) === "ACTIVE");
-  const pending = live.filter((esim) => normalizeCustomerEsimStatus(esim.status) !== "ACTIVE");
+  const pc = PURCHASE_COPY[locale];
+  const byCat = (cat: EsimCategory) => esims.filter((esim) => category(esim) === cat);
 
   return (
     <AccountLayout active="esims" title={ACCOUNT_DEMO_COPY[locale].title}>
@@ -54,15 +53,15 @@ export function EsimsPage() {
           </Button>
         </div>
       )}
-      <Group title={copy.activeEsims} items={active} locale={locale} kind="carousel" />
-      <Group title={copy.pendingEsims} items={pending} locale={locale} kind="carousel" />
-      <Group title={copy.pastEsims} items={past} locale={locale} kind="list" />
+      {ESIM_CATEGORIES.map((cat) => (
+        <Group key={cat} title={pc.cat[cat]} items={byCat(cat)} locale={locale} kind={cat === "active" || cat === "pending" ? "carousel" : "list"} />
+      ))}
     </AccountLayout>
   );
 }
 
-function history(esim: CustomerEsimRecord) {
-  return isHistoryEsim({
+function category(esim: CustomerEsimRecord) {
+  return esimCategory({
     status: esim.status,
     totalMb: esim.totalDataMb,
     remainingMb: esim.remainingDataMb,

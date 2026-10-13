@@ -2,11 +2,15 @@ import { useRouterState } from "@tanstack/react-router";
 import { CLink as Link, useIsV2 } from "@/components/design-v2/v2-context";
 import { V2Shell } from "@/components/design-v2/V2Shell";
 import {
+  Armchair,
+  Car,
   ChevronLeft,
   ChevronRight,
   LayoutGrid,
+  LifeBuoy,
   PackageCheck,
   ShieldCheck,
+  ShoppingBag,
   Signal,
   UserRound,
 } from "lucide-react";
@@ -15,19 +19,28 @@ import type { ReactNode } from "react";
 import { PublicShell } from "@/components/travel/PublicShell";
 import { useI18n } from "@/i18n";
 import { ACCOUNT_COPY } from "./copy";
+import { PURCHASE_COPY } from "./purchases-copy";
 
 export type AccountSectionKey =
   | "overview"
+  | "purchases"
   | "esims"
+  | "lounge"
+  | "vignette"
   | "orders"
   | "profile"
   | "security"
   | "notifications"
   | "support";
 
-const NAV: Array<{ key: AccountSectionKey; to: string; icon: typeof LayoutGrid }> = [
-  { key: "esims", to: "/account/esims", icon: Signal },
+const NAV: Array<{ key: AccountSectionKey; to: string; icon: typeof LayoutGrid; sub?: boolean }> = [
+  { key: "overview", to: "/account", icon: LayoutGrid },
+  { key: "purchases", to: "/account/purchases", icon: ShoppingBag },
+  { key: "esims", to: "/account/esims", icon: Signal, sub: true },
+  { key: "lounge", to: "/account/lounge", icon: Armchair, sub: true },
+  { key: "vignette", to: "/account/vignette", icon: Car, sub: true },
   { key: "orders", to: "/account/orders", icon: PackageCheck },
+  { key: "support", to: "/account/support", icon: LifeBuoy },
   { key: "profile", to: "/account/profile", icon: UserRound },
   { key: "security", to: "/account/security", icon: ShieldCheck },
 ];
@@ -48,6 +61,8 @@ export function AccountLayout({
 }) {
   const { locale } = useI18n();
   const copy = ACCOUNT_COPY[locale];
+  const pc = PURCHASE_COPY[locale];
+  const label = (key: AccountSectionKey) => (pc.nav as Record<string, string>)[key] ?? (copy.nav as Record<string, string>)[key] ?? key;
   const pathname = useRouterState({ select: (state) => state.location.pathname });
 
   const v2 = useIsV2();
@@ -56,13 +71,13 @@ export function AccountLayout({
           <aside className={v2 ? "hidden lg:block" : "hidden lg:block"}>
             <p className="px-3 text-xs font-bold uppercase text-primary">{copy.eyebrow}</p>
             <nav className="mt-3 grid gap-1" aria-label={copy.eyebrow}>
-              {NAV.map(({ key, to, icon: Icon }) => {
+              {NAV.map(({ key, to, icon: Icon, sub }) => {
                 const current = key === active;
                 return (
                   <Link
                     key={key}
                     to={to}
-                    className={`flex min-h-11 items-center gap-3 rounded-xl px-3 text-sm font-semibold transition ${
+                    className={`flex items-center gap-3 rounded-xl px-3 text-sm transition ${sub ? "ml-4 min-h-10 font-medium" : "min-h-11 font-semibold"} ${
                       current
                         ? "bg-primary-soft text-primary"
                         : "text-muted-foreground hover:bg-secondary hover:text-foreground"
@@ -70,7 +85,7 @@ export function AccountLayout({
                     aria-current={current ? "page" : undefined}
                   >
                     <Icon className="size-4 shrink-0" />
-                    <span className="truncate">{copy.nav[key]}</span>
+                    <span className="truncate">{label(key)}</span>
                   </Link>
                 );
               })}
@@ -96,18 +111,18 @@ export function AccountLayout({
             </header>
             <div className={v2 ? "mt-4 lg:mt-6" : "mt-6"}>{children}</div>
 
-            {(active === "overview" || active === "esims") && (
+            {(active === "overview" || active === "purchases") && (
               <nav className={v2 ? "mt-6 grid gap-2 lg:hidden" : "mt-10 grid gap-2 lg:hidden"} aria-label={copy.eyebrow}>
-                {NAV.filter((item) => item.key !== "overview").map(({ key, to, icon: Icon }) => (
+                {NAV.filter((item) => item.key !== "overview").map(({ key, to, icon: Icon, sub }) => (
                   <Link
                     key={key}
                     to={to}
-                    className={v2 ? "flex min-h-12 items-center gap-3 rounded-2xl border border-border bg-card px-3 text-sm font-semibold" : "flex min-h-14 items-center gap-3 rounded-2xl border border-border bg-card px-4 font-semibold shadow-card"}
+                    className={v2 ? `flex min-h-12 items-center gap-3 rounded-2xl border border-border bg-card px-3 text-sm font-semibold ${sub ? "ml-4" : ""}` : "flex min-h-14 items-center gap-3 rounded-2xl border border-border bg-card px-4 font-semibold shadow-card"}
                   >
                     <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-primary-soft text-primary">
                       <Icon className="size-4" />
                     </span>
-                    <span className="min-w-0 flex-1 truncate">{copy.nav[key]}</span>
+                    <span className="min-w-0 flex-1 truncate">{label(key)}</span>
                     <ChevronRight className="size-4 shrink-0 text-muted-foreground" />
                   </Link>
                 ))}
