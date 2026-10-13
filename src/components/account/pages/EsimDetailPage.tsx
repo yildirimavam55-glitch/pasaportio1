@@ -23,6 +23,8 @@ import {
 import { flagOf, foldText, getCountryByIso } from "@/domain/geo/countries";
 import { customerCataloguePackageTitle } from "@/domain/esim/customer-presentation";
 import { useIsV2 } from "@/components/design-v2/v2-context";
+import { canOfferTopUp, rebuyTarget } from "@/domain/esim/rebuy";
+import { PANEL_COPY } from "@/components/account/panel-copy";
 import { useI18n } from "@/i18n";
 import {
   getCustomerEsimActivation,
@@ -98,7 +100,9 @@ export function EsimDetailPage({ id }: { id: string }) {
   const usage = boundedUsagePercent(esim.totalDataMb, esim.remainingDataMb);
   const days = remainingDays(esim.expiresAt);
   const purchase = detail.data?.purchase;
-  const canTopUp = esim.topupSupported && hasCapability(esim, "TOPUP");
+  const canTopUp = canOfferTopUp(esim.topupSupported && hasCapability(esim, "TOPUP"));
+  const panel = PANEL_COPY[locale];
+  const usageUpdatedAt = usageTimestamp(esim.installInfo);
   const v2Identity = v2 && coverage?.countryIsos.length
     ? customerCataloguePackageTitle({ locale, coverage: coverage.countryIsos, destinationIso: esim.productInfo?.destinationIso ?? null, packageKind: esim.productInfo?.packageKind ?? null })
     : null;
@@ -196,6 +200,11 @@ export function EsimDetailPage({ id }: { id: string }) {
             ) : (
               <p className="mt-2 text-sm text-muted-foreground">{copy.usageUnavailable}</p>
             )}
+            {!unlimited && usage != null && (
+              <p className="mt-3 text-xs leading-5 text-muted-foreground">
+                {usageUpdatedAt ? `${panel.usageUpdated}: ${formatDate(usageUpdatedAt, locale)}` : panel.usageNotLive}
+              </p>
+            )}
           </section>
 
           <section className="rounded-2xl border border-border bg-card p-5 shadow-card">
@@ -273,9 +282,9 @@ export function EsimDetailPage({ id }: { id: string }) {
               </Button>
             ) : (
               <>
-                <p className="text-sm text-muted-foreground">{copy.esim.topupUnavailable}</p>
+                <p className="text-sm text-muted-foreground">{esim.topupSupported ? panel.topupNotOffered : copy.esim.topupUnavailable}</p>
                 <Button asChild variant="cta" className="mt-3 min-h-11 w-full">
-                  <Link to="/" search={{ service: "esim" }} hash="finder">
+                  <Link to="/esim" search={rebuyTarget(esim.productInfo)}>
                     {copy.esim.newPackage}
                   </Link>
                 </Button>
@@ -296,4 +305,11 @@ function Row({ label, value }: { label: string; value: string }) {
       <dd className="break-all font-semibold">{value}</dd>
     </div>
   );
+}
+
+/** Only a real provider usage timestamp counts; record edit times are not usage updates. */
+function usageTimestamp(info: unknown): string | null {
+  if (!info || typeof info !== "object" || Array.isArray(info)) return null;
+  const value = (info as Record<string, unknown>)["usage_updated_at"];
+  return typeof value === "string" && !Number.isNaN(new Date(value).getTime()) ? value : null;
 }

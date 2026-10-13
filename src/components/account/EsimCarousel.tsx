@@ -1,4 +1,5 @@
 import { Children, useRef, useState, type ReactNode } from "react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 const SNAP_GAP_PX = 12;
 
@@ -52,7 +53,11 @@ export function EsimCarousel({ children, label }: { children: ReactNode; label: 
       >
         {cards}
       </div>
-      <div className="mt-1 flex justify-center gap-1.5 sm:hidden" aria-hidden="true">
+      <div className="mt-1 flex items-center justify-center gap-2 sm:hidden">
+        <button type="button" onClick={() => goTo(Math.max(0, index - 1))} disabled={index === 0} aria-label={`← ${label}`} className="grid size-8 place-items-center rounded-full text-muted-foreground disabled:opacity-30">
+          <ChevronLeft className="size-4" />
+        </button>
+        <div className="flex gap-1.5" aria-hidden="true">
         {cards.map((_, i) => (
           <button
             key={i}
@@ -65,6 +70,10 @@ export function EsimCarousel({ children, label }: { children: ReactNode; label: 
             }`}
           />
         ))}
+        </div>
+        <button type="button" onClick={() => goTo(Math.min(cards.length - 1, index + 1))} disabled={index === cards.length - 1} aria-label={`${label} →`} className="grid size-8 place-items-center rounded-full text-muted-foreground disabled:opacity-30">
+          <ChevronRight className="size-4" />
+        </button>
       </div>
     </div>
   );

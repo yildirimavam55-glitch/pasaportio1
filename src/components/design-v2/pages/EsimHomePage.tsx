@@ -42,7 +42,8 @@ const DISCOVERY_COPY = localize({
 });
 
 /** Public home/eSIM search: optional country + legacy `service` hint (V1 links used `/?service=lounge`). */
-export const validateEsimSearch = (s: Record<string, unknown>): { country?: string; service?: "esim" | "lounge" } => ({
+export const validateEsimSearch = (s: Record<string, unknown>): { country?: string; service?: "esim" | "lounge"; plan?: string } => ({
+  ...(typeof s["plan"] === "string" && /^[A-Za-z0-9_-]{1,64}$/.test(s["plan"]) ? { plan: s["plan"] } : {}),
   ...(typeof s["country"] === "string" && s["country"] ? { country: s["country"].slice(0, 2) } : {}),
   ...(s["service"] === "lounge" || s["service"] === "esim" ? { service: s["service"] } : {}),
 });
@@ -68,7 +69,9 @@ export function EsimHomePage() {
   const { locale, uiLocale } = useI18n();
   const money = (value: number, currency: string) => formatMoney(value, currency, uiLocale);
   const c = pick(locale, T);
-  const country = String((useSearch({ strict: false }) as { country?: string }).country ?? "").slice(0, 2).toUpperCase();
+  const searchParams = useSearch({ strict: false }) as { country?: string; plan?: string };
+  const country = String(searchParams.country ?? "").slice(0, 2).toUpperCase();
+  const preselectPlan = searchParams.plan;
   const navigateRaw = useNavigate();
   const navigate = (opts: { search: { country: string } }) => navigateRaw({ to: ".", search: (prev: Record<string, unknown>) => ({ ...prev, ...opts.search }) } as never);
   const [query, setQuery] = useState("");
@@ -158,7 +161,7 @@ export function EsimHomePage() {
             <DeviceCompatibilityProductCard />
           </div></div>
           <V2PickerSheet open={pickerOpen} onOpenChange={(open) => { setPickerOpen(open); if (!open) setQuery(""); }} title={c.picker} searchLabel={c.ph} query={query} onQueryChange={setQuery} selectedId={selected.iso} emptyLabel={prices.isLoading ? "…" : c.empty} items={matches.map((item) => { const price = priceMap.get(item.iso); return { id: item.iso, label: item.name[locale], leading: <CountryFlag iso={item.iso} className="h-4 w-6 rounded-sm" />, ...(price ? { price: `${money(price.amount, price.currency)} ${c.from}` } : {}) }; })} onSelect={choose}><span /></V2PickerSheet>
-          <Packages iso={selected.iso} name={selected.name[locale]} c={c} selectedPackage={selectedPackage} onSelectPackage={selectPackage} desktopAfter={<div className="mx-auto mt-6 hidden max-w-3xl lg:block"><div className="rounded-full shadow-panel"><DeviceCompatibilityProductCard /></div></div>} />
+          <Packages iso={selected.iso} name={selected.name[locale]} c={c} selectedPackage={selectedPackage} onSelectPackage={selectPackage} preselectId={preselectPlan} desktopAfter={<div className="mx-auto mt-6 hidden max-w-3xl lg:block"><div className="rounded-full shadow-panel"><DeviceCompatibilityProductCard /></div></div>} />
         </>
       ) : (
         <>
@@ -314,7 +317,7 @@ const HELP = localize({
   en: { title: "Let us help you decide", lead: "Pick the right plan and check your phone's compatibility.", assistantLead: "Get a plan suggestion based on your usage.", find: "Find my plan", compatTitle: "Is my phone eSIM compatible?", compatLead: "Check your device in seconds.", compatCta: "Check compatibility" },
 });
 
-function Packages({ iso, name, c, selectedPackage, onSelectPackage, desktopAfter }: { desktopAfter?: ReactNode; iso: string; name: string; c: (typeof T)["tr"]; selectedPackage: EsimPackage | null; onSelectPackage: (pkg: EsimPackage) => void }) {
+function Packages({ iso, name, c, selectedPackage, onSelectPackage, desktopAfter, preselectId }: { preselectId?: string | undefined; desktopAfter?: ReactNode; iso: string; name: string; c: (typeof T)["tr"]; selectedPackage: EsimPackage | null; onSelectPackage: (pkg: EsimPackage) => void }) {
   const { locale, uiLocale } = useI18n();
   const money = (value: number, currency: string) => formatMoney(value, currency, uiLocale);
   const h = pick(locale, HELP);
@@ -336,6 +339,16 @@ function Packages({ iso, name, c, selectedPackage, onSelectPackage, desktopAfter
   const standard = useMemo(() => sortStandardPackages(countryPackages.filter((pkg) => !pkg.unlimited)), [countryPackages]);
   const unlimited = useMemo(() => sortUnlimitedPackages(countryPackages.filter((pkg) => pkg.unlimited)), [countryPackages]);
   const rows = type === "standard" ? standard : unlimited;
+  // "Buy again": highlight the same plan only if it is still listed; never adds to cart.
+  const preselectDone = useRef(false);
+  useEffect(() => {
+    if (preselectDone.current || !preselectId || isLoading) return;
+    preselectDone.current = true;
+    const match = countryPackages.find((pkg) => pkg.id === preselectId);
+    if (!match || selectedPackage) return;
+    setType(match.unlimited ? "unlimited" : "standard");
+    onSelectPackage(match);
+  }, [preselectId, isLoading, countryPackages, selectedPackage, onSelectPackage]);
   const recommended = hasInput ? selectRecommendedPackage(countryPackages, { coverageIsos: [iso], days, requiredGb: estimate.requiredGb }) : null;
   const usageItems: Array<{ key: UsageKind; label: string; icon: typeof MessageCircle }> = [
     { key: "MESSAGING", label: c.usage[0] ?? "", icon: MessageCircle }, { key: "MAPS", label: c.usage[1] ?? "", icon: MapPin },

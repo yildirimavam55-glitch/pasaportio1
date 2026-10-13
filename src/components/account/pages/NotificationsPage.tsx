@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
-import { Lock } from "lucide-react";
+import { Info, Lock } from "lucide-react";
+import { PANEL_COPY } from "@/components/account/panel-copy";
 import { toast } from "sonner";
 
 import { AccountLayout } from "@/components/account/AccountLayout";
@@ -56,6 +57,11 @@ export function NotificationsPage() {
             {copy.notifications.essentialText}
           </p>
         </section>
+
+        <p role="status" className="flex gap-2 rounded-xl bg-secondary p-3 text-sm leading-6 text-muted-foreground">
+          <Info className="mt-0.5 size-4 shrink-0 text-primary" />
+          <span>{PANEL_COPY[locale].emailOff}</span>
+        </p>
 
         <section className="rounded-2xl border border-border bg-card p-5 shadow-card">
           <Toggle

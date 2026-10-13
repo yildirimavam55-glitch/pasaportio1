@@ -27,6 +27,7 @@ import type { Locale } from "@/domain/enums";
 import { flagOf, getCountryByIso } from "@/domain/geo/countries";
 import { commercialDataGb, customerCataloguePackageTitle } from "@/domain/esim/customer-presentation";
 import { useIsV2 } from "@/components/design-v2/v2-context";
+import { canOfferTopUp, rebuyTarget } from "@/domain/esim/rebuy";
 import {
   boundedUsagePercent,
   fairUseText,
@@ -163,7 +164,7 @@ export function CustomerEsimCard({
     esim.totalDataMb > 0 &&
     esim.remainingDataMb / esim.totalDataMb < 0.1;
   const canShowActivation = !expired && (esim.hasQr || esim.hasInstallInfo);
-  const canTopUp = esim.topupSupported && hasCapability(esim, "TOPUP");
+  const canTopUp = canOfferTopUp(esim.topupSupported && hasCapability(esim, "TOPUP"));
   const policy = activationPolicy ?? esim.productInfo?.activationPolicy ?? null;
   const readyNote =
     policy === "ON_FIRST_NETWORK_CONNECTION" ? copy.readyNoteFirstUse : copy.readyNote;
@@ -268,7 +269,7 @@ export function CustomerEsimCard({
         <p className="mt-3 text-xs leading-5 text-muted-foreground">{readyNote}</p>
       )}
 
-      <div className="mt-3 grid grid-cols-2 gap-2">
+      <div className="mt-auto grid grid-cols-2 gap-2 pt-3">
         {canTopUp && (
           <Button variant="cta" className="col-span-2 min-h-10 text-xs">
             <Plus className="size-4" />
@@ -304,7 +305,7 @@ export function CustomerEsimCard({
           variant={expired ? "cta" : "outline"}
           className="min-h-10 text-xs"
         >
-          <Link to="/" search={{ service: "esim" }} hash="finder">
+          <Link to="/esim" search={rebuyTarget(esim.productInfo)}>
             <RefreshCcw className="size-4" />
             {copy.esim.buyAgain}
           </Link>
@@ -381,7 +382,7 @@ export function CustomerEsimHistoryRow({
         </p>
       </Link>
       <Button asChild variant="outline" size="sm" className="h-8 shrink-0 text-xs">
-        <Link to="/" search={{ service: "esim" }} hash="finder">
+        <Link to="/esim" search={rebuyTarget(esim.productInfo)}>
           {copy.esim.buyAgain}
         </Link>
       </Button>
