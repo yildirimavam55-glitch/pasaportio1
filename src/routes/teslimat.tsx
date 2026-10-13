@@ -103,7 +103,7 @@ function Renew({ c }: { c: Copy }) {
         ev.preventDefault(); setBusy(true); setError(false);
         try {
           if (step === "form") { await request({ data: { orderNumber, email } }); setStep("code"); }
-          else { const r = await confirm({ data: { orderNumber, email, code } }); if (r.ok) { window.location.replace(`/teslimat#${r.token}`); window.location.reload(); }; else setError(true); }
+          else { const r = await confirm({ data: { orderNumber, email, code } }); if (r.ok) { window.location.replace(`/teslimat#${r.token}`); window.location.reload(); } else setError(true); }
         } finally { setBusy(false); }
       }}>
         <Input aria-label={c.orderNumber} placeholder={c.orderNumber} value={orderNumber} onChange={(e) => setOrderNumber(e.target.value)} required maxLength={40} disabled={step === "code"} />
