@@ -1,0 +1,1 @@
+- Install phones use normal flow, not clipping; antenna crop/arcs share source coordinates and cover offsets for stable resizing.
