@@ -44,6 +44,7 @@ import type { Locale } from "@/domain/enums";
 import { localize } from "@/i18n/overlay";
 import { useBrowserDevice } from "@/domain/esim/use-browser-device";
 import { V2PickerSheet } from "@/components/design-v2/V2PickerSheet";
+import compatibilityPhones from "@/assets/compatibility-phone-trio.png";
 
 const COPY = localize({
   tr: {
@@ -814,8 +815,8 @@ export function HomeCompatibilityCard() {
     <section ref={cardRef} id="device-compatibility" data-testid="home-compatibility-card" className="mx-auto w-full max-w-[1200px] scroll-mt-24 py-5 sm:py-6">
       <DeviceCheckSheet surface="homepage-card" detection={shown} trigger={
         <Button type="button" variant="outline" className="home-phone-card grid h-auto min-h-22 w-full grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2 whitespace-normal rounded-2xl border-border bg-card px-3 py-3 text-start shadow-soft hover:border-primary/40 hover:bg-card sm:gap-4 sm:px-5">
-          <span className="grid size-11 shrink-0 place-items-center rounded-full bg-primary-soft text-primary sm:size-14">
-            <Smartphone className="size-6" aria-hidden="true" />
+          <span aria-hidden="true" className="grid h-16 w-14 shrink-0 place-items-center sm:w-24">
+            <img src={compatibilityPhones} alt="" loading="lazy" decoding="async" width={768} height={768} className="h-full w-full object-contain" />
           </span>
           <span className="min-w-0">
             <strong className="block font-display text-base font-bold leading-5 text-foreground sm:text-lg">{h.title}</strong>
