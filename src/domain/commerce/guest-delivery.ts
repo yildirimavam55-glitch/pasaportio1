@@ -27,14 +27,23 @@ export type GuestOrderView = { orderNumber: string; locale: string; paymentStatu
 export type RenewalRecord = { orderId: string; codeHash: string; expiresAt: string; attempts: number; usedAt: string | null };
 
 export interface GuestDeliveryStore {
+  /** Active (non-revoked) delivery links only. */
   findToken(tokenHash: string): Promise<DeliveryTokenRecord | null>;
-  saveToken(record: DeliveryTokenRecord): Promise<void>;
+  /** Must revoke every earlier active link of the order in the same call (S2). */
+  replaceTokens(record: DeliveryTokenRecord, now: Date): Promise<void>;
   /** Guest orders only (customer_id IS NULL). Registered customers use My eSIMs. */
   findGuestOrder(orderNumber: string): Promise<{ id: string; guestEmail: string; locale: string } | null>;
   loadGuestOrder(orderId: string): Promise<GuestOrderView | null>;
   latestRenewal(orderId: string): Promise<RenewalRecord | null>;
+  /** Saves a new code and voids all earlier unused codes of the order. */
   saveRenewal(record: RenewalRecord): Promise<void>;
-  updateRenewal(orderId: string, codeHash: string, patch: Partial<Pick<RenewalRecord, "attempts" | "usedAt">>): Promise<void>;
+  /**
+   * Atomic compare-and-set in ONE database statement (S1): increments attempts from
+   * `expectedAttempts` only while unused, unexpired and under the limit. False = lost the race.
+   */
+  reserveAttempt(orderId: string, codeHash: string, expectedAttempts: number, now: Date): Promise<boolean>;
+  /** Atomic single-use consume: sets used_at only if still NULL. False = already consumed. */
+  consumeRenewal(orderId: string, codeHash: string, now: Date): Promise<boolean>;
 }
 /** Never a real mail provider until email delivery is approved. */
 export interface GuestMailer { sendRenewalCode(input: { to: string; code: string; locale: string; orderNumber: string }): Promise<void> }
@@ -79,12 +88,11 @@ export async function confirmRenewal(store: GuestDeliveryStore, input: { orderNu
   if (!order || order.guestEmail !== email) return DENIED;
   const renewal = await store.latestRenewal(order.id);
   if (!renewal || renewal.usedAt || renewal.attempts >= RENEWAL_MAX_ATTEMPTS || now.getTime() >= Date.parse(renewal.expiresAt)) return DENIED;
-  if ((await codeHash(order.id, code)) !== renewal.codeHash) {
-    await store.updateRenewal(order.id, renewal.codeHash, { attempts: renewal.attempts + 1 });
-    return DENIED;
-  }
-  await store.updateRenewal(order.id, renewal.codeHash, { usedAt: now.toISOString() });
+  // Reserve one attempt atomically BEFORE comparing, so parallel guesses cannot exceed the limit.
+  if (!(await store.reserveAttempt(order.id, renewal.codeHash, renewal.attempts, now))) return DENIED;
+  if ((await codeHash(order.id, code)) !== renewal.codeHash) return DENIED;
+  if (!(await store.consumeRenewal(order.id, renewal.codeHash, now))) return DENIED;
   const { token, record } = await issueDeliveryToken(order.id, now);
-  await store.saveToken(record);
+  await store.replaceTokens(record, now);
   return { ok: true, token };
 }

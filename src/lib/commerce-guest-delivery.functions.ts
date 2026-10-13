@@ -15,10 +15,16 @@ async function serverStore(): Promise<GuestDeliveryStore> {
   const db = supabaseAdmin as any;
   return {
     async findToken(tokenHash) {
-      const { data } = await db.from("order_access_tokens").select("order_id, token_hash, expires_at").eq("kind", "DELIVERY").eq("token_hash", tokenHash).maybeSingle();
+      const { data } = await db.from("order_access_tokens").select("order_id, token_hash, expires_at").eq("kind", "DELIVERY").eq("token_hash", tokenHash).is("used_at", null).maybeSingle();
       return data ? { orderId: data.order_id, tokenHash: data.token_hash, expiresAt: data.expires_at } : null;
     },
-    async saveToken(r) { await db.from("order_access_tokens").insert({ order_id: r.orderId, kind: "DELIVERY", token_hash: r.tokenHash, expires_at: r.expiresAt }); },
+    async replaceTokens(r, now) {
+      // S2: revoke earlier links first; a failure aborts before the new link exists.
+      const revoked = await db.from("order_access_tokens").update({ used_at: now.toISOString() }).eq("kind", "DELIVERY").eq("order_id", r.orderId).is("used_at", null);
+      if (revoked.error) throw new Error("revoke failed");
+      const inserted = await db.from("order_access_tokens").insert({ order_id: r.orderId, kind: "DELIVERY", token_hash: r.tokenHash, expires_at: r.expiresAt });
+      if (inserted.error) throw new Error("insert failed");
+    },
     async findGuestOrder(orderNumber) {
       const { data } = await db.from("orders").select("id, guest_email, locale").eq("order_number", orderNumber).is("customer_id", null).maybeSingle();
       return data?.guest_email ? { id: data.id, guestEmail: String(data.guest_email).toLowerCase(), locale: data.locale } : null;
@@ -48,12 +54,23 @@ async function serverStore(): Promise<GuestDeliveryStore> {
       const { data } = await db.from("order_access_tokens").select("token_hash, expires_at, attempts, used_at").eq("kind", "RENEWAL").eq("order_id", orderId).order("created_at", { ascending: false }).limit(1).maybeSingle();
       return data ? { orderId, codeHash: data.token_hash, expiresAt: data.expires_at, attempts: data.attempts, usedAt: data.used_at } : null;
     },
-    async saveRenewal(r) { await db.from("order_access_tokens").insert({ order_id: r.orderId, kind: "RENEWAL", token_hash: r.codeHash, expires_at: r.expiresAt }); },
-    async updateRenewal(orderId, hash, patch) {
-      const row: Record<string, unknown> = {};
-      if (patch.attempts !== undefined) row["attempts"] = patch.attempts;
-      if (patch.usedAt !== undefined) row["used_at"] = patch.usedAt;
-      await db.from("order_access_tokens").update(row).eq("kind", "RENEWAL").eq("order_id", orderId).eq("token_hash", hash);
+    async saveRenewal(r) {
+      const voided = await db.from("order_access_tokens").update({ used_at: new Date().toISOString() }).eq("kind", "RENEWAL").eq("order_id", r.orderId).is("used_at", null);
+      if (voided.error) throw new Error("void failed");
+      await db.from("order_access_tokens").insert({ order_id: r.orderId, kind: "RENEWAL", token_hash: r.codeHash, expires_at: r.expiresAt });
+    },
+    // S1: each is ONE conditional UPDATE; Postgres row locking makes it a compare-and-set.
+    async reserveAttempt(orderId, hash, expected, now) {
+      const { data, error } = await db.from("order_access_tokens").update({ attempts: expected + 1 })
+        .eq("kind", "RENEWAL").eq("order_id", orderId).eq("token_hash", hash)
+        .eq("attempts", expected).lt("attempts", 5).is("used_at", null).gt("expires_at", now.toISOString()).select("id");
+      return !error && Array.isArray(data) && data.length === 1;
+    },
+    async consumeRenewal(orderId, hash, now) {
+      const { data, error } = await db.from("order_access_tokens").update({ used_at: now.toISOString() })
+        .eq("kind", "RENEWAL").eq("order_id", orderId).eq("token_hash", hash)
+        .is("used_at", null).lte("attempts", 5).gt("expires_at", now.toISOString()).select("id");
+      return !error && Array.isArray(data) && data.length === 1;
     },
   };
 }
