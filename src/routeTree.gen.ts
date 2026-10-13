@@ -26,6 +26,7 @@ import { Route as HomeIndexRouteImport } from './routes/_home.index'
 import { Route as AccountIndexRouteImport } from './routes/account.index'
 import { Route as AccountNotificationsRouteImport } from './routes/account.notifications'
 import { Route as AccountProfileRouteImport } from './routes/account.profile'
+import { Route as AccountPurchasesRouteImport } from './routes/account.purchases'
 import { Route as AccountSecurityRouteImport } from './routes/account.security'
 import { Route as AccountSupportRouteImport } from './routes/account.support'
 import { Route as DesignV2IndexRouteImport } from './routes/design-v2.index'
@@ -86,8 +87,12 @@ import { Route as HomeEnIndexRouteImport } from './routes/_home.en.index'
 import { Route as HomeTrIndexRouteImport } from './routes/_home.tr.index'
 import { Route as AccountEsimsIndexRouteImport } from './routes/account.esims.index'
 import { Route as AccountEsimsIdRouteImport } from './routes/account.esims.$id'
+import { Route as AccountLoungeIndexRouteImport } from './routes/account.lounge.index'
+import { Route as AccountLoungeIdRouteImport } from './routes/account.lounge.$id'
 import { Route as AccountOrdersIndexRouteImport } from './routes/account.orders.index'
 import { Route as AccountOrdersIdRouteImport } from './routes/account.orders.$id'
+import { Route as AccountVignetteIndexRouteImport } from './routes/account.vignette.index'
+import { Route as AccountVignetteIdRouteImport } from './routes/account.vignette.$id'
 import { Route as ApiPublicBalanceMonitorRouteImport } from './routes/api/public/balance-monitor'
 import { Route as ApiPublicProviderSyncRouteImport } from './routes/api/public/provider-sync'
 import { Route as DeEsimSlugRouteImport } from './routes/de.esim.$slug'
@@ -218,6 +223,11 @@ const AccountNotificationsRoute = AccountNotificationsRouteImport.update({
 const AccountProfileRoute = AccountProfileRouteImport.update({
   id: '/profile',
   path: '/profile',
+  getParentRoute: () => AccountRoute,
+} as any)
+const AccountPurchasesRoute = AccountPurchasesRouteImport.update({
+  id: '/purchases',
+  path: '/purchases',
   getParentRoute: () => AccountRoute,
 } as any)
 const AccountSecurityRoute = AccountSecurityRouteImport.update({
@@ -547,6 +557,16 @@ const AccountEsimsIdRoute = AccountEsimsIdRouteImport.update({
   path: '/esims/$id',
   getParentRoute: () => AccountRoute,
 } as any)
+const AccountLoungeIndexRoute = AccountLoungeIndexRouteImport.update({
+  id: '/lounge/',
+  path: '/lounge/',
+  getParentRoute: () => AccountRoute,
+} as any)
+const AccountLoungeIdRoute = AccountLoungeIdRouteImport.update({
+  id: '/lounge/$id',
+  path: '/lounge/$id',
+  getParentRoute: () => AccountRoute,
+} as any)
 const AccountOrdersIndexRoute = AccountOrdersIndexRouteImport.update({
   id: '/orders/',
   path: '/orders/',
@@ -555,6 +575,16 @@ const AccountOrdersIndexRoute = AccountOrdersIndexRouteImport.update({
 const AccountOrdersIdRoute = AccountOrdersIdRouteImport.update({
   id: '/orders/$id',
   path: '/orders/$id',
+  getParentRoute: () => AccountRoute,
+} as any)
+const AccountVignetteIndexRoute = AccountVignetteIndexRouteImport.update({
+  id: '/vignette/',
+  path: '/vignette/',
+  getParentRoute: () => AccountRoute,
+} as any)
+const AccountVignetteIdRoute = AccountVignetteIdRouteImport.update({
+  id: '/vignette/$id',
+  path: '/vignette/$id',
   getParentRoute: () => AccountRoute,
 } as any)
 const ApiPublicBalanceMonitorRoute = ApiPublicBalanceMonitorRouteImport.update({
@@ -848,6 +878,7 @@ export interface FileRoutesByFullPath {
   '/legacy-v1': typeof AuthenticatedLegacyV1RouteWithChildren
   '/account/notifications': typeof AccountNotificationsRoute
   '/account/profile': typeof AccountProfileRoute
+  '/account/purchases': typeof AccountPurchasesRoute
   '/account/security': typeof AccountSecurityRoute
   '/account/support': typeof AccountSupportRoute
   '/design-v2/$': typeof DesignV2SplatRoute
@@ -901,7 +932,9 @@ export interface FileRoutesByFullPath {
   '/legacy-v1/destek': typeof AuthenticatedLegacyV1DestekRoute
   '/legacy-v1/sepet': typeof AuthenticatedLegacyV1SepetRoute
   '/account/esims/$id': typeof AccountEsimsIdRoute
+  '/account/lounge/$id': typeof AccountLoungeIdRoute
   '/account/orders/$id': typeof AccountOrdersIdRoute
+  '/account/vignette/$id': typeof AccountVignetteIdRoute
   '/api/public/balance-monitor': typeof ApiPublicBalanceMonitorRoute
   '/api/public/provider-sync': typeof ApiPublicProviderSyncRoute
   '/de/esim/$slug': typeof DeEsimSlugRoute
@@ -919,7 +952,9 @@ export interface FileRoutesByFullPath {
   '/en/': typeof HomeEnIndexRoute
   '/tr/': typeof HomeTrIndexRoute
   '/account/esims/': typeof AccountEsimsIndexRoute
+  '/account/lounge/': typeof AccountLoungeIndexRoute
   '/account/orders/': typeof AccountOrdersIndexRoute
+  '/account/vignette/': typeof AccountVignetteIndexRoute
   '/de/ratgeber/': typeof DeRatgeberIndexRoute
   '/en/guides/': typeof EnGuidesIndexRoute
   '/esim/bolge/': typeof EsimBolgeIndexRoute
@@ -973,6 +1008,7 @@ export interface FileRoutesByTo {
   '/vignette': typeof VignetteRoute
   '/account/notifications': typeof AccountNotificationsRoute
   '/account/profile': typeof AccountProfileRoute
+  '/account/purchases': typeof AccountPurchasesRoute
   '/account/security': typeof AccountSecurityRoute
   '/account/support': typeof AccountSupportRoute
   '/design-v2/$': typeof DesignV2SplatRoute
@@ -1026,7 +1062,9 @@ export interface FileRoutesByTo {
   '/legacy-v1/destek': typeof AuthenticatedLegacyV1DestekRoute
   '/legacy-v1/sepet': typeof AuthenticatedLegacyV1SepetRoute
   '/account/esims/$id': typeof AccountEsimsIdRoute
+  '/account/lounge/$id': typeof AccountLoungeIdRoute
   '/account/orders/$id': typeof AccountOrdersIdRoute
+  '/account/vignette/$id': typeof AccountVignetteIdRoute
   '/api/public/balance-monitor': typeof ApiPublicBalanceMonitorRoute
   '/api/public/provider-sync': typeof ApiPublicProviderSyncRoute
   '/de/esim/$slug': typeof DeEsimSlugRoute
@@ -1044,7 +1082,9 @@ export interface FileRoutesByTo {
   '/en': typeof HomeEnIndexRoute
   '/tr': typeof HomeTrIndexRoute
   '/account/esims': typeof AccountEsimsIndexRoute
+  '/account/lounge': typeof AccountLoungeIndexRoute
   '/account/orders': typeof AccountOrdersIndexRoute
+  '/account/vignette': typeof AccountVignetteIndexRoute
   '/de/ratgeber': typeof DeRatgeberIndexRoute
   '/en/guides': typeof EnGuidesIndexRoute
   '/esim/bolge': typeof EsimBolgeIndexRoute
@@ -1102,6 +1142,7 @@ export interface FileRoutesById {
   '/_authenticated/legacy-v1': typeof AuthenticatedLegacyV1RouteWithChildren
   '/account/notifications': typeof AccountNotificationsRoute
   '/account/profile': typeof AccountProfileRoute
+  '/account/purchases': typeof AccountPurchasesRoute
   '/account/security': typeof AccountSecurityRoute
   '/account/support': typeof AccountSupportRoute
   '/design-v2/$': typeof DesignV2SplatRoute
@@ -1156,7 +1197,9 @@ export interface FileRoutesById {
   '/_authenticated/legacy-v1/destek': typeof AuthenticatedLegacyV1DestekRoute
   '/_authenticated/legacy-v1/sepet': typeof AuthenticatedLegacyV1SepetRoute
   '/account/esims/$id': typeof AccountEsimsIdRoute
+  '/account/lounge/$id': typeof AccountLoungeIdRoute
   '/account/orders/$id': typeof AccountOrdersIdRoute
+  '/account/vignette/$id': typeof AccountVignetteIdRoute
   '/api/public/balance-monitor': typeof ApiPublicBalanceMonitorRoute
   '/api/public/provider-sync': typeof ApiPublicProviderSyncRoute
   '/de/esim/$slug': typeof DeEsimSlugRoute
@@ -1174,7 +1217,9 @@ export interface FileRoutesById {
   '/_home/en/': typeof HomeEnIndexRoute
   '/_home/tr/': typeof HomeTrIndexRoute
   '/account/esims/': typeof AccountEsimsIndexRoute
+  '/account/lounge/': typeof AccountLoungeIndexRoute
   '/account/orders/': typeof AccountOrdersIndexRoute
+  '/account/vignette/': typeof AccountVignetteIndexRoute
   '/de/ratgeber/': typeof DeRatgeberIndexRoute
   '/en/guides/': typeof EnGuidesIndexRoute
   '/esim/bolge/': typeof EsimBolgeIndexRoute
@@ -1232,6 +1277,7 @@ export interface FileRouteTypes {
     | '/legacy-v1'
     | '/account/notifications'
     | '/account/profile'
+    | '/account/purchases'
     | '/account/security'
     | '/account/support'
     | '/design-v2/$'
@@ -1285,7 +1331,9 @@ export interface FileRouteTypes {
     | '/legacy-v1/destek'
     | '/legacy-v1/sepet'
     | '/account/esims/$id'
+    | '/account/lounge/$id'
     | '/account/orders/$id'
+    | '/account/vignette/$id'
     | '/api/public/balance-monitor'
     | '/api/public/provider-sync'
     | '/de/esim/$slug'
@@ -1303,7 +1351,9 @@ export interface FileRouteTypes {
     | '/en/'
     | '/tr/'
     | '/account/esims/'
+    | '/account/lounge/'
     | '/account/orders/'
+    | '/account/vignette/'
     | '/de/ratgeber/'
     | '/en/guides/'
     | '/esim/bolge/'
@@ -1357,6 +1407,7 @@ export interface FileRouteTypes {
     | '/vignette'
     | '/account/notifications'
     | '/account/profile'
+    | '/account/purchases'
     | '/account/security'
     | '/account/support'
     | '/design-v2/$'
@@ -1410,7 +1461,9 @@ export interface FileRouteTypes {
     | '/legacy-v1/destek'
     | '/legacy-v1/sepet'
     | '/account/esims/$id'
+    | '/account/lounge/$id'
     | '/account/orders/$id'
+    | '/account/vignette/$id'
     | '/api/public/balance-monitor'
     | '/api/public/provider-sync'
     | '/de/esim/$slug'
@@ -1428,7 +1481,9 @@ export interface FileRouteTypes {
     | '/en'
     | '/tr'
     | '/account/esims'
+    | '/account/lounge'
     | '/account/orders'
+    | '/account/vignette'
     | '/de/ratgeber'
     | '/en/guides'
     | '/esim/bolge'
@@ -1485,6 +1540,7 @@ export interface FileRouteTypes {
     | '/_authenticated/legacy-v1'
     | '/account/notifications'
     | '/account/profile'
+    | '/account/purchases'
     | '/account/security'
     | '/account/support'
     | '/design-v2/$'
@@ -1539,7 +1595,9 @@ export interface FileRouteTypes {
     | '/_authenticated/legacy-v1/destek'
     | '/_authenticated/legacy-v1/sepet'
     | '/account/esims/$id'
+    | '/account/lounge/$id'
     | '/account/orders/$id'
+    | '/account/vignette/$id'
     | '/api/public/balance-monitor'
     | '/api/public/provider-sync'
     | '/de/esim/$slug'
@@ -1557,7 +1615,9 @@ export interface FileRouteTypes {
     | '/_home/en/'
     | '/_home/tr/'
     | '/account/esims/'
+    | '/account/lounge/'
     | '/account/orders/'
+    | '/account/vignette/'
     | '/de/ratgeber/'
     | '/en/guides/'
     | '/esim/bolge/'
@@ -1764,6 +1824,13 @@ declare module '@tanstack/react-router' {
       path: '/profile'
       fullPath: '/account/profile'
       preLoaderRoute: typeof AccountProfileRouteImport
+      parentRoute: typeof AccountRoute
+    }
+    '/account/purchases': {
+      id: '/account/purchases'
+      path: '/purchases'
+      fullPath: '/account/purchases'
+      preLoaderRoute: typeof AccountPurchasesRouteImport
       parentRoute: typeof AccountRoute
     }
     '/account/security': {
@@ -2186,6 +2253,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AccountEsimsIdRouteImport
       parentRoute: typeof AccountRoute
     }
+    '/account/lounge/': {
+      id: '/account/lounge/'
+      path: '/lounge'
+      fullPath: '/account/lounge/'
+      preLoaderRoute: typeof AccountLoungeIndexRouteImport
+      parentRoute: typeof AccountRoute
+    }
+    '/account/lounge/$id': {
+      id: '/account/lounge/$id'
+      path: '/lounge/$id'
+      fullPath: '/account/lounge/$id'
+      preLoaderRoute: typeof AccountLoungeIdRouteImport
+      parentRoute: typeof AccountRoute
+    }
     '/account/orders/': {
       id: '/account/orders/'
       path: '/orders'
@@ -2198,6 +2279,20 @@ declare module '@tanstack/react-router' {
       path: '/orders/$id'
       fullPath: '/account/orders/$id'
       preLoaderRoute: typeof AccountOrdersIdRouteImport
+      parentRoute: typeof AccountRoute
+    }
+    '/account/vignette/': {
+      id: '/account/vignette/'
+      path: '/vignette'
+      fullPath: '/account/vignette/'
+      preLoaderRoute: typeof AccountVignetteIndexRouteImport
+      parentRoute: typeof AccountRoute
+    }
+    '/account/vignette/$id': {
+      id: '/account/vignette/$id'
+      path: '/vignette/$id'
+      fullPath: '/account/vignette/$id'
+      preLoaderRoute: typeof AccountVignetteIdRouteImport
       parentRoute: typeof AccountRoute
     }
     '/api/public/balance-monitor': {
@@ -2743,25 +2838,35 @@ const HomeRouteWithChildren = HomeRoute._addFileChildren(HomeRouteChildren)
 interface AccountRouteChildren {
   AccountNotificationsRoute: typeof AccountNotificationsRoute
   AccountProfileRoute: typeof AccountProfileRoute
+  AccountPurchasesRoute: typeof AccountPurchasesRoute
   AccountSecurityRoute: typeof AccountSecurityRoute
   AccountSupportRoute: typeof AccountSupportRoute
   AccountIndexRoute: typeof AccountIndexRoute
   AccountEsimsIdRoute: typeof AccountEsimsIdRoute
+  AccountLoungeIdRoute: typeof AccountLoungeIdRoute
   AccountOrdersIdRoute: typeof AccountOrdersIdRoute
+  AccountVignetteIdRoute: typeof AccountVignetteIdRoute
   AccountEsimsIndexRoute: typeof AccountEsimsIndexRoute
+  AccountLoungeIndexRoute: typeof AccountLoungeIndexRoute
   AccountOrdersIndexRoute: typeof AccountOrdersIndexRoute
+  AccountVignetteIndexRoute: typeof AccountVignetteIndexRoute
 }
 
 const AccountRouteChildren: AccountRouteChildren = {
   AccountNotificationsRoute: AccountNotificationsRoute,
   AccountProfileRoute: AccountProfileRoute,
+  AccountPurchasesRoute: AccountPurchasesRoute,
   AccountSecurityRoute: AccountSecurityRoute,
   AccountSupportRoute: AccountSupportRoute,
   AccountIndexRoute: AccountIndexRoute,
   AccountEsimsIdRoute: AccountEsimsIdRoute,
+  AccountLoungeIdRoute: AccountLoungeIdRoute,
   AccountOrdersIdRoute: AccountOrdersIdRoute,
+  AccountVignetteIdRoute: AccountVignetteIdRoute,
   AccountEsimsIndexRoute: AccountEsimsIndexRoute,
+  AccountLoungeIndexRoute: AccountLoungeIndexRoute,
   AccountOrdersIndexRoute: AccountOrdersIndexRoute,
+  AccountVignetteIndexRoute: AccountVignetteIndexRoute,
 }
 
 const AccountRouteWithChildren =
