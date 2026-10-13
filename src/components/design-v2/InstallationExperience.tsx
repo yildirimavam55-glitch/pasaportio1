@@ -4,6 +4,7 @@ import { cn } from "@/lib/utils";
 import type { ReactNode } from "react";
 import { useI18n } from "@/i18n";
 import { localize } from "@/i18n/overlay";
+import { installationStepState } from './installation-step-navigation';
 
 const PHONE_COPY = localize({
   tr: { link: "Link ile kur", quickTab: "Link ile", qrTab: "QR kodu" },
@@ -118,29 +119,31 @@ export function InstallationSuccess({ label, compact = false }: { label: string;
 export function StepNavigation({
   previous,
   next,
-  onPrevious,
-  onNext,
-  previousDisabled,
-  compact = false,
+  steps,
+  current,
+  onSelect,
+  stepLabel,
 }: {
   previous: string;
   next: string;
-  onPrevious: () => void;
-  onNext: () => void;
-  previousDisabled: boolean;
-  compact?: boolean;
+  steps: readonly { label: string }[];
+  current: number;
+  onSelect: (step: number) => void;
+  stepLabel: string;
 }) {
+  const state = installationStepState(current, steps.length);
   return (
-    <div className={cn("flex gap-3", compact && "w-full justify-between")}>
-      <Button type="button" variant="outline" size={compact ? "icon" : "lg"} onClick={onPrevious} disabled={previousDisabled} className={cn("min-h-11", !compact && "lg:flex-1")} aria-label={previous}>
-        <ChevronLeft className="size-4 rtl:rotate-180" />
-        {!compact && <span className="hidden lg:inline">{previous}</span>}
+    <nav className="installation-step-nav" data-install-step-nav aria-label={stepLabel} dir="ltr">
+      <Button type="button" variant="outline" size="icon" onClick={() => onSelect(state.previous)} disabled={state.previousDisabled} className="installation-step-control" aria-label={previous} title={previous}>
+        <ChevronLeft className="size-4" />
       </Button>
-      <Button type="button" variant="default" size={compact ? "icon" : "lg"} onClick={onNext} className={cn("min-h-11", !compact && "flex-1")} aria-label={next}>
-        {!compact && next}
-        <ChevronRight className="size-4 rtl:rotate-180" />
+      <div className="installation-step-numbers">
+        {steps.map((item,index) => <Button key={index} type="button" variant={index === state.current ? 'default' : 'outline'} size="icon" className="installation-step-control" onClick={() => onSelect(index)} aria-label={`${stepLabel} ${index+1}: ${item.label}`} aria-current={index === state.current ? 'step' : undefined} title={item.label}>{index+1}</Button>)}
+      </div>
+      <Button type="button" variant="outline" size="icon" onClick={() => onSelect(state.next)} disabled={state.nextDisabled} className="installation-step-control" aria-label={next} title={next}>
+        <ChevronRight className="size-4" />
       </Button>
-    </div>
+    </nav>
   );
 }
 
