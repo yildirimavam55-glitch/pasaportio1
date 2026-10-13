@@ -197,13 +197,11 @@ export function V2Sections({ config, media, slots, only, onDestinationSearch, se
               const loungeImage = mediaUrl(pairedPromo.mediaId, media);
               const vignettePromo = optionalServices.vignette ? sections.find((candidate) => candidate.type === "PROMO_BANNER" && candidate.href === "/vignette" && isInWindow(candidate)) : undefined;
               return (
-                <div key={`${s.id}-${pairedPromo.id}`} id="device-compatibility" className="scroll-mt-24">
+                <div key={`${s.id}-${pairedPromo.id}`} className="scroll-mt-24">
                   <div className="lg:hidden">
-                    <V2Compatibility title={t("title")} />
                     <PromoCard image={loungeImage ?? ""} title={v2Text(pairedPromo, "title", locale)} {...(v2Text(pairedPromo, "subtitle", locale) ? { sub: v2Text(pairedPromo, "subtitle", locale) } : {})} to={pairedPromo.href} compactDesktop />
                   </div>
                   <div className="hidden pb-6 pt-6 lg:block">
-                    <DesktopDeviceCompatibilityBanner title={t("title")} />
                     {vignettePromo && (
                       <div className="mt-6 grid grid-cols-2 gap-4">
                         <DesktopPromoCard image={loungeImage ?? ""} title={v2Text(pairedPromo, "title", locale)} cta={v2Text(pairedPromo, "subtitle", locale)} to="/lounge" imagePosition="center 56%" />
