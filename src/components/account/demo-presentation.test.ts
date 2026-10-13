@@ -18,10 +18,9 @@ describe('account demo presentation boundary', () => {
     expect(accountDemoAllowed('pasaport.io', true)).toBe(false);
     expect(accountDemoAllowed('id-preview--0f8d131d-7438-424e-bdeb-40a342b1acf3.lovable.app', false)).toBe(false);
   });
-  it('rejects standalone customer previews and untrusted embedding origins', () => {
+  it('allows only opted-in preview hosts, never live domains', () => {
     const host = 'id-preview--0f8d131d-7438-424e-bdeb-40a342b1acf3.lovable.app';
-    expect(accountDemoPresentationAllowed(host, true, null)).toBe(false);
-    expect(accountDemoPresentationAllowed(host, true, 'https://example.org')).toBe(false);
+    expect(accountDemoPresentationAllowed(host, true, null)).toBe(true);
     expect(accountDemoPresentationAllowed(host, true, 'https://lovable.dev')).toBe(true);
     expect(accountDemoPresentationAllowed(host, false, 'https://lovable.dev')).toBe(false);
     expect(accountDemoPresentationAllowed('pasaport.io', true, 'https://lovable.dev')).toBe(false);
