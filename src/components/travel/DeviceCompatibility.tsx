@@ -388,16 +388,28 @@ export function DeviceCheckSheet({ surface, trigger, detection }: { surface: str
         <div className="space-y-4 px-4 pb-4 pt-2 sm:px-6">
           <div className="rounded-2xl border border-border bg-card p-3 shadow-soft sm:p-4">
             {!selected && (<>
-            <label htmlFor="device-brand" className="mb-1.5 block text-sm font-semibold">{x.brandSelect}</label>
-            <select
-              id="device-brand"
-              value={brand ?? ""}
-              onChange={(event) => { setBrand(event.target.value || null); setPending(null); setSelected(null); setQuery(""); setListOpen(Boolean(event.target.value)); resetResult(); }}
-              className="min-h-12 w-full rounded-xl border border-border bg-card px-3 text-sm font-semibold text-foreground outline-none focus-visible:ring-2 focus-visible:ring-ring sm:max-w-xs"
-            >
-              <option value="">{x.brandSelect}</option>
-              {brands.map((item) => <option key={item} value={item}>{item}</option>)}
-            </select>
+            <p className="mb-1.5 block text-sm font-semibold" id="device-brand-label">{brand ? x.brandSelect : HOME_CARD[locale].brandStep}</p>
+            {brand ? (
+              <button type="button" data-testid="device-brand-chosen" onClick={() => { setBrand(null); setPending(null); setQuery(""); setBrandQuery(""); setListOpen(false); resetResult(); }} className="flex min-h-12 w-full items-center justify-between gap-2 rounded-xl border border-primary bg-primary-soft px-3 text-start text-sm font-semibold sm:max-w-xs">
+                <span className="flex min-w-0 items-center gap-2"><BrandMark name={brand} /><span className="truncate">{brand}</span></span>
+                <Pencil className="size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
+              </button>
+            ) : (
+              <div role="group" aria-labelledby="device-brand-label">
+                <span className="flex min-h-11 items-center gap-2 rounded-xl border border-border px-3">
+                  <Search className="size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
+                  <input value={brandQuery} onChange={(event) => setBrandQuery(event.target.value)} aria-label={HOME_CARD[locale].brandSearch} placeholder={HOME_CARD[locale].brandSearch} className="min-w-0 flex-1 bg-transparent text-sm outline-none" />
+                </span>
+                {isPending ? <p className="flex items-center gap-2 p-3 text-sm text-muted-foreground"><LoaderCircle className="size-4 animate-spin" /> …</p> : (
+                  <ul className="mt-2 grid max-h-64 grid-cols-2 gap-2 overflow-y-auto overscroll-contain sm:grid-cols-3">
+                    {brands.filter((item) => item.toLowerCase().includes(brandQuery.trim().toLowerCase())).map((item) => (
+                      <li key={item}><button type="button" onClick={() => { setBrand(item); setPending(null); setSelected(null); setQuery(""); setListOpen(true); resetResult(); }} className="flex min-h-11 w-full items-center gap-2 rounded-xl border border-border bg-card px-2.5 text-start text-sm font-semibold transition-colors hover:border-primary hover:bg-primary-soft"><BrandMark name={item} /><span className="min-w-0 truncate">{item}</span></button></li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            )}
+
 
             <p className="mb-1.5 mt-3 block text-sm font-semibold" id="device-model-label">{x.modelSelect}</p>
             <div className="flex flex-col gap-3 sm:flex-row sm:items-start">
