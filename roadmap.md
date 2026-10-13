@@ -1,6 +1,6 @@
 # Roadmap — Phase 5
 
-- [ ] Restore the shared homepage installation preview with 3-second autoplay; preserve central manual guide and reduced motion, verify mobile/desktop.
+- [x] Restore shared homepage installation preview with 3-second autoplay; pause/manual navigation, central manual guide and reduced motion preserved. 320/390/1440 browser checks and 14 unit tests passed; build OK.
 
 - [x] Show owner-approved sample comparison prices only in preview with localized disclosure and animated common-scale bars; 32 tests passed, 390/1440 render confirmed (presentation only).
 - [x] Compare uploaded Screen_Recording_20261013_125243_Chrome.mp4 reference frame with the shared central installation guide.
