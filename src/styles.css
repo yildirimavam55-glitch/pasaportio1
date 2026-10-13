@@ -1820,6 +1820,20 @@ body:has([role="dialog"][data-state="open"]) .pasaport-mobile-reference [data-wh
 @media(max-width:1023px){.family-source-marks{gap:7px}.family-review-heading .google-wordmark{font-size:14px}.family-review-heading .trustpilot-wordmark{font-size:11px}.family-review-heading .trustpilot-wordmark svg{width:16px;height:16px}.family-review-card footer{gap:6px}.family-review-card footer>span:nth-child(2){min-width:0;flex:1}.family-review-card footer .review-source-mark{flex-shrink:0}}
 @media(prefers-reduced-motion:reduce){.family-proof .compare-bar-fill{transform:scaleX(var(--price-ratio));transition:none}}
 
+/* Restored comparison: equal-width horizontal tracks, never illustrative fills. */
+.family-comparison .family-price-grid{grid-template-columns:minmax(0,1fr);gap:10px;margin:16px 0}
+.family-comparison .family-price-option{grid-template-columns:36px minmax(0,1fr) auto;gap:6px 10px;align-items:center;padding:10px 0;border:0;border-radius:0;background:transparent}
+.family-comparison .compare-icon{width:32px;height:32px;grid-row:1/3}
+.family-comparison .compare-icon svg{width:20px;height:20px}
+.family-comparison .price-copy strong{font-size:14px;line-height:1.4;overflow-wrap:anywhere}
+.family-comparison .family-price-option bdi{grid-column:3;grid-row:1;font-size:18px;line-height:1.4}
+.family-comparison .compare-track{grid-column:2/4;grid-row:2;height:12px;min-width:0}
+.family-comparison .compare-bar-track{height:12px;background:color-mix(in oklch,var(--option-tone) 12%,var(--story-card))}
+[dir=rtl] .family-comparison .compare-track>span{transform:none}
+.family-comparison .family-compare-heading{grid-template-columns:minmax(0,1fr)}
+.family-comparison .family-compare-heading h3{line-height:1.2;overflow-wrap:anywhere}
+@media(max-width:639px){.family-comparison .family-price-grid{gap:6px;margin:12px 0}.family-comparison .family-price-option{grid-template-columns:28px minmax(0,1fr) auto;gap:5px 8px;padding:6px 0}.family-comparison .compare-icon{width:26px;height:26px}.family-comparison .price-copy strong{font-size:12px}.family-comparison .family-price-option bdi{font-size:14px}.family-comparison .compare-track,.family-comparison .compare-bar-track{height:10px}.family-comparison .family-compare-heading h3{font-size:22px}}
+
 /* Approved testimonial-only reference. Family and price-comparison styles are unchanged. */
 .approved-reviews{container-type:inline-size;background:var(--story-card);border-radius:16px;padding:28px 22px 20px;margin:20px 0;overflow:hidden;box-shadow:var(--story-shadow)}
 .approved-reviews .family-review-heading{display:flex;flex-direction:column;align-items:center;gap:12px;flex-wrap:nowrap;margin:0 0 24px;text-align:center}
