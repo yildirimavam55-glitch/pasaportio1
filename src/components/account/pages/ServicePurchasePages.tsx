@@ -26,7 +26,7 @@ function demoVignette(now: Date) {
 }
 
 function DemoBadge() {
-  return <span className="rounded-full bg-warning/15 px-2 py-0.5 text-[11px] font-bold text-warning">DEMO</span>;
+  return <span className="rounded-full border border-warning/40 bg-card px-2 py-0.5 text-[11px] font-bold text-warning">DEMO</span>;
 }
 
 function Photo({ iso, className }: { iso: string; className: string }) {
