@@ -1,7 +1,9 @@
 import { CLink as Link } from "@/components/design-v2/v2-context";
 import { useQuery } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
-import { Globe2, Search } from "lucide-react";
+import { CalendarDays, Clock, Database, Globe2, Info, Search, Signal, Smartphone } from "lucide-react";
+import { PURCHASE_COPY } from "@/components/account/purchases-copy";
+import { getCountryPhoto } from "@/components/travel/countryPhotos";
 
 import { AccountLayout } from "@/components/account/AccountLayout";
 import { EsimRefundPanel } from "@/components/refunds/EsimRefundPanel";
@@ -103,6 +105,9 @@ export function EsimDetailPage({ id }: { id: string }) {
   const canTopUp = canOfferTopUp(esim.topupSupported && hasCapability(esim, "TOPUP"));
   const panel = PANEL_COPY[locale];
   const usageUpdatedAt = usageTimestamp(esim.installInfo);
+  const pc = PURCHASE_COPY[locale];
+  const heroIso = esim.productInfo?.destinationIso ?? (coverage?.countryIsos.length === 1 ? coverage.countryIsos[0] : null);
+  const photo = getCountryPhoto(heroIso);
   const v2Identity = v2 && coverage?.countryIsos.length
     ? customerCataloguePackageTitle({ locale, coverage: coverage.countryIsos, destinationIso: esim.productInfo?.destinationIso ?? null, packageKind: esim.productInfo?.packageKind ?? null })
     : null;
@@ -116,6 +121,18 @@ export function EsimDetailPage({ id }: { id: string }) {
     >
       <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_22rem]">
         <div className="grid gap-5">
+          <section className="flex gap-4 rounded-2xl border border-border bg-card p-4 shadow-card">
+            {photo ? <img src={photo.cardImage} alt="" loading="lazy" className="h-24 w-28 shrink-0 rounded-xl object-cover sm:h-28 sm:w-40" /> : null}
+            <div className="min-w-0 flex-1">
+              <h2 className="font-display text-lg font-bold">{v2Identity ?? (esim.packageLabel || esim.destinationLabel || "eSIM")}</h2>
+              {heroIso && <p className="mt-1 flex items-center gap-2 text-sm text-muted-foreground"><span aria-hidden="true">{flagOf(heroIso)}</span>{getCountryByIso(heroIso)?.name[locale] ?? heroIso}</p>}
+              <p className="mt-1 text-sm text-muted-foreground">
+                {[unlimited ? copy.unlimited : coverage?.dataGb ? `${coverage.dataGb} GB` : null, coverage?.validityDays ? `${coverage.validityDays} ${copy.esim.days}` : null].filter(Boolean).join(" · ")}
+              </p>
+              {coverage?.networkOperators?.length ? <p className="mt-1 flex items-center gap-1.5 text-sm text-muted-foreground"><Signal className="size-3.5" />{coverage.networkOperators.join(" / ")}</p> : null}
+            </div>
+          </section>
+
           <section className="rounded-2xl border border-border bg-card p-5 shadow-card">
             <h2 className="font-display text-lg font-bold">{copy.esim.status}</h2>
             <dl className="mt-4 grid gap-3 text-sm sm:grid-cols-2">
@@ -174,37 +191,62 @@ export function EsimDetailPage({ id }: { id: string }) {
             </dl>
           </section>
 
-          <section className="rounded-2xl border border-border bg-card p-5 shadow-card">
-            <h2 className="font-display text-lg font-bold">
-              {unlimited ? copy.unlimited : copy.esim.package}
-            </h2>
-            {unlimited ? (
-              <p className="mt-2 text-sm text-muted-foreground">
-                {fairUseText(esim.installInfo) ?? coverage?.fairUseNote ?? copy.usageUnavailable}
-              </p>
-            ) : usage != null && esim.totalDataMb != null && esim.remainingDataMb != null ? (
-              <>
-                <p className="mt-2 font-display text-2xl font-bold">
-                  {formatMegabytes(Math.max(0, esim.remainingDataMb), locale)}{" "}
-                  <span className="text-sm font-semibold text-muted-foreground">
-                    {copy.remaining} · {formatMegabytes(esim.totalDataMb, locale)} {copy.total}
-                  </span>
-                </p>
-                <div className="mt-3 h-2 overflow-hidden rounded-full bg-primary/15">
-                  <div
-                    className="h-full rounded-full bg-primary"
-                    style={{ transform: `translateX(-${usage}%)` }}
-                  />
-                </div>
-              </>
-            ) : (
-              <p className="mt-2 text-sm text-muted-foreground">{copy.usageUnavailable}</p>
-            )}
-            {!unlimited && usage != null && (
-              <p className="mt-3 text-xs leading-5 text-muted-foreground">
+          <div className="grid gap-4 sm:grid-cols-2">
+            <section className="rounded-2xl border border-border bg-card p-5 shadow-card">
+              <p className="flex items-center gap-2 text-sm font-semibold"><Database className="size-4 text-primary" />{pc.remainingData}</p>
+              {unlimited ? (
+                <>
+                  <p className="mt-2 font-display text-2xl font-bold">{copy.unlimited}</p>
+                  <p className="mt-2 text-xs text-muted-foreground">{fairUseText(esim.installInfo) ?? coverage?.fairUseNote ?? copy.usageUnavailable}</p>
+                </>
+              ) : usage != null && esim.totalDataMb != null && esim.remainingDataMb != null ? (
+                <>
+                  <p className="mt-2 font-display text-2xl font-bold">
+                    {formatMegabytes(Math.max(0, esim.remainingDataMb), locale)}{" "}
+                    <span className="text-sm font-semibold text-muted-foreground">/ {formatMegabytes(esim.totalDataMb, locale)}</span>
+                  </p>
+                  <div className="mt-3 h-2 overflow-hidden rounded-full bg-primary/15">
+                    <div className="h-full rounded-full bg-primary" style={{ width: `${100 - usage}%` }} />
+                  </div>
+                </>
+              ) : (
+                <p className="mt-2 text-sm text-muted-foreground">{copy.usageUnavailable}</p>
+              )}
+            </section>
+            <section className="rounded-2xl border border-border bg-card p-5 shadow-card">
+              <p className="flex items-center gap-2 text-sm font-semibold"><CalendarDays className="size-4 text-primary" />{pc.remainingTime}</p>
+              {days != null ? (
+                <>
+                  <p className="mt-2 font-display text-2xl font-bold">
+                    {days} {pc.days}
+                    {coverage?.validityDays ? <span className="text-sm font-semibold text-muted-foreground"> / {coverage.validityDays} {pc.days}</span> : null}
+                  </p>
+                  {coverage?.validityDays ? (
+                    <div className="mt-3 h-2 overflow-hidden rounded-full bg-warning/20">
+                      <div className="h-full rounded-full bg-warning" style={{ width: `${Math.min(100, (days / coverage.validityDays) * 100)}%` }} />
+                    </div>
+                  ) : null}
+                </>
+              ) : (
+                <p className="mt-2 text-sm text-muted-foreground">{pc.noData}</p>
+              )}
+            </section>
+          </div>
+          <section className="grid gap-3 rounded-2xl border border-border bg-card p-4 shadow-card sm:grid-cols-2">
+            <div className="flex items-start gap-3">
+              <Info className="mt-0.5 size-4 shrink-0 text-primary" />
+              <div>
+                <p className="text-sm font-semibold">{pc.activation}</p>
+                <p className="text-xs text-muted-foreground">{status === "ACTIVE" ? `${pc.activationStored}: ${esimStatusLabel(status, locale)}` : pc.activationUnknown}</p>
+                <p className="mt-1 text-xs text-muted-foreground">{pc.activationNote}</p>
+              </div>
+            </div>
+            <div className="flex items-start gap-3">
+              <Clock className="mt-0.5 size-4 shrink-0 text-primary" />
+              <p className="text-xs leading-5 text-muted-foreground">
                 {usageUpdatedAt ? `${panel.usageUpdated}: ${formatDate(usageUpdatedAt, locale)}` : panel.usageNotLive}
               </p>
-            )}
+            </div>
           </section>
 
           <section className="rounded-2xl border border-border bg-card p-5 shadow-card">
@@ -257,6 +299,14 @@ export function EsimDetailPage({ id }: { id: string }) {
         </div>
 
         <aside className="grid gap-4">
+          <section className="rounded-2xl border border-border bg-card p-5 shadow-card">
+            <h2 className="font-display text-lg font-bold">{pc.installOptions}</h2>
+            <button type="button" disabled aria-disabled="true" className="mt-3 flex w-full items-center gap-3 rounded-xl bg-primary px-4 py-3 text-left text-primary-foreground opacity-90">
+              <Smartphone className="size-5 shrink-0" />
+              <span className="min-w-0 flex-1"><span className="block text-sm font-semibold">{pc.iphoneAuto}</span><span className="block text-xs opacity-80">{pc.iphoneAutoText}</span></span>
+              <span className="rounded-full bg-primary-foreground/20 px-2 py-0.5 text-[11px] font-bold">{pc.soon}</span>
+            </button>
+          </section>
           <section className="rounded-2xl border border-border bg-card p-5 shadow-card">
             <h2 className="font-display text-lg font-bold">{copy.guide.title}</h2>
             <div className="mt-4">
