@@ -31,7 +31,7 @@ function fakeDb() {
 vi.mock("@/integrations/supabase/client.server", () => ({ get supabaseAdmin() { return fakeDb(); } }));
 vi.mock("@/providers/adapters/factory.server", () => ({ buildAdapter }));
 
-import { isBalanceCheckAllowed, runBalanceCheck, runDueBalanceChecks } from "./balance-monitor.server";
+import { isBalanceCheckAllowed, runBalanceCheck, runDueBalanceChecks } from "../balance-monitor.server";
 
 const cases: Array<[string, () => Promise<{ data: any; error: any }>]> = [
   ["flag false", async () => ({ data: { enabled: false }, error: null })],
