@@ -2143,5 +2143,7 @@ body:has([role="dialog"][data-state="open"]) .pasaport-mobile-reference [data-wh
  .customer-esim-track { grid-template-columns:repeat(2,minmax(0,1fr)); }
  .account-mobile-nav { grid-template-columns:repeat(2,minmax(0,1fr)); }
 }
-.account-install-sheet [data-account-walkthrough] .installation-phone { width:180px; height:340px; }
+.account-install-sheet [data-account-walkthrough] .installation-phone { width:200px; }
+.account-install-sheet [data-account-walkthrough] .installation-row { grid-template-columns:minmax(0,1fr); gap:2px; font-size:12px; }
+.account-install-sheet [data-account-walkthrough] .installation-row > span:not(:first-child) { max-width:100%; }
 .account-install-sheet [data-account-walkthrough] > div:first-child { padding-block:12px; }
