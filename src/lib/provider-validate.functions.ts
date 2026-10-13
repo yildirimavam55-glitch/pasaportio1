@@ -70,6 +70,9 @@ export const validateProductForCheckout = createServerFn({ method: "POST" })
       .limit(1)
       .maybeSingle();
 
+    // Fail-closed: no live supplier validation while provider API access is off.
+    const { isBalanceCheckAllowed } = await import("@/lib/balance-monitor.server");
+    if (!(await isBalanceCheckAllowed(db))) return result("NOT_CONFIGURED", "Bu paket şu anda doğrulanamıyor.");
     const { buildAdapter } = await import("@/providers/adapters/factory.server");
     const adapter = buildAdapter(provider, connection ?? null);
     if (!adapter.validateItem || !adapter.hasCredential()) {

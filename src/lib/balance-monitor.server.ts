@@ -14,6 +14,22 @@ import {
 } from "@/domain/providers/balance-monitor";
 
 export const BALANCE_TIMEOUT_MS = 15_000;
+export const BALANCE_BLOCKED = "PROVIDER_SYNC_DISABLED";
+
+/**
+ * Fail-closed supplier API guard for balance reads. Allowed ONLY when the
+ * `provider.sync` flag row exists and is explicitly true. Missing row, read
+ * error or exception => blocked (no supplier request).
+ */
+export async function isBalanceCheckAllowed(db: any): Promise<boolean> {
+  try {
+    const { data, error } = await db.from("feature_flags").select("enabled").eq("key", "provider.sync").maybeSingle();
+    if (error || !data) return false;
+    return data.enabled === true;
+  } catch {
+    return false;
+  }
+}
 const HISTORY_HOURS = 24 * 7;
 
 export function settingsFromRow(row: any | null | undefined): BalanceMonitorSettings {
@@ -62,6 +78,10 @@ export async function runBalanceCheck(
   source: "MANUAL" | "SCHEDULED",
   now = new Date(),
 ) {
+  // Defense in depth: every entry point (manual + scheduled) passes through here.
+  if (!(await isBalanceCheckAllowed(db))) {
+    return { ok: false, blocked: true as const, amount: null, currency: null, errorCode: BALANCE_BLOCKED, checkedAt: now.toISOString(), created: 0, updated: 0, resolved: 0 };
+  }
   const result = await fetchBalanceSafely(fetcher);
   const checkedAt = now.toISOString();
   await db.from("provider_balance_snapshots").insert({
@@ -128,6 +148,9 @@ export async function runBalanceCheck(
 export async function runDueBalanceChecks(now = new Date()) {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   const db: any = supabaseAdmin;
+  if (!(await isBalanceCheckAllowed(db))) {
+    return { ok: true, blocked: true, reason: BALANCE_BLOCKED, checkedAt: now.toISOString(), results: [] };
+  }
   const { buildAdapter } = await import("@/providers/adapters/factory.server");
   const { data: providers } = await db.from("providers").select("*").eq("active", true);
   const results: Array<Record<string, unknown>> = [];
