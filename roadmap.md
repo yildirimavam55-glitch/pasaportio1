@@ -1,5 +1,7 @@
 # Roadmap — Phase 5
 
+- [ ] Add three owner-approved TEST eSIM packages to the specified real account without orders, payment or activation credentials; verify normal account visibility.
+
 - [x] Premium eSIM account presentation: video-reference cards, shared installation sheet, compact navigation, preview isolation and 390/1440 flow checks (frontend only).
 
 - [x] Migration checklist incl. eSIM Go 403 task (docs/migration/MIGRATION_CHECKLIST.md)
