@@ -9,6 +9,7 @@
 > the editor, so keep the branch in a working state.
 <!-- LOVABLE:END -->
 
+Read subdirectory AGENTS.md files before changing files there.
 Public install help stays in V2; QR, activation credentials, and package policy stay in authenticated account views.
 - V2 pickers share `V2PickerSheet`; preserve mobile scroll/x-position and visual-viewport keyboard handling, with guarded pointer-up selection.
 - Keep the eSIM coverage-array GIN index; public catalogue containment queries depend on it.
@@ -33,12 +34,9 @@ Public install help stays in V2; QR, activation credentials, and package policy 
 - Browser-only locales await resolution in a neutral shell; TR/DE/EN URLs remain SSR — why: unknown browser preferences must not flash another language.
 - Worldwide static photos reuse REGION_DISCOVERY media/crops/preview; price/coverage share one catalogue row — why: no duplicate tools or false claims.
 - One shared PaymentStrip uses story CSS ordering for desktop copy/mobile below-photo placement — why: never duplicate availability data.
-- Account demos require authenticated preview opt-in and credential-free in-memory records; cards/details share EsimInstallSheet and public phone scenes — why: no purchases or duplicated guides.
 - Refund verdicts use stored activation history plus confirmed never-activated provider evidence, not current status — why: past activation and duplicate requests stay blocked.
 - Root CurrencyProvider + displayMoney are the only currency path; EUR stays canonical, rateless currencies are hidden, only payment-verified ones charge — why: no fake prices.
 - Review samples are gated by editor-frame intent plus the server Admin query, never hostnames; CMS refresh failures keep last-known published data instead of an empty fallback.
 - Fresh databases build from db/baseline/0000_baseline_schema.sql, then drizzle/migrations in order; security grants live in migrations — why: copies must reproduce the hardened live schema.
 - Guest orders have customer_id null + normalized guest_email; idempotency is scoped per owner and guest delivery links use hashed, expiring tokens only — why: guests never get accounts and links must never leak access.
 - Site origin = SITE_URL; sitemaps share one builder — why: no conflicting domains.
-
-- Account V1 uses shared category, refund-window/server-verdict and installation modules for compact card actions; action destinations never submit a refund — why: presentation must not infer eligibility or fork authenticated installation flows.
