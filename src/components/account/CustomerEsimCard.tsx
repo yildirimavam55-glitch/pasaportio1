@@ -1,5 +1,5 @@
-import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { useNavigate } from '@tanstack/react-router';
 import { CLink as Link } from "@/components/design-v2/v2-context";
 import {
   AlertTriangle,
@@ -14,7 +14,6 @@ import { accountPhotoIso, refundPresentation } from "./v1-presentation";
 import { getEsimRefundState } from "@/lib/refunds.functions";
 import { CountryFlag } from "@/components/travel/CountryFlag";
 import { formatDate } from "./copy";
-import { EsimInstallSheet } from "./EsimInstallSheet";
 import { Progress } from "@/components/ui/progress";
 import { getCountryPhoto } from "@/components/travel/countryPhotos";
 import { PURCHASE_COPY } from "./purchases-copy";
@@ -36,7 +35,6 @@ import {
   type CustomerEsimStatus,
 } from "@/domain/esim/customer-esim";
 import {
-  getCustomerEsimActivation,
   type CustomerEsimRecord,
 } from "@/lib/customer-account.functions";
 import { localize } from "@/i18n/overlay";
@@ -133,8 +131,7 @@ export function CustomerEsimCard({ esim, locale, activationPolicy, demo = false 
   const pc = PURCHASE_COPY[locale];
   const c = ACCOUNT_V1_COPY[locale];
   const v2 = useIsV2();
-  const [guideOpen, setGuideOpen] = useState(false);
-  const [method, setMethod] = useState<'qr' | 'guide'>('qr');
+  const navigate=useNavigate();
   const status = normalizeCustomerEsimStatus(esim.status);
   const category = esimCategory({ status: esim.status, totalMb: esim.totalDataMb, remainingMb: esim.remainingDataMb, expiresAt: esim.expiresAt });
   const pending = category === 'pending';
@@ -143,11 +140,10 @@ export function CustomerEsimCard({ esim, locale, activationPolicy, demo = false 
   const iso = accountPhotoIso(esim);
   const photo = getCountryPhoto(iso);
   const usage = boundedUsagePercent(esim.totalDataMb, esim.remainingDataMb);
-  const activation = useQuery({ queryKey: ['customer-esim-activation', esim.id], queryFn: () => getCustomerEsimActivation({ data: { esimId: esim.id } }), enabled: !demo && guideOpen && !expired && (esim.hasQr || esim.hasInstallInfo), staleTime: 60_000 });
   const refund = useQuery({ queryKey: ['esim-refund-state', esim.id], queryFn: () => getEsimRefundState({ data: { esimId: esim.id } }), enabled: !demo && pending, staleTime: 30_000 });
   const purchaseAt = demo ? esim.createdAt : refund.data?.purchaseAt ?? (esim.orderItemId ? esim.createdAt : null);
   const refundInfo = refundPresentation(purchaseAt, new Date(), refund.data);
-  const openMethod = (next: 'qr' | 'guide') => { setMethod(next); setGuideOpen(true); };
+  const openMethod = (_next: 'qr' | 'guide') => { void navigate({to:'/esim/kurulum',search:{esimId:esim.id,method:'qr',...(demo?{demo:1}:{})}}); };
   return <article data-demo-esim={demo ? esim.id : undefined} data-esim-category={category} className="customer-esim-card snap-start border border-border bg-card shadow-card">
     <div className="account-card-summary">
       <div className="account-card-photo-wrap">
@@ -174,7 +170,6 @@ export function CustomerEsimCard({ esim, locale, activationPolicy, demo = false 
       {pending ? <Button asChild variant="outline" className="account-square-action text-destructive"><Link to="/account/support" aria-label={refundInfo.verifiedEligible ? c.refund : c.review}><Undo2 /><span>{refundInfo.verifiedEligible ? c.refund : c.review}</span></Link></Button> : <Button asChild variant="outline" className="account-square-action"><Link to="/account/esims/$id" params={{ id: esim.id }} search={demo ? { demo: 1 } : {}} data-demo-detail-link={demo || undefined} aria-label={c.detail}><Menu /><span>{c.detail}</span></Link></Button>}
     </div>
     {pending && <Link to="/account/esims/$id" params={{ id: esim.id }} search={demo ? { demo: 1 } : {}} data-demo-detail-link={demo || undefined} className="mt-2 flex items-center justify-end gap-1 text-[11px] font-semibold text-primary">{pc.view}<ChevronRight className="size-3" /></Link>}
-    <EsimInstallSheet open={guideOpen} onOpenChange={setGuideOpen} initialMethod={method} title={`${name} · ${subtitle}`} locale={locale} esimId={esim.id} qrPayload={activation.data?.qrPayload ?? null} installInfo={activation.data?.installInfo ?? esim.installInfo} activationPolicy={activationPolicy ?? esim.productInfo?.activationPolicy} expired={expired} loading={activation.isLoading} demo={demo} />
   </article>;
 }
 

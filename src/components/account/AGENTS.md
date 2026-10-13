@@ -1,5 +1,5 @@
 # Account presentation rules
 
-- Account demos require authenticated preview opt-in and credential-free in-memory records; cards/details share EsimInstallSheet and public phone scenes — why: no purchases or duplicated guides.
-- Account summaries use shared categories and refund-window/server-verdict modules; installation methods share the public credential-free phone scenes inside the existing account sheet, with real data owned by authenticated callers — why: compact presentation must never infer eligibility, submit refunds or fork installation flows.
-- Public and account walkthroughs use the same StepNavigation with clamped indices and a fixed left-to-right control row; manual selection pauses public auto-advance — why: edge-disabled arrows and numbered selection must stay stable across RTL and narrow screens.
+- Account demos require authenticated preview opt-in and credential-free in-memory records; cards/details navigate to the central V2 guide using only the eSIM identity — why: no purchases, credential URLs or duplicated guides.
+- Account summaries use shared categories and refund-window/server-verdict modules; EsimInstallGuide renders protected installation data only, while walkthroughs live on the central V2 page — why: presentation must never infer eligibility, submit refunds or fork installation flows.
+- The central walkthrough uses shared StepNavigation with clamped indices, variable step-count sizing and a fixed left-to-right row; steps advance on user selection only — why: stable navigation across RTL and narrow screens.

@@ -133,7 +133,7 @@ export function StepNavigation({
 }) {
   const state = installationStepState(current, steps.length);
   return (
-    <nav className="installation-step-nav" data-install-step-nav aria-label={stepLabel} dir="ltr">
+    <nav className="installation-step-nav" data-install-step-nav aria-label={stepLabel} dir="ltr" style={{'--step-controls':steps.length+2,'--step-gaps':`${(steps.length+1)*4}px`} as import('react').CSSProperties}>
       <Button type="button" variant="outline" size="icon" onClick={() => onSelect(state.previous)} disabled={state.previousDisabled} className="installation-step-control" aria-label={previous} title={previous}>
         <ChevronLeft className="size-4" />
       </Button>

@@ -1,18 +1,17 @@
 import { CLink as Link } from "@/components/design-v2/v2-context";
+import { useNavigate } from '@tanstack/react-router';
 import { useQuery } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 import { CalendarDays, Clock, Database, Globe2, Info, Search, Signal, Smartphone, QrCode, RefreshCcw, MoreHorizontal, ChevronRight } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { ACCOUNT_V1_COPY } from "../v1-copy";
 import { accountPhotoIso } from "../v1-presentation";
-import { EsimInstallGuide } from "../EsimInstallGuide";
 import { PURCHASE_COPY } from "@/components/account/purchases-copy";
 import { getCountryPhoto } from "@/components/travel/countryPhotos";
 import { CountryFlag } from "@/components/travel/CountryFlag";
 
 import { AccountLayout } from "@/components/account/AccountLayout";
 import { EsimRefundPanel } from "@/components/refunds/EsimRefundPanel";
-import { EsimInstallSheet } from "../EsimInstallSheet";
 import { demoEsimRecord } from "../demo-presentation";
 import { esimStatusLabel, hasCapability } from "@/components/account/CustomerEsimCard";
 import { ACCOUNT_COPY, formatDate, formatMoney } from "@/components/account/copy";
@@ -59,8 +58,7 @@ export function EsimDetailPage({ id }: { id: string }) {
   const v2 = useIsV2();
   const [countryQuery, setCountryQuery] = useState("");
   const [countriesOpen, setCountriesOpen] = useState(false);
-  const [installOpen, setInstallOpen] = useState(false);
-  const [installMethod, setInstallMethod] = useState<"qr" | "manual" | "guide">("qr");
+  const navigate=useNavigate();
   const [moreOpen, setMoreOpen] = useState(false);
   const isDemoId = id.startsWith("demo-");
   const demoAllowed = useAccountDemo();
@@ -141,7 +139,7 @@ export function EsimDetailPage({ id }: { id: string }) {
     : null;
 
   const c = ACCOUNT_V1_COPY[locale];
-  const openInstall = (method: "qr" | "manual" | "guide") => { setInstallMethod(method); setInstallOpen(true); };
+  const openInstall = (method: "qr" | "manual" | "guide") => { void navigate({to:'/esim/kurulum',search:{esimId:id,method:method==='guide'?'qr':method,...(isDemoId?{demo:1}:{})}}); };
   return (
     <AccountLayout
       active="esims"
@@ -322,8 +320,6 @@ export function EsimDetailPage({ id }: { id: string }) {
             <Button variant="default" disabled className="h-auto min-h-14 w-full justify-start whitespace-normal text-left"><Smartphone className="size-5 shrink-0" /><span className="min-w-0 flex-1 text-xs">{pc.iphoneAuto}<small className="mt-1 block">{pc.iphoneAutoText}</small></span><span className="text-xs">{pc.soon}</span></Button>
             <Button variant="outline" className="h-auto min-h-12 justify-between whitespace-normal text-xs" onClick={() => openInstall('qr')}><QrCode className="size-5 shrink-0" />{copy.esim.qr}<ChevronRight className="size-4 shrink-0" /></Button>
             <Button variant="outline" className="h-auto min-h-12 justify-between whitespace-normal text-xs" onClick={() => openInstall('manual')}><Smartphone className="size-5 shrink-0" />{copy.guide.manual}<ChevronRight className="size-4 shrink-0" /></Button>
-            <EsimInstallGuide embedded initialMethod="guide" locale={locale} esimId={esim.id} qrPayload={null} installInfo={activation.data?.installInfo ?? esim.installInfo} activationPolicy={coverage?.activationPolicy ?? null} expired={expired} demo={isDemoId} />
-            <EsimInstallSheet open={installOpen} onOpenChange={setInstallOpen} initialMethod={installMethod} title={v2Identity ?? esim.packageLabel ?? 'eSIM'} locale={locale} esimId={esim.id} qrPayload={activation.data?.qrPayload ?? null} installInfo={activation.data?.installInfo ?? esim.installInfo} activationPolicy={coverage?.activationPolicy} expired={expired} loading={activation.isLoading} demo={isDemoId} />
           </section>
           {!isDemoId && <EsimRefundPanel esimId={esim.id} />}
           {isDemoId && <Button asChild variant="outline" className="min-h-11"><Link to="/account/support">{pc.nav.support}</Link></Button>}
