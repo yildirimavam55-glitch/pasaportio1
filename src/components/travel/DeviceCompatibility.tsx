@@ -747,34 +747,84 @@ const HOME_CARD = localize({
   ar: { title: "تحقق من هاتفك", lead: "اعرف بسهولة ما إذا كان هاتفك يدعم eSIM.", fallback: "هل هاتفك متوافق مع eSIM؟ تحقّق الآن.", detected: (b: string) => `تم اكتشاف جهاز ${b}.`, pickModel: "اختر طراز هاتفك للتحقق من توافق eSIM.", badge: "تم اكتشاف الجهاز", action: "تحقق", brandStep: "اختر علامة هاتفك", brandSearch: "ابحث عن العلامة" },
 } as const);
 
+const COMPACT_PHONE_COPY = {
+  tr: { title: "Telefonunu kontrol et", lead: "eSIM uyumluluğunu kontrol et", detected: (b: string) => `${b} algılandı · Model seç` },
+  de: { title: "Prüfe dein Handy", lead: "eSIM-Kompatibilität prüfen", detected: (b: string) => `${b} erkannt · Modell wählen` },
+  en: { title: "Check your phone", lead: "Check eSIM compatibility", detected: (b: string) => `${b} detected · Choose model` },
+  fr: { title: "Vérifie ton téléphone", lead: "Vérifier la compatibilité eSIM", detected: (b: string) => `${b} détecté · Choisir le modèle` },
+  es: { title: "Comprueba tu móvil", lead: "Comprobar compatibilidad eSIM", detected: (b: string) => `${b} detectado · Elige modelo` },
+  it: { title: "Controlla il telefono", lead: "Verifica compatibilità eSIM", detected: (b: string) => `${b} rilevato · Scegli modello` },
+  pt: { title: "Verifica o telemóvel", lead: "Verificar compatibilidade eSIM", detected: (b: string) => `${b} detetado · Escolhe o modelo` },
+  nl: { title: "Check je telefoon", lead: "Controleer eSIM-compatibiliteit", detected: (b: string) => `${b} herkend · Kies model` },
+  pl: { title: "Sprawdź telefon", lead: "Sprawdź zgodność z eSIM", detected: (b: string) => `${b} wykryty · Wybierz model` },
+  ru: { title: "Проверь телефон", lead: "Проверить поддержку eSIM", detected: (b: string) => `${b} обнаружен · Выбери модель` },
+  ar: { title: "تحقق من هاتفك", lead: "تحقق من توافق eSIM", detected: (b: string) => `${b} مكتشف · اختر الطراز` },
+  ja: { title: "スマホをチェック", lead: "eSIM対応を確認", detected: (b: string) => `${b}を検出 · 機種を選択` },
+  ko: { title: "휴대폰 확인", lead: "eSIM 호환성 확인", detected: (b: string) => `${b} 감지됨 · 모델 선택` },
+  zh: { title: "检查你的手机", lead: "检查 eSIM 兼容性", detected: (b: string) => `检测到 ${b} · 选择型号` },
+} as const;
+
 /** Homepage card after the destination rails; opens the shared checker (bottom sheet on mobile, modal on desktop). */
 export function HomeCompatibilityCard() {
-  const { locale } = useI18n();
-  const h = HOME_CARD[locale];
+  const { locale, uiLocale } = useI18n();
+  const h = COMPACT_PHONE_COPY[uiLocale];
+  const cardRef = useRef<HTMLElement>(null);
+  // Move only the floating support control, and only while it would cover this card.
+  useEffect(() => {
+    let frame = 0;
+    let widget: HTMLElement | null = null;
+    let offset = 0;
+    const update = () => {
+      frame = 0;
+      widget = document.querySelector<HTMLElement>('[data-whatsapp-widget].fixed');
+      const card = cardRef.current?.getBoundingClientRect();
+      if (!widget || !card) return;
+      const box = widget.getBoundingClientRect();
+      const top = box.top + offset;
+      const bottom = box.bottom + offset;
+      const intersects = window.innerWidth < 1024 && card.bottom > top && card.top < bottom && card.right > box.left && card.left < box.right;
+      offset = intersects ? bottom - card.top + 12 : 0;
+      widget.style.setProperty('--phone-card-offset', `${-offset}px`);
+      widget.toggleAttribute('data-phone-card-avoid', offset > 0);
+    };
+    const schedule = () => { if (!frame) frame = requestAnimationFrame(update); };
+    const observer = new ResizeObserver(schedule);
+    if (cardRef.current) observer.observe(cardRef.current);
+    window.addEventListener('scroll', schedule, { passive: true });
+    window.addEventListener('resize', schedule);
+    schedule();
+    return () => {
+      cancelAnimationFrame(frame);
+      observer.disconnect();
+      window.removeEventListener('scroll', schedule);
+      window.removeEventListener('resize', schedule);
+      widget?.style.removeProperty('--phone-card-offset');
+      widget?.removeAttribute('data-phone-card-avoid');
+    };
+  }, []);
   const copy = COPY[locale];
   const { compatibilityChecked, deviceModel, compatibilityResult } = useDeviceCheck();
   const { data: devices = [] } = useQuery({ queryKey: ["device-compatibility"], queryFn: () => listDeviceCompatibility(), staleTime: 10 * 60 * 1000 });
   const { detection, mobile } = useBrowserDevice(devices);
   // Desktop browsers never claim a phone model; only mobile hints are shown.
   const shown = checkerDetectionForViewport(detection, mobile);
-  const detectedBrand = shown.kind === "exact" ? shown.device.brand : shown.kind === "partial" ? (shown.family === "iphone" ? "Apple" : shown.family === "samsung" ? "Samsung" : "Android") : null;
-  const lead = compatibilityChecked && compatibilityResult ? `${deviceModel} — ${statusLabel(copy, compatibilityResult)}` : detectedBrand ? `${h.detected(detectedBrand)} ${h.pickModel}` : h.lead;
+  const detectedBrand = shown.kind === "exact" ? (shown.device.brand === "Apple" ? "iPhone" : shown.device.brand) : shown.kind === "partial" ? (shown.family === "iphone" ? "iPhone" : shown.family === "samsung" ? "Samsung" : "Android") : null;
+  const lead = compatibilityChecked && compatibilityResult ? `${deviceModel} · ${statusLabel(copy, compatibilityResult)}` : detectedBrand ? h.detected(detectedBrand) : h.lead;
   return (
-    <section id="device-compatibility" data-testid="home-compatibility-card" className="mx-auto max-w-site scroll-mt-24 px-4 py-5 pe-[4.75rem] sm:px-6 sm:py-8 sm:pe-[5.5rem] lg:pe-6">
+    <section ref={cardRef} id="device-compatibility" data-testid="home-compatibility-card" className="mx-auto w-full max-w-[1200px] scroll-mt-24 py-5 sm:py-6">
       <DeviceCheckSheet surface="homepage-card" detection={shown} trigger={
-        <button type="button" className="grid w-full grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 rounded-2xl border border-border bg-card p-3 text-start shadow-soft transition-colors hover:border-primary/40 sm:gap-5 sm:p-5">
-          <span className="grid size-11 shrink-0 place-items-center rounded-full bg-primary-soft text-primary sm:size-16">
-            {compatibilityChecked && compatibilityResult ? <StatusIcon status={compatibilityResult} /> : <Smartphone className="size-5 sm:size-8" aria-hidden="true" />}
+        <Button type="button" variant="outline" className="home-phone-card grid h-auto min-h-22 w-full grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2 whitespace-normal rounded-2xl border-border bg-card px-3 py-3 text-start shadow-soft hover:border-primary/40 hover:bg-card sm:gap-4 sm:px-5">
+          <span className="grid size-11 shrink-0 place-items-center rounded-full bg-primary-soft text-primary sm:size-14">
+            <Smartphone className="size-6" aria-hidden="true" />
           </span>
           <span className="min-w-0">
-            {shown.kind === "exact" && !compatibilityChecked && <span className="mb-1 inline-flex items-center gap-1 rounded-full bg-secondary px-2 py-0.5 text-[10px] font-bold text-muted-foreground"><Smartphone className="size-3" aria-hidden="true" />{shown.device.model}</span>}
-            <strong className="block font-display text-base font-bold leading-tight sm:text-2xl">{h.title}</strong>
-            <span className="mt-0.5 block text-xs leading-snug text-muted-foreground sm:text-sm">{lead}</span>
+            <strong className="block font-display text-base font-bold leading-5 text-foreground sm:text-lg">{h.title}</strong>
+            <span className="mt-1 block text-xs font-normal leading-4 text-muted-foreground sm:text-sm sm:leading-5">{lead}</span>
           </span>
-          <span className="inline-flex min-h-10 shrink-0 items-center gap-1 rounded-full bg-primary px-3 text-xs font-bold text-primary-foreground sm:px-5 sm:text-sm">
-            <span className="hidden sm:inline">{h.action}</span><ChevronRight className="size-4 rtl:rotate-180" aria-hidden="true" />
+          <span className="grid size-11 shrink-0 place-items-center rounded-full bg-primary text-primary-foreground">
+            <ChevronRight className="size-6 rtl:rotate-180" aria-hidden="true" />
           </span>
-        </button>
+        </Button>
       } />
     </section>
   );

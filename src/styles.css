@@ -825,6 +825,12 @@ html.dark .destination-scene {
   animation-duration: 0.3s;
 }
 
+/* Scope support movement to the homepage phone card's actual collision. */
+[data-whatsapp-widget][data-phone-card-avoid] {
+  transform: translateY(var(--phone-card-offset, 0px));
+}
+.home-phone-card svg { width: 24px; height: 24px; }
+
 .service-selector-pill {
   position: absolute;
   inset-block: 0.25rem;
