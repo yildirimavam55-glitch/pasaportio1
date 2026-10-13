@@ -74,6 +74,12 @@ const GUIDE = localize({
   },
 } as const);
 
+const MANUAL_GUIDE = localize({
+  tr: { title:"Manuel kurulum", code:"Aktivasyon kodu", ios:"Ayarlar → Hücresel → eSIM Ekle → Ayrıntıları Elle Gir bölümünde hesabınızdaki SM-DP+ adresini ve aktivasyon kodunu girin.", android:"Ayarlar → Bağlantılar → SIM yöneticisi → eSIM ekle → Kodu elle gir bölümünde hesabınızdaki kurulum bilgilerini girin." },
+  de: { title:"Manuelle Installation", code:"Aktivierungscode", ios:"Unter Einstellungen → Mobilfunk → eSIM hinzufügen → Details manuell eingeben trägst du die SM-DP+-Adresse und den Aktivierungscode aus deinem Konto ein.", android:"Unter Einstellungen → Verbindungen → SIM-Manager → eSIM hinzufügen → Code manuell eingeben trägst du die Installationsdaten aus deinem Konto ein." },
+  en: { title:"Manual installation", code:"Activation code", ios:"In Settings → Cellular → Add eSIM → Enter Details Manually, enter the SM-DP+ address and activation code from your account.", android:"In Settings → Connections → SIM manager → Add eSIM → Enter code manually, enter the installation details from your account." },
+});
+
 type Guide = (typeof GUIDE)[keyof typeof GUIDE];
 
 function Toggle({ on }: { on: boolean }) { return <span className={`relative inline-flex h-4 w-8 shrink-0 items-center rounded-full ${on ? "bg-primary" : "bg-border"}`}><span className={`absolute size-3.5 rounded-full bg-card shadow transition-all ${on ? "left-[calc(100%-1rem)]" : "left-0.5"}`} /></span>; }
@@ -81,8 +87,10 @@ function Row({ label, right, highlight }: { label: string; right?: ReactNode; hi
   return <div className={`installation-row ${highlight ? "bg-primary-soft text-primary" : "text-foreground"}`}><span>{label}</span>{right}</div>;
 }
 
-function PhoneScreen({ platform, method, step, c }: { platform: Platform; method: InstallationMethod; step: number; c: Guide }) {
+function PhoneScreen({ platform, method, step, c }: { platform: Platform; method: InstallationMethod | "manual"; step: number; c: Guide }) {
   const labels = useInstallationLabels();
+  const { locale } = useI18n();
+  if (method === "manual" && step === 0) return <div className="installation-stack"><p className="font-bold">{MANUAL_GUIDE[locale].title}</p><Row label="SM-DP+" right={<span aria-hidden="true">••••••</span>} /><Row label={MANUAL_GUIDE[locale].code} right={<span aria-hidden="true">••••••</span>} /><p className="text-muted-foreground">{c.sample}</p></div>;
   if (method === "quick") {
     if (step === 0) return <div className="installation-stack"><span className="grid size-12 shrink-0 place-items-center rounded-xl bg-primary-soft text-primary"><Link2 className="size-6" /></span><p className="font-bold">{labels.link}</p><div className="installation-action install-tap-target bg-primary text-primary-foreground">{labels.link}<TapIndicator className="bottom-3 end-3" /></div></div>;
     if (step === 1) return <div className="installation-stack rounded-xl bg-card p-3"><Smartphone className="size-8 shrink-0 text-primary" /><p className="font-bold">{c.ui.install}</p><div className="installation-action install-tap-target bg-primary text-primary-foreground">{c.ui.addEsim}<TapIndicator className="bottom-3 end-3" /></div></div>;
@@ -96,22 +104,22 @@ function PhoneScreen({ platform, method, step, c }: { platform: Platform; method
   return <InstallationSuccess label={c.ui.ready} />;
 }
 
-function PhoneVisual({ platform, method, step, c }: { platform: Platform; method: InstallationMethod; step: number; c: Guide }) {
+function PhoneVisual({ platform, method, step, c }: { platform: Platform; method: InstallationMethod | "manual"; step: number; c: Guide }) {
   return <InstallationPhone android={platform === "android"} phase={`${platform}-${method}-${step}`}><PhoneScreen platform={platform} method={method} step={step} c={c}/></InstallationPhone>;
 }
 
 /** Account education reuses the public phone scenes without quick links or activation claims. */
-export function AccountInstallationWalkthrough({ platform }: { platform: Platform }) {
+export function AccountInstallationWalkthrough({ platform, method = "qr" }: { platform: Platform; method?: "qr" | "manual" }) {
   const { locale } = useI18n();
   const c = GUIDE[locale];
   const [step, setStep] = useState(0);
-  const steps = c.qrSteps.slice(0, 3);
+  const steps = c.qrSteps.slice(0, 3).map((item, index) => method === "manual" && index === 0 ? { ...item, title:MANUAL_GUIDE[locale].title, ios:MANUAL_GUIDE[locale].ios, android:MANUAL_GUIDE[locale].android } : item);
   const current = steps[step] ?? steps[0];
-  useEffect(() => { setStep(0); }, [platform]);
+  useEffect(() => { setStep(0); }, [platform, method]);
   if (!current) return null;
   return <div data-account-walkthrough className="grid gap-4">
     <div className="grid place-items-center rounded-lg bg-secondary py-5">
-      <PhoneVisual platform={platform} method="qr" step={step} c={c} />
+      <PhoneVisual platform={platform} method={method} step={step} c={c} />
       <p className="mt-3 text-xs text-muted-foreground">{c.sample}</p>
     </div>
     <div aria-live="polite">

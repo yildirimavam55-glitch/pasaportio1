@@ -20,7 +20,6 @@ import { PublicShell } from "@/components/travel/PublicShell";
 import { useI18n } from "@/i18n";
 import { useOptionalServices } from "@/components/travel/ServiceAvailability";
 import { ACCOUNT_COPY } from "./copy";
-import { ACCOUNT_V1_COPY } from "./v1-copy";
 import { PURCHASE_COPY } from "./purchases-copy";
 
 export type AccountSectionKey =
