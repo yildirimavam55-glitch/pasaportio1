@@ -1,5 +1,7 @@
 # Roadmap — Phase 5
 
+- [x] Compact homepage phone compatibility card only: banner-aligned width, 88px height, short copy in 14 languages, collision-only WhatsApp movement; 320/360/390/430/1440 real catalogue brand/model/result checks and 27 unit tests passed. No backend or publish.
+
 - [x] Restore shared homepage installation preview with 3-second autoplay; pause/manual navigation, central manual guide and reduced motion preserved. 320/390/1440 browser checks and 14 unit tests passed; build OK.
 
 - [x] Show owner-approved sample comparison prices only in preview with localized disclosure and animated common-scale bars; 32 tests passed, 390/1440 render confirmed (presentation only).

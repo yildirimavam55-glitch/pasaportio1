@@ -22,7 +22,7 @@ Installation uses one V2 guide; credentials require existing owner-authenticated
 - Refund authority stays server-side; snapshots are immutable, events append-only, and REFUNDED requires confirmed payment refund.
 - The security baseline is owner-controlled; unapproved sensitive changes must stop, be logged, and never weaken baseline tests.
 - Product commercial columns stay hidden via column grants; Admin cost reads happen only after server role checks.
-- The eSIM homepage shows compatibility in its hero band plus one compact card after the regional rail, both opening the shared DeviceCheckSheet — why: one checker, no duplicate logic.
+- The eSIM homepage has one compact compatibility card aligned with the worldwide banner, opening the shared DeviceCheckSheet; floating support moves only on measured card overlap — why: no duplicate checker or narrowed card.
 - Legal content uses two CMS rows: an Admin-only DRAFT row and a PUBLISHED row holding only explicitly published documents, so RLS never exposes drafts; text uses the safe LegalRichText markup, never HTML.
 - Central installation education shares credential-free phone/QR/navigation components; real values use existing owner checks, and guest tokens stay in delivery — why: no duplicate guides or public secrets.
 - Loader-fetched queries are dehydrated with the router and signed media URLs stay stable across refetches, so hydration reuses the server-rendered image sources instead of swapping or re-downloading them.
