@@ -49,7 +49,7 @@ function ServiceCard({ iso, kind, title, subtitle, to, id, demo }: { iso: string
         <h3 className="font-display text-base font-bold">{title}</h3>
         <p className="mt-1 flex items-center gap-2 text-sm text-muted-foreground"><CountryFlag iso={iso} className="h-3.5 w-5" />{subtitle}</p>
         <Button asChild className="mt-4 min-h-11 w-full">
-          <Link to={to} params={id ? { id } : undefined} search={demo ? { demo: 1 } : undefined}>{c.view}<ArrowRight className="size-4" /></Link>
+          <Link to={to} {...(id ? { params: { id } } : {})} {...(demo ? { search: { demo: 1 } } : {})}>{c.view}<ArrowRight className="size-4" /></Link>
         </Button>
       </div>
     </article>

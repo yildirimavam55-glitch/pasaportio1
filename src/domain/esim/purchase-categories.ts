@@ -15,7 +15,7 @@ export function esimCategory(
   const raw = String(esim.status ?? "").trim().toUpperCase();
   if (REFUNDED.has(raw)) return "refunded";
   if (opts.refundOpen || REFUNDING.has(raw)) return "refunding";
-  if (isHistoryEsim({ ...esim, now: opts.now })) return "used";
+  if (isHistoryEsim(opts.now ? { ...esim, now: opts.now } : esim)) return "used";
   if (ACTIVE.has(raw)) return "active";
   return "pending";
 }
