@@ -8,6 +8,7 @@ import { useI18n } from "@/i18n";
 import { CartCoupon, CouponSummary, useCartCoupon } from "@/components/design-v2/CartCoupon";
 import { Button } from "@/components/ui/button";
 import { useCommercePanels } from "./commerce-panels";
+import { PANEL_COPY } from "@/components/account/panel-copy";
 
 export function CartContents({ inPanel = false }: { inPanel?: boolean }) {
   const { locale, uiLocale } = useI18n();
@@ -60,6 +61,10 @@ export function CartContents({ inPanel = false }: { inPanel?: boolean }) {
               ))}
             </ul>
             <aside className={inPanel ? "border-t border-border pt-4" : "mt-3 rounded-2xl border border-border bg-card p-4 shadow-card lg:sticky lg:top-24 lg:mt-0 lg:p-6"}>
+              <div role="status" className="mb-3 rounded-xl border border-warning/40 bg-warning/10 px-4 py-3">
+                <p className="text-sm font-bold text-foreground">{PANEL_COPY[locale].purchaseOff}</p>
+                <p className="mt-0.5 text-xs leading-5 text-muted-foreground">{PANEL_COPY[locale].purchaseOffText}</p>
+              </div>
               <CartCoupon coupon={coupon} />
               {applied && <CouponSummary result={applied} currency={currency} />}
               <div className="flex items-center justify-between bg-secondary px-4 py-3 rounded-xl">
