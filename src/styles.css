@@ -1782,7 +1782,8 @@ body:has([role="dialog"][data-state="open"]) .pasaport-mobile-reference [data-wh
  .public-header-row > .public-header-actions,
  .pasaport-mobile-reference > header > div > .public-header-actions { display:flex; flex-shrink:0; }
  .public-header-row > .public-header-actions > *,
- .pasaport-mobile-reference > header > div > .public-header-actions > * { order:0; grid-column:auto; grid-row:auto; flex-shrink:0; }
+ .pasaport-mobile-reference > header > div > .public-header-actions > *,
+ .pasaport-mobile-reference > header > div > .public-header-actions > button:nth-of-type(n) { order:0; grid-column:auto; grid-row:auto; flex-shrink:0; }
 }
 @media (max-width:639px) {
  .public-header-row > a { min-width:0; overflow:hidden; }
