@@ -1,5 +1,7 @@
 # V2 storefront CMS rules
 
+- The homepage worldwide banner uses approved bundled responsive travel still-life crops through WorldwideBannerPhoto, while its existing REGION_DISCOVERY catalogue row, dimensions and destination remain shared — why: replace only the photo without carrying old-photo crop settings into new artwork or changing commerce.
+
 - Installation education shares CentralInstallationWalkthrough: homepage embeds a credential-free autoplay preview, while account/detail/delivery actions use the user-controlled central route; APN requires provider data — why: visible homepage education without a second animation system or unsafe reads.
 
 - Homepage trust and review content lives in the existing V2 CMS document; public reads require both verified and published review flags so unapproved customer content stays private.

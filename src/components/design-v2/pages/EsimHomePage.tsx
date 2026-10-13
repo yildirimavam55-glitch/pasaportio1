@@ -34,6 +34,8 @@ import { StorefrontIcon } from "@/domain/storefront/icons";
 import { useNearViewport } from "@/components/travel/use-near-viewport";
 import { ESSENTIAL_FAIR_USE } from "@/domain/esim/fair-use";
 import { WorldwideBannerPhoto } from "@/components/design-v2/WorldwideBannerPhoto";
+import worldwideTravelDesktop from "@/assets/worldwide-travel-desktop.webp";
+import worldwideTravelMobile from "@/assets/worldwide-travel-mobile.webp";
 
 const DISCOVERY_COPY = localize({
   tr: { title: "Bölgesel eSIM paketleri", worldwide: "Dünya çapında internet", cta: "Paketleri keşfet", previous: "Önceki bölgeler", next: "Sonraki bölgeler" },
@@ -304,7 +306,7 @@ function RegionalDiscovery({ section, c }: { section: V2Section; c: (typeof T)["
       )}
       {worldwide?.unlimitedBanner && <Link to="/esim/bolge/$region" params={{ region: "GLOBAL" }} search={{ country: "" }} className="home-worldwide-banner">
         <span className="home-worldwide-copy" dir={uiLocale === 'ar' ? 'rtl' : undefined}><strong>{copy.worldwide}</strong><span className="home-worldwide-meta"><span>{worldwide.unlimitedBanner.coverageCount} {c.countries}</span> · <bdi>{c.from} {money(worldwide.unlimitedBanner.price, worldwide.unlimitedBanner.currency)}</bdi></span><span className="home-worldwide-cta">{copy.cta}<ArrowRight className="size-4 shrink-0 rtl:rotate-180" /></span></span>
-        <WorldwideBannerPhoto image={mediaUrl(section.mediaId, media)} mobileImage={mediaUrl(section.mobileMediaId, media)} display={section.imageDisplay} mobileDisplay={section.mobileImageDisplay} />
+        <WorldwideBannerPhoto image={worldwideTravelDesktop} mobileImage={worldwideTravelMobile} display={{ fit: "cover", zoom: 100, x: 50, y: 50 }} mobileDisplay={{ fit: "cover", zoom: 100, x: 50, y: 50 }} />
       </Link>}
     </section>
   );
