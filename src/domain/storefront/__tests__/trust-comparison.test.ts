@@ -6,6 +6,10 @@ describe("trust evidence gates",()=>{
  it("hides unapproved prices",()=>expect(verifiedComparison(rows,false)).toBeNull());
  it("requires sources",()=>expect(verifiedComparison(rows.map(e=>({...e,sourceUrl:""})),true)).toBeNull());
  it("rejects incomparable allowances",()=>expect(verifiedComparison(rows.map((e,i)=>({...e,allowance:i===1?"2 GB":e.allowance})),true)).toBeNull());
+ it("rejects different countries",()=>expect(verifiedComparison(rows.map((e,i)=>({...e,destination:i===1?"DE":e.destination})),true)).toBeNull());
+ it("rejects different validity periods",()=>expect(verifiedComparison(rows.map((e,i)=>({...e,validity:i===1?"30 days":e.validity})),true)).toBeNull());
+ it("rejects different currencies",()=>expect(verifiedComparison(rows.map((e,i)=>({...e,currency:i===1?"USD":e.currency})),true)).toBeNull());
+ it("shows no prices without comparison evidence",()=>expect(verifiedComparison(undefined,true)).toBeNull());
  it("accepts approved comparable sourced entries",()=>expect(verifiedComparison(rows,true)).toEqual(rows));
  it("never shows samples publicly",()=>expect(publicReview({visible:true,reviewType:"DEMO",verified:true,published:true,reviewStatus:"PUBLISHED"})).toBe(false));
  it("requires genuine published verification",()=>expect(publicReview({visible:true,reviewType:"REAL",verified:false,published:true,reviewStatus:"PUBLISHED"})).toBe(false));
