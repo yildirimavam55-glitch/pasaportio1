@@ -1,5 +1,7 @@
 # Roadmap — Phase 5
 
+- [ ] Account V1 reference: compact grouped eSIM rails, four square actions, safe 14-day refund information, compact account links, detail layout, 390/1440 screenshots and interaction tests (UI only).
+
 - [x] Add three owner-approved TEST eSIM packages to the specified real account without orders, payment or activation credentials; normal account shows TEST 1/2/3 and persisted detail opens without demo opt-in.
 
 - [x] Premium eSIM account presentation: video-reference cards, shared installation sheet, compact navigation, preview isolation and 390/1440 flow checks (frontend only).
