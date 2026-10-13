@@ -317,7 +317,7 @@ const HELP = localize({
   en: { title: "Let us help you decide", lead: "Pick the right plan and check your phone's compatibility.", assistantLead: "Get a plan suggestion based on your usage.", find: "Find my plan", compatTitle: "Is my phone eSIM compatible?", compatLead: "Check your device in seconds.", compatCta: "Check compatibility" },
 });
 
-function Packages({ iso, name, c, selectedPackage, onSelectPackage, desktopAfter, preselectId }: { preselectId?: string; desktopAfter?: ReactNode; iso: string; name: string; c: (typeof T)["tr"]; selectedPackage: EsimPackage | null; onSelectPackage: (pkg: EsimPackage) => void }) {
+function Packages({ iso, name, c, selectedPackage, onSelectPackage, desktopAfter, preselectId }: { preselectId?: string | undefined; desktopAfter?: ReactNode; iso: string; name: string; c: (typeof T)["tr"]; selectedPackage: EsimPackage | null; onSelectPackage: (pkg: EsimPackage) => void }) {
   const { locale, uiLocale } = useI18n();
   const money = (value: number, currency: string) => formatMoney(value, currency, uiLocale);
   const h = pick(locale, HELP);
