@@ -774,7 +774,7 @@ function HomePhoneImage({ brand }: { brand: string | null }) {
   const src = phoneCardImage(brand);
   const [failedSrc, setFailedSrc] = useState<string | null>(null);
   if (!src || failedSrc === src) return <Smartphone className="size-6 text-primary" aria-hidden="true" />;
-  return <img src={src} alt="" loading="lazy" decoding="async" width={96} height={180} onError={() => setFailedSrc(src)} className="h-full w-full object-contain" />;
+  return <img src={src} alt="" loading="lazy" decoding="async" width={96} height={180} onError={() => setFailedSrc(src)} className="block h-16 w-auto max-w-full object-contain" />;
 }
 
 /** Homepage card after the destination rails; opens the shared checker (bottom sheet on mobile, modal on desktop). */
