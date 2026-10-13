@@ -315,6 +315,7 @@ export function DeviceCheckSheet({ surface, trigger, detection }: { surface: str
   const [brand, setBrand] = useState<string | null>(null);
   const [query, setQuery] = useState("");
   const [listOpen, setListOpen] = useState(false);
+  const [brandQuery, setBrandQuery] = useState("");
   const [pending, setPending] = useState<DeviceRecord | null>(null);
   const [selected, setSelected] = useState<DeviceRecord | null>(null);
   const { setResult, reset: resetResult, compatibilityChecked, deviceModel, deviceBrand } = useDeviceCheck();
@@ -337,7 +338,7 @@ export function DeviceCheckSheet({ surface, trigger, detection }: { surface: str
     if (prefill.device) setPending(prefill.device);
   }, [open, devices, detection, compatibilityChecked, deviceModel, deviceBrand]);
 
-  const brands = useMemo(() => [...new Set(devices.map((device) => device.brand))].sort(), [devices]);
+  const brands = useMemo(() => orderBrands(devices), [devices]);
   const results = useMemo(
     () => brand ? searchDevices(devices, query, brand) : [],
     [devices, query, brand],
@@ -349,6 +350,7 @@ export function DeviceCheckSheet({ surface, trigger, detection }: { surface: str
     setPending(null);
     setQuery("");
     setBrand(null);
+    setBrandQuery("");
     setListOpen(false);
   };
 
@@ -388,16 +390,28 @@ export function DeviceCheckSheet({ surface, trigger, detection }: { surface: str
         <div className="space-y-4 px-4 pb-4 pt-2 sm:px-6">
           <div className="rounded-2xl border border-border bg-card p-3 shadow-soft sm:p-4">
             {!selected && (<>
-            <label htmlFor="device-brand" className="mb-1.5 block text-sm font-semibold">{x.brandSelect}</label>
-            <select
-              id="device-brand"
-              value={brand ?? ""}
-              onChange={(event) => { setBrand(event.target.value || null); setPending(null); setSelected(null); setQuery(""); setListOpen(Boolean(event.target.value)); resetResult(); }}
-              className="min-h-12 w-full rounded-xl border border-border bg-card px-3 text-sm font-semibold text-foreground outline-none focus-visible:ring-2 focus-visible:ring-ring sm:max-w-xs"
-            >
-              <option value="">{x.brandSelect}</option>
-              {brands.map((item) => <option key={item} value={item}>{item}</option>)}
-            </select>
+            <p className="mb-1.5 block text-sm font-semibold" id="device-brand-label">{brand ? x.brandSelect : HOME_CARD[locale].brandStep}</p>
+            {brand ? (
+              <button type="button" data-testid="device-brand-chosen" onClick={() => { setBrand(null); setPending(null); setQuery(""); setBrandQuery(""); setListOpen(false); resetResult(); }} className="flex min-h-12 w-full items-center justify-between gap-2 rounded-xl border border-primary bg-primary-soft px-3 text-start text-sm font-semibold sm:max-w-xs">
+                <span className="flex min-w-0 items-center gap-2"><BrandMark name={brand} /><span className="truncate">{brand}</span></span>
+                <Pencil className="size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
+              </button>
+            ) : (
+              <div role="group" aria-labelledby="device-brand-label">
+                <span className="flex min-h-11 items-center gap-2 rounded-xl border border-border px-3">
+                  <Search className="size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
+                  <input value={brandQuery} onChange={(event) => setBrandQuery(event.target.value)} aria-label={HOME_CARD[locale].brandSearch} placeholder={HOME_CARD[locale].brandSearch} className="min-w-0 flex-1 bg-transparent text-sm outline-none" />
+                </span>
+                {isPending ? <p className="flex items-center gap-2 p-3 text-sm text-muted-foreground"><LoaderCircle className="size-4 animate-spin" /> …</p> : (
+                  <ul className="mt-2 grid max-h-64 grid-cols-2 gap-2 overflow-y-auto overscroll-contain sm:grid-cols-3">
+                    {brands.filter((item) => item.toLowerCase().includes(brandQuery.trim().toLowerCase())).map((item) => (
+                      <li key={item}><button type="button" onClick={() => { setBrand(item); setPending(null); setSelected(null); setQuery(""); setListOpen(true); resetResult(); }} className="flex min-h-11 w-full items-center gap-2 rounded-xl border border-border bg-card px-2.5 text-start text-sm font-semibold transition-colors hover:border-primary hover:bg-primary-soft"><BrandMark name={item} /><span className="min-w-0 truncate">{item}</span></button></li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            )}
+
 
             <p className="mb-1.5 mt-3 block text-sm font-semibold" id="device-model-label">{x.modelSelect}</p>
             <div className="flex flex-col gap-3 sm:flex-row sm:items-start">
@@ -707,5 +721,59 @@ export function DeviceCompatibilityProductCard() {
       <span className="min-w-0"><strong className="block text-xs leading-4 text-foreground sm:text-sm">{title}</strong><span className="block text-[11px] leading-4 text-muted-foreground sm:text-xs">{lead}</span></span>
       <DeviceCheckSheet surface="v2-country" detection={detected} trigger={<Button type="button" size="sm" className="h-auto min-h-9 max-w-[7.5rem] shrink-0 whitespace-normal rounded-full px-2.5 py-1 text-center text-[11px] leading-tight sm:max-w-none sm:px-3 sm:text-xs">{action}<ChevronRight className="size-3.5 shrink-0" /></Button>} />
     </div>
+  );
+}
+
+const BRAND_PRIORITY = ["Apple", "Samsung", "Google", "Xiaomi", "POCO", "Redmi", "Oppo", "OnePlus", "Motorola", "Honor", "Huawei"];
+
+/** Popular brands first (only those present in the curated catalogue), then the rest alphabetically. */
+export function orderBrands(devices: Pick<DeviceRecord, "brand">[]): string[] {
+  const unique = [...new Set(devices.map((device) => device.brand))];
+  const rank = (brand: string) => { const i = BRAND_PRIORITY.findIndex((b) => b.toLowerCase() === brand.toLowerCase()); return i < 0 ? BRAND_PRIORITY.length : i; };
+  return unique.sort((a, b) => rank(a) - rank(b) || a.localeCompare(b));
+}
+
+/** Neutral monogram — never a manufacturer logo or another model's photo. */
+function BrandMark({ name }: { name: string }) {
+  return <span aria-hidden="true" className="grid size-7 shrink-0 place-items-center rounded-full bg-primary-soft text-[11px] font-black text-primary">{name.slice(0, 1).toUpperCase()}</span>;
+}
+
+const HOME_CARD = localize({
+  tr: { title: "Telefonunu kontrol et", lead: "Telefonunun eSIM uyumlu olup olmadığını kolayca öğren.", fallback: "Telefonunuz eSIM uyumlu mu? Kontrol edin.", detected: (b: string) => `${b} cihaz algılandı.`, pickModel: "eSIM uyumluluğunu kontrol etmek için modelinizi seçin.", badge: "Cihaz algılandı", action: "Kontrol et", brandStep: "Telefon markanı seç", brandSearch: "Marka ara" },
+  de: { title: "Prüfe dein Handy", lead: "Finde ganz einfach heraus, ob dein Handy eSIM-fähig ist.", fallback: "Ist dein Handy eSIM-fähig? Jetzt prüfen.", detected: (b: string) => `${b}-Gerät erkannt.`, pickModel: "Wähle dein Modell, um die eSIM-Kompatibilität zu prüfen.", badge: "Gerät erkannt", action: "Prüfen", brandStep: "Wähle die Marke deines Handys", brandSearch: "Marke suchen" },
+  en: { title: "Check your phone", lead: "Easily find out whether your phone supports eSIM.", fallback: "Is your phone eSIM compatible? Check it.", detected: (b: string) => `${b} device detected.`, pickModel: "Select your model to check eSIM compatibility.", badge: "Device detected", action: "Check", brandStep: "Choose your phone brand", brandSearch: "Search brand" },
+  ar: { title: "تحقق من هاتفك", lead: "اعرف بسهولة ما إذا كان هاتفك يدعم eSIM.", fallback: "هل هاتفك متوافق مع eSIM؟ تحقّق الآن.", detected: (b: string) => `تم اكتشاف جهاز ${b}.`, pickModel: "اختر طراز هاتفك للتحقق من توافق eSIM.", badge: "تم اكتشاف الجهاز", action: "تحقق", brandStep: "اختر علامة هاتفك", brandSearch: "ابحث عن العلامة" },
+} as const);
+
+/** Homepage card after the destination rails; opens the shared checker (bottom sheet on mobile, modal on desktop). */
+export function HomeCompatibilityCard() {
+  const { locale } = useI18n();
+  const h = HOME_CARD[locale];
+  const copy = COPY[locale];
+  const { compatibilityChecked, deviceModel, compatibilityResult } = useDeviceCheck();
+  const { data: devices = [] } = useQuery({ queryKey: ["device-compatibility"], queryFn: () => listDeviceCompatibility(), staleTime: 10 * 60 * 1000 });
+  const { detection, mobile } = useBrowserDevice(devices);
+  // Desktop browsers never claim a phone model; only mobile hints are shown.
+  const shown = checkerDetectionForViewport(detection, mobile);
+  const detectedBrand = shown.kind === "exact" ? shown.device.brand : shown.kind === "partial" ? (shown.family === "iphone" ? "Apple" : shown.family === "samsung" ? "Samsung" : "Android") : null;
+  const lead = compatibilityChecked && compatibilityResult ? `${deviceModel} — ${statusLabel(copy, compatibilityResult)}` : detectedBrand ? `${h.detected(detectedBrand)} ${h.pickModel}` : h.lead;
+  return (
+    <section data-testid="home-compatibility-card" className="mx-auto max-w-site px-4 py-5 sm:px-6 sm:py-8">
+      <DeviceCheckSheet surface="homepage-card" detection={shown} trigger={
+        <button type="button" className="grid w-full grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 rounded-2xl border border-border bg-card p-3 text-start shadow-soft transition-colors hover:border-primary/40 sm:gap-5 sm:p-5">
+          <span className="grid size-11 shrink-0 place-items-center rounded-full bg-primary-soft text-primary sm:size-16">
+            {compatibilityChecked && compatibilityResult ? <StatusIcon status={compatibilityResult} /> : <Smartphone className="size-5 sm:size-8" aria-hidden="true" />}
+          </span>
+          <span className="min-w-0">
+            {detectedBrand && !compatibilityChecked && <span className="mb-1 inline-flex items-center gap-1 rounded-full bg-primary-soft px-2 py-0.5 text-[10px] font-bold text-primary"><CheckCircle2 className="size-3" aria-hidden="true" />{h.badge}</span>}
+            <strong className="block font-display text-base font-bold leading-tight sm:text-2xl">{h.title}</strong>
+            <span className="mt-0.5 block text-xs leading-snug text-muted-foreground sm:text-sm">{lead}</span>
+          </span>
+          <span className="inline-flex min-h-10 shrink-0 items-center gap-1 rounded-full bg-primary px-3 text-xs font-bold text-primary-foreground sm:px-5 sm:text-sm">
+            <span className="hidden sm:inline">{h.action}</span><ChevronRight className="size-4 rtl:rotate-180" aria-hidden="true" />
+          </span>
+        </button>
+      } />
+    </section>
   );
 }

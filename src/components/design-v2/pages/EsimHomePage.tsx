@@ -2,7 +2,7 @@ import { Link, useNavigate, useSearch } from "@tanstack/react-router";
 import { queryOptions, useQuery } from "@tanstack/react-query";
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { ArrowRight, BarChart3, BookOpen, Box, ChevronLeft, ChevronRight, CheckCircle2, Globe2, Infinity as InfinityIcon, MapPin, MessageCircle, Search, Share2, Smartphone, Sparkles, Video, Zap } from "lucide-react";
-import { DeviceCompatibilityProductCard } from "@/components/travel/DeviceCompatibility";
+import { DeviceCompatibilityProductCard, HomeCompatibilityCard } from "@/components/travel/DeviceCompatibility";
 import { PasaportEsimHero } from "@/components/design-v2/PasaportEsimHero";
 import { CartBar, money as formatMoney, PhotoCard, PhotoRail, pick, SectionTitle, TrustRow, V2Shell } from "@/components/design-v2/V2Shell";
 import { V2PickerSheet } from "@/components/design-v2/V2PickerSheet";
@@ -206,7 +206,7 @@ export function EsimHomePage() {
       </PasaportEsimHero>
               ),
               destinations: (section) => <Popular c={c} section={section} onPick={choose} />,
-              regions: (section) => <RegionalDiscovery section={section} c={c} />,
+              regions: (section) => <><RegionalDiscovery section={section} c={c} /><HomeCompatibilityCard /></>,
               benefitsInDesktopHero: true,
             }}
           />
