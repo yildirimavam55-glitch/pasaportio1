@@ -1775,6 +1775,29 @@ html[data-quick-search-lock] body {
 /* Picker and coupon portals live outside the page root. */
 body:has([role="dialog"][data-state="open"]) .pasaport-mobile-reference [data-whatsapp-widget] { visibility:hidden;pointer-events:none; }
 @media (max-width:1023px) { .pasaport-mobile-reference > header > div > div {display:grid;grid-template-columns:auto auto auto auto;}.pasaport-mobile-reference > header > div > div > button:first-child {grid-column:4;grid-row:1;}.pasaport-mobile-reference .header-currency {grid-column:2;grid-row:1;}.pasaport-mobile-reference > header > div > div > button:nth-of-type(2) {grid-column:1;grid-row:1;}.pasaport-mobile-reference > header > div > div > button:nth-of-type(3) {grid-column:3;grid-row:1;} }
+/* Header actions follow their DOM order, not legacy positional button selectors. */
+@media (max-width:1023px) {
+ .public-header-row,
+ .pasaport-mobile-reference > header > .public-header-row { direction:ltr; column-gap:8px; }
+ .public-header-row > .public-header-actions,
+ .pasaport-mobile-reference > header > div > .public-header-actions { display:flex; flex-shrink:0; }
+ .public-header-row > .public-header-actions > *,
+ .pasaport-mobile-reference > header > div > .public-header-actions > * { order:0; grid-column:auto; grid-row:auto; flex-shrink:0; }
+}
+@media (max-width:639px) {
+ .public-header-row > a { min-width:0; overflow:hidden; }
+ .public-header-row > a > span { gap:5px; }
+ .public-header-row > a span.font-display { font-size:17px; white-space:nowrap; }
+ .public-header-row > a span.grid { width:26px; height:26px; flex-shrink:0; }
+ .public-header-row > a img { max-width:120px; }
+ .public-header-row > .public-header-actions { gap:0; }
+ .public-header-actions > button,
+ .public-header-actions > a { width:40px; height:44px; padding-inline:0; }
+ .public-header-actions > .public-header-language { display:flex; flex-direction:column; justify-content:center; gap:0; font-size:11px; line-height:15px; }
+ .public-header-language > :first-child,
+ .public-header-language .public-header-currency-separator { display:none; }
+ .public-header-language [data-testid="header-currency-code"] { font-size:9px; line-height:12px; }
+}
 /* Subtle depth, without adding an image download or animation dependency. */
 .gift-base { transform:skewY(-3deg);background:linear-gradient(90deg,var(--gift-cream) 72%,var(--gift-side) 72%); }
 .gift-lid { transform:skewY(-3deg); }.gift-lid::before {content:"";position:absolute;left:0;right:0;top:-5px;height:6px;background:var(--gift-side);transform:skewX(-20deg);border-radius:2px;}

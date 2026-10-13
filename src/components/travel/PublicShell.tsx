@@ -139,11 +139,11 @@ function LanguageMenu({
         aria-label={copy.language.label}
         aria-haspopup="dialog"
         onClick={() => onOpenChange(true)}
-        className="min-h-10 gap-1 px-2 text-xs sm:min-h-11 sm:px-3"
+        className="public-header-language min-h-10 gap-1 px-2 text-xs sm:min-h-11 sm:px-3"
       >
         <CountryFlag iso={LOCALE_FLAG[uiLocale]} />
         <span>{uiLocale.toUpperCase()}</span>
-        <span className="text-muted-foreground" data-testid="header-currency-code">· {currency.code}</span>
+        <span className="text-muted-foreground" data-testid="header-currency-code"><span className="public-header-currency-separator">· </span>{currency.code}</span>
       </Button>
       <LocaleCurrencyPicker open={open} onOpenChange={onOpenChange} onChooseLocale={choose} />
     </>
@@ -324,7 +324,7 @@ export function PublicShell({
     <CommercePanels.Provider value={{ panel, setPanel }}>
     <div className={`${isV2 ? "v2-theme theme-surface" : ""} ${mobilePasaport ? "pasaport-mobile-reference" : ""} min-h-screen bg-background text-foreground`} data-theme-button={isV2 ? publishedTheme.buttonStyle : undefined} data-theme-surface={isV2 ? publishedTheme.surface : undefined}>
       <header className="sticky top-0 z-50 border-b border-border/60 bg-background/95 backdrop-blur-lg">
-        <div className="mx-auto grid min-h-14 max-w-site grid-cols-[minmax(0,1fr)_auto] items-center gap-2 px-3 sm:min-h-16 sm:gap-3 sm:px-6 lg:flex">
+        <div className="public-header-row mx-auto grid min-h-14 max-w-site grid-cols-[minmax(0,1fr)_auto] items-center gap-2 px-3 sm:min-h-16 sm:gap-3 sm:px-6 lg:flex">
           <Brand mobilePasaport={mobilePasaport} />
           {!mobilePasaport && <nav
             className="hidden min-w-0 flex-1 items-center justify-center gap-1 lg:flex"
@@ -356,7 +356,7 @@ export function PublicShell({
             )}
             {optionalServices.vignette && <Link to="/vignette" className="nav-link">Vignette</Link>}
           </nav>}
-          <div className="flex shrink-0 items-center gap-1 sm:gap-1.5">
+          <div className="public-header-actions flex shrink-0 items-center gap-1 sm:gap-1.5">
             <Button ref={cartTrigger} onClick={() => { setMenuOpen(false); setAccountOpen(false); setLanguageOpen(false); setPanel("cart"); }} variant="ghost" size="icon" aria-label={`${commerce.cart} (${count})`} data-testid="header-cart" className="relative inline-flex size-11 overflow-visible">
                 <ShoppingBag className="size-5" />
                 {count > 0 && <span data-testid="cart-count" aria-hidden="true" className="absolute end-0 top-0 grid h-4 min-w-4 place-items-center rounded-full bg-accent px-1 text-[9px] font-bold text-accent-foreground">{cartBadge(count)}</span>}
@@ -427,7 +427,7 @@ export function PublicShell({
               }}
             >
               <SheetTrigger asChild>
-                <Button variant="ghost" size="icon" className={`${mobilePasaport ? "hidden" : "size-11 lg:hidden"}`} aria-label="Menü">
+                <Button variant="ghost" size="icon" className="size-11 lg:hidden" aria-label="Menü">
                   <Menu className="size-[18px] sm:size-5" />
                 </Button>
               </SheetTrigger>
