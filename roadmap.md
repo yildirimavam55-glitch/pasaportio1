@@ -1,5 +1,7 @@
 # Roadmap — Phase 5
 
+- [ ] Restore only the homepage horizontal comparison presentation; trace history, require verified comparable prices, preserve search/details, test 320/390/1440 and capture before/after.
+
 - [x] Shared numbered installation step navigation for public/account guides; edge-disabled arrows, aligned controls, 320/360/390/430/1440, DE/RTL and before/after checks (UI only).
 
 - [x] Compact account cards/menu and shared QR/manual installation walkthrough; disabled Link coming soon; 390/1440 before/after and safety checks (UI only).
