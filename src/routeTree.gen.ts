@@ -18,6 +18,7 @@ import { Route as KayitRouteImport } from './routes/kayit'
 import { Route as OdemeRouteImport } from './routes/odeme'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as SepetRouteImport } from './routes/sepet'
+import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as TeslimatRouteImport } from './routes/teslimat'
 import { Route as VignetteRouteImport } from './routes/vignette'
 import { Route as AuthenticatedLegacyV1RouteImport } from './routes/_authenticated/legacy-v1'
@@ -177,6 +178,11 @@ const ResetPasswordRoute = ResetPasswordRouteImport.update({
 const SepetRoute = SepetRouteImport.update({
   id: '/sepet',
   path: '/sepet',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
+  id: '/sitemap.xml',
+  path: '/sitemap.xml',
   getParentRoute: () => rootRouteImport,
 } as any)
 const TeslimatRoute = TeslimatRouteImport.update({
@@ -836,6 +842,7 @@ export interface FileRoutesByFullPath {
   '/odeme': typeof OdemeRoute
   '/reset-password': typeof ResetPasswordRoute
   '/sepet': typeof SepetRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/teslimat': typeof TeslimatRoute
   '/vignette': typeof VignetteRoute
   '/legacy-v1': typeof AuthenticatedLegacyV1RouteWithChildren
@@ -961,6 +968,7 @@ export interface FileRoutesByTo {
   '/odeme': typeof OdemeRoute
   '/reset-password': typeof ResetPasswordRoute
   '/sepet': typeof SepetRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/teslimat': typeof TeslimatRoute
   '/vignette': typeof VignetteRoute
   '/account/notifications': typeof AccountNotificationsRoute
@@ -1088,6 +1096,7 @@ export interface FileRoutesById {
   '/odeme': typeof OdemeRoute
   '/reset-password': typeof ResetPasswordRoute
   '/sepet': typeof SepetRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/teslimat': typeof TeslimatRoute
   '/vignette': typeof VignetteRoute
   '/_authenticated/legacy-v1': typeof AuthenticatedLegacyV1RouteWithChildren
@@ -1217,6 +1226,7 @@ export interface FileRouteTypes {
     | '/odeme'
     | '/reset-password'
     | '/sepet'
+    | '/sitemap.xml'
     | '/teslimat'
     | '/vignette'
     | '/legacy-v1'
@@ -1342,6 +1352,7 @@ export interface FileRouteTypes {
     | '/odeme'
     | '/reset-password'
     | '/sepet'
+    | '/sitemap.xml'
     | '/teslimat'
     | '/vignette'
     | '/account/notifications'
@@ -1468,6 +1479,7 @@ export interface FileRouteTypes {
     | '/odeme'
     | '/reset-password'
     | '/sepet'
+    | '/sitemap.xml'
     | '/teslimat'
     | '/vignette'
     | '/_authenticated/legacy-v1'
@@ -1597,6 +1609,7 @@ export interface RootRouteChildren {
   OdemeRoute: typeof OdemeRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   SepetRoute: typeof SepetRoute
+  SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   TeslimatRoute: typeof TeslimatRoute
   VignetteRoute: typeof VignetteRoute
   DesignV2SplatRoute: typeof DesignV2SplatRoute
@@ -1695,6 +1708,13 @@ declare module '@tanstack/react-router' {
       path: '/sepet'
       fullPath: '/sepet'
       preLoaderRoute: typeof SepetRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sitemap.xml': {
+      id: '/sitemap.xml'
+      path: '/sitemap.xml'
+      fullPath: '/sitemap.xml'
+      preLoaderRoute: typeof SitemapDotxmlRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/teslimat': {
@@ -2757,6 +2777,7 @@ const rootRouteChildren: RootRouteChildren = {
   OdemeRoute: OdemeRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   SepetRoute: SepetRoute,
+  SitemapDotxmlRoute: SitemapDotxmlRoute,
   TeslimatRoute: TeslimatRoute,
   VignetteRoute: VignetteRoute,
   DesignV2SplatRoute: DesignV2SplatRoute,

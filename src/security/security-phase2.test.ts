@@ -44,7 +44,7 @@ describe("admin noindex", () => {
     expect(securityHeaders(new URL("https://x.test/esim/ulkeler"))["X-Robots-Tag"]).toBeUndefined();
   });
   it("sitemap never lists admin or account URLs", () => {
-    expect(read("src/routes/sitemap.xml.ts")).not.toMatch(/["'`]\/(admin|account)/);
+    expect(read("src/lib/sitemap-xml.server.ts")).not.toMatch(/["'`]\/(admin|account)/);
     expect(read("public/robots.txt")).toMatch(/Disallow: \/admin/);
   });
 });

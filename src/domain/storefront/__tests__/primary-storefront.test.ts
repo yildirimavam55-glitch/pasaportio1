@@ -53,7 +53,7 @@ describe("Legacy V1 isolation", () => {
     expect(isLegacyPath("/esim")).toBe(false);
   });
   it("sitemap excludes legacy and preview URLs", () => {
-    const sitemap = readFileSync("src/routes/sitemap.xml.ts", "utf8");
+    const sitemap = readFileSync("src/lib/sitemap-xml.server.ts", "utf8");
     expect(sitemap).not.toMatch(/["']\/legacy-v1/);
     expect(sitemap).not.toMatch(/["']\/design-v2/);
   });
