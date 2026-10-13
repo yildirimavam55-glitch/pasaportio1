@@ -212,7 +212,7 @@ export function V2Sections({ config, media, slots, only, onDestinationSearch, se
                 </div>
               );
             }
-            return <div key={s.id} id="device-compatibility" className="scroll-mt-24"><V2Compatibility title={t("title")} /></div>;
+            return null; // Single compatibility entry: HomeCompatibilityCard below regional packages.
           }
           case "PROMO_BANNER": {
             const previous = sections[index - 1];
