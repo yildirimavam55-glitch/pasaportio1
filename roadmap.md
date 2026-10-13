@@ -1,6 +1,6 @@
 # Roadmap — Phase 5
 
-- [ ] Premium eSIM account presentation: video-reference cards, shared installation sheet, compact navigation, preview isolation and 390/1440 flow checks (frontend only).
+- [x] Premium eSIM account presentation: video-reference cards, shared installation sheet, compact navigation, preview isolation and 390/1440 flow checks (frontend only).
 
 - [x] Migration checklist incl. eSIM Go 403 task (docs/migration/MIGRATION_CHECKLIST.md)
 - [x] Visible brand "travely" → "pasaport.io" (code; technical keys unchanged)
