@@ -15,6 +15,7 @@ import { listFeaturedGuides } from "@/lib/guides.functions";
 import { SectionTitle } from "./V2Shell";
 import { localize } from "@/i18n/overlay";
 import { useNearViewport } from "@/components/travel/use-near-viewport";
+import { CentralInstallationWalkthrough } from "./EsimInstallationPage";
 import faqTravelEsim from "@/assets/faq-travel-esim.jpg";
 
 const COPY = localize({
@@ -165,7 +166,7 @@ type InstallProps = { title?: string; subtitle?: string; steps?: string[]; ready
 /** Copy/link/variant can come from the storefront builder; animation stays decorative (no real QR). */
 export function V2Installation({ title, subtitle, cta }: InstallProps = {}) {
  const {locale}=useI18n();const c=COPY[locale];
- return <section className="grid gap-3 border-y border-border py-6 lg:py-8"><SectionTitle>{title||c.install}</SectionTitle><p className="max-w-2xl text-sm leading-6 text-muted-foreground">{subtitle??c.installSub}</p><Button asChild variant="outline" className="w-fit min-h-11"><Link to="/esim/kurulum">{cta||c.installCta}<ArrowRight/></Link></Button></section>;
+ return <section className="grid gap-3 border-y border-border py-6 lg:py-8"><SectionTitle>{title||c.install}</SectionTitle><p className="max-w-2xl text-sm leading-6 text-muted-foreground">{subtitle??c.installSub}</p><CentralInstallationWalkthrough preview initialPlatform="ios"/><Button asChild variant="outline" className="w-fit min-h-11"><Link to="/esim/kurulum">{cta||c.installCta}<ArrowRight/></Link></Button></section>;
 }
 
 export function V2WhyTravely() {

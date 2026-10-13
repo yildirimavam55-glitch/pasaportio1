@@ -1,5 +1,7 @@
 # Roadmap — Phase 5
 
+- [x] Restore shared homepage installation preview with 3-second autoplay; pause/manual navigation, central manual guide and reduced motion preserved. 320/390/1440 browser checks and 14 unit tests passed; build OK.
+
 - [x] Show owner-approved sample comparison prices only in preview with localized disclosure and animated common-scale bars; 32 tests passed, 390/1440 render confirmed (presentation only).
 - [x] Compare uploaded Screen_Recording_20261013_125243_Chrome.mp4 reference frame with the shared central installation guide.
 - [x] Consolidate installation entry points into the existing central guide; shared Link/QR/Manual and post-installation walkthroughs, owner-scoped reads, 72 scenario groups at 320/390/1440, 52 unit tests; screenshots/report saved. Guest credentials stay in token-authorized delivery; real QR/APN/guest token end-to-end unavailable (UI only; no backend or publish).
