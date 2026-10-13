@@ -2167,3 +2167,6 @@ body:has([role="dialog"][data-state="open"]) .pasaport-mobile-reference [data-wh
 .installation-step-control[aria-current="step"] { background:var(--primary); color:var(--primary-foreground); border-color:var(--primary); }
 .installation-step-control:disabled { opacity:.35; }
 .installation-step-nav > .installation-step-control:last-child { justify-self:end; }
+
+/* Keep the floating WhatsApp/cart dock off open dialogs and bottom sheets. */
+body:has([role="dialog"][data-state="open"]) [data-action-dock] { display: none; }

@@ -137,7 +137,7 @@ const COPY = localize({
     changeDevice: "Gerät ändern",
     detectedIphone: "iPhone erkannt – Modell prüfen",
     detectedAndroid: "Android-Gerät erkannt – Modell prüfen",
-    detectedSamsung: "Samsung-Gerät erkannt – Modell prüfen",
+    detectedSamsung: "Samsung-Gerät erkannt – Modell wählen",
   },
   en: {
     sectionTitle: "Is your phone eSIM compatible?",
@@ -334,7 +334,7 @@ export function DeviceCheckSheet({ surface, trigger, detection }: { surface: str
     prefilled.current = true;
     const manual = compatibilityChecked && deviceModel ? { model: deviceModel, ...(deviceBrand ? { brand: deviceBrand } : {}) } : null;
     const prefill = resolveCheckerPrefill(devices, manual, detection ?? { kind: "unknown" });
-    if (prefill.brand) setBrand(prefill.brand);
+    if (prefill.brand) { setBrand(prefill.brand); setListOpen(!prefill.device); }
     if (prefill.device) setPending(prefill.device);
   }, [open, devices, detection, compatibilityChecked, deviceModel, deviceBrand]);
 
@@ -356,9 +356,11 @@ export function DeviceCheckSheet({ surface, trigger, detection }: { surface: str
 
   const runCheck = () => {
     if (!pending) return;
-    setSelected(pending);
-    setResult(pending.model, pending.status, pending.brand);
-    void noopAnalyticsSink.track({ name: "compatibility_result_viewed", result: pending.status, brand: pending.brand });
+    // Regional variants cannot be confirmed from the catalogue alone — never show a green claim.
+    const checked = pending.regionVariantWarning ? { ...pending, status: "UNCERTAIN" as const } : pending;
+    setSelected(checked);
+    setResult(checked.model, checked.status, checked.brand);
+    void noopAnalyticsSink.track({ name: "compatibility_result_viewed", result: checked.status, brand: checked.brand });
   };
 
   return (
@@ -758,14 +760,14 @@ export function HomeCompatibilityCard() {
   const detectedBrand = shown.kind === "exact" ? shown.device.brand : shown.kind === "partial" ? (shown.family === "iphone" ? "Apple" : shown.family === "samsung" ? "Samsung" : "Android") : null;
   const lead = compatibilityChecked && compatibilityResult ? `${deviceModel} — ${statusLabel(copy, compatibilityResult)}` : detectedBrand ? `${h.detected(detectedBrand)} ${h.pickModel}` : h.lead;
   return (
-    <section data-testid="home-compatibility-card" className="mx-auto max-w-site px-4 py-5 sm:px-6 sm:py-8">
+    <section id="device-compatibility" data-testid="home-compatibility-card" className="mx-auto max-w-site scroll-mt-24 px-4 py-5 pe-[4.75rem] sm:px-6 sm:py-8 sm:pe-[5.5rem] lg:pe-6">
       <DeviceCheckSheet surface="homepage-card" detection={shown} trigger={
         <button type="button" className="grid w-full grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 rounded-2xl border border-border bg-card p-3 text-start shadow-soft transition-colors hover:border-primary/40 sm:gap-5 sm:p-5">
           <span className="grid size-11 shrink-0 place-items-center rounded-full bg-primary-soft text-primary sm:size-16">
             {compatibilityChecked && compatibilityResult ? <StatusIcon status={compatibilityResult} /> : <Smartphone className="size-5 sm:size-8" aria-hidden="true" />}
           </span>
           <span className="min-w-0">
-            {detectedBrand && !compatibilityChecked && <span className="mb-1 inline-flex items-center gap-1 rounded-full bg-primary-soft px-2 py-0.5 text-[10px] font-bold text-primary"><CheckCircle2 className="size-3" aria-hidden="true" />{h.badge}</span>}
+            {shown.kind === "exact" && !compatibilityChecked && <span className="mb-1 inline-flex items-center gap-1 rounded-full bg-secondary px-2 py-0.5 text-[10px] font-bold text-muted-foreground"><Smartphone className="size-3" aria-hidden="true" />{shown.device.model}</span>}
             <strong className="block font-display text-base font-bold leading-tight sm:text-2xl">{h.title}</strong>
             <span className="mt-0.5 block text-xs leading-snug text-muted-foreground sm:text-sm">{lead}</span>
           </span>

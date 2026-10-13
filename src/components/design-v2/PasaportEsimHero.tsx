@@ -3,7 +3,6 @@ import { localize } from "@/i18n/overlay";
 
 import type { CSSProperties, ReactNode } from "react";
 import { useI18n } from "@/i18n";
-import { HeroDeviceCompatibility } from "@/components/travel/DeviceCompatibility";
 import { HeroPromotion } from "./HeroPromotion";
 import { v2Text, type V2Section } from "@/domain/storefront/v2";
 import { StorefrontIcon } from "@/domain/storefront/icons";
@@ -35,7 +34,6 @@ export function PasaportEsimHero({ section, image, benefits, children }: { secti
   <div className="final-hero-shade" aria-hidden="true" />
   <div className="final-hero-heading"><h1>{approved ? c.title : storedTitle}</h1><p>{approved ? c.subtitle : v2Text(section, "subtitle", locale)}</p></div>
   <div className="final-hero-search">{children}</div>
-  <div id="device-compatibility" className="final-hero-compatibility scroll-mt-24"><HeroDeviceCompatibility compact /></div>
   <div className="final-hero-gift"><HeroPromotion /></div>
  </section><PasaportMobileBenefits section={benefits} /></>;
 }

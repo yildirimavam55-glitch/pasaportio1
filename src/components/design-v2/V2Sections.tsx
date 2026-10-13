@@ -5,8 +5,7 @@ import { DesktopPromoCard, HowItWorks, PromoCard, TrustRow } from "@/components/
 import { V2InfoCarousel } from "@/components/design-v2/V2InfoCarousel";
 import { V2TrustReviews } from "@/components/design-v2/V2TrustReviews";
 import { lastKnownPublished } from "@/domain/storefront/review-carousel";
-import { V2Compatibility, V2CompactFaq, V2GuidesRail, V2InfoGrid, V2Installation } from "@/components/design-v2/V2DiscoveryContent";
-import { DesktopDeviceCompatibilityBanner } from "@/components/travel/DeviceCompatibility";
+import { V2CompactFaq, V2GuidesRail, V2InfoGrid, V2Installation } from "@/components/design-v2/V2DiscoveryContent";
 import { Reveal } from "@/components/travel/Reveal";
 import { V2SectionFrame } from "@/components/design-v2/V2SectionFrame";
 import { StorefrontIcon } from "@/domain/storefront/icons";
@@ -197,13 +196,11 @@ export function V2Sections({ config, media, slots, only, onDestinationSearch, se
               const loungeImage = mediaUrl(pairedPromo.mediaId, media);
               const vignettePromo = optionalServices.vignette ? sections.find((candidate) => candidate.type === "PROMO_BANNER" && candidate.href === "/vignette" && isInWindow(candidate)) : undefined;
               return (
-                <div key={`${s.id}-${pairedPromo.id}`} id="device-compatibility" className="scroll-mt-24">
+                <div key={`${s.id}-${pairedPromo.id}`} className="scroll-mt-24">
                   <div className="lg:hidden">
-                    <V2Compatibility title={t("title")} />
                     <PromoCard image={loungeImage ?? ""} title={v2Text(pairedPromo, "title", locale)} {...(v2Text(pairedPromo, "subtitle", locale) ? { sub: v2Text(pairedPromo, "subtitle", locale) } : {})} to={pairedPromo.href} compactDesktop />
                   </div>
                   <div className="hidden pb-6 pt-6 lg:block">
-                    <DesktopDeviceCompatibilityBanner title={t("title")} />
                     {vignettePromo && (
                       <div className="mt-6 grid grid-cols-2 gap-4">
                         <DesktopPromoCard image={loungeImage ?? ""} title={v2Text(pairedPromo, "title", locale)} cta={v2Text(pairedPromo, "subtitle", locale)} to="/lounge" imagePosition="center 56%" />
@@ -214,7 +211,7 @@ export function V2Sections({ config, media, slots, only, onDestinationSearch, se
                 </div>
               );
             }
-            return <div key={s.id} id="device-compatibility" className="scroll-mt-24"><V2Compatibility title={t("title")} /></div>;
+            return null; // Single compatibility entry: HomeCompatibilityCard below regional packages.
           }
           case "PROMO_BANNER": {
             const previous = sections[index - 1];
