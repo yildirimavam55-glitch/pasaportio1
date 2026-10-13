@@ -1,3 +1,4 @@
+import { SITE_URL } from "@/domain/seo/paths";
 import { safeJsonLd } from "@/security/json-ld";
 import { createFileRoute, Link, notFound, redirect } from "@tanstack/react-router";
 import { getSeoPage } from "@/lib/seo-content.functions";
@@ -20,12 +21,12 @@ import { CountryFlag } from "@/components/travel/CountryFlag";
 import type { Locale } from "@/domain/enums";
 import { resolveSlugAlias, seoPath, seoUrl } from "@/domain/seo/paths";
 
-const GUIDES_BASE_URL = "https://wanderpath-engine.lovable.app/guides";
+const GUIDES_BASE_URL = `${SITE_URL}/guides`;
 
 function absoluteGuideImage(url: string | null) {
   if (!url) return null;
   if (url.startsWith("https://")) return url;
-  if (url.startsWith("/__l5e/")) return `https://wanderpath-engine.lovable.app${url}`;
+  if (url.startsWith("/__l5e/")) return `${SITE_URL}${url}`;
   return null;
 }
 
@@ -141,7 +142,7 @@ export const Route = createFileRoute("/guides/$slug")({
           "@context": "https://schema.org",
           "@type": "BreadcrumbList",
           itemListElement: [
-            { "@type": "ListItem", position: 1, name: "pasaport.io", item: "https://wanderpath-engine.lovable.app/" },
+            { "@type": "ListItem", position: 1, name: "pasaport.io", item: `${SITE_URL}/` },
             { "@type": "ListItem", position: 2, name: "Rehberler", item: GUIDES_BASE_URL },
             { "@type": "ListItem", position: 3, name: guide.title, item: canonical },
           ],

@@ -1,3 +1,4 @@
+import { SITE_URL } from "@/domain/seo/paths";
 import { createFileRoute, Navigate } from "@tanstack/react-router";
 import { validateEsimSearch } from "@/components/design-v2/pages/EsimHomePage";
 
@@ -13,7 +14,7 @@ export const Route = createFileRoute("/_home/")({
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
-    links: [{ rel: "canonical", href: "https://wanderpath-engine.lovable.app/tr" }],
+    links: [{ rel: "canonical", href: `${SITE_URL}/tr` }],
   }),
   component: Page,
 });

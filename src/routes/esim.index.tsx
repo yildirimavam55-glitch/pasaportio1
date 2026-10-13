@@ -1,3 +1,4 @@
+import { SITE_URL } from "@/domain/seo/paths";
 import { createFileRoute, Navigate } from "@tanstack/react-router";
 import { EsimHomePage, validateEsimSearch } from "@/components/design-v2/pages/EsimHomePage";
 import { v2PageQuery } from "@/components/design-v2/V2Sections";
@@ -15,7 +16,7 @@ export const Route = createFileRoute("/esim/")({
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
-    links: [{ rel: "canonical", href: "https://wanderpath-engine.lovable.app/esim" }],
+    links: [{ rel: "canonical", href: `${SITE_URL}/esim` }],
   }),
   component: Page,
 });

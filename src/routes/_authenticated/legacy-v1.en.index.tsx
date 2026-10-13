@@ -1,3 +1,4 @@
+import { SITE_URL } from "@/domain/seo/paths";
 import { useEffect } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { z } from "zod";
@@ -27,7 +28,7 @@ export const Route = createFileRoute("/_authenticated/legacy-v1/en/")({
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
-    links: [{ rel: "canonical", href: "https://wanderpath-engine.lovable.app/en" }],
+    links: [{ rel: "canonical", href: `${SITE_URL}/en` }],
   }),
   component: EnglishHomepage,
 });

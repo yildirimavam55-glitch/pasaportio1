@@ -13,7 +13,7 @@ const read = (p: string) => readFileSync(p, "utf8");
 const walk = (d: string): string[] => readdirSync(d).flatMap((n) => { const p = join(d, n); return statSync(p).isDirectory() ? walk(p) : [p]; });
 
 describe("security headers", () => {
-  const prod = securityHeaders(new URL("https://wanderpath-engine.lovable.app/"));
+  const prod = securityHeaders(new URL("https://pasaport.io/"));
   const preview = securityHeaders(new URL("https://id-preview--abc.lovable.app/"));
   it("production cannot be framed by other sites", () => {
     expect(prod["Content-Security-Policy"]).toBe("frame-ancestors 'self'");
