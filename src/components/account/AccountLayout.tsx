@@ -18,6 +18,7 @@ import type { ReactNode } from "react";
 
 import { PublicShell } from "@/components/travel/PublicShell";
 import { useI18n } from "@/i18n";
+import { useOptionalServices } from "@/components/travel/ServiceAvailability";
 import { ACCOUNT_COPY } from "./copy";
 import { PURCHASE_COPY } from "./purchases-copy";
 
@@ -66,12 +67,15 @@ export function AccountLayout({
   const pathname = useRouterState({ select: (state) => state.location.pathname });
 
   const v2 = useIsV2();
+  const services = useOptionalServices();
+  // Paused optional services (Admin → Service Controls) leave the menu; direct links to past purchases keep working.
+  const nav = NAV.filter(({ key }) => (key === "lounge" ? services.lounge : key === "vignette" ? services.vignette : true));
   const inner = (
         <div className={v2 ? "grid gap-4 lg:grid-cols-[15rem_minmax(0,1fr)] lg:gap-8" : "grid gap-6 lg:grid-cols-[15rem_minmax(0,1fr)]"}>
           <aside className={v2 ? "hidden lg:block" : "hidden lg:block"}>
             <p className="px-3 text-xs font-bold uppercase text-primary">{copy.eyebrow}</p>
             <nav className="mt-3 grid gap-1" aria-label={copy.eyebrow}>
-              {NAV.map(({ key, to, icon: Icon, sub }) => {
+              {nav.map(({ key, to, icon: Icon, sub }) => {
                 const current = key === active;
                 return (
                   <Link
@@ -113,7 +117,7 @@ export function AccountLayout({
 
             {(active === "overview" || active === "purchases") && (
               <nav className={v2 ? "mt-6 grid gap-2 lg:hidden" : "mt-10 grid gap-2 lg:hidden"} aria-label={copy.eyebrow}>
-                {NAV.filter((item) => item.key !== "overview").map(({ key, to, icon: Icon, sub }) => (
+                {nav.filter((item) => item.key !== "overview").map(({ key, to, icon: Icon, sub }) => (
                   <Link
                     key={key}
                     to={to}

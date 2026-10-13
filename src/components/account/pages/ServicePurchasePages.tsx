@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import { createAccountDemo } from "@/domain/esim/account-demo";
 import { getCountryByIso } from "@/domain/geo/countries";
 import { useI18n } from "@/i18n";
+import { useOptionalServices } from "@/components/travel/ServiceAvailability";
 import { getCustomerAccount } from "@/lib/customer-account.functions";
 
 type Filter = "all" | "esim" | "lounge" | "vignette";
@@ -69,8 +70,11 @@ export function PurchasesPage() {
   const account = useQuery({ queryKey: ["customer-account"], queryFn: () => getCustomerAccount(), staleTime: 60_000, refetchOnWindowFocus: false });
   const esims = account.data?.esims ?? [];
   const demoEsims = useMemo(() => (demo ? createAccountDemo(now) : []), [demo, now]);
-  const lounges = demo ? [demoLounge(now)] : [];
-  const vignettes = demo ? [demoVignette(now)] : [];
+  const services = useOptionalServices();
+  // Paused services hide their filter and demo fixtures; there are no real Lounge/Vignette purchases yet.
+  const lounges = demo && services.lounge ? [demoLounge(now)] : [];
+  const vignettes = demo && services.vignette ? [demoVignette(now)] : [];
+  const filters = (["all", "esim", "lounge", "vignette"] as const).filter((k) => (k === "lounge" ? services.lounge : k === "vignette" ? services.vignette : true));
   const counts = { all: esims.length + demoEsims.length + lounges.length + vignettes.length, esim: esims.length + demoEsims.length, lounge: lounges.length, vignette: vignettes.length };
   const show = (k: Filter) => filter === "all" || filter === k;
 
@@ -83,7 +87,7 @@ export function PurchasesPage() {
     >
       {demo && <p className="mb-3 text-xs text-muted-foreground">{c.demoNote}</p>}
       <div className="-mx-1 mb-5 flex gap-2 overflow-x-auto px-1 pb-1" role="group" aria-label={c.nav.purchases}>
-        {(["all", "esim", "lounge", "vignette"] as const).map((k) => (
+        {filters.map((k) => (
           <Button key={k} variant={filter === k ? "default" : "outline"} className="min-h-10 shrink-0 rounded-full px-4 text-sm" aria-pressed={filter === k} onClick={() => setFilter(k)}>
             {k === "all" ? c.all : k === "esim" ? "eSIM" : k === "lounge" ? "Lounge" : "Vignette"} ({counts[k]})
           </Button>
@@ -92,7 +96,7 @@ export function PurchasesPage() {
       {filter === "all" && counts.all === 0 && !account.isLoading && <Empty text={c.emptyAll} />}
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
         {show("esim") && esims.map((e) => <CustomerEsimCard key={e.id} esim={e} locale={locale} />)}
-        {show("esim") && demoEsims.map((e) => <ServiceCard key={e.id} kind="esim" iso={e.iso} demo title={`${getCountryByIso(e.iso)?.name[locale] ?? e.iso} eSIM · ${e.total} GB`} subtitle={getCountryByIso(e.iso)?.name[locale] ?? e.iso} to="/account/esims" />)}
+        {show("esim") && demoEsims.map((e) => <ServiceCard key={e.id} kind="esim" iso={e.iso} demo title={`${getCountryByIso(e.iso)?.name[locale] ?? e.iso} eSIM · ${e.total} GB`} subtitle={getCountryByIso(e.iso)?.name[locale] ?? e.iso} id={e.id} to="/account/esims/$id" />)}
         {show("lounge") && lounges.map((l) => <ServiceCard key={l.id} kind="lounge" iso={l.iso} demo id={l.id} title={l.name} subtitle={l.airport} to="/account/lounge/$id" />)}
         {show("vignette") && vignettes.map((v) => <ServiceCard key={v.id} kind="vignette" iso={v.iso} demo id={v.id} title={`${getCountryByIso(v.iso)?.name[locale] ?? v.iso} Vignette`} subtitle={v.product} to="/account/vignette/$id" />)}
       </div>

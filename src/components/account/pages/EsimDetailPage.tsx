@@ -28,6 +28,8 @@ import { useIsV2 } from "@/components/design-v2/v2-context";
 import { canOfferTopUp, rebuyTarget } from "@/domain/esim/rebuy";
 import { PANEL_COPY } from "@/components/account/panel-copy";
 import { useI18n } from "@/i18n";
+import { useAccountDemo } from "@/components/account/pages/EsimsPage";
+import { createAccountDemo } from "@/domain/esim/account-demo";
 import {
   getCustomerEsimActivation,
   getCustomerEsimDetail,
@@ -140,7 +142,7 @@ export function EsimDetailPage({ id }: { id: string }) {
       active="esims"
       title={v2Identity ?? (esim.packageLabel || esim.destinationLabel || "eSIM")}
       lead={v2Identity ? undefined : esim.destinationLabel ?? undefined}
-      actions={<Badge variant="outline">{esimStatusLabel(status, locale)}</Badge>}
+      actions={<>{isDemoId && <Badge variant="outline" className="border-warning/40 text-warning">DEMO</Badge>}<Badge variant="outline">{esimStatusLabel(status, locale)}</Badge></>}
     >
       <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_22rem]">
         <div className="grid gap-5">
@@ -347,7 +349,7 @@ export function EsimDetailPage({ id }: { id: string }) {
               )}
             </div>
           </section>
-          <EsimRefundPanel esimId={esim.id} />
+          {!isDemoId && <EsimRefundPanel esimId={esim.id} />}
           <section className="rounded-2xl border border-border bg-card p-5 shadow-card">
             {canTopUp ? (
               <Button variant="cta" className="min-h-11 w-full">
