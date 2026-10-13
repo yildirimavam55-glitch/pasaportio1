@@ -2108,3 +2108,42 @@ body:has([role="dialog"][data-state="open"]) .pasaport-mobile-reference [data-wh
 @media(min-width:768px) { .account-install-sheet { left:auto; right:0; top:0; bottom:0; width:460px; max-width:100%; max-height:100dvh; border-radius:0; } }
 @media(prefers-reduced-motion:reduce) { .account-install-sheet { animation:none!important; transition:none!important; } }
 @media(min-width:1024px) { .customer-esim-track { grid-template-columns:repeat(3,minmax(0,1fr)); } }
+
+/* Account V1 reference proportions; colours inherit the approved storefront theme. */
+.account-welcome { padding:14px; border:1px solid var(--border); border-radius:8px; background:var(--card); box-shadow:var(--shadow-card); }
+.account-welcome h1 { font-size:16px; }
+.account-welcome-avatar { display:grid; place-items:center; width:40px; height:40px; flex-shrink:0; border-radius:50%; background:var(--cta-soft); color:var(--foreground); font-size:14px; font-weight:700; }
+.account-package-section { margin-top:20px; }
+.customer-esim-card { min-height:0; padding:10px; gap:10px; }
+.account-card-summary { display:grid; grid-template-columns:104px minmax(0,1fr); gap:12px; min-height:114px; }
+.account-card-photo-wrap { position:relative; min-width:0; }
+.account-card-photo-wrap .account-esim-photo { height:100%; min-height:114px; margin:0; border-radius:6px; object-fit:cover; }
+.account-card-badge { position:absolute; top:6px; left:6px; max-width:94px; font-size:9px; padding:3px 6px; white-space:normal; line-height:1.2; background:var(--card); }
+.account-refund-note { display:flex; gap:8px; align-items:center; border-radius:6px; background:var(--cta-soft); padding:9px; }
+.account-quick-actions { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:8px; }
+.account-square-action { display:flex; flex-direction:column; gap:5px; width:100%; height:auto; min-height:58px; aspect-ratio:1; padding:5px 3px; border-radius:8px; background:var(--secondary); box-shadow:none; }
+.account-square-action svg { width:21px; height:21px; flex-shrink:0; }
+.account-square-action span { font-size:10px; line-height:1.15; text-align:center; white-space:normal; overflow-wrap:anywhere; }
+.account-mobile-nav { padding:0; border:0; }
+.account-menu-tile { display:flex; gap:9px; align-items:center; padding:10px; min-height:60px; border:1px solid var(--border); border-radius:8px; background:var(--card); box-shadow:var(--shadow-card); }
+.account-detail-hero { position:relative; }
+.account-detail-hero img { width:100%; aspect-ratio:2.65; border-radius:8px; object-fit:cover; }
+.account-detail-hero > .account-detail-badge { position:absolute; top:12px; left:12px; background:var(--primary); color:var(--primary-foreground); border:0; }
+.account-detail-metrics { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; }
+.account-detail-metrics section { padding:14px; border:0; border-radius:8px; background:var(--secondary); box-shadow:none; }
+.account-detail-metrics section p:first-child { font-size:12px; }
+.account-time-progress > div { background:var(--warning); }
+.account-detail-update { display:grid; grid-template-columns:minmax(0,1fr) auto; gap:10px; align-items:center; padding:10px; background:var(--secondary); border-radius:8px; }
+@media(max-width:767px) {
+ .customer-esim-track { grid-auto-columns:calc(100% - 1.25rem); }
+ .account-card-summary { grid-template-columns:96px minmax(0,1fr); gap:10px; }
+ .account-detail-metrics section { padding:12px; }
+ .account-detail-metrics .font-display { font-size:22px; }
+}
+@media(min-width:768px) {
+ .account-square-action { max-height:90px; }
+}
+@media(min-width:1024px) {
+ .customer-esim-track { grid-template-columns:repeat(2,minmax(0,1fr)); }
+ .account-mobile-nav { grid-template-columns:repeat(2,minmax(0,1fr)); }
+}

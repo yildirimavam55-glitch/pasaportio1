@@ -1,14 +1,17 @@
 import { useAccountDemo } from "./EsimsPage";
 import { CLink as Link } from "@/components/design-v2/v2-context";
 import { useQuery } from "@tanstack/react-query";
-import { ChevronRight, Clock3, PackageCheck, RefreshCcw, Signal } from "lucide-react";
+import { ChevronRight, RefreshCcw } from "lucide-react";
 
-import { DemoEsimPackages } from "../DemoEsimPackages";
-import { PURCHASE_COPY } from "../purchases-copy";
+import { createAccountDemo } from "@/domain/esim/account-demo";
+import { demoEsimRecord } from "../demo-presentation";
+import { ACCOUNT_V1_COPY } from "../v1-copy";
+import { esimCategory } from "@/domain/esim/purchase-categories";
+import { CustomerEsimHistoryRow } from "../CustomerEsimCard";
 import { CustomerEsimCard } from "@/components/account/CustomerEsimCard";
 import { EsimCarousel } from "@/components/account/EsimCarousel";
 import { AccountLayout } from "@/components/account/AccountLayout";
-import { ACCOUNT_COPY, formatDate, formatMoney, numberLocale } from "@/components/account/copy";
+import { ACCOUNT_COPY } from "@/components/account/copy";
 import { Button } from "@/components/ui/button";
 import { useI18n } from "@/i18n";
 import { getCustomerAccount } from "@/lib/customer-account.functions";
@@ -29,20 +32,16 @@ export function AccountOverview() {
   const email = profile?.email ?? "";
   const firstName = (profile?.full_name?.trim() || email.split("@")[0] || "").split(" ")[0] ?? "";
   const esims = account.data?.esims ?? [];
-  const orders = account.data?.orders ?? [];
-  const updated = account.data?.fetchedAt
-    ? new Intl.DateTimeFormat(numberLocale(locale), {
-        hour: "2-digit",
-        minute: "2-digit",
-      }).format(new Date(account.data.fetchedAt))
-    : "—";
-
+  const c = ACCOUNT_V1_COPY[locale];
+  const visible = demo ? createAccountDemo(new Date()).map(demoEsimRecord) : esims;
+  const grouped = (category: 'active' | 'pending') => visible.filter(e => esimCategory({status:e.status,totalMb:e.totalDataMb,remainingMb:e.remainingDataMb,expiresAt:e.expiresAt}) === category);
+  const others = visible.filter(e => !['active','pending'].includes(esimCategory({status:e.status,totalMb:e.totalDataMb,remainingMb:e.remainingDataMb,expiresAt:e.expiresAt})));
 
   return (
     <AccountLayout
       active="overview"
       title={`${copy.hello}${firstName ? `, ${firstName}` : ""}`}
-      lead={email}
+      lead={c.welcome}
       actions={
         <Button
           variant="outline"
@@ -55,87 +54,25 @@ export function AccountOverview() {
         </Button>
       }
     >
-      <p className="flex items-center gap-2 text-xs text-muted-foreground">
-        <Clock3 className="size-3.5" />
-        {copy.updated}: {updated}
-      </p>
       {account.isError && (
         <p className="mt-4 rounded-xl border border-destructive/20 bg-destructive/10 p-4 text-sm text-destructive">
           {copy.loadError}
         </p>
       )}
 
-      <section className="mt-6">
-        <div className="mb-3 flex items-center gap-2">
-          <Signal className="size-5 text-primary" />
-          <h2 className="font-display text-xl font-bold">{PURCHASE_COPY[locale].nav.esims}</h2>
-        </div>
-        {demo ? <DemoEsimPackages /> : account.isPending ? (
-          <div className="grid gap-3" aria-busy="true" aria-label={PURCHASE_COPY[locale].nav.esims}>
-            <div className="h-40 animate-pulse rounded-2xl bg-secondary/60" />
-            <div className="h-4 w-1/2 animate-pulse rounded bg-secondary/60" />
+      {(['active','pending'] as const).map(category => {
+        const items = grouped(category);
+        if (category === 'pending' && !items.length) return null;
+        return <section key={category} className="account-package-section" data-account-group={category}>
+          <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2 mb-3">
+            <h2 className="min-w-0 font-display text-base font-bold sm:text-lg">{category === 'active' ? c.active : c.pending}</h2>
+            <Link to="/account/esims" search={demo ? {demo:1} : {}} className="flex shrink-0 items-center gap-1 text-[11px] font-semibold text-primary">{c.all}<ChevronRight className="size-3.5" /></Link>
           </div>
-        ) : account.isError ? null : esims.length ? (
-          <EsimCarousel label={PURCHASE_COPY[locale].nav.esims}>
-            {esims.map((esim) => (
-              <CustomerEsimCard key={esim.id} esim={esim} locale={locale} />
-            ))}
-          </EsimCarousel>
-        ) : (
-          <div className="rounded-2xl border border-dashed border-border bg-secondary/45 px-5 py-8 text-center">
-            <p className="text-sm text-muted-foreground">{copy.emptyEsims}</p>
-            <Button asChild variant="cta" className="mt-4">
-              <Link to="/" search={{ service: "esim" }} hash="finder">
-                {copy.findEsim}
-              </Link>
-            </Button>
-          </div>
-        )}
-      </section>
-
-      <div className="mt-8 hidden gap-3 sm:grid-cols-2 lg:grid">
-        <Link
-          to="/account/esims"
-          className="flex min-h-14 items-center gap-3 rounded-2xl border border-border bg-card px-4 font-semibold shadow-card"
-        >
-          <Signal className="size-5 text-primary" />
-          <span className="flex-1 truncate">{copy.allEsims}</span>
-          <span className="text-sm text-muted-foreground">{esims.length}</span>
-          <ChevronRight className="size-4 text-muted-foreground" />
-        </Link>
-        <Link
-          to="/account/orders"
-          className="flex min-h-14 items-center gap-3 rounded-2xl border border-border bg-card px-4 font-semibold shadow-card"
-        >
-          <PackageCheck className="size-5 text-primary" />
-          <span className="flex-1 truncate">{copy.nav.orders}</span>
-          <span className="text-sm text-muted-foreground">{orders.length}</span>
-          <ChevronRight className="size-4 text-muted-foreground" />
-        </Link>
-      </div>
-
-      {orders.length > 0 && (
-        <section className="mt-8 grid gap-2">
-          {orders.slice(0, 3).map((order) => (
-            <Link
-              key={order.id}
-              to="/account/orders/$id"
-              params={{ id: order.id }}
-              className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 rounded-2xl border border-border bg-card p-4 shadow-card"
-            >
-              <div className="min-w-0">
-                <p className="truncate font-bold">#{order.order_number}</p>
-                <p className="mt-1 text-xs text-muted-foreground">
-                  {formatDate(order.created_at, locale)}
-                </p>
-              </div>
-              <strong className="text-sm">
-                {formatMoney(Number(order.gross_revenue), order.currency, locale)}
-              </strong>
-            </Link>
-          ))}
-        </section>
-      )}
+          {account.isPending && !demo ? <div className="h-48 animate-pulse rounded-lg bg-secondary" aria-busy="true" /> : items.length ? <EsimCarousel label={category === 'active' ? c.active : c.pending}>{items.map(esim => <CustomerEsimCard key={esim.id} esim={esim} locale={locale} demo={demo} />)}</EsimCarousel> : <p className="py-3 text-xs text-muted-foreground">{c.noActive}</p>}
+        </section>;
+      })}
+      {others.length > 0 && <section className="account-package-section" data-account-group="other"><div className="mb-3 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2"><h2 className="font-display text-base font-bold">{c.other}</h2><Link to="/account/esims" search={demo ? {demo:1} : {}} className="text-[11px] font-semibold text-primary">{c.all} →</Link></div><div className="grid gap-2">{others.slice(0,2).map(esim => <CustomerEsimHistoryRow key={esim.id} esim={esim} locale={locale} />)}</div></section>}
+      {!visible.length && !account.isPending && !account.isError && <Button asChild variant="cta" className="mt-3"><Link to="/esim">{copy.findEsim}</Link></Button>}
     </AccountLayout>
   );
 }

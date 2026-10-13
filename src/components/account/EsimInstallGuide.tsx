@@ -34,6 +34,7 @@ export function EsimInstallGuide({
   activationPolicy,
   expired,
   demo = false,
+  initialMethod = "qr",
 }: {
   locale: Locale;
   esimId: string;
@@ -42,11 +43,12 @@ export function EsimInstallGuide({
   activationPolicy?: string | null;
   expired?: boolean;
   demo?: boolean;
+  initialMethod?: "qr" | "manual" | "guide";
 }) {
   const copy = ACCOUNT_COPY[locale];
   const [qrImage, setQrImage] = useState<string | null>(null);
   const [platform, setPlatform] = useState<"iphone" | "android">("iphone");
-  const [method, setMethod] = useState("qr");
+  const [method, setMethod] = useState<string>(initialMethod);
   const pc = PURCHASE_COPY[locale];
   const note = activationNote((activationPolicy as ActivationPolicy) ?? null, locale);
 

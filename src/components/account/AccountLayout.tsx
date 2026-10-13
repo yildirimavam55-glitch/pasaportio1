@@ -20,6 +20,7 @@ import { PublicShell } from "@/components/travel/PublicShell";
 import { useI18n } from "@/i18n";
 import { useOptionalServices } from "@/components/travel/ServiceAvailability";
 import { ACCOUNT_COPY } from "./copy";
+import { ACCOUNT_V1_COPY } from "./v1-copy";
 import { PURCHASE_COPY } from "./purchases-copy";
 
 export type AccountSectionKey =
@@ -106,29 +107,23 @@ export function AccountLayout({
                 {copy.back}
               </Link>
             )}
-            <header className="flex flex-wrap items-end justify-between gap-3">
-              <div className="min-w-0">
-                <h1 className={v2 ? "font-display text-xl font-bold sm:text-2xl" : "font-display text-2xl font-bold sm:text-3xl"}>{title}</h1>
-                {lead && <div className="mt-1 text-sm text-muted-foreground">{lead}</div>}
+            <header className={`grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 ${active === "overview" ? "account-welcome" : ""}`}>
+              <div className="min-w-0 flex items-center gap-3">
+                {active === "overview" && <span className="account-welcome-avatar">{title.split(",").at(-1)?.trim().slice(0,2).toUpperCase()}</span>}
+                <div className="min-w-0"><h1 className={v2 ? "font-display text-xl font-bold sm:text-2xl" : "font-display text-2xl font-bold sm:text-3xl"}>{title}</h1>
+                {lead && <div className="mt-1 text-xs text-muted-foreground">{lead}</div>}</div>
               </div>
               {actions && <div className="flex shrink-0 items-center gap-2">{actions}</div>}
             </header>
             <div className={v2 ? "mt-4 lg:mt-6" : "mt-6"}>{children}</div>
 
             {(active === "overview" || active === "purchases") && (
-              <nav className="account-mobile-nav mt-7 grid lg:hidden" aria-label={copy.eyebrow}>
-                {nav.map(({ key, to, icon: Icon, sub }) => (
-                  <Link
-                    key={key}
-                    to={to}
-                    aria-current={key === active ? "page" : undefined}
-                    className={`flex min-h-11 items-center gap-3 border-b border-border/60 px-2 text-sm font-medium last:border-0 ${sub ? "ml-4" : ""}`}
-                  >
-                    <span className="grid size-7 shrink-0 place-items-center rounded-full bg-primary-soft text-primary">
-                      <Icon className="size-4" />
-                    </span>
-                    <span className="min-w-0 flex-1 truncate">{label(key)}</span>
-                    <ChevronRight className="size-4 shrink-0 text-muted-foreground" />
+              <nav className={`account-mobile-nav mt-6 grid grid-cols-2 gap-2 ${active === 'purchases' ? 'lg:hidden' : ''}`} aria-label={copy.eyebrow}>
+                {nav.filter(({key}) => !['overview','esims'].includes(key)).map(({ key, to, icon: Icon }) => (
+                  <Link key={key} to={to} aria-current={key === active ? "page" : undefined} className={`account-menu-tile ${key === 'security' ? 'col-span-2' : ''}`}>
+                    <span className="grid size-8 shrink-0 place-items-center rounded-full bg-primary-soft text-primary"><Icon className="size-5" /></span>
+                    <span className="min-w-0"><span className="block text-xs font-bold">{label(key)}</span><span className="mt-0.5 block text-[10px] text-muted-foreground">{(ACCOUNT_V1_COPY[locale] as Record<string,string>)[key]}</span></span>
+                    {key === 'security' && <ChevronRight className="ml-auto size-4 shrink-0 text-muted-foreground" />}
                   </Link>
                 ))}
               </nav>

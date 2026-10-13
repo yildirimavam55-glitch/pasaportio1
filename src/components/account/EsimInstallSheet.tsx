@@ -5,10 +5,10 @@ import { ACCOUNT_DEMO_COPY } from './demo-copy';
 import type { Locale } from '@/domain/enums';
 
 /** Shared account-only panel. The caller owns authenticated reads; demos pass no credentials. */
-export function EsimInstallSheet({ open, onOpenChange, title, locale, esimId, qrPayload, installInfo, activationPolicy, expired, loading, demo = false }: {
+export function EsimInstallSheet({ open, onOpenChange, title, locale, esimId, qrPayload, installInfo, activationPolicy, expired, loading, initialMethod = "qr", demo = false }: {
   open: boolean; onOpenChange: (open: boolean) => void; title: string; locale: Locale;
   esimId: string; qrPayload: string | null; installInfo: unknown; activationPolicy?: string | null | undefined;
-  expired?: boolean; loading?: boolean; demo?: boolean;
+  expired?: boolean; loading?: boolean; demo?: boolean; initialMethod?: "qr" | "manual" | "guide";
 }) {
   return <Sheet open={open} onOpenChange={onOpenChange}>
     <SheetContent side="bottom" className="account-install-sheet" overlayClassName="bg-foreground/40 motion-reduce:animate-none" onCloseAutoFocus={event => {
@@ -22,7 +22,7 @@ export function EsimInstallSheet({ open, onOpenChange, title, locale, esimId, qr
       <div className="mt-5">
         {demo && <p className="mb-4 text-xs text-muted-foreground">{ACCOUNT_DEMO_COPY[locale].disclaimer}</p>}
         {loading ? <div className="mx-auto size-48 animate-pulse rounded-xl bg-secondary" aria-busy="true" /> :
-          <EsimInstallGuide locale={locale} esimId={esimId} qrPayload={demo ? null : qrPayload} installInfo={demo ? null : installInfo} activationPolicy={demo ? null : activationPolicy ?? null} expired={expired ?? false} demo={demo} />}
+          <EsimInstallGuide key={`${open}-${initialMethod}`} initialMethod={initialMethod} locale={locale} esimId={esimId} qrPayload={demo ? null : qrPayload} installInfo={demo ? null : installInfo} activationPolicy={demo ? null : activationPolicy ?? null} expired={expired ?? false} demo={demo} />}
       </div>
     </SheetContent>
   </Sheet>;
