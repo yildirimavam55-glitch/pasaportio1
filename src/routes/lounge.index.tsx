@@ -1,3 +1,4 @@
+import { SITE_URL } from "@/domain/seo/paths";
 import { OptionalServiceGate, serviceAvailabilityQuery } from "@/components/travel/ServiceAvailability";
 import { createFileRoute } from "@tanstack/react-router";
 import { useQueries, useQuery } from "@tanstack/react-query";
@@ -32,7 +33,7 @@ export const Route = createFileRoute("/lounge/")({
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
-    links: [{ rel: "canonical", href: "https://wanderpath-engine.lovable.app/lounge" }],
+    links: [{ rel: "canonical", href: `${SITE_URL}/lounge` }],
   }),
   component: () => <OptionalServiceGate service="lounge"><LoungeV2 /></OptionalServiceGate>,
 });

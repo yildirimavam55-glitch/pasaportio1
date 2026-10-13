@@ -1,6 +1,8 @@
 import type { Locale } from "@/domain/enums";
 
-export const SEO_BASE_URL = "https://wanderpath-engine.lovable.app";
+/** Single public site origin for canonical, og:url, JSON-LD, sitemap and robots. */
+export const SITE_URL = "https://pasaport.io";
+export const SEO_BASE_URL = SITE_URL;
 export const SEO_LOCALES: Locale[] = ["tr", "de", "en"];
 
 /** Localized guide folder: /tr/rehber, /de/ratgeber, /en/guides. */

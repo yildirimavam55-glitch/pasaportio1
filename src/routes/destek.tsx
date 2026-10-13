@@ -1,3 +1,4 @@
+import { SITE_URL } from "@/domain/seo/paths";
 import { createFileRoute } from "@tanstack/react-router";
 import { PublicSupportPage } from "@/components/support/PublicSupportPage";
 
@@ -10,7 +11,7 @@ export const Route = createFileRoute("/destek")({
       { property: "og:title", content: "Destek | pasaport.io" },
       { property: "og:description", content: "WhatsApp ve e-posta ile pasaport.io destek ekibine ulaşın." },
     ],
-    links: [{ rel: "canonical", href: "https://wanderpath-engine.lovable.app/destek" }],
+    links: [{ rel: "canonical", href: `${SITE_URL}/destek` }],
   }),
   component: PublicSupportPage,
 });

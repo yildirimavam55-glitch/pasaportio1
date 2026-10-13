@@ -5,4 +5,4 @@ Disallow: /account
 Disallow: /api/
 Disallow: /legacy-v1
 
-Sitemap: https://wanderpath-engine.lovable.app/sitemap/xml
+Sitemap: https://pasaport.io/sitemap.xml

@@ -24,7 +24,6 @@ Public install help stays in V2; QR, activation credentials, and package policy 
 - The eSIM homepage keeps compatibility only in its hero band; the standalone compatibility section ships removed from both layouts.
 - Legal content uses two CMS rows: an Admin-only DRAFT row and a PUBLISHED row holding only explicitly published documents, so RLS never exposes drafts; text uses the safe LegalRichText markup, never HTML.
 - Public eSIM installation education shares presentation-only method, phone, QR, success, and travel-use components; protected real install data remains account-only so public demos can never expose credentials.
-
 - Loader-fetched queries are dehydrated with the router and signed media URLs stay stable across refetches, so hydration reuses the server-rendered image sources instead of swapping or re-downloading them.
 - Storefront theme editing extends the existing V2 section registry and global theme document; optional sanitized settings must fall back exactly to the approved Travely presentation.
 - Sync/import never write price/flags/publication of existing products; new ones arrive DRAFT with a suggestion. Repricing baselines come from approved snapshots; prices change only by Admin approval — why: legacy markup must never overwrite approved prices.
@@ -34,13 +33,10 @@ Public install help stays in V2; QR, activation credentials, and package policy 
 - Browser-only locales await resolution in a neutral shell; TR/DE/EN URLs remain SSR — why: unknown browser preferences must not flash another language.
 - Worldwide static photos reuse REGION_DISCOVERY media/crops/preview; price/coverage share one catalogue row — why: no duplicate tools or false claims.
 - One shared PaymentStrip uses story CSS ordering for desktop copy/mobile below-photo placement — why: never duplicate availability data.
-
 - Account demos require preview opt-in and account auth, with no writes/order counts — why: simulations cannot become purchases.
 - Refund verdicts use stored activation history plus confirmed never-activated provider evidence, not current status — why: past activation and duplicate requests stay blocked.
-
-- Install phones use normal flow, not clipping; antenna crop/arcs share source coordinates and cover offsets for stable resizing.
 - Root CurrencyProvider + displayMoney are the only currency path; EUR stays canonical, rateless currencies are hidden, only payment-verified ones charge — why: no fake prices.
-
 - Review samples are gated by editor-frame intent plus the server Admin query, never hostnames; CMS refresh failures keep last-known published data instead of an empty fallback.
 - Fresh databases build from db/baseline/0000_baseline_schema.sql, then drizzle/migrations in order; security grants live in migrations — why: copies must reproduce the hardened live schema.
 - Guest orders have customer_id null + normalized guest_email; idempotency is scoped per owner and guest delivery links use hashed, expiring tokens only — why: guests never get accounts and links must never leak access.
+- Site origin = SITE_URL (seo/paths.ts); both sitemap URLs share one builder — why: one domain switch, no conflicting sitemaps.
