@@ -34,6 +34,8 @@ export function EsimInstallGuide({
   activationPolicy,
   expired,
   demo = false,
+  initialMethod = "qr",
+  embedded = false,
 }: {
   locale: Locale;
   esimId: string;
@@ -42,11 +44,13 @@ export function EsimInstallGuide({
   activationPolicy?: string | null;
   expired?: boolean;
   demo?: boolean;
+  initialMethod?: "qr" | "manual" | "guide";
+  embedded?: boolean;
 }) {
   const copy = ACCOUNT_COPY[locale];
   const [qrImage, setQrImage] = useState<string | null>(null);
   const [platform, setPlatform] = useState<"iphone" | "android">("iphone");
-  const [method, setMethod] = useState("qr");
+  const [method, setMethod] = useState<string>(initialMethod);
   const pc = PURCHASE_COPY[locale];
   const note = activationNote((activationPolicy as ActivationPolicy) ?? null, locale);
 
@@ -82,13 +86,13 @@ export function EsimInstallGuide({
         </span>
       </p>
 
-      <Button variant="default" disabled className="h-auto min-h-14 w-full justify-start whitespace-normal py-3 text-left">
+      {!embedded && <Button variant="default" disabled className="h-auto min-h-14 w-full justify-start whitespace-normal py-3 text-left">
         <Smartphone className="size-5 shrink-0" />
         <span className="min-w-0 flex-1 text-sm">{pc.iphoneAuto}</span>
         <span className="text-xs">{pc.soon}</span>
-      </Button>
+      </Button>}
       <Tabs value={method} onValueChange={setMethod}>
-        <TabsList className="grid h-auto w-full grid-cols-3">
+        <TabsList className={`grid h-auto w-full grid-cols-3 ${embedded ? "hidden" : ""}`}>
           <TabsTrigger value="qr" className="min-h-11 whitespace-normal text-xs">{copy.esim.qr}</TabsTrigger>
           <TabsTrigger value="manual" className="min-h-11 whitespace-normal text-xs">{copy.guide.manual}</TabsTrigger>
           <TabsTrigger value="guide" className="min-h-11 whitespace-normal text-xs">{copy.esim.guide}</TabsTrigger>

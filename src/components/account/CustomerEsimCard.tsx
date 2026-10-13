@@ -6,8 +6,14 @@ import {
   ChevronRight,
   QrCode,
   RefreshCcw,
+  Smartphone, Menu, Clock3, Undo2, CalendarDays,
 } from "lucide-react";
 
+import { ACCOUNT_V1_COPY } from "./v1-copy";
+import { accountPhotoIso, refundPresentation } from "./v1-presentation";
+import { getEsimRefundState } from "@/lib/refunds.functions";
+import { CountryFlag } from "@/components/travel/CountryFlag";
+import { formatDate } from "./copy";
 import { EsimInstallSheet } from "./EsimInstallSheet";
 import { Progress } from "@/components/ui/progress";
 import { getCountryPhoto } from "@/components/travel/countryPhotos";
@@ -103,12 +109,7 @@ function displayInfo(esim: CustomerEsimRecord, locale: Locale, v2: boolean) {
         ? Math.round(structuredGb * 1024)
         : esim.totalDataMb;
   const validityDays =
-    info?.validityDays ??
-    (esim.createdAt && esim.expiresAt
-      ? Math.round(
-          (new Date(esim.expiresAt).getTime() - new Date(esim.createdAt).getTime()) / 86_400_000,
-        )
-      : null);
+    info?.validityDays ?? null;
 
   const parts: string[] = [];
   if (info?.unlimitedData || isUnlimitedEsim(esim.totalDataMb, esim.installInfo)) {
@@ -130,38 +131,51 @@ export function CustomerEsimCard({ esim, locale, activationPolicy, demo = false 
 }) {
   const copy = ACCOUNT_COPY[locale];
   const pc = PURCHASE_COPY[locale];
+  const c = ACCOUNT_V1_COPY[locale];
   const v2 = useIsV2();
   const [guideOpen, setGuideOpen] = useState(false);
+  const [method, setMethod] = useState<'qr' | 'guide'>('qr');
   const status = normalizeCustomerEsimStatus(esim.status);
   const category = esimCategory({ status: esim.status, totalMb: esim.totalDataMb, remainingMb: esim.remainingDataMb, expiresAt: esim.expiresAt });
+  const pending = category === 'pending';
   const expired = category === 'used' || category === 'refunded' || category === 'refunding';
   const { name, subtitle } = displayInfo(esim, locale, v2);
-  const photo = getCountryPhoto(esim.productInfo?.destinationIso);
+  const iso = accountPhotoIso(esim);
+  const photo = getCountryPhoto(iso);
   const usage = boundedUsagePercent(esim.totalDataMb, esim.remainingDataMb);
-  const days = remainingDays(esim.expiresAt);
-  const canShowActivation = !expired && (esim.hasQr || esim.hasInstallInfo);
-  const activation = useQuery({ queryKey: ['customer-esim-activation', esim.id], queryFn: () => getCustomerEsimActivation({ data: { esimId: esim.id } }), enabled: !demo && guideOpen && canShowActivation, staleTime: 60_000 });
-  return <article data-demo-esim={demo ? esim.id : undefined} className="customer-esim-card snap-start border border-border bg-card shadow-card">
-    {photo && <img src={photo.cardImage} alt="" loading="lazy" className="account-esim-photo" />}
-    <div className="flex items-start justify-between gap-2">
-      <div className="min-w-0"><h3 className="text-base font-bold">{name}</h3><p className="mt-1 text-xs text-muted-foreground">{subtitle}</p></div>
-      <Badge variant="outline" className="max-w-28 whitespace-normal px-2 py-1 text-[11px]">{pc.cat[category]}</Badge>
-    </div>
-    {demo && <span className="mt-2 text-[11px] font-bold text-warning">DEMO · ••{esim.id.slice(-4)}</span>}
-    {esim.travelerLabel && <p className="mt-2 text-xs text-muted-foreground">{esim.travelerLabel}</p>}
-    <div className="my-4 grid gap-3 rounded-lg bg-secondary/60 p-3">
-      <div><p className="text-xs text-muted-foreground">{pc.remainingData}</p>
-        {isUnlimitedEsim(esim.totalDataMb, esim.installInfo) ? <p className="mt-1 text-xl font-bold">{copy.unlimited}</p> : usage != null && esim.remainingDataMb != null && esim.totalDataMb != null ? <><p className="mt-1 text-xl font-bold">{formatMegabytes(Math.max(0, esim.remainingDataMb), locale)} <span className="text-xs font-medium text-muted-foreground">/ {formatMegabytes(esim.totalDataMb, locale)}</span></p><Progress className="mt-2 h-1.5" value={100 - usage} aria-label={pc.remainingData} /></> : <p className="mt-1 text-xs text-muted-foreground">{copy.usageUnavailable}</p>}
+  const activation = useQuery({ queryKey: ['customer-esim-activation', esim.id], queryFn: () => getCustomerEsimActivation({ data: { esimId: esim.id } }), enabled: !demo && guideOpen && !expired && (esim.hasQr || esim.hasInstallInfo), staleTime: 60_000 });
+  const refund = useQuery({ queryKey: ['esim-refund-state', esim.id], queryFn: () => getEsimRefundState({ data: { esimId: esim.id } }), enabled: !demo && pending, staleTime: 30_000 });
+  const purchaseAt = demo ? esim.createdAt : refund.data?.purchaseAt ?? (esim.orderItemId ? esim.createdAt : null);
+  const refundInfo = refundPresentation(purchaseAt, new Date(), refund.data);
+  const openMethod = (next: 'qr' | 'guide') => { setMethod(next); setGuideOpen(true); };
+  return <article data-demo-esim={demo ? esim.id : undefined} data-esim-category={category} className="customer-esim-card snap-start border border-border bg-card shadow-card">
+    <div className="account-card-summary">
+      <div className="account-card-photo-wrap">
+        {photo ? <img src={photo.cardImage} alt="" loading="lazy" className="account-esim-photo" /> : <div className="account-esim-photo grid place-items-center bg-primary-soft"><Smartphone className="size-8 text-primary" /></div>}
+        <Badge variant="outline" className={`account-card-badge ${STATUS_TONE[status]}`}>{pc.cat[category]}</Badge>
       </div>
-      <p className="text-xs font-medium">{days != null ? `${days} ${copy.daysLeft}` : `${pc.remainingTime}: ${pc.noData}`}</p>
-      {usage != null && usage > 90 && <p className="flex gap-1 text-xs text-warning"><AlertTriangle className="size-4 shrink-0" />{ACCOUNT_DEMO_COPY[locale].low}</p>}
+      <div className="min-w-0">
+        <p className="flex items-center gap-2 text-sm font-bold">{iso && <CountryFlag iso={iso} className="text-base" />}<span className="min-w-0">{name}</span></p>
+        <h3 className="mt-1 text-sm font-bold">{name.includes("eSIM") ? name : `${name} eSIM`} · {subtitle}</h3>
+        {demo && <p className="mt-1 text-[10px] font-bold text-warning">DEMO</p>}
+        {esim.travelerLabel && <p className="mt-1 text-[11px] font-semibold text-muted-foreground">{esim.travelerLabel}</p>}
+        {pending ? <><p className="mt-2 text-[11px] text-muted-foreground">{c.installed}: {c.noInstall}</p><p className="mt-1 flex gap-1 text-[11px] text-muted-foreground"><CalendarDays className="size-3.5 shrink-0" />{copy.esim.purchaseDate}: {purchaseAt ? formatDate(purchaseAt, locale) : pc.noData}</p></> : <div className="mt-2">
+          <p className="text-xs font-bold">{esim.remainingDataMb != null && usage != null ? `${formatMegabytes(Math.max(0, esim.remainingDataMb), locale)} · ${pc.remainingData}` : c.noUsage}</p>
+          {usage != null && <Progress value={100 - usage} className="mt-2 h-1.5" aria-label={pc.remainingData} />}
+          <p className="mt-2 text-[10px] text-muted-foreground">{pc.remainingTime}: {remainingDays(esim.expiresAt) != null ? `${remainingDays(esim.expiresAt)} ${pc.days}` : pc.noData}</p>
+          <p className="mt-1 text-[10px] text-muted-foreground">{pc.activation}: {status === 'ACTIVE' ? pc.activationStored : pc.activationUnknown}</p>
+        </div>}
+      </div>
     </div>
-    <p className="mb-4 text-[11px] leading-5 text-muted-foreground">{pc.activation}: {status === 'ACTIVE' ? `${pc.activationStored} · ${esimStatusLabel(status, locale)}` : pc.activationUnknown}</p>
-    <div className="mt-auto grid gap-2">
-      {!expired && (canShowActivation || demo) && <Button variant={status === 'READY' ? 'cta' : 'outline'} data-install-trigger={esim.id} className="min-h-11 whitespace-normal text-xs" onClick={() => setGuideOpen(true)}><QrCode className="size-4" />{status === 'READY' ? copy.installNow : copy.guide.title}</Button>}
-      <Button asChild variant="outline" className="min-h-11 whitespace-normal text-xs"><Link to="/account/esims/$id" params={{ id: esim.id }} search={demo ? { demo: 1 } : {}} data-demo-detail-link={demo || undefined}>{pc.view}<ChevronRight className="size-4" /></Link></Button>
+    {pending && <div className="account-refund-note"><Clock3 className="size-5 shrink-0 text-primary" /><div className="min-w-0"><p className="text-[11px] leading-4">{c.refundInfo}</p><p className="mt-1 text-[10px] text-muted-foreground">{refundInfo.purchaseAt ? refundInfo.open ? `${c.remaining}: ${refundInfo.daysLeft} ${pc.days}` : c.closed : c.purchaseUnknown}</p>{!refundInfo.verifiedEligible && <p className="mt-1 text-[10px] text-muted-foreground">{c.unverified}</p>}</div></div>}
+    <div className="account-quick-actions mt-auto" data-card-actions>
+      <Button variant="outline" className="account-square-action" onClick={() => openMethod('qr')} disabled={expired || (!demo && !esim.hasQr)} aria-label={c.qr}><QrCode /><span>{c.qr}</span></Button>
+      <Button variant="outline" className="account-square-action" data-install-trigger={esim.id} onClick={() => openMethod('guide')} disabled={expired} aria-label={c.install}><Smartphone /><span>{c.install}</span></Button>
+      <Button asChild variant="outline" className="account-square-action"><Link to="/esim" search={rebuyTarget(esim.productInfo)} aria-label={c.rebuy}><RefreshCcw /><span>{c.rebuy}</span></Link></Button>
+      {pending ? <Button asChild variant="outline" className="account-square-action text-destructive"><Link to="/account/support" aria-label={refundInfo.verifiedEligible ? c.refund : c.review}><Undo2 /><span>{refundInfo.verifiedEligible ? c.refund : c.review}</span></Link></Button> : <Button asChild variant="outline" className="account-square-action"><Link to="/account/esims/$id" params={{ id: esim.id }} search={demo ? { demo: 1 } : {}} data-demo-detail-link={demo || undefined} aria-label={c.detail}><Menu /><span>{c.detail}</span></Link></Button>}
     </div>
-    <EsimInstallSheet open={guideOpen} onOpenChange={setGuideOpen} title={`${name} · ${subtitle}`} locale={locale} esimId={esim.id} qrPayload={activation.data?.qrPayload ?? null} installInfo={activation.data?.installInfo ?? esim.installInfo} activationPolicy={activationPolicy ?? esim.productInfo?.activationPolicy} expired={expired} loading={activation.isLoading} demo={demo} />
+    {pending && <Link to="/account/esims/$id" params={{ id: esim.id }} search={demo ? { demo: 1 } : {}} data-demo-detail-link={demo || undefined} className="mt-2 flex items-center justify-end gap-1 text-[11px] font-semibold text-primary">{pc.view}<ChevronRight className="size-3" /></Link>}
+    <EsimInstallSheet open={guideOpen} onOpenChange={setGuideOpen} initialMethod={method} title={`${name} · ${subtitle}`} locale={locale} esimId={esim.id} qrPayload={activation.data?.qrPayload ?? null} installInfo={activation.data?.installInfo ?? esim.installInfo} activationPolicy={activationPolicy ?? esim.productInfo?.activationPolicy} expired={expired} loading={activation.isLoading} demo={demo} />
   </article>;
 }
 
