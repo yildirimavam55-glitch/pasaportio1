@@ -34,18 +34,41 @@ import {
 } from "@/lib/customer-account.functions";
 
 
+/** Preview-only, in-memory detail for demo ids. Never fetched, written, or given real codes. */
+function demoDetail(id: string, now: Date) {
+  const d = createAccountDemo(now).find((e) => e.id === id);
+  if (!d) return null;
+  const mb = (gb: number) => Math.round(gb * 1024);
+  return {
+    esim: {
+      id: d.id, status: d.active ? "ACTIVE" : "READY", totalDataMb: mb(d.total), remainingDataMb: mb(d.remaining),
+      expiresAt: d.expiresAt, createdAt: d.purchaseAt, installInfo: null, topupSupported: false, capabilities: [],
+      productInfo: { destinationIso: d.iso, packageKind: "COUNTRY", productId: null },
+      packageLabel: `${d.iso} eSIM · ${d.total} GB`, destinationLabel: null, hasIccid: false, hasQr: false, hasInstallInfo: false,
+    },
+    orderRef: null, purchase: null,
+    coverage: { countryIsos: [d.iso], dataGb: d.total, validityDays: 30, unlimited: false, activationPolicy: null, networkOperators: [], fairUseNote: null, topupSupported: false },
+  } as unknown as Awaited<ReturnType<typeof getCustomerEsimDetail>>;
+}
+
 export function EsimDetailPage({ id }: { id: string }) {
   const { locale } = useI18n();
   const copy = ACCOUNT_COPY[locale];
   const v2 = useIsV2();
   const [countryQuery, setCountryQuery] = useState("");
   const [countriesOpen, setCountriesOpen] = useState(false);
+  const isDemoId = id.startsWith("demo-");
+  const demoAllowed = useAccountDemo();
+  const [now] = useState(() => new Date());
+  const demoData = useMemo(() => (isDemoId && demoAllowed ? demoDetail(id, now) : null), [isDemoId, demoAllowed, id, now]);
 
-  const detail = useQuery({
+  const realDetail = useQuery({
     queryKey: ["customer-esim-detail", id],
     queryFn: () => getCustomerEsimDetail({ data: { esimId: id } }),
+    enabled: !isDemoId,
     staleTime: 30_000,
   });
+  const detail = isDemoId ? { data: demoData, isLoading: false } : realDetail;
   const esim = detail.data?.esim;
   const expired = esim
     ? isHistoryEsim({
@@ -55,7 +78,7 @@ export function EsimDetailPage({ id }: { id: string }) {
         expiresAt: esim.expiresAt,
       })
     : false;
-  const canShowActivation = Boolean(esim && !expired && (esim.hasQr || esim.hasInstallInfo));
+  const canShowActivation = Boolean(!isDemoId && esim && !expired && (esim.hasQr || esim.hasInstallInfo));
   const activation = useQuery({
     queryKey: ["customer-esim-activation", id],
     queryFn: () => getCustomerEsimActivation({ data: { esimId: id } }),
