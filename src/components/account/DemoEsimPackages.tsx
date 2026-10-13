@@ -12,6 +12,7 @@ import { createAccountDemo, demoRefund, demoUsage, type DemoEsim } from '@/domai
 import { remainingDays } from '@/domain/esim/customer-esim';
 import { getCountryByIso } from '@/domain/geo/countries';
 import { useI18n } from '@/i18n';
+import { PURCHASE_COPY } from './purchases-copy';
 
 export function DemoEsimPackages() {
   const { locale } = useI18n();
@@ -67,6 +68,7 @@ function DemoPackageCard({ esim, now, open, onToggle, onAction }: { esim: DemoEs
     <div className="pt-3"><div className="flex flex-wrap items-baseline justify-between gap-2"><p className="text-2xl font-bold">{number(esim.remaining)} GB <span className="text-sm">{c.remaining}</span></p><span className={`text-xs font-semibold ${usage.low ? 'text-warning' : 'text-muted-foreground'}`}>{usage.low ? `${usage.remainingPercent}% ${c.remaining}${days != null ? ` · ${days} ${c.days}` : ""}` : days != null ? `${days} ${c.days}` : c.notActivated}</span></div>
       <div className="mt-1 flex justify-between gap-2 text-xs text-muted-foreground"><span>{number(esim.used)} / {esim.total} GB {c.used}</span><span>{Math.round(usage.usedPercent)}% {c.used}</span></div><Progress value={usage.usedPercent} aria-label={`${c.used} · ${esim.id}`} className="mt-2 h-2" />
       {usage.low && <p className="mt-2 flex gap-2 rounded-lg bg-warning/10 p-2 text-xs font-semibold text-warning"><AlertCircle className="size-4 shrink-0" />{c.low}</p>}
+      <Button asChild variant="outline" className="mt-3 min-h-11 w-full"><Link to="/account/esims/$id" params={{ id: esim.id }} search={{ demo: 1 }} data-demo-detail-link>{PURCHASE_COPY[locale].view}</Link></Button>
     </div>
     {open && <div id={`${esim.id}-details`} className="pt-4">
       <dl className="grid grid-cols-2 gap-x-4 gap-y-3 text-sm sm:grid-cols-4">{[[c.purchase, formatDate(esim.purchaseAt, locale)], [c.activation, esim.activatedAt ? formatDate(esim.activatedAt, locale) : c.notActivated], [c.expiry, esim.expiresAt ? formatDate(esim.expiresAt, locale) : c.unknown], [c.paid, c.noPayment]].map(([label, value]) => <div key={label}><dt className="text-xs text-muted-foreground">{label}</dt><dd className="mt-1 font-medium">{value}</dd></div>)}</dl>

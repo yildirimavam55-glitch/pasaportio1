@@ -4,6 +4,7 @@ import { EsimDetailPage } from "@/components/account/pages/EsimDetailPage";
 
 // Primary V2 storefront: same page component + same server functions as /account — presentation only.
 export const Route = createFileRoute("/account/esims/$id")({
+  validateSearch: (s: Record<string, unknown>): { demo?: number } => (s["demo"] === "1" || s["demo"] === 1 ? { demo: 1 } : {}),
   head: () => ({ meta: [{ title: "Hesabım | pasaport.io" }, ...V2_NOINDEX] }),
   component: V2Page,
 });
