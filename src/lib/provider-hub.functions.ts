@@ -345,6 +345,10 @@ export const refreshProviderBalance = createServerFn({ method: "POST" })
       .maybeSingle();
 
     const { buildAdapter } = await import("@/providers/adapters/factory.server");
+    const { isBalanceCheckAllowed } = await import("@/lib/balance-monitor.server");
+    if (!(await isBalanceCheckAllowed(db))) {
+      throw new Error("Bakiye kontrolü kapalı: provider.sync kapalıyken tedarikçiye istek gönderilmez.");
+    }
     const adapter = buildAdapter(provider, connection ?? null);
     if (!adapter.fetchBalance) return { supported: false as const, amount: null, currency: null, checkedAt: null, error: "Bu provider bakiye sorgusunu desteklemiyor." };
     // Same read-only runner as the scheduler: snapshot + evaluation + deduped alerts.
