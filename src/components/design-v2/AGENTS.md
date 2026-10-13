@@ -1,5 +1,7 @@
 # V2 storefront CMS rules
 
+- Installation education uses the existing central route and CentralInstallationWalkthrough; homepage/account/detail/delivery actions navigate there, phone scenes stay credential-free, and APN walkthroughs require a provider-supplied value — why: one guide without changing secure reads or starting installation.
+
 - Homepage trust and review content lives in the existing V2 CMS document; public reads require both verified and published review flags so unapproved customer content stays private.
 - Fictional editorial review fixtures and inactive payment visuals render only in the V2 CMS preview iframe; public V2 reads strip editorial/demo reviews and never imply unavailable payment methods are active.
 - The V2 Social Proof main media is a CMS-selected lifestyle photo in a fixed responsive frame, never a phone mask; keep its chips as independent editable items so image replacement needs no code change.
@@ -8,7 +10,7 @@
 - Store V2 Hero image crop presets as validated presentation values inside the existing CMS document; keep desktop and optional mobile settings independent and render one media asset through CSS so layout and uploads stay unchanged.
 - Generate Trust/Social Proof storefront translations when an Admin finishes editing Turkish source text or requests regeneration, into existing CMS locale fields; retain automatic provenance inside each text value to avoid replacing manual edits and keep public rendering read-only.
 - The roaming comparison uses CMS-localized structured copy and calculated prices with reveal-once presentation or the retained CMS image mode; price edits return it to draft and only VERIFIED figures render publicly, so visual changes never bypass approval.
-- Final family/reviews/comparison presentation stays in the existing V2 CMS section; comparison rendering uses only the shared verified-evidence gate, including preview, while review fixtures remain isolated; equal-width comparison tracks use a reveal-once CSS transform — why: missing evidence must never become invented prices or fork commerce/search.
+- Final family/reviews/comparison presentation stays in the existing V2 CMS section; published comparisons require the shared verified-evidence gate, while explicitly approved sample prices use the existing development/editor preview gate and localized disclosure; equal-width tracks use a reveal-once CSS transform — why: previews must never change commerce or imply verified public offers.
 - The eSIM hero reuses the V2 CMS media/crop settings, shared country picker and device catalogue; localized campaign display fields live in the existing banner_text map, with shared-query invalidation and cross-tab notification — why: Admin remains the sole content source without duplicating search, compatibility or discount logic.
 - Mobile hero photo fixtures are independent from desktop fixtures and remain subordinate to CMS-selected media — why: mobile reference corrections must not replace approved desktop imagery or Admin uploads.
 - The antenna signal SVG follows the photo's cover/crop/scale inside its clipped wrapper and hides when the antenna falls outside the crop, so the arcs stay anchored across widths.

@@ -5,6 +5,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { LifeBuoy, ShieldCheck } from "lucide-react";
 
 import { EsimInstallGuide } from "@/components/account/EsimInstallGuide";
+import { CENTRAL_GUIDE_COPY } from '@/components/design-v2/central-installation-content';
 import { CLink as Link } from "@/components/design-v2/v2-context";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -78,6 +79,7 @@ function Delivered({ order, c, locale }: { order: Order; c: Copy; locale: any })
               </dl>
             </div>
             <EsimInstallGuide locale={locale} esimId={e.id} qrPayload={e.qrPayload} installInfo={e.installInfo} activationPolicy={e.activationPolicy} expired={expired} />
+            <Button asChild variant="outline"><Link to="/esim/kurulum" search={{method:'qr'}}>{CENTRAL_GUIDE_COPY[locale as 'tr'|'de'|'en'].title}</Link></Button>
           </section>
         );
       })}

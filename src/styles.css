@@ -2163,7 +2163,7 @@ body:has([role="dialog"][data-state="open"]) .pasaport-mobile-reference [data-wh
 .account-install-sheet [data-account-walkthrough] > div:first-child { padding-block:12px; }
 .installation-step-nav { container-type:inline-size; display:grid; grid-template-columns:auto minmax(0,1fr) auto; align-items:center; gap:4px; width:100%; max-width:380px; margin-inline:auto; }
 .installation-step-numbers { display:flex; justify-content:center; align-items:center; gap:4px; min-width:0; }
-.installation-step-control { width:min(44px,calc((100cqw - 24px)/7)); height:auto; min-width:0; aspect-ratio:1; padding:0; border-radius:50%; font-size:12px; flex:none; background:var(--secondary); color:var(--muted-foreground); box-shadow:none; }
+.installation-step-control { width:min(44px,calc((100cqw - var(--step-gaps,24px))/var(--step-controls,7))); height:auto; min-width:0; aspect-ratio:1; padding:0; border-radius:50%; font-size:12px; flex:none; background:var(--secondary); color:var(--muted-foreground); box-shadow:none; }
 .installation-step-control[aria-current="step"] { background:var(--primary); color:var(--primary-foreground); border-color:var(--primary); }
 .installation-step-control:disabled { opacity:.35; }
 .installation-step-nav > .installation-step-control:last-child { justify-self:end; }

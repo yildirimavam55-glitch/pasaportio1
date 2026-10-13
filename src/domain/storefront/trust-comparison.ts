@@ -13,5 +13,5 @@ export function reviewAutoplay(s: { enough: boolean; paused: boolean; hover: boo
 // Owner-approved test demo: the published lovable.app site also shows labelled sample ratings/payment logos (no provider connected).
 export const PUBLIC_DEMO_HOSTS: string[] = [];
 export function trustPreviewHost(host: string) { return isPreviewHost(host) || /^preview--[a-z0-9-]+\.lovable\.app$/i.test(host) || PUBLIC_DEMO_HOSTS.includes(host.toLowerCase()); }
-export const PREVIEW_COMPARISON = [{kind:'roaming',price:21.99,currency:'EUR'},{kind:'other',price:16.99,currency:'EUR'},{kind:'pasaport',price:10.99,currency:'EUR'}] as const;
+export const PREVIEW_COMPARISON = [{kind:'roaming',price:24.99,currency:'EUR'},{kind:'other',price:17.99,currency:'EUR'},{kind:'pasaport',price:12.99,currency:'EUR'}] as const;
 export function comparisonForPresentation(verified: ComparisonEntry[] | null, preview: boolean) { return verified ?? (preview ? PREVIEW_COMPARISON : null); }

@@ -28,7 +28,13 @@ function GuideError({ reset }: { reset: () => void }) {
 }
 
 export const Route = createFileRoute("/esim/kurulum")({
-  validateSearch: (search: Record<string, unknown>) => ({ platform: search['platform'] === "android" ? "android" as const : "ios" as const, brand: typeof search['brand'] === "string" ? search['brand'] : "" }),
+  validateSearch: (search: Record<string, unknown>): {platform?:'ios'|'android';brand?:string;esimId?:string;method?:'quick'|'qr'|'manual';demo?:number} => ({
+    ...(search['platform']==='android'||search['platform']==='ios'?{platform:search['platform']} : {}),
+    ...(typeof search['brand']==='string'?{brand:search['brand']} : {}),
+    ...(typeof search['esimId']==='string'?{esimId:search['esimId']} : {}),
+    ...(search['method']==='quick'||search['method']==='qr'||search['method']==='manual'?{method:search['method']} : {}),
+    ...(search['demo']===1||search['demo']==='1'?{demo:1} : {}),
+  }),
   head: () => ({ meta: [
     { title: "eSIM kurulum rehberi | pasaport.io" },
     { name: "description", content: "iPhone ve Android için adım adım eSIM kurulum rehberi. Gerçek QR kodunu hesabında bul." },
@@ -41,5 +47,6 @@ export const Route = createFileRoute("/esim/kurulum")({
 });
 
 function GuideRoute() {
-  return <EsimInstallationPage initialPlatform={Route.useSearch().platform} />;
+  const search=Route.useSearch();
+  return <EsimInstallationPage initialPlatform={search.platform} initialMethod={search.method} esimId={search.esimId} />;
 }

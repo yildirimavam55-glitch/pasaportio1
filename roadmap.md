@@ -1,5 +1,9 @@
 # Roadmap — Phase 5
 
+- [x] Show owner-approved sample comparison prices only in preview with localized disclosure and animated common-scale bars; 32 tests passed, 390/1440 render confirmed (presentation only).
+- [ ] Compare uploaded Screen_Recording_20261013_125243_Chrome.mp4 with the shared central installation guide.
+- [ ] Consolidate all installation entry points into the existing central guide; inspect uploaded video, share Link/QR/Manual and post-installation walkthroughs, preserve secure owner-only credentials, verify iOS/Android at 320/390/1440 and report screenshots (UI only; no backend or publish).
+
 - [x] Restore only the homepage horizontal comparison presentation; history traced, verified comparable prices required, search/details preserved, 320/390/1440 and 14-language checks passed; before/after saved. No verified live comparison entries available, so tracks remain empty.
 
 - [x] Shared numbered installation step navigation for public/account guides; edge-disabled arrows, aligned controls, 320/360/390/430/1440, DE/RTL and before/after checks (UI only).

@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Apple, Download, Info, Smartphone, QrCode, Link2 } from "lucide-react";
+import { Download, Info, Smartphone, QrCode, Link2, Copy, Check } from "lucide-react";
 
-import { AccountInstallationWalkthrough } from "@/components/design-v2/EsimInstallationPage";
+import { CENTRAL_GUIDE_COPY } from '@/components/design-v2/central-installation-content';
 import { ACCOUNT_V1_COPY } from "./v1-copy";
 import { PURCHASE_COPY } from "./purchases-copy";
 import { ACCOUNT_DEMO_COPY } from "./demo-copy";
@@ -21,7 +21,7 @@ function installString(info: unknown, key: string) {
   return typeof value === "string" && value.trim() ? value.trim() : null;
 }
 
-const MANUAL_KEYS = ["smdp_address", "activation_code", "apn", "manual_instructions"];
+const MANUAL_KEYS = ["smdp_address", "activation_code", "confirmation_code", "apn", "manual_instructions"];
 
 /**
  * Real activation details only. Installation and activation are described
@@ -37,6 +37,7 @@ export function EsimInstallGuide({
   demo = false,
   initialMethod = "qr",
   embedded = false,
+  controlledMethod,
 }: {
   locale: Locale;
   esimId: string;
@@ -47,11 +48,12 @@ export function EsimInstallGuide({
   demo?: boolean;
   initialMethod?: "qr" | "manual" | "guide";
   embedded?: boolean;
+  controlledMethod?: 'quick' | 'qr' | 'manual';
 }) {
   const copy = ACCOUNT_COPY[locale];
   const [qrImage, setQrImage] = useState<string | null>(null);
-  const [platform, setPlatform] = useState<"iphone" | "android">("iphone");
-  const [method, setMethod] = useState<string>(initialMethod === "guide" ? "qr" : initialMethod);
+  const [selectedMethod, setMethod] = useState<string>(initialMethod === "guide" ? "qr" : initialMethod);
+  const method = controlledMethod ?? selectedMethod;
   const pc = PURCHASE_COPY[locale];
   const c = ACCOUNT_V1_COPY[locale];
   const note = activationNote((activationPolicy as ActivationPolicy) ?? null, locale);
@@ -126,7 +128,7 @@ export function EsimInstallGuide({
                 <p className="text-xs font-bold uppercase text-muted-foreground">
                   {key.replaceAll("_", " ")}
                 </p>
-                <p className="mt-1 break-all text-sm font-semibold">{value}</p>
+                <div className="mt-1 flex items-start gap-2"><p className="min-w-0 flex-1 break-all text-sm font-semibold">{value}</p>{['smdp_address','activation_code','confirmation_code'].includes(key)&&<CopyInstallValue value={value} locale={locale}/>}</div>
               </div>
             ) : null;
           })}
@@ -134,24 +136,22 @@ export function EsimInstallGuide({
       ) : <p className="rounded-lg bg-secondary p-4 text-sm text-muted-foreground">{demo ? ACCOUNT_DEMO_COPY[locale].simulation : expired ? copy.esim.expiredQr : pc.noData}</p>}
         </TabsContent>
       </Tabs>
-      <DevicePicker locale={locale} onPlatform={setPlatform} />
-      <Tabs value={platform} onValueChange={(value) => { if (value === "iphone" || value === "android") setPlatform(value); }}>
-        <TabsList className="grid w-full grid-cols-2">
-          <TabsTrigger value="iphone" className="gap-1.5"><Apple className="size-4" />{copy.guide.iphone}</TabsTrigger>
-          <TabsTrigger value="android" className="gap-1.5"><Smartphone className="size-4" />{copy.guide.android}</TabsTrigger>
-        </TabsList>
-        <AccountInstallationWalkthrough platform={platform === "iphone" ? "ios" : "android"} method={method === "manual" ? "manual" : "qr"} />
-      </Tabs>
       {!demo && !expired && installString(installInfo, "roaming_instructions") && <p className="rounded-lg bg-secondary p-3 text-sm text-muted-foreground">{installString(installInfo, "roaming_instructions")}</p>}
     </div>
   );
+}
+
+function CopyInstallValue({value,locale}:{value:string;locale:Locale}) {
+ const [copied,setCopied]=useState(false);
+ const c=CENTRAL_GUIDE_COPY[locale];
+ return <Button type="button" variant="outline" size="icon" className="shrink-0" title={copied?c.copied:c.copy} aria-label={copied?c.copied:c.copy} onClick={()=>{void navigator.clipboard.writeText(value).then(()=>setCopied(true)).catch(()=>setCopied(false));}}>{copied?<Check/>:<Copy/>}</Button>;
 }
 
 /**
  * Brand → model from the shared curated device list. Only an exact model picked
  * from the list shows its stored status; otherwise no compatibility claim.
  */
-function DevicePicker({ locale, onPlatform }: { locale: Locale; onPlatform: (p: "iphone" | "android") => void }) {
+export function DevicePicker({ locale, onPlatform }: { locale: Locale; onPlatform: (p: "iphone" | "android") => void }) {
   const t = PANEL_COPY[locale];
   const { data: devices = [] } = useQuery({
     queryKey: ["device-compatibility"],

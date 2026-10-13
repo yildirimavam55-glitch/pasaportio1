@@ -10,7 +10,7 @@
 <!-- LOVABLE:END -->
 
 Read subdirectory AGENTS.md files before changing files there.
-Public install help stays in V2; QR, activation credentials, and package policy stay in authenticated account views.
+Installation uses one V2 guide; credentials require existing owner-authenticated reads or token-authorized delivery — why: one guide must not expose secrets.
 - V2 pickers share `V2PickerSheet`; preserve mobile scroll/x-position and visual-viewport keyboard handling, with guarded pointer-up selection.
 - Keep the eSIM coverage-array GIN index; public catalogue containment queries depend on it.
 - i18n shares one locale registry; overlays use English source and static `localize()` resources.
@@ -24,7 +24,7 @@ Public install help stays in V2; QR, activation credentials, and package policy 
 - Product commercial columns stay hidden via column grants; Admin cost reads happen only after server role checks.
 - The eSIM homepage keeps compatibility only in its hero band; the standalone compatibility section ships removed from both layouts.
 - Legal content uses two CMS rows: an Admin-only DRAFT row and a PUBLISHED row holding only explicitly published documents, so RLS never exposes drafts; text uses the safe LegalRichText markup, never HTML.
-- Public eSIM installation education shares presentation-only method, phone, QR, success, and travel-use components; protected real install data remains account-only so public demos can never expose credentials.
+- Central installation education shares credential-free phone/QR/navigation components; real values use existing owner checks, and guest tokens stay in delivery — why: no duplicate guides or public secrets.
 - Loader-fetched queries are dehydrated with the router and signed media URLs stay stable across refetches, so hydration reuses the server-rendered image sources instead of swapping or re-downloading them.
 - Storefront theme editing extends the existing V2 section registry and global theme document; optional sanitized settings must fall back exactly to the approved Travely presentation.
 - Sync/import never write price/flags/publication of existing products; new ones arrive DRAFT with a suggestion. Repricing baselines come from approved snapshots; prices change only by Admin approval — why: legacy markup must never overwrite approved prices.

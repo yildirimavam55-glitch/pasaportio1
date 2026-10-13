@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { useCallback, useState } from "react";
+import { useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { Apple, ArrowRight, BookOpen, CheckCircle2, ChevronDown, CreditCard, FileText, Globe2, Headphones, MapPin, MessageCircle, Navigation, PhoneCall, Play, Settings, Smartphone, Sparkles } from "lucide-react";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
@@ -13,7 +13,6 @@ import { useI18n } from "@/i18n";
 import type { V2SafeLink } from "@/domain/storefront/v2";
 import { listFeaturedGuides } from "@/lib/guides.functions";
 import { SectionTitle } from "./V2Shell";
-import { V2InstallAnimation } from "./V2InstallAnimation";
 import { localize } from "@/i18n/overlay";
 import { useNearViewport } from "@/components/travel/use-near-viewport";
 import faqTravelEsim from "@/assets/faq-travel-esim.jpg";
@@ -164,34 +163,9 @@ export function V2Compatibility({ title, desktopCard = false }: { title?: string
 type InstallProps = { title?: string; subtitle?: string; steps?: string[]; ready?: string; adding?: string; cta?: string; href?: V2SafeLink; variant?: "animated" | "simple" };
 
 /** Copy/link/variant can come from the storefront builder; animation stays decorative (no real QR). */
-export function V2Installation({ title, subtitle, steps, ready, adding, cta, href = "/esim/kurulum", variant = "animated" }: InstallProps = {}) {
-  const { locale } = useI18n();
-  const c = COPY[locale];
-  const stepList = steps?.length ? steps : [...c.animSteps];
-  const [animationState, setAnimationState] = useState<{ method: "quick" | "qr"; phase: number }>({ method: "quick", phase: 0 });
-  const visibleSteps = animationState.method === "quick" ? c.quickAnimSteps : stepList;
-  const handleAnimationState = useCallback((method: "quick" | "qr", phase: number) => {
-    setAnimationState((current) => current.method === method && current.phase === phase ? current : { method, phase });
-  }, []);
-  const search = (href === "/esim" ? { country: "" } : href === "/lounge" ? { iata: "" } : href === "/esim/kurulum" ? { platform: "ios", brand: "" } : undefined) as never;
-  return (
-    <section>
-      <div className="lg:hidden"><SectionTitle>{title || c.install}</SectionTitle></div>
-      <div className="lg:grid lg:min-h-[22rem] lg:grid-cols-[minmax(0,0.46fr)_minmax(0,0.54fr)] lg:items-center lg:gap-8 lg:rounded-3xl lg:bg-card lg:px-10 lg:py-6 lg:ring-1 lg:ring-border">
-        <div className="lg:flex lg:min-h-[20rem] lg:items-center lg:justify-center">{variant === "simple" ? <div className="lg:hidden"><InstallationSteps items={stepList} /></div> : <V2InstallAnimation quickSteps={c.quickAnimSteps} qrSteps={stepList} ready={ready || c.animReady} adding={adding || c.animAdding} quickLabel={c.quickLabel} quickDescription={c.quickDescription} qrLabel={c.qrLabel} qrDescription={c.qrDescription} selectorLabel={c.installMethod} quickSelectorLabel={c.quickSelector} qrSelectorLabel={c.qrSelector} onStateChange={handleAnimationState} />}</div>
-        <div className="lg:py-3">
-          <h2 className="hidden font-display text-3xl font-bold text-foreground lg:block">{title || c.install}</h2>
-          {(subtitle ?? c.installSub) && <p className="mb-3 text-xs leading-relaxed text-muted-foreground lg:mt-3 lg:text-base">{subtitle ?? c.installSub}</p>}
-          <div className="hidden lg:block"><InstallationSteps items={visibleSteps} activeStep={animationState.phase} /></div>
-          {(cta ?? c.installCta) && <Button asChild variant="outline" size="sm" className="mt-3 w-full lg:mt-6 lg:w-auto"><Link to={href} search={search}>{cta || c.installCta}<ArrowRight /></Link></Button>}
-        </div>
-      </div>
-    </section>
-  );
-}
-
-function InstallationSteps({ items, activeStep }: { items: readonly string[]; activeStep?: number }) {
-  return <ol className="mt-3 grid grid-cols-2 gap-x-3 gap-y-2 lg:mt-6 lg:grid-cols-1 lg:gap-2">{items.map((step, index) => { const active = activeStep === index; return <li key={step} className={`grid min-w-0 grid-cols-[auto_minmax(0,1fr)] items-center gap-1.5 text-[10px] leading-snug transition-colors duration-300 lg:min-h-12 lg:gap-3 lg:rounded-xl lg:px-3 lg:text-sm ${active ? "lg:bg-primary-soft lg:font-bold lg:text-foreground" : "text-muted-foreground"}`}><span className={`grid size-5 shrink-0 place-items-center rounded-full text-[9px] font-bold transition-colors duration-300 lg:size-8 lg:text-xs ${active || activeStep == null ? "bg-[var(--v2-service)] text-primary-foreground" : "bg-secondary text-muted-foreground ring-1 ring-border"}`}>{String(index + 1).padStart(2, "0")}</span><span>{step}</span></li>; })}</ol>;
+export function V2Installation({ title, subtitle, cta }: InstallProps = {}) {
+ const {locale}=useI18n();const c=COPY[locale];
+ return <section className="grid gap-3 border-y border-border py-6 lg:py-8"><SectionTitle>{title||c.install}</SectionTitle><p className="max-w-2xl text-sm leading-6 text-muted-foreground">{subtitle??c.installSub}</p><Button asChild variant="outline" className="w-fit min-h-11"><Link to="/esim/kurulum">{cta||c.installCta}<ArrowRight/></Link></Button></section>;
 }
 
 export function V2WhyTravely() {
@@ -393,7 +367,7 @@ export function V2CategorizedEsimFaq() {
                         <p>{item.answer}</p>
                         {"installationLink" in item && item.installationLink && (
                           <Button asChild variant="link" size="sm" className="mt-2 h-auto min-h-11 p-0 font-semibold text-primary">
-                            <Link to="/esim/kurulum" search={{ platform: "ios", brand: "" }}>{copy.installationCta}<ArrowRight className="size-4 rtl:rotate-180" /></Link>
+                            <Link to="/esim/kurulum" search={{}}>{copy.installationCta}<ArrowRight className="size-4 rtl:rotate-180" /></Link>
                           </Button>
                         )}
                       </AccordionContent>
