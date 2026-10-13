@@ -20,7 +20,6 @@ import { PublicShell } from "@/components/travel/PublicShell";
 import { useI18n } from "@/i18n";
 import { useOptionalServices } from "@/components/travel/ServiceAvailability";
 import { ACCOUNT_COPY } from "./copy";
-import { ACCOUNT_V1_COPY } from "./v1-copy";
 import { PURCHASE_COPY } from "./purchases-copy";
 
 export type AccountSectionKey =
@@ -118,11 +117,11 @@ export function AccountLayout({
             <div className={v2 ? "mt-4 lg:mt-6" : "mt-6"}>{children}</div>
 
             {(active === "overview" || active === "purchases") && (
-              <nav className={`account-mobile-nav mt-6 grid grid-cols-2 gap-2 ${active === 'purchases' ? 'lg:hidden' : ''}`} aria-label={copy.eyebrow}>
+              <nav className={`account-mobile-nav mt-3 grid grid-cols-2 gap-2 ${active === 'purchases' ? 'lg:hidden' : ''}`} aria-label={copy.eyebrow}>
                 {nav.filter(({key}) => !['overview','esims'].includes(key)).map(({ key, to, icon: Icon }) => (
                   <Link key={key} to={to} aria-current={key === active ? "page" : undefined} className={`account-menu-tile ${key === 'security' ? 'col-span-2' : ''}`}>
                     <span className="grid size-8 shrink-0 place-items-center rounded-full bg-primary-soft text-primary"><Icon className="size-5" /></span>
-                    <span className="min-w-0"><span className="block text-xs font-bold">{label(key)}</span><span className="mt-0.5 block text-[10px] text-muted-foreground">{(ACCOUNT_V1_COPY[locale] as Record<string,string>)[key]}</span></span>
+                    <span className="min-w-0"><span className="block text-xs font-bold">{label(key)}</span></span>
                     {key === 'security' && <ChevronRight className="ml-auto size-4 shrink-0 text-muted-foreground" />}
                   </Link>
                 ))}

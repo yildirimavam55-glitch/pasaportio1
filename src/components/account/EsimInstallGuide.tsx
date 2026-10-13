@@ -1,8 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Apple, Download, Info, Smartphone, QrCode } from "lucide-react";
+import { Apple, Download, Info, Smartphone, QrCode, Link2 } from "lucide-react";
 
 import { AccountInstallationWalkthrough } from "@/components/design-v2/EsimInstallationPage";
+import { ACCOUNT_V1_COPY } from "./v1-copy";
 import { PURCHASE_COPY } from "./purchases-copy";
 import { ACCOUNT_DEMO_COPY } from "./demo-copy";
 import { Button } from "@/components/ui/button";
@@ -50,8 +51,9 @@ export function EsimInstallGuide({
   const copy = ACCOUNT_COPY[locale];
   const [qrImage, setQrImage] = useState<string | null>(null);
   const [platform, setPlatform] = useState<"iphone" | "android">("iphone");
-  const [method, setMethod] = useState<string>(initialMethod);
+  const [method, setMethod] = useState<string>(initialMethod === "guide" ? "qr" : initialMethod);
   const pc = PURCHASE_COPY[locale];
+  const c = ACCOUNT_V1_COPY[locale];
   const note = activationNote((activationPolicy as ActivationPolicy) ?? null, locale);
 
   useEffect(() => {
@@ -86,16 +88,11 @@ export function EsimInstallGuide({
         </span>
       </p>
 
-      {!embedded && <Button variant="default" disabled className="h-auto min-h-14 w-full justify-start whitespace-normal py-3 text-left">
-        <Smartphone className="size-5 shrink-0" />
-        <span className="min-w-0 flex-1 text-sm">{pc.iphoneAuto}</span>
-        <span className="text-xs">{pc.soon}</span>
-      </Button>}
       <Tabs value={method} onValueChange={setMethod}>
         <TabsList className={`grid h-auto w-full grid-cols-3 ${embedded ? "hidden" : ""}`}>
-          <TabsTrigger value="qr" className="min-h-11 whitespace-normal text-xs">{copy.esim.qr}</TabsTrigger>
-          <TabsTrigger value="manual" className="min-h-11 whitespace-normal text-xs">{copy.guide.manual}</TabsTrigger>
-          <TabsTrigger value="guide" className="min-h-11 whitespace-normal text-xs">{copy.esim.guide}</TabsTrigger>
+          <TabsTrigger value="link" disabled className="min-h-12 flex-col gap-1 whitespace-normal text-xs"><Link2 className="size-4" /><span>{c.link} · {pc.soon}</span></TabsTrigger>
+          <TabsTrigger value="qr" className="min-h-12 flex-col gap-1 whitespace-normal text-xs"><QrCode className="size-4" />{copy.esim.qr}</TabsTrigger>
+          <TabsTrigger value="manual" className="min-h-12 flex-col gap-1 whitespace-normal text-xs"><Smartphone className="size-4" />{c.manual}</TabsTrigger>
         </TabsList>
         <TabsContent value="qr" className="pt-3">
       {demo ? <div className="mx-auto grid size-48 place-items-center rounded-lg border border-dashed border-border bg-secondary"><QrCode className="size-16 text-muted-foreground" /><span className="text-xs font-bold">DEMO</span></div> : expired ? (
@@ -118,27 +115,6 @@ export function EsimInstallGuide({
 
       {qrImage && !expired && !demo && <Button asChild variant="outline" className="mt-3 min-h-11 w-full"><a href={qrImage} download={`pasaport-esim-${esimId}.png`}><Download />{locale === "tr" ? "QR'ı indir" : locale === "de" ? "QR herunterladen" : "Download QR"}</a></Button>}
         </TabsContent>
-        <TabsContent value="guide" className="grid gap-4 pt-3">
-      <DevicePicker locale={locale} onPlatform={setPlatform} />
-      <Tabs value={platform} onValueChange={(value) => setPlatform(value as "iphone" | "android")}>
-        <TabsList className="grid w-full grid-cols-2">
-          <TabsTrigger value="iphone" className="gap-1.5">
-            <Apple className="size-4" />
-            {copy.guide.iphone}
-          </TabsTrigger>
-          <TabsTrigger value="android" className="gap-1.5">
-            <Smartphone className="size-4" />
-            {copy.guide.android}
-          </TabsTrigger>
-        </TabsList>
-        <TabsContent value="iphone">
-          <AccountInstallationWalkthrough platform="ios" />
-        </TabsContent>
-        <TabsContent value="android">
-          <AccountInstallationWalkthrough platform="android" />
-        </TabsContent>
-      </Tabs>
-        </TabsContent>
         <TabsContent value="manual" className="pt-3">
       {!expired && !demo && MANUAL_KEYS.some((key) => installString(installInfo, key)) ? (
         <section className="grid gap-2">
@@ -157,6 +133,14 @@ export function EsimInstallGuide({
         </section>
       ) : <p className="rounded-lg bg-secondary p-4 text-sm text-muted-foreground">{demo ? ACCOUNT_DEMO_COPY[locale].simulation : expired ? copy.esim.expiredQr : pc.noData}</p>}
         </TabsContent>
+      </Tabs>
+      <DevicePicker locale={locale} onPlatform={setPlatform} />
+      <Tabs value={platform} onValueChange={(value) => { if (value === "iphone" || value === "android") setPlatform(value); }}>
+        <TabsList className="grid w-full grid-cols-2">
+          <TabsTrigger value="iphone" className="gap-1.5"><Apple className="size-4" />{copy.guide.iphone}</TabsTrigger>
+          <TabsTrigger value="android" className="gap-1.5"><Smartphone className="size-4" />{copy.guide.android}</TabsTrigger>
+        </TabsList>
+        <AccountInstallationWalkthrough platform={platform === "iphone" ? "ios" : "android"} method={method === "manual" ? "manual" : "qr"} />
       </Tabs>
       {!demo && !expired && installString(installInfo, "roaming_instructions") && <p className="rounded-lg bg-secondary p-3 text-sm text-muted-foreground">{installString(installInfo, "roaming_instructions")}</p>}
     </div>

@@ -8,6 +8,14 @@ describe('account refund information',()=>{
  it('does not infer eligibility from missing activation or usage evidence',()=>{
   expect(refundPresentation('2026-10-01T10:00:00Z',new Date('2026-10-03T10:00:00Z')).verifiedEligible).toBe(false);
  });
+ it('shows 11 days left after three days without promising eligibility',()=>{
+  const result=refundPresentation('2026-10-01T10:00:00Z',new Date('2026-10-04T10:00:00Z'));
+  expect(result.daysLeft).toBe(11);
+  expect(result.verifiedEligible).toBe(false);
+ });
+ it('cannot enable a refund without a verified purchase date',()=>{
+  expect(refundPresentation(null,new Date('2026-10-04T10:00:00Z'),{windowOpen:true,canRequest:true,isDemo:false,eligibility:'LIKELY_ELIGIBLE'}).verifiedEligible).toBe(false);
+ });
  it('requires the real server verified unused and never-activated verdict',()=>{
   const state={windowOpen:true,canRequest:true,isDemo:false,eligibility:'LIKELY_ELIGIBLE'};
   expect(refundPresentation('2026-10-01T10:00:00Z',new Date('2026-10-03T10:00:00Z'),state).verifiedEligible).toBe(true);
