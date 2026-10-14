@@ -89,25 +89,22 @@ export function CentralInstallationWalkthrough({initialPlatform,initialMethod='q
   </div>
   {method==='quick'&&<div className="grid gap-2"><p className="text-sm text-muted-foreground">{platform==='android'?c.androidLink:c.linkNotice}</p><Button disabled variant="outline" className="w-fit"><Link2/>{c.soon}</Button></div>}
   {platform&&!preview&&<>
-   <div className="grid min-w-0 items-center gap-6 lg:grid-cols-[minmax(0,0.48fr)_minmax(0,0.52fr)]">
-    <div className="education-stage"><EducationalPhone platform={platform} scene={educationalScene} method={method}/>{method==='manual'&&<StepNavigation previous={c.previous} next={c.next} steps={educationalScenes.map(scene=>({label:educationTitles[scene]}))} current={step} onSelect={selectEducationStep} stepLabel={c.step}/>}<p className="text-center text-xs text-muted-foreground">{c.sample}</p></div>
-    <div className="grid min-w-0 gap-5">
-     <div className="education-progress" aria-hidden="true">{educationalScenes.map((_,i)=><span key={i} data-complete={i<=step}/>)}</div>
-     <div className="min-h-28 lg:min-h-44" aria-live={paused?'polite':'off'}><p className="mb-2 text-xs font-semibold text-primary">{c.step} {step+1} / {educationalScenes.length}</p><h2 className="font-display text-xl font-bold lg:text-2xl">{educationTitles[educationalScene]}</h2><p className="mt-3 text-sm leading-7 text-muted-foreground">{educationBodies[educationalScene]}</p></div>
-     {method!=='manual'&&<StepNavigation previous={c.previous} next={c.next} steps={educationalScenes.map(scene=>({label:educationTitles[scene]}))} current={step} onSelect={selectEducationStep} stepLabel={c.step}/>}
-     <Button variant="outline" className="mx-auto min-h-11" aria-label={paused?step===educationalScenes.length-1?e.restart:e.play:e.pause} onClick={()=>{if(step===educationalScenes.length-1)setStep(0);setPaused(value=>!value);}} disabled={reducedMotion}>{paused?<Play/>:<Pause/>}{paused?step===educationalScenes.length-1?e.restart:e.play:e.pause}</Button>
-     {method==='quick'&&platform==='android'&&<div className="grid grid-cols-2 gap-2">{(['qr','manual'] as const).map(m=><Button key={m} variant="outline" onClick={()=>{setMethod(m);setStep(0);setPaused(true);}}>{m==='qr'?c.qr:c.manual}</Button>)}</div>}
-     <p className="flex gap-2 border-t border-border pt-4 text-xs leading-6 text-muted-foreground"><Lightbulb className="size-4 shrink-0 text-primary"/>{c.wifi}</p>
-     {method==='manual'&&<p className="text-xs leading-6 text-muted-foreground">{MANUAL_OS_COPY[locale].version}</p>}
-    </div>
+   <div className="education-stage">
+    <EducationalPhone platform={platform} scene={educationalScene} method={method}/>
+    <StepNavigation previous={c.previous} next={c.next} steps={educationalScenes.map(scene=>({label:educationTitles[scene]}))} current={step} onSelect={selectEducationStep} stepLabel={c.step}/>
+    <p className="sr-only" aria-live={paused?'polite':'off'}>{c.step} {step+1} / {educationalScenes.length}: {educationTitles[educationalScene]}</p>
+    <p className="text-center text-xs text-muted-foreground">{c.sample}</p>
    </div>
+   <div className="grid min-w-0 justify-items-center gap-3">
+    <Button variant="outline" className="min-h-11" aria-label={paused?step===educationalScenes.length-1?e.restart:e.play:e.pause} onClick={()=>{if(step===educationalScenes.length-1)setStep(0);setPaused(value=>!value);}} disabled={reducedMotion}>{paused?<Play/>:<Pause/>}{paused?step===educationalScenes.length-1?e.restart:e.play:e.pause}</Button>
+    {method==='quick'&&platform==='android'&&<div className="grid grid-cols-2 gap-2">{(['qr','manual'] as const).map(m=><Button key={m} variant="outline" onClick={()=>{setMethod(m);setStep(0);setPaused(true);}}>{m==='qr'?c.qr:c.manual}</Button>)}</div>}
+   </div>
+
    {method==='qr'&&<details className="text-sm leading-6"><summary className="cursor-pointer font-semibold text-primary">{c.samePhone}</summary><p className="mt-2 text-muted-foreground">{c.samePhoneBody}</p></details>}
   </>}
   {platform&&preview&&<>
-   <div className="grid min-w-0 gap-5 lg:grid-cols-[minmax(0,0.44fr)_minmax(0,0.56fr)]">
-    <div className="grid min-w-0 justify-items-center gap-4 rounded-lg bg-secondary px-3 py-5"><GuidePhone platform={platform} scene={scene}/><p className="text-center text-xs text-muted-foreground">{c.sample}</p><StepNavigation previous={c.previous} next={c.next} steps={titles.map(label=>({label}))} current={step} onSelect={value=>{setStep(value);if(preview)setPaused(true);}} stepLabel={c.step}/>{preview&&!reducedMotion&&<Button variant="ghost" size="icon" aria-label={paused?'Play':'Pause'} title={paused?'Play':'Pause'} onClick={()=>setPaused(value=>!value)}>{paused?<Play/>:<Pause/>}</Button>}</div>
-    <div className="flex min-w-0 flex-col justify-center gap-4" aria-live="polite"><p className="text-xs font-semibold text-primary">{c.step} {step+1} / {scenes.length}</p><h2 className="font-display text-xl font-bold lg:text-2xl">{titles[step]}</h2><p className="text-sm leading-7 text-muted-foreground">{method==='quick'&&platform==='android'?c.androidLink:bodies[step]}</p><p className="flex gap-2 rounded-lg bg-secondary p-3 text-xs leading-6 text-muted-foreground"><Lightbulb className="size-4 shrink-0 text-primary"/>{c.wifi}</p></div>
-   </div>
+   <div className="grid w-full max-w-lg min-w-0 justify-items-center gap-4 justify-self-center rounded-lg bg-secondary px-3 py-5"><GuidePhone platform={platform} scene={scene}/><p className="sr-only" aria-live="polite">{c.step} {step+1} / {scenes.length}: {titles[step]}</p><p className="text-center text-xs text-muted-foreground">{c.sample}</p><StepNavigation previous={c.previous} next={c.next} steps={titles.map(label=>({label}))} current={step} onSelect={value=>{setStep(value);if(preview)setPaused(true);}} stepLabel={c.step}/>{preview&&!reducedMotion&&<Button variant="ghost" size="icon" aria-label={paused?'Play':'Pause'} title={paused?'Play':'Pause'} onClick={()=>setPaused(value=>!value)}>{paused?<Play/>:<Pause/>}</Button>}</div>
+
    {method==='qr'&&<details className="text-sm leading-6"><summary className="cursor-pointer font-semibold text-primary">{c.samePhone}</summary><p className="mt-2 text-muted-foreground">{c.samePhoneBody}</p></details>}
   </>}
   {realId&&<section className="grid gap-3 border-t border-border pt-5" data-owner-installation><h2 className="font-display text-lg font-bold">{c.dataTitle}</h2>{!signedIn?<Button asChild variant="outline"><Link to="/auth" search={{redirect:`/esim/kurulum?esimId=${realId}`}}>{c.signIn}</Link></Button>:detail.isError||activation.isError?<p className="text-sm text-muted-foreground">{c.denied}</p>:esim?<EsimInstallGuide embedded controlledMethod={method} locale={locale} esimId={esim.id} qrPayload={signedIn?activation.data?.qrPayload??null:null} installInfo={info} activationPolicy={detail.data?.coverage?.activationPolicy??null} expired={expired}/>:<p className="text-sm text-muted-foreground">{c.unavailable}</p>}</section>}
