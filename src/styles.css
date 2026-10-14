@@ -2121,10 +2121,13 @@ body:has([role="dialog"][data-state="open"]) .pasaport-mobile-reference [data-wh
  .pasaport-mobile-home .home-region-card > img { height:auto; aspect-ratio:1.8; }
  .pasaport-mobile-home .home-region-card > div { padding:6px 8px; }
 }
-/* Trim only discovery's reserved vertical tail; keep card geometry and rail engines. */
+/* Equal-height information areas keep long country names readable without a false section gap. */
 .pasaport-mobile-home .home-region-section { margin-top:28px; }
-.pasaport-mobile-home #popular + .home-rail-frame > ul { align-items:flex-start; }
-.pasaport-mobile-home #popular + .home-rail-frame > ul > li { line-height:0; }
+.pasaport-mobile-home #popular + .home-rail-frame > ul { align-items:stretch; }
+.pasaport-mobile-home #popular + .home-rail-frame > ul > li { display:flex; line-height:0; }
+.pasaport-mobile-home #popular + .home-rail-frame > ul > li > button { display:flex; flex-direction:column; }
+.pasaport-mobile-home #popular + .home-rail-frame > ul > li > button > div:first-child { width:100%; flex-shrink:0; }
+.pasaport-mobile-home #popular + .home-rail-frame > ul > li > button > div:last-child { display:flex; flex:1; flex-direction:column; justify-content:space-between; width:100%; gap:2px; }
 @media (min-width:1024px) {
  .final-hero-search { margin:22px 0 0; }
  .final-hero-compatibility { margin:20px 0 0; }
