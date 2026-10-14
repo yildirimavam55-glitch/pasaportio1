@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { Link } from '@tanstack/react-router';
 import { useQuery } from '@tanstack/react-query';
-import { Apple, ArrowLeft, Check, Lightbulb, Link2, Pause, Play, Plus, Signal, Smartphone } from 'lucide-react';
+import { Apple, ArrowLeft, Check, Link2, Pause, Play, Plus, Signal, Smartphone } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useI18n } from '@/i18n';
 import { supabase } from '@/integrations/supabase/client';
@@ -15,7 +15,6 @@ import { CENTRAL_GUIDE_COPY, METHOD_SCENES, detectedGuidePlatform, type GuidePla
 import { scheduleInstallationAdvance } from './installation-autoplay';
 import { EDUCATION_COPY, EDUCATION_FLOWS, educationScene } from './educational-installation';
 import { EducationalPhone } from './EducationalPhone';
-import { MANUAL_OS_COPY } from './manual-phone-content';
 import { MANUAL_EMAIL_COPY } from './manual-email-content';
 
 function PhoneRow({label,right,active=false}:{label:string;right?:ReactNode;active?:boolean}) {
@@ -72,15 +71,12 @@ export function CentralInstallationWalkthrough({initialPlatform,initialMethod='q
  const info=signedIn?activation.data?.installInfo:null;
  const scenes=METHOD_SCENES[method];
  const titles=method==='quick'?c.quickTitles:method==='qr'?c.qrTitles:c.manualTitles;
- const bodies=method==='quick'?c.quickBodies:method==='qr'?platform==='android'?c.qrAndroid:c.qrIos:platform==='android'?c.manualAndroid:c.manualIos;
  const scene=scenes[step]??scenes[0]??'settings';
  const educationalScene=educationScene(platform??'ios',method,step);
  const educationalScenes=EDUCATION_FLOWS[platform??'ios'][method];
  const mail=MANUAL_EMAIL_COPY[locale];
  const emailTitles={'email-inbox':mail.inbox,email:mail.subject,'email-copy-lpa':mail.copyLpa,'email-copied-lpa':mail.copied,'email-copy-address':mail.copyAddress,'email-copied-address':mail.copied,'switch-settings':mail.settings,'address-pasted':c.address,'email-return':mail.mail,'email-copy-code':mail.copyCode,'email-copied-code':mail.copied,'return-manual':e.manual};
- const emailBodies={'email-inbox':mail.inboxBody,email:mail.emailBody,'email-copy-lpa':mail.copyLpaBody,'email-copied-lpa':mail.copiedLpaBody,'email-copy-address':mail.copyAddressBody,'email-copied-address':mail.copiedAddressBody,'switch-settings':mail.switchBody,'address-pasted':mail.addressBody,'email-return':mail.returnEmailBody,'email-copy-code':mail.copyCodeBody,'email-copied-code':mail.copiedCodeBody,'return-manual':mail.returnSettingsBody};
  const educationTitles={...emailTitles,settings:c.settings,connections:e.connections,sims:e.sims,cellular:e.cellular,add:c.add,scanner:e.scan,manual:platform==='android'?e.enterCode:e.manual,lpa:e.paste,details:e.manual,review:e.confirm,installed:e.installed,link:e.browser,unsupported:e.unsupported,alternatives:e.alternatives};
- const educationBodies={...emailBodies,settings:e.settingsBody,connections:e.connectionsBody,sims:e.simsBody,cellular:e.cellularBody,add:e.addBody,scanner:e.scannerBody,manual:platform==='android'?e.manualBodyAndroid:e.manualBodyIos,lpa:e.lpaBody,details:method==='manual'?mail.detailsBody:e.detailsBody,review:e.reviewBody,installed:e.installedBody,link:e.linkBody,unsupported:e.unsupportedBody,alternatives:e.alternativesBody};
  const selectEducationStep=(value:number)=>{setStep(value);setPaused(true);};
  return <div ref={root} data-guide-preview={preview} data-central-installation data-guide-platform={platform??'unknown'} data-guide-method={method} data-playing={!paused&&!reducedMotion} className={`grid min-w-0 gap-6 ${preview?'':'education-walkthrough'}`}>
   <div className="grid gap-3 sm:max-w-xl">
