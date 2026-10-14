@@ -2109,7 +2109,7 @@ body:has([role="dialog"][data-state="open"]) .pasaport-mobile-reference [data-wh
 .final-trust-band .final-trust-icon svg { width:24px; height:24px; stroke-width:1.65; }
 .final-trust-band .final-trust-item { gap:8px; padding:2px 4px; min-height:82px; justify-content:flex-start; cursor:default; }
 .final-trust-band strong { font-size:11px; font-weight:650; line-height:1.35; overflow-wrap:anywhere; }
-.final-trust-band small { display:block; margin-top:4px; font-size:10px; line-height:1.35; color:var(--muted-foreground); overflow-wrap:anywhere; text-wrap:balance; }
+.final-trust-band small { display:none; margin-top:4px; font-size:10px; line-height:1.35; color:var(--muted-foreground); overflow-wrap:anywhere; text-wrap:balance; }
 .final-trust-band[data-trust-entered="true"] li .final-trust-icon svg { animation:trust-icon-settle 650ms ease-out 1; }
 .final-trust-band[data-trust-entered="true"] li[data-trust-kind="refund"] svg { animation-name:trust-check-settle; animation-delay:90ms; }
 .final-trust-band[data-trust-entered="true"] li[data-trust-kind="setup"] svg { animation-name:trust-check-settle; animation-delay:170ms; }
@@ -2120,10 +2120,9 @@ body:has([role="dialog"][data-state="open"]) .pasaport-mobile-reference [data-wh
 @keyframes trust-lightning-settle { 0%,100% {transform:translateY(0);} 40% {transform:translateY(-3px);} 70% {transform:translateY(1px);} }
 @media(prefers-reduced-motion:reduce) { .final-trust-band[data-trust-entered] li .final-trust-icon svg {animation:none;} }
 /* Trim only discovery's reserved vertical tail; keep card geometry and rail engines. */
-.pasaport-mobile-home #popular + .home-rail-frame { padding-bottom:0; }
-.pasaport-mobile-home .reveal-item:has(> #popular) { padding-bottom:0; }
 .pasaport-mobile-home .home-region-section { margin-top:28px; }
-.pasaport-mobile-home #popular + .home-rail-frame > ul { padding-bottom:4px; }
+.pasaport-mobile-home #popular + .home-rail-frame > ul { align-items:flex-start; }
+.pasaport-mobile-home #popular + .home-rail-frame > ul > li { line-height:0; }
 @media (min-width:1024px) {
  .final-hero-search { margin:22px 0 0; }
  .final-hero-compatibility { margin:20px 0 0; }
@@ -2132,7 +2131,7 @@ body:has([role="dialog"][data-state="open"]) .pasaport-mobile-reference [data-wh
  .final-trust-icon { width:48px; height:48px; }
  .final-trust-band .final-trust-item { flex-direction:row; align-items:center; justify-content:flex-start; min-height:60px; gap:14px; padding:0 18px; text-align:start; }
  .final-trust-band strong { font-size:14px; }
- .final-trust-band small { font-size:12px; }
+ .final-trust-band small { display:block; font-size:12px; }
  .pasaport-mobile-home .home-region-section { margin-top:32px; }
 }
 @media (min-width:1024px) { .pasaport-mobile-home #popular { margin-top:36px; } }
