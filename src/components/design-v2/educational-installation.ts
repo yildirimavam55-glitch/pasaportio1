@@ -1,16 +1,16 @@
 import { localize } from '@/i18n/overlay';
 import type { GuideMethod, GuidePlatform } from './central-installation-content';
 
-export type EducationScene = 'settings' | 'connections' | 'sims' | 'cellular' | 'add' | 'scanner' | 'manual' | 'lpa' | 'details' | 'review' | 'installed' | 'link' | 'unsupported' | 'alternatives';
+export type EducationScene = 'email-inbox' | 'email' | 'email-copy-lpa' | 'email-copied-lpa' | 'email-copy-address' | 'email-copied-address' | 'switch-settings' | 'address-pasted' | 'email-return' | 'email-copy-code' | 'email-copied-code' | 'return-manual' | 'settings' | 'connections' | 'sims' | 'cellular' | 'add' | 'scanner' | 'manual' | 'lpa' | 'details' | 'review' | 'installed' | 'link' | 'unsupported' | 'alternatives';
 /** Education only: no URL, QR payload or provider credential belongs in this registry. */
 export const EDUCATION_FLOWS: Record<GuidePlatform, Record<GuideMethod, readonly EducationScene[]>> = {
  android: {
-  manual: ['settings', 'connections', 'sims', 'add', 'manual', 'lpa', 'review', 'installed'],
+  manual: ['email-inbox', 'email', 'email-copy-lpa', 'email-copied-lpa', 'switch-settings', 'settings', 'connections', 'sims', 'add', 'manual', 'lpa', 'review', 'installed'],
   qr: ['settings', 'connections', 'sims', 'add', 'scanner', 'review', 'installed'],
   quick: ['unsupported', 'alternatives'],
  },
  ios: {
-  manual: ['settings', 'cellular', 'add', 'scanner', 'manual', 'details', 'review', 'installed'],
+  manual: ['email-inbox', 'email', 'email-copy-address', 'email-copied-address', 'switch-settings', 'settings', 'cellular', 'add', 'scanner', 'manual', 'address-pasted', 'email-return', 'email-copy-code', 'email-copied-code', 'return-manual', 'details', 'review', 'installed'],
   qr: ['settings', 'cellular', 'add', 'scanner', 'review', 'installed'],
   quick: ['link', 'add', 'review', 'installed'],
  },
