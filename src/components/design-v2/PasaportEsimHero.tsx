@@ -10,6 +10,7 @@ import { trustBandItems } from "./hero-trust-band";
 import { useWhatsAppHref } from "@/components/travel/WhatsAppSupportWidget";
 import coast from "@/assets/pasaport-antenna-coast.png.asset.json";
 import { AntennaSignal } from "./AntennaSignal";
+import { useTrustIconEntry } from "./use-trust-icon-entry";
 
 const COPY = localize({
  tr: { title: "Seyahatte internetin hazır.", subtitle: "190+ ülkede eSIM ile bağlantıda kal.", delivery: "Hızlı teslimat", setup: "Kolay kurulum", payment: "Ödeme bilgileri", support: "WhatsApp destek", deliveryInfo: "eSIM teslim bilgileri", setupInfo: "Adım adım kurulum", paymentInfo: "Ödeme seçeneklerini incele", supportInfo: "Kurulum için yardım" },
@@ -41,5 +42,6 @@ export function PasaportEsimHero({ section, image, benefits, children }: { secti
 export function PasaportMobileBenefits({ section }: { section?: V2Section | undefined }) {
  const { locale } = useI18n();
  const items = trustBandItems(section, locale, useWhatsAppHref());
- return <ul className="final-trust-band">{items.map(({ id, icon, label, description }) => <li key={id}><div className="final-trust-item"><span aria-hidden="true" className="final-trust-icon"><StorefrontIcon name={icon} /></span><span><strong>{label}</strong><small>{description}</small></span></div></li>)}</ul>;
+ const { ref, entered } = useTrustIconEntry();
+ return <ul ref={ref} className="final-trust-band" data-trust-entered={entered}>{items.map(({ id, icon, label, description }) => <li key={id} data-trust-kind={id}><div className="final-trust-item"><span aria-hidden="true" className="final-trust-icon"><StorefrontIcon name={icon} /></span><span><strong>{label}</strong>{id !== "refund" && <small>{description}</small>}</span></div></li>)}</ul>;
 }

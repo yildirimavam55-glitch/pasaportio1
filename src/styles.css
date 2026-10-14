@@ -2103,19 +2103,37 @@ body:has([role="dialog"][data-state="open"]) .pasaport-mobile-reference [data-wh
 .final-hero-compatibility { margin:24px 16px 0; }
 .pasaport-final-hero .hero-device-selectors { grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; }
 .pasaport-final-hero .hero-device-selectors button,.pasaport-final-hero .hero-device-selectors select { height:52px; border:1px solid color-mix(in oklab,var(--foreground) 16%,transparent); border-radius:10px; padding-inline:12px; background:var(--card); color:var(--foreground); opacity:1; }
-.final-trust-band { --trust-mint:oklch(.955 .03 165); margin:20px 0 0; padding:14px 4px; border-radius:18px; background:var(--trust-mint); list-style:none; }
-.final-trust-band li { border-inline-end-color:oklch(.86 .04 165); }
-.final-trust-icon { display:grid; place-items:center; width:40px; height:40px; border-radius:999px; background:oklch(.9 .05 165); color:var(--primary); }
-.final-trust-band .final-trust-icon svg { width:22px; height:22px; }
-.final-trust-band .final-trust-item { gap:8px; cursor:default; }
-.final-trust-band strong { font-size:12px; }
+.final-trust-band { margin:16px 0 0; padding:12px 4px; border-radius:18px; background:var(--card); border:1px solid var(--border); box-shadow:var(--shadow-sm); list-style:none; }
+.final-trust-band li { border-inline-end-color:var(--border); }
+.final-trust-icon { display:grid; place-items:center; width:40px; height:40px; flex-shrink:0; border-radius:999px; background:var(--primary-soft); color:var(--primary); }
+.final-trust-band .final-trust-icon svg { width:24px; height:24px; stroke-width:1.65; }
+.final-trust-band .final-trust-item { gap:8px; padding:2px 4px; min-height:82px; justify-content:flex-start; cursor:default; }
+.final-trust-band strong { font-size:11px; font-weight:650; line-height:1.35; overflow-wrap:anywhere; }
+.final-trust-band small { display:block; margin-top:4px; font-size:10px; line-height:1.35; color:var(--muted-foreground); overflow-wrap:anywhere; text-wrap:balance; }
+.final-trust-band[data-trust-entered="true"] li .final-trust-icon svg { animation:trust-icon-settle 650ms ease-out 1; }
+.final-trust-band[data-trust-entered="true"] li[data-trust-kind="refund"] svg { animation-name:trust-check-settle; animation-delay:90ms; }
+.final-trust-band[data-trust-entered="true"] li[data-trust-kind="setup"] svg { animation-name:trust-check-settle; animation-delay:170ms; }
+.final-trust-band[data-trust-entered="true"] li[data-trust-kind="support"] svg { animation-delay:240ms; }
+.final-trust-band[data-trust-entered="true"] li[data-trust-kind="delivery"] svg { animation-name:trust-lightning-settle; }
+@keyframes trust-icon-settle { 0%,100% {transform:rotate(0);} 35% {transform:rotate(-7deg);} 65% {transform:rotate(3deg);} }
+@keyframes trust-check-settle { 0%,100% {transform:scale(1);} 45% {transform:scale(1.1);} }
+@keyframes trust-lightning-settle { 0%,100% {transform:translateY(0);} 40% {transform:translateY(-3px);} 70% {transform:translateY(1px);} }
+@media(prefers-reduced-motion:reduce) { .final-trust-band[data-trust-entered] li .final-trust-icon svg {animation:none;} }
+/* Trim only discovery's reserved vertical tail; keep card geometry and rail engines. */
+.pasaport-mobile-home #popular + .home-rail-frame { padding-bottom:0; }
+.pasaport-mobile-home .reveal-item:has(> #popular) { padding-bottom:0; }
+.pasaport-mobile-home .home-region-section { margin-top:28px; }
+.pasaport-mobile-home #popular + .home-rail-frame > ul { padding-bottom:4px; }
 @media (min-width:1024px) {
  .final-hero-search { margin:22px 0 0; }
  .final-hero-compatibility { margin:20px 0 0; }
  .pasaport-final-hero .hero-device-selectors { grid-template-columns:repeat(2,minmax(0,1fr)); }
- .final-trust-band { margin:28px auto 0; max-width:1200px; padding:18px 8px; border:0; }
- .final-trust-icon { width:44px; height:44px; }
+ .final-trust-band { margin:16px auto 0; max-width:1200px; padding:18px 12px; }
+ .final-trust-icon { width:48px; height:48px; }
+ .final-trust-band .final-trust-item { flex-direction:row; align-items:center; justify-content:flex-start; min-height:60px; gap:14px; padding:0 18px; text-align:start; }
  .final-trust-band strong { font-size:14px; }
+ .final-trust-band small { font-size:12px; }
+ .pasaport-mobile-home .home-region-section { margin-top:32px; }
 }
 @media (min-width:1024px) { .pasaport-mobile-home #popular { margin-top:36px; } }
 
