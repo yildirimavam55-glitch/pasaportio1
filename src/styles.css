@@ -2130,6 +2130,7 @@ body:has([role="dialog"][data-state="open"]) .pasaport-mobile-reference [data-wh
 .pasaport-mobile-home #popular + .home-rail-frame > ul > li > button > div:first-child { width:100%; flex-shrink:0; }
 .pasaport-mobile-home #popular + .home-rail-frame > ul > li > button > div:last-child { display:flex; flex:1; flex-direction:column; width:100%; }
 }
+@media (max-width:360px) { .pasaport-mobile-home .home-region-section { margin-top:14px; } }
 @media (min-width:1024px) {
  .final-hero-search { margin:22px 0 0; }
  .final-hero-compatibility { margin:20px 0 0; }
@@ -2140,6 +2141,8 @@ body:has([role="dialog"][data-state="open"]) .pasaport-mobile-reference [data-wh
  .final-trust-band strong { font-size:14px; }
  .final-trust-band small { display:block; font-size:12px; }
  .pasaport-mobile-home .home-region-section { margin-top:32px; }
+ .pasaport-mobile-home #popular + .home-rail-frame > ul { align-items:flex-start; }
+ .pasaport-mobile-home #popular + .home-rail-frame > ul > li { line-height:0; }
 }
 @media (min-width:1024px) { .pasaport-mobile-home #popular { margin-top:36px; } }
 
