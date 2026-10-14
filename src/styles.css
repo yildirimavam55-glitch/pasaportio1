@@ -2108,7 +2108,7 @@ body:has([role="dialog"][data-state="open"]) .pasaport-mobile-reference [data-wh
 .final-trust-icon { display:grid; place-items:center; width:40px; height:40px; flex-shrink:0; border-radius:999px; background:var(--primary-soft); color:var(--primary); }
 .final-trust-band .final-trust-icon svg { width:24px; height:24px; stroke-width:1.65; }
 .final-trust-band .final-trust-item { gap:8px; padding:2px 4px; min-height:82px; justify-content:flex-start; cursor:default; }
-.final-trust-band strong { font-size:11px; font-weight:650; line-height:1.35; overflow-wrap:anywhere; }
+.final-trust-band strong { color:var(--primary); font-size:11px; font-weight:650; line-height:1.35; overflow-wrap:anywhere; }
 .final-trust-band small { display:none; margin-top:4px; font-size:10px; line-height:1.35; color:var(--muted-foreground); overflow-wrap:anywhere; text-wrap:balance; }
 .final-trust-band[data-trust-entered="true"] li .final-trust-icon svg { animation:trust-icon-settle 650ms ease-out 1; }
 .final-trust-band[data-trust-entered="true"] li[data-trust-kind="refund"] svg { animation-name:trust-check-settle; animation-delay:90ms; }
