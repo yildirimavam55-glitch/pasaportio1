@@ -13,5 +13,14 @@ export function reviewAutoplay(s: { enough: boolean; paused: boolean; hover: boo
 // Owner-approved test demo: the published lovable.app site also shows labelled sample ratings/payment logos (no provider connected).
 export const PUBLIC_DEMO_HOSTS: string[] = [];
 export function trustPreviewHost(host: string) { return isPreviewHost(host) || /^preview--[a-z0-9-]+\.lovable\.app$/i.test(host) || PUBLIC_DEMO_HOSTS.includes(host.toLowerCase()); }
-export const PREVIEW_COMPARISON = [{kind:'roaming',price:24.99,currency:'EUR'},{kind:'other',price:17.99,currency:'EUR'},{kind:'pasaport',price:12.99,currency:'EUR'}] as const;
-export function comparisonForPresentation(verified: ComparisonEntry[] | null, preview: boolean) { return verified ?? (preview ? PREVIEW_COMPARISON : null); }
+/**
+ * Owner-requested researched example (Türkiye · 20 GB), shown on every host with its sources and check dates.
+ * Validity differs for roaming (closest public Telekom pass is 14 days), so it is labelled an example, never a verified offer.
+ */
+export type ResearchedEntry = ComparisonEntry & { validityDays: number; destinationIso: string };
+export const RESEARCHED_COMPARISON: readonly ResearchedEntry[] = [
+  { kind: 'roaming', price: 29.95, currency: 'EUR', destination: 'TR', destinationIso: 'TR', allowance: '20 GB', validity: '14', validityDays: 14, provider: 'Telekom Travel & Surf · 2-WeekPass Türkei', sourceUrl: 'https://www.telekom.com/de/newsroom/aktuelles/medieninformationen/2025/02/mit-1-gb-weltweit-gratis-surfen-und-datenpaesse-mit-mehr-volumen', checkedAt: '2026-10-14' },
+  { kind: 'other', price: 20.5, currency: 'EUR', destination: 'TR', destinationIso: 'TR', allowance: '20 GB', validity: '30', validityDays: 30, provider: 'Airalo', sourceUrl: 'https://www.airalo.com/turkey-esim', checkedAt: '2026-10-05' },
+  { kind: 'pasaport', price: 19.99, currency: 'EUR', destination: 'TR', destinationIso: 'TR', allowance: '20 GB', validity: '30', validityDays: 30, provider: 'Pasaport.io', sourceUrl: 'https://pasaportio1.lovable.app/esim', checkedAt: '2026-10-14' },
+];
+export function comparisonForPresentation(verified: ComparisonEntry[] | null): readonly (ComparisonEntry & Partial<ResearchedEntry>)[] { return verified ?? RESEARCHED_COMPARISON; }

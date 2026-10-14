@@ -16,11 +16,11 @@ describe("trust evidence gates",()=>{
  it("does not classify the published site as preview",()=>expect(trustPreviewHost("pasaport2.lovable.app")).toBe(false));
  it.each(['localhost','127.0.0.1','id-preview--650631d3-fa00-4c84-b30e-e472947470da.lovable.app','preview--650631d3-fa00-4c84-b30e-e472947470da.lovable.app','project-dev.lovable.app','project.lovableproject.com'])('recognizes the isolated preview host %s',host=>expect(trustPreviewHost(host)).toBe(true));
  it('rejects a spoofed preview hostname',()=>expect(trustPreviewHost('id-preview--fake.example.com')).toBe(false));
- it('completes missing preview prices with the three owner-approved examples',()=>expect(comparisonForPresentation(null,true)?.map(e=>e.price)).toEqual([24.99,17.99,12.99]));
- it('scales the owner-approved examples against roaming',()=>expect(comparisonScale([24.99,17.99,12.99])).toEqual([1,17.99/24.99,12.99/24.99]));
+ it('falls back to the researched Türkiye 20 GB example: Telekom 29.95, Airalo 20.50, Pasaport 19.99',()=>expect(comparisonForPresentation(null).map(e=>[e.kind,e.price])).toEqual([['roaming',29.95],['other',20.5],['pasaport',19.99]]));
+ it('every researched example carries an https source and a check date',()=>expect(comparisonForPresentation(null).every(e=>/^https:\/\//.test(e.sourceUrl)&&Number.isFinite(Date.parse(e.checkedAt)))).toBe(true));
+ it('scales the researched example against roaming',()=>expect(comparisonScale([29.95,20.5,19.99])).toEqual([1,20.5/29.95,19.99/29.95]));
  it('does not classify the current published site as preview',()=>expect(trustPreviewHost('pasaportio1.lovable.app')).toBe(false));
- it('does not render preview prices on the public site',()=>expect(comparisonForPresentation(null,false)).toBeNull());
- it('retains approved genuine figures in preview',()=>expect(comparisonForPresentation(rows,true)).toBe(rows));
+ it('prefers approved genuine figures over the researched example',()=>expect(comparisonForPresentation(rows)).toBe(rows));
  const play={enough:true,paused:false,hover:false,focused:false,visible:true,tab:true,reduced:false};
  it("allows eligible autoplay",()=>expect(reviewAutoplay(play)).toBe(true));
  it.each(["paused","hover","focused","reduced"] as const)("stops when %s",key=>expect(reviewAutoplay({...play,[key]:true})).toBe(false));
