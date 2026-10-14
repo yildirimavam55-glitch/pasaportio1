@@ -2287,6 +2287,8 @@ body:has([role="dialog"][data-state="open"]) [data-action-dock] { display: none;
 .os-row-target { background:var(--os-touch); }
 .os-toggle { display:block; flex:none; height:18px; width:32px; border-radius:12px; background:var(--os-accent); padding:2px; }
 .os-toggle::after { content:""; display:block; height:14px; width:14px; background:var(--os-cell); border-radius:50%; margin-inline-start:auto; }
+.os-toggle[data-on="false"] { background:var(--os-line); }
+.os-toggle[data-on="false"]::after { margin-inline-start:0; }
 .os-account { display:flex; align-items:center; gap:10px; margin:0 10px 16px; padding:16px 12px; background:var(--os-cell); border-radius:15px; font-size:16px; }
 .os-account > div { flex:1; }
 .os-account small { display:block; font-size:10px; color:var(--os-muted); margin-top:4px; }
@@ -2320,7 +2322,7 @@ body:has([role="dialog"][data-state="open"]) [data-action-dock] { display: none;
 .os-camera { width:190px; height:185px; display:grid; place-items:center; position:relative; margin:20px auto 35px; border:1px solid var(--os-line); border-radius:10px; overflow:hidden; background:var(--os-cell); }
 .os-camera .installation-qr { width:125px; height:125px; }
 .os-ios { --os-accent:#007aff; }
-.os-ios .os-nav { display:grid; grid-template-columns:52px minmax(0,1fr) 38px; padding-inline:8px; gap:2px; min-height:58px; }
+.os-ios .os-nav { display:grid; grid-template-columns:22px minmax(0,1fr) 38px; padding-inline:8px; gap:2px; min-height:58px; }
 .os-ios .os-nav h3 { font-size:13px; text-align:center; }
 .os-ios .os-back { color:var(--os-accent); gap:0; }
 .os-ios .os-nav-root { display:flex; padding:16px 18px 9px; }
@@ -2332,7 +2334,7 @@ body:has([role="dialog"][data-state="open"]) [data-action-dock] { display: none;
 .os-ios .os-row-icon:empty { display:none; }
 .os-ios .os-row:has(.os-row-icon:not(:empty))+.os-row::before { inset-inline-start:44px; }
 .os-ios .os-toggle { background:var(--primary); }
-.os-ios-field { padding:12px; border-bottom:1px solid var(--os-line); }
+.os-ios-field { padding:9px 12px; border-bottom:1px solid var(--os-line); }
 .os-ios-field:last-child { border-bottom:0; }
 .os-ios-field label { display:block; font-size:11px; margin-bottom:7px; }
 .os-ios-field > span { display:block; min-height:16px; font-size:11px; color:var(--os-muted); }
