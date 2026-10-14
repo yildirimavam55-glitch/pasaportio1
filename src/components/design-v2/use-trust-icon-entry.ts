@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from "react";
 import { usePublishedTheme } from "@/components/PublishedTheme";
-import { observeViewport } from "@/components/travel/viewport-observer";
 
 /** Decorative only: the row stays visible even before hydration or without motion. */
 export function useTrustIconEntry() {
@@ -13,13 +12,18 @@ export function useTrustIconEntry() {
     if (!node || seen.current || !enabled) return;
     const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
     if (mq.matches) { seen.current = true; return; }
-    const stop = observeViewport(node, 0, () => {
+    const show = () => {
       seen.current = true;
       setEntered(true);
-    });
-    const motion = () => { if (mq.matches) { stop(); seen.current = true; setEntered(false); } };
+    };
+    if (typeof IntersectionObserver === "undefined") { show(); return; }
+    const observer = new IntersectionObserver((entries) => {
+      if (entries.some((entry) => entry.isIntersecting)) { show(); observer.disconnect(); }
+    }, { threshold: 0 });
+    observer.observe(node);
+    const motion = () => { if (mq.matches) { observer.disconnect(); seen.current = true; setEntered(false); } };
     mq.addEventListener("change", motion);
-    return () => { stop(); mq.removeEventListener("change", motion); };
+    return () => { observer.disconnect(); mq.removeEventListener("change", motion); };
   }, [enabled]);
   return { ref, entered: enabled && entered };
 }
