@@ -2,7 +2,7 @@
 
 - The homepage worldwide banner uses approved bundled responsive travel still-life crops through WorldwideBannerPhoto, while its existing REGION_DISCOVERY catalogue row, dimensions and destination remain shared — why: replace only the photo without carrying old-photo crop settings into new artwork or changing commerce.
 
-- Installation education shares CentralInstallationWalkthrough: homepage embeds a credential-free autoplay preview, while account/detail/delivery actions use the user-controlled central route; APN requires provider data — why: visible homepage education without a second animation system or unsafe reads.
+- Installation education shares CentralInstallationWalkthrough and InstallationExperience primitives: preserve the homepage preview while central platform-specific scene registries feed credential-free EducationalPhone screens, with optional playback and owner data outside the phone; APN requires provider data — why: one reusable educational system without homepage or credential regressions.
 
 - Homepage trust and review content lives in the existing V2 CMS document; public reads require both verified and published review flags so unapproved customer content stays private.
 - Fictional editorial review fixtures and inactive payment visuals render only in the V2 CMS preview iframe; public V2 reads strip editorial/demo reviews and never imply unavailable payment methods are active.
