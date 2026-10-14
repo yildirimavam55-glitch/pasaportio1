@@ -1,15 +1,17 @@
 import { Bluetooth, Check, ChevronRight, Globe, Link2, Plane, QrCode, Search, Settings, ShieldCheck, Signal, Smartphone, Wifi } from 'lucide-react';
 import type { ReactNode } from 'react';
 import { useI18n } from '@/i18n';
-import { CENTRAL_GUIDE_COPY, type GuidePlatform } from './central-installation-content';
+import { CENTRAL_GUIDE_COPY, type GuideMethod, type GuidePlatform } from './central-installation-content';
+import { ManualPhoneScreen } from './ManualPhoneScreens';
 import { EDUCATION_COPY, type EducationScene } from './educational-installation';
 import { DecorativeQr, InstallationPhone, InstallationSuccess, TapIndicator } from './InstallationExperience';
 
 /** Only scene IDs enter this phone. Real install data must stay outside it. */
-export function EducationalPhone({ platform, scene }: { platform: GuidePlatform; scene: EducationScene }) {
+export function EducationalPhone({ platform, scene, method }: { platform: GuidePlatform; scene: EducationScene; method?: GuideMethod }) {
  const { locale } = useI18n();
  const c = CENTRAL_GUIDE_COPY[locale]; const e = EDUCATION_COPY[locale];
  const android = platform === 'android';
+  if (method === 'manual') return <InstallationPhone android={android} phase={`${platform}-${scene}`}><ManualPhoneScreen platform={platform} scene={scene}/></InstallationPhone>;
  const row = (label: string, icon: ReactNode, active = false, detail?: string) => <div className={`education-menu-row ${active ? 'education-menu-active' : ''}`}><span className="education-menu-icon">{icon}</span><span>{label}{detail && <small>{detail}</small>}</span><ChevronRight className="size-3 shrink-0"/>{active && <TapIndicator className="end-4 bottom-0"/>}</div>;
  const field = (label: string) => <div className="education-field"><span>{label}</span><div>••••••••</div></div>;
  const title = scene === 'settings' ? c.settings : scene === 'connections' ? e.connections : scene === 'sims' ? e.sims : scene === 'cellular' ? e.cellular : scene === 'manual' ? android ? e.enterCode : e.manual : scene === 'lpa' ? e.enterCode : scene === 'details' ? e.manual : scene === 'scanner' ? c.scan : scene === 'installed' ? e.installed : scene === 'link' ? e.browser : scene === 'unsupported' ? e.unsupported : scene === 'alternatives' ? e.alternatives : c.add;

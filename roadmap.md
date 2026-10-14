@@ -1,5 +1,7 @@
 # Roadmap — Phase 5
 
+- [x] Rebuild central manual phone interiors as distinct original Samsung/iOS settings screens; five requested 390px screenshots visually inspected, 32 manual step states at 390/1440, 12 TR/EN/AR small-screen checks and 24 unit tests passed; build OK, sources/report delivered. Homepage, credentials and backend preserved; no publish. QR/link redesign remains deferred pending the user's visual approval; complete 14-language translation and real-device installation are not verified.
+
 - [x] Upgrade central educational guide: six platform/method flows, playback, safe phone scenes and troubleshooting; 21 tests, 12 browser flow scenarios/70 step selections at 390/1440, playback/pause/cancellation and reduced motion verified; 14-locale overflow checked (new non-TR/DE/EN strings may fall back to English). Screenshots/report shared; homepage preview branch and owner reads preserved, no publish. Real install/account-credential end-to-end not tested.
 
 - [x] Compact below-hero trust with fully static icons and earlier mobile country names/prices; Hero dimensions and markup preserved, mobile visual discovery gap 32px; six widths, arrows, touch swipe, country selection and screenshots checked, 38 existing tests passed. Short screens cannot show every price in the first viewport. UI only, no publish.

@@ -15,6 +15,7 @@ import { CENTRAL_GUIDE_COPY, METHOD_SCENES, detectedGuidePlatform, type GuidePla
 import { scheduleInstallationAdvance } from './installation-autoplay';
 import { EDUCATION_COPY, EDUCATION_FLOWS, educationScene } from './educational-installation';
 import { EducationalPhone } from './EducationalPhone';
+import { MANUAL_OS_COPY } from './manual-phone-content';
 
 function PhoneRow({label,right,active=false}:{label:string;right?:ReactNode;active?:boolean}) {
  return <div className={`installation-row ${active?'bg-primary-soft text-primary':'text-foreground'}`}><span>{label}</span>{right}</div>;
@@ -85,14 +86,15 @@ export function CentralInstallationWalkthrough({initialPlatform,initialMethod='q
   {method==='quick'&&<div className="grid gap-2"><p className="text-sm text-muted-foreground">{platform==='android'?c.androidLink:c.linkNotice}</p><Button disabled variant="outline" className="w-fit"><Link2/>{c.soon}</Button></div>}
   {platform&&!preview&&<>
    <div className="grid min-w-0 items-center gap-6 lg:grid-cols-[minmax(0,0.48fr)_minmax(0,0.52fr)]">
-    <div className="education-stage"><EducationalPhone platform={platform} scene={educationalScene}/><p className="text-center text-xs text-muted-foreground">{c.sample}</p></div>
+    <div className="education-stage"><EducationalPhone platform={platform} scene={educationalScene} method={method}/>{method==='manual'&&<StepNavigation previous={c.previous} next={c.next} steps={educationalScenes.map(scene=>({label:educationTitles[scene]}))} current={step} onSelect={selectEducationStep} stepLabel={c.step}/>}<p className="text-center text-xs text-muted-foreground">{c.sample}</p></div>
     <div className="grid min-w-0 gap-5">
      <div className="education-progress" aria-hidden="true">{educationalScenes.map((_,i)=><span key={i} data-complete={i<=step}/>)}</div>
      <div className="min-h-28 lg:min-h-44" aria-live={paused?'polite':'off'}><p className="mb-2 text-xs font-semibold text-primary">{c.step} {step+1} / {educationalScenes.length}</p><h2 className="font-display text-xl font-bold lg:text-2xl">{educationTitles[educationalScene]}</h2><p className="mt-3 text-sm leading-7 text-muted-foreground">{educationBodies[educationalScene]}</p></div>
-     <StepNavigation previous={c.previous} next={c.next} steps={educationalScenes.map(scene=>({label:educationTitles[scene]}))} current={step} onSelect={selectEducationStep} stepLabel={c.step}/>
+     {method!=='manual'&&<StepNavigation previous={c.previous} next={c.next} steps={educationalScenes.map(scene=>({label:educationTitles[scene]}))} current={step} onSelect={selectEducationStep} stepLabel={c.step}/>}
      <Button variant="outline" className="mx-auto min-h-11" aria-label={paused?step===educationalScenes.length-1?e.restart:e.play:e.pause} onClick={()=>{if(step===educationalScenes.length-1)setStep(0);setPaused(value=>!value);}} disabled={reducedMotion}>{paused?<Play/>:<Pause/>}{paused?step===educationalScenes.length-1?e.restart:e.play:e.pause}</Button>
      {method==='quick'&&platform==='android'&&<div className="grid grid-cols-2 gap-2">{(['qr','manual'] as const).map(m=><Button key={m} variant="outline" onClick={()=>{setMethod(m);setStep(0);setPaused(true);}}>{m==='qr'?c.qr:c.manual}</Button>)}</div>}
      <p className="flex gap-2 border-t border-border pt-4 text-xs leading-6 text-muted-foreground"><Lightbulb className="size-4 shrink-0 text-primary"/>{c.wifi}</p>
+     {method==='manual'&&<p className="text-xs leading-6 text-muted-foreground">{MANUAL_OS_COPY[locale].version}</p>}
     </div>
    </div>
    {method==='qr'&&<details className="text-sm leading-6"><summary className="cursor-pointer font-semibold text-primary">{c.samePhone}</summary><p className="mt-2 text-muted-foreground">{c.samePhoneBody}</p></details>}
