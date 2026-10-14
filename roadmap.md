@@ -1,5 +1,7 @@
 # Roadmap — Phase 5
 
+- [ ] Premium single homepage trust row below untouched Hero; safe CMS copy, reveal-once icons, tighter discovery spacing; six widths, 14 locales and carousel checks, screenshots/report. UI only; no publish.
+
 - [x] Refresh only worldwide homepage banner with optimized generated travel still-life; 390/1440 before/after dimensions, text/prices, hero images and clicked Global destination verified unchanged; sources/screenshots reported, build OK (no publish).
 
 - [x] Replace homepage phone trio with brand-specific representative imagery and icon fallback; 43 tests passed, real catalogue Samsung/Apple/Google/Xiaomi brand→model→result and unknown/Samsung detection verified at 390/1440; 90px height at five sizes. POCO mapping unit-tested only: no POCO catalogue rows, no fabricated entries. Sources/screenshots reported; UI only, no publish.
