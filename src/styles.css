@@ -2344,3 +2344,43 @@ body:has([role="dialog"][data-state="open"]) [data-action-dock] { display: none;
 .education-walkthrough[data-playing="false"] .os-install-meter > span { animation-play-state:paused; }
 @media(prefers-reduced-motion:reduce) { .os-install-meter > span { animation:none; } }
 @media(max-width:359px) { .education-walkthrough[data-guide-method="manual"] .installation-phone { width:270px; } .manual-os .os-lpa-value { font-size:9px; } }
+
+/* Email/copy/paste illustrations are scoped to central manual education. */
+.manual-os .os-mail { height:100%; background:var(--os-cell); }
+.os-mail-nav { display:flex; align-items:center; gap:10px; padding:13px 16px; border-bottom:1px solid var(--os-line); color:var(--os-accent); }
+.os-mail-nav h3 { flex:1; font-size:21px; color:var(--os-ink); font-weight:600; }
+.os-mail-nav > span { flex:1; }
+.os-mail-search { display:flex; gap:8px; margin:13px; padding:9px; background:var(--os-surface); border-radius:7px; color:var(--os-muted); }
+.os-mail-message { display:flex; position:relative; gap:10px; padding:16px 13px 22px; background:var(--os-touch); border-block:1px solid var(--os-line); }
+.os-mail-message > div { min-width:0; }
+.os-mail-message b,.os-mail-message small { display:block; margin-top:4px; }
+.os-mail-message small { color:var(--os-muted); font-size:10px; }
+.os-mail-avatar { display:grid; place-items:center; flex:none; width:30px; height:30px; border-radius:50%; background:var(--os-touch); color:var(--os-accent); font-weight:700; }
+.os-mail-header { padding:16px 16px 12px; border-bottom:1px solid var(--os-line); }
+.os-mail-header h3 { font-size:18px; font-weight:600; margin-bottom:13px; }
+.os-mail-header > div { display:flex; gap:9px; align-items:center; }
+.os-mail-header small { display:block; margin-top:3px; color:var(--os-muted); font-size:10px; }
+.os-mail-body { padding:16px; font-size:11px; }
+.os-mail-brand { font-size:17px; }
+.os-mail-body > p { margin-block:9px; line-height:1.6; }
+.os-mail-link { color:var(--os-accent); text-decoration:underline; display:block; margin:12px 0 17px; }
+.os-mail-body h4 { font-weight:600; font-size:13px; margin-bottom:8px; }
+.os-mail-credential { border-block-start:1px solid var(--os-line); padding:10px 0; }
+.os-mail-credential code { display:block; font-size:10px; overflow-wrap:anywhere; }
+.os-mail-copy { display:flex; position:relative; gap:6px; align-items:center; margin-top:8px; padding:7px 6px; color:var(--os-accent); background:var(--os-surface); border-radius:5px; font-size:10px; }
+.os-mail-selected code { background:var(--os-touch); }
+.os-mail-selected .os-mail-copy { background:var(--os-touch); }
+.os-copy-confirmation { display:flex; gap:6px; align-items:center; color:var(--os-accent); padding-block:5px; animation:education-screen-in .3s ease-out; }
+.os-mail-disclaimer { color:var(--os-muted); font-size:9px; border-top:1px solid var(--os-line); padding-top:9px; }
+.os-switch { display:flex; flex-wrap:wrap; align-items:center; justify-content:center; gap:16px; padding:110px 16px 20px; }
+.os-switch > svg { transform:rotate(180deg); }
+.os-switch-app { position:relative; display:grid; place-items:center; gap:12px; padding:24px 12px; border:1px solid var(--os-line); border-radius:8px; width:95px; }
+.os-switch-app svg { width:28px; height:28px; color:var(--os-accent); }
+.os-switch p { width:100%; margin-top:24px; color:var(--os-muted); font-size:9px; text-align:center; }
+.os-android-input,.os-ios-field { position:relative; }
+.os-paste-menu { display:flex!important; align-items:center; position:absolute; inset-inline-end:5px; top:-20px; padding:5px 12px; border-radius:5px; background:var(--os-ink); color:var(--os-cell)!important; font-size:10px!important; z-index:2; }
+.os-pasted > [dir="ltr"] { animation:education-highlight 1.5s ease-out both; }
+.education-walkthrough[data-guide-method="manual"] .installation-step-nav { grid-template-columns:36px minmax(0,1fr) 36px; }
+.education-walkthrough[data-guide-method="manual"] .installation-step-numbers { justify-content:flex-start; overflow-x:auto; padding-block:4px; scrollbar-width:thin; }
+.education-walkthrough[data-guide-method="manual"] .installation-step-control { width:32px; }
+@media(prefers-reduced-motion:reduce) { .os-copy-confirmation,.os-pasted > [dir="ltr"] { animation:none; } }
