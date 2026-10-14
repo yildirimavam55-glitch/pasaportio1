@@ -4,6 +4,7 @@
 
 - Installation education shares CentralInstallationWalkthrough and InstallationExperience primitives: preserve the homepage preview while central platform-specific scene registries feed credential-free EducationalPhone screens, with optional playback and owner data outside the phone; APN requires provider data — why: one reusable educational system without homepage or credential regressions.
 - Central manual phone interiors use separate original Android/iOS screen components and reserved nonfunctional demo constants; style them only through the manual-os scope — why: realistic platform hierarchy without changing homepage, QR/link presentation or exposing credentials.
+- Manual email scenes consume illustration-only localized copy and shared demo constants, never delivery templates or clipboard APIs; extended manual navigation scrolls within its fixed-width center — why: teach email-to-settings transfer without sending mail, exposing credentials or shrinking step targets.
 
 - Homepage trust and review content lives in the existing V2 CMS document; public reads require both verified and published review flags so unapproved customer content stays private.
 - Fictional editorial review fixtures and inactive payment visuals render only in the V2 CMS preview iframe; public V2 reads strip editorial/demo reviews and never imply unavailable payment methods are active.
