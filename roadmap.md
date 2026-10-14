@@ -1,5 +1,7 @@
 # Roadmap — Phase 5
 
+- [ ] Compact below-hero trust with fully static icons and earlier mobile country names/prices; preserve Hero and catalogue; compare 320/360/390/430/1024/1440, arrows/swipe and before/after screenshots. UI only, no publish.
+
 - [x] Premium single homepage trust row below untouched Hero; existing CMS claims preserved, one-shot icons, 32px mobile/36px desktop discovery gap; six widths, 14 locales, carousel arrows/mobile swipes, reduced motion and screenshots/report checked. UI only; no publish. No new country-count, activation-time or payment assurance claims added without evidence.
 
 - [x] Refresh only worldwide homepage banner with optimized generated travel still-life; 390/1440 before/after dimensions, text/prices, hero images and clicked Global destination verified unchanged; sources/screenshots reported, build OK (no publish).
