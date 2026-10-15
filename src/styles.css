@@ -2384,3 +2384,88 @@ body:has([role="dialog"][data-state="open"]) [data-action-dock] { display: none;
 .education-walkthrough[data-guide-method="manual"] .installation-step-numbers { justify-content:flex-start; overflow-x:auto; padding-block:4px; scrollbar-width:thin; }
 .education-walkthrough[data-guide-method="manual"] .installation-step-control { width:32px; }
 @media(prefers-reduced-motion:reduce) { .os-copy-confirmation,.os-pasted > [dir="ltr"] { animation:none; } }
+
+/* Approved light homepage roles: only below-Hero children and the footer.
+   Published theme, header/logo, Hero and other pages keep their original values. */
+html:not(.dark) .pasaport-mobile-home > :not(.pasaport-final-hero),
+html:not(.dark) main:has(.pasaport-mobile-home) ~ footer#support {
+  --primary: oklch(0.41735894 0.07261521 181.623421);
+  --foreground: oklch(0.31955192 0.05155047 188.965564);
+  --background: oklch(0.97900897 0.00821312 91.481779);
+  --card: oklch(1 0 0);
+  --primary-soft: oklch(0.94077807 0.03275686 170.000210);
+  --muted-foreground: oklch(0.53710006 0.01595381 185.556470);
+  --border: oklch(0.92575110 0.01068393 106.606422);
+  --primary-foreground: var(--card);
+  --card-foreground: var(--foreground);
+  --secondary: var(--background);
+  --secondary-foreground: var(--foreground);
+  --muted: var(--background);
+  --input: var(--border);
+  --ring: var(--primary);
+  --v2-service: var(--primary);
+  --shadow-sm: 0 1px 3px color-mix(in oklab, var(--foreground) 6%, transparent);
+  --shadow-soft: var(--shadow-sm);
+  --theme-shadow-card: var(--shadow-sm);
+}
+html:not(.dark) .pasaport-mobile-home .family-proof {
+  --story-mint: var(--primary-soft);
+  --story-card: var(--card);
+  --story-ink: var(--foreground);
+  --story-petrol: var(--primary);
+  --story-border: var(--border);
+  --story-shadow: var(--shadow-sm);
+  background: var(--background);
+}
+html:not(.dark) .pasaport-mobile-home .combined-reviews {
+  --review-ivory: var(--background);
+  --review-white: var(--card);
+  --review-edge: var(--border);
+}
+html:not(.dark) .pasaport-mobile-home :is(.family-review-card, .review-rating-summary) {
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-sm);
+}
+html:not(.dark) .pasaport-mobile-home :is(.family-story-copy > p, .family-compare-heading p, .combined-caption, .combined-count, .review-language-note, .pay-note) {
+  color: var(--muted-foreground);
+  opacity: 1;
+}
+html:not(.dark) .pasaport-mobile-home .family-price-option bdi { color: var(--primary); }
+html:not(.dark) .pasaport-mobile-home .pay-head small { color: var(--muted-foreground); opacity: 1; }
+html:not(.dark) .pasaport-mobile-home :is(.home-region-card, .home-phone-card) {
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-sm);
+}
+html:not(.dark) .pasaport-mobile-home .popular-country-heading + .home-rail-frame > ul > li > button {
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-sm);
+}
+html:not(.dark) .pasaport-mobile-home .home-phone-card { background: var(--card); }
+html:not(.dark) .pasaport-mobile-home .home-phone-card strong { color: var(--primary); }
+html:not(.dark) .pasaport-mobile-home .home-phone-card [data-phone-image-brand] {
+  background: var(--primary-soft);
+  border-radius: var(--radius);
+}
+html:not(.dark) .pasaport-mobile-home .home-worldwide-banner { background: var(--background); }
+html:not(.dark) .pasaport-mobile-home .home-worldwide-photo { background: var(--background); }
+html:not(.dark) .pasaport-mobile-home .home-worldwide-photo::after {
+  background: linear-gradient(to right, var(--background), transparent 28%);
+}
+html:not(.dark) .pasaport-mobile-home [data-central-installation] .installation-phone { background: var(--primary); }
+html:not(.dark) .pasaport-mobile-home [data-central-installation] .installation-screen { background: var(--card); color: var(--foreground); }
+html:not(.dark) .pasaport-mobile-home [data-central-installation] :is([role="group"], [role="tablist"]) { background: var(--background); }
+html:not(.dark) .pasaport-mobile-home [data-central-installation] [role="tab"][aria-selected="true"] { background: var(--primary); color: var(--primary-foreground); }
+html:not(.dark) .pasaport-mobile-home [data-central-installation] [role="tab"][aria-selected="false"] { background: var(--background); color: var(--foreground); }
+/* Light footer band; brand artwork/wrapper deliberately excluded. */
+html:not(.dark) main:has(.pasaport-mobile-home) ~ footer#support {
+  background: var(--background);
+  color: var(--foreground);
+  border-color: var(--border);
+}
+html:not(.dark) main:has(.pasaport-mobile-home) ~ footer#support :is(p, nav, nav a, input, .mt-8) {
+  color: var(--muted-foreground);
+  border-color: var(--border);
+}
+html:not(.dark) main:has(.pasaport-mobile-home) ~ footer#support :is(h2, summary, a[href="/destek"]) { color: var(--foreground); }
+html:not(.dark) main:has(.pasaport-mobile-home) ~ footer#support .border-t { border-color: var(--border); }
+html:not(.dark) main:has(.pasaport-mobile-home) ~ footer#support nav a:hover { color: var(--primary); }

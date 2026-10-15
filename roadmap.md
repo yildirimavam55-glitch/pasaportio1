@@ -1,5 +1,7 @@
 # Roadmap — Phase 5
 
+- [x] Unify homepage light colors in scoped CSS; 390/1440 before/after, unchanged Hero pixels/section geometry, no overflow, checker/installation/FAQ/worldwide destination checked; 55 tests and build OK. Screenshots/report delivered; existing country-card click stays on /de and is reported, not changed. No backend, payments or publish.
+
 - [x] Remove the step counter, step heading, description paragraph, Wi-Fi tip and OS-version note from under every installation animation; homepage preview and central guide now show only the phone scene, its educational caption, numbered step navigation and play control, with the current step announced to screen readers only. 37 unit tests, build OK, 390/1440 mobile/desktop screenshots, step-jump and no-page-overflow checks passed. Post-installation, troubleshooting, device check, owner data and QR/link tabs preserved; UI only, no publish.
 
 - [x] Add demo email → simulated copy → settings → paste scenes to central Android/iOS manual flows only; 93 browser step checks at 320/390/1440, playback/reduced-motion, no clipboard writes, 24 unit tests and build OK; five screenshots/report shared. QR/link/homepage, email delivery and backend preserved; no publish. New copy TR/DE/EN, other locales may fall back to English; real-device installation not tested.
