@@ -1,5 +1,7 @@
 # Roadmap — Phase 5
 
+- [x] Repair dark-only homepage/header local ink cascade; seven requested German headings/names computed as #F1F6F3 at 390/1440 (15.53–17.40:1), search 7.69:1; menu theme toggle/search opening/no overflow checked. Price tokens unchanged; mobile light pixels identical, desktop only dynamic banner price-loading pixels differed. 15 tests/build OK; screenshots delivered. No Hero, commerce, backend or publish changes.
+
 - [x] Unify homepage light colors in scoped CSS; 390/1440 before/after, unchanged Hero pixels/section geometry, no overflow, checker/installation/FAQ/worldwide destination checked; 55 tests and build OK. Screenshots/report delivered; existing country-card click stays on /de and is reported, not changed. No backend, payments or publish.
 
 - [x] Remove the step counter, step heading, description paragraph, Wi-Fi tip and OS-version note from under every installation animation; homepage preview and central guide now show only the phone scene, its educational caption, numbered step navigation and play control, with the current step announced to screen readers only. 37 unit tests, build OK, 390/1440 mobile/desktop screenshots, step-jump and no-page-overflow checks passed. Post-installation, troubleshooting, device check, owner data and QR/link tabs preserved; UI only, no publish.
