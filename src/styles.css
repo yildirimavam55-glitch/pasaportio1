@@ -2469,3 +2469,52 @@ html:not(.dark) main:has(.pasaport-mobile-home) ~ footer#support :is(p, nav, nav
 html:not(.dark) main:has(.pasaport-mobile-home) ~ footer#support :is(h2, summary, a[href="/destek"]) { color: var(--foreground); }
 html:not(.dark) main:has(.pasaport-mobile-home) ~ footer#support .border-t { border-color: var(--border); }
 html:not(.dark) main:has(.pasaport-mobile-home) ~ footer#support nav a:hover { color: var(--primary); }
+
+/* The legacy reference wrapper and story define light-only local ink tokens.
+   Override those at their consumer scopes, not on the Hero or the global theme. */
+html.dark {
+  --home-dark-foreground: oklch(0.967263 0.006793 158.28);
+  --home-dark-muted-foreground: oklch(0.75 0.025 172);
+}
+html.dark .pasaport-mobile-home > :not(.pasaport-final-hero),
+html.dark .pasaport-mobile-reference > header,
+html.dark .pasaport-mobile-reference > footer {
+  --foreground: var(--home-dark-foreground);
+  --card-foreground: var(--foreground);
+  --muted-foreground: var(--home-dark-muted-foreground);
+  color: var(--foreground);
+}
+html.dark .pasaport-mobile-home .family-proof {
+  --story-ink: var(--foreground);
+  --story-card: var(--card);
+  --story-mint: var(--secondary);
+  --story-border: var(--border);
+  --story-petrol: var(--primary);
+  --story-avatar: var(--secondary);
+}
+html.dark .pasaport-mobile-home .combined-reviews {
+  --review-ivory: var(--background);
+  --review-white: var(--card);
+  --review-edge: var(--border);
+}
+html.dark .pasaport-mobile-home > :not(.pasaport-final-hero) :is(h2, h3),
+html.dark .pasaport-mobile-home .family-story h2 span,
+html.dark .pasaport-mobile-home .family-compare-heading h3 em {
+  color: var(--foreground);
+}
+/* Demo chat bubbles retain their original light surfaces. */
+html.dark .pasaport-mobile-home .family-phone .chat-bubble {
+  color: var(--hero-ink, oklch(0.25 0.065 185));
+}
+/* Search is the one text-only exception inside the protected Hero. */
+html.dark .pasaport-mobile-home .pasaport-country-field {
+  --muted-foreground: var(--home-dark-muted-foreground);
+  color: var(--muted-foreground);
+}
+html.dark .pasaport-mobile-home .pasaport-country-field input::placeholder {
+  color: var(--muted-foreground);
+  opacity: 1;
+}
+html.dark .pasaport-mobile-home .pasaport-country-arrow {
+  color: var(--home-dark-foreground);
+}
