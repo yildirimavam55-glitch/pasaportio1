@@ -56,7 +56,6 @@ const groups: AdminGroup[] = [
   ]},
   { label: "Mağaza yönetimi", links: [
     { to: "/admin/storefront", label: "Storefront", icon: LayoutTemplate },
-    { to: "/legacy-v1", label: "Legacy V1 (geri dönüş)", icon: LayoutTemplate },
     { to: "/admin/storefront/navigation", label: "Menü & alt bilgi", icon: Menu },
     { to: "/admin/legal", label: "Yasal", icon: Scale },
     { to: "/admin/emails", label: "E-postalar", icon: Mail },

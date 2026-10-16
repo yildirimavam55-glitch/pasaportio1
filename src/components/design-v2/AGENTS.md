@@ -27,3 +27,4 @@
 - Homepage entrances reuse Reveal, shared entry/resource observers and the sanitized theme toggle; motion never gates data or transforms sticky controls — why: first rendering and carousel scrolling stay independent.
 
 - The shared installation walkthrough renders only the phone scene, its educational caption, numbered step navigation and playback control; step titles and descriptions stay out of the visible layout, kept as a screen-reader live region — why: the animation itself teaches each step and the owner removed the duplicated copy below it.
+- Editor click-to-edit wraps sections in display:contents `data-v2-edit-id` hosts only inside the named preview frame, and undo/redo lives only in editor memory — why: customer markup and saved/published data stay untouched.
