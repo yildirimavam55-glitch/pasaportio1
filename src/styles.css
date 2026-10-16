@@ -2601,3 +2601,6 @@ html.dark .pasaport-mobile-home .pasaport-country-arrow {
   .home-region-card-overlay h3 { font-size: 16px; }
   .home-region-card-overlay p, .home-region-card-overlay strong { font-size: 13px; }
 }
+@media (max-width: 479px) {
+  .trust-strip-text small, .trust-strip-rating-text small { display: none; }
+}
