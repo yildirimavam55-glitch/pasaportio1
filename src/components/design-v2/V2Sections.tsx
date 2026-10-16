@@ -163,10 +163,24 @@ export function V2Sections({ config, media, slots, only, onDestinationSearch, se
   useEffect(() => {
     setIsPreview(window.parent !== window && window.name === V2_PREVIEW_WINDOW);
   }, []);
+  // Admin preview only: clicking a section tells the editor which section to open.
+  useEffect(() => {
+    if (!isPreview) return;
+    const onClick = (event: MouseEvent) => {
+      const target = event.target instanceof Element ? event.target : null;
+      const host = target?.closest<HTMLElement>("[data-v2-edit-id]");
+      if (!host) return;
+      if (target?.closest("a[href]")) event.preventDefault();
+      window.parent.postMessage({ type: V2_PREVIEW_SELECT, page: config.page, id: host.dataset["v2EditId"] }, window.location.origin);
+    };
+    document.addEventListener("click", onClick, true);
+    return () => document.removeEventListener("click", onClick, true);
+  }, [isPreview, config.page]);
   const sections = config.sections.filter((s) => s.visible && (!only || only(s)));
+  const editable = (s: V2Section, node: ReactNode) => (isPreview && node ? <div key={s.id} data-v2-edit-id={s.id} style={{ display: "contents" }}>{node}</div> : node);
   return (
     <>
-      {sections.map((s, index) => {
+      {sections.map((s, index) => editable(s, (() => {
         const t = (key: string) => v2Text(s, key, locale);
         const items = s.items.filter((item) => item.visible);
         const framed = (node: ReactNode) => <V2SectionFrame key={s.id} section={s}>{config.page === "esim" && s.type !== "SEARCH_HERO" && s.type !== "BENEFIT_ROW" ? <Reveal stagger={s.type === "DESTINATION_CAROUSEL" || s.type === "GUIDE_CAROUSEL"}>{node}</Reveal> : node}</V2SectionFrame>;
