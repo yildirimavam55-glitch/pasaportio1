@@ -97,6 +97,7 @@ export function EsimHomePage() {
   };
   const { config, media } = useV2Page("esim");
   const benefitSection = config.sections.find((section) => section.type === "BENEFIT_ROW" && section.visible);
+  const reviewsSection = config.sections.find((section) => section.type === "TRUST_REVIEWS" && section.visible);
   const desktopBenefits = benefitSection?.items.filter((item) => item.visible) ?? [];
   const choose = (iso: string) => {
     setSelectedPackage(null);
@@ -179,7 +180,7 @@ export function EsimHomePage() {
             slots={{
               faq: <V2CategorizedEsimFaq />,
               hero: (section) => (
-<PasaportEsimHero section={section} benefits={benefitSection} image={mediaUrl(section.mediaId, media) ?? ""} mobileImage={section.mobileMediaId ? mediaUrl(section.mobileMediaId, media) : undefined}>
+<PasaportEsimHero section={section} benefits={benefitSection} reviews={reviewsSection} image={mediaUrl(section.mediaId, media) ?? ""} mobileImage={section.mobileMediaId ? mediaUrl(section.mobileMediaId, media) : undefined}>
         <div ref={heroSearchRef}>
           <V2PickerSheet
             open={pickerOpen}
@@ -272,6 +273,7 @@ function Popular({ c, section, onPick }: { c: (typeof T)["tr"]; section: V2Secti
               price={`${c.from} ${money(p.amount, p.currency)}`}
               onClick={() => onPick(country.iso)}
               showArrow
+              overlay
             />
           ))}
         </PhotoRail>
