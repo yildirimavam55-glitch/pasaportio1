@@ -207,7 +207,7 @@ export function EsimHomePage() {
       </PasaportEsimHero>
               ),
               destinations: (section) => <Popular c={c} section={section} onPick={choose} />,
-              regions: (section) => <><RegionalDiscovery section={section} c={c} /><HomeCompatibilityCard /></>,
+              regions: (section) => <><RegionalDiscovery section={section} c={c} /><HomeCompatibilityCard /><TripPlannerPromo /></>,
               benefitsInDesktopHero: true,
             }}
           />
@@ -280,6 +280,24 @@ function Popular({ c, section, onPick }: { c: (typeof T)["tr"]; section: V2Secti
         </div>
       )}
     </>
+  );
+}
+
+const PLAN_PROMO = localize({
+  tr: { title: "Seyahat planlayıcı", sub: "Ülkelerini ve tarihlerini gir, paketleri karşılaştıralım" },
+  de: { title: "Reiseplaner", sub: "Länder und Daten eingeben – wir vergleichen die Pakete" },
+  en: { title: "Trip planner", sub: "Enter countries and dates — we compare the packages" },
+});
+
+function TripPlannerPromo() {
+  const { locale } = useI18n();
+  const p = PLAN_PROMO[locale];
+  return (
+    <Link to="/esim/plan" className="mt-3 grid min-h-16 grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 rounded-xl bg-primary-soft px-4 py-3 ring-1 ring-primary/10">
+      <Sparkles className="size-7 shrink-0 text-primary" />
+      <span className="min-w-0"><strong className="block text-sm text-foreground">{p.title}</strong><span className="block text-xs text-muted-foreground">{p.sub}</span></span>
+      <ArrowRight className="size-4 shrink-0 text-primary rtl:rotate-180" />
+    </Link>
   );
 }
 
