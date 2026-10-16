@@ -2139,7 +2139,7 @@ body:has([role="dialog"][data-state="open"]) .pasaport-mobile-reference [data-wh
  .final-trust-band .final-trust-icon svg { width:24px; height:24px; }
  .final-trust-band .final-trust-item { flex-direction:row; align-items:center; justify-content:flex-start; min-height:60px; gap:14px; padding:0 18px; text-align:start; }
  .final-trust-band strong { font-size:14px; }
- .final-trust-band small { display:block; font-size:12px; }
+ .final-trust-band small { display:none; }
  .pasaport-mobile-home .home-region-section { margin-top:32px; }
  .pasaport-mobile-home #popular + .home-rail-frame > ul { align-items:flex-start; }
  .pasaport-mobile-home #popular + .home-rail-frame > ul > li { line-height:0; }
