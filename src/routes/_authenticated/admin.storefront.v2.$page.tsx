@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
-import { ArrowDown, ArrowLeft, ArrowUp, Copy, Eye, EyeOff, GripVertical, History, Lock, Plus, RotateCcw, Save, Trash2, Upload, X } from "lucide-react";
+import { ArrowDown, ArrowLeft, ArrowUp, Copy, Eye, EyeOff, GripVertical, History, Lock, Menu, Redo2, Undo2, Plus, RotateCcw, Save, Trash2, Upload, X } from "lucide-react";
 import { AdminGate } from "@/components/AdminGate";
 import { AdminError, AdminLoading, AdminPanel, Field } from "@/components/admin/AdminUi";
 import { adminHead } from "@/components/admin/AdminSectionPage";
@@ -18,7 +18,8 @@ import { translateReview } from "@/lib/review-translate.functions";
 import { translateTrustCopy } from "@/lib/trust-translate.functions";
 import { useServerFn } from "@tanstack/react-start";
 import { discardV2Draft, getV2PageEditor, restoreV2Version, saveV2Page } from "@/lib/v2-storefront.functions";
-import { V2_BUILTIN_URLS, V2_PREVIEW_WINDOW } from "@/components/design-v2/V2Sections";
+import { V2_BUILTIN_URLS, V2_PREVIEW_FOCUS, V2_PREVIEW_SELECT, V2_PREVIEW_WINDOW } from "@/components/design-v2/V2Sections";
+import { createDraftHistory, pushDraftHistory, redoDraftHistory, undoDraftHistory, type DraftHistory } from "@/domain/storefront/draft-history";
 import {
   createV2Section,
   defaultV2Page,
@@ -62,7 +63,8 @@ import { LOCALE_REGISTRY, UI_LOCALES, type UiLocale } from "@/i18n/locales";
 
 const PAGE_LABEL: Record<V2PageId, string> = { esim: "eSIM ana sayfası", lounge: "Lounge ana sayfası", vignette: "Vignette ana sayfası" };
 const LINK_LABEL: Record<string, string> = { "": "Varsayılan hedef", "/esim": "eSIM", "/lounge": "Lounge", "/vignette": "Vignette", "/destek": "Destek / kurulum rehberi", "/sepet": "Sepet", "/account": "Hesabım", "/legal/terms": "Kullanım koşulları", "/legal/refund": "İade koşulları" };
-const DEVICES = [{ id: "360", w: 360 }, { id: "390", w: 390 }, { id: "430", w: 430 }, { id: "Masaüstü", w: 1280 }] as const;
+const DEVICES = [{ id: "mobile", label: "Mobil · 390", w: 390 }, { id: "tablet", label: "Tablet · 768", w: 768 }, { id: "desktop", label: "Masaüstü · 1440", w: 1440 }] as const;
+const PREVIEW_BOX = { width: 400, height: 760 };
 const PRESET = { left: "Sola", center: "Orta", compact: "Kompakt", normal: "Normal", tall: "Yüksek", light: "Hafif", strong: "Güçlü" } as Record<string, string>;
 const DESIGN_LABELS: Record<string, string> = { default: "pasaport.io varsayılanı", narrow: "Dar", wide: "Geniş", full: "Tam genişlik", brand: "Marka", dark: "Koyu", custom: "Özel renk", small: "Küçük", medium: "Orta", large: "Büyük", theme: "Tema varsayılanı", heading: "Başlık yazı tipi", body: "Gövde yazı tipi", semibold: "Yarı kalın", bold: "Kalın", tight: "Sıkı", relaxed: "Rahat", right: "Sağ" };
 
@@ -86,13 +88,15 @@ function Editor({ page }: { page: V2PageId }) {
   const [selectedId, setSelectedId] = useState<string>("hero");
   const [lang, setLang] = useState<Locale>("tr");
   const [trustPreviewLocale, setTrustPreviewLocale] = useState<UiLocale | null>(null);
-  const [device, setDevice] = useState<(typeof DEVICES)[number]["id"]>("390");
+  const [device, setDevice] = useState<(typeof DEVICES)[number]["id"]>("mobile");
   const [dragId, setDragId] = useState<string | null>(null);
   const [showHistory, setShowHistory] = useState(false);
   const [translatingTrust, setTranslatingTrust] = useState(false);
   const frame = useRef<HTMLIFrameElement | null>(null);
+  const [history, setHistory] = useState<DraftHistory<V2PageConfig>>(createDraftHistory);
+  const lastEdit = useRef(0);
 
-  useEffect(() => { if (editor.data && !dirty) setDraft(editor.data.draft); }, [editor.data, dirty]);
+  useEffect(() => { if (editor.data && !dirty) { setDraft(editor.data.draft); setHistory(createDraftHistory()); } }, [editor.data, dirty]);
   useEffect(() => {
     const selectHash = () => { if (window.location.hash === "#reviews") setSelectedId("trust-reviews"); };
     selectHash();
@@ -111,6 +115,19 @@ function Editor({ page }: { page: V2PageId }) {
     window.addEventListener("message", onReady);
     return () => window.removeEventListener("message", onReady);
   }, [page, pushPreview]);
+  // Click-to-edit: the preview frame reports the clicked section; open its settings.
+  useEffect(() => {
+    const onSelect = (event: MessageEvent) => {
+      if (event.origin !== window.location.origin || event.source !== frame.current?.contentWindow) return;
+      if (event.data?.type === V2_PREVIEW_SELECT && event.data.page === page && typeof event.data.id === "string") setSelectedId(event.data.id);
+    };
+    window.addEventListener("message", onSelect);
+    return () => window.removeEventListener("message", onSelect);
+  }, [page]);
+  const selectFromList = (id: string) => {
+    setSelectedId(id);
+    frame.current?.contentWindow?.postMessage({ type: V2_PREVIEW_FOCUS, page, id }, window.location.origin);
+  };
 
   const refresh = () => { setDirty(false); void queryClient.invalidateQueries({ queryKey: ["v2-editor", page] }); void queryClient.invalidateQueries({ queryKey: ["v2-storefront", page] }); };
   const save = useMutation({
@@ -141,7 +158,15 @@ function Editor({ page }: { page: V2PageId }) {
   if (editor.isLoading || !draft) return <AdminLoading />;
   if (editor.error) return <AdminError error={editor.error} />;
 
-  const update = (next: V2PageConfig) => { setDraft(next); setDirty(true); };
+  const update = (next: V2PageConfig) => {
+    const now = Date.now();
+    // Rapid typing collapses into one undo step.
+    if (now - lastEdit.current > 600) setHistory((h) => pushDraftHistory(h, draft));
+    lastEdit.current = now;
+    setDraft(next); setDirty(true);
+  };
+  const undo = () => { const result = undoDraftHistory(history, draft); if (!result) return; lastEdit.current = 0; setHistory(result.history); setDraft(result.value); setDirty(true); };
+  const redo = () => { const result = redoDraftHistory(history, draft); if (!result) return; lastEdit.current = 0; setHistory(result.history); setDraft(result.value); setDirty(true); };
   const translateTrust = async () => {
     const target = draft.sections.find((section) => section.id === selectedId) ?? draft.sections.find((section) => section.type === "TRUST_REVIEWS");
     if (!target || translatingTrust) return;
@@ -202,6 +227,7 @@ function Editor({ page }: { page: V2PageId }) {
   };
   const missing = { de: missingV2Translations(draft, "de"), en: missingV2Translations(draft, "en") };
   const width = DEVICES.find((d) => d.id === device)!.w;
+  const scale = Math.min(1, PREVIEW_BOX.width / width);
 
   return (
     <div className="space-y-3">
@@ -215,6 +241,9 @@ function Editor({ page }: { page: V2PageId }) {
           </p>
         </div>
         <div className="flex rounded-md border border-border p-0.5" aria-label="Düzenlenen sayfa">{V2_PAGES.map((id) => <Button key={id} asChild size="sm" variant={id === page ? "default" : "ghost"}><Link to="/admin/storefront/v2/$page" params={{ page: id }}>{id === "esim" ? "Ana sayfa" : PAGE_LABEL[id]}</Link></Button>)}</div>
+        <Button variant="outline" size="sm" aria-label="Geri al" title="Geri al (yalnız taslak)" disabled={!history.past.length} onClick={undo}><Undo2 />Geri al</Button>
+        <Button variant="outline" size="sm" aria-label="İleri al" title="İleri al (yalnız taslak)" disabled={!history.future.length} onClick={redo}><Redo2 />İleri al</Button>
+        <Button asChild variant="outline" size="sm"><Link to="/admin/storefront/navigation"><Menu />Menü & alt bilgi</Link></Button>
         <Button variant="outline" size="sm" onClick={() => setShowHistory((v) => !v)}><History />Geçmiş</Button>
         <Button variant="outline" size="sm" onClick={() => { if (window.confirm("Tüm sayfa onaylı varsayılan tasarıma dönsün mü? (Kaydedene kadar yalnız taslakta)")) update(defaults); }}><RotateCcw />Varsayılana dön</Button>
         {editor.data?.hasDraftChanges && !dirty && <Button variant="outline" size="sm" onClick={() => discard.mutate()}>Taslağı at</Button>}
@@ -247,7 +276,7 @@ function Editor({ page }: { page: V2PageId }) {
                 <li key={s.id} draggable={!locked} onDragStart={() => setDragId(s.id)} onDragOver={(e) => e.preventDefault()} onDrop={() => dropOn(s.id)}
                   className={`flex items-center gap-1 rounded-md border p-1.5 text-xs ${s.id === selected.id ? "border-primary bg-primary-soft" : "border-border bg-background"} ${s.visible ? "" : "opacity-60"}`}>
                   {locked ? <Lock className="size-3.5 shrink-0 text-muted-foreground" /> : <GripVertical className="size-3.5 shrink-0 cursor-grab text-muted-foreground" />}
-                  <button type="button" onClick={() => setSelectedId(s.id)} className="min-w-0 flex-1 truncate text-left font-semibold">{V2_SECTION_LABELS[s.type]}<span className="block truncate text-[10px] font-normal text-muted-foreground">{s.text["title"]?.tr || s.id}</span></button>
+                  <button type="button" onClick={() => selectFromList(s.id)} className="min-w-0 flex-1 truncate text-left font-semibold">{V2_SECTION_LABELS[s.type]}<span className="block truncate text-[10px] font-normal text-muted-foreground">{s.text["title"]?.tr || s.id}</span></button>
                   {!locked && <>
                     <Button size="icon" variant="ghost" className="size-7" aria-label="Yukarı" disabled={index <= 1} onClick={() => move(s.id, -1)}><ArrowUp /></Button>
                     <Button size="icon" variant="ghost" className="size-7" aria-label="Aşağı" disabled={index >= sections.length - 1} onClick={() => move(s.id, 1)}><ArrowDown /></Button>
@@ -287,19 +316,20 @@ function Editor({ page }: { page: V2PageId }) {
         </AdminPanel>
 
         <AdminPanel title="Önizleme (taslak)" className="xl:w-[27rem]" action={
-          <div className="flex gap-1">{DEVICES.map((d) => <Button key={d.id} size="sm" variant={device === d.id ? "default" : "outline"} className="h-7 px-2 text-[11px]" onClick={() => setDevice(d.id)}>{d.id}</Button>)}</div>}>
-          <div className="overflow-auto rounded-md border border-border bg-secondary/40 p-2">
+          <div className="flex gap-1" role="group" aria-label="Önizleme cihazı">{DEVICES.map((d) => <Button key={d.id} size="sm" aria-pressed={device === d.id} variant={device === d.id ? "default" : "outline"} className="h-7 px-2 text-[11px]" onClick={() => setDevice(d.id)}>{d.label}</Button>)}</div>}>
+          <div className="mx-auto overflow-hidden rounded-md border border-border bg-secondary/40" style={{ width: Math.round(width * scale), height: PREVIEW_BOX.height }}>
             <iframe
               ref={frame}
               name={V2_PREVIEW_WINDOW}
               title="V2 önizleme"
               src={page === "esim" ? "/esim?country=" : page === "lounge" ? "/lounge?iata=" : "/vignette"}
               onLoad={pushPreview}
-              style={{ width, height: 760, transform: width > 430 ? "scale(0.4)" : undefined, transformOrigin: "top left" }}
-              className="mx-auto block rounded-md bg-background"
+              data-preview-width={width}
+              style={{ width, height: Math.round(PREVIEW_BOX.height / scale), transform: scale < 1 ? `scale(${scale})` : undefined, transformOrigin: "top left" }}
+              className="block bg-background"
             />
           </div>
-          <p className="mt-2 text-[10px] text-muted-foreground">Önizleme yalnızca sende görünür. Müşteriler “Yayınla” diyene kadar mevcut yayındaki sürümü görür.</p>
+          <p className="mt-2 text-[10px] text-muted-foreground">Bir bölüme tıklayınca ayarları açılır. Geri al / ileri al yalnız bu taslağı değiştirir. Önizleme yalnızca sende görünür. Müşteriler “Yayınla” diyene kadar mevcut yayındaki sürümü görür.</p>
         </AdminPanel>
       </div>
     </div>
