@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { ArrowRight, BarChart3, BookOpen, Box, ChevronLeft, ChevronRight, CheckCircle2, Globe2, Infinity as InfinityIcon, MapPin, MessageCircle, Search, Share2, Smartphone, Sparkles, Video, Zap } from "lucide-react";
 import { DeviceCompatibilityProductCard, HomeCompatibilityCard } from "@/components/travel/DeviceCompatibility";
 import { PasaportEsimHero } from "@/components/design-v2/PasaportEsimHero";
-import { CartBar, money as formatMoney, PhotoCard, PhotoRail, pick, SectionTitle, TrustRow, V2Shell } from "@/components/design-v2/V2Shell";
+import { CartBar, money as formatMoney, PhotoCard, PhotoRail, pick, SectionTitle, TrustRow, V2Shell, useV2StickySearch, V2StickySearchButton } from "@/components/design-v2/V2Shell";
 import { V2PickerSheet } from "@/components/design-v2/V2PickerSheet";
 import { Button } from "@/components/ui/button";
 import { countryPhotoRegistry } from "@/components/travel/countryPhotos";
@@ -33,9 +33,7 @@ import { localize, translateString } from "@/i18n/overlay";
 import { StorefrontIcon } from "@/domain/storefront/icons";
 import { useNearViewport } from "@/components/travel/use-near-viewport";
 import { ESSENTIAL_FAIR_USE } from "@/domain/esim/fair-use";
-import { WorldwideBannerPhoto } from "@/components/design-v2/WorldwideBannerPhoto";
-import worldwideTravelDesktop from "@/assets/worldwide-travel-desktop.webp";
-import worldwideTravelMobile from "@/assets/worldwide-travel-mobile.webp";
+import { homepageImageId, uniqueDestinations, uniqueRegions } from '@/domain/storefront/homepage-media';
 
 const DISCOVERY_COPY = localize({
   tr: { title: "Bölgesel eSIM paketleri", worldwide: "Dünya çapında internet", cta: "Paketleri keşfet", previous: "Önceki bölgeler", next: "Sonraki bölgeler" },
@@ -88,7 +86,7 @@ export function EsimHomePage() {
     [query, locale],
   );
   const selected = country ? getCountryByIso(country.toUpperCase()) : undefined;
-  const heroSearchRef = useRef<HTMLDivElement | null>(null);
+  const { heroSearchRef, heroSearchVisible } = useV2StickySearch();
   const openHeroSearch = () => {
     const target = heroSearchRef.current;
     if (target) {
@@ -154,7 +152,7 @@ export function EsimHomePage() {
     onAdd={addSelectedPackage}
   /> : undefined;
   return (
-    <V2Shell service="esim" commerceSelection={Boolean(selectedPackage)} purchaseSummary={purchaseSummary} heroPromotion={!selected}>
+    <V2Shell service="esim" commerceSelection={Boolean(selectedPackage)} purchaseSummary={purchaseSummary} heroPromotion={!selected} stickySearch={!selected ? <V2StickySearchButton heroSearchVisible={heroSearchVisible} label={c.stickyPh} onOpen={() => setPickerOpen(true)} /> : undefined}>
 
       {selected ? (
         <>
@@ -242,7 +240,8 @@ function CountryProductHero({ country, name, subtitle, changeLabel, onChange }: 
 function Popular({ c, section, onPick }: { c: (typeof T)["tr"]; section: V2Section; onPick: (iso: string) => void }) {
   const { locale, uiLocale } = useI18n();
   const money = (value: number, currency: string) => formatMoney(value, currency, uiLocale);
-  const list = section.items.filter((item) => item.visible).flatMap((item) => { const country = getCountryByIso(item.entity); return country ? [country] : []; });
+  const { media } = useV2Page('esim');
+  const list = uniqueDestinations(section.items.filter((item) => item.visible).flatMap((item) => { const country = getCountryByIso(item.entity); return country ? [country] : []; }));
   // Same authoritative country "from" prices as the search list: one shared request.
   const { data, isLoading } = useQuery(destinationPricesQuery);
   const popularRail = useRailControls<HTMLUListElement>([isLoading, data?.length]);
@@ -261,16 +260,18 @@ function Popular({ c, section, onPick }: { c: (typeof T)["tr"]; section: V2Secti
         <p className="rounded-2xl bg-card p-4 text-sm text-muted-foreground ring-1 ring-border">{c.noPrices}</p>
       ) : (
         <div className="home-rail-frame">
-        <RailArrows edge={popularRail.edge} scroll={popularRail.scroll} previous={railCopy.previous} next={railCopy.next} />
+        <RailArrows edge={popularRail.edge} scroll={popularRail.scroll} previous={c.popular + ' · ' + railCopy.previous} next={c.popular + ' · ' + railCopy.next} />
         <PhotoRail railRef={popularRail.ref} onScroll={popularRail.update}>
           {priced.map(({ country, p }) => (
             <PhotoCard
               key={country.iso}
-              image={countryPhotoRegistry[country.iso]?.cardImage}
+              image={mediaUrl(homepageImageId(section, country.iso), media) ?? countryPhotoRegistry[country.iso]?.cardImage}
+              fallbackImage={countryPhotoRegistry[country.iso]?.cardImage}
               badge={<CountryFlag iso={country.iso} className="h-4 w-6 rounded-sm shadow" />}
               title={country.name[locale]}
               price={`${c.from} ${money(p.amount, p.currency)}`}
               onClick={() => onPick(country.iso)}
+              showArrow
             />
           ))}
         </PhotoRail>
@@ -286,10 +287,8 @@ function RegionalDiscovery({ section, c }: { section: V2Section; c: (typeof T)["
   const regionalSummaries = useQuery({ queryKey: ["v2-esim-regions"], queryFn: () => listEsimRegionalSummaries(), enabled: ready });
   const summaries = regionalSummaries.data ?? [];
   const loading = regionalSummaries.isPending;
-  const { locale, uiLocale } = useI18n();
-  const money = (value: number, currency: string) => formatMoney(value, currency, uiLocale);
-  const worldwide = summaries.find((item) => item.region === "GLOBAL" && item.unlimitedCount > 0);
-  const regions = summaries.filter((item) => item.region !== "GLOBAL");
+  const { locale } = useI18n();
+  const regions = uniqueRegions(summaries);
   const copy = DISCOVERY_COPY[locale];
   const rail = useRailControls<HTMLUListElement>([loading, regions.length]);
   const title = v2Text(section, "title", locale) || copy.title;
@@ -300,14 +299,10 @@ function RegionalDiscovery({ section, c }: { section: V2Section; c: (typeof T)["
         <div className="home-region-carousel home-rail-frame">
           <RailArrows edge={rail.edge} scroll={rail.scroll} previous={copy.previous} next={copy.next} />
           <ul ref={rail.ref} onScroll={rail.update} className="home-region-rail" aria-label={title}>
-             {regions.map((item) => <li data-reveal-card key={item.region}><V2RegionCard item={item} countries={c.countries} multi={c.multiCountry} from={c.from} compact /></li>)}
+             {regions.map((item) => <li data-reveal-card key={item.region}><V2RegionCard item={item} imageUrl={mediaUrl(homepageImageId(section, item.region), media)} countries={c.countries} multi={c.multiCountry} from={c.from} compact /></li>)}
           </ul>
         </div>
       )}
-      {worldwide?.unlimitedBanner && <Link to="/esim/bolge/$region" params={{ region: "GLOBAL" }} search={{ country: "" }} className="home-worldwide-banner">
-        <span className="home-worldwide-copy" dir={uiLocale === 'ar' ? 'rtl' : undefined}><strong>{copy.worldwide}</strong><span className="home-worldwide-meta"><span>{worldwide.unlimitedBanner.coverageCount} {c.countries}</span> · <bdi>{c.from} {money(worldwide.unlimitedBanner.price, worldwide.unlimitedBanner.currency)}</bdi></span><span className="home-worldwide-cta">{copy.cta}<ArrowRight className="size-4 shrink-0 rtl:rotate-180" /></span></span>
-        <WorldwideBannerPhoto image={worldwideTravelDesktop} mobileImage={worldwideTravelMobile} display={{ fit: "cover", zoom: 100, x: 50, y: 50 }} mobileDisplay={{ fit: "cover", zoom: 100, x: 50, y: 50 }} />
-      </Link>}
     </section>
   );
 }

@@ -1,5 +1,9 @@
 # Roadmap — Phase 5
 
+- [x] Final homepage safe fixes and report: shared sticky search, CMS media overrides/fallbacks, deduplicated country/region rails, Global card, no homepage comparison, compact reviews, existing Admin image controls. 152 tests, 8 theme/viewport checks, 14 locale checks and build OK; screenshots/report delivered. No data writes/payments/publish.
+- [ ] Verify actual Admin upload/replacement → draft save → refresh → public readback: blocked by test account lacking admin role; publishing also needs explicit approval.
+- [ ] Verify nonempty genuine review carousel UI/autoplay/expanded reading: blocked by no published genuine reviews in current public read.
+
 - [x] Repair dark-only homepage/header local ink cascade; seven requested German headings/names computed as #F1F6F3 at 390/1440 (15.53–17.40:1), search 7.69:1; menu theme toggle/search opening/no overflow checked. Price tokens unchanged; mobile light pixels identical, desktop only dynamic banner price-loading pixels differed. 15 tests/build OK; screenshots delivered. No Hero, commerce, backend or publish changes.
 
 - [x] Unify homepage light colors in scoped CSS; 390/1440 before/after, unchanged Hero pixels/section geometry, no overflow, checker/installation/FAQ/worldwide destination checked; 55 tests and build OK. Screenshots/report delivered; existing country-card click stays on /de and is reported, not changed. No backend, payments or publish.

@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { Button } from '@/components/ui/button';
 
 const reducedMotion = () => typeof matchMedia !== "undefined" && matchMedia("(prefers-reduced-motion: reduce)").matches;
 
@@ -43,7 +44,7 @@ export function useRailControls<T extends HTMLElement>(deps: unknown[] = []) {
 export function RailArrows({ edge, scroll, previous, next }: { edge: { start: boolean; end: boolean }; scroll: (next: boolean) => void; previous: string; next: string }) {
   if (edge.start && edge.end) return null;
   return <>
-    <button type="button" className="home-rail-arrow is-prev" aria-label={previous} title={previous} disabled={edge.start} onClick={() => scroll(false)}><ChevronLeft className="size-4 lg:size-5 rtl:rotate-180" aria-hidden /></button>
-    <button type="button" className="home-rail-arrow is-next" aria-label={next} title={next} disabled={edge.end} onClick={() => scroll(true)}><ChevronRight className="size-4 lg:size-5 rtl:rotate-180" aria-hidden /></button>
+    <Button type="button" variant="outline" size="icon" className="home-rail-arrow is-prev" aria-label={previous} title={previous} disabled={edge.start} onClick={() => scroll(false)}><ChevronLeft className="size-4 lg:size-5 rtl:rotate-180" aria-hidden /></Button>
+    <Button type="button" variant="outline" size="icon" className="home-rail-arrow is-next" aria-label={next} title={next} disabled={edge.end} onClick={() => scroll(true)}><ChevronRight className="size-4 lg:size-5 rtl:rotate-180" aria-hidden /></Button>
   </>;
 }

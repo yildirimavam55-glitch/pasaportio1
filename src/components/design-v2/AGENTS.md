@@ -1,6 +1,8 @@
 # V2 storefront CMS rules
 
-- The homepage worldwide banner uses approved bundled responsive travel still-life crops through WorldwideBannerPhoto, while its existing REGION_DISCOVERY catalogue row, dimensions and destination remain shared — why: replace only the photo without carrying old-photo crop settings into new artwork or changing commerce.
+- Homepage catalogue media overrides use stable ISO/region keys in the existing versioned CMS document and collected media IDs; default photos remain fallbacks, Global is a regional card, and comparisons stay stored but unrendered on home — why: image editing must never duplicate catalogue, storage, pricing or publish systems.
+
+- Global uses the shared regional card and REGION_DISCOVERY media fallback, not a separate banner — why: one destination, one editable image path.
 
 - Installation education shares CentralInstallationWalkthrough and InstallationExperience primitives: preserve the homepage preview while central platform-specific scene registries feed credential-free EducationalPhone screens, with optional playback and owner data outside the phone; APN requires provider data — why: one reusable educational system without homepage or credential regressions.
 - Central manual phone interiors use separate original Android/iOS screen components and reserved nonfunctional demo constants; style them only through the manual-os scope — why: realistic platform hierarchy without changing homepage, QR/link presentation or exposing credentials.

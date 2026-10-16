@@ -7,6 +7,7 @@ import { AdminGate } from "@/components/AdminGate";
 import { AdminError, AdminLoading, AdminPanel, Field } from "@/components/admin/AdminUi";
 import { adminHead } from "@/components/admin/AdminSectionPage";
 import { MediaField } from "@/components/admin/MediaPicker";
+import { HomepageImagesEditor } from '@/components/admin/HomepageImagesEditor';
 import { ImageDisplayControls } from "@/components/admin/ImageDisplayControls";
 import { DEFAULT_IMAGE_DISPLAY, ESIM_DESKTOP_IMAGE_DISPLAY } from "@/domain/storefront/image-display";
 import { IconPicker } from "@/components/admin/IconPicker";
@@ -443,7 +444,7 @@ function ImageField({ label, value, onChange, category = "HERO" }: { label: stri
   return (
     <div className="space-y-1">
       {builtin && <div className="flex items-center gap-2 rounded-md border border-border p-2 text-xs"><img src={builtin} alt="" className="size-12 rounded object-cover" /><span className="flex-1">Onaylı varsayılan görsel</span><Button type="button" size="icon" variant="ghost" className="size-9" aria-label="Görseli kaldır" onClick={() => onChange(null)}><X className="size-4" /></Button></div>}
-       <MediaField label={label} value={builtin ? null : value} onChange={onChange} category={category} hint="Medya kütüphanesinden seç veya yükle. Kaldırırsan görsel alanı boş kalır." />
+       <MediaField label={label} value={builtin ? null : value} onChange={onChange} category={category} fallbackUrl={builtin || undefined} recommendation={category === 'HERO' ? 'Masaüstü: 1920 × 800+ · mobil: portre · JPEG / WebP / AVIF' : '800 × 600 · JPEG / WebP / AVIF'} hint="Medya kütüphanesinden seç veya yükle. Varsayılan görsel varsa kaldırınca geri döner; taslak ve sürüm akışı korunur." />
     </div>
   );
 }
@@ -492,18 +493,10 @@ function SectionForm({ section: s, lang, page, trustPreviewLocale, onTrustLocale
       {s.type === "FAQ" && <Select label="Satır yüksekliği" value={s.variant === "comfortable" ? "comfortable" : "default"} options={["default", "comfortable"] as const} labels={{ default: "Kompakt", comfortable: "Rahat" }} onChange={(variant) => onChange({ variant })} />}
       {s.type === "SPACER" && <Select label="Boşluk" value={s.height} options={V2_HEIGHTS} onChange={(height) => onChange({ height })} />}
       {s.type === "DESTINATION_CAROUSEL" && <p className="rounded-md bg-secondary p-2 text-[11px] text-muted-foreground">Fiyatlar her zaman gerçek katalogdan gelir; yalnız yayınlanmış fiyatı olan destinasyonlar müşteriye görünür.</p>}
+      {page === 'esim' && (s.type === 'DESTINATION_CAROUSEL' || s.type === 'REGION_DISCOVERY') && <HomepageImagesEditor key={s.id} section={s} onChange={onChange} />}
       {s.type === "REGION_DISCOVERY" && <>
         <p className="rounded-md bg-secondary p-2 text-[11px] text-muted-foreground">Bölgeler, ülke sayıları ve fiyatlar gerçek katalogdan otomatik gelir.</p>
-        {page === "esim" && <div className="grid gap-3 sm:grid-cols-2">
-          <div className="space-y-3">
-            <ImageField label="Dünya bannerı · Masaüstü görseli" value={s.mediaId ?? "builtin:worldwide-window"} category="GLOBAL" onChange={(mediaId) => onChange({ mediaId })} />
-            <ImageDisplayControls value={s.imageDisplay} onChange={(imageDisplay) => onChange({ imageDisplay })} />
-          </div>
-          <div className="space-y-3">
-            <ImageField label="Dünya bannerı · Mobil görsel (isteğe bağlı)" value={s.mobileMediaId} category="GLOBAL" onChange={(mobileMediaId) => onChange({ mobileMediaId })} />
-            <ImageDisplayControls title="Mobil görsel ayarları" value={s.mobileImageDisplay} defaults={{ ...(s.imageDisplay ?? DEFAULT_IMAGE_DISPLAY), x: s.imageDisplay?.x ?? 76 }} onChange={(mobileImageDisplay) => onChange({ mobileImageDisplay })} />
-          </div>
-        </div>}
+
       </>}
       {s.type === "TRUST_REVIEWS" && <div className="grid gap-3 sm:grid-cols-2">{V2_TEXT_FIELDS.TRUST_REVIEWS.filter(([key])=>key.startsWith("family")).map(([key,label])=><LTInput key={key} label={label} lang={lang} uiLang={trustPreviewLocale ?? lang} value={s.text[key]} onSourceBlur={onTrustSourceBlur} onChange={value=>setText(key,value)} />)}</div>}
       {s.type === "TRUST_REVIEWS" && <TrustReviewsEditor section={s} lang={lang} uiLang={trustPreviewLocale ?? lang} onUiLang={onTrustLocale} onSourceBlur={onTrustSourceBlur} onChange={onChange} />}
@@ -511,6 +504,7 @@ function SectionForm({ section: s, lang, page, trustPreviewLocale, onTrustLocale
         <label className="flex items-center gap-2 text-xs font-semibold"><input type="checkbox" checked={s.showOnResults} onChange={(e) => onChange({ showOnResults: e.target.checked })} />Havalimanı sonuçlarının altında da göster</label>
       )}
 
+      {s.type === 'TRUST_REVIEWS' && <p className="text-xs text-muted-foreground">Roaming ve rakip karşılaştırmaları ana sayfada gösterilmez. Eski değerler ve sürümler korunur.</p>}
       {mode && <ItemsEditor mode={mode} page={page} items={s.items} lang={lang} onChange={(items) => onChange({ items })} />}
     </div>
   );
@@ -598,7 +592,8 @@ function ItemsEditor({ mode, page, items, lang, onChange }: { mode: NonNullable<
     if (target < 0 || target >= items.length) return;
     const next = [...items];
     const [row] = next.splice(index, 1);
-    next.splice(target, 0, row!);
+    if (!row) return;
+    next.splice(target, 0, row);
     onChange(next);
   };
   const blank = (): V2Item => ({ id: `item-${Math.random().toString(36).slice(2, 8)}`, visible: true, icon: mode === "benefit" ? "CheckCircle2" : "", entity: "", title: { tr: "", de: "", en: "" }, text: { tr: "", de: "", en: "" }, internalKey: "", cardType: "products", mediaId: null, href: "", labels: [], cta: { tr: "", de: "", en: "" }, imageAlt: { tr: "", de: "", en: "" }, focalX: 50, focalY: 50, rating: 5, verified: false, published: false });
@@ -632,6 +627,7 @@ function ItemsEditor({ mode, page, items, lang, onChange }: { mode: NonNullable<
                 {mode === "benefit" && <Select label="Bağlantı" value={(it.href || "") as V2ItemLink} options={V2_ITEM_LINKS} labels={LINK_LABEL} onChange={(href) => set(it.id, { href })} />}
               </div>
             )}
+            {(mode === 'step' || mode === 'card') && <MediaField label="Adım görseli (isteğe bağlı)" category="ESIM" value={it.mediaId} recommendation="600 × 600 · PNG / WebP / SVG" hint="Görsel seçilmezse mevcut simge/adım gösterilir." onChange={mediaId => set(it.id, { mediaId })} />}
           </li>
         ))}
       </ul>
