@@ -4,6 +4,8 @@ import { ImagePlus, Upload, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { AdminDrawer, EmptyState, Field } from "@/components/admin/AdminUi";
 import { listMedia, uploadMedia, MEDIA_CATEGORIES, type MediaAsset } from "@/lib/admin-media.functions";
+import { imageUploadError } from '@/domain/storefront/homepage-media';
+import { toast } from 'sonner';
 
 /** Reads pixel dimensions in the browser so the library can show real file sizes. */
 async function readImageSize(file: File): Promise<{ width: number | null; height: number | null }> {
@@ -23,12 +25,14 @@ async function readImageSize(file: File): Promise<{ width: number | null; height
 }
 
 /** Image field that always opens the Media Library — raw storage paths are never shown. */
-export function MediaField({ label, hint, value, onChange, category = "HERO" }: {
+export function MediaField({ label, hint, value, onChange, category = "HERO", fallbackUrl, recommendation }: {
   label: string;
   hint?: string;
   value: string | null;
   onChange: (id: string | null) => void;
   category?: string;
+  fallbackUrl?: string | undefined;
+  recommendation?: string;
 }) {
   const [open, setOpen] = useState(false);
   const media = useQuery({ queryKey: ["media-all"], queryFn: () => listMedia({ data: {} }) });
@@ -39,16 +43,17 @@ export function MediaField({ label, hint, value, onChange, category = "HERO" }: 
       <span className="block">{label}</span>
       <div className="mt-1 flex items-center gap-2 rounded-md border border-border bg-background p-2">
         <span className="grid size-14 shrink-0 place-items-center overflow-hidden rounded-md bg-secondary">
-          {selected?.url ? <img src={selected.url} alt={selected.altText || selected.label} className="size-full object-cover" /> : <ImagePlus className="size-5 text-muted-foreground" />}
+          {selected?.url || fallbackUrl ? <img src={selected?.url || fallbackUrl} alt={selected?.altText || selected?.label || 'Varsayılan görsel'} className="size-full object-cover" /> : <ImagePlus className="size-5 text-muted-foreground" />}
         </span>
         <div className="min-w-0 flex-1">
-          <p className="truncate">{selected ? selected.label : "Görsel seçilmedi"}</p>
+          <p className="truncate">{selected ? selected.label : fallbackUrl ? 'Varsayılan görsel' : "Görsel seçilmedi"}</p>
           <p className="truncate text-[10px] font-normal text-muted-foreground">{selected ? `${selected.category} · ${selected.usage === "BOTH" ? "Masaüstü + mobil" : selected.usage === "MOBILE" ? "Mobil" : "Masaüstü"}` : "Medya kütüphanesinden seç"}</p>
         </div>
-        <Button type="button" size="sm" variant="outline" onClick={() => setOpen(true)}>Seç</Button>
+        <Button type="button" size="sm" variant="outline" onClick={() => setOpen(true)}>{value ? 'Değiştir' : 'Seç / yükle'}</Button>
         {value && <Button type="button" size="icon" variant="ghost" className="size-9" aria-label="Görseli kaldır" onClick={() => onChange(null)}><X /></Button>}
       </div>
       {hint && <span className="mt-1 block text-[10px] font-normal text-muted-foreground">{hint}</span>}
+      {recommendation && <span className="mt-1 block text-[10px] font-normal text-muted-foreground">{recommendation} · En fazla 10 MB</span>}
       <MediaLibraryDialog open={open} defaultCategory={category} onClose={() => setOpen(false)} onSelect={(asset) => { onChange(asset.id); setOpen(false); }} />
     </div>
   );
@@ -76,7 +81,8 @@ export function MediaLibraryDialog({ open, onClose, onSelect, defaultCategory = 
     setBusy(true);
     try {
       for (const file of Array.from(files).slice(0, 20)) {
-        if (!file.type.startsWith("image/")) continue;
+        const error = imageUploadError(file);
+        if (error) { toast.error(error); continue; }
         const buffer = new Uint8Array(await file.arrayBuffer());
         let base64 = "";
         for (let index = 0; index < buffer.length; index += 8192) base64 += String.fromCharCode(...buffer.subarray(index, index + 8192));
@@ -84,6 +90,8 @@ export function MediaLibraryDialog({ open, onClose, onSelect, defaultCategory = 
         await uploadMedia({ data: { label: file.name, category: (category === "ALL" ? "GLOBAL" : category) as any, usage: "BOTH", altText: "", fileName: file.name, contentType: file.type, base64: btoa(base64), width: size.width, height: size.height } });
       }
       await queryClient.invalidateQueries({ queryKey: ["media-all"] });
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'Görsel yüklenemedi.');
     } finally {
       setBusy(false);
     }
@@ -106,7 +114,7 @@ export function MediaLibraryDialog({ open, onClose, onSelect, defaultCategory = 
           onDrop={(event) => { event.preventDefault(); if (event.dataTransfer.files.length) void upload(event.dataTransfer.files); }}
           className="rounded-md border border-dashed border-border bg-secondary/25 p-3 text-center"
         >
-          <input ref={fileRef} type="file" accept="image/*" multiple className="hidden" onChange={(event) => { if (event.target.files?.length) void upload(event.target.files); }} />
+          <input ref={fileRef} type="file" accept="image/jpeg,image/webp,image/avif,image/png,image/svg+xml" multiple className="hidden" onChange={(event) => { if (event.target.files?.length) void upload(event.target.files); }} />
           <Button type="button" size="sm" variant="outline" disabled={busy} onClick={() => fileRef.current?.click()}><Upload />{busy ? "Yükleniyor…" : "Görsel yükle"}</Button>
           <p className="mt-1 text-[10px] text-muted-foreground">Birden fazla görseli buraya sürükleyip bırakabilirsin.</p>
         </div>

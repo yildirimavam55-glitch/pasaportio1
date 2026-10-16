@@ -32,7 +32,7 @@ Installation uses one V2 guide; credentials require existing owner-authenticated
 - Homepage loader primes only layout and the shared country-price query; other sections load client-side with fixed placeholders, and `Reveal` is visible by default — why: complete first viewport without a heavier server response.
 - eSIM home shares CMS/search/gift/trust and the loading-gated device status — why: missing data never implies incompatibility.
 - Browser-only locales await resolution in a neutral shell; TR/DE/EN URLs remain SSR — why: unknown browser preferences must not flash another language.
-- Worldwide static photos reuse REGION_DISCOVERY media/crops/preview; price/coverage share one catalogue row — why: no duplicate tools or false claims.
+- Homepage images use ISO/region CMS overrides, collected media and central fallbacks; Global shares regional cards — why: no duplicate systems.
 - One shared PaymentStrip uses story CSS ordering for desktop copy/mobile below-photo placement — why: never duplicate availability data.
 - Refund verdicts use stored activation history plus confirmed never-activated provider evidence, not current status — why: past activation and duplicate requests stay blocked.
 - Root CurrencyProvider + displayMoney are the only currency path; EUR stays canonical, rateless currencies are hidden, only payment-verified ones charge — why: no fake prices.

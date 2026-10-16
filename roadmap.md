@@ -1,5 +1,7 @@
 # Roadmap — Phase 5
 
+- [ ] Final homepage gap audit and safe completion: verify current header/search/trust, repair regional imagery and carousels, integrate Global card, remove homepage comparison, compact reviews, extend existing CMS image editing without migrations; verify responsive themes and report untested persistence separately. No data writes/payments/publish.
+
 - [x] Repair dark-only homepage/header local ink cascade; seven requested German headings/names computed as #F1F6F3 at 390/1440 (15.53–17.40:1), search 7.69:1; menu theme toggle/search opening/no overflow checked. Price tokens unchanged; mobile light pixels identical, desktop only dynamic banner price-loading pixels differed. 15 tests/build OK; screenshots delivered. No Hero, commerce, backend or publish changes.
 
 - [x] Unify homepage light colors in scoped CSS; 390/1440 before/after, unchanged Hero pixels/section geometry, no overflow, checker/installation/FAQ/worldwide destination checked; 55 tests and build OK. Screenshots/report delivered; existing country-card click stays on /de and is reported, not changed. No backend, payments or publish.

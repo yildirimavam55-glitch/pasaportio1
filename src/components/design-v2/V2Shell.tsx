@@ -14,6 +14,7 @@ import { useOptionalServices } from "@/components/travel/ServiceAvailability";
 import { localize } from "@/i18n/overlay";
 import { PromoBanner } from "./PromoBanner";
 import { DEFAULT_IMAGE_DISPLAY, ESIM_DESKTOP_IMAGE_DISPLAY, type ImageDisplay } from "@/domain/storefront/image-display";
+import { CataloguePhoto } from './CataloguePhoto';
 
 export type V2Service = "esim" | "lounge" | "vignette";
 
@@ -259,20 +260,21 @@ export function PhotoRail({ children, railRef, onScroll }: { children: ReactNode
   return <ul ref={railRef} onScroll={onScroll} className="-mx-4 flex snap-x snap-mandatory scroll-px-4 gap-2.5 overflow-x-auto px-4 pb-1 [overscroll-behavior-inline:contain] [scrollbar-width:none] lg:mx-0 lg:scroll-px-0 lg:gap-4 lg:px-0 lg:[&>li]:w-[calc((100%_-_4rem)/5)]">{children}</ul>;
 }
 
-export function PhotoCard({ image, badge, title, sub, price, onClick }: { image?: string | undefined; badge?: ReactNode; title: string; sub?: string | undefined; price?: string | undefined; onClick: () => void }) {
+export function PhotoCard({ image, fallbackImage, badge, title, sub, price, onClick, showArrow = false }: { image?: string | undefined; fallbackImage?: string | undefined; badge?: ReactNode; title: string; sub?: string | undefined; price?: string | undefined; onClick: () => void; showArrow?: boolean }) {
   return (
     <li data-reveal-card className="w-[7.55rem] shrink-0 snap-start">
-      <button type="button" onClick={onClick} className="w-full overflow-hidden rounded-xl bg-card text-left shadow-sm ring-1 ring-border">
+      <Button type="button" variant="ghost" onClick={onClick} className="relative block h-auto w-full overflow-hidden rounded-xl bg-card p-0 text-start shadow-sm ring-1 ring-border">
         <div className="relative h-[5.35rem] bg-muted lg:h-40">
-          {image && <img src={image} alt="" loading="lazy" decoding="async" width={256} height={192} className="size-full object-cover" />}
+          <CataloguePhoto src={image} fallback={fallbackImage} alt={title} className="size-full object-cover" />
           {badge && <span className="absolute bottom-1.5 left-1.5">{badge}</span>}
         </div>
-        <div className="px-2 py-1.5 lg:p-3">
+        <div className={`px-2 py-1.5 lg:p-3 ${showArrow ? 'pe-7 lg:pe-8' : ''}`}>
           <p className="truncate text-xs font-bold text-foreground lg:text-sm">{title}</p>
           {sub && <p className="truncate text-xs text-muted-foreground">{sub}</p>}
           {price && <p className="text-xs font-bold text-primary">{price}</p>}
         </div>
-      </button>
+        {showArrow && <span className="catalogue-card-arrow" aria-hidden="true"><ArrowRight className="size-3 rtl:rotate-180" /></span>}
+      </Button>
     </li>
   );
 }
@@ -314,14 +316,14 @@ export function DesktopPromoCard({ image, title, cta, to, imagePosition = "cente
   );
 }
 
-export function HowItWorks({ title, steps }: { title: string; steps: Array<{ t: string; s: string }> }) {
+export function HowItWorks({ title, steps }: { title: string; steps: Array<{ t: string; s: string; image?: string | undefined }> }) {
   return (
     <>
       <SectionTitle>{title}</SectionTitle>
       <ol className={`grid gap-3 border-b border-border pb-2 ${steps.length === 4 ? "grid-cols-2 sm:grid-cols-4" : "grid-cols-3"}`}>
         {steps.map((step, i) => (
           <li key={step.t} className="grid grid-cols-[auto_minmax(0,1fr)] items-start gap-x-2 gap-y-0.5">
-            <span className="row-span-2 grid size-7 place-items-center rounded-full bg-[var(--v2-service)] font-display text-xs font-bold text-primary-foreground">{i + 1}</span>
+            {step.image ? <CataloguePhoto src={step.image} alt={step.t} className="row-span-2 size-10 object-contain" /> : <span className="row-span-2 grid size-7 place-items-center rounded-full bg-[var(--v2-service)] font-display text-xs font-bold text-primary-foreground">{i + 1}</span>}
             <span className="text-[11px] font-bold leading-tight text-foreground">{step.t}</span>
             <span className="text-[9px] leading-snug text-muted-foreground">{step.s}</span>
           </li>

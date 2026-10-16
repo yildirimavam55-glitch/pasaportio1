@@ -1888,7 +1888,7 @@ body:has([role="dialog"][data-state="open"]) .pasaport-mobile-reference [data-wh
 .rating-star-svg{display:block;flex:none;width:18px;height:18px;overflow:visible}.rating-star-base{color:var(--story-border)}.rating-star-fill{color:var(--story-stars)}.review-card-top .rating-star-svg{width:16px;height:16px}
 .partial-star{position:relative;display:block;width:18px;height:18px;color:var(--story-border)}.partial-star>svg{width:18px;height:18px;fill:currentColor;stroke:none}.partial-star>span{position:absolute;inset:0 auto 0 0;overflow:hidden;color:var(--story-stars)}.partial-star>span>svg{width:18px;height:18px;max-width:none;stroke:none}
 .combined-score{display:flex;align-items:center;gap:10px;border:0;padding:0}.combined-score bdi{font-size:18px;font-weight:800;white-space:nowrap}.combined-count{font-size:13px;color:var(--story-petrol)}.combined-caption{text-align:center;font-size:11px;line-height:16px;color:var(--story-petrol);padding:6px 0 0;margin-bottom:16px!important}
-.combined-reviews .family-review-rail{margin-top:16px;align-items:flex-start;padding:0 0 2px}.combined-reviews .family-review-card{background:var(--review-white);border-color:var(--review-edge);border-radius:16px;min-height:210px;padding:16px;gap:0;box-shadow:none}.review-card-top{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:14px;min-height:24px}.review-card-top .google-wordmark{font-size:18px}.review-card-top .trustpilot-wordmark{font-size:12px}.review-card-top .trustpilot-wordmark svg{width:18px;height:18px}.review-card-top .combined-stars{gap:1px}.review-card-top .partial-star,.review-card-top .partial-star>svg,.review-card-top .partial-star>span>svg{width:16px;height:16px}
+.combined-reviews .family-review-rail{margin-top:16px;align-items:flex-start;padding:0 0 2px}.combined-reviews .family-review-card{background:var(--review-white);border-color:var(--review-edge);border-radius:16px;min-height:0;padding:16px;gap:0;box-shadow:none}.review-card-top{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:14px;min-height:24px}.review-card-top .google-wordmark{font-size:18px}.review-card-top .trustpilot-wordmark{font-size:12px}.review-card-top .trustpilot-wordmark svg{width:18px;height:18px}.review-card-top .combined-stars{gap:1px}.review-card-top .partial-star,.review-card-top .partial-star>svg,.review-card-top .partial-star>span>svg{width:16px;height:16px}
 .combined-reviews .family-review-card>p{font-size:14px;line-height:21px;flex:none;margin:0;min-height:0;overflow-wrap:anywhere;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:4;overflow:hidden}.combined-reviews .family-review-card[data-expanded=true]>p{display:block;overflow:visible}.combined-reviews .review-read-more{min-height:44px;height:auto;margin-bottom:-8px;font-size:12px}.combined-reviews .review-card-identity{margin-top:15px;padding:0;border:0;width:100%;gap:8px;min-height:32px;flex-wrap:nowrap}.combined-reviews .review-avatar{width:30px;height:30px;font-size:11px}.combined-reviews .reviewer-name{font-size:12px;gap:3px}.combined-reviews .sample-badge{background:var(--story-mint);font-size:9px}.combined-reviews .review-card-identity>.reviewer-name{margin-inline-start:0}.review-pagination{display:flex;justify-content:center;gap:0;margin:8px auto 0;max-width:100%}.review-pagination button{height:44px;width:36px;min-width:36px;padding:0}.review-pagination .review-dot{width:6px;height:6px}.review-pagination button:focus-visible{outline:2px solid var(--story-petrol);outline-offset:-4px}
 @media(max-width:599px){.combined-reviews{padding:20px 16px 12px;margin:16px -10px;border-radius:0}.combined-reviews .family-review-heading h3{font-size:24px;line-height:30px}.review-rating-summary{flex-direction:column;gap:8px;padding:14px 16px;min-height:114px}.combined-reviews .family-source-marks{gap:14px}.combined-reviews .family-review-card{flex-basis:88%}.combined-count{font-size:12px}.combined-reviews .combined-caption{font-size:10px}.combined-reviews .family-review-rail{margin-top:16px}}
 /* The viewport clips horizontally; the track sizes naturally to its tallest card.
@@ -1896,7 +1896,7 @@ body:has([role="dialog"][data-state="open"]) .pasaport-mobile-reference [data-wh
 .combined-reviews{overflow:visible;min-width:0;overflow-anchor:none}
 .combined-reviews .review-carousel-viewport{position:relative;margin-top:16px;overflow:clip;min-width:0;touch-action:pan-y pinch-zoom}
 .combined-reviews .family-review-rail{position:relative;margin:0;padding:0;overflow:visible;scroll-snap-type:none;align-items:flex-start;touch-action:pan-y pinch-zoom;will-change:transform}
-.combined-reviews .family-review-card{flex-shrink:0;scroll-snap-align:none;min-height:210px;max-height:none;overflow:visible}
+.combined-reviews .family-review-card{flex-shrink:0;scroll-snap-align:none;min-height:0;max-height:none;overflow:visible}
 .combined-reviews .review-rating-summary{min-height:0}
 .review-rating-unavailable{font-size:13px;line-height:20px;color:var(--story-petrol);text-align:center}
 .review-language-note{font-size:11px;line-height:16px;color:var(--story-petrol);margin-bottom:8px}
@@ -1904,7 +1904,7 @@ body:has([role="dialog"][data-state="open"]) .pasaport-mobile-reference [data-wh
 .review-original-text{font-size:14px;line-height:21px;margin-top:8px;overflow-wrap:anywhere}
 .combined-reviews .family-review-card[data-expanded=true]>p{-webkit-line-clamp:unset}
 @media(prefers-reduced-motion:reduce){.combined-reviews .family-review-rail{will-change:auto}}
-@container(min-width:900px){.combined-reviews .family-review-rail{align-items:stretch}}
+@container(min-width:900px){.combined-reviews .family-review-rail{align-items:flex-start}}
 /* Payment strip (family section) */
 .family-story-left{min-width:0}
 @media(min-width:1024px){
@@ -2519,3 +2519,22 @@ html.dark .pasaport-mobile-home .pasaport-country-field input::placeholder {
 html.dark .pasaport-mobile-home .pasaport-country-arrow {
   color: var(--home-dark-foreground);
 }
+
+/* Equal catalogue cards, destination-specific media fallback and compact review sizing. */
+.catalogue-photo-fallback { display:grid; place-items:center; aspect-ratio:1.8; background:var(--primary-soft); color:var(--primary); }
+.catalogue-photo-fallback svg { width:32px; height:32px; }
+.catalogue-card-arrow { position:absolute; inset-inline-end:7px; bottom:8px; display:grid; place-items:center; width:20px; height:20px; border-radius:50%; background:var(--primary-soft); color:var(--primary); }
+.pasaport-mobile-home #popular + .home-rail-frame > ul > li > button { display:block; }
+.pasaport-mobile-home #popular + .home-rail-frame > ul > li > button > div:nth-child(2) { width:100%; padding:6px 28px 6px 8px; text-align:start; }
+.home-region-card { position:relative; height:100%; }
+.home-region-card > div { padding-inline-end:28px; }
+.home-region-card h3 { min-height:2.6em; }
+.home-region-card p { min-height:2.8em; }
+.pasaport-mobile-home .home-region-card > div { padding-inline-end:28px; }
+.pasaport-mobile-home .home-rail-arrow { min-width:44px; min-height:44px; }
+.pasaport-mobile-home .combined-reviews { padding-block:16px 12px; }
+.pasaport-mobile-home .combined-reviews .combined-caption { margin-bottom:8px!important; }
+.home-installation-steps { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:8px; margin:0; padding:0; list-style:none; }
+.home-installation-steps li { min-width:0; display:flex; align-items:flex-start; gap:6px; font-size:12px; line-height:1.4; color:var(--foreground); }
+.home-installation-steps img,.home-installation-steps .catalogue-photo-fallback { width:40px; height:40px; flex-shrink:0; object-fit:contain; }
+.home-installation-steps .step-fallback { display:grid; place-items:center; width:28px; height:28px; flex-shrink:0; color:var(--primary); background:var(--primary-soft); border-radius:50%; }

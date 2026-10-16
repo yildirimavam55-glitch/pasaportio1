@@ -17,6 +17,7 @@ import { localize } from "@/i18n/overlay";
 import { useNearViewport } from "@/components/travel/use-near-viewport";
 import { CentralInstallationWalkthrough } from "./EsimInstallationPage";
 import faqTravelEsim from "@/assets/faq-travel-esim.jpg";
+import { CataloguePhoto } from './CataloguePhoto';
 
 const COPY = localize({
   tr: {
@@ -161,12 +162,12 @@ export function V2Compatibility({ title, desktopCard = false }: { title?: string
   return <section className={desktopCard ? "lg:flex lg:flex-col" : undefined}><SectionTitle>{title || c.compatibility}</SectionTitle><div className={desktopCard ? "lg:flex lg:h-48 lg:items-stretch" : undefined}><DeviceCompatibilityPrompt /></div></section>;
 }
 
-type InstallProps = { title?: string; subtitle?: string; steps?: string[]; ready?: string; adding?: string; cta?: string; href?: V2SafeLink; variant?: "animated" | "simple" };
+type InstallProps = { title?: string; subtitle?: string; steps?: string[]; images?: Array<string | undefined>; ready?: string; adding?: string; cta?: string; href?: V2SafeLink; variant?: "animated" | "simple" };
 
 /** Copy/link/variant can come from the storefront builder; animation stays decorative (no real QR). */
-export function V2Installation({ title, subtitle, cta }: InstallProps = {}) {
+export function V2Installation({ title, subtitle, cta, steps = [], images = [] }: InstallProps = {}) {
  const {locale}=useI18n();const c=COPY[locale];
- return <section className="grid gap-3 border-y border-border py-6 lg:py-8"><SectionTitle>{title||c.install}</SectionTitle><p className="max-w-2xl text-sm leading-6 text-muted-foreground">{subtitle??c.installSub}</p><CentralInstallationWalkthrough preview initialPlatform="ios"/><Button asChild variant="outline" className="w-fit min-h-11"><Link to="/esim/kurulum">{cta||c.installCta}<ArrowRight/></Link></Button></section>;
+ return <section className="grid gap-3 border-y border-border py-4 lg:py-6"><SectionTitle>{title||c.install}</SectionTitle><p className="max-w-2xl text-sm leading-6 text-muted-foreground">{subtitle??c.installSub}</p>{images.some(Boolean) && <ol className="home-installation-steps">{steps.map((step, index) => <li key={index}>{images[index] ? <CataloguePhoto src={images[index]} alt={step} /> : <span className="step-fallback">{index + 1}</span>}<span>{step}</span></li>)}</ol>}<CentralInstallationWalkthrough preview initialPlatform="ios"/><Button asChild variant="outline" className="w-fit min-h-11"><Link to="/esim/kurulum">{cta||c.installCta}<ArrowRight/></Link></Button></section>;
 }
 
 export function V2WhyTravely() {

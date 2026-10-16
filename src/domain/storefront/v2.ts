@@ -17,6 +17,7 @@ import { cleanSourceRatings, type ReviewSourceRating } from './review-carousel';
 import { TRUST_TRANSLATIONS } from "@/i18n/trust-translations";
 import { DEFAULT_IMAGE_DISPLAY, ESIM_DESKTOP_IMAGE_DISPLAY, sanitizeImageDisplay, type ImageDisplay } from "./image-display";
 import restoredEsimHomepage from "./restored-esim-homepage.json";
+import { COVERAGE_REGION_ORDER } from '@/domain/geo/coverage-regions';
 
 export const V2_PAGES = ["esim", "lounge", "vignette"] as const;
 export type V2PageId = (typeof V2_PAGES)[number];
@@ -165,6 +166,8 @@ export type V2Section = {
   overlay: (typeof V2_OVERLAYS)[number];
   mediaId: string | null;
   mobileMediaId: string | null;
+  /** Stable country ISO or region keys in the existing CMS document. */
+  imageOverrides?: Record<string, string>;
   imageDisplay?: ImageDisplay;
   mobileImageDisplay?: ImageDisplay;
   href: V2SafeLink;
@@ -615,6 +618,14 @@ function cleanSection(raw: any): V2Section | null {
     overlay: pick(raw.overlay, V2_OVERLAYS, "normal"),
     mediaId: cleanMediaId(raw.mediaId),
     mobileMediaId: cleanMediaId(raw.mobileMediaId),
+    ...(type === 'DESTINATION_CAROUSEL' || type === 'REGION_DISCOVERY' ? { imageOverrides: Object.fromEntries(
+      Object.entries(raw.imageOverrides && typeof raw.imageOverrides === 'object' ? raw.imageOverrides : {}).flatMap(([key, value]) => {
+        const normalized = key.toUpperCase();
+        const valid = type === 'DESTINATION_CAROUSEL' ? /^[A-Z]{2}$/.test(normalized) : (COVERAGE_REGION_ORDER as string[]).includes(normalized);
+        const id = cleanMediaId(value);
+        return valid && id ? [[normalized, id]] : [];
+      }).slice(0, 300),
+    ) } : {}),
     ...(type === "SEARCH_HERO" || type === "REGION_DISCOVERY" ? {
       ...(raw.imageDisplay != null ? { imageDisplay: sanitizeImageDisplay(raw.imageDisplay, raw.mediaId === "builtin:esim-hero" ? ESIM_DESKTOP_IMAGE_DISPLAY : DEFAULT_IMAGE_DISPLAY) } : {}),
       ...(raw.mobileImageDisplay != null ? { mobileImageDisplay: sanitizeImageDisplay(raw.mobileImageDisplay) } : {}),
@@ -758,7 +769,7 @@ export function missingV2Translations(config: V2PageConfig, locale: "de" | "en")
 export function collectV2MediaIds(config: V2PageConfig): string[] {
   const ids = new Set<string>();
   for (const s of config.sections) {
-    for (const id of [s.mediaId, s.mobileMediaId, s.trust?.illustrationId, s.trust?.comparisonImageId, s.trust?.comparisonMobileImageId, ...s.items.map((item) => item.mediaId)]) if (id && UUID.test(id)) ids.add(id);
+    for (const id of [s.mediaId, s.mobileMediaId, s.trust?.illustrationId, s.trust?.comparisonImageId, s.trust?.comparisonMobileImageId, ...Object.values(s.imageOverrides ?? {}), ...s.items.map((item) => item.mediaId)]) if (id && UUID.test(id)) ids.add(id);
   }
   return [...ids];
 }
