@@ -116,7 +116,7 @@ const NON_MULTI_KINDS = "(COUNTRY,LOCAL,SUBDIVISION,STATE,PROVINCE)";
  * single-country rows in the database; regionalIdentity still runs afterwards,
  * so the result is identical to filtering the full catalogue.
  */
-async function loadEsimPackages(wantedIsos: string[], options: { multiCountryOnly?: boolean } = {}): Promise<EsimPackage[]> {
+export async function loadEsimPackages(wantedIsos: string[], options: { multiCountryOnly?: boolean } = {}): Promise<EsimPackage[]> {
     {
     const pageSize = wantedIsos.length ? 400 : 500;
     let rows: Awaited<ReturnType<typeof queryPage>> = [];
