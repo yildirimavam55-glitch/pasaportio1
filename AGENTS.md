@@ -40,3 +40,5 @@ Installation uses one V2 guide; credentials require existing owner-authenticated
 - Fresh databases build from db/baseline/0000_baseline_schema.sql, then drizzle/migrations in order; security grants live in migrations — why: copies must reproduce the hardened live schema.
 - Guest orders have customer_id null + normalized guest_email; idempotency is scoped per owner and guest delivery links use hashed, expiring tokens only — why: guests never get accounts and links must never leak access.
 - Site origin = SITE_URL; sitemaps share one builder — why: no conflicting domains.
+
+- AI trip planner lives at /esim/plan (TripPlanner.tsx + lib/trip-planner.functions.ts): the model only ranks/explains real catalogue packages fetched server-side via loadEsimPackages; saved trips stay in localStorage, no DB table — why: recommendations must never invent products or prices, and reuse needs no schema change.
