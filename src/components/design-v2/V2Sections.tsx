@@ -76,6 +76,8 @@ export const V2_BUILTIN_URLS: Record<string, string> = {
 };
 
 export const V2_PREVIEW_WINDOW = "v2-cms-preview";
+export const V2_PREVIEW_SELECT = "v2-cms-select";
+export const V2_PREVIEW_FOCUS = "v2-cms-focus";
 
 type V2PageData = { config: V2PageConfig; media: V2Media; refreshFailed?: boolean };
 const signedBase = (url: string) => url.split("?")[0];
@@ -128,6 +130,11 @@ export function useV2Page(page: V2PageId): { config: V2PageConfig; media: V2Medi
     const onMessage = (event: MessageEvent) => {
       if (event.origin !== window.location.origin || event.source !== window.parent) return;
       const msg = event.data;
+      if (msg?.type === V2_PREVIEW_FOCUS && msg.page === page && typeof msg.id === "string") {
+        const host = document.querySelector(`[data-v2-edit-id="${CSS.escape(msg.id)}"]`);
+        (host?.firstElementChild ?? host)?.scrollIntoView({ block: "start", behavior: "smooth" });
+        return;
+      }
       if (msg?.type !== "v2-cms-preview" || msg.page !== page) return;
       if (isUiLocale(msg.locale) && msg.locale !== uiLocale) setLocale(msg.locale, { persist: false });
       setPreview({ config: sanitizeV2Page(msg.config, page), media: msg.media && typeof msg.media === "object" ? msg.media : {} });
@@ -251,7 +258,7 @@ export function V2Sections({ config, media, slots, only, onDestinationSearch, se
           default:
             return null;
         }
-      })}
+      })()))}
     </>
   );
 }
