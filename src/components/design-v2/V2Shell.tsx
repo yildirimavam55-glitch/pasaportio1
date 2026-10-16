@@ -267,10 +267,10 @@ export function PhotoCard({ image, fallbackImage, badge, title, sub, price, onCl
         <Button type="button" variant="ghost" onClick={onClick} className="photo-card-overlay relative block h-[9.5rem] w-full overflow-hidden rounded-2xl bg-muted p-0 text-start shadow-sm ring-1 ring-border lg:h-52">
           <CataloguePhoto src={image} fallback={fallbackImage} alt={title} className="absolute inset-0 size-full object-cover" />
           <span className="photo-card-overlay-shade" aria-hidden="true" />
-          <span className="absolute inset-x-0 bottom-0 flex flex-col gap-0.5 p-2.5 pe-9 lg:p-3 lg:pe-10">
+          <span className="absolute inset-x-0 bottom-0 flex flex-col gap-0.5 p-2.5 lg:p-3">
             <span className="flex items-center gap-1.5">{badge}<span className="truncate text-[13px] font-bold leading-tight text-[oklch(0.99_0.005_95)] lg:text-base">{title}</span></span>
             {sub && <span className="truncate text-[11px] text-[oklch(0.99_0.005_95)]/85">{sub}</span>}
-            {price && <span className="text-xs font-bold text-[oklch(0.99_0.005_95)] lg:text-sm">{price}</span>}
+            {price && <span className="pe-8 text-xs font-bold text-[oklch(0.99_0.005_95)] lg:text-sm">{price}</span>}
           </span>
           {showArrow && <span className="photo-card-overlay-arrow" aria-hidden="true"><ArrowRight className="size-3.5 rtl:rotate-180" /></span>}
         </Button>

@@ -2550,8 +2550,8 @@ html.dark .pasaport-mobile-home .pasaport-country-arrow {
   overflow: hidden;
 }
 .trust-strip-segment {
-  display: flex; align-items: center; gap: 8px;
-  flex: 1 1 0; min-width: 0; padding: 10px 12px;
+  display: flex; align-items: center; gap: 7px;
+  flex: 1 1 0; min-width: 0; padding: 10px 9px;
   border-inline-end: 1px solid color-mix(in oklab, var(--border) 70%, transparent);
 }
 .trust-strip-segment:last-child { border-inline-end: 0; }
@@ -2567,7 +2567,7 @@ html.dark .pasaport-mobile-home .pasaport-country-arrow {
 .trust-strip-stars { display: inline-flex; gap: 1px; }
 .trust-strip-star .star-base { fill: color-mix(in oklab, var(--muted-foreground) 35%, transparent); }
 .trust-strip-star .star-fill { fill: oklch(0.75 0.15 85); }
-@media (max-width: 420px) {
+@media (max-width: 340px) {
   .hero-trust-strip { margin-inline: 12px; }
   .trust-strip-segment { flex: 1 1 44%; padding: 8px 10px; }
   .trust-strip-segment:nth-child(2n) { border-inline-end: 0; }
