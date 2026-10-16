@@ -1700,11 +1700,11 @@ html[data-quick-search-lock] body {
 }
 
 /* Final eSIM composition; independent from country cards and other services. */
-.pasaport-final-hero { --gift-cream: oklch(.94 .035 85); --gift-side: oklch(.84 .045 85); --gift-ribbon: oklch(.28 .052 176); --hero-ink: oklch(.15 .022 205); position: relative; display: grid; grid-template-columns: minmax(0,1fr); margin-inline: -16px; isolation: isolate; color: var(--hero-ink); }
-.final-hero-photo { position: relative; grid-area: 1/1; height: 340px; overflow: hidden; }
+.pasaport-final-hero { --gift-cream: oklch(.94 .035 85); --gift-side: oklch(.84 .045 85); --gift-ribbon: oklch(.28 .052 176); --hero-ink: oklch(.99 .005 95); --hero-scrim: oklch(.18 .03 220); position: relative; display: grid; grid-template-columns: minmax(0,1fr); margin-inline: -16px; isolation: isolate; color: var(--hero-ink); }
+.final-hero-photo { position: relative; grid-area: 1/1; height: 360px; overflow: hidden; }
 .final-hero-photo img { width: 100%; height: 100%; object-fit: var(--hero-mobile-fit,cover); object-position: var(--hero-mobile-position); transform: scale(var(--hero-mobile-scale,1)); }
-.final-hero-shade { grid-area: 1/1; pointer-events: none; background: linear-gradient(115deg,var(--card),color-mix(in oklab,var(--card) 88%,transparent) 18%,transparent 58%); }
-.final-hero-heading { grid-area: 1/1; align-self: start; z-index: 1; padding: 20px 20px 0; }
+.final-hero-shade { grid-area: 1/1; pointer-events: none; background: linear-gradient(180deg,color-mix(in oklab,var(--hero-scrim) 45%,transparent),color-mix(in oklab,var(--hero-scrim) 12%,transparent) 42%,color-mix(in oklab,var(--hero-scrim) 62%,transparent) 92%); }
+.final-hero-heading { grid-area: 1/1; align-self: start; z-index: 1; padding: 22px 20px 0; text-shadow: 0 1px 12px color-mix(in oklab,var(--hero-scrim) 55%,transparent); }
 .final-hero-heading h1 { font-family: var(--font-sans); font-weight: 800; font-size: 32px; line-height: 1.04; max-width: 320px; letter-spacing: 0; }
 .final-hero-heading p { font-size: 14px; line-height: 1.45; margin-top: 8px; max-width: 330px; }
 .final-hero-search { position: relative; z-index: 3; margin: -24px 16px 0; border-radius: 999px; background: var(--card); box-shadow: var(--shadow-panel); }
