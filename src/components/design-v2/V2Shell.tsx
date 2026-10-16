@@ -260,7 +260,23 @@ export function PhotoRail({ children, railRef, onScroll }: { children: ReactNode
   return <ul ref={railRef} onScroll={onScroll} className="-mx-4 flex snap-x snap-mandatory scroll-px-4 gap-2.5 overflow-x-auto px-4 pb-1 [overscroll-behavior-inline:contain] [scrollbar-width:none] lg:mx-0 lg:scroll-px-0 lg:gap-4 lg:px-0 lg:[&>li]:w-[calc((100%_-_4rem)/5)]">{children}</ul>;
 }
 
-export function PhotoCard({ image, fallbackImage, badge, title, sub, price, onClick, showArrow = false }: { image?: string | undefined; fallbackImage?: string | undefined; badge?: ReactNode; title: string; sub?: string | undefined; price?: string | undefined; onClick: () => void; showArrow?: boolean }) {
+export function PhotoCard({ image, fallbackImage, badge, title, sub, price, onClick, showArrow = false, overlay = false }: { image?: string | undefined; fallbackImage?: string | undefined; badge?: ReactNode; title: string; sub?: string | undefined; price?: string | undefined; onClick: () => void; showArrow?: boolean; overlay?: boolean }) {
+  if (overlay) {
+    return (
+      <li data-reveal-card className="w-[7.55rem] shrink-0 snap-start lg:w-auto">
+        <Button type="button" variant="ghost" onClick={onClick} className="photo-card-overlay relative block h-[9.5rem] w-full overflow-hidden rounded-2xl bg-muted p-0 text-start shadow-sm ring-1 ring-border lg:h-52">
+          <CataloguePhoto src={image} fallback={fallbackImage} alt={title} className="absolute inset-0 size-full object-cover" />
+          <span className="photo-card-overlay-shade" aria-hidden="true" />
+          <span className="absolute inset-x-0 bottom-0 flex flex-col gap-0.5 p-2.5 pe-9 lg:p-3 lg:pe-10">
+            <span className="flex items-center gap-1.5">{badge}<span className="truncate text-[13px] font-bold leading-tight text-[oklch(0.99_0.005_95)] lg:text-base">{title}</span></span>
+            {sub && <span className="truncate text-[11px] text-[oklch(0.99_0.005_95)]/85">{sub}</span>}
+            {price && <span className="text-xs font-bold text-[oklch(0.99_0.005_95)] lg:text-sm">{price}</span>}
+          </span>
+          {showArrow && <span className="photo-card-overlay-arrow" aria-hidden="true"><ArrowRight className="size-3.5 rtl:rotate-180" /></span>}
+        </Button>
+      </li>
+    );
+  }
   return (
     <li data-reveal-card className="w-[7.55rem] shrink-0 snap-start">
       <Button type="button" variant="ghost" onClick={onClick} className="relative block h-auto w-full overflow-hidden rounded-xl bg-card p-0 text-start shadow-sm ring-1 ring-border">
