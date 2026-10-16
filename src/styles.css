@@ -2538,3 +2538,69 @@ html.dark .pasaport-mobile-home .pasaport-country-arrow {
 .home-installation-steps li { min-width:0; display:flex; align-items:flex-start; gap:6px; font-size:12px; line-height:1.4; color:var(--foreground); }
 .home-installation-steps img,.home-installation-steps .catalogue-photo-fallback { width:40px; height:40px; flex-shrink:0; object-fit:contain; }
 .home-installation-steps .step-fallback { display:grid; place-items:center; width:28px; height:28px; flex-shrink:0; color:var(--primary); background:var(--primary-soft); border-radius:50%; }
+
+/* ===== Premium glass trust strip (hero) ===== */
+.hero-trust-strip {
+  display: flex; flex-wrap: wrap; align-items: stretch;
+  margin: 10px 16px 0; border-radius: 18px;
+  background: color-mix(in oklab, var(--card) 72%, transparent);
+  backdrop-filter: blur(14px) saturate(140%);
+  border: 1px solid color-mix(in oklab, var(--border) 70%, transparent);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+}
+.trust-strip-segment {
+  display: flex; align-items: center; gap: 7px;
+  flex: 1 1 0; min-width: 0; padding: 10px 9px;
+  border-inline-end: 1px solid color-mix(in oklab, var(--border) 70%, transparent);
+}
+.trust-strip-segment:last-child { border-inline-end: 0; }
+.trust-strip-icon { display: grid; place-items: center; flex-shrink: 0; color: var(--primary); }
+.trust-strip-text { min-width: 0; display: flex; flex-direction: column; gap: 1px; }
+.trust-strip-text strong { font-size: 11.5px; font-weight: 700; line-height: 1.25; color: var(--foreground); }
+.trust-strip-text small { font-size: 10px; line-height: 1.3; color: var(--muted-foreground); }
+.trust-strip-rating { flex: 1.4 1 0; }
+.trust-strip-marks { display: flex; align-items: center; gap: 4px; flex-shrink: 0; }
+.trust-strip-rating-text { min-width: 0; display: flex; flex-direction: column; gap: 1px; }
+.trust-strip-rating-text strong { font-size: 11.5px; font-weight: 700; color: var(--foreground); }
+.trust-strip-rating-text small { font-size: 10px; color: var(--muted-foreground); }
+.trust-strip-stars { display: inline-flex; gap: 1px; }
+.trust-strip-star .star-base { fill: color-mix(in oklab, var(--muted-foreground) 35%, transparent); }
+.trust-strip-star .star-fill { fill: oklch(0.75 0.15 85); }
+@media (max-width: 340px) {
+  .hero-trust-strip { margin-inline: 12px; }
+  .trust-strip-segment { flex: 1 1 44%; padding: 8px 10px; }
+  .trust-strip-segment:nth-child(2n) { border-inline-end: 0; }
+  .trust-strip-rating { flex: 1 1 100%; border-inline-end: 0; border-bottom: 1px solid color-mix(in oklab, var(--border) 70%, transparent); }
+}
+@media (min-width: 1024px) {
+  .hero-trust-strip { margin: 14px auto 0; max-width: 1200px; }
+  .trust-strip-segment { padding: 12px 20px; gap: 12px; }
+  .trust-strip-text strong { font-size: 13.5px; }
+  .trust-strip-text small, .trust-strip-rating-text small { font-size: 11.5px; }
+}
+
+/* ===== Photo-overlay cards (popular countries + regions) ===== */
+.photo-card-overlay-shade {
+  position: absolute; inset: 0;
+  background: linear-gradient(to top, oklch(0.16 0.03 220 / 0.82), oklch(0.16 0.03 220 / 0.25) 55%, transparent 80%);
+}
+.photo-card-overlay-arrow {
+  position: absolute; inset-inline-end: 8px; bottom: 8px;
+  display: grid; place-items: center; width: 26px; height: 26px; border-radius: 50%;
+  background: var(--primary); color: var(--primary-foreground);
+}
+.home-region-card-overlay { position: relative; display: block; height: 9.5rem; overflow: hidden; border-radius: 14px; }
+.home-region-card-overlay > img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.home-region-card-overlay > div { position: absolute; inset-inline: 0; bottom: 0; padding: 10px 40px 10px 10px; }
+.home-region-card-overlay h3 { color: oklch(0.99 0.005 95); font-size: 13px; font-weight: 700; line-height: 1.25; min-height: 0; }
+.home-region-card-overlay p { color: oklch(0.99 0.005 95 / 0.85); font-size: 11px; margin-top: 1px; min-height: 0; }
+.home-region-card-overlay strong { color: oklch(0.99 0.005 95); font-size: 12px; margin-top: 2px; }
+@media (min-width: 1024px) {
+  .home-region-card-overlay { height: 13rem; }
+  .home-region-card-overlay h3 { font-size: 16px; }
+  .home-region-card-overlay p, .home-region-card-overlay strong { font-size: 13px; }
+}
+@media (max-width: 479px) {
+  .trust-strip-text small, .trust-strip-rating-text small { display: none; }
+}
