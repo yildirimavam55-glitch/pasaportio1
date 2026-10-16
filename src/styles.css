@@ -1766,7 +1766,7 @@ html[data-quick-search-lock] body {
 @media (min-width:1024px) {
  .pasaport-final-hero { margin-inline:-24px; height:420px; display:block; padding:38px max(48px,calc((100vw - 1280px)/2)); }
  .final-hero-photo {position:absolute;inset:0;height:420px;z-index:-2;}.final-hero-photo img {object-fit:var(--hero-desktop-fit,cover);object-position:var(--hero-desktop-position);transform:scale(var(--hero-desktop-scale,1));}
- .final-hero-shade {position:absolute;inset:0;z-index:-1;background:linear-gradient(90deg,var(--card),color-mix(in oklab,var(--card) 95%,transparent) 26%,transparent 62%);}
+ .final-hero-shade {position:absolute;inset:0;z-index:-1;background:linear-gradient(90deg,color-mix(in oklab,var(--hero-scrim) 68%,transparent),color-mix(in oklab,var(--hero-scrim) 30%,transparent) 34%,transparent 66%),linear-gradient(0deg,color-mix(in oklab,var(--hero-scrim) 55%,transparent),transparent 38%);}
  .final-hero-heading {padding:0;max-width:48%;}.final-hero-heading h1 {font-size:52px;max-width:460px;}.final-hero-heading p {font-size:18px;max-width:480px;}
  .final-hero-search {margin:22px 0 0;max-width:480px;}.final-hero-compatibility {margin:16px 0 0;max-width:480px;}
  .pasaport-final-hero:has(.hero-device-outcome) {height:auto;min-height:420px;}.pasaport-final-hero:has(.hero-device-outcome) .final-hero-photo {height:100%;}
@@ -2103,13 +2103,13 @@ body:has([role="dialog"][data-state="open"]) .pasaport-mobile-reference [data-wh
 .final-hero-compatibility { margin:24px 16px 0; }
 .pasaport-final-hero .hero-device-selectors { grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; }
 .pasaport-final-hero .hero-device-selectors button,.pasaport-final-hero .hero-device-selectors select { height:52px; border:1px solid color-mix(in oklab,var(--foreground) 16%,transparent); border-radius:10px; padding-inline:12px; background:var(--card); color:var(--foreground); opacity:1; }
-.final-trust-band { margin:16px 0 0; padding:8px 4px; border-radius:18px; background:var(--card); border:1px solid var(--border); box-shadow:var(--shadow-sm); list-style:none; }
+.final-trust-band { margin:14px 0 0; padding:2px 4px; list-style:none; }
 .final-trust-band li { border-inline-end-color:var(--border); }
-.final-trust-icon { display:grid; place-items:center; width:40px; height:40px; flex-shrink:0; border-radius:999px; background:var(--primary-soft); color:var(--primary); }
-.final-trust-band .final-trust-icon svg { width:24px; height:24px; stroke-width:1.65; }
-.final-trust-band .final-trust-item { gap:5px; padding:0 4px; min-height:70px; justify-content:flex-start; cursor:default; }
-.final-trust-band strong { color:var(--primary); font-size:11px; font-weight:650; line-height:1.35; overflow-wrap:anywhere; }
-.final-trust-band small { display:none; margin-top:4px; font-size:10px; line-height:1.35; color:var(--muted-foreground); overflow-wrap:anywhere; text-wrap:balance; }
+.final-trust-icon { display:grid; place-items:center; flex-shrink:0; color:var(--primary); }
+.final-trust-band .final-trust-icon svg { width:22px; height:22px; stroke-width:1.65; }
+.final-trust-band .final-trust-item { gap:5px; padding:0 4px; min-height:52px; justify-content:flex-start; cursor:default; }
+.final-trust-band strong { color:var(--foreground); font-size:11px; font-weight:600; line-height:1.3; overflow-wrap:anywhere; }
+.final-trust-band small { display:none; }
 .final-trust-band .final-trust-icon,
 .final-trust-band .final-trust-icon svg { animation:none; transition:none; transform:none; }
 /* Compact only below-hero mobile discovery, preserving dynamic copy and rail controls. */
