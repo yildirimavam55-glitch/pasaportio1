@@ -28,3 +28,12 @@
 
 - The shared installation walkthrough renders only the phone scene, its educational caption, numbered step navigation and playback control; step titles and descriptions stay out of the visible layout, kept as a screen-reader live region — why: the animation itself teaches each step and the owner removed the duplicated copy below it.
 - Editor click-to-edit wraps sections in display:contents `data-v2-edit-id` hosts only inside the named preview frame, and undo/redo lives only in editor memory — why: customer markup and saved/published data stay untouched.
+- V2 pickers share `V2PickerSheet`; preserve mobile scroll/x-position and visual-viewport keyboard handling, with guarded pointer-up selection.
+- V2 country pages reuse central photos, device checker, catalogue queries, and cart state; never duplicate these systems.
+- V2 promotion copy stores one Turkish source plus locale translations; storefront never runtime-translates campaigns or duplicates codes/values.
+- The eSIM homepage has one compact compatibility card opening the shared DeviceCheckSheet; floating support moves only on measured card overlap — why: no duplicate checker or narrowed card.
+- Homepage loader primes only layout and the shared country-price query; other sections load client-side with fixed placeholders, and `Reveal` is visible by default.
+- Homepage images use ISO/region CMS overrides, collected media and central fallbacks; Global shares regional cards — why: no duplicate systems.
+- One shared PaymentStrip uses story CSS ordering for desktop copy/mobile below-photo placement — why: never duplicate availability data.
+- Theme editor reuses global config; homepage light roles exclude Hero/header. Dark ink targets wrapper/story consumers, not Hero/prices — why: local tokens beat root themes.
+- AI trip planner lives at /esim/plan (TripPlanner.tsx + lib/trip-planner.functions.ts): the model only ranks/explains real catalogue packages fetched server-side via loadEsimPackages; saved trips stay in localStorage, no DB table — why: recommendations must never invent products or prices, and reuse needs no schema change.
