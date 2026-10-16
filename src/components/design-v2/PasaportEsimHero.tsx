@@ -5,7 +5,6 @@ import type { CSSProperties, ReactNode } from "react";
 import { useI18n } from "@/i18n";
 import { HeroPromotion } from "./HeroPromotion";
 import { v2Text, type V2Section } from "@/domain/storefront/v2";
-import { StorefrontIcon } from "@/domain/storefront/icons";
 import { trustBandItems } from "./hero-trust-band";
 import { useWhatsAppHref } from "@/components/travel/WhatsAppSupportWidget";
 import { combinedSourceRating, starFill } from "@/domain/storefront/review-carousel";
@@ -21,7 +20,7 @@ const COPY = localize({
  ar: { title: "إنترنت رحلتك جاهز.", subtitle: "ابقَ متصلاً عبر eSIM في أكثر من 190 دولة.", delivery: "تسليم سريع", setup: "إعداد سهل", payment: "معلومات الدفع", support: "دعم واتساب", deliveryInfo: "معلومات تسليم eSIM", setupInfo: "التثبيت خطوة بخطوة", paymentInfo: "اطّلع على خيارات الدفع", supportInfo: "المساعدة في التثبيت" },
 });
 const oldTitles = ["Yurt dışında bağlantıda kal.", "Im Ausland verbunden bleiben.", "Stay connected abroad.", "Her yerde bağlantıda kal.", "Überall verbunden bleiben.", "Stay connected everywhere.", "ابقَ متصلاً أينما كنت.", "ابقَ على اتصال في الخارج."];
-export function PasaportEsimHero({ section, image, mobileImage, benefits, children }: { section: V2Section; image: string; mobileImage?: string | undefined; benefits?: V2Section | undefined; children: ReactNode }) {
+export function PasaportEsimHero({ section, image, mobileImage, benefits, reviews, children }: { section: V2Section; image: string; mobileImage?: string | undefined; benefits?: V2Section | undefined; reviews?: V2Section | undefined; children: ReactNode }) {
  const { locale, uiLocale } = useI18n();
  const c = COPY[uiLocale as keyof typeof COPY] ?? COPY[locale];
  const storedTitle = v2Text(section, "title", locale);
@@ -39,7 +38,7 @@ export function PasaportEsimHero({ section, image, mobileImage, benefits, childr
   <div className="final-hero-heading"><h1>{approved ? c.title : storedTitle}</h1><p>{approved ? c.subtitle : v2Text(section, "subtitle", locale)}</p></div>
   <div className="final-hero-search">{children}</div>
   <div className="final-hero-gift"><HeroPromotion /></div>
- </section><PasaportMobileBenefits section={benefits} /></>;
+ </section><PasaportMobileBenefits section={benefits} reviews={reviews} /></>;
 }
 /** Google "G" mark, inline so no extra asset is loaded. */
 function GoogleMark() {
