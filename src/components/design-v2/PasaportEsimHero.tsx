@@ -8,6 +8,8 @@ import { v2Text, type V2Section } from "@/domain/storefront/v2";
 import { StorefrontIcon } from "@/domain/storefront/icons";
 import { trustBandItems } from "./hero-trust-band";
 import { useWhatsAppHref } from "@/components/travel/WhatsAppSupportWidget";
+import { combinedSourceRating, starFill } from "@/domain/storefront/review-carousel";
+import { CalendarCheck, Mail, QrCode } from "lucide-react";
 import coast from "@/assets/pasaport-antenna-coast.png.asset.json";
 import { AntennaSignal } from "./AntennaSignal";
 import { useTrustIconEntry } from "./use-trust-icon-entry";
