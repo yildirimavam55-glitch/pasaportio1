@@ -2569,6 +2569,8 @@ html.dark .pasaport-mobile-home .pasaport-country-arrow {
 .trust-strip-rating-text { min-width: 0; display: flex; flex-direction: column; gap: 1px; }
 .trust-strip-rating-text strong { font-size: 11.5px; font-weight: 700; color: var(--foreground); }
 .trust-strip-rating-text small { font-size: 10px; color: var(--muted-foreground); }
+/* Sample badge only renders in the dev preview (PREVIEW_SAMPLE_RATING); production never ships it. */
+.trust-strip-sample { font-style: normal; font-size: 9px; line-height: 1; font-weight: 600; letter-spacing: .02em; color: var(--muted-foreground); border: 1px solid color-mix(in oklab, var(--muted-foreground) 40%, transparent); border-radius: 999px; padding: 2px 6px; margin-inline-start: 4px; }
 .trust-strip-stars { display: inline-flex; gap: 1px; }
 .trust-strip-star .star-base { fill: color-mix(in oklab, var(--muted-foreground) 35%, transparent); }
 .trust-strip-star .star-fill { fill: oklch(0.75 0.15 85); }
