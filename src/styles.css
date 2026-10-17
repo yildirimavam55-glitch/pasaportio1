@@ -1740,7 +1740,7 @@ html[data-quick-search-lock] body {
 .hero-coupon-ticket:hover { background:transparent; filter:drop-shadow(0 3px 3px color-mix(in oklab,var(--coupon-petrol) 22%,transparent)); }
 .hero-coupon-ticket:focus-visible { outline:2px solid var(--coupon-petrol); outline-offset:4px; }
 .hero-coupon-ticket:active { transform:translateY(1px); }
-@media(min-width:640px) and (max-width:1023px) { .pasaport-final-hero .final-hero-gift {top:302px;} }
+@media(min-width:640px) and (max-width:1023px) { .pasaport-final-hero .final-hero-gift {top:236px;} }
 @media(min-width:1024px) { .hero-coupon-ticket {width:232px;height:68px;grid-template-columns:28px minmax(0,1fr);gap:12px;padding:10px 16px;}.coupon-ticket-copy {font-size:14px;}.hero-coupon-ticket .coupon-ticket-icon {width:28px;height:30px;} }
 @media(prefers-reduced-motion:reduce) { .hero-coupon-ticket {transition:none;} }
 .gift-trigger { display: flex; flex-direction: column; justify-content: end; gap: 0; height: 90px; width: 96px; padding: 0; background: transparent !important; }
@@ -1763,7 +1763,7 @@ html[data-quick-search-lock] body {
 .pasaport-mobile-reference:has([role="dialog"][data-state="open"]) [data-whatsapp-widget] { visibility:hidden; pointer-events:none; }
 @keyframes gift-wiggle { 0%,100% {transform:rotate(0)} 25% {transform:rotate(-5deg)} 65% {transform:rotate(4deg)} }
 @keyframes gift-ticket-in { from {opacity:0;transform:translateY(6px)} to {opacity:1;transform:translateY(0)} }
-@media (min-width:640px) and (max-width:1023px) { .pasaport-final-hero {margin-inline:-24px;} .final-hero-photo {height:400px;} .final-hero-gift {top:280px;} }
+@media (min-width:640px) and (max-width:1023px) { .pasaport-final-hero {margin-inline:-24px;} .final-hero-photo {height:330px;} .final-hero-gift {top:236px;} }
 @media (min-width:1024px) {
  .pasaport-final-hero { margin-inline:-24px; height:420px; display:block; padding:38px max(48px,calc((100vw - 1280px)/2)); }
  .final-hero-photo {position:absolute;inset:0;height:420px;z-index:-2;}.final-hero-photo img {object-fit:var(--hero-desktop-fit,cover);object-position:var(--hero-desktop-position);transform:scale(var(--hero-desktop-scale,1));}
