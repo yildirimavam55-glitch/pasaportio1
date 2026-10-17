@@ -9,15 +9,17 @@ import { trustBandItems } from "./hero-trust-band";
 import { useWhatsAppHref } from "@/components/travel/WhatsAppSupportWidget";
 import { combinedSourceRating, starFill } from "@/domain/storefront/review-carousel";
 import { CalendarCheck, Mail, QrCode } from "lucide-react";
+/** Sample figures only so the strip layout can be reviewed in the dev preview; never shipped, never presented as verified. */
+const PREVIEW_SAMPLE_RATING = import.meta.env.DEV ? { rating: 4.8, displayRating: 4.8, count: 2000 } : null;
 import coast from "@/assets/pasaport-antenna-coast.png.asset.json";
 import { AntennaSignal } from "./AntennaSignal";
 import { useTrustIconEntry } from "./use-trust-icon-entry";
 
 const COPY = localize({
- tr: { titleA: "Seyahatte internetin", titleB: "hazır.", subtitle: "190+ ülkede eSIM ile bağlantıda kal.", delivery: "Hızlı teslimat", setup: "Kolay kurulum", payment: "Ödeme bilgileri", support: "WhatsApp destek", deliveryInfo: "eSIM teslim bilgileri", setupInfo: "Adım adım kurulum", paymentInfo: "Ödeme seçeneklerini incele", supportInfo: "Kurulum için yardım" },
-  de: { titleA: "Dein Internet", titleB: "für unterwegs.", subtitle: "Mit eSIM in über 190 Ländern verbunden.", delivery: "Schnelle Lieferung", setup: "Einfach einrichten", payment: "Infos zur Zahlung", support: "WhatsApp Support", deliveryInfo: "Informationen zur eSIM-Lieferung", setupInfo: "Installation Schritt für Schritt", paymentInfo: "Zahlungsoptionen ansehen", supportInfo: "Hilfe bei der Einrichtung" },
-  en: { titleA: "Your travel internet", titleB: "is ready.", subtitle: "Stay connected with eSIM in 190+ countries.", delivery: "Fast delivery", setup: "Easy installation", payment: "Payment information", support: "WhatsApp support", deliveryInfo: "eSIM delivery information", setupInfo: "Step-by-step installation", paymentInfo: "Review payment options", supportInfo: "Help with installation" },
-  ar: { titleA: "إنترنت رحلتك", titleB: "جاهز.", subtitle: "ابقَ متصلاً عبر eSIM في أكثر من 190 دولة.", delivery: "تسليم سريع", setup: "إعداد سهل", payment: "معلومات الدفع", support: "دعم واتساب", deliveryInfo: "معلومات تسليم eSIM", setupInfo: "التثبيت خطوة بخطوة", paymentInfo: "اطّلع على خيارات الدفع", supportInfo: "المساعدة في التثبيت" },
+ tr: { titleA: "Seyahatte internetin", titleB: "hazır.", subtitle: "190+ ülkede eSIM ile bağlantıda kal.", delivery: "Hızlı teslimat", setup: "Kolay kurulum", payment: "Ödeme bilgileri", support: "WhatsApp destek", deliveryInfo: "eSIM teslim bilgileri", setupInfo: "Adım adım kurulum", paymentInfo: "Ödeme seçeneklerini incele", supportInfo: "Kurulum için yardım", sample: "Örnek" },
+  de: { titleA: "Dein Internet", titleB: "für unterwegs.", subtitle: "Mit eSIM in über 190 Ländern verbunden.", delivery: "Schnelle Lieferung", setup: "Einfach einrichten", payment: "Infos zur Zahlung", support: "WhatsApp Support", deliveryInfo: "Informationen zur eSIM-Lieferung", setupInfo: "Installation Schritt für Schritt", paymentInfo: "Zahlungsoptionen ansehen", supportInfo: "Hilfe bei der Einrichtung", sample: "Beispiel" },
+  en: { titleA: "Your travel internet", titleB: "is ready.", subtitle: "Stay connected with eSIM in 190+ countries.", delivery: "Fast delivery", setup: "Easy installation", payment: "Payment information", support: "WhatsApp support", deliveryInfo: "eSIM delivery information", setupInfo: "Step-by-step installation", paymentInfo: "Review payment options", supportInfo: "Help with installation", sample: "Sample" },
+  ar: { titleA: "إنترنت رحلتك", titleB: "جاهز.", subtitle: "ابقَ متصلاً عبر eSIM في أكثر من 190 دولة.", delivery: "تسليم سريع", setup: "إعداد سهل", payment: "معلومات الدفع", support: "دعم واتساب", deliveryInfo: "معلومات تسليم eSIM", setupInfo: "التثبيت خطوة بخطوة", paymentInfo: "اطّلع على خيارات الدفع", supportInfo: "المساعدة في التثبيت", sample: "نموذج" },
 });
 const oldTitles = ["Yurt dışında bağlantıda kal.", "Im Ausland verbunden bleiben.", "Stay connected abroad.", "Her yerde bağlantıda kal.", "Überall verbunden bleiben.", "Stay connected everywhere.", "ابقَ متصلاً أينما كنت.", "ابقَ على اتصال في الخارج."];
 export function PasaportEsimHero({ section, image, mobileImage, benefits, reviews, children }: { section: V2Section; image: string; mobileImage?: string | undefined; benefits?: V2Section | undefined; reviews?: V2Section | undefined; children: ReactNode }) {
@@ -62,10 +64,12 @@ const STRIP_ICONS: Record<string, typeof Mail> = { delivery: Mail, refund: Calen
  */
 export function PasaportMobileBenefits({ section, reviews }: { section?: V2Section | undefined; reviews?: V2Section | undefined }) {
   const { locale, uiLocale } = useI18n();
+  const c = COPY[uiLocale as keyof typeof COPY] ?? COPY[locale];
   const items = trustBandItems(section, locale, useWhatsAppHref());
   const { ref, entered } = useTrustIconEntry();
   const verified = combinedSourceRating(reviews?.trust?.sourceRatings);
-  const summary = verified;
+  const summary = verified ?? PREVIEW_SAMPLE_RATING;
+  const isSample = !verified && Boolean(summary);
   const benefits = ["delivery", "refund", "setup"].flatMap((id) => { const item = items.find((entry) => entry.id === id); return item ? [item] : []; });
   const reviewsLabel = uiLocale === "de" ? "Bewertungen" : locale === "tr" ? "değerlendirme" : "reviews";
   const outOf = uiLocale === "de" ? "aus 5" : locale === "tr" ? "/ 5" : "out of 5";
@@ -76,7 +80,7 @@ export function PasaportMobileBenefits({ section, reviews }: { section?: V2Secti
           {summary && <span className="trust-strip-rating-text">
             <strong>{new Intl.NumberFormat(uiLocale, { minimumFractionDigits: 1, maximumFractionDigits: 1 }).format(summary.displayRating)} {outOf}</strong>
             <StripStars rating={summary.rating} />
-            <small>{new Intl.NumberFormat(uiLocale).format(summary.count)} {reviewsLabel}</small>
+            <small>{new Intl.NumberFormat(uiLocale).format(summary.count)} {reviewsLabel}{isSample ? <em className="trust-strip-sample" title={c.sample}>{c.sample}</em> : null}</small>
           </span>}
         </div>
       {benefits.map(({ id, label, description }) => {
