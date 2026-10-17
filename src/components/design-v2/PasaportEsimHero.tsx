@@ -9,6 +9,8 @@ import { trustBandItems } from "./hero-trust-band";
 import { useWhatsAppHref } from "@/components/travel/WhatsAppSupportWidget";
 import { combinedSourceRating, starFill } from "@/domain/storefront/review-carousel";
 import { CalendarCheck, Mail, QrCode } from "lucide-react";
+/** Sample figures only so the strip layout can be reviewed in the dev preview; never shipped, never presented as verified. */
+const PREVIEW_SAMPLE_RATING = import.meta.env.DEV ? { rating: 4.8, displayRating: 4.8, count: 2000 } : null;
 import coast from "@/assets/pasaport-antenna-coast.png.asset.json";
 import { AntennaSignal } from "./AntennaSignal";
 import { useTrustIconEntry } from "./use-trust-icon-entry";
