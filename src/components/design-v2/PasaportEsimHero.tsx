@@ -64,6 +64,7 @@ const STRIP_ICONS: Record<string, typeof Mail> = { delivery: Mail, refund: Calen
  */
 export function PasaportMobileBenefits({ section, reviews }: { section?: V2Section | undefined; reviews?: V2Section | undefined }) {
   const { locale, uiLocale } = useI18n();
+  const c = COPY[uiLocale as keyof typeof COPY] ?? COPY[locale];
   const items = trustBandItems(section, locale, useWhatsAppHref());
   const { ref, entered } = useTrustIconEntry();
   const verified = combinedSourceRating(reviews?.trust?.sourceRatings);
