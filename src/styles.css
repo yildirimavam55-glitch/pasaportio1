@@ -2659,3 +2659,6 @@ html.dark .pasaport-final-hero .hero-trust-strip {
 .pasaport-final-hero .hero-trust-strip .trust-strip-rating { border-color: color-mix(in oklab, var(--foreground) 12%, transparent); }
 html:not(.dark) .final-hero-search { background: oklch(1 0 0); box-shadow: 0 6px 20px color-mix(in oklab, oklch(.2 .03 200) 14%, transparent); }
 html:not(.dark) .pasaport-final-hero .pasaport-country-field { background: oklch(1 0 0); color: oklch(.38 .03 185); }
+html.dark .pasaport-final-hero .hero-trust-strip strong { color: oklch(.97 .007 160); }
+html.dark .pasaport-final-hero .hero-trust-strip small { color: oklch(.82 .02 170); }
+html:not(.dark) .pasaport-final-hero .hero-trust-strip small { color: oklch(.36 .03 185); }
