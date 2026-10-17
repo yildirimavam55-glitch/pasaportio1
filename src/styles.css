@@ -1708,6 +1708,10 @@ html[data-quick-search-lock] body {
 .final-hero-heading h1 { font-family: var(--font-sans); font-weight: 800; font-size: 30px; line-height: 1.06; max-width: 320px; letter-spacing: 0; }
 .final-hero-accent { color: oklch(.84 .13 165); }
 .final-hero-heading p { font-size: 14px; line-height: 1.45; margin-top: 7px; max-width: 330px; }
+/* Light mode: approved dark + brand-green headline on a light veil over the photo. */
+html:not(.dark) .final-hero-shade { background: linear-gradient(180deg,color-mix(in oklab,oklch(.97 .02 95) 72%,transparent),color-mix(in oklab,oklch(.97 .02 95) 28%,transparent) 46%,color-mix(in oklab,oklch(.97 .02 95) 55%,transparent) 94%); }
+html:not(.dark) .final-hero-heading { color: oklch(.25 .05 185); text-shadow: 0 1px 10px color-mix(in oklab,oklch(.99 .005 95) 65%,transparent); }
+html:not(.dark) .final-hero-accent { color: oklch(.417 .073 181); }
 .final-hero-search { position: relative; z-index: 3; margin: -26px 16px 0; padding: 5px; border-radius: 999px; background: var(--card); box-shadow: var(--shadow-panel); }
 .pasaport-final-hero .pasaport-country-field { height: 52px; min-height: 52px; border: 0; padding-inline: 14px 4px; font-size: 14px; color: var(--muted-foreground); }
 .pasaport-final-hero .pasaport-country-arrow { background: var(--gift-ribbon); border-radius: 50%; color: oklch(.98 .01 95); }
