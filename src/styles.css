@@ -2645,15 +2645,15 @@ html.dark .pasaport-mobile-home .pasaport-country-arrow {
 .pasaport-final-hero .hero-trust-strip {
   border-radius: 18px;
   background: color-mix(in oklab, var(--card) 34%, transparent);
-  backdrop-filter: blur(16px) saturate(115%);
-  -webkit-backdrop-filter: blur(16px) saturate(115%);
+  backdrop-filter: blur(18px) saturate(105%);
+  -webkit-backdrop-filter: blur(18px) saturate(105%);
   border: 1px solid color-mix(in oklab, oklch(1 0 0) 42%, transparent);
   box-shadow: 0 6px 18px color-mix(in oklab, oklch(.2 .03 200) 12%, transparent);
   color: var(--foreground);
 }
 html:not(.dark) .pasaport-final-hero .hero-trust-strip {
-  background: color-mix(in oklab, oklch(1 0 0) 58%, transparent);
-  border-color: color-mix(in oklab, oklch(1 0 0) 72%, transparent);
+  background: color-mix(in oklab, oklch(1 0 0) 46%, transparent);
+  border-color: color-mix(in oklab, oklch(1 0 0) 60%, transparent);
 }
 html.dark .pasaport-final-hero .hero-trust-strip {
   background: color-mix(in oklab, var(--card) 30%, transparent);
