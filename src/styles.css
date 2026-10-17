@@ -2620,3 +2620,7 @@ html.dark .pasaport-mobile-home .pasaport-country-arrow {
   .hero-trust-strip[data-has-rating="true"] .trust-strip-segment:nth-child(2n) { border-inline-end: 1px solid color-mix(in oklab, var(--border) 70%, transparent); }
   .hero-trust-strip[data-has-rating="true"] .trust-strip-segment:last-child { border-inline-end: 0; }
 }
+@media (max-width: 360px) {
+  .hero-trust-strip[data-has-rating="true"] .trust-strip-rating-text small { display: none; }
+  .hero-trust-strip[data-has-rating="true"] .trust-strip-segment:not(.trust-strip-rating) { padding-inline: 6px; gap: 5px; }
+}
