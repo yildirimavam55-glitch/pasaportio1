@@ -2643,17 +2643,22 @@ html.dark .pasaport-mobile-home .pasaport-country-arrow {
   .final-hero-trust .hero-trust-strip { margin: 0; max-width: none; }
 }
 .pasaport-final-hero .hero-trust-strip {
-  border-radius: 20px;
-  background: color-mix(in oklab, var(--card) 52%, transparent);
-  backdrop-filter: blur(14px) saturate(140%);
-  border: 1px solid color-mix(in oklab, oklch(1 0 0) 45%, transparent);
-  box-shadow: 0 8px 24px color-mix(in oklab, oklch(.2 .03 200) 14%, transparent);
+  border-radius: 18px;
+  background: color-mix(in oklab, var(--card) 34%, transparent);
+  backdrop-filter: blur(16px) saturate(115%);
+  -webkit-backdrop-filter: blur(16px) saturate(115%);
+  border: 1px solid color-mix(in oklab, oklch(1 0 0) 42%, transparent);
+  box-shadow: 0 6px 18px color-mix(in oklab, oklch(.2 .03 200) 12%, transparent);
   color: var(--foreground);
 }
+html:not(.dark) .pasaport-final-hero .hero-trust-strip {
+  background: color-mix(in oklab, oklch(1 0 0) 58%, transparent);
+  border-color: color-mix(in oklab, oklch(1 0 0) 72%, transparent);
+}
 html.dark .pasaport-final-hero .hero-trust-strip {
-  background: color-mix(in oklab, var(--card) 45%, transparent);
-  border-color: color-mix(in oklab, oklch(1 0 0) 16%, transparent);
-  box-shadow: 0 8px 24px oklch(0 0 0 / .3);
+  background: color-mix(in oklab, var(--card) 30%, transparent);
+  border-color: color-mix(in oklab, oklch(1 0 0) 14%, transparent);
+  box-shadow: 0 6px 18px oklch(0 0 0 / .26);
 }
 .pasaport-final-hero .hero-trust-strip .trust-strip-segment,
 .pasaport-final-hero .hero-trust-strip .trust-strip-rating { border-color: color-mix(in oklab, var(--foreground) 12%, transparent); }
@@ -2665,23 +2670,24 @@ html:not(.dark) .pasaport-final-hero .hero-trust-strip small { color: oklch(.36 
 
 /* ===== Mobile: trust strip as ONE row of four compact glass segments ===== */
 @media (max-width: 639px) {
-  .pasaport-final-hero .hero-trust-strip { flex-wrap: nowrap; margin-inline: 12px; }
+  .final-hero-trust { padding-bottom: 10px; }
+  .pasaport-final-hero .hero-trust-strip { flex-wrap: nowrap; margin-inline: 24px; border-radius: 16px; }
   .pasaport-final-hero .hero-trust-strip .trust-strip-segment,
   .pasaport-final-hero .hero-trust-strip[data-has-rating="true"] .trust-strip-segment:not(.trust-strip-rating),
   .pasaport-final-hero .hero-trust-strip[data-has-rating="true"] .trust-strip-rating {
     flex: 1 1 0; min-width: 0; flex-direction: column; justify-content: center; align-items: center;
-    gap: 4px; padding: 9px 3px; text-align: center; border-bottom: 0;
-    border-inline-end: 1px solid color-mix(in oklab, var(--foreground) 12%, transparent);
+    gap: 4px; padding: 8px 3px; text-align: center; border-bottom: 0;
+    border-inline-end: 1px solid color-mix(in oklab, var(--foreground) 10%, transparent);
   }
   .pasaport-final-hero .hero-trust-strip .trust-strip-segment:last-child { border-inline-end: 0; }
-  .pasaport-final-hero .hero-trust-strip[data-has-rating="true"] .trust-strip-rating { flex-grow: 1.15; }
-  .pasaport-final-hero .hero-trust-strip .trust-strip-marks svg { width: 15px; height: 15px; }
+  .pasaport-final-hero .hero-trust-strip[data-has-rating="true"] .trust-strip-rating { flex-grow: 1.1; }
+  .pasaport-final-hero .hero-trust-strip .trust-strip-marks svg { width: 14px; height: 14px; }
   .pasaport-final-hero .hero-trust-strip[data-has-rating="true"] .trust-strip-rating-text { flex-direction: column; align-items: center; gap: 1px; white-space: nowrap; }
-  .pasaport-final-hero .hero-trust-strip .trust-strip-rating-text strong { font-size: 10.5px; line-height: 1.2; }
+  .pasaport-final-hero .hero-trust-strip[data-has-rating="true"] .trust-strip-rating-text strong { font-size: 11px; line-height: 1.15; }
   .pasaport-final-hero .hero-trust-strip .trust-strip-rating-text small,
   .pasaport-final-hero .hero-trust-strip .trust-strip-text small { display: none; }
   .pasaport-final-hero .hero-trust-strip .trust-strip-star svg { width: 9px; height: 9px; }
-  .pasaport-final-hero .hero-trust-strip .trust-strip-icon svg { width: 17px; height: 17px; }
+  .pasaport-final-hero .hero-trust-strip .trust-strip-icon svg { width: 18px; height: 18px; }
   .pasaport-final-hero .hero-trust-strip .trust-strip-text { align-items: center; }
-  .pasaport-final-hero .hero-trust-strip .trust-strip-text strong { font-size: 10.5px; line-height: 1.2; overflow-wrap: anywhere; hyphens: auto; }
+  .pasaport-final-hero .hero-trust-strip .trust-strip-text strong { font-size: 11px; line-height: 1.15; overflow-wrap: anywhere; hyphens: auto; }
 }
