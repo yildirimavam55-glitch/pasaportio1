@@ -2630,8 +2630,8 @@ html.dark .pasaport-mobile-home .pasaport-country-arrow {
   .pasaport-final-hero { grid-template-rows: 268px auto auto; }
   .pasaport-final-hero .final-hero-photo,
   .pasaport-final-hero .final-hero-shade { grid-row: 1 / -1; grid-column: 1; height: auto; }
-  .final-hero-search { grid-row: 2; }
-  .final-hero-trust { grid-row: 3; position: relative; z-index: 2; padding-bottom: 14px; }
+  .final-hero-search { grid-row: 2; grid-column: 1; }
+  .final-hero-trust { grid-row: 3; grid-column: 1; min-width: 0; position: relative; z-index: 2; padding-bottom: 14px; }
   .pasaport-final-hero .final-hero-shade { background: linear-gradient(180deg,color-mix(in oklab,var(--hero-scrim) 48%,transparent),color-mix(in oklab,var(--hero-scrim) 14%,transparent) 40%,color-mix(in oklab,var(--hero-scrim) 30%,transparent) 88%,var(--background)); }
   html:not(.dark) .pasaport-final-hero .final-hero-shade { background: linear-gradient(180deg,color-mix(in oklab,oklch(.97 .02 95) 72%,transparent),color-mix(in oklab,oklch(.97 .02 95) 28%,transparent) 40%,color-mix(in oklab,oklch(.97 .02 95) 10%,transparent) 88%,var(--background)); }
 }
