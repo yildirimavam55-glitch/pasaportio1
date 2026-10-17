@@ -2607,5 +2607,20 @@ html.dark .pasaport-mobile-home .pasaport-country-arrow {
   .home-region-card-overlay p, .home-region-card-overlay strong { font-size: 13px; }
 }
 @media (max-width: 479px) {
-  .trust-strip-text small, .trust-strip-rating-text small { display: none; }
+  .trust-strip-text small { display: none; }
+}
+/* Mobile/tablet: the combined Google+Trustpilot rating is one full-width row above the three benefits. */
+@media (max-width: 1023px) {
+  .hero-trust-strip[data-has-rating="true"] .trust-strip-rating {
+    flex: 1 1 100%; justify-content: center; gap: 10px; padding: 8px 12px;
+    border-inline-end: 0; border-bottom: 1px solid color-mix(in oklab, var(--border) 70%, transparent);
+  }
+  .hero-trust-strip[data-has-rating="true"] .trust-strip-rating-text { flex-direction: row; align-items: center; gap: 8px; white-space: nowrap; }
+  .hero-trust-strip[data-has-rating="true"] .trust-strip-segment:not(.trust-strip-rating) { flex: 1 1 0; }
+  .hero-trust-strip[data-has-rating="true"] .trust-strip-segment:nth-child(2n) { border-inline-end: 1px solid color-mix(in oklab, var(--border) 70%, transparent); }
+  .hero-trust-strip[data-has-rating="true"] .trust-strip-segment:last-child { border-inline-end: 0; }
+}
+@media (max-width: 360px) {
+  .hero-trust-strip[data-has-rating="true"] .trust-strip-rating-text small { display: none; }
+  .hero-trust-strip[data-has-rating="true"] .trust-strip-segment:not(.trust-strip-rating) { padding-inline: 6px; gap: 5px; }
 }
