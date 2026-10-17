@@ -38,7 +38,7 @@ export function PasaportEsimHero({ section, image, mobileImage, benefits, review
   <div className="final-hero-heading"><h1>{approved ? <>{c.titleA} <span className="final-hero-accent">{c.titleB}</span></> : storedTitle}</h1><p>{approved ? c.subtitle : v2Text(section, "subtitle", locale)}</p></div>
   <div className="final-hero-search">{children}</div>
   <div className="final-hero-gift"><HeroPromotion /></div>
-  {/* Inside the hero so the photo sits behind the frosted-glass strip. */}
+  {/* One shared strip: below the photo on mobile, inside it on desktop. */}
   <div className="final-hero-trust"><PasaportMobileBenefits section={benefits} reviews={reviews} /></div>
  </section></>;
 }
@@ -54,7 +54,6 @@ function StripStars({ rating }: { rating: number }) {
   return <span className="trust-strip-stars" role="img" aria-label={`${rating.toFixed(1)} / 5`}>{Array.from({ length: 5 }, (_, i) => <span key={i} className="trust-strip-star"><svg viewBox="0 0 24 24" width="13" height="13" aria-hidden="true"><path className="star-base" d="M12 2l2.9 6.3 6.9.8-5.1 4.7 1.4 6.8L12 17.2 5.9 20.6l1.4-6.8L2.2 9.1l6.9-.8z"/><path className="star-fill" d="M12 2l2.9 6.3 6.9.8-5.1 4.7 1.4 6.8L12 17.2 5.9 20.6l1.4-6.8L2.2 9.1l6.9-.8z" style={{ clipPath: `inset(0 ${100 - starFill(rating, i)}% 0 0)` }}/></svg></span>)}</span>;
 }
 const STRIP_ICONS: Record<string, typeof Mail> = { delivery: Mail, refund: CalendarCheck, setup: QrCode };
-const PREVIEW_TEST_RATING = { rating: 4.8, displayRating: 4.8, count: 2000 } as const;
 
 /**
  * Premium glass trust strip below the hero search: optional verified Google+Trustpilot
@@ -66,24 +65,20 @@ export function PasaportMobileBenefits({ section, reviews }: { section?: V2Secti
   const items = trustBandItems(section, locale, useWhatsAppHref());
   const { ref, entered } = useTrustIconEntry();
   const verified = combinedSourceRating(reviews?.trust?.sourceRatings);
-  // Test-only sample so the approved layout can be reviewed in the preview. Never shipped:
-  // production builds render the rating only from verified CMS data.
-  const summary = verified ?? (import.meta.env.DEV ? PREVIEW_TEST_RATING : null);
+  const summary = verified;
   const benefits = ["delivery", "refund", "setup"].flatMap((id) => { const item = items.find((entry) => entry.id === id); return item ? [item] : []; });
   const reviewsLabel = uiLocale === "de" ? "Bewertungen" : locale === "tr" ? "değerlendirme" : "reviews";
   const outOf = uiLocale === "de" ? "aus 5" : locale === "tr" ? "/ 5" : "out of 5";
   return (
-    <div ref={ref} className="hero-trust-strip" data-trust-entered={entered} data-has-rating={Boolean(summary)} data-rating-sample={!verified && Boolean(summary) ? "preview-test" : undefined}>
-      {summary && (
+    <div ref={ref} className="hero-trust-strip" data-trust-entered={entered} data-has-rating={Boolean(summary)}>
         <div className="trust-strip-segment trust-strip-rating">
           <span className="trust-strip-marks"><GoogleMark /><TrustpilotMark /></span>
-          <span className="trust-strip-rating-text">
+          {summary && <span className="trust-strip-rating-text">
             <strong>{new Intl.NumberFormat(uiLocale, { minimumFractionDigits: 1, maximumFractionDigits: 1 }).format(summary.displayRating)} {outOf}</strong>
             <StripStars rating={summary.rating} />
             <small>{new Intl.NumberFormat(uiLocale).format(summary.count)} {reviewsLabel}</small>
-          </span>
+          </span>}
         </div>
-      )}
       {benefits.map(({ id, label, description }) => {
         const Icon = STRIP_ICONS[id] ?? Mail;
         return (
