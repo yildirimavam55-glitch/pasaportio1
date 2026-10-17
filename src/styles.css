@@ -2624,3 +2624,41 @@ html.dark .pasaport-mobile-home .pasaport-country-arrow {
   .hero-trust-strip[data-has-rating="true"] .trust-strip-rating-text small { display: none; }
   .hero-trust-strip[data-has-rating="true"] .trust-strip-segment:not(.trust-strip-rating) { padding-inline: 6px; gap: 5px; }
 }
+
+/* ===== Hero glass trust strip: photo extends behind search + strip (no extra height) ===== */
+@media (max-width: 1023px) {
+  .pasaport-final-hero { grid-template-rows: 268px auto auto; }
+  .pasaport-final-hero .final-hero-photo,
+  .pasaport-final-hero .final-hero-shade { grid-row: 1 / -1; grid-column: 1; height: auto; }
+  .final-hero-search { grid-row: 2; grid-column: 1; }
+  .final-hero-trust { grid-row: 3; grid-column: 1; min-width: 0; position: relative; z-index: 2; padding-bottom: 14px; }
+  .pasaport-final-hero .final-hero-shade { background: linear-gradient(180deg,color-mix(in oklab,var(--hero-scrim) 48%,transparent),color-mix(in oklab,var(--hero-scrim) 14%,transparent) 40%,color-mix(in oklab,var(--hero-scrim) 30%,transparent) 88%,var(--background)); }
+  html:not(.dark) .pasaport-final-hero .final-hero-shade { background: linear-gradient(180deg,color-mix(in oklab,oklch(.97 .02 95) 72%,transparent),color-mix(in oklab,oklch(.97 .02 95) 28%,transparent) 40%,color-mix(in oklab,oklch(.97 .02 95) 10%,transparent) 88%,var(--background)); }
+}
+@media (min-width: 640px) and (max-width: 1023px) { .pasaport-final-hero { grid-template-rows: 330px auto auto; } }
+@media (min-width: 1024px) {
+  .pasaport-final-hero { height: auto; min-height: 420px; }
+  .pasaport-final-hero .final-hero-photo { height: 100%; }
+  .final-hero-trust { margin-top: 18px; }
+  .final-hero-trust .hero-trust-strip { margin: 0; max-width: none; }
+}
+.pasaport-final-hero .hero-trust-strip {
+  border-radius: 20px;
+  background: color-mix(in oklab, var(--card) 52%, transparent);
+  backdrop-filter: blur(14px) saturate(140%);
+  border: 1px solid color-mix(in oklab, oklch(1 0 0) 45%, transparent);
+  box-shadow: 0 8px 24px color-mix(in oklab, oklch(.2 .03 200) 14%, transparent);
+  color: var(--foreground);
+}
+html.dark .pasaport-final-hero .hero-trust-strip {
+  background: color-mix(in oklab, var(--card) 45%, transparent);
+  border-color: color-mix(in oklab, oklch(1 0 0) 16%, transparent);
+  box-shadow: 0 8px 24px oklch(0 0 0 / .3);
+}
+.pasaport-final-hero .hero-trust-strip .trust-strip-segment,
+.pasaport-final-hero .hero-trust-strip .trust-strip-rating { border-color: color-mix(in oklab, var(--foreground) 12%, transparent); }
+html:not(.dark) .final-hero-search { background: oklch(1 0 0); box-shadow: 0 6px 20px color-mix(in oklab, oklch(.2 .03 200) 14%, transparent); }
+html:not(.dark) .pasaport-final-hero .pasaport-country-field { background: oklch(1 0 0); color: oklch(.38 .03 185); }
+html.dark .pasaport-final-hero .hero-trust-strip strong { color: oklch(.97 .007 160); }
+html.dark .pasaport-final-hero .hero-trust-strip small { color: oklch(.82 .02 170); }
+html:not(.dark) .pasaport-final-hero .hero-trust-strip small { color: oklch(.36 .03 185); }

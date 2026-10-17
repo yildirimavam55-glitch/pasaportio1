@@ -38,7 +38,9 @@ export function PasaportEsimHero({ section, image, mobileImage, benefits, review
   <div className="final-hero-heading"><h1>{approved ? <>{c.titleA} <span className="final-hero-accent">{c.titleB}</span></> : storedTitle}</h1><p>{approved ? c.subtitle : v2Text(section, "subtitle", locale)}</p></div>
   <div className="final-hero-search">{children}</div>
   <div className="final-hero-gift"><HeroPromotion /></div>
- </section><PasaportMobileBenefits section={benefits} reviews={reviews} /></>;
+  {/* Inside the hero so the photo sits behind the frosted-glass strip. */}
+  <div className="final-hero-trust"><PasaportMobileBenefits section={benefits} reviews={reviews} /></div>
+ </section></>;
 }
 /** Google "G" mark, inline so no extra asset is loaded. */
 function GoogleMark() {
