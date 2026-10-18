@@ -96,11 +96,11 @@ export function useV2StickySearch() {
   return { heroSearchRef, heroSearchVisible };
 }
 
-export function V2StickySearchButton({ heroSearchVisible, label, onOpen }: { heroSearchVisible: boolean; label: string; onOpen: () => void }) {
+export function V2StickySearchButton({ heroSearchVisible, label, onOpen, frame }: { heroSearchVisible: boolean; label: string; onOpen: () => void; frame?: "esim-mint" }) {
   return (
     <div aria-hidden={heroSearchVisible} className={`sticky top-14 z-40 h-0 transition-[opacity,transform] duration-200 motion-reduce:transition-none sm:top-16 lg:top-16 ${heroSearchVisible ? "pointer-events-none -translate-y-2 opacity-0" : "translate-y-0 opacity-100"}`}>
       <div className="mx-auto max-w-site px-3 pt-1 sm:px-6 lg:pt-2">
-        <Button type="button" variant="outline" onClick={onOpen} className="mx-auto grid h-11 w-full max-w-finder grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2 rounded-xl bg-card px-3 text-left shadow-panel lg:h-14 lg:max-w-3xl lg:px-5">
+        <Button type="button" variant="outline" onClick={onOpen} className={`mx-auto grid h-11 w-full max-w-finder grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2 rounded-xl bg-card px-3 text-left shadow-panel lg:h-14 lg:max-w-3xl lg:px-5${frame === "esim-mint" ? " v2-sticky-search-esim" : ""}`}>
           <Search className="size-4 shrink-0 text-primary" /><span className="truncate text-sm text-muted-foreground">{label}</span><ArrowRight className="size-4 shrink-0" />
         </Button>
       </div>
@@ -260,12 +260,12 @@ export function PhotoRail({ children, railRef, onScroll }: { children: ReactNode
   return <ul ref={railRef} onScroll={onScroll} className="-mx-4 flex snap-x snap-mandatory scroll-px-4 gap-2.5 overflow-x-auto px-4 pb-1 [overscroll-behavior-inline:contain] [scrollbar-width:none] lg:mx-0 lg:scroll-px-0 lg:gap-4 lg:px-0 lg:[&>li]:w-[calc((100%_-_4rem)/5)]">{children}</ul>;
 }
 
-export function PhotoCard({ image, fallbackImage, badge, title, sub, price, onClick, showArrow = false, overlay = false }: { image?: string | undefined; fallbackImage?: string | undefined; badge?: ReactNode; title: string; sub?: string | undefined; price?: string | undefined; onClick: () => void; showArrow?: boolean; overlay?: boolean }) {
+export function PhotoCard({ image, fallbackImage, badge, title, sub, price, onClick, showArrow = false, overlay = false, imageKey }: { image?: string | undefined; fallbackImage?: string | undefined; badge?: ReactNode; title: string; sub?: string | undefined; price?: string | undefined; onClick: () => void; showArrow?: boolean; overlay?: boolean; imageKey?: string }) {
   if (overlay) {
     return (
       <li data-reveal-card className="w-[7.55rem] shrink-0 snap-start lg:w-auto">
         <Button type="button" variant="ghost" onClick={onClick} className="photo-card-overlay relative block h-[9.5rem] w-full overflow-hidden rounded-2xl bg-muted p-0 text-start shadow-sm ring-1 ring-border lg:h-52">
-          <CataloguePhoto src={image} fallback={fallbackImage} alt={title} className="absolute inset-0 size-full object-cover" />
+          <CataloguePhoto key={imageKey ?? title} src={image} fallback={fallbackImage} alt={title} className="absolute inset-0 size-full object-cover" {...(imageKey ? { imageKey } : {})} />
           <span className="photo-card-overlay-shade" aria-hidden="true" />
           <span className="absolute inset-x-0 bottom-0 flex flex-col gap-0.5 p-2.5 lg:p-3">
             <span className="flex items-center gap-1.5">{badge}<span className="truncate text-[13px] font-bold leading-tight text-[oklch(0.99_0.005_95)] lg:text-base">{title}</span></span>
@@ -281,7 +281,7 @@ export function PhotoCard({ image, fallbackImage, badge, title, sub, price, onCl
     <li data-reveal-card className="w-[7.55rem] shrink-0 snap-start">
       <Button type="button" variant="ghost" onClick={onClick} className="relative block h-auto w-full overflow-hidden rounded-xl bg-card p-0 text-start shadow-sm ring-1 ring-border">
         <div className="relative h-[5.35rem] bg-muted lg:h-40">
-          <CataloguePhoto src={image} fallback={fallbackImage} alt={title} className="size-full object-cover" />
+          <CataloguePhoto key={imageKey ?? title} src={image} fallback={fallbackImage} alt={title} className="size-full object-cover" {...(imageKey ? { imageKey } : {})} />
           {badge && <span className="absolute bottom-1.5 left-1.5">{badge}</span>}
         </div>
         <div className={`px-2 py-1.5 lg:p-3 ${showArrow ? 'pe-7 lg:pe-8' : ''}`}>
