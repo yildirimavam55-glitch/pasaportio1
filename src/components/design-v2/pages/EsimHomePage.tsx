@@ -2,7 +2,7 @@ import { Link, useNavigate, useSearch } from "@tanstack/react-router";
 import { queryOptions, useQuery } from "@tanstack/react-query";
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { ArrowRight, BarChart3, BookOpen, Box, ChevronLeft, ChevronRight, CheckCircle2, Globe2, Infinity as InfinityIcon, MapPin, MessageCircle, Search, Share2, Smartphone, Sparkles, Video, Zap } from "lucide-react";
-import { DeviceCompatibilityProductCard, HomeCompatibilityCard } from "@/components/travel/DeviceCompatibility";
+import { DeviceCompatibilityProductCard } from "@/components/travel/DeviceCompatibility";
 import { PasaportEsimHero } from "@/components/design-v2/PasaportEsimHero";
 import { CartBar, money as formatMoney, PhotoCard, PhotoRail, pick, SectionTitle, TrustRow, V2Shell, useV2StickySearch, V2StickySearchButton } from "@/components/design-v2/V2Shell";
 import { V2PickerSheet } from "@/components/design-v2/V2PickerSheet";
@@ -34,6 +34,7 @@ import { StorefrontIcon } from "@/domain/storefront/icons";
 import { useNearViewport } from "@/components/travel/use-near-viewport";
 import { ESSENTIAL_FAIR_USE } from "@/domain/esim/fair-use";
 import { homepageImageId, uniqueDestinations, uniqueRegions } from '@/domain/storefront/homepage-media';
+import { STOREFRONT_IMAGE_SLOTS } from '@/components/design-v2/storefront-image';
 
 const DISCOVERY_COPY = localize({
   tr: { title: "Bölgesel eSIM paketleri", worldwide: "Dünya çapında internet", cta: "Paketleri keşfet", previous: "Önceki bölgeler", next: "Sonraki bölgeler" },
@@ -153,7 +154,7 @@ export function EsimHomePage() {
     onAdd={addSelectedPackage}
   /> : undefined;
   return (
-    <V2Shell service="esim" commerceSelection={Boolean(selectedPackage)} purchaseSummary={purchaseSummary} heroPromotion={!selected} stickySearch={!selected ? <V2StickySearchButton heroSearchVisible={heroSearchVisible} label={c.stickyPh} onOpen={() => setPickerOpen(true)} /> : undefined}>
+    <V2Shell service="esim" commerceSelection={Boolean(selectedPackage)} purchaseSummary={purchaseSummary} heroPromotion={!selected} stickySearch={!selected ? <V2StickySearchButton heroSearchVisible={heroSearchVisible} label={c.stickyPh} onOpen={() => setPickerOpen(true)} frame="esim-mint" /> : undefined}>
 
       {selected ? (
         <>
@@ -207,7 +208,7 @@ export function EsimHomePage() {
       </PasaportEsimHero>
               ),
               destinations: (section) => <Popular c={c} section={section} onPick={choose} />,
-              regions: (section) => <><RegionalDiscovery section={section} c={c} /><HomeCompatibilityCard /><TripPlannerPromo /></>,
+              regions: (section) => <RegionalDiscovery section={section} c={c} />,
               benefitsInDesktopHero: true,
             }}
           />
@@ -266,6 +267,7 @@ function Popular({ c, section, onPick }: { c: (typeof T)["tr"]; section: V2Secti
           {priced.map(({ country, p }) => (
             <PhotoCard
               key={country.iso}
+              imageKey={STOREFRONT_IMAGE_SLOTS.destination(country.iso)}
               image={mediaUrl(homepageImageId(section, country.iso), media) ?? countryPhotoRegistry[country.iso]?.cardImage}
               fallbackImage={countryPhotoRegistry[country.iso]?.cardImage}
               badge={<CountryFlag iso={country.iso} className="h-4 w-6 rounded-sm shadow" />}
@@ -283,38 +285,20 @@ function Popular({ c, section, onPick }: { c: (typeof T)["tr"]; section: V2Secti
   );
 }
 
-const PLAN_PROMO = localize({
-  tr: { title: "Seyahat planlayıcı", sub: "Ülkelerini ve tarihlerini gir, paketleri karşılaştıralım" },
-  de: { title: "Reiseplaner", sub: "Länder und Daten eingeben – wir vergleichen die Pakete" },
-  en: { title: "Trip planner", sub: "Enter countries and dates — we compare the packages" },
-});
-
-function TripPlannerPromo() {
-  const { locale } = useI18n();
-  const p = PLAN_PROMO[locale];
-  return (
-    <Link to="/esim/plan" className="mt-3 grid min-h-16 grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 rounded-xl bg-primary-soft px-4 py-3 ring-1 ring-primary/10">
-      <Sparkles className="size-7 shrink-0 text-primary" />
-      <span className="min-w-0"><strong className="block text-sm text-foreground">{p.title}</strong><span className="block text-xs text-muted-foreground">{p.sub}</span></span>
-      <ArrowRight className="size-4 shrink-0 text-primary rtl:rotate-180" />
-    </Link>
-  );
-}
-
 function RegionalDiscovery({ section, c }: { section: V2Section; c: (typeof T)["tr"] }) {
   const { media } = useV2Page("esim");
   const { ref, ready } = useNearViewport();
   const regionalSummaries = useQuery({ queryKey: ["v2-esim-regions"], queryFn: () => listEsimRegionalSummaries(), enabled: ready });
   const summaries = regionalSummaries.data ?? [];
   const loading = regionalSummaries.isPending;
-  const { locale } = useI18n();
+  const { locale, uiLocale } = useI18n();
   const regions = uniqueRegions(summaries);
   const copy = DISCOVERY_COPY[locale];
   const rail = useRailControls<HTMLUListElement>([loading, regions.length]);
   const title = v2Text(section, "title", locale) || copy.title;
   return (
     <section ref={ref} aria-labelledby="regional-esim-title" className="home-region-section">
-      <div className="regional-home-heading"><SectionTitle><span id="regional-esim-title">{title}</span></SectionTitle></div>
+      <div className="regional-home-heading"><SectionTitle><span id="regional-esim-title">{title}</span></SectionTitle><Link to="/esim/bolge" className="flex min-h-11 items-center gap-1 text-xs font-semibold text-primary">{uiLocale === "ar" ? "عرض الكل" : locale === "tr" ? "Tümünü gör" : locale === "de" ? "Alle ansehen" : translateString("View all")}<ArrowRight className="size-4 rtl:rotate-180" /></Link></div>
       {loading ? <div className="home-region-placeholder bg-muted/70" aria-hidden /> : (
         <div className="home-region-carousel home-rail-frame">
           <RailArrows edge={rail.edge} scroll={rail.scroll} previous={copy.previous} next={copy.next} />

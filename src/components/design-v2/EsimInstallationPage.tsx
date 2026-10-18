@@ -40,11 +40,11 @@ function GuidePhone({platform,scene}:{platform:GuidePlatform;scene:GuideScene}) 
 /** One walkthrough for every entry point. Phone scenes never receive real credentials. */
 export function CentralInstallationWalkthrough({initialPlatform,initialMethod='qr',esimId,preview=false}:{initialPlatform?:GuidePlatform|undefined;initialMethod?:GuideMethod|undefined;esimId?:string|undefined;preview?:boolean}) {
  const {locale}=useI18n(); const c=CENTRAL_GUIDE_COPY[locale]; const e=EDUCATION_COPY[locale];
- const [platform,setPlatform]=useState<GuidePlatform|undefined>(initialPlatform);
+ const [platform,setPlatform]=useState<GuidePlatform>(initialPlatform ?? 'ios');
  const [method,setMethod]=useState<GuideMethod>(initialMethod);
  const [step,setStep]=useState(0);
  const root=useRef<HTMLDivElement>(null);
- const [paused,setPaused]=useState(!preview);
+ const [paused,setPaused]=useState(false);
  const [visible,setVisible]=useState(false);
  const [reducedMotion,setReducedMotion]=useState(false);
  useEffect(()=>{
@@ -78,8 +78,8 @@ export function CentralInstallationWalkthrough({initialPlatform,initialMethod='q
  const emailTitles={'email-inbox':mail.inbox,email:mail.subject,'email-copy-lpa':mail.copyLpa,'email-copied-lpa':mail.copied,'email-copy-address':mail.copyAddress,'email-copied-address':mail.copied,'switch-settings':mail.settings,'address-pasted':c.address,'email-return':mail.mail,'email-copy-code':mail.copyCode,'email-copied-code':mail.copied,'return-manual':e.manual};
  const educationTitles={...emailTitles,settings:c.settings,connections:e.connections,sims:e.sims,cellular:e.cellular,add:c.add,scanner:e.scan,manual:platform==='android'?e.enterCode:e.manual,lpa:e.paste,details:e.manual,review:e.confirm,installed:e.installed,link:e.browser,unsupported:e.unsupported,alternatives:e.alternatives};
  const selectEducationStep=(value:number)=>{setStep(value);setPaused(true);};
- return <div ref={root} data-guide-preview={preview} data-central-installation data-guide-platform={platform??'unknown'} data-guide-method={method} data-playing={!paused&&!reducedMotion} className={`grid min-w-0 gap-6 ${preview?'':'education-walkthrough'}`}>
-  <div className="grid gap-3 sm:max-w-xl">
+ return <div ref={root} data-guide-preview={preview} data-central-installation data-guide-platform={platform??'unknown'} data-guide-method={method} data-playing={!paused&&!reducedMotion} className={`grid min-w-0 gap-6 ${preview?'home-install-walkthrough':'education-walkthrough'}`}>
+  <div className={`grid gap-3 ${preview?'home-install-controls':'sm:max-w-xl'}`}>
    <div role="group" aria-label={c.device} className="grid grid-cols-2 gap-1 rounded-lg bg-secondary p-1">{(preview?['ios','android'] as const:['android','ios'] as const).map(p=><Button key={p} variant={platform===p?'default':'ghost'} onClick={()=>{setPlatform(p);setStep(0);if(!preview)setPaused(true);}} className="min-h-11">{p==='ios'?<Apple/>:<Smartphone/>}{p==='ios'?c.ios:c.android}</Button>)}</div>
    <div role="tablist" aria-label={c.method} className="grid grid-cols-3 gap-1 rounded-lg bg-secondary p-1">{(['quick','qr','manual'] as const).map(m=><Button key={m} role="tab" aria-selected={method===m} variant={method===m?'default':'ghost'} onClick={()=>{setMethod(m);setStep(0);if(!preview)setPaused(true);}} className="h-auto min-h-12 min-w-0 whitespace-normal px-1 text-xs">{m==='quick'?c.link:m==='qr'?c.qr:c.manual}</Button>)}</div>
   </div>
@@ -99,7 +99,7 @@ export function CentralInstallationWalkthrough({initialPlatform,initialMethod='q
    {method==='qr'&&<details className="text-sm leading-6"><summary className="cursor-pointer font-semibold text-primary">{c.samePhone}</summary><p className="mt-2 text-muted-foreground">{c.samePhoneBody}</p></details>}
   </>}
   {platform&&preview&&<>
-   <div className="grid w-full max-w-lg min-w-0 justify-items-center gap-4 justify-self-center rounded-lg bg-secondary px-3 py-5"><GuidePhone platform={platform} scene={scene}/><p className="sr-only" aria-live="polite">{c.step} {step+1} / {scenes.length}: {titles[step]}</p><p className="text-center text-xs text-muted-foreground">{c.sample}</p><StepNavigation previous={c.previous} next={c.next} steps={titles.map(label=>({label}))} current={step} onSelect={value=>{setStep(value);if(preview)setPaused(true);}} stepLabel={c.step}/>{preview&&!reducedMotion&&<Button variant="ghost" size="icon" aria-label={paused?'Play':'Pause'} title={paused?'Play':'Pause'} onClick={()=>setPaused(value=>!value)}>{paused?<Play/>:<Pause/>}</Button>}</div>
+   <div className="home-install-stage"><GuidePhone platform={platform} scene={scene}/><p className="sr-only" aria-live="polite">{c.step} {step+1} / {scenes.length}: {titles[step]}</p><p className="text-center text-xs text-muted-foreground">{c.sample}</p><StepNavigation previous={c.previous} next={c.next} steps={titles.map(label=>({label}))} current={step} onSelect={value=>{setStep(value);if(preview)setPaused(true);}} stepLabel={c.step}/>{preview&&!reducedMotion&&<Button variant="ghost" size="icon" aria-label={paused?'Play':'Pause'} title={paused?'Play':'Pause'} onClick={()=>setPaused(value=>!value)}>{paused?<Play/>:<Pause/>}</Button>}</div>
 
    {method==='qr'&&<details className="text-sm leading-6"><summary className="cursor-pointer font-semibold text-primary">{c.samePhone}</summary><p className="mt-2 text-muted-foreground">{c.samePhoneBody}</p></details>}
   </>}

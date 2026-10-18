@@ -2,6 +2,8 @@ import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import {
+  ArrowRight,
+  Check,
   CheckCircle2,
   ChevronRight,
   CircleHelp,
@@ -754,31 +756,31 @@ const HOME_CARD = localize({
 } as const);
 
 const COMPACT_PHONE_COPY = {
-  tr: { title: "Telefonunu kontrol et", lead: "eSIM uyumluluğunu kontrol et", detected: (b: string) => `${b} algılandı · Model seç` },
-  de: { title: "Prüfe dein Handy", lead: "eSIM-Kompatibilität prüfen", detected: (b: string) => `${b} erkannt · Modell wählen` },
-  en: { title: "Check your phone", lead: "Check eSIM compatibility", detected: (b: string) => `${b} detected · Choose model` },
-  fr: { title: "Vérifie ton téléphone", lead: "Vérifier la compatibilité eSIM", detected: (b: string) => `${b} détecté · Choisir le modèle` },
-  es: { title: "Comprueba tu móvil", lead: "Comprobar compatibilidad eSIM", detected: (b: string) => `${b} detectado · Elige modelo` },
-  it: { title: "Controlla il telefono", lead: "Verifica compatibilità eSIM", detected: (b: string) => `${b} rilevato · Scegli modello` },
-  pt: { title: "Verifica o telemóvel", lead: "Verificar compatibilidade eSIM", detected: (b: string) => `${b} detetado · Escolhe o modelo` },
-  nl: { title: "Check je telefoon", lead: "Controleer eSIM-compatibiliteit", detected: (b: string) => `${b} herkend · Kies model` },
-  pl: { title: "Sprawdź telefon", lead: "Sprawdź zgodność z eSIM", detected: (b: string) => `${b} wykryty · Wybierz model` },
-  ru: { title: "Проверь телефон", lead: "Проверить поддержку eSIM", detected: (b: string) => `${b} обнаружен · Выбери модель` },
-  ar: { title: "تحقق من هاتفك", lead: "تحقق من توافق eSIM", detected: (b: string) => `${b} مكتشف · اختر الطراز` },
-  ja: { title: "スマホをチェック", lead: "eSIM対応を確認", detected: (b: string) => `${b}を検出 · 機種を選択` },
-  ko: { title: "휴대폰 확인", lead: "eSIM 호환성 확인", detected: (b: string) => `${b} 감지됨 · 모델 선택` },
-  zh: { title: "检查你的手机", lead: "检查 eSIM 兼容性", detected: (b: string) => `检测到 ${b} · 选择型号` },
+  tr: { title: "Telefonunu kontrol et", lead: "Cihazınızın eSIM uyumlu mu?", detected: (b: string) => `${b} algılandı · Model seç` },
+  de: { title: "Prüfe dein Handy", lead: "Ist dein Gerät eSIM-fähig?", detected: (b: string) => `${b} erkannt · Modell wählen` },
+  en: { title: "Check your phone", lead: "Is your device eSIM compatible?", detected: (b: string) => `${b} detected · Choose model` },
+  fr: { title: "Vérifie ton téléphone", lead: "Votre appareil est-il compatible eSIM ?", detected: (b: string) => `${b} détecté · Choisir le modèle` },
+  es: { title: "Comprueba tu móvil", lead: "¿Tu dispositivo es compatible con eSIM?", detected: (b: string) => `${b} detectado · Elige modelo` },
+  it: { title: "Controlla il telefono", lead: "Il tuo dispositivo è compatibile con eSIM?", detected: (b: string) => `${b} rilevato · Scegli modello` },
+  pt: { title: "Verifica o telemóvel", lead: "O teu dispositivo é compatível com eSIM?", detected: (b: string) => `${b} detetado · Escolhe o modelo` },
+  nl: { title: "Check je telefoon", lead: "Is je apparaat eSIM-compatibel?", detected: (b: string) => `${b} herkend · Kies model` },
+  pl: { title: "Sprawdź telefon", lead: "Czy Twoje urządzenie obsługuje eSIM?", detected: (b: string) => `${b} wykryty · Wybierz model` },
+  ru: { title: "Проверь телефон", lead: "Ваше устройство совместимо с eSIM?", detected: (b: string) => `${b} обнаружен · Выбери модель` },
+  ar: { title: "تحقق من هاتفك", lead: "هل جهازك متوافق مع eSIM؟", detected: (b: string) => `${b} مكتشف · اختر الطراز` },
+  ja: { title: "スマホをチェック", lead: "お使いの端末はeSIM対応ですか？", detected: (b: string) => `${b}を検出 · 機種を選択` },
+  ko: { title: "휴대폰 확인", lead: "기기가 eSIM과 호환되나요?", detected: (b: string) => `${b} 감지됨 · 모델 선택` },
+  zh: { title: "检查你的手机", lead: "你的设备支持 eSIM 吗？", detected: (b: string) => `检测到 ${b} · 选择型号` },
 } as const;
 
 function HomePhoneImage({ brand }: { brand: string | null }) {
-  const src = phoneCardImage(brand);
+  const src = phoneCardImage(brand) ?? phoneCardImage("Apple");
   const [failedSrc, setFailedSrc] = useState<string | null>(null);
-  if (!src || failedSrc === src) return <Smartphone className="size-6 text-primary" aria-hidden="true" />;
-  return <img src={src} alt="" loading="lazy" decoding="async" width={96} height={180} onError={() => setFailedSrc(src)} className="block h-16 w-auto max-w-full object-contain" />;
+  if (!src || failedSrc === src) return <Smartphone className="home-phone-fallback" aria-hidden="true" />;
+  return <img src={src} alt="" loading="lazy" decoding="async" width={96} height={180} onError={() => setFailedSrc(src)} className="home-phone-photo" />;
 }
 
-/** Homepage card after the destination rails; opens the shared checker (bottom sheet on mobile, modal on desktop). */
-export function HomeCompatibilityCard() {
+/** Homepage device checker; opens the shared sheet (bottom sheet on mobile, modal on desktop). */
+export function HomeCompatibilityCard({ embedded = false }: { embedded?: boolean } = {}) {
   const { locale, uiLocale } = useI18n();
   const h = COMPACT_PHONE_COPY[uiLocale];
   const cardRef = useRef<HTMLElement>(null);
@@ -829,18 +831,19 @@ export function HomeCompatibilityCard() {
   const sameConfirmedModel = !cardSelection || (chosenModel === deviceModel && cardSelection.brand === deviceBrand);
   const lead = compatibilityChecked && compatibilityResult && sameConfirmedModel ? `${deviceModel} · ${statusLabel(copy, compatibilityResult)}` : cardSelection ? (chosenModel ?? (cardSelection.brand ? `${cardSelection.brand} · ${h.lead}` : h.lead)) : detectedBrand ? h.detected(detectedBrand) : h.lead;
   return (
-    <section ref={cardRef} id="device-compatibility" data-testid="home-compatibility-card" className="mx-auto w-full max-w-[1200px] scroll-mt-24 py-5 sm:py-6">
+    <section ref={cardRef} id="device-compatibility" data-testid="home-compatibility-card" className={embedded ? "home-phone-wrap scroll-mt-24" : "home-phone-wrap mx-auto w-full max-w-[1200px] scroll-mt-24 py-5 sm:py-6"}>
       <DeviceCheckSheet surface="homepage-card" detection={shown} onSelectionChange={setCardSelection} trigger={
-        <Button type="button" variant="outline" className="home-phone-card grid h-auto min-h-22 w-full grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2 whitespace-normal rounded-2xl border-border bg-card px-3 py-3 text-start shadow-soft hover:border-primary/40 hover:bg-card sm:gap-4 sm:px-5">
-          <span aria-hidden="true" data-phone-image-brand={imageBrand ?? "unknown"} className="grid h-16 w-14 shrink-0 place-items-center sm:w-24">
+        <Button type="button" variant="ghost" className="home-phone-card h-auto min-h-[88px] px-0 py-0">
+          <span aria-hidden="true" data-phone-image-brand={imageBrand ?? "unknown"} className="home-phone-visual">
             <HomePhoneImage brand={imageBrand} />
+            <span className="home-phone-check"><Check aria-hidden="true" /></span>
           </span>
-          <span className="min-w-0">
-            <strong className="block font-display text-base font-bold leading-5 text-foreground sm:text-lg">{h.title}</strong>
-            <span className="mt-1 block text-xs font-normal leading-4 text-muted-foreground sm:text-sm sm:leading-5">{lead}</span>
+          <span className="home-phone-copy">
+            <strong>{h.title}</strong>
+            <span>{lead}</span>
           </span>
-          <span className="grid size-11 shrink-0 place-items-center rounded-full bg-primary text-primary-foreground">
-            <ChevronRight className="size-6 rtl:rotate-180" aria-hidden="true" />
+          <span className="home-phone-go">
+            <ArrowRight className="rtl:rotate-180" aria-hidden="true" />
           </span>
         </Button>
       } />

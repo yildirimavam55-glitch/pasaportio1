@@ -60,3 +60,6 @@ export function reviewLanguagePresentation(review: LocalizedReview, locale: stri
 export function reviewRatingSummary(raw: ReviewSourceRating[] | undefined, sampleMode: boolean) {
   return combinedSourceRating(raw) ?? (sampleMode ? { rating: 4.8, displayRating: 4.8, count: 210 } : null);
 }
+
+/** Local homepage preview only. Verified CMS sourceRatings still win; nothing is written to the database. */
+export const HOMEPAGE_TEST_RATING = { rating: 4.7, displayRating: 4.7, count: 417 } as const;
