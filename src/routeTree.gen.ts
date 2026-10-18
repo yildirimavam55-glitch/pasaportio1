@@ -29,6 +29,7 @@ import { Route as AccountProfileRouteImport } from './routes/account.profile'
 import { Route as AccountPurchasesRouteImport } from './routes/account.purchases'
 import { Route as AccountSecurityRouteImport } from './routes/account.security'
 import { Route as AccountSupportRouteImport } from './routes/account.support'
+import { Route as AuthCallbackRouteImport } from './routes/auth_.callback'
 import { Route as DesignV2IndexRouteImport } from './routes/design-v2.index'
 import { Route as DesignV2SplatRouteImport } from './routes/design-v2.$'
 import { Route as EsimIndexRouteImport } from './routes/esim.index'
@@ -240,6 +241,11 @@ const AccountSupportRoute = AccountSupportRouteImport.update({
   id: '/support',
   path: '/support',
   getParentRoute: () => AccountRoute,
+} as any)
+const AuthCallbackRoute = AuthCallbackRouteImport.update({
+  id: '/auth_/callback',
+  path: '/auth/callback',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const DesignV2IndexRoute = DesignV2IndexRouteImport.update({
   id: '/design-v2/',
@@ -887,6 +893,7 @@ export interface FileRoutesByFullPath {
   '/account/purchases': typeof AccountPurchasesRoute
   '/account/security': typeof AccountSecurityRoute
   '/account/support': typeof AccountSupportRoute
+  '/auth/callback': typeof AuthCallbackRoute
   '/design-v2/$': typeof DesignV2SplatRoute
   '/esim/kurulum': typeof EsimKurulumRoute
   '/esim/paketler': typeof EsimPaketlerRoute
@@ -1018,6 +1025,7 @@ export interface FileRoutesByTo {
   '/account/purchases': typeof AccountPurchasesRoute
   '/account/security': typeof AccountSecurityRoute
   '/account/support': typeof AccountSupportRoute
+  '/auth/callback': typeof AuthCallbackRoute
   '/design-v2/$': typeof DesignV2SplatRoute
   '/esim/kurulum': typeof EsimKurulumRoute
   '/esim/paketler': typeof EsimPaketlerRoute
@@ -1153,6 +1161,7 @@ export interface FileRoutesById {
   '/account/purchases': typeof AccountPurchasesRoute
   '/account/security': typeof AccountSecurityRoute
   '/account/support': typeof AccountSupportRoute
+  '/auth_/callback': typeof AuthCallbackRoute
   '/design-v2/$': typeof DesignV2SplatRoute
   '/esim/kurulum': typeof EsimKurulumRoute
   '/esim/paketler': typeof EsimPaketlerRoute
@@ -1289,6 +1298,7 @@ export interface FileRouteTypes {
     | '/account/purchases'
     | '/account/security'
     | '/account/support'
+    | '/auth/callback'
     | '/design-v2/$'
     | '/esim/kurulum'
     | '/esim/paketler'
@@ -1420,6 +1430,7 @@ export interface FileRouteTypes {
     | '/account/purchases'
     | '/account/security'
     | '/account/support'
+    | '/auth/callback'
     | '/design-v2/$'
     | '/esim/kurulum'
     | '/esim/paketler'
@@ -1554,6 +1565,7 @@ export interface FileRouteTypes {
     | '/account/purchases'
     | '/account/security'
     | '/account/support'
+    | '/auth_/callback'
     | '/design-v2/$'
     | '/esim/kurulum'
     | '/esim/paketler'
@@ -1684,6 +1696,7 @@ export interface RootRouteChildren {
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   TeslimatRoute: typeof TeslimatRoute
   VignetteRoute: typeof VignetteRoute
+  AuthCallbackRoute: typeof AuthCallbackRoute
   DesignV2SplatRoute: typeof DesignV2SplatRoute
   EsimKurulumRoute: typeof EsimKurulumRoute
   EsimPaketlerRoute: typeof EsimPaketlerRoute
@@ -1859,6 +1872,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/account/support'
       preLoaderRoute: typeof AccountSupportRouteImport
       parentRoute: typeof AccountRoute
+    }
+    '/auth_/callback': {
+      id: '/auth_/callback'
+      path: '/auth/callback'
+      fullPath: '/auth/callback'
+      preLoaderRoute: typeof AuthCallbackRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/design-v2/': {
       id: '/design-v2/'
@@ -2905,6 +2925,7 @@ const rootRouteChildren: RootRouteChildren = {
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   TeslimatRoute: TeslimatRoute,
   VignetteRoute: VignetteRoute,
+  AuthCallbackRoute: AuthCallbackRoute,
   DesignV2SplatRoute: DesignV2SplatRoute,
   EsimKurulumRoute: EsimKurulumRoute,
   EsimPaketlerRoute: EsimPaketlerRoute,
