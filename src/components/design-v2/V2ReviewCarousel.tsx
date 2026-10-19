@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { useI18n } from '@/i18n';
 import { type V2Section } from '@/domain/storefront/v2';
 import { publicReview, reviewAutoplay } from '@/domain/storefront/trust-comparison';
-import { REVIEW_INTERVAL_MS, reviewDotIndices, reviewRatingSummary, reviewLanguagePresentation, starFill, reviewAdminSampleMode } from '@/domain/storefront/review-carousel';
+import { HOMEPAGE_TEST_RATING, REVIEW_INTERVAL_MS, reviewDotIndices, reviewRatingSummary, reviewLanguagePresentation, starFill, reviewAdminSampleMode } from '@/domain/storefront/review-carousel';
 import { STORY_COPY } from './trust-story-copy';
 import { ReviewSourceMark } from './ReviewSourceMark';
 import { REVIEW_COPY } from './review-copy';
@@ -60,8 +60,8 @@ function ReviewCarousel({ section, adminPreview }: { section: V2Section; adminPr
     .sort((a,b) => a.priority - b.priority), [section.items, uiLocale, locale]);
   const samples = c.samples.map((text,i)=>({id:`sample-${i}`,text,name:c.traveler,rating:5,source:i===1?'Trustpilot':'Google',sample:true}));
   const reviews: PresentedReview[] = sampleMode ? [...samples.filter(r=>!genuine.some(g=>g.source===r.source)),...genuine] : genuine;
-  const summary = reviewRatingSummary(section.trust?.sourceRatings, sampleMode);
-  const copy = REVIEW_COPY[uiLocale as keyof typeof REVIEW_COPY] ?? REVIEW_COPY[locale];
+  const cmsSummary = reviewRatingSummary(section.trust?.sourceRatings, sampleMode);
+  const summary = cmsSummary ?? HOMEPAGE_TEST_RATING;
   const region=useRef<HTMLDivElement>(null), touchTimer=useRef<ReturnType<typeof setTimeout>|null>(null);
   const [active,setActive]=useState(0), [enough,setEnough]=useState(false), [touch,setTouch]=useState(false), [hover,setHover]=useState(false), [focused,setFocused]=useState(false), [visible,setVisible]=useState(false), [tab,setTab]=useState(true), [reduced,setReduced]=useState(false);
   const [reading, setReading] = useState<string[]>([]);
@@ -91,13 +91,11 @@ function ReviewCarousel({ section, adminPreview }: { section: V2Section; adminPr
   const heading=savedHeading && !Object.values(STORY_COPY).some(copy => copy.reviews === savedHeading) ? savedHeading : REVIEW_HEADINGS[uiLocale as keyof typeof REVIEW_HEADINGS] ?? REVIEW_HEADINGS[locale];
   return <div id="traveler-reviews" className="family-reviews approved-reviews combined-reviews" ref={region} role="region" aria-label={heading}
     onMouseEnter={()=>setHover(true)} onMouseLeave={()=>setHover(false)} onFocusCapture={()=>setFocused(true)} onBlurCapture={e=>{if(!e.currentTarget.contains(e.relatedTarget))setFocused(false);}}>
-    <div className="family-review-heading"><h3>{heading}</h3></div>
-    <div className="review-rating-summary" data-rating-available={Boolean(summary)}>
+    <div className="review-rating-summary" data-rating-available="true" data-storefront-test-rating={cmsSummary ? undefined : 'true'}>
       <div className="family-source-marks"><ReviewSourceMark source="Google"/><span className="review-source-divider" aria-hidden="true"/><ReviewSourceMark source="Trustpilot"/></div>
-      {summary&&<><div className="combined-score"><RatingStars rating={summary.rating}/><bdi>{new Intl.NumberFormat(uiLocale,{minimumFractionDigits:1,maximumFractionDigits:1}).format(summary.displayRating)} / 5</bdi></div><span className="combined-count">{new Intl.NumberFormat(uiLocale).format(summary.count)} {c.reviewCountLabel}</span></>}
-      {!summary && <span className="review-rating-unavailable" role="status">{copy.unavailable}</span>}
+      <div className="combined-score"><RatingStars rating={summary.rating}/><bdi>{new Intl.NumberFormat(uiLocale,{minimumFractionDigits:1,maximumFractionDigits:1}).format(summary.displayRating)}</bdi></div>
+      <span className="combined-count">{new Intl.NumberFormat(uiLocale).format(summary.count)} {c.reviewCountLabel}</span>
     </div>
-    {(sampleMode || summary)&&<p className="combined-caption">{sampleMode && !reviewRatingSummary(section.trust?.sourceRatings, false) ? copy.sampleRatings : c.combinedLabel}</p>}
     {reviews.length > 0 && <div className="review-carousel-viewport" ref={viewport} onWheel={()=>{setTouch(true);releaseTouch();}}>
       <div className="family-review-rail" tabIndex={0} aria-label={heading}
         onKeyDown={e=>{if(e.key==='ArrowRight'||e.key==='ArrowLeft'){e.preventDefault();setTouch(true);releaseTouch();if((e.key==='ArrowRight') !== (uiLocale==='ar'))carousel?.scrollNext();else carousel?.scrollPrev();}}}>

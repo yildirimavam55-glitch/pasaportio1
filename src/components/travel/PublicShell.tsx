@@ -203,7 +203,7 @@ function PublicFooter({ fallback, supportLabel, bottomSafe = false }: { fallback
   ] as const;
   const socials = (data?.footer.socials ?? []).filter((social) => social.active && social.url);
   return (
-    <footer id="support" className={`${config.isPending ? "lg:min-h-[23.6rem]" : ""} border-t border-primary-foreground/10 bg-primary text-primary-foreground ${bottomSafe === "purchase" ? "pb-[calc(12.5rem+env(safe-area-inset-bottom))] sm:pb-8" : bottomSafe ? "pb-[calc(8.5rem+env(safe-area-inset-bottom))] sm:pb-8" : "pb-8"}`}>
+    <footer id="support" className={`site-footer ${config.isPending ? "lg:min-h-[23.6rem]" : ""} ${bottomSafe === "purchase" ? "pb-[calc(12.5rem+env(safe-area-inset-bottom))] sm:pb-8" : bottomSafe ? "pb-[calc(8.5rem+env(safe-area-inset-bottom))] sm:pb-8" : "pb-8"}`}>
       <div className="mx-auto max-w-site px-4 py-8 sm:px-6 sm:py-10">
         <div className="grid gap-7 lg:grid-cols-[1.15fr_repeat(3,minmax(0,1fr))] lg:gap-10">
           <div>

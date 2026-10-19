@@ -1,12 +1,12 @@
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { Link } from "@tanstack/react-router";
-import { Apple, ArrowRight, BookOpen, CheckCircle2, ChevronDown, CreditCard, FileText, Globe2, Headphones, MapPin, MessageCircle, Navigation, PhoneCall, Play, Settings, Smartphone, Sparkles } from "lucide-react";
+import { ArrowRight, BookOpen, CheckCircle2, ChevronDown, CreditCard, FileText, Globe2, Headphones, MessageCircle, Navigation, PhoneCall, Play, QrCode, Settings, ShoppingCart, Smartphone, Sparkles, Wifi } from "lucide-react";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { DeviceCompatibilityPrompt } from "@/components/travel/DeviceCompatibility";
+import { DeviceCompatibilityPrompt, HomeCompatibilityCard } from "@/components/travel/DeviceCompatibility";
 import { SeoPathLink } from "@/components/seo/SeoPathLink";
 import { seoPath } from "@/domain/seo/paths";
 import { useI18n } from "@/i18n";
@@ -15,9 +15,9 @@ import { listFeaturedGuides } from "@/lib/guides.functions";
 import { SectionTitle } from "./V2Shell";
 import { localize } from "@/i18n/overlay";
 import { useNearViewport } from "@/components/travel/use-near-viewport";
-import { CentralInstallationWalkthrough } from "./EsimInstallationPage";
 import faqTravelEsim from "@/assets/faq-travel-esim.jpg";
-import { CataloguePhoto } from './CataloguePhoto';
+import homeEsimEarth from "@/assets/home-esim-earth.jpg";
+import homeEsimEarthMobile from "@/assets/home-esim-earth-mobile.jpg";
 
 const COPY = localize({
   tr: {
@@ -30,6 +30,15 @@ const COPY = localize({
     installLead: "Gerçek QR kodun ve kurulum bilgilerin, satın alma ve provisioning tamamlandıktan sonra hesabında görünür.",
     installCta: "Detaylı kurulum rehberi",
     installSub: "Sadece birkaç adımda bağlantıya hazır.",
+    howEyebrow: "eSIM NASIL ÇALIŞIR?",
+    howTitle: "3 adımda internete bağlan",
+    howLead: "Sadece birkaç dakika içinde eSIM'i kurun ve seyahatinizde hemen internete kullanın.",
+    howCta: "Detaylı rehber",
+    howSteps: [
+      ["Paket seç", "Ülkenizi seçin ve size uygun paketi alın."],
+      ["eSIM'i kur", "QR kod ile kolayca kurulum yapın."],
+      ["Hemen bağlan", "Seyahatinizde kesintisiz internet kullanın."],
+    ],
     animSteps: ["QR kodunu al", "QR kodunu tara", "eSIM'i ekle", "Bağlantını aç"],
     quickAnimSteps: ["Bağlantıyı aç", "Yüklemeye dokun", "eSIM'i ekle", "Kurulum hazır"],
     animReady: "eSIM hazır",
@@ -68,6 +77,15 @@ const COPY = localize({
     installLead: "Dein echter QR-Code und die Einrichtungsdaten erscheinen nach Kauf und Provisionierung in deinem Konto.",
     installCta: "Ausführliche Installationshilfe",
     installSub: "In wenigen Schritten verbunden.",
+    howEyebrow: "WIE FUNKTIONIERT eSIM?",
+    howTitle: "In 3 Schritten online",
+    howLead: "Richte deine eSIM in wenigen Minuten ein und nutze das Internet auf deiner Reise sofort.",
+    howCta: "Ausführliche Anleitung",
+    howSteps: [
+      ["Paket wählen", "Wähle dein Land und das passende Paket."],
+      ["eSIM einrichten", "Richte sie einfach per QR-Code ein."],
+      ["Sofort verbinden", "Nutze unterwegs unterbrechungsfreies Internet."],
+    ],
     animSteps: ["QR-Code erhalten", "QR-Code scannen", "eSIM hinzufügen", "Verbindung aktivieren"],
     quickAnimSteps: ["Link öffnen", "Installieren antippen", "eSIM hinzufügen", "Einrichtung bereit"],
     animReady: "eSIM bereit",
@@ -106,6 +124,15 @@ const COPY = localize({
     installLead: "Your real QR code and setup details appear in your account after purchase and provisioning are complete.",
     installCta: "Detailed installation guide",
     installSub: "Ready to connect in just a few steps.",
+    howEyebrow: "HOW DOES eSIM WORK?",
+    howTitle: "Get online in 3 steps",
+    howLead: "Set up your eSIM in a few minutes and start using the internet on your trip right away.",
+    howCta: "Detailed guide",
+    howSteps: [
+      ["Choose a plan", "Select your country and get the plan that fits you."],
+      ["Install the eSIM", "Set up easily with a QR code."],
+      ["Connect instantly", "Use uninterrupted internet on your trip."],
+    ],
     animSteps: ["Get QR code", "Scan QR code", "Add eSIM", "Enable connection"],
     quickAnimSteps: ["Open the link", "Tap install", "Add eSIM", "Setup ready"],
     animReady: "eSIM ready",
@@ -164,10 +191,50 @@ export function V2Compatibility({ title, desktopCard = false }: { title?: string
 
 type InstallProps = { title?: string; subtitle?: string; steps?: string[]; images?: Array<string | undefined>; ready?: string; adding?: string; cta?: string; href?: V2SafeLink; variant?: "animated" | "simple" };
 
-/** Copy/link/variant can come from the storefront builder; animation stays decorative (no real QR). */
-export function V2Installation({ title, subtitle, cta, steps = [], images = [] }: InstallProps = {}) {
- const {locale}=useI18n();const c=COPY[locale];
- return <section className="grid gap-3 border-y border-border py-4 lg:py-6"><SectionTitle>{title||c.install}</SectionTitle><p className="max-w-2xl text-sm leading-6 text-muted-foreground">{subtitle??c.installSub}</p>{images.some(Boolean) && <ol className="home-installation-steps">{steps.map((step, index) => <li key={index}>{images[index] ? <CataloguePhoto src={images[index]} alt={step} /> : <span className="step-fallback">{index + 1}</span>}<span>{step}</span></li>)}</ol>}<CentralInstallationWalkthrough preview initialPlatform="ios"/><Button asChild variant="outline" className="w-fit min-h-11"><Link to="/esim/kurulum">{cta||c.installCta}<ArrowRight/></Link></Button></section>;
+const HOW_STEP_ICONS = [ShoppingCart, QrCode, Wifi] as const;
+
+/** Homepage how-eSIM-works band. Installation walkthrough lives on `/esim/kurulum`. */
+export function V2Installation({ href }: InstallProps = {}) {
+  const { locale } = useI18n();
+  const c = COPY[locale];
+  const to = href === "/esim/kurulum" || href === "/esim" ? href : "/esim/kurulum";
+  return (
+    <section className="home-esim-flow" data-home-esim-flow aria-labelledby="home-esim-how-title">
+      <HomeCompatibilityCard embedded />
+      <header className="home-esim-how-head">
+        <p className="home-esim-how-eyebrow">{c.howEyebrow}</p>
+        <h2 id="home-esim-how-title">{c.howTitle}</h2>
+      </header>
+      <ol className="home-esim-steps">
+        {c.howSteps.map(([title, text], index) => {
+          const Icon = HOW_STEP_ICONS[index] ?? ShoppingCart;
+          return (
+            <li key={title}>
+              {index > 0 && <span className="home-esim-step-connector" aria-hidden="true"><ArrowRight /></span>}
+              <span className="home-esim-step-icon">
+                <span className="home-esim-step-num">{index + 1}</span>
+                <Icon aria-hidden="true" />
+              </span>
+              <strong>{title}</strong>
+              <p>{text}</p>
+            </li>
+          );
+        })}
+      </ol>
+      <div className="home-esim-visual">
+        <picture>
+          <source media="(max-width: 639px)" srcSet={homeEsimEarthMobile} width={560} height={236} />
+          <img src={homeEsimEarth} alt="" width={1080} height={236} className="home-esim-visual-photo" />
+        </picture>
+        <div className="home-esim-how-actions">
+          <Link to={to} className="home-esim-how-cta">
+            {c.howCta}
+            <ArrowRight className="rtl:rotate-180" aria-hidden="true" />
+          </Link>
+        </div>
+      </div>
+    </section>
+  );
 }
 
 export function V2WhyTravely() {

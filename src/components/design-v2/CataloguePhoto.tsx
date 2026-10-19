@@ -1,10 +1,65 @@
-import { useState } from 'react';
-import { Globe2 } from 'lucide-react';
+import { useEffect, useState } from "react";
+import { Globe2 } from "lucide-react";
 
-/** Failed selected media falls back to its destination, never a random photograph. */
-export function CataloguePhoto({ src, fallback, alt, className }: { src?: string | undefined; fallback?: string | undefined; alt: string; className?: string }) {
+function uniqueUrls(values: Array<string | undefined>) {
+  const seen = new Set<string>();
+  const urls: string[] = [];
+  for (const value of values) {
+    if (!value || seen.has(value)) continue;
+    seen.add(value);
+    urls.push(value);
+  }
+  return urls;
+}
+
+/**
+ * Shared storefront photograph. The renderer never owns the source: callers pass a
+ * preferred URL plus fallbacks (CMS media, builtin slot, catalogue photo). A missing
+ * or broken file shows a mint placeholder that keeps the card's box.
+ */
+export function CataloguePhoto({
+  src,
+  fallback,
+  fallbacks,
+  alt,
+  className,
+  priority = false,
+  imageKey,
+}: {
+  src?: string | undefined;
+  fallback?: string | undefined;
+  fallbacks?: Array<string | undefined>;
+  alt: string;
+  className?: string;
+  priority?: boolean;
+  imageKey?: string;
+}) {
   const [failed, setFailed] = useState<string[]>([]);
-  const url = [src, fallback].find(value => value && !failed.includes(value));
-  return url ? <img src={url} alt={alt} width={800} height={600} loading="lazy" decoding="async" className={className} onError={() => setFailed(current => [...current, url])} />
-    : <span className={`catalogue-photo-fallback ${className ?? ''}`} role="img" aria-label={alt}><Globe2 aria-hidden="true" /></span>;
+  const candidates = uniqueUrls([src, fallback, ...(fallbacks ?? [])]);
+  const fallbackKey = (fallbacks ?? []).join("\0");
+  useEffect(() => {
+    setFailed([]);
+  }, [imageKey, src, fallback, fallbackKey]);
+  const url = candidates.find((value) => !failed.includes(value));
+  if (!url) {
+    return (
+      <span className={`catalogue-photo-fallback ${className ?? ""}`} role="img" aria-label={alt} data-storefront-image={imageKey} data-storefront-empty="true">
+        <Globe2 aria-hidden="true" />
+      </span>
+    );
+  }
+  return (
+    <img
+      src={url}
+      alt={alt}
+      width={800}
+      height={600}
+      fetchPriority={priority ? "high" : undefined}
+      loading={priority ? "eager" : "lazy"}
+      decoding="async"
+      className={className}
+      data-storefront-image={imageKey}
+      onError={() => setFailed((current) => (current.includes(url) ? current : [...current, url]))}
+    />
+  );
 }

@@ -829,7 +829,7 @@ html.dark .destination-scene {
 [data-whatsapp-widget][data-phone-card-avoid] {
   transform: translateY(var(--phone-card-offset, 0px));
 }
-.home-phone-card svg { width: 24px; height: 24px; }
+.home-phone-card svg { width: 22px; height: 22px; }
 
 .service-selector-pill {
   position: absolute;
@@ -2392,8 +2392,7 @@ body:has([role="dialog"][data-state="open"]) [data-action-dock] { display: none;
 
 /* Approved light homepage roles: only below-Hero children and the footer.
    Published theme, header/logo, Hero and other pages keep their original values. */
-html:not(.dark) .pasaport-mobile-home > :not(.pasaport-final-hero),
-html:not(.dark) main:has(.pasaport-mobile-home) ~ footer#support {
+html:not(.dark) .pasaport-mobile-home > :not(.pasaport-final-hero) {
   --primary: oklch(0.41735894 0.07261521 181.623421);
   --foreground: oklch(0.31955192 0.05155047 188.965564);
   --background: oklch(0.97900897 0.00821312 91.481779);
@@ -2437,19 +2436,13 @@ html:not(.dark) .pasaport-mobile-home :is(.family-story-copy > p, .family-compar
 }
 html:not(.dark) .pasaport-mobile-home .family-price-option bdi { color: var(--primary); }
 html:not(.dark) .pasaport-mobile-home .pay-head small { color: var(--muted-foreground); opacity: 1; }
-html:not(.dark) .pasaport-mobile-home :is(.home-region-card, .home-phone-card) {
+html:not(.dark) .pasaport-mobile-home .home-region-card {
   border-radius: var(--radius-card);
   box-shadow: var(--shadow-sm);
 }
 html:not(.dark) .pasaport-mobile-home .popular-country-heading + .home-rail-frame > ul > li > button {
   border-radius: var(--radius-card);
   box-shadow: var(--shadow-sm);
-}
-html:not(.dark) .pasaport-mobile-home .home-phone-card { background: var(--card); }
-html:not(.dark) .pasaport-mobile-home .home-phone-card strong { color: var(--primary); }
-html:not(.dark) .pasaport-mobile-home .home-phone-card [data-phone-image-brand] {
-  background: var(--primary-soft);
-  border-radius: var(--radius);
 }
 html:not(.dark) .pasaport-mobile-home .home-worldwide-banner { background: var(--background); }
 html:not(.dark) .pasaport-mobile-home .home-worldwide-photo { background: var(--background); }
@@ -2461,19 +2454,42 @@ html:not(.dark) .pasaport-mobile-home [data-central-installation] .installation-
 html:not(.dark) .pasaport-mobile-home [data-central-installation] :is([role="group"], [role="tablist"]) { background: var(--background); }
 html:not(.dark) .pasaport-mobile-home [data-central-installation] [role="tab"][aria-selected="true"] { background: var(--primary); color: var(--primary-foreground); }
 html:not(.dark) .pasaport-mobile-home [data-central-installation] [role="tab"][aria-selected="false"] { background: var(--background); color: var(--foreground); }
-/* Light footer band; brand artwork/wrapper deliberately excluded. */
-html:not(.dark) main:has(.pasaport-mobile-home) ~ footer#support {
-  background: var(--background);
-  color: var(--foreground);
-  border-color: var(--border);
+/* Site footer: black band, white copy on every page. */
+footer.site-footer {
+  --foreground: #fff;
+  --muted-foreground: rgba(255, 255, 255, 0.72);
+  --primary-foreground: #fff;
+  --primary: #0a0a0a;
+  --background: #0a0a0a;
+  --border: rgba(255, 255, 255, 0.14);
+  --card: #141414;
+  background: #0a0a0a;
+  color: #fff;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
-html:not(.dark) main:has(.pasaport-mobile-home) ~ footer#support :is(p, nav, nav a, input, .mt-8) {
-  color: var(--muted-foreground);
-  border-color: var(--border);
+footer.site-footer :is(p, nav, nav a, input) {
+  color: rgba(255, 255, 255, 0.72);
+  border-color: rgba(255, 255, 255, 0.14);
 }
-html:not(.dark) main:has(.pasaport-mobile-home) ~ footer#support :is(h2, summary, a[href="/destek"]) { color: var(--foreground); }
-html:not(.dark) main:has(.pasaport-mobile-home) ~ footer#support .border-t { border-color: var(--border); }
-html:not(.dark) main:has(.pasaport-mobile-home) ~ footer#support nav a:hover { color: var(--primary); }
+footer.site-footer :is(h2, summary, a[href="/destek"], .font-display) {
+  color: #fff;
+}
+footer.site-footer .border-t { border-color: rgba(255, 255, 255, 0.14); }
+footer.site-footer nav a:hover { color: #fff; }
+footer.site-footer a[aria-label="Ana sayfa"] { color: #fff; }
+footer.site-footer a[aria-label="Ana sayfa"] > span {
+  background: transparent;
+  color: inherit;
+}
+footer.site-footer a[aria-label="Ana sayfa"] .grid {
+  background: #fff;
+  color: #0a0a0a;
+}
+footer.site-footer a[aria-label="Ana sayfa"] .font-display { color: #fff; }
+footer.site-footer input {
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+}
 
 /* The legacy reference wrapper and story define light-only local ink tokens.
    Override those at their consumer scopes, not on the Hero or the global theme. */
@@ -2526,8 +2542,27 @@ html.dark .pasaport-mobile-home .pasaport-country-arrow {
 }
 
 /* Equal catalogue cards, destination-specific media fallback and compact review sizing. */
-.catalogue-photo-fallback { display:grid; place-items:center; aspect-ratio:1.8; background:var(--primary-soft); color:var(--primary); }
+.catalogue-photo-fallback {
+  display:grid;
+  place-items:center;
+  aspect-ratio:1.8;
+  background: linear-gradient(180deg, color-mix(in oklab, var(--primary-soft) 55%, white), var(--primary-soft));
+  color: var(--primary);
+}
 .catalogue-photo-fallback svg { width:32px; height:32px; }
+.photo-card-overlay .catalogue-photo-fallback,
+.home-region-card-overlay .catalogue-photo-fallback,
+.final-hero-photo .catalogue-photo-fallback {
+  position:absolute; inset:0; width:100%; height:100%; aspect-ratio:auto;
+}
+.photo-card-overlay .catalogue-photo-fallback,
+.home-region-card-overlay .catalogue-photo-fallback {
+  background: linear-gradient(180deg, oklch(0.78 0.04 170), oklch(0.36 0.05 180));
+  color: oklch(0.96 0.02 160);
+}
+.photo-card-overlay img,
+.home-region-card-overlay img,
+.final-hero-photo img { display:block; }
 .catalogue-card-arrow { position:absolute; inset-inline-end:7px; bottom:8px; display:grid; place-items:center; width:20px; height:20px; border-radius:50%; background:var(--primary-soft); color:var(--primary); }
 .pasaport-mobile-home #popular + .home-rail-frame > ul > li > button { display:block; }
 .pasaport-mobile-home #popular + .home-rail-frame > ul > li > button > div:nth-child(2) { width:100%; padding:6px 28px 6px 8px; text-align:start; }
@@ -2539,6 +2574,343 @@ html.dark .pasaport-mobile-home .pasaport-country-arrow {
 .pasaport-mobile-home .home-rail-arrow { min-width:44px; min-height:44px; }
 .pasaport-mobile-home .combined-reviews { padding-block:16px 12px; }
 .pasaport-mobile-home .combined-reviews .combined-caption { margin-bottom:8px!important; }
+.home-esim-flow {
+  --esim-flow-bg: oklch(0.145 0.038 175);
+  --esim-flow-card: oklch(0.2 0.032 175);
+  --esim-flow-ink: oklch(0.97 0.012 165);
+  --esim-flow-muted: oklch(0.78 0.028 172);
+  --esim-flow-mint: oklch(0.86 0.13 168);
+  --esim-flow-mint-ink: oklch(0.2 0.05 175);
+  --esim-flow-box: oklch(0.17 0.028 175);
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  margin-block: 12px 8px;
+  padding: 20px 16px 0;
+  border-radius: 28px;
+  background: var(--esim-flow-bg);
+  color: var(--esim-flow-ink);
+}
+.home-esim-flow .home-phone-wrap,
+.home-esim-how-head,
+.home-esim-steps {
+  position: relative;
+  z-index: 2;
+}
+.home-esim-flow .home-phone-wrap { width: 100%; }
+.home-phone-card {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  min-height: 88px !important;
+  height: auto !important;
+  padding: 10px 12px 10px 8px !important;
+  white-space: normal;
+  text-align: start;
+  border-radius: 999px;
+  background: var(--esim-flow-card) !important;
+  color: var(--esim-flow-ink) !important;
+  border: 1px solid oklch(1 0 0 / 8%) !important;
+  box-shadow: 0 10px 28px oklch(0.08 0.03 175 / .35);
+}
+.home-phone-card:hover { background: oklch(0.23 0.034 175) !important; }
+.home-phone-visual {
+  position: relative;
+  display: grid;
+  place-items: end center;
+  width: 88px;
+  height: 84px;
+  flex-shrink: 0;
+}
+.home-phone-photo {
+  display: block;
+  height: 80px;
+  width: auto;
+  max-width: 64px;
+  object-fit: contain;
+  filter: drop-shadow(0 8px 12px oklch(0 0 0 / .4));
+}
+.home-phone-fallback {
+  width: 28px;
+  height: 28px;
+  color: var(--esim-flow-mint);
+}
+.home-phone-check {
+  position: absolute;
+  right: 6px;
+  bottom: 10px;
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--esim-flow-mint);
+  color: var(--esim-flow-mint-ink);
+  box-shadow: 0 0 0 3px var(--esim-flow-card);
+}
+.home-phone-check svg { width: 13px; height: 13px; stroke-width: 3; }
+.home-phone-copy { min-width: 0; }
+.home-phone-copy strong {
+  display: block;
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  font-weight: 700;
+  line-height: 1.2;
+  color: var(--esim-flow-ink);
+}
+.home-phone-copy span {
+  display: block;
+  margin-top: 4px;
+  font-size: 0.8125rem;
+  font-weight: 400;
+  line-height: 1.35;
+  color: var(--esim-flow-muted);
+}
+.home-phone-go {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: var(--esim-flow-mint);
+  color: var(--esim-flow-mint-ink);
+}
+.home-phone-go svg,
+.home-phone-card .home-phone-go svg {
+  width: 20px;
+  height: 20px;
+  stroke-width: 2.2;
+}
+.home-esim-how-head {
+  margin-top: 28px;
+}
+.home-esim-how-eyebrow {
+  margin: 0 0 8px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: var(--esim-flow-muted);
+}
+.home-esim-how-head h2 {
+  margin: 0;
+  max-width: 16ch;
+  font-family: var(--font-display);
+  font-size: clamp(1.7rem, 5vw, 2.55rem);
+  font-weight: 700;
+  line-height: 1.12;
+  letter-spacing: -0.03em;
+  color: var(--esim-flow-ink);
+}
+.home-esim-how-cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 44px;
+  width: fit-content;
+  padding: 0 16px;
+  border-radius: 999px;
+  border: 1px solid oklch(1 0 0 / 16%);
+  background: oklch(0.16 0.03 175 / .82);
+  color: var(--esim-flow-ink);
+  font-size: 0.875rem;
+  font-weight: 600;
+  white-space: nowrap;
+  backdrop-filter: blur(10px);
+}
+.home-esim-how-cta svg { width: 16px; height: 16px; }
+.home-esim-how-cta:hover { border-color: oklch(0.86 0.13 168 / .45); color: var(--esim-flow-mint); }
+.home-esim-steps {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  margin: 28px 0 0;
+  padding: 0;
+  list-style: none;
+}
+.home-esim-steps li {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  text-align: center;
+  min-width: 0;
+}
+.home-esim-step-icon {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 56px;
+  height: 56px;
+  margin-bottom: 12px;
+  border-radius: 16px;
+  background: var(--esim-flow-box);
+  color: var(--esim-flow-mint);
+  box-shadow: inset 0 0 0 1px oklch(1 0 0 / 6%);
+}
+.home-esim-step-icon svg { width: 26px; height: 26px; stroke-width: 1.7; }
+.home-esim-step-num {
+  position: absolute;
+  top: -7px;
+  left: -7px;
+  display: grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--esim-flow-bg);
+  color: var(--esim-flow-ink);
+  font-size: 0.68rem;
+  font-weight: 700;
+  box-shadow: 0 0 0 2px oklch(1 0 0 / 8%);
+}
+[dir="rtl"] .home-esim-step-num { left: auto; right: -7px; }
+.home-esim-steps strong {
+  font-size: 0.92rem;
+  font-weight: 700;
+  line-height: 1.25;
+  color: var(--esim-flow-ink);
+}
+.home-esim-steps p {
+  margin: 6px 0 0;
+  max-width: 16rem;
+  font-size: 0.75rem;
+  line-height: 1.45;
+  color: var(--esim-flow-muted);
+}
+.home-esim-step-connector {
+  display: none;
+}
+.home-esim-visual {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  justify-items: center;
+  margin: 12px -16px 0;
+  min-height: 250px;
+}
+.home-esim-visual picture {
+  display: block;
+  width: 100%;
+  height: 250px;
+}
+.home-esim-visual-photo {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 42%;
+  pointer-events: none;
+}
+.home-esim-how-actions {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  z-index: 3;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transform: translateX(-50%);
+}
+button.v2-sticky-search-esim,
+button.v2-sticky-search-esim:hover,
+button.v2-sticky-search-esim:focus-visible {
+  border-width: 1.5px;
+  border-color: oklch(0.86 0.13 168);
+  color: oklch(0.86 0.13 168);
+}
+button.v2-sticky-search-esim span,
+button.v2-sticky-search-esim svg,
+button.v2-sticky-search-esim:hover span,
+button.v2-sticky-search-esim:hover svg {
+  color: oklch(0.86 0.13 168);
+}
+@media (min-width: 640px) {
+  .home-esim-flow { padding: 24px 28px 0; }
+  .home-phone-card { gap: 16px; padding: 12px 16px 12px 14px; }
+  .home-phone-visual { width: 104px; height: 92px; }
+  .home-phone-photo { height: 90px; max-width: 68px; }
+  .home-phone-copy strong { font-size: 1.2rem; }
+  .home-phone-copy span { font-size: 0.9rem; }
+  .home-esim-step-icon { width: 64px; height: 64px; border-radius: 18px; }
+  .home-esim-step-icon svg { width: 30px; height: 30px; }
+  .home-esim-steps strong { font-size: 1.05rem; }
+  .home-esim-steps p { font-size: 0.85rem; }
+  .home-esim-visual {
+    margin: 8px 0 0;
+    min-height: 0;
+  }
+  .home-esim-visual picture {
+    height: auto;
+  }
+  .home-esim-visual-photo {
+    height: auto;
+    object-fit: contain;
+    object-position: center bottom;
+  }
+  .home-esim-how-actions { bottom: 22px; }
+}
+@media (min-width: 1024px) {
+  .home-esim-flow { margin-block: 20px 12px; padding: 28px 40px 0; border-radius: 32px; }
+  .home-phone-card { min-height: 108px; padding: 14px 20px 14px 18px; }
+  .home-phone-visual { width: 120px; height: 100px; }
+  .home-phone-photo { height: 98px; max-width: 74px; }
+  .home-phone-go { width: 52px; height: 52px; }
+  .home-esim-how-head { margin-top: 36px; }
+  .home-esim-how-head h2 { font-size: 2.65rem; max-width: 14ch; }
+  .home-esim-steps { margin-top: 40px; gap: 20px; }
+  .home-esim-step-icon { width: 72px; height: 72px; }
+  .home-esim-step-icon svg { width: 32px; height: 32px; }
+  .home-esim-step-connector {
+    display: grid;
+    place-items: center;
+    position: absolute;
+    top: 28px;
+    inset-inline-end: calc(100% - 6px);
+    width: calc(100% - 84px);
+    color: oklch(0.78 0.04 170 / .55);
+  }
+  .home-esim-step-connector svg { width: 18px; height: 18px; }
+  .home-esim-visual { margin-top: 12px; }
+  .home-esim-how-actions { bottom: 28px; }
+}
+.home-install {
+  justify-items: center;
+  text-align: center;
+}
+.home-install-heading { width: 100%; }
+.home-install-heading > div { justify-content: center; margin-inline: auto; }
+.home-install-heading h2 { width: 100%; text-align: center; }
+.home-install-lead { margin-inline: auto; text-align: center; }
+.home-install-walkthrough { width: 100%; justify-items: center; }
+.home-install-controls { width: 100%; max-width: 28rem; margin-inline: auto; }
+.home-install-stage {
+  display: grid;
+  justify-items: center;
+  gap: 16px;
+  width: min(100%, 28rem);
+  margin-inline: auto;
+  padding: 24px 16px 20px;
+  border-radius: 24px;
+  background: color-mix(in oklab, var(--card) 88%, transparent);
+  border: 1px solid color-mix(in oklab, var(--border) 80%, transparent);
+  box-shadow: var(--shadow-panel);
+}
+.home-install-cta { margin-inline: auto; }
+.home-install [data-central-installation] > details { width: min(100%, 28rem); text-align: start; }
+@media (min-width: 1024px) {
+  .home-install { padding-block: 40px 36px; gap: 18px; }
+  .home-install-heading h2 { font-size: 2rem; line-height: 1.15; }
+  .home-install-lead { max-width: 34rem; font-size: 1rem; }
+  .home-install-controls { max-width: 30rem; }
+  .home-install-stage {
+    width: min(100%, 32rem);
+    padding: 36px 32px 28px;
+    border-radius: 28px;
+  }
+}
 .home-installation-steps { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:8px; margin:0; padding:0; list-style:none; }
 .home-installation-steps li { min-width:0; display:flex; align-items:flex-start; gap:6px; font-size:12px; line-height:1.4; color:var(--foreground); }
 .home-installation-steps img,.home-installation-steps .catalogue-photo-fallback { width:40px; height:40px; flex-shrink:0; object-fit:contain; }
@@ -2598,7 +2970,8 @@ html.dark .pasaport-mobile-home .pasaport-country-arrow {
   background: var(--primary); color: var(--primary-foreground);
 }
 .home-region-card-overlay { position: relative; display: block; height: 9.5rem; overflow: hidden; border-radius: 14px; }
-.home-region-card-overlay > img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.home-region-card-overlay > img,
+.home-region-card-overlay > .catalogue-photo-fallback { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
 .home-region-card-overlay > div { position: absolute; inset-inline: 0; bottom: 0; padding: 10px 40px 10px 10px; }
 .home-region-card-overlay h3 { color: oklch(0.99 0.005 95); font-size: 13px; font-weight: 700; line-height: 1.25; min-height: 0; }
 .home-region-card-overlay p { color: oklch(0.99 0.005 95 / 0.85); font-size: 11px; margin-top: 1px; min-height: 0; }
@@ -2699,4 +3072,364 @@ html:not(.dark) .pasaport-final-hero .hero-trust-strip small { color: oklch(.36 
   .pasaport-final-hero .hero-trust-strip .trust-strip-icon svg { width: 20px; height: 20px; }
   .pasaport-final-hero .hero-trust-strip .trust-strip-text { align-items: center; }
   .pasaport-final-hero .hero-trust-strip .trust-strip-text strong { font-size: 11px; line-height: 1.3; overflow-wrap: anywhere; hyphens: auto; }
+}
+
+/* Locked couple / summit hero. Phone chrome is not part of this composition. */
+.pasaport-premium-hero {
+  --hero-ink: #fff;
+  --hero-mint: #7de3c6;
+  --hero-scrim: #07161c;
+  color: #fff;
+  overflow: hidden;
+}
+.pasaport-premium-hero .final-hero-photo img,
+.pasaport-premium-hero .final-hero-photo .catalogue-photo-fallback {
+  object-fit: cover;
+  object-position: 68% 42%;
+  transform: none;
+}
+.pasaport-premium-hero .final-hero-shade,
+html:not(.dark) .pasaport-premium-hero .final-hero-shade,
+html:not(.dark) .pasaport-final-hero.pasaport-premium-hero .final-hero-shade {
+  background:
+    linear-gradient(108deg, rgba(6, 22, 28, .88) 0%, rgba(6, 22, 28, .58) 34%, rgba(6, 22, 28, .18) 56%, transparent 74%),
+    linear-gradient(180deg, rgba(6, 22, 28, .28) 0%, transparent 38%, rgba(6, 22, 28, .42) 100%);
+}
+.pasaport-premium-hero .final-hero-heading {
+  z-index: 3;
+  max-width: min(92%, 22rem);
+  padding: 20px 16px 64px 18px;
+  color: #fff;
+  text-shadow: 0 1px 16px rgba(4, 16, 20, .45);
+}
+html:not(.dark) .pasaport-premium-hero .final-hero-heading,
+html:not(.dark) .pasaport-final-hero.pasaport-premium-hero .final-hero-heading {
+  color: #fff;
+  text-shadow: 0 1px 16px rgba(4, 16, 20, .45);
+}
+.pasaport-premium-hero .final-hero-heading h1 {
+  max-width: none;
+  font-size: 30px;
+  font-weight: 800;
+  line-height: 1.12;
+  letter-spacing: -.03em;
+  text-wrap: balance;
+}
+.pasaport-premium-hero .final-hero-heading h1 > span { display: block; }
+.pasaport-premium-hero .final-hero-accent,
+html:not(.dark) .pasaport-premium-hero .final-hero-accent {
+  color: var(--hero-mint);
+  white-space: nowrap;
+}
+@media (max-width: 399px) {
+  .pasaport-premium-hero .final-hero-accent { white-space: normal; }
+}
+.pasaport-premium-hero .final-hero-heading p {
+  max-width: 19rem;
+  margin-top: 10px;
+  font-size: 14px;
+  line-height: 1.4;
+  color: rgba(255, 255, 255, .9);
+  text-wrap: balance;
+}
+.pasaport-premium-hero .final-hero-perks {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  max-width: 100%;
+  margin: 14px 0 0;
+  padding: 0;
+  list-style: none;
+}
+.pasaport-premium-hero .final-hero-perks li {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 6px;
+  padding: 8px 6px 7px;
+  border-radius: 14px;
+  color: #fff;
+  background: rgba(255, 255, 255, .12);
+  border: 1px solid rgba(255, 255, 255, .28);
+  backdrop-filter: blur(12px);
+  text-align: center;
+}
+.pasaport-premium-hero .final-hero-perk-icon {
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  flex-shrink: 0;
+  color: var(--hero-mint);
+  background: none;
+  border: 0;
+}
+.pasaport-premium-hero .final-hero-perk-icon svg { width: 18px; height: 18px; }
+.pasaport-premium-hero .final-hero-perks strong {
+  display: block;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1.2;
+  color: #fff;
+  overflow-wrap: anywhere;
+}
+.pasaport-premium-hero .final-hero-perks small { display: none; }
+.pasaport-premium-hero .final-hero-search {
+  z-index: 4;
+  margin: -26px 16px 0;
+}
+.pasaport-premium-hero .final-hero-gift { display: none; }
+@media (max-width: 1023px) {
+  .pasaport-premium-hero {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: 352px auto;
+    overflow: hidden;
+  }
+  .pasaport-premium-hero .final-hero-photo,
+  .pasaport-premium-hero .final-hero-shade {
+    grid-row: 1;
+    height: 352px;
+  }
+  html:not(.dark) .pasaport-final-hero.pasaport-premium-hero .final-hero-shade {
+    background:
+      linear-gradient(108deg, rgba(6, 22, 28, .88) 0%, rgba(6, 22, 28, .58) 34%, rgba(6, 22, 28, .18) 56%, transparent 74%),
+      linear-gradient(180deg, rgba(6, 22, 28, .28) 0%, transparent 38%, rgba(6, 22, 28, .42) 100%);
+  }
+  .pasaport-premium-hero .final-hero-heading { grid-row: 1; }
+  .pasaport-premium-hero .final-hero-search { grid-row: 2; margin-top: -26px; }
+}
+@media (min-width: 768px) {
+  .pasaport-premium-hero .final-hero-heading {
+    max-width: 32rem;
+    padding: 28px 28px 56px;
+  }
+  .pasaport-premium-hero .final-hero-heading h1 { font-size: 40px; }
+  .pasaport-premium-hero .final-hero-heading p { max-width: 26rem; font-size: 16px; margin-top: 12px; }
+  .pasaport-premium-hero .final-hero-perks {
+    display: flex;
+    gap: 10px;
+    max-width: 34rem;
+    margin-top: 16px;
+  }
+  .pasaport-premium-hero .final-hero-perks li {
+    flex: 1 1 0;
+    flex-direction: row;
+    align-items: flex-start;
+    text-align: start;
+    gap: 8px;
+    padding: 10px 12px;
+    border-radius: 16px;
+  }
+  .pasaport-premium-hero .final-hero-perks strong { font-size: 13px; }
+  .pasaport-premium-hero .final-hero-perks small {
+    display: block;
+    margin-top: 2px;
+    font-size: 11px;
+    line-height: 1.3;
+    color: rgba(255, 255, 255, .78);
+  }
+  .pasaport-premium-hero .final-hero-perk-icon { width: 24px; height: 24px; }
+  .pasaport-premium-hero .final-hero-photo img { object-position: 70% 40%; }
+  .pasaport-premium-hero { grid-template-rows: 380px auto; }
+  .pasaport-premium-hero .final-hero-photo,
+  .pasaport-premium-hero .final-hero-shade { height: 380px; }
+}
+@media (min-width: 1024px) {
+  .pasaport-premium-hero {
+    display: block;
+    min-height: 440px;
+    height: 440px;
+    padding: 40px max(48px, calc((100vw - 1280px) / 2)) 0;
+  }
+  .pasaport-premium-hero .final-hero-photo,
+  .pasaport-premium-hero .final-hero-shade {
+    position: absolute;
+    inset: 0;
+    height: 100%;
+    z-index: -1;
+  }
+  .pasaport-premium-hero .final-hero-heading {
+    position: relative;
+    max-width: 46%;
+    padding: 0;
+  }
+  .pasaport-premium-hero .final-hero-heading h1 { font-size: 52px; }
+  .pasaport-premium-hero .final-hero-heading p { max-width: 28rem; font-size: 18px; margin-top: 14px; }
+  .pasaport-premium-hero .final-hero-perks { margin-top: 22px; max-width: 38rem; gap: 12px; }
+  .pasaport-premium-hero .final-hero-perks strong { font-size: 13px; }
+  .pasaport-premium-hero .final-hero-perks small { font-size: 12px; }
+  .pasaport-premium-hero .final-hero-search { margin: 28px 0 0; max-width: 520px; }
+  .pasaport-premium-hero .final-hero-photo img { object-position: 72% 38%; }
+}
+@media (min-width: 1440px) {
+  .pasaport-premium-hero { min-height: 480px; height: 480px; }
+  .pasaport-premium-hero .final-hero-heading h1 { font-size: 56px; }
+}
+[dir="rtl"] .pasaport-premium-hero .final-hero-photo,
+[dir="rtl"] .pasaport-premium-hero .final-hero-shade { transform: none; }
+[dir="rtl"] .pasaport-premium-hero .final-hero-heading { max-width: min(72%, 20rem); }
+
+.shop-trust { padding-top: 20px; }
+.shop-trust .combined-reviews { background: transparent; padding: 0; margin: 0; }
+.shop-trust .family-review-heading,
+.shop-trust .combined-caption { display: none; }
+.shop-trust .review-rating-summary {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 12px 22px;
+  background: var(--story-card);
+  border: 1px solid var(--story-border);
+  border-radius: 16px;
+  box-shadow: var(--story-shadow);
+  padding: 16px 20px;
+  min-height: 0;
+}
+.shop-trust .family-source-marks {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  width: auto;
+}
+.shop-trust .review-source-divider {
+  display: block;
+  width: 1px;
+  height: 22px;
+  background: var(--story-border);
+}
+.shop-trust .family-source-marks > .review-source-mark {
+  justify-content: center;
+  min-height: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
+}
+.shop-trust .combined-score,
+.shop-trust .combined-count {
+  grid-column: auto;
+}
+.shop-trust .combined-score bdi {
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+}
+.shop-trust .combined-count {
+  font-size: 14px;
+  font-weight: 600;
+}
+@media (max-width: 599px) {
+  .shop-trust .review-rating-summary {
+    flex-direction: column;
+    gap: 10px;
+    min-height: 0;
+    padding: 16px 18px;
+  }
+}
+@media (min-width: 768px) {
+  .shop-trust .review-rating-summary {
+    gap: 16px 28px;
+    padding: 18px 28px;
+  }
+  .shop-trust .combined-score bdi { font-size: 26px; }
+}
+@media (min-width: 1024px) {
+  .shop-trust { padding: 28px 0 18px; }
+}
+.shop-trust .pay-strip:before,
+.shop-trust .pay-head,
+.shop-trust .pay-note,
+.shop-trust .pay-stripe-m,
+.shop-trust .pay-stripe-d { display: none; }
+.shop-trust .pay-strip-glass,
+.shop-trust .pay-strip.pay-strip-glass {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  margin: 16px 0 6px;
+  padding: 8px;
+  min-width: 0;
+  max-width: 100%;
+  min-height: 0;
+  gap: 0;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, .3);
+  border-block: 1px solid rgba(255, 255, 255, .3);
+  border-radius: 22px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, .2) 0%, rgba(255, 255, 255, .04) 100%),
+    rgba(7, 22, 28, .58);
+  box-shadow:
+    0 16px 40px -22px rgba(7, 22, 28, .45),
+    inset 0 1px 0 rgba(255, 255, 255, .28);
+  backdrop-filter: blur(22px) saturate(1.4);
+  -webkit-backdrop-filter: blur(22px) saturate(1.4);
+}
+.shop-trust .pay-strip-glass .pay-logos {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  align-items: stretch;
+  justify-content: center;
+  gap: 6px;
+  width: 100%;
+  min-width: 0;
+  overflow: hidden;
+  grid-column: auto;
+  grid-row: auto;
+}
+.shop-trust .pay-strip-glass .pay-logos li {
+  height: 44px;
+  min-width: 0;
+  overflow: hidden;
+  padding: 0 4px;
+  border-radius: 12px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, .92), rgba(255, 255, 255, .68));
+  border: 1px solid rgba(255, 255, 255, .55);
+  box-shadow:
+    0 8px 18px -12px rgba(7, 22, 28, .4),
+    inset 0 1px 0 rgba(255, 255, 255, .95);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+.shop-trust .pay-strip-glass .pay-logos svg,
+.shop-trust .pay-strip-glass .pay-logos li svg,
+.shop-trust .pay-strip-glass .pay-logos li:nth-child(2) svg,
+.shop-trust .pay-strip-glass .pay-logos li:nth-child(3) svg,
+.shop-trust .pay-strip-glass .pay-logos li:nth-child(4) svg,
+.shop-trust .pay-strip-glass .pay-logos li:nth-child(5) svg {
+  display: block;
+  width: auto;
+  height: auto;
+  max-width: 100%;
+  max-height: 20px;
+  margin-block: 0;
+}
+.shop-trust .pay-strip-glass .pay-klarna {
+  font-size: 11px;
+  padding: 4px 5px;
+  border-radius: 7px;
+  background: color-mix(in oklab, oklch(0.85 0.09 355) 88%, white);
+}
+.shop-trust .pay-strip-glass .pay-paypal { font-size: 12px; }
+@media (min-width: 768px) {
+  .shop-trust .pay-strip-glass {
+    margin-top: 18px;
+    padding: 12px;
+  }
+  .shop-trust .pay-strip-glass .pay-logos { gap: 10px; }
+  .shop-trust .pay-strip-glass .pay-logos li { height: 58px; padding: 0 6px; border-radius: 14px; }
+  .shop-trust .pay-strip-glass .pay-logos svg,
+  .shop-trust .pay-strip-glass .pay-logos li svg,
+  .shop-trust .pay-strip-glass .pay-logos li:nth-child(n) svg {
+    max-height: 28px;
+  }
+  .shop-trust .pay-strip-glass .pay-klarna { font-size: 14px; padding: 6px 9px; }
+  .shop-trust .pay-strip-glass .pay-paypal { font-size: 15px; }
 }

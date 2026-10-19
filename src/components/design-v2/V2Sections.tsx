@@ -14,6 +14,7 @@ import { getPublishedV2Page, type V2Media } from "@/lib/v2-storefront.functions"
 import { useI18n, isUiLocale } from "@/i18n";
 import familyArrivals from "@/assets/pasaport-family-arrivals.jpg";
 import esimHero from "@/assets/pasaport-seaside-hero.jpg";
+import esimHeroSummit from "@/assets/pasaport-summit.jpg";
 import loungeHero from "@/assets/lounge-hero-mobile.jpg";
 import vignetteHero from "@/assets/v2-vignette-hero.jpg";
 import loungeCard from "@/assets/lounge-card.jpg.asset.json";
@@ -47,6 +48,7 @@ export const V2_BUILTIN_URLS: Record<string, string> = {
   "builtin:worldwide-window": worldwidePhoto.url,
   "builtin:trust-family-arrivals": familyArrivals,
   "builtin:esim-hero": esimHero,
+  "builtin:esim-hero-summit": esimHeroSummit,
   "builtin:lounge-hero": loungeHero,
   "builtin:vignette-hero": vignetteHero,
   "builtin:lounge-card": loungeCard.url,
@@ -232,7 +234,7 @@ export function V2Sections({ config, media, slots, only, onDestinationSearch, se
                 </div>
               );
             }
-            return null; // Single compatibility entry: HomeCompatibilityCard below regional packages.
+            return null; // Single compatibility entry: HomeCompatibilityCard inside the how-eSIM-works band.
           }
           case "PROMO_BANNER": {
             const previous = sections[index - 1];

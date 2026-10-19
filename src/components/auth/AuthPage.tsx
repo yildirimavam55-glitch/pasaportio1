@@ -9,31 +9,19 @@ import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable/index";
 import { useI18n } from "@/i18n";
 import { localize } from "@/i18n/overlay";
+import {
+  friendlyAuthError,
+  isTrustedAuthorizeUrl,
+  oauthRedirectTo,
+  safeInternalPath,
+  usesLovableOAuthBroker,
+} from "@/domain/auth/oauth";
 
 const AUTH_COPY = localize({
   tr: { back: "Ana sayfaya dön", eyebrow: "Seyahatin tek yerde", featureTitle: "Bağlantın, dinlenme molan ve seyahatlerin.", features: ["eSIM ve Lounge hizmetlerini seyahat bazında takip et", "Satın alımların değişse bile geçmişini koru", "Hesabına güvenle eriş"], secure: "Güvenli kimlik doğrulama · Yönetici yetkileri ayrı atanır", welcome: "Tekrar hoş geldin", create: "Seyahat hesabını oluştur", resetTitle: "Şifreni yenile", lead: "Seyahatlerine ve hizmetlerine tek yerden ulaş.", resetLead: "Bağlantıyı gönderebilmemiz için e-posta adresini yaz.", email: "E-posta", password: "Şifre", passwordPlaceholder: "En az 8 karakter", show: "Şifreyi göster", hide: "Şifreyi gizle", forgot: "Şifremi unuttum", working: "İşleniyor…", signIn: "Giriş yap", signUp: "Kayıt ol", send: "Bağlantı gönder", or: "veya", google: "Google ile devam et", apple: "Apple ile devam et", switchSignUp: "Hesabın yok mu? Kayıt ol", switchSignIn: "Giriş ekranına dön", check: "E-postanı kontrol et", sent: "adresine bir doğrulama bağlantısı gönderdik. Hesabını etkinleştirmek için e-postandaki bağlantıya tıkla.", spam: "E-posta gelmediyse spam klasörünü kontrol etmeyi unutma.", resetSent: "Şifre yenileme bağlantısını e-posta adresine gönderdik.", oauthGoogle: "Google ile giriş şu anda yapılamadı.", oauthApple: "Apple ile giriş şu anda yapılamadı." },
   de: { back: "Zur Startseite", eyebrow: "Deine Reise an einem Ort", featureTitle: "Verbindung, Lounge und Reisen im Blick.", features: ["eSIM- und Lounge-Dienste pro Reise verwalten", "Deine Historie bleibt bei Änderungen erhalten", "Sicher auf dein Konto zugreifen"], secure: "Sichere Anmeldung · Administratorrechte werden separat vergeben", welcome: "Willkommen zurück", create: "Reisekonto erstellen", resetTitle: "Passwort zurücksetzen", lead: "Greife zentral auf deine Reisen und Dienste zu.", resetLead: "Gib deine E-Mail-Adresse ein, um den Link zu erhalten.", email: "E-Mail", password: "Passwort", passwordPlaceholder: "Mindestens 8 Zeichen", show: "Passwort anzeigen", hide: "Passwort verbergen", forgot: "Passwort vergessen", working: "Wird verarbeitet…", signIn: "Anmelden", signUp: "Registrieren", send: "Link senden", or: "oder", google: "Mit Google fortfahren", apple: "Mit Apple fortfahren", switchSignUp: "Noch kein Konto? Registrieren", switchSignIn: "Zur Anmeldung", check: "Prüfe deine E-Mails", sent: "Wir haben einen Bestätigungslink an diese Adresse gesendet. Öffne den Link, um dein Konto zu aktivieren.", spam: "Prüfe auch deinen Spam-Ordner, falls die E-Mail nicht ankommt.", resetSent: "Wir haben den Link zum Zurücksetzen an deine E-Mail-Adresse gesendet.", oauthGoogle: "Die Anmeldung mit Google ist derzeit nicht möglich.", oauthApple: "Die Anmeldung mit Apple ist derzeit nicht möglich." },
   en: { back: "Back to home", eyebrow: "Your travel in one place", featureTitle: "Your connection, lounge and trips.", features: ["Manage eSIM and Lounge services by trip", "Keep your history when purchases change", "Access your account securely"], secure: "Secure authentication · Administrator access is assigned separately", welcome: "Welcome back", create: "Create your travel account", resetTitle: "Reset your password", lead: "Access your trips and services in one place.", resetLead: "Enter your email address so we can send the link.", email: "Email", password: "Password", passwordPlaceholder: "At least 8 characters", show: "Show password", hide: "Hide password", forgot: "Forgot password", working: "Working…", signIn: "Sign in", signUp: "Create account", send: "Send link", or: "or", google: "Continue with Google", apple: "Continue with Apple", switchSignUp: "No account? Create one", switchSignIn: "Back to sign in", check: "Check your email", sent: "We sent a confirmation link to this address. Open it to activate your account.", spam: "Check your spam folder if the email does not arrive.", resetSent: "We sent a password reset link to your email address.", oauthGoogle: "Google sign-in is currently unavailable.", oauthApple: "Apple sign-in is currently unavailable." },
 } as const);
-function safePath(value: string | undefined, fallback: string) {
-  return value && value.startsWith("/") && !value.startsWith("//") ? value : fallback;
-}
-function friendlyAuthError(raw: string | null, locale: "tr" | "de" | "en") {
-  const key = (raw ?? "").toLowerCase();
-  const messages = localize({
-    tr: { invalid: "E-posta veya şifre hatalı. Tekrar dene.", confirm: "Önce e-postandaki doğrulama bağlantısına tıkla.", limit: "Çok fazla deneme yaptın. Kısa bir süre sonra tekrar dene.", exists: "Bu e-posta ile zaten bir hesap var. Giriş yapmayı dene.", fallback: "Bir hata oluştu." },
-    de: { invalid: "E-Mail oder Passwort ist falsch. Versuche es erneut.", confirm: "Bestätige zuerst deine E-Mail-Adresse.", limit: "Zu viele Versuche. Bitte versuche es später erneut.", exists: "Für diese E-Mail besteht bereits ein Konto. Versuche dich anzumelden.", fallback: "Ein Fehler ist aufgetreten." },
-    en: { invalid: "Incorrect email or password. Try again.", confirm: "Confirm your email address first.", limit: "Too many attempts. Please try again shortly.", exists: "An account already exists for this email. Try signing in.", fallback: "Something went wrong." },
-  } as const);
-  const message = messages[locale];
-  if (key.includes("invalid login credentials")) return message.invalid;
-  if (key.includes("email not confirmed")) return message.confirm;
-  if (key.includes("rate limit") || key.includes("too many"))
-    return message.limit;
-  if (key.includes("user already registered"))
-    return message.exists;
-  return raw ?? message.fallback;
-}
 export type AuthMode = "signin" | "signup" | "reset";
 
 export function AuthPage({ redirect, initialMode = "signin", fallback = "/account" }: { redirect?: string | undefined; initialMode?: AuthMode; fallback?: string }) {
@@ -50,7 +38,7 @@ export function AuthPage({ redirect, initialMode = "signin", fallback = "/accoun
   const [busy, setBusy] = useState(false);
   const [signedUp, setSignedUp] = useState(false);
   const [oauthBusy, setOauthBusy] = useState<"google" | "apple" | null>(null);
-  const target = safePath(redirect, fallback);
+  const target = safeInternalPath(redirect, fallback);
 
   async function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
@@ -68,7 +56,7 @@ export function AuthPage({ redirect, initialMode = "signin", fallback = "/accoun
         const { error } = await supabase.auth.signUp({
           email,
           password,
-          options: { emailRedirectTo: `${window.location.origin}${target}` },
+          options: { emailRedirectTo: oauthRedirectTo(window.location.origin, target) },
         });
         if (error) throw error;
         setSignedUp(true);
@@ -89,19 +77,34 @@ export function AuthPage({ redirect, initialMode = "signin", fallback = "/accoun
     setMessage(null);
     setOauthBusy(provider);
     try {
-      const result = await lovable.auth.signInWithOAuth(provider, {
-        redirect_uri: `${window.location.origin}${target}`,
-      });
-      if (result.error) {
-        setTone("error");
-        setMessage(
-          provider === "google"
-            ? copy.oauthGoogle
-            : copy.oauthApple,
-        );
+      const origin = window.location.origin;
+      if (usesLovableOAuthBroker(window.location.hostname)) {
+        const result = await lovable.auth.signInWithOAuth(provider, {
+          redirect_uri: `${origin}${target}`,
+        });
+        if (result.error) {
+          setTone("error");
+          setMessage(friendlyAuthError(result.error.message, locale) || (provider === "google" ? copy.oauthGoogle : copy.oauthApple));
+          return;
+        }
+        if (!result.redirected) void navigate({ to: target });
         return;
       }
-      if (!result.redirected) void navigate({ to: target });
+
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider,
+        options: { redirectTo: oauthRedirectTo(origin, target) },
+      });
+      if (error) {
+        setTone("error");
+        setMessage(friendlyAuthError(error.message, locale));
+        return;
+      }
+      const supabaseUrl = import.meta.env["VITE_SUPABASE_URL"] as string | undefined;
+      if (!data.url || !supabaseUrl || !isTrustedAuthorizeUrl(data.url, supabaseUrl)) {
+        setTone("error");
+        setMessage(provider === "google" ? copy.oauthGoogle : copy.oauthApple);
+      }
     } finally {
       setOauthBusy(null);
     }
