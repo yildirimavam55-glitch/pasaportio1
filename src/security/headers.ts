@@ -29,13 +29,19 @@ export const PERMISSIONS_POLICY =
   "camera=(), microphone=(), geolocation=(), usb=(), serial=(), bluetooth=(), hid=(), midi=(), magnetometer=(), gyroscope=(), accelerometer=(), display-capture=(), browsing-topics=(), payment=(self), fullscreen=(self)";
 
 export const NOINDEX_PATH = /^\/(admin|account|auth|api|legacy-v1|sepet|odeme)(\/|$)/;
+const STAGING_HOST = /\.vercel\.app$|\.vercel\.sh$/i;
 
 export function isPreviewHost(host: string): boolean {
   return PREVIEW_HOST.test(host.toLowerCase());
 }
 
+export function isVercelStagingHost(host: string): boolean {
+  return STAGING_HOST.test(host);
+}
+
 export function securityHeaders(url: URL): Record<string, string> {
   const preview = isPreviewHost(url.host);
+  const staging = isVercelStagingHost(url.host) || String(process.env["STAGING_NOINDEX"] ?? "").toLowerCase() === "true";
   const ancestors = preview ? ["'self'", ...EDITOR_FRAME_ANCESTORS] : ["'self'"];
   const csp = Object.entries(CSP_DIRECTIVES).map(([k, v]) => `${k} ${v.join(" ")}`).join("; ");
   const headers: Record<string, string> = {
@@ -47,7 +53,7 @@ export function securityHeaders(url: URL): Record<string, string> {
     "Referrer-Policy": "strict-origin-when-cross-origin",
   };
   if (!preview) headers["X-Frame-Options"] = "SAMEORIGIN";
-  if (NOINDEX_PATH.test(url.pathname)) headers["X-Robots-Tag"] = "noindex, nofollow";
+  if (staging || NOINDEX_PATH.test(url.pathname)) headers["X-Robots-Tag"] = "noindex, nofollow";
   return headers;
 }
 

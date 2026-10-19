@@ -67,7 +67,6 @@ export const listEsimDestinations = createServerFn({ method: "GET" }).handler(
         .eq("lifecycle", "PUBLISHED")
         .eq("customer_visible", true)
         .eq("provider_available", true)
-        .eq("margin_flagged", false)
         .gt("sale_price", 0)
         .range(from, from + pageSize - 1);
       if (error) throw new Error(error.message);

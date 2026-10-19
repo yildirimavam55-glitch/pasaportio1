@@ -9,7 +9,12 @@
     "build:dev": "vite build --mode development",
     "preview": "vite preview",
     "lint": "eslint .",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "test": "vitest run",
+    "build:vercel": "NITRO_PRESET=vercel vite build",
+    "check:own-supabase": "bun scripts/check-own-supabase.ts",
+    "schema:harden": "bun scripts/build-hardened-schema.ts",
+    "schema:test-local": "bun scripts/test-hardened-schema.ts"
   },
   "overrides": {
     "rolldown": "1.2.1",

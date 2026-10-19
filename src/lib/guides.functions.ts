@@ -306,7 +306,6 @@ async function esimOffers(
       .eq("lifecycle", "PUBLISHED")
       .eq("customer_visible", true)
       .eq("provider_available", true)
-      .eq("margin_flagged", false)
       .gt("sale_price", 0)
       .filter("esim_product_details.coverage_country_isos", "cs", `{${iso}}`)
       .limit(400);
@@ -355,7 +354,6 @@ async function routeEsimOffers(
       .eq("lifecycle", "PUBLISHED")
       .eq("customer_visible", true)
       .eq("provider_available", true)
-      .eq("margin_flagged", false)
       .gt("sale_price", 0)
       .contains("esim_product_details.coverage_country_isos", route.countryIsos)
       .limit(400);

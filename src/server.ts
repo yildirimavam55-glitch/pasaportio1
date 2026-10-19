@@ -2,6 +2,7 @@ import "./lib/error-capture";
 
 import { consumeLastCapturedError } from "./lib/error-capture";
 import { renderErrorPage } from "./lib/error-page";
+import { isPublishedAssetPath, proxyPublishedAsset } from "./lib/published-assets";
 import { applySecurityHeaders } from "./security/headers";
 
 type ServerEntry = {
@@ -48,6 +49,13 @@ function isH3SwallowedErrorBody(body: string): boolean {
 export default {
   async fetch(request: Request, env: unknown, ctx: unknown) {
     try {
+      const pathname = new URL(request.url).pathname;
+      if (pathname.startsWith("/__l5e/")) {
+        return applySecurityHeaders(
+          request,
+          isPublishedAssetPath(pathname) ? await proxyPublishedAsset(request) : new Response(null, { status: 404 }),
+        );
+      }
       const handler = await getServerEntry();
       const response = await handler.fetch(request, env, ctx);
       return applySecurityHeaders(request, await normalizeCatastrophicSsrResponse(response));

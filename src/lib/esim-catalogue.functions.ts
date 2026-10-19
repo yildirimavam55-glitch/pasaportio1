@@ -124,13 +124,12 @@ export async function loadEsimPackages(wantedIsos: string[], options: { multiCou
       let query = publicClient()
         .from("service_products")
         .select(
-          "id, provider_external_id, slug, name, currency, sale_price, badge, featured, sort_order, lifecycle, customer_visible, provider_available, margin_flagged, service_type, is_test, source, esim_product_details!inner(data_gb, data_type, unlimited_data, validity_days, raw_validity_value, raw_validity_unit, activation_policy, fair_use_note, fair_use_policy, high_speed_allowance, speed_after_fair_use, coverage_country_isos, country_iso, package_kind, supports_5g, supports_hotspot, data_only, topup_supported, network_operators, supplier_groups, supplier_speed, supplier_countries)",
+          "id, provider_external_id, slug, name, currency, sale_price, badge, featured, sort_order, lifecycle, customer_visible, provider_available, service_type, is_test, source, esim_product_details!inner(data_gb, data_type, unlimited_data, validity_days, raw_validity_value, raw_validity_unit, activation_policy, fair_use_note, fair_use_policy, high_speed_allowance, speed_after_fair_use, coverage_country_isos, country_iso, package_kind, supports_5g, supports_hotspot, data_only, topup_supported, network_operators, supplier_groups, supplier_speed, supplier_countries)",
         )
         .eq("service_type", "ESIM")
         .eq("lifecycle", "PUBLISHED")
         .eq("customer_visible", true)
         .eq("provider_available", true)
-        .eq("margin_flagged", false)
         .gt("sale_price", 0)
         .order("sort_order")
         .order("id")
@@ -365,7 +364,7 @@ export const listEsimStartingPrices = createServerFn({ method: "GET" })
         .from("service_products")
         .select("currency, sale_price, is_test, esim_product_details!inner(coverage_country_isos, unlimited_data, supplier_groups)")
         .eq("service_type", "ESIM").eq("lifecycle", "PUBLISHED").eq("customer_visible", true)
-        .eq("provider_available", true).eq("margin_flagged", false).gt("sale_price", 0)
+        .eq("provider_available", true).gt("sale_price", 0)
         .contains("esim_product_details.coverage_country_isos", t.coverageIsos)
         .order("sale_price").limit(30);
       if (error) throw new Error(error.message);
