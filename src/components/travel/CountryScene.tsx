@@ -5,6 +5,7 @@
  * all-countries page and in the package page header. Unknown future ISO codes
  * fall back to a neutral travel scene instead of breaking the page.
  */
+import { useState } from "react";
 import { getCountryPhoto, getCountryPhotoFallback } from "./countryPhotos";
 import { getRegionPhoto } from "./regionPhotos";
 import { useI18n } from "@/i18n";
@@ -24,6 +25,10 @@ export function CountryScene({
   const { locale } = useI18n();
   const code = iso.toUpperCase();
   const photo = getCountryPhoto(code);
+  // Asset pointers may resolve in Lovable but fail after moving the site to Vercel.
+  // Track the failed URL, rather than the country code, to allow later image recovery.
+  const [failedUrl, setFailedUrl] = useState<string | null>(null);
+  const showPhoto = Boolean(photo && photo.cardImage !== failedUrl);
   if (!photo && import.meta.env.DEV && !warned.has(code)) {
     warned.add(code);
     console.warn(`Missing country photo mapping: ${code}`);
@@ -31,12 +36,13 @@ export function CountryScene({
   const fallback = getCountryPhotoFallback(code);
   return (
     <span
-      className={`country-scene ${photo ? "has-photo" : "is-fallback"} ${className}`}
+      className={`country-scene ${showPhoto ? "has-photo" : "is-fallback"} ${className}`}
       data-country={code}
     >
-      {photo ? (
+      {photo && showPhoto ? (
         <img
           src={photo.cardImage}
+          onError={() => setFailedUrl(photo.cardImage)}
           alt={photo.alt[locale]}
           width={960}
           height={540}
