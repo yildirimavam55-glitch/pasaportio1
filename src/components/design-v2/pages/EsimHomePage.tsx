@@ -265,29 +265,32 @@ function Popular({ c, section, onPick }: { c: (typeof T)["tr"]; section: V2Secti
   const popularRail = useRailControls<HTMLUListElement>([isLoading, data?.length]);
   const railCopy = DISCOVERY_COPY[locale];
   // Only countries with a real published price are shown.
-  const priced = list.flatMap((country) => {
-    const p = data?.find((d) => d.targetId === country.iso);
-    return p ? [{ country, p }] : [];
-  });
+  // Keep destination discovery visible while the staging catalogue is empty.
+  // Supplier prices are never invented: only published price rows get an "ab/from" label.
+  const destinations = list.map((country) => ({
+    country,
+    p: data?.find((entry) => entry.targetId === country.iso),
+  }));
   return (
     <>
        <div id="popular" className="popular-country-heading grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2 scroll-mt-28"><SectionTitle>{v2Text(section, "title", locale) || c.popular}</SectionTitle><Link to="/esim/ulkeler" className="flex min-h-11 items-center gap-1 text-xs font-semibold text-primary">{uiLocale === "ar" ? "عرض الكل" : locale === "tr" ? "Tümünü gör" : locale === "de" ? "Alle ansehen" : translateString("View all")}<ArrowRight className="size-4 rtl:rotate-180" /></Link></div>
       {isLoading ? (
         <div className="h-[8.4rem] rounded-2xl bg-muted lg:h-56" aria-hidden />
-      ) : priced.length === 0 ? (
+      ) : destinations.length === 0 ? (
         <p className="rounded-2xl bg-card p-4 text-sm text-muted-foreground ring-1 ring-border">{c.noPrices}</p>
       ) : (
         <div className="home-rail-frame">
         <RailArrows edge={popularRail.edge} scroll={popularRail.scroll} previous={c.popular + ' · ' + railCopy.previous} next={c.popular + ' · ' + railCopy.next} />
         <PhotoRail railRef={popularRail.ref} onScroll={popularRail.update}>
-          {priced.map(({ country, p }) => (
+          {destinations.map(({ country, p }) => (
             <PhotoCard
               key={country.iso}
               image={mediaUrl(homepageImageId(section, country.iso), media) ?? countryPhotoRegistry[country.iso]?.cardImage}
               fallbackImage={countryPhotoRegistry[country.iso]?.cardImage}
               badge={<CountryFlag iso={country.iso} className="h-4 w-6 rounded-sm shadow" />}
               title={country.name[locale]}
-              price={`${c.from} ${money(p.amount, p.currency)}`}
+              price={p ? `${c.from} ${money(p.amount, p.currency)}` : undefined}
+              sub={!p ? c.noPrices : undefined}
               onClick={() => onPick(country.iso)}
               showArrow
               overlay
@@ -335,7 +338,25 @@ function RegionalDiscovery({ section, c }: { section: V2Section; c: (typeof T)["
   return (
     <section ref={ref} aria-labelledby="regional-esim-title" className="home-region-section">
       <div className="regional-home-heading"><SectionTitle><span id="regional-esim-title">{title}</span></SectionTitle></div>
-      {loading ? <div className="home-region-placeholder bg-muted/70" aria-hidden /> : (
+      {loading ? <div className="home-region-placeholder bg-muted/70" aria-hidden /> : regions.length === 0 ? (
+        <div className="home-region-carousel home-rail-frame" aria-label={title}>
+          <ul className="home-region-rail">
+            {(["EUROPE", "ASIA", "GLOBAL"] as const).map((region) => {
+              const photo = getRegionPhoto(region);
+              return (
+                <li key={region} className="home-region-card home-region-card-overlay relative overflow-hidden rounded-xl bg-muted" aria-label={`${COVERAGE_REGION_LABELS[region][locale]}: ${c.noPrices}`}>
+                  {photo && <img src={photo.url} alt={photo.alt[locale]} loading="lazy" className="absolute inset-0 h-full w-full object-cover" />}
+                  <span className="photo-card-overlay-shade" aria-hidden="true" />
+                  <div className="absolute inset-x-0 bottom-0 p-3 text-white">
+                    <h3 className="font-display text-base font-bold">{COVERAGE_REGION_LABELS[region][locale]}</h3>
+                    <p className="text-xs opacity-90">{c.noPrices}</p>
+                  </div>
+                </li>
+              );
+            })}
+          </ul>
+        </div>
+      ) : (
         <div className="home-region-carousel home-rail-frame">
           <RailArrows edge={rail.edge} scroll={rail.scroll} previous={copy.previous} next={copy.next} />
           <ul ref={rail.ref} onScroll={rail.update} className="home-region-rail" aria-label={title}>
