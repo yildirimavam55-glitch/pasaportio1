@@ -11,15 +11,16 @@ import { combinedSourceRating, starFill } from "@/domain/storefront/review-carou
 import { CalendarCheck, Mail, QrCode } from "lucide-react";
 /** Sample figures only so the strip layout can be reviewed in the dev preview; never shipped, never presented as verified. */
 const PREVIEW_SAMPLE_RATING = import.meta.env.DEV ? { rating: 4.8, displayRating: 4.8, count: 2000 } : null;
-import coast from "@/assets/pasaport-antenna-coast.png.asset.json";
+import fallbackHeroDesktop from "@/assets/pasaport-final-coast.jpg";
+import fallbackHeroMobile from "@/assets/pasaport-final-coast-mobile.jpg";
 import { AntennaSignal } from "./AntennaSignal";
 import { useTrustIconEntry } from "./use-trust-icon-entry";
 
 const COPY = localize({
- tr: { titleA: "Seyahatte internetin", titleB: "hazır.", subtitle: "190+ ülkede eSIM ile bağlantıda kal.", delivery: "Hızlı teslimat", setup: "Kolay kurulum", payment: "Ödeme bilgileri", support: "WhatsApp destek", deliveryInfo: "eSIM teslim bilgileri", setupInfo: "Adım adım kurulum", paymentInfo: "Ödeme seçeneklerini incele", supportInfo: "Kurulum için yardım", sample: "Örnek" },
-  de: { titleA: "Dein Internet", titleB: "für unterwegs.", subtitle: "Mit eSIM in über 190 Ländern verbunden.", delivery: "Schnelle Lieferung", setup: "Einfach einrichten", payment: "Infos zur Zahlung", support: "WhatsApp Support", deliveryInfo: "Informationen zur eSIM-Lieferung", setupInfo: "Installation Schritt für Schritt", paymentInfo: "Zahlungsoptionen ansehen", supportInfo: "Hilfe bei der Einrichtung", sample: "Beispiel" },
-  en: { titleA: "Your travel internet", titleB: "is ready.", subtitle: "Stay connected with eSIM in 190+ countries.", delivery: "Fast delivery", setup: "Easy installation", payment: "Payment information", support: "WhatsApp support", deliveryInfo: "eSIM delivery information", setupInfo: "Step-by-step installation", paymentInfo: "Review payment options", supportInfo: "Help with installation", sample: "Sample" },
-  ar: { titleA: "إنترنت رحلتك", titleB: "جاهز.", subtitle: "ابقَ متصلاً عبر eSIM في أكثر من 190 دولة.", delivery: "تسليم سريع", setup: "إعداد سهل", payment: "معلومات الدفع", support: "دعم واتساب", deliveryInfo: "معلومات تسليم eSIM", setupInfo: "التثبيت خطوة بخطوة", paymentInfo: "اطّلع على خيارات الدفع", supportInfo: "المساعدة في التثبيت", sample: "نموذج" },
+ tr: { titleA: "Her Zaman", titleB: "Bağlantıda Kal", subtitle: "Seyahatine uygun eSIM paketini bul ve yolculuk boyunca bağlantıda kal.", delivery: "Hızlı teslimat", setup: "Kolay kurulum", payment: "Ödeme bilgileri", support: "WhatsApp destek", deliveryInfo: "eSIM teslim bilgileri", setupInfo: "Adım adım kurulum", paymentInfo: "Ödeme seçeneklerini incele", supportInfo: "Kurulum için yardım", sample: "Örnek" },
+  de: { titleA: "Jederzeit", titleB: "verbunden bleiben", subtitle: "Finde das passende eSIM-Paket für deine Reise.", delivery: "Schnelle Lieferung", setup: "Einfach einrichten", payment: "Infos zur Zahlung", support: "WhatsApp Support", deliveryInfo: "Informationen zur eSIM-Lieferung", setupInfo: "Installation Schritt für Schritt", paymentInfo: "Zahlungsoptionen ansehen", supportInfo: "Hilfe bei der Einrichtung", sample: "Beispiel" },
+  en: { titleA: "Always", titleB: "Stay Connected", subtitle: "Find an eSIM plan that fits your next journey.", delivery: "Fast delivery", setup: "Easy installation", payment: "Payment information", support: "WhatsApp support", deliveryInfo: "eSIM delivery information", setupInfo: "Step-by-step installation", paymentInfo: "Review payment options", supportInfo: "Help with installation", sample: "Sample" },
+  ar: { titleA: "ابقَ على", titleB: "اتصال دائم", subtitle: "اختر باقة eSIM المناسبة لرحلتك.", delivery: "تسليم سريع", setup: "إعداد سهل", payment: "معلومات الدفع", support: "دعم واتساب", deliveryInfo: "معلومات تسليم eSIM", setupInfo: "التثبيت خطوة بخطوة", paymentInfo: "اطّلع على خيارات الدفع", supportInfo: "المساعدة في التثبيت", sample: "نموذج" },
 });
 const oldTitles = ["Yurt dışında bağlantıda kal.", "Im Ausland verbunden bleiben.", "Stay connected abroad.", "Her yerde bağlantıda kal.", "Überall verbunden bleiben.", "Stay connected everywhere.", "ابقَ متصلاً أينما كنت.", "ابقَ على اتصال في الخارج."];
 export function PasaportEsimHero({ section, image, mobileImage, benefits, reviews, children }: { section: V2Section; image: string; mobileImage?: string | undefined; benefits?: V2Section | undefined; reviews?: V2Section | undefined; children: ReactNode }) {
@@ -28,14 +29,14 @@ export function PasaportEsimHero({ section, image, mobileImage, benefits, review
  const storedTitle = v2Text(section, "title", locale);
  const approved = !storedTitle || oldTitles.includes(storedTitle);
  const fixture = section.mediaId === "2096d4af-5b89-49ad-b19f-7ca95ec54160" || section.mediaId === "builtin:esim-hero" || !image;
- const heroImage = fixture ? coast.url : image;
+ const heroImage = fixture ? fallbackHeroDesktop : image;
  const mobileFixture = !mobileImage || section.mobileMediaId === '2096d4af-5b89-49ad-b19f-7ca95ec54160' || section.mobileMediaId === 'builtin:esim-hero';
- const heroMobile = mobileFixture ? heroImage : mobileImage;
+ const heroMobile = mobileFixture ? (fixture ? fallbackHeroMobile : heroImage) : mobileImage;
  const desktop = fixture ? undefined : section.imageDisplay;
  const mobile = mobileFixture && fixture ? undefined : section.mobileImageDisplay;
   const style = { "--hero-desktop-position": desktop ? `${desktop.x}% ${desktop.y}%` : `50% calc(50px - 11.2113vw)`, "--hero-desktop-scale": (desktop?.zoom ?? 100) / 100, "--hero-desktop-fit": desktop?.fit ?? "cover", "--hero-mobile-position": `${mobile?.x ?? 88}% ${mobile?.y ?? 62}%`, "--hero-mobile-scale": (mobile?.zoom ?? 100) / 100, "--hero-mobile-fit": mobile?.fit ?? "cover" } as CSSProperties;
  return <><section data-testid="pasaport-esim-hero" className="pasaport-final-hero" style={style} data-has-trust-strip="true">
-  <picture className="final-hero-photo"><source media="(min-width:1024px)" srcSet={heroImage}/><img src={heroMobile} alt="" width={1672} height={941} fetchPriority="high" loading="eager" decoding="async" onError={event => { const picture = event.currentTarget.parentElement; picture?.querySelector('source')?.remove(); if (event.currentTarget.src !== new URL(coast.url, window.location.origin).href) event.currentTarget.src = coast.url; }} />{fixture && mobileFixture && <AntennaSignal />}</picture>
+  <picture className="final-hero-photo"><source media="(min-width:1024px)" srcSet={heroImage}/><img src={heroMobile} alt="" width={1672} height={941} fetchPriority="high" loading="eager" decoding="async" onError={event => { const picture = event.currentTarget.parentElement; picture?.querySelector('source')?.remove(); const fallback = window.matchMedia("(min-width: 1024px)").matches ? fallbackHeroDesktop : fallbackHeroMobile; if (event.currentTarget.src !== new URL(fallback, window.location.origin).href) event.currentTarget.src = fallback; }} />{fixture && mobileFixture && <AntennaSignal />}</picture>
   <div className="final-hero-shade" aria-hidden="true" />
   <div className="final-hero-heading"><h1>{approved ? <>{c.titleA} <span className="final-hero-accent">{c.titleB}</span></> : storedTitle}</h1><p>{approved ? c.subtitle : v2Text(section, "subtitle", locale)}</p></div>
   <div className="final-hero-search">{children}</div>

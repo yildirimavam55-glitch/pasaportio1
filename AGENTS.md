@@ -31,3 +31,6 @@ Installation uses one V2 guide; credentials require existing owner-authenticated
 - Fresh databases build from db/baseline/0000_baseline_schema.sql, then drizzle/migrations in order; security grants live in migrations — why: copies must reproduce the hardened live schema.
 - Guest orders have customer_id null + normalized guest_email; idempotency is scoped per owner and guest delivery links use hashed, expiring tokens only — why: guests never get accounts and links must never leak access.
 - Site origin = SITE_URL; sitemaps share one builder — why: no conflicting domains.
+
+## Codex section-by-section and localization rules
+When working on customer-facing sections, read `docs/development/CODEX_SECTION_LOCALIZATION_POLICY.md` first. One visual section per PR; maintain translations for all 14 currently supported UI locales (40 is a future target), language-dependent hero assets/text, and mobile/desktop visual checks. Do not claim automatic translation is implemented until the translation pipeline is tested.

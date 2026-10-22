@@ -5,12 +5,14 @@
  * the paid eSIM Access order endpoint.
  * Docs: https://docs.esimaccess.com/
  */
+import { createHmac, randomUUID } from "node:crypto";
 import type { CatalogueFetch } from "@/domain/providers/sync-engine";
 import { readSecret } from "./http.server";
 import type { AdapterContext, CatalogueAdapter } from "./types";
 
 export const ESIM_ACCESS_DEFAULT_BASE_URL = "https://api.esimaccess.com";
 export const ESIM_ACCESS_SECRET_NAME = "ESIM_ACCESS_ACCESS_CODE";
+export const ESIM_ACCESS_HMAC_SECRET_NAME = "ESIM_ACCESS_SECRET_KEY";
 
 /** eSIM Access money values are integers in 1/10000 of the currency unit. */
 export function esimAccessMoney(value: unknown): number | null {
@@ -74,14 +76,34 @@ export function normalizeEsimAccessPackage(row: Record<string, unknown>): Record
 export function createEsimAccessAdapter(ctx: AdapterContext): CatalogueAdapter {
   const baseUrl = ctx.baseUrl || ESIM_ACCESS_DEFAULT_BASE_URL;
   const secretName = ctx.credentialSecretName || ESIM_ACCESS_SECRET_NAME;
-  const secret = () => readSecret(secretName);
+  const accessCode = () => readSecret(secretName);
+  const hmacKey = () => readSecret(ESIM_ACCESS_HMAC_SECRET_NAME);
+  const hasBothCredentials = () => Boolean(accessCode() && hmacKey());
 
   async function post(path: string, body: Record<string, unknown>): Promise<{ ok: boolean; status: number; obj: any; error: string | null }> {
+    // One canonical JSON string must be used for both the HMAC and the wire request.
+    // The API access code and signing key never leave the server.
+    const code = accessCode();
+    const key = hmacKey();
+    if (!code || !key) return { ok: false, status: 0, obj: null, error: "CREDENTIAL_REQUIRED" };
+    const requestBody = JSON.stringify(body);
+    const requestId = randomUUID();
+    const timestamp = String(Date.now());
+    const signature = createHmac("sha256", key)
+      .update(timestamp + requestId + code + requestBody)
+      .digest("hex")
+      .toLowerCase();
     try {
       const response = await fetch(`${baseUrl}${path}`, {
         method: "POST",
-        headers: { "RT-AccessCode": secret() ?? "", "Content-Type": "application/json" },
-        body: JSON.stringify(body),
+        headers: {
+          "RT-AccessCode": code,
+          "RT-RequestID": requestId,
+          "RT-Timestamp": timestamp,
+          "RT-Signature": signature,
+          "Content-Type": "application/json",
+        },
+        body: requestBody,
         signal: AbortSignal.timeout(45_000),
       });
       const json: any = await response.json().catch(() => null);
@@ -97,16 +119,16 @@ export function createEsimAccessAdapter(ctx: AdapterContext): CatalogueAdapter {
   return {
     type: "NATIVE_ESIM_ACCESS",
     capabilities: ["CATALOGUE", "BALANCE"],
-    hasCredential: () => Boolean(secret()),
+    hasCredential: hasBothCredentials,
     async testConnection() {
-      if (!secret()) return { ok: false, status: "CREDENTIAL_REQUIRED" as const, message: `${secretName} sunucu tarafında tanımlı değil.` };
+      if (!hasBothCredentials()) return { ok: false, status: "CREDENTIAL_REQUIRED" as const, message: "eSIM Access için AccessCode ve SecretKey sunucuda tanımlanmalı." };
       const result = await post("/api/v1/open/balance/query", {});
       return result.ok
         ? { ok: true, status: "CONNECTED" as const, message: "eSIM Access bağlantısı doğrulandı." }
         : { ok: false, status: "ERROR" as const, message: result.error ?? "Bağlantı kurulamadı." };
     },
     async fetchCatalogue(): Promise<CatalogueFetch> {
-      if (!secret()) return { items: [], complete: false, pages: 0, error: "CREDENTIAL_REQUIRED" };
+      if (!hasBothCredentials()) return { items: [], complete: false, pages: 0, error: "CREDENTIAL_REQUIRED" };
       // One request returns the complete catalogue.
       const result = await post("/api/v1/open/package/list", { locationCode: "", type: "", packageCode: "", iccid: "" });
       if (!result.ok) return { items: [], complete: false, pages: 0, error: result.error };
@@ -114,10 +136,42 @@ export function createEsimAccessAdapter(ctx: AdapterContext): CatalogueAdapter {
       return { items: rows.filter(isImportableEsimAccessPackage).map(normalizeEsimAccessPackage), complete: true, pages: 1, error: null };
     },
     async fetchBalance() {
-      if (!secret()) return null;
+      if (!hasBothCredentials()) return null;
       const result = await post("/api/v1/open/balance/query", {});
       const amount = esimAccessMoney(result.obj?.balance);
       return result.ok && amount != null ? { amount, currency: "USD" } : null;
+    },
+    /**
+     * Read-only checkout validation by exact supplier package code.
+     * Never uses the /esim/order endpoint or reserves an eSIM.
+     * A failed or ambiguous response stays unavailable (fail-closed).
+     */
+    async validateItem(externalId: string) {
+      const packageCode = externalId.trim();
+      if (!hasBothCredentials() || !packageCode || packageCode.length > 100) {
+        return { available: false, providerCost: null, currency: null };
+      }
+      const result = await post("/api/v1/open/package/list", {
+        locationCode: "",
+        type: "",
+        packageCode,
+        iccid: "",
+      });
+      if (!result.ok || !Array.isArray(result.obj?.packageList)) {
+        return { available: false, providerCost: null, currency: null };
+      }
+      const match = (result.obj.packageList as Record<string, unknown>[]).find(
+        (row) => String(row["packageCode"] ?? "") === packageCode,
+      );
+      if (!match || !isImportableEsimAccessPackage(match)) {
+        return { available: false, providerCost: null, currency: null };
+      }
+      const providerCost = esimAccessMoney(match["price"]);
+      const currency = String(match["currencyCode"] ?? "").toUpperCase();
+      if (providerCost == null || !/^[A-Z]{3}$/.test(currency)) {
+        return { available: false, providerCost: null, currency: null };
+      }
+      return { available: true, providerCost, currency };
     },
   };
 }

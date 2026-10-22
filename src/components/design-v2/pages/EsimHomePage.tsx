@@ -8,6 +8,7 @@ import { CartBar, money as formatMoney, PhotoCard, PhotoRail, pick, SectionTitle
 import { V2PickerSheet } from "@/components/design-v2/V2PickerSheet";
 import { Button } from "@/components/ui/button";
 import { countryPhotoRegistry } from "@/components/travel/countryPhotos";
+import fallbackDestinationPhoto from "@/assets/pasaport-final-coast.jpg";
 import { getRegionPhoto } from "@/components/travel/regionPhotos";
 import { CountryFlag } from "@/components/travel/CountryFlag";
 import { useI18n } from "@/i18n";
@@ -113,8 +114,9 @@ export function EsimHomePage() {
     setSelectedPackage(pkg);
     setSelectionQuantity(lines.find((line) => line.productId === pkg.id)?.quantity ?? 1);
   };
+  const canPurchaseSelected = Boolean(selectedPackage && selectedPackage.salePrice != null && Number.isFinite(selectedPackage.salePrice) && selectedPackage.salePrice > 0);
   const addSelectedPackage = () => {
-    if (!selectedPackage || selectedCartLine) return;
+    if (!selectedPackage || selectedCartLine || !canPurchaseSelected) return;
     addLine({
       productId: selectedPackage.id,
       providerProductId: selectedPackage.providerProductId,
@@ -136,10 +138,19 @@ export function EsimHomePage() {
   };
   const purchaseSummary = selectedPackage ? <V2SelectedProductSummary
     key={selectedPackage.id}
+    heading={SELECTED_PLAN_LABEL[locale]}
+    referenceLayout
+    canPurchase={canPurchaseSelected}
+    facts={[
+      { label: c.data, value: selectedPackage.unlimited ? c.unlimited : `${selectedPackage.dataGb ?? "—"} GB` },
+      { label: c.validity, value: selectedPackage.validityDays ? `${selectedPackage.validityDays} ${c.days}` : "—" },
+      { label: c.coverage, value: selectedPackage.coverage.length > 1 ? `${selectedPackage.coverage.length} ${c.countries}` : selected?.name[locale] ?? selectedIdentity.replace(/ eSIM$/, "") },
+      ...(selectedPackage.networks.length ? [{ label: c.network, value: selectedPackage.networks.join(", ") }] : []),
+    ]}
     title={`${selectedPackage.unlimited ? `∞ ${c.unlimited}` : `${selectedPackage.dataGb ?? "—"} GB`} · ${selectedPackage.validityDays ?? "—"} ${c.days}`}
     subtitle={selectedPackage.coverage.length > 1 ? `${selectedIdentity.replace(/ eSIM$/, "")} · ${selectedPackage.coverage.length} ${c.countries}` : selectedIdentity.replace(/ eSIM$/, "")}
     flagIso={selectedPackage.countryIso ?? selected?.iso}
-    price={money(selectedPackage.salePrice ?? 0, selectedPackage.currency)}
+    price={canPurchaseSelected ? money(selectedPackage.salePrice!, selectedPackage.currency) : "—"}
     quantity={selectedCartLine?.quantity ?? selectionQuantity}
     inCart={Boolean(selectedCartLine)}
     addLabel={c.select}
@@ -153,7 +164,7 @@ export function EsimHomePage() {
     onAdd={addSelectedPackage}
   /> : undefined;
   return (
-    <V2Shell service="esim" commerceSelection={Boolean(selectedPackage)} purchaseSummary={purchaseSummary} heroPromotion={!selected} stickySearch={!selected ? <V2StickySearchButton heroSearchVisible={heroSearchVisible} label={c.stickyPh} onOpen={() => setPickerOpen(true)} /> : undefined}>
+    <V2Shell service="esim" commerceSelection={Boolean(selectedPackage)} heroPromotion={!selected} stickySearch={!selected ? <V2StickySearchButton heroSearchVisible={heroSearchVisible} label={c.stickyPh} onOpen={() => setPickerOpen(true)} /> : undefined}>
 
       {selected ? (
         <>
@@ -162,7 +173,7 @@ export function EsimHomePage() {
             <DeviceCompatibilityProductCard />
           </div></div>
           <V2PickerSheet open={pickerOpen} onOpenChange={(open) => { setPickerOpen(open); if (!open) setQuery(""); }} title={c.picker} searchLabel={c.ph} query={query} onQueryChange={setQuery} selectedId={selected.iso} emptyLabel={prices.isLoading ? "…" : c.empty} items={matches.map((item) => { const price = priceMap.get(item.iso); return { id: item.iso, label: item.name[locale], leading: <CountryFlag iso={item.iso} className="h-4 w-6 rounded-sm" />, ...(price ? { price: `${money(price.amount, price.currency)} ${c.from}` } : {}) }; })} onSelect={choose}><span /></V2PickerSheet>
-          <Packages iso={selected.iso} name={selected.name[locale]} c={c} selectedPackage={selectedPackage} onSelectPackage={selectPackage} preselectId={preselectPlan} desktopAfter={<div className="mx-auto mt-6 hidden max-w-3xl lg:block"><div className="rounded-full shadow-panel"><DeviceCompatibilityProductCard /></div></div>} />
+          <Packages iso={selected.iso} name={selected.name[locale]} c={c} selectedPackage={selectedPackage} onSelectPackage={selectPackage} preselectId={preselectPlan} purchaseSummary={purchaseSummary} desktopAfter={<div className="mx-auto mt-6 hidden max-w-3xl lg:block"><div className="rounded-full shadow-panel"><DeviceCompatibilityProductCard /></div></div>} />
         </>
       ) : (
         <>
@@ -221,10 +232,16 @@ export function EsimHomePage() {
 function CountryProductHero({ country, name, subtitle, changeLabel, onChange }: { country: NonNullable<ReturnType<typeof getCountryByIso>>; name: string; subtitle: string; changeLabel: string; onChange: () => void }) {
   const { locale } = useI18n();
   const photo = countryPhotoRegistry[country.iso];
+  // Legacy Lovable photo references can fail after migration. Keep an actual
+  // bundled photo visible rather than rendering an empty country hero.
+  const [failedPhoto, setFailedPhoto] = useState<string | null>(null);
+  const imageSrc = photo?.heroImage && photo.heroImage !== failedPhoto
+    ? photo.heroImage
+    : fallbackDestinationPhoto;
   return (
     <section className="relative -mx-4 overflow-hidden bg-muted sm:-mx-6 sm:mt-3 sm:rounded-3xl lg:mx-0 lg:mt-4">
        <div className="relative h-[15rem] lg:h-[18rem]">
-        {photo && <img src={photo.heroImage} alt={photo.alt[locale]} fetchPriority="high" decoding="async" width={960} height={540} className="absolute inset-0 size-full object-cover" style={{ objectPosition: `${photo.focalX}% ${photo.focalY}%` }} />}
+        <img src={imageSrc} alt={photo?.alt[locale] ?? name} onError={() => setFailedPhoto(imageSrc)} fetchPriority="high" decoding="async" width={960} height={540} className="absolute inset-0 size-full object-cover" style={{ objectPosition: photo ? `${photo.focalX}% ${photo.focalY}%` : "center" }} />
         <div className="absolute inset-0 bg-gradient-to-t from-[var(--v2-service)]/95 via-[var(--v2-service)]/30 to-transparent" />
         <Button type="button" variant="secondary" size="sm" onClick={onChange} className="absolute left-4 top-4 max-w-[calc(100%-6rem)] rounded-full bg-card/90 shadow-sm backdrop-blur lg:left-8 lg:top-8"><MapPin className="size-4 shrink-0 text-primary"/><span className="truncate">{REGION_LABELS[country.region][locale]}</span></Button>
         <span className="absolute right-4 top-4 grid size-14 place-items-center rounded-full bg-card/90 shadow-panel ring-1 ring-card/60 backdrop-blur lg:right-8 lg:top-8 lg:size-16"><CountryFlag iso={country.iso} label={name} className="h-8 w-11 lg:h-9 lg:w-12" /></span>
@@ -248,29 +265,32 @@ function Popular({ c, section, onPick }: { c: (typeof T)["tr"]; section: V2Secti
   const popularRail = useRailControls<HTMLUListElement>([isLoading, data?.length]);
   const railCopy = DISCOVERY_COPY[locale];
   // Only countries with a real published price are shown.
-  const priced = list.flatMap((country) => {
-    const p = data?.find((d) => d.targetId === country.iso);
-    return p ? [{ country, p }] : [];
-  });
+  // Keep destination discovery visible while the staging catalogue is empty.
+  // Supplier prices are never invented: only published price rows get an "ab/from" label.
+  const destinations = list.map((country) => ({
+    country,
+    p: data?.find((entry) => entry.targetId === country.iso),
+  }));
   return (
     <>
        <div id="popular" className="popular-country-heading grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2 scroll-mt-28"><SectionTitle>{v2Text(section, "title", locale) || c.popular}</SectionTitle><Link to="/esim/ulkeler" className="flex min-h-11 items-center gap-1 text-xs font-semibold text-primary">{uiLocale === "ar" ? "عرض الكل" : locale === "tr" ? "Tümünü gör" : locale === "de" ? "Alle ansehen" : translateString("View all")}<ArrowRight className="size-4 rtl:rotate-180" /></Link></div>
       {isLoading ? (
         <div className="h-[8.4rem] rounded-2xl bg-muted lg:h-56" aria-hidden />
-      ) : priced.length === 0 ? (
+      ) : destinations.length === 0 ? (
         <p className="rounded-2xl bg-card p-4 text-sm text-muted-foreground ring-1 ring-border">{c.noPrices}</p>
       ) : (
         <div className="home-rail-frame">
         <RailArrows edge={popularRail.edge} scroll={popularRail.scroll} previous={c.popular + ' · ' + railCopy.previous} next={c.popular + ' · ' + railCopy.next} />
         <PhotoRail railRef={popularRail.ref} onScroll={popularRail.update}>
-          {priced.map(({ country, p }) => (
+          {destinations.map(({ country, p }) => (
             <PhotoCard
               key={country.iso}
               image={mediaUrl(homepageImageId(section, country.iso), media) ?? countryPhotoRegistry[country.iso]?.cardImage}
               fallbackImage={countryPhotoRegistry[country.iso]?.cardImage}
               badge={<CountryFlag iso={country.iso} className="h-4 w-6 rounded-sm shadow" />}
               title={country.name[locale]}
-              price={`${c.from} ${money(p.amount, p.currency)}`}
+              price={p ? `${c.from} ${money(p.amount, p.currency)}` : undefined}
+              sub={!p ? c.noPrices : undefined}
               onClick={() => onPick(country.iso)}
               showArrow
               overlay
@@ -282,6 +302,9 @@ function Popular({ c, section, onPick }: { c: (typeof T)["tr"]; section: V2Secti
     </>
   );
 }
+
+const FEATURED_PLAN_LABEL = localize({ tr: "En Popüler", de: "Beliebt", en: "Popular" });
+const SELECTED_PLAN_LABEL = localize({ tr: "Seçtiğin Paket", de: "Ausgewähltes Paket", en: "Selected package" });
 
 const PLAN_PROMO = localize({
   tr: { title: "Seyahat planlayıcı", sub: "Ülkelerini ve tarihlerini gir, paketleri karşılaştıralım" },
@@ -315,7 +338,25 @@ function RegionalDiscovery({ section, c }: { section: V2Section; c: (typeof T)["
   return (
     <section ref={ref} aria-labelledby="regional-esim-title" className="home-region-section">
       <div className="regional-home-heading"><SectionTitle><span id="regional-esim-title">{title}</span></SectionTitle></div>
-      {loading ? <div className="home-region-placeholder bg-muted/70" aria-hidden /> : (
+      {loading ? <div className="home-region-placeholder bg-muted/70" aria-hidden /> : regions.length === 0 ? (
+        <div className="home-region-carousel home-rail-frame" aria-label={title}>
+          <ul className="home-region-rail">
+            {(["EUROPE", "ASIA", "GLOBAL"] as const).map((region) => {
+              const photo = getRegionPhoto(region);
+              return (
+                <li key={region} className="home-region-card home-region-card-overlay relative overflow-hidden rounded-xl bg-muted" aria-label={`${COVERAGE_REGION_LABELS[region][locale]}: ${c.noPrices}`}>
+                  {photo && <img src={photo.url} alt={photo.alt[locale]} loading="lazy" className="absolute inset-0 h-full w-full object-cover" />}
+                  <span className="photo-card-overlay-shade" aria-hidden="true" />
+                  <div className="absolute inset-x-0 bottom-0 p-3 text-white">
+                    <h3 className="font-display text-base font-bold">{COVERAGE_REGION_LABELS[region][locale]}</h3>
+                    <p className="text-xs opacity-90">{c.noPrices}</p>
+                  </div>
+                </li>
+              );
+            })}
+          </ul>
+        </div>
+      ) : (
         <div className="home-region-carousel home-rail-frame">
           <RailArrows edge={rail.edge} scroll={rail.scroll} previous={copy.previous} next={copy.next} />
           <ul ref={rail.ref} onScroll={rail.update} className="home-region-rail" aria-label={title}>
@@ -334,7 +375,7 @@ const HELP = localize({
   en: { title: "Let us help you decide", lead: "Pick the right plan and check your phone's compatibility.", assistantLead: "Get a plan suggestion based on your usage.", find: "Find my plan", compatTitle: "Is my phone eSIM compatible?", compatLead: "Check your device in seconds.", compatCta: "Check compatibility" },
 });
 
-function Packages({ iso, name, c, selectedPackage, onSelectPackage, desktopAfter, preselectId }: { preselectId?: string | undefined; desktopAfter?: ReactNode; iso: string; name: string; c: (typeof T)["tr"]; selectedPackage: EsimPackage | null; onSelectPackage: (pkg: EsimPackage) => void }) {
+function Packages({ iso, name, c, selectedPackage, onSelectPackage, desktopAfter, preselectId, purchaseSummary }: { preselectId?: string | undefined; desktopAfter?: ReactNode; purchaseSummary?: ReactNode; iso: string; name: string; c: (typeof T)["tr"]; selectedPackage: EsimPackage | null; onSelectPackage: (pkg: EsimPackage) => void }) {
   const { locale, uiLocale } = useI18n();
   const money = (value: number, currency: string) => formatMoney(value, currency, uiLocale);
   const h = pick(locale, HELP);
@@ -374,7 +415,9 @@ function Packages({ iso, name, c, selectedPackage, onSelectPackage, desktopAfter
   return (
     <>
        <div className="lg:hidden"><TrustRow compact items={[{ icon: <Zap />, label: c.setup }, { icon: <CheckCircle2 />, label: c.net }, { icon: <Box />, label: c.benefitDelivery }, { icon: <MessageCircle />, label: c.support }]} /></div>
-       <div className="mt-3 grid grid-cols-2 rounded-2xl bg-secondary p-1 lg:mt-4" role="tablist">
+       <div className="mt-5 grid items-start gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(18rem,0.44fr)] lg:gap-5">
+         <div className="min-w-0 rounded-2xl border border-border/65 bg-card/35 p-3 sm:p-4 lg:p-5">
+       <div className="grid grid-cols-2 rounded-2xl bg-secondary p-1" role="tablist">
         <Button type="button" variant={type === "standard" ? "default" : "ghost"} role="tab" aria-selected={type === "standard"} onClick={() => setType("standard")} className="min-w-0 rounded-xl text-xs uppercase sm:text-sm">{c.standard} · {standard.length}</Button>
         <Button type="button" variant={type === "unlimited" ? "default" : "ghost"} role="tab" aria-selected={type === "unlimited"} onClick={() => setType("unlimited")} className="min-w-0 rounded-xl text-xs uppercase sm:text-sm">{c.unlimited} · {unlimited.length}</Button>
       </div>
@@ -387,19 +430,29 @@ function Packages({ iso, name, c, selectedPackage, onSelectPackage, desktopAfter
       ) : rows.length === 0 ? (
         <p className="mt-3 rounded-2xl bg-card p-4 text-sm text-muted-foreground ring-1 ring-border">{c.none}</p>
       ) : (
-        <ul className="mt-3 grid grid-cols-2 gap-2 md:grid-cols-3 lg:grid-cols-4 lg:gap-4">
+        <ul className="mt-3 grid grid-cols-1 gap-2" aria-label={c.chooseTitle}>
           {rows.map((p) => {
             const selected = selectedPackage?.id === p.id;
             return (
               <li key={p.id} className="min-w-0">
-                <V2ProductSelectionCard service="esim" selected={selected} onSelect={() => onSelectPackage(p)} onDetails={() => setDetail(p)} detailsLabel={c.detailsLabel} className="h-24 lg:h-32">
-                  <span className="flex h-full w-full flex-col items-start justify-start p-2.5 pr-9">
-                   <span className="flex min-w-0 max-w-full items-center gap-1 whitespace-nowrap font-display text-[17px] font-bold leading-6 text-foreground">
-                     {p.unlimited ? (<><InfinityIcon className="size-3.5 shrink-0 text-muted-foreground" /><span>{c.unlimited}</span></>) : `${p.dataGb ?? "—"} GB`}
+                <V2ProductSelectionCard service="esim" selected={selected} showSelectedCheck={false} onSelect={() => onSelectPackage(p)} onDetails={() => setDetail(p)} detailsLabel={c.detailsLabel} className="min-h-[4.5rem]">
+                  <span className="grid min-h-[4.5rem] w-full grid-cols-[auto_minmax(0,1fr)_minmax(0,1fr)_auto] items-center gap-x-2 px-3 py-2.5 pr-11 sm:gap-x-4 sm:px-4 sm:pr-12">
+                    <span aria-hidden="true" className={`grid size-5 shrink-0 place-items-center rounded-full border-2 ${selected ? "border-primary bg-primary" : "border-muted-foreground/60"}`}>
+                      {selected && <span className="size-2 rounded-full bg-primary-foreground" />}
                     </span>
-                   <span className="mt-1 text-xs font-normal leading-4 text-muted-foreground">{p.validityDays ? `${p.validityDays} ${c.days}` : ""}</span>
-                   {p.unlimited && p.planTier === "ESSENTIAL" ? <span className="max-w-full truncate text-[10px] leading-3 text-muted-foreground">{ESSENTIAL_FAIR_USE[locale].short}</span> : null}
-                   <span className={`${p.unlimited && p.planTier === "ESSENTIAL" ? "mt-1" : "mt-2"} text-base font-bold leading-5 text-primary`}>{p.salePrice != null ? money(p.salePrice, p.currency) : ""}</span>
+                    <span className="flex min-w-0 flex-col gap-0.5 text-left">
+                      <span className="flex min-w-0 items-center gap-1 font-display text-base font-bold leading-5 text-foreground sm:text-lg">
+                        {p.unlimited ? <><InfinityIcon className="size-4 shrink-0" /><span className="truncate">{c.unlimited}</span></> : <span>{p.dataGb ?? "—"} GB</span>}
+                      </span>
+                      {p.featured && <span className="w-fit rounded-full bg-primary/10 px-1.5 py-0.5 text-[10px] font-semibold leading-3 text-primary">{FEATURED_PLAN_LABEL[locale]}</span>}
+                      {p.unlimited && p.planTier === "ESSENTIAL" && <span className="max-w-full truncate text-[10px] leading-3 text-muted-foreground">{ESSENTIAL_FAIR_USE[locale].short}</span>}
+                    </span>
+                    <span className="min-w-0 text-left text-[11px] leading-4 text-muted-foreground sm:text-sm">
+                      {p.validityDays ? `${p.validityDays} ${c.days}` : ""}
+                    </span>
+                    <span className="shrink-0 whitespace-nowrap text-right font-display text-sm font-bold text-primary sm:text-lg">
+                      {p.salePrice != null ? money(p.salePrice, p.currency) : "—"}
+                    </span>
                   </span>
                 </V2ProductSelectionCard>
               </li>
@@ -407,6 +460,9 @@ function Packages({ iso, name, c, selectedPackage, onSelectPackage, desktopAfter
           })}
         </ul>
       )}
+         </div>
+         {purchaseSummary && <aside className="min-w-0 lg:sticky lg:top-24" aria-label={c.chooseTitle}>{purchaseSummary}</aside>}
+       </div>
       {desktopAfter}
       <div className="mt-6 hidden lg:block"><TrustRow compact items={[{ icon: <Zap />, label: c.setup }, { icon: <CheckCircle2 />, label: c.net }, { icon: <Box />, label: c.benefitDelivery }, { icon: <MessageCircle />, label: c.support }]} /></div>
       <RefundTrustNote />

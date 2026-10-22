@@ -6,6 +6,13 @@ import { itemText } from "@/domain/storefront/registry";
 import {
   Check,
   ChevronDown,
+  ChevronRight,
+  CircleHelp,
+  Coins,
+  BookOpen,
+  FileText,
+  House,
+  ShieldCheck,
   ExternalLink,
   Globe2,
   Headphones,
@@ -53,6 +60,8 @@ import { COMMERCE_COPY } from "@/components/design-v2/commerce-copy";
 import { cartBadge } from "@/domain/cart/presentation";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { LocaleCurrencyPicker } from "./LocaleCurrencyPicker";
+import { WhatsAppLogo } from "./WhatsAppLogo";
+import { waLink } from "@/lib/whatsapp";
 
 /** Flag shown next to each language (language, not location). */
 const LOCALE_FLAG: Record<UiLocale, string> = localize({
@@ -76,6 +85,12 @@ const MENU_CLOSE_LABEL = localize({
   tr: "Menüyü kapat",
   de: "Menü schließen",
   en: "Close menu",
+} as const);
+
+const DRAWER_COPY = localize({
+  tr: { menu: "Menü", home: "Ana Sayfa", guides: "Blog ve Rehberler", setup: "Kurulum Rehberi", faq: "Sıkça Sorulan Sorular", language: "Dil", currency: "Para Birimi", privacy: "Gizlilik Politikası", terms: "Kullanım Şartları", imprint: "Künye", enter: "Giriş Yap / Üye Ol" },
+  de: { menu: "Menü", home: "Startseite", guides: "Blog & Ratgeber", setup: "Installationsanleitung", faq: "Häufige Fragen", language: "Sprache", currency: "Währung", privacy: "Datenschutz", terms: "Nutzungsbedingungen", imprint: "Impressum", enter: "Anmelden / Registrieren" },
+  en: { menu: "Menu", home: "Home", guides: "Blog & Guides", setup: "Installation guide", faq: "FAQ", language: "Language", currency: "Currency", privacy: "Privacy policy", terms: "Terms of use", imprint: "Imprint", enter: "Sign in / Register" },
 } as const);
 
 const FOOTER_COPY = localize({
@@ -292,6 +307,8 @@ export function PublicShell({
     return () => { window.removeEventListener("cart:item-added", added); };
   }, [commerce]);
   const currency = useCurrency();
+  const drawerCopy = DRAWER_COPY[locale];
+  const guidesPath = uiLocale === "tr" ? "/tr/rehber" : uiLocale === "de" ? "/de/ratgeber" : uiLocale === "en" ? "/en/guides" : "/guides";
    const isHeaderOverlayOpen = menuOpen || languageOpen || accountOpen || panel !== null;
   useEffect(() => {
     void supabase.auth.getSession().then(({ data }) => setSignedIn(Boolean(data.session)));
@@ -427,125 +444,68 @@ export function PublicShell({
               }}
             >
               <SheetTrigger asChild>
-                <Button variant="ghost" size="icon" className="size-11 lg:hidden" aria-label="Menü">
-                  <Menu className="size-[18px] sm:size-5" />
+                <Button variant="ghost" size="icon" className="size-11" aria-label={drawerCopy.menu} aria-expanded={menuOpen}>
+                  <Menu className="size-[18px] sm:size-5" aria-hidden="true" />
                 </Button>
               </SheetTrigger>
               <SheetContent
-                side="right"
+                side={uiLocale === "ar" ? "right" : "left"}
+                dir={uiLocale === "ar" ? "rtl" : "ltr"}
                 showCloseButton={false}
-                className="w-[86vw] max-w-sm bg-background p-6"
+                className="w-[88vw] max-w-[23rem] overflow-y-auto border-e border-primary/20 bg-background px-5 pb-[calc(1.5rem+env(safe-area-inset-bottom))] pt-5 shadow-2xl sm:px-7"
               >
-                <div className="flex items-center justify-between">
-                  <SheetTitle>
-                    <Brand />
-                  </SheetTitle>
+                <div className="flex items-center justify-between gap-3">
+                  <SheetTitle><Brand /></SheetTitle>
                   <SheetClose asChild>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      aria-label={MENU_CLOSE_LABEL[locale]}
-                      className="grid size-12 place-items-center rounded-2xl border-2 border-primary bg-card text-primary shadow-sm transition hover:bg-accent hover:text-primary focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
-                    >
-                      <X className="size-5" strokeWidth={2.5} />
+                    <Button variant="ghost" size="icon" aria-label={MENU_CLOSE_LABEL[locale]} className="size-11 rounded-full text-foreground hover:bg-primary/10">
+                      <X className="size-6" aria-hidden="true" />
                     </Button>
                   </SheetClose>
                 </div>
-                <nav className="mt-10 grid gap-2">
-                  {onServiceChange ? (
-                    <>
-                      <SheetClose asChild>
-                        <button
-                          type="button"
-                          className="mobile-menu-link"
-                          onClick={() => onServiceChange("esim")}
-                        >
-                          {copy.nav.esim}
-                        </button>
-                      </SheetClose>
-                      <SheetClose asChild>
-                        <button
-                          type="button"
-                          className="mobile-menu-link"
-                          onClick={() => onServiceChange("lounge")}
-                          hidden={!optionalServices.lounge}
-                        >
-                          {copy.nav.lounge}
-                        </button>
-                      </SheetClose>
-                    </>
-                  ) : (
-                    <>
-                      <SheetClose asChild>
-                        <Link to="/esim" className="mobile-menu-link">
-                          {copy.nav.esim}
-                        </Link>
-                      </SheetClose>
-                      {optionalServices.lounge && <SheetClose asChild>
-                        <Link to="/lounge" className="mobile-menu-link">
-                          {copy.nav.lounge}
-                        </Link>
-                      </SheetClose>}
-                    </>
-                  )}
+                {!signedIn && (
                   <SheetClose asChild>
-                    <Link
-                      to={`/${uiLocale}`}
-                      hash="popular"
-                      className="mobile-menu-link"
-                    >
-                      {copy.nav.destinations}
+                    <Link to="/auth" search={{ redirect: "/account" }} className="mt-6 flex min-h-14 items-center gap-3 rounded-full border border-primary/60 bg-primary/10 px-4 text-sm font-semibold text-foreground transition hover:bg-primary/15">
+                      <UserRound className="size-5 shrink-0 text-primary" aria-hidden="true" />
+                      <span className="min-w-0 flex-1">{drawerCopy.enter}</span>
+                      <ChevronRight className="size-5 shrink-0 rtl:rotate-180" aria-hidden="true" />
                     </Link>
                   </SheetClose>
-                  <SheetClose asChild>
-                    <Link
-                      to={`/${uiLocale}`}
-                      hash="how"
-                      className="mobile-menu-link"
-                    >
-                      {copy.nav.how}
-                    </Link>
-                  </SheetClose>
-                  <SheetClose asChild>
-                    <Link
-                      to="/destek"
-                      className="mobile-menu-link"
-                    >
-                      {copy.nav.support}
-                    </Link>
-                  </SheetClose>
-                  {signedIn ? (
-                    <>
-                      <SheetClose asChild>
-                        <Link to="/account" className="mobile-menu-link">
-                          {copy.nav.account}
-                        </Link>
-                      </SheetClose>
-                      <SheetClose asChild>
-                        <button
-                          type="button"
-                          onClick={() => void signOut()}
-                          className="mobile-menu-link flex items-center gap-2 text-left text-destructive"
-                        >
-                          <LogOut className="size-4" />
-                          {ACCOUNT_COPY[locale].signOut}
-                        </button>
-                      </SheetClose>
-                    </>
-                  ) : (
-                    <SheetClose asChild>
-                      <Link
-                        to="/auth"
-                        search={{ redirect: "/account" }}
-                        className="mobile-menu-link flex items-center gap-2"
-                      >
-                        <LogIn className="size-4" />
-                        {ACCOUNT_COPY[locale].signIn}
-                      </Link>
-                    </SheetClose>
-                  )}
+                )}
+                <nav aria-label={drawerCopy.menu} className="mt-6 grid gap-1 border-b border-border/60 pb-5">
+                  <SheetClose asChild><Link to={`/${uiLocale}`} className="mobile-menu-link flex min-h-12 items-center gap-3 text-left"><House className="size-5 shrink-0 text-primary" aria-hidden="true" /><span className="min-w-0 flex-1">{drawerCopy.home}</span><ChevronRight className="size-4 shrink-0 text-muted-foreground rtl:rotate-180" aria-hidden="true" /></Link></SheetClose>
+                  <SheetClose asChild><Link to="/esim/ulkeler" className="mobile-menu-link flex min-h-12 items-center gap-3 text-left"><Globe2 className="size-5 shrink-0 text-primary" aria-hidden="true" /><span className="min-w-0 flex-1">{copy.nav.destinations}</span><ChevronRight className="size-4 shrink-0 text-muted-foreground rtl:rotate-180" aria-hidden="true" /></Link></SheetClose>
+                  <SheetClose asChild><Link to={guidesPath} className="mobile-menu-link flex min-h-12 items-center gap-3 text-left"><BookOpen className="size-5 shrink-0 text-primary" aria-hidden="true" /><span className="min-w-0 flex-1">{drawerCopy.guides}</span><ChevronRight className="size-4 shrink-0 text-muted-foreground rtl:rotate-180" aria-hidden="true" /></Link></SheetClose>
+                  <SheetClose asChild><Link to="/esim/kurulum" search={{}} className="mobile-menu-link flex min-h-12 items-center gap-3 text-left"><BookOpen className="size-5 shrink-0 text-primary" aria-hidden="true" /><span className="min-w-0 flex-1">{drawerCopy.setup}</span><ChevronRight className="size-4 shrink-0 text-muted-foreground rtl:rotate-180" aria-hidden="true" /></Link></SheetClose>
+                  <SheetClose asChild><Link to={`/${uiLocale}`} hash="faq" className="mobile-menu-link flex min-h-12 items-center gap-3 text-left"><CircleHelp className="size-5 shrink-0 text-primary" aria-hidden="true" /><span className="min-w-0 flex-1">{drawerCopy.faq}</span><ChevronRight className="size-4 shrink-0 text-muted-foreground rtl:rotate-180" aria-hidden="true" /></Link></SheetClose>
+                  {signedIn && <SheetClose asChild><Link to="/account" className="mobile-menu-link flex min-h-12 items-center gap-3 text-left"><UserRound className="size-5 shrink-0 text-primary" aria-hidden="true" /><span className="min-w-0 flex-1">{copy.nav.account}</span><ChevronRight className="size-4 shrink-0 text-muted-foreground rtl:rotate-180" aria-hidden="true" /></Link></SheetClose>}
+                </nav>
+                <div className="grid gap-1 border-b border-border/60 py-4">
+                  <Button variant="ghost" type="button" className="mobile-menu-link flex min-h-12 w-full items-center justify-start gap-3 px-3 text-left" onClick={() => { setMenuOpen(false); setLanguageOpen(true); }}>
+                    <Globe2 className="size-5 shrink-0 text-primary" aria-hidden="true" />
+                    <span className="min-w-0 flex-1">{drawerCopy.language}</span>
+                    <CountryFlag iso={LOCALE_FLAG[uiLocale]} />
+                    <span className="text-xs">{uiLocale.toUpperCase()}</span>
+                    <ChevronRight className="size-4 shrink-0 text-muted-foreground rtl:rotate-180" aria-hidden="true" />
+                  </Button>
+                  <Button variant="ghost" type="button" className="mobile-menu-link flex min-h-12 w-full items-center justify-start gap-3 px-3 text-left" onClick={() => { setMenuOpen(false); setLanguageOpen(true); }}>
+                    <Coins className="size-5 shrink-0 text-primary" aria-hidden="true" />
+                    <span className="min-w-0 flex-1">{drawerCopy.currency}</span>
+                    <span className="text-xs">{currency.code}</span>
+                    <ChevronRight className="size-4 shrink-0 text-muted-foreground rtl:rotate-180" aria-hidden="true" />
+                  </Button>
+                </div>
+                <nav aria-label={FOOTER_COPY[locale].legal} className="grid gap-1 py-4">
+                  <SheetClose asChild><Link to="/legal/imprint" className="mobile-menu-link flex min-h-11 items-center gap-3 text-left"><FileText className="size-5 shrink-0 text-primary" aria-hidden="true" /><span className="flex-1">{drawerCopy.imprint}</span></Link></SheetClose>
+                  <SheetClose asChild><Link to="/legal/privacy" className="mobile-menu-link flex min-h-11 items-center gap-3 text-left"><ShieldCheck className="size-5 shrink-0 text-primary" aria-hidden="true" /><span className="flex-1">{drawerCopy.privacy}</span></Link></SheetClose>
+                  <SheetClose asChild><Link to="/legal/terms" className="mobile-menu-link flex min-h-11 items-center gap-3 text-left"><FileText className="size-5 shrink-0 text-primary" aria-hidden="true" /><span className="flex-1">{drawerCopy.terms}</span></Link></SheetClose>
                 </nav>
                 <ThemePreferenceMenu />
+                <a href={waLink()} target="_blank" rel="noopener noreferrer" className="mt-7 flex min-h-14 items-center justify-center gap-3 rounded-full border border-primary bg-primary/10 px-4 text-sm font-semibold text-foreground transition hover:bg-primary/15">
+                  <WhatsAppLogo className="size-5 shrink-0 text-primary" />
+                  <span>{copy.nav.support}</span>
+                  <ChevronRight className="size-4 shrink-0 rtl:rotate-180" aria-hidden="true" />
+                </a>
+                {signedIn && <SheetClose asChild><Button variant="ghost" type="button" onClick={() => void signOut()} className="mt-3 w-full justify-start gap-2 text-destructive"><LogOut className="size-4" />{ACCOUNT_COPY[locale].signOut}</Button></SheetClose>}
               </SheetContent>
             </Sheet>
           </div>
