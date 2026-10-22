@@ -132,6 +132,6 @@ describe("eSIM Access catalogue authentication", () => {
       .toBe("https://example.org/spain-flag.png");
     expect(provider.placeEsimOrder).toBeUndefined();
     expect(mock).toHaveBeenCalledTimes(1);
-    expect(String(mock.mock.calls[0]?.[0])).toMatch(/\\/api\\/v1\\/open\\/package\\/list$/);
+    expect(String(mock.mock.calls[0]?.[0])).toContain("/api/v1/open/package/list");
   });
 });
