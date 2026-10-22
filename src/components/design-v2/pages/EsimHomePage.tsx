@@ -113,8 +113,9 @@ export function EsimHomePage() {
     setSelectedPackage(pkg);
     setSelectionQuantity(lines.find((line) => line.productId === pkg.id)?.quantity ?? 1);
   };
+  const canPurchaseSelected = Boolean(selectedPackage && selectedPackage.salePrice != null && Number.isFinite(selectedPackage.salePrice) && selectedPackage.salePrice > 0);
   const addSelectedPackage = () => {
-    if (!selectedPackage || selectedCartLine) return;
+    if (!selectedPackage || selectedCartLine || !canPurchaseSelected) return;
     addLine({
       productId: selectedPackage.id,
       providerProductId: selectedPackage.providerProductId,
@@ -136,10 +137,19 @@ export function EsimHomePage() {
   };
   const purchaseSummary = selectedPackage ? <V2SelectedProductSummary
     key={selectedPackage.id}
+    heading={SELECTED_PLAN_LABEL[locale]}
+    referenceLayout
+    canPurchase={canPurchaseSelected}
+    facts={[
+      { label: c.data, value: selectedPackage.unlimited ? c.unlimited : `${selectedPackage.dataGb ?? "—"} GB` },
+      { label: c.validity, value: selectedPackage.validityDays ? `${selectedPackage.validityDays} ${c.days}` : "—" },
+      { label: c.coverage, value: selectedPackage.coverage.length > 1 ? `${selectedPackage.coverage.length} ${c.countries}` : selected?.name[locale] ?? selectedIdentity.replace(/ eSIM$/, "") },
+      ...(selectedPackage.networks.length ? [{ label: c.network, value: selectedPackage.networks.join(", ") }] : []),
+    ]}
     title={`${selectedPackage.unlimited ? `∞ ${c.unlimited}` : `${selectedPackage.dataGb ?? "—"} GB`} · ${selectedPackage.validityDays ?? "—"} ${c.days}`}
     subtitle={selectedPackage.coverage.length > 1 ? `${selectedIdentity.replace(/ eSIM$/, "")} · ${selectedPackage.coverage.length} ${c.countries}` : selectedIdentity.replace(/ eSIM$/, "")}
     flagIso={selectedPackage.countryIso ?? selected?.iso}
-    price={money(selectedPackage.salePrice ?? 0, selectedPackage.currency)}
+    price={canPurchaseSelected ? money(selectedPackage.salePrice!, selectedPackage.currency) : "—"}
     quantity={selectedCartLine?.quantity ?? selectionQuantity}
     inCart={Boolean(selectedCartLine)}
     addLabel={c.select}
@@ -284,6 +294,7 @@ function Popular({ c, section, onPick }: { c: (typeof T)["tr"]; section: V2Secti
 }
 
 const FEATURED_PLAN_LABEL = localize({ tr: "En Popüler", de: "Beliebt", en: "Popular" });
+const SELECTED_PLAN_LABEL = localize({ tr: "Seçtiğin Paket", de: "Ausgewähltes Paket", en: "Selected package" });
 
 const PLAN_PROMO = localize({
   tr: { title: "Seyahat planlayıcı", sub: "Ülkelerini ve tarihlerini gir, paketleri karşılaştıralım" },
@@ -396,7 +407,7 @@ function Packages({ iso, name, c, selectedPackage, onSelectPackage, desktopAfter
             const selected = selectedPackage?.id === p.id;
             return (
               <li key={p.id} className="min-w-0">
-                <V2ProductSelectionCard service="esim" selected={selected} onSelect={() => onSelectPackage(p)} onDetails={() => setDetail(p)} detailsLabel={c.detailsLabel} className="min-h-[4.5rem]">
+                <V2ProductSelectionCard service="esim" selected={selected} showSelectedCheck={false} onSelect={() => onSelectPackage(p)} onDetails={() => setDetail(p)} detailsLabel={c.detailsLabel} className="min-h-[4.5rem]">
                   <span className="grid min-h-[4.5rem] w-full grid-cols-[auto_minmax(0,1fr)_minmax(0,1fr)_auto] items-center gap-x-2 px-3 py-2.5 pr-11 sm:gap-x-4 sm:px-4 sm:pr-12">
                     <span aria-hidden="true" className={`grid size-5 shrink-0 place-items-center rounded-full border-2 ${selected ? "border-primary bg-primary" : "border-muted-foreground/60"}`}>
                       {selected && <span className="size-2 rounded-full bg-primary-foreground" />}
