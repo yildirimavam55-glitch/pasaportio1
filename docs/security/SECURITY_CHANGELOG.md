@@ -83,3 +83,8 @@ Never edit or delete past entries. Never record secrets here.
 ## 2026-10-09 — OWNER APPROVED: standard account refund activation guard
 - Owner explicitly requested backend enforcement: active or historically activated eSIMs blocked, unknown activation blocked with support, confirmed never-activated packages eligible only within 14 days and without pending/completed requests.
 - Existing authenticated owner-scoped refund reader/writer, rate limits, immutable snapshots, payment confirmation guards and RLS unchanged; no migration or financial action. Preview fixtures never call the refund writer.
+
+
+## 2026-10-22 — Issue #2: V2 builder safety phase 1 (draft proposal)
+Approved scope: owner request and issue #2. Restore now writes only the draft after Admin and document/version checks; force media deletion is removed; reference scans include theme/history and fail on incomplete reads; Storage/version/audit errors are surfaced. Tests remain unchanged except newly added independent offline safety checks. No migration was applied. Atomic CMS writes, concurrent media-reference safety and live RLS verification remain explicit release blockers; see docs/development/V2_BUILDER_SAFETY_PHASE1.md. No production/data/payment operations were performed.
+

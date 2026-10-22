@@ -114,10 +114,13 @@ function MediaDrawer({ asset, onClose }: { asset: any; onClose: () => void }) {
         <div className="flex flex-wrap gap-2">
           <Button onClick={() => save.mutate()} disabled={save.isPending}>Kaydet</Button>
           <Button variant="outline" onClick={onClose}>Kapat</Button>
-          <Button variant="ghost" className="text-destructive" onClick={() => remove.mutate()} disabled={remove.isPending}>Sil</Button>
+          <Button variant="ghost" className="text-destructive" onClick={() => { if (window.confirm("Yalnızca kullanılmayan görseller silinebilir. Önce görseli kullanıldığı sayfa, taslak veya temada değiştirin. Silinsin mi?")) remove.mutate(); }} disabled={remove.isPending}>Sil</Button>
         </div>
+        {remove.error && <p role="alert" className="text-xs text-destructive">{remove.error.message}</p>}
+        {save.error && <p role="alert" className="text-xs text-destructive">{save.error.message}</p>}
         <p className="text-[10px] text-muted-foreground">Görseller güvenli depolamada tutulur; dosya yolu dışarıya verilmez.</p>
       </div>
     </AdminDrawer>
   );
 }
+

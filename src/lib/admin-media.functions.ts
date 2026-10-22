@@ -1,3 +1,4 @@
+import { collectMediaUsage, removeUnusedMedia } from "./v2-builder-safety";
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { adminDb, audit, type AdminCtx } from "@/lib/admin-guard";
@@ -170,48 +171,33 @@ export const updateMedia = createServerFn({ method: "POST" })
   });
 
 export const deleteMedia = createServerFn({ method: "POST" })
-  .inputValidator((input: { id: string; force?: boolean }) => input)
+  .inputValidator((input: { id: string }) => ({ id: input?.id }))
   .middleware([requireSupabaseAuth])
   .handler(async ({ context, data }) => {
     const db = await adminDb(context as AdminCtx);
-    const { data: before } = await db.from("media_assets").select("*").eq("id", data.id).maybeSingle();
-    if (!before) throw new Error("Medya bulunamadı.");
-    const usage = await collectUsage(db, data.id);
-    if (usage.length && !data.force) {
-      throw new Error(`Bu görsel şu anda kullanılıyor: ${usage.join(", ")}. Önce değiştirip tekrar deneyin.`);
-    }
+    const { data: before, error: readError } = await db.from("media_assets").select("id, label, storage_path, public_url").eq("id", data.id).maybeSingle();
+    if (readError || !before) throw new Error("E_MEDIA_READ");
+    const usage = await collectMediaUsage(db, before);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    await supabaseAdmin.storage.from("media").remove([before.storage_path]);
-    const { error } = await db.from("media_assets").delete().eq("id", data.id);
-    if (error) throw new Error(error.message);
-    await audit(db, "media.delete", "media_asset", data.id, { label: before.label }, null);
+    await removeUnusedMedia(before, usage,
+      () => supabaseAdmin.storage.from("media").remove([before.storage_path]),
+      () => db.from("media_assets").delete().eq("id", data.id).select("id").single(),
+    );
+    try {
+      await audit(db, "media.delete", "media_asset", data.id, { label: before.label }, null);
+    } catch {
+      throw new Error("E_MEDIA_DELETED_AUDIT_FAILED");
+    }
     return { ok: true };
   });
-
-/** Where an asset is currently used — shown before any destructive delete. */
-async function collectUsage(db: any, id: string): Promise<string[]> {
-  const places: string[] = [];
-  const [destinations, airports, presets, campaigns, documents] = await Promise.all([
-    db.from("destination_content").select("country_id, countries(name)").or(`media_id.eq.${id},mobile_media_id.eq.${id}`),
-    db.from("airport_content").select("airport_id, airports(iata)").or(`media_id.eq.${id},mobile_media_id.eq.${id}`),
-    db.from("route_presets").select("slug").or(`media_id.eq.${id},mobile_media_id.eq.${id}`),
-    db.from("campaigns").select("name").or(`media_id.eq.${id},mobile_media_id.eq.${id}`),
-    db.from("cms_documents").select("key, data").like("key", "storefront_%"),
-  ]);
-  for (const row of destinations.data ?? []) places.push(`Destinasyon · ${row.countries?.name ?? row.country_id}`);
-  for (const row of airports.data ?? []) places.push(`Havalimanı · ${row.airports?.iata ?? row.airport_id}`);
-  for (const row of presets.data ?? []) places.push(`Rota · ${row.slug}`);
-  for (const row of campaigns.data ?? []) places.push(`Kampanya · ${row.name}`);
-  for (const row of documents.data ?? []) {
-    if (JSON.stringify(row.data ?? {}).includes(id)) places.push(`Sayfa · ${String(row.key).replace("storefront_", "")}`);
-  }
-  return [...new Set(places)].slice(0, 20);
-}
 
 export const getMediaUsage = createServerFn({ method: "GET" })
   .inputValidator((input: { id: string }) => input)
   .middleware([requireSupabaseAuth])
   .handler(async ({ context, data }) => {
     const db = await adminDb(context as AdminCtx);
-    return { places: await collectUsage(db, data.id) };
+    const { data: asset, error } = await db.from("media_assets").select("id, storage_path, public_url").eq("id", data.id).maybeSingle();
+    if (error || !asset) throw new Error("E_MEDIA_READ");
+    return { places: await collectMediaUsage(db, asset) };
   });
+
