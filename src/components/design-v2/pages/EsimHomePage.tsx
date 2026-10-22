@@ -283,6 +283,8 @@ function Popular({ c, section, onPick }: { c: (typeof T)["tr"]; section: V2Secti
   );
 }
 
+const FEATURED_PLAN_LABEL = localize({ tr: "En Popüler", de: "Beliebt", en: "Popular" });
+
 const PLAN_PROMO = localize({
   tr: { title: "Seyahat planlayıcı", sub: "Ülkelerini ve tarihlerini gir, paketleri karşılaştıralım" },
   de: { title: "Reiseplaner", sub: "Länder und Daten eingeben – wir vergleichen die Pakete" },
@@ -387,19 +389,29 @@ function Packages({ iso, name, c, selectedPackage, onSelectPackage, desktopAfter
       ) : rows.length === 0 ? (
         <p className="mt-3 rounded-2xl bg-card p-4 text-sm text-muted-foreground ring-1 ring-border">{c.none}</p>
       ) : (
-        <ul className="mt-3 grid grid-cols-2 gap-2 md:grid-cols-3 lg:grid-cols-4 lg:gap-4">
+        <ul className="mt-3 grid grid-cols-1 gap-2" aria-label={c.chooseTitle}>
           {rows.map((p) => {
             const selected = selectedPackage?.id === p.id;
             return (
               <li key={p.id} className="min-w-0">
-                <V2ProductSelectionCard service="esim" selected={selected} onSelect={() => onSelectPackage(p)} onDetails={() => setDetail(p)} detailsLabel={c.detailsLabel} className="h-24 lg:h-32">
-                  <span className="flex h-full w-full flex-col items-start justify-start p-2.5 pr-9">
-                   <span className="flex min-w-0 max-w-full items-center gap-1 whitespace-nowrap font-display text-[17px] font-bold leading-6 text-foreground">
-                     {p.unlimited ? (<><InfinityIcon className="size-3.5 shrink-0 text-muted-foreground" /><span>{c.unlimited}</span></>) : `${p.dataGb ?? "—"} GB`}
+                <V2ProductSelectionCard service="esim" selected={selected} onSelect={() => onSelectPackage(p)} onDetails={() => setDetail(p)} detailsLabel={c.detailsLabel} className="min-h-[4.5rem]">
+                  <span className="grid min-h-[4.5rem] w-full grid-cols-[auto_minmax(0,1fr)_minmax(0,1fr)_auto] items-center gap-x-2 px-3 py-2.5 pr-11 sm:gap-x-4 sm:px-4 sm:pr-12">
+                    <span aria-hidden="true" className={`grid size-5 shrink-0 place-items-center rounded-full border-2 ${selected ? "border-primary bg-primary" : "border-muted-foreground/60"}`}>
+                      {selected && <span className="size-2 rounded-full bg-primary-foreground" />}
                     </span>
-                   <span className="mt-1 text-xs font-normal leading-4 text-muted-foreground">{p.validityDays ? `${p.validityDays} ${c.days}` : ""}</span>
-                   {p.unlimited && p.planTier === "ESSENTIAL" ? <span className="max-w-full truncate text-[10px] leading-3 text-muted-foreground">{ESSENTIAL_FAIR_USE[locale].short}</span> : null}
-                   <span className={`${p.unlimited && p.planTier === "ESSENTIAL" ? "mt-1" : "mt-2"} text-base font-bold leading-5 text-primary`}>{p.salePrice != null ? money(p.salePrice, p.currency) : ""}</span>
+                    <span className="flex min-w-0 flex-col gap-0.5 text-left">
+                      <span className="flex min-w-0 items-center gap-1 font-display text-base font-bold leading-5 text-foreground sm:text-lg">
+                        {p.unlimited ? <><InfinityIcon className="size-4 shrink-0" /><span className="truncate">{c.unlimited}</span></> : <span>{p.dataGb ?? "—"} GB</span>}
+                      </span>
+                      {p.featured && <span className="w-fit rounded-full bg-primary/10 px-1.5 py-0.5 text-[10px] font-semibold leading-3 text-primary">{FEATURED_PLAN_LABEL[locale]}</span>}
+                      {p.unlimited && p.planTier === "ESSENTIAL" && <span className="max-w-full truncate text-[10px] leading-3 text-muted-foreground">{ESSENTIAL_FAIR_USE[locale].short}</span>}
+                    </span>
+                    <span className="min-w-0 text-left text-[11px] leading-4 text-muted-foreground sm:text-sm">
+                      {p.validityDays ? `${p.validityDays} ${c.days}` : ""}
+                    </span>
+                    <span className="shrink-0 whitespace-nowrap text-right font-display text-sm font-bold text-primary sm:text-lg">
+                      {p.salePrice != null ? money(p.salePrice, p.currency) : "—"}
+                    </span>
                   </span>
                 </V2ProductSelectionCard>
               </li>
