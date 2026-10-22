@@ -44,7 +44,7 @@ export async function collectMediaUsage(db: any, asset: { id: string; storage_pa
       const result = await db.from(table).select(columns, { count: "exact" }).order("id", { ascending: true }).range(offset, offset + PAGE_SIZE - 1);
       if (result.error || !Array.isArray(result.data) || !Number.isSafeInteger(result.count) || result.count < 0 || result.count > MAX_ROWS) throw new Error("E_MEDIA_USAGE_INCOMPLETE");
       if (expected !== undefined && expected !== result.count) throw new Error("E_MEDIA_USAGE_CHANGED");
-      expected = result.count;
+      expected = Number(result.count);
       for (const row of result.data) {
         if (typeof row.id !== "string" || seen.has(row.id)) throw new Error("E_MEDIA_USAGE_INCOMPLETE");
         seen.add(row.id);

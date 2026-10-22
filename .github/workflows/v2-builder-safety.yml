@@ -28,7 +28,11 @@ jobs:
       - name: Exclude tracked environment files from this disposable runner
         run: rm -f .env .env.development .env.local .env.production .env.test
       - uses: oven-sh/setup-bun@v2
-      - run: bun install --frozen-lockfile
-      - run: bunx tsc --noEmit
-      - run: bun run build
-      - run: bunx vitest run
+      - id: install
+        run: bun install --frozen-lockfile
+      - if: ${{ !cancelled() && steps.install.outcome == 'success' }}
+        run: bunx tsc --noEmit
+      - if: ${{ !cancelled() && steps.install.outcome == 'success' }}
+        run: bun run build
+      - if: ${{ !cancelled() && steps.install.outcome == 'success' }}
+        run: bunx vitest run
