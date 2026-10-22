@@ -153,7 +153,7 @@ export function EsimHomePage() {
     onAdd={addSelectedPackage}
   /> : undefined;
   return (
-    <V2Shell service="esim" commerceSelection={Boolean(selectedPackage)} purchaseSummary={purchaseSummary} heroPromotion={!selected} stickySearch={!selected ? <V2StickySearchButton heroSearchVisible={heroSearchVisible} label={c.stickyPh} onOpen={() => setPickerOpen(true)} /> : undefined}>
+    <V2Shell service="esim" commerceSelection={Boolean(selectedPackage)} heroPromotion={!selected} stickySearch={!selected ? <V2StickySearchButton heroSearchVisible={heroSearchVisible} label={c.stickyPh} onOpen={() => setPickerOpen(true)} /> : undefined}>
 
       {selected ? (
         <>
@@ -162,7 +162,7 @@ export function EsimHomePage() {
             <DeviceCompatibilityProductCard />
           </div></div>
           <V2PickerSheet open={pickerOpen} onOpenChange={(open) => { setPickerOpen(open); if (!open) setQuery(""); }} title={c.picker} searchLabel={c.ph} query={query} onQueryChange={setQuery} selectedId={selected.iso} emptyLabel={prices.isLoading ? "…" : c.empty} items={matches.map((item) => { const price = priceMap.get(item.iso); return { id: item.iso, label: item.name[locale], leading: <CountryFlag iso={item.iso} className="h-4 w-6 rounded-sm" />, ...(price ? { price: `${money(price.amount, price.currency)} ${c.from}` } : {}) }; })} onSelect={choose}><span /></V2PickerSheet>
-          <Packages iso={selected.iso} name={selected.name[locale]} c={c} selectedPackage={selectedPackage} onSelectPackage={selectPackage} preselectId={preselectPlan} desktopAfter={<div className="mx-auto mt-6 hidden max-w-3xl lg:block"><div className="rounded-full shadow-panel"><DeviceCompatibilityProductCard /></div></div>} />
+          <Packages iso={selected.iso} name={selected.name[locale]} c={c} selectedPackage={selectedPackage} onSelectPackage={selectPackage} preselectId={preselectPlan} purchaseSummary={purchaseSummary} desktopAfter={<div className="mx-auto mt-6 hidden max-w-3xl lg:block"><div className="rounded-full shadow-panel"><DeviceCompatibilityProductCard /></div></div>} />
         </>
       ) : (
         <>
@@ -336,7 +336,7 @@ const HELP = localize({
   en: { title: "Let us help you decide", lead: "Pick the right plan and check your phone's compatibility.", assistantLead: "Get a plan suggestion based on your usage.", find: "Find my plan", compatTitle: "Is my phone eSIM compatible?", compatLead: "Check your device in seconds.", compatCta: "Check compatibility" },
 });
 
-function Packages({ iso, name, c, selectedPackage, onSelectPackage, desktopAfter, preselectId }: { preselectId?: string | undefined; desktopAfter?: ReactNode; iso: string; name: string; c: (typeof T)["tr"]; selectedPackage: EsimPackage | null; onSelectPackage: (pkg: EsimPackage) => void }) {
+function Packages({ iso, name, c, selectedPackage, onSelectPackage, desktopAfter, preselectId, purchaseSummary }: { preselectId?: string | undefined; desktopAfter?: ReactNode; purchaseSummary?: ReactNode; iso: string; name: string; c: (typeof T)["tr"]; selectedPackage: EsimPackage | null; onSelectPackage: (pkg: EsimPackage) => void }) {
   const { locale, uiLocale } = useI18n();
   const money = (value: number, currency: string) => formatMoney(value, currency, uiLocale);
   const h = pick(locale, HELP);
@@ -376,7 +376,9 @@ function Packages({ iso, name, c, selectedPackage, onSelectPackage, desktopAfter
   return (
     <>
        <div className="lg:hidden"><TrustRow compact items={[{ icon: <Zap />, label: c.setup }, { icon: <CheckCircle2 />, label: c.net }, { icon: <Box />, label: c.benefitDelivery }, { icon: <MessageCircle />, label: c.support }]} /></div>
-       <div className="mt-3 grid grid-cols-2 rounded-2xl bg-secondary p-1 lg:mt-4" role="tablist">
+       <div className="mt-5 grid items-start gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(18rem,0.44fr)] lg:gap-5">
+         <div className="min-w-0 rounded-2xl border border-border/65 bg-card/35 p-3 sm:p-4 lg:p-5">
+       <div className="grid grid-cols-2 rounded-2xl bg-secondary p-1" role="tablist">
         <Button type="button" variant={type === "standard" ? "default" : "ghost"} role="tab" aria-selected={type === "standard"} onClick={() => setType("standard")} className="min-w-0 rounded-xl text-xs uppercase sm:text-sm">{c.standard} · {standard.length}</Button>
         <Button type="button" variant={type === "unlimited" ? "default" : "ghost"} role="tab" aria-selected={type === "unlimited"} onClick={() => setType("unlimited")} className="min-w-0 rounded-xl text-xs uppercase sm:text-sm">{c.unlimited} · {unlimited.length}</Button>
       </div>
@@ -419,6 +421,9 @@ function Packages({ iso, name, c, selectedPackage, onSelectPackage, desktopAfter
           })}
         </ul>
       )}
+         </div>
+         {purchaseSummary && <aside className="min-w-0 lg:sticky lg:top-24" aria-label={c.chooseTitle}>{purchaseSummary}</aside>}
+       </div>
       {desktopAfter}
       <div className="mt-6 hidden lg:block"><TrustRow compact items={[{ icon: <Zap />, label: c.setup }, { icon: <CheckCircle2 />, label: c.net }, { icon: <Box />, label: c.benefitDelivery }, { icon: <MessageCircle />, label: c.support }]} /></div>
       <RefundTrustNote />
