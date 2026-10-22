@@ -119,5 +119,37 @@ export function createEsimAccessAdapter(ctx: AdapterContext): CatalogueAdapter {
       const amount = esimAccessMoney(result.obj?.balance);
       return result.ok && amount != null ? { amount, currency: "USD" } : null;
     },
+    /**
+     * Read-only checkout validation by exact supplier package code.
+     * Never uses the /esim/order endpoint or reserves an eSIM.
+     * A failed or ambiguous response stays unavailable (fail-closed).
+     */
+    async validateItem(externalId: string) {
+      const packageCode = externalId.trim();
+      if (!secret() || !packageCode || packageCode.length > 100) {
+        return { available: false, providerCost: null, currency: null };
+      }
+      const result = await post("/api/v1/open/package/list", {
+        locationCode: "",
+        type: "",
+        packageCode,
+        iccid: "",
+      });
+      if (!result.ok || !Array.isArray(result.obj?.packageList)) {
+        return { available: false, providerCost: null, currency: null };
+      }
+      const match = (result.obj.packageList as Record<string, unknown>[]).find(
+        (row) => String(row["packageCode"] ?? "") === packageCode,
+      );
+      if (!match || !isImportableEsimAccessPackage(match)) {
+        return { available: false, providerCost: null, currency: null };
+      }
+      const providerCost = esimAccessMoney(match["price"]);
+      const currency = String(match["currencyCode"] ?? "").toUpperCase();
+      if (providerCost == null || !/^[A-Z]{3}$/.test(currency)) {
+        return { available: false, providerCost: null, currency: null };
+      }
+      return { available: true, providerCost, currency };
+    },
   };
 }
