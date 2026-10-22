@@ -58,7 +58,7 @@ describe("eSIM Access read-only checkout validation", () => {
     expect(url).toBe("https://api.esimaccess.com/api/v1/open/package/list");
     expect(options.headers["RT-AccessCode"]).toBe("test-only-code");
     expect(options.headers["RT-RequestID"]).toMatch(/^[0-9a-f-]{36}$/);
-    expect(options.headers["RT-Timestamp"]).toMatch(/^\\d{13}$/);
+    expect(options.headers["RT-Timestamp"]).toMatch(/^[0-9]{13}$/);
     expect(options.headers["RT-Signature"]).toBe(createHmac("sha256", "test-only-secret")
       .update(options.headers["RT-Timestamp"] + options.headers["RT-RequestID"] + "test-only-code" + options.body)
       .digest("hex"));
