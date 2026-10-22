@@ -11,7 +11,8 @@ import { combinedSourceRating, starFill } from "@/domain/storefront/review-carou
 import { CalendarCheck, Mail, QrCode } from "lucide-react";
 /** Sample figures only so the strip layout can be reviewed in the dev preview; never shipped, never presented as verified. */
 const PREVIEW_SAMPLE_RATING = import.meta.env.DEV ? { rating: 4.8, displayRating: 4.8, count: 2000 } : null;
-import coast from "@/assets/pasaport-antenna-coast.png.asset.json";
+import fallbackHeroDesktop from "@/assets/pasaport-final-coast.jpg";
+import fallbackHeroMobile from "@/assets/pasaport-final-coast-mobile.jpg";
 import { AntennaSignal } from "./AntennaSignal";
 import { useTrustIconEntry } from "./use-trust-icon-entry";
 
@@ -28,14 +29,14 @@ export function PasaportEsimHero({ section, image, mobileImage, benefits, review
  const storedTitle = v2Text(section, "title", locale);
  const approved = !storedTitle || oldTitles.includes(storedTitle);
  const fixture = section.mediaId === "2096d4af-5b89-49ad-b19f-7ca95ec54160" || section.mediaId === "builtin:esim-hero" || !image;
- const heroImage = fixture ? coast.url : image;
+ const heroImage = fixture ? fallbackHeroDesktop : image;
  const mobileFixture = !mobileImage || section.mobileMediaId === '2096d4af-5b89-49ad-b19f-7ca95ec54160' || section.mobileMediaId === 'builtin:esim-hero';
- const heroMobile = mobileFixture ? heroImage : mobileImage;
+ const heroMobile = mobileFixture ? (fixture ? fallbackHeroMobile : heroImage) : mobileImage;
  const desktop = fixture ? undefined : section.imageDisplay;
  const mobile = mobileFixture && fixture ? undefined : section.mobileImageDisplay;
   const style = { "--hero-desktop-position": desktop ? `${desktop.x}% ${desktop.y}%` : `50% calc(50px - 11.2113vw)`, "--hero-desktop-scale": (desktop?.zoom ?? 100) / 100, "--hero-desktop-fit": desktop?.fit ?? "cover", "--hero-mobile-position": `${mobile?.x ?? 88}% ${mobile?.y ?? 62}%`, "--hero-mobile-scale": (mobile?.zoom ?? 100) / 100, "--hero-mobile-fit": mobile?.fit ?? "cover" } as CSSProperties;
  return <><section data-testid="pasaport-esim-hero" className="pasaport-final-hero" style={style} data-has-trust-strip="true">
-  <picture className="final-hero-photo"><source media="(min-width:1024px)" srcSet={heroImage}/><img src={heroMobile} alt="" width={1672} height={941} fetchPriority="high" loading="eager" decoding="async" onError={event => { const picture = event.currentTarget.parentElement; picture?.querySelector('source')?.remove(); if (event.currentTarget.src !== new URL(coast.url, window.location.origin).href) event.currentTarget.src = coast.url; }} />{fixture && mobileFixture && <AntennaSignal />}</picture>
+  <picture className="final-hero-photo"><source media="(min-width:1024px)" srcSet={heroImage}/><img src={heroMobile} alt="" width={1672} height={941} fetchPriority="high" loading="eager" decoding="async" onError={event => { const picture = event.currentTarget.parentElement; picture?.querySelector('source')?.remove(); const fallback = window.matchMedia("(min-width: 1024px)").matches ? fallbackHeroDesktop : fallbackHeroMobile; if (event.currentTarget.src !== new URL(fallback, window.location.origin).href) event.currentTarget.src = fallback; }} />{fixture && mobileFixture && <AntennaSignal />}</picture>
   <div className="final-hero-shade" aria-hidden="true" />
   <div className="final-hero-heading"><h1>{approved ? <>{c.titleA} <span className="final-hero-accent">{c.titleB}</span></> : storedTitle}</h1><p>{approved ? c.subtitle : v2Text(section, "subtitle", locale)}</p></div>
   <div className="final-hero-search">{children}</div>
