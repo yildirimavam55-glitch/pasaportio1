@@ -4,6 +4,9 @@ on:
   push:
     branches:
       - chore/staging-env-baseline
+  pull_request:
+    branches:
+      - chore/staging-env-baseline
   workflow_dispatch:
 
 permissions:
