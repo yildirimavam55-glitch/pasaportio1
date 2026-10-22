@@ -1,3 +1,4 @@
+import { cn } from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { Link } from "@tanstack/react-router";
@@ -331,7 +332,7 @@ const FAQ_CATEGORY_ICONS = [FileText, Settings, Globe2, CreditCard] as const;
 export function V2CategorizedEsimFaq() {
   const { locale, dir } = useI18n();
   const copy = CATEGORIZED_FAQ[locale];
-  const [openId, setOpenId] = useState<string | null>(null);
+  const [openId, setOpenId] = useState<string | null>("faq.category.general");
   return (
     <section id="faq" aria-labelledby="esim-faq-title" className="mx-auto mb-0 mt-8 w-full max-w-6xl scroll-mt-24 pb-0 lg:mb-4 lg:mt-12 lg:pb-0" dir={dir}>
       <header className="mb-5 grid gap-5 lg:mb-7 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] lg:items-center lg:gap-12">
@@ -345,11 +346,11 @@ export function V2CategorizedEsimFaq() {
         </div>
         <img src={faqTravelEsim} alt={copy.imageAlt} loading="lazy" decoding="async" width={1600} height={900} className="h-40 w-full rounded-2xl object-cover ring-1 ring-border sm:h-52 lg:h-72 lg:rounded-3xl" />
       </header>
-      <div className="grid gap-3">
+      <div className="grid items-start gap-3 lg:grid-cols-2 lg:gap-4">
         {copy.categories.map((category, categoryIndex) => {
           const Icon = FAQ_CATEGORY_ICONS[categoryIndex] ?? Smartphone;
           return (
-            <Collapsible key={category.id} open={openId === category.id} onOpenChange={(open) => setOpenId(open ? category.id : null)} className="overflow-hidden rounded-2xl bg-card ring-1 ring-border">
+            <Collapsible key={category.id} open={openId === category.id} onOpenChange={(open) => setOpenId(open ? category.id : null)} className={cn("overflow-hidden rounded-2xl bg-card ring-1 ring-border", categoryIndex === 0 ? "lg:row-span-3" : "lg:col-start-2")}>
               <CollapsibleTrigger className="grid min-h-[4.5rem] w-full grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 px-4 py-3 text-start sm:px-5 lg:min-h-[5.25rem] lg:px-6 [&[data-state=open]_.faq-category-chevron]:rotate-180">
                 <span className="grid size-10 shrink-0 place-items-center rounded-full bg-primary-soft text-primary lg:size-11"><Icon className="size-5" aria-hidden="true" /></span>
                 <span className="min-w-0">
