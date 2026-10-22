@@ -8,6 +8,7 @@ import { CartBar, money as formatMoney, PhotoCard, PhotoRail, pick, SectionTitle
 import { V2PickerSheet } from "@/components/design-v2/V2PickerSheet";
 import { Button } from "@/components/ui/button";
 import { countryPhotoRegistry } from "@/components/travel/countryPhotos";
+import fallbackDestinationPhoto from "@/assets/pasaport-final-coast.jpg";
 import { getRegionPhoto } from "@/components/travel/regionPhotos";
 import { CountryFlag } from "@/components/travel/CountryFlag";
 import { useI18n } from "@/i18n";
@@ -231,10 +232,16 @@ export function EsimHomePage() {
 function CountryProductHero({ country, name, subtitle, changeLabel, onChange }: { country: NonNullable<ReturnType<typeof getCountryByIso>>; name: string; subtitle: string; changeLabel: string; onChange: () => void }) {
   const { locale } = useI18n();
   const photo = countryPhotoRegistry[country.iso];
+  // Legacy Lovable photo references can fail after migration. Keep an actual
+  // bundled photo visible rather than rendering an empty country hero.
+  const [failedPhoto, setFailedPhoto] = useState<string | null>(null);
+  const imageSrc = photo?.heroImage && photo.heroImage !== failedPhoto
+    ? photo.heroImage
+    : fallbackDestinationPhoto;
   return (
     <section className="relative -mx-4 overflow-hidden bg-muted sm:-mx-6 sm:mt-3 sm:rounded-3xl lg:mx-0 lg:mt-4">
        <div className="relative h-[15rem] lg:h-[18rem]">
-        {photo && <img src={photo.heroImage} alt={photo.alt[locale]} fetchPriority="high" decoding="async" width={960} height={540} className="absolute inset-0 size-full object-cover" style={{ objectPosition: `${photo.focalX}% ${photo.focalY}%` }} />}
+        <img src={imageSrc} alt={photo?.alt[locale] ?? name} onError={() => setFailedPhoto(imageSrc)} fetchPriority="high" decoding="async" width={960} height={540} className="absolute inset-0 size-full object-cover" style={{ objectPosition: photo ? `${photo.focalX}% ${photo.focalY}%` : "center" }} />
         <div className="absolute inset-0 bg-gradient-to-t from-[var(--v2-service)]/95 via-[var(--v2-service)]/30 to-transparent" />
         <Button type="button" variant="secondary" size="sm" onClick={onChange} className="absolute left-4 top-4 max-w-[calc(100%-6rem)] rounded-full bg-card/90 shadow-sm backdrop-blur lg:left-8 lg:top-8"><MapPin className="size-4 shrink-0 text-primary"/><span className="truncate">{REGION_LABELS[country.region][locale]}</span></Button>
         <span className="absolute right-4 top-4 grid size-14 place-items-center rounded-full bg-card/90 shadow-panel ring-1 ring-card/60 backdrop-blur lg:right-8 lg:top-8 lg:size-16"><CountryFlag iso={country.iso} label={name} className="h-8 w-11 lg:h-9 lg:w-12" /></span>
