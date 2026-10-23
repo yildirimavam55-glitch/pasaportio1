@@ -11,5 +11,5 @@ export async function readBuilder(ctx:AdminCtx,key:string){
 export async function writeBuilder(ctx:AdminCtx,key:string,revision:BuilderRevision|undefined,action:'draft'|'publish'|'restore'|'discard',config?:unknown,versionId?:string){
  await assertAdminRole(ctx);if(revision===undefined||revision!==null&&(!Number.isSafeInteger(revision)||revision<0))throw new Error('E_BUILDER_REVISION');
  const {data,error}=await ctx.supabase.rpc('builder_write' as never,{_key:key,_expected_revision:revision,_action:action,_config:config??null,_version_id:versionId??null} as never);
- if(error)throw new Error(error.code==='40001'?'E_BUILDER_CONFLICT: Taslak başka yönetici tarafından değişti. Yeniden yükleyin.':'E_BUILDER_WRITE');return data;
+ if(error)throw new Error((error.code==='40001'||error.code==='PT409')?'E_BUILDER_CONFLICT: Taslak başka yönetici tarafından değişti. Yeniden yükleyin.':'E_BUILDER_WRITE');return data;
 }

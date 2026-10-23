@@ -36,6 +36,7 @@ for role,subject in [('anon','')]+[('authenticated',s) for s in customers]:
  check(role_query(role,subject,"SELECT public.builder_read('storefront_v2_esim');",False).returncode!=0,'admin read denied')
  check(role_query(role,subject,"SELECT public.builder_write('storefront_v2_esim',0,'draft','{}');",False).returncode!=0,'admin write denied')
 check('PRIVATE_DRAFT' in role_query('authenticated',admin,"SELECT public.builder_read('storefront_v2_esim');"),'admin editor read works')
+check(sql("SELECT count(*) FROM pg_proc p JOIN pg_namespace n ON n.oid=p.pronamespace CROSS JOIN LATERAL aclexplode(coalesce(p.proacl,acldefault('f',p.proowner))) a WHERE n.nspname IN ('public','pasaport_cms_private') AND p.proname IN ('builder_read','builder_write') AND a.grantee=0 AND a.privilege_type='EXECUTE';")=='0','no PUBLIC execute grants on new RPC boundaries')
 def read(key='storefront_v2_esim'):return json.loads(role_query('authenticated',admin,f"SELECT public.builder_read('{key}');"))
 def write(key,rev,action,cfg=None,version=None):
  args=["'"+key+"'",str(rev) if rev is not None else 'NULL',"'"+action+"'","'"+json.dumps(cfg).replace("'","''")+"'::jsonb" if cfg is not None else 'NULL',"'"+version+"'::uuid" if version else 'NULL']
@@ -98,7 +99,7 @@ state=json.loads(http('rpc/builder_read',admin,{'_key':'storefront_v2_esim'})[1]
 status,_=http('rpc/builder_write',admin,{'_key':'storefront_v2_esim','_expected_revision':state['revision'],'_action':'draft','_config':{'page':'esim','sections':[],'title':'HTTP_DRAFT'}})
 check(status==200,'real HTTP draft write')
 next_state=json.loads(http('rpc/builder_read',admin,{'_key':'storefront_v2_esim'})[1]);check(next_state['draft']['title']=='HTTP_DRAFT' and next_state['published']==state['published'],'HTTP reload and published isolation')
-check(http('rpc/builder_write',admin,{'_key':'storefront_v2_esim','_expected_revision':state['revision'],'_action':'draft','_config':{'page':'esim','sections':[]}})[0]>=400,'HTTP stale revision rejected')
+check(http('rpc/builder_write',admin,{'_key':'storefront_v2_esim','_expected_revision':state['revision'],'_action':'draft','_config':{'page':'esim','sections':[]}})[0]==409,'HTTP stale revision rejected without transaction retry')
 Path('artifacts/builder-preview').mkdir(parents=True,exist_ok=True)
 Path('artifacts/builder-preview/postgres-result.json').write_text(json.dumps({'result':'PASS','checks':checks,'syntheticOnly':True,'managedSupabaseAuthTested':False},indent=2))
 print(f'PASS: {checks} isolated PostgreSQL/PostgREST checks; no existing databases accessed')

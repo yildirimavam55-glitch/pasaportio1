@@ -215,7 +215,7 @@ export function V2Sections({ config, media, slots, only, onDestinationSearch, se
           case "HOW_IT_WORKS":
             return framed(<HowItWorks title={t("title")} steps={items.map((item) => ({ t: v2ItemText(item.title, locale), s: v2ItemText(item.text, locale), image: mediaUrl(item.mediaId, media),media:item.tabletMediaId||item.mobileMediaId||item.imageDisplay?<ResponsiveMediaPicture value={item} resolve={id=>mediaUrl(id??null,media)} alt={v2ItemText(item.imageAlt,locale)} className="row-span-2 size-10"/>:undefined }))} />);
           case "INSTALLATION_STEPS":
-            return <div key={s.id} id="how" className="scroll-mt-28"><V2Installation title={t("title")} subtitle={t("subtitle")} steps={items.map((item) => v2ItemText(item.title, locale))} images={items.map(item => mediaUrl(item.mediaId, media))} ready={t("ready")} adding={t("adding")} cta={t("cta")} href={s.href === "/destek" ? "/esim/kurulum" : s.href} variant={s.variant === "simple" ? "simple" : "animated"} /></div>;
+            return <div key={s.id} id="how" className="scroll-mt-28"><V2Installation title={t("title")} subtitle={t("subtitle")} steps={items.map((item) => v2ItemText(item.title, locale))} images={items.map(item => item.tabletMediaId||item.mobileMediaId||item.imageDisplay?<ResponsiveMediaPicture value={item} resolve={id=>mediaUrl(id??null,media)} alt={v2ItemText(item.imageAlt,locale)} className="size-full"/>:mediaUrl(item.mediaId, media))} ready={t("ready")} adding={t("adding")} cta={t("cta")} href={s.href === "/destek" ? "/esim/kurulum" : s.href} variant={s.variant === "simple" ? "simple" : "animated"} /></div>;
           case "COMPATIBILITY": {
             const pairedPromo = sections[index + 1];
             if (pairedPromo?.type === "PROMO_BANNER" && pairedPromo.href === "/lounge" && isInWindow(pairedPromo) && optionalServices.lounge) {
@@ -246,7 +246,7 @@ export function V2Sections({ config, media, slots, only, onDestinationSearch, se
             const image = mediaUrl(s.mediaId, media);
             if (!isInWindow(s) || !t("title")) return null;
             const pairedDesktopVignette = s.href === "/vignette" && optionalServices.lounge && sections.some((candidate, candidateIndex) => candidate.type === "COMPATIBILITY" && sections[candidateIndex + 1]?.href === "/lounge");
-            const promo = <PromoCard image={image ?? ""} title={t("title")} {...(t("subtitle") ? { sub: t("subtitle") } : {})} to={s.href === "/esim/kurulum" ? "/esim" : s.href} />;
+            const promo = <PromoCard imageNode={s.tabletMediaId||s.mobileMediaId||s.imageDisplay?<ResponsiveMediaPicture value={s} resolve={id=>mediaUrl(id??null,media)} alt={t("title")} className="absolute inset-0 size-full"/>:undefined} image={image ?? ""} title={t("title")} {...(t("subtitle") ? { sub: t("subtitle") } : {})} to={s.href === "/esim/kurulum" ? "/esim" : s.href} />;
             return pairedDesktopVignette ? <div key={s.id} className="lg:hidden">{promo}</div> : <V2Fragment key={s.id}>{promo}</V2Fragment>;
           }
           case "INFO_CAROUSEL":

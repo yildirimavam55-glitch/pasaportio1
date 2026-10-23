@@ -295,10 +295,10 @@ export function PhotoCard({ image, fallbackImage, badge, title, sub, price, onCl
   );
 }
 
-export function PromoCard({ image, title, sub, to, compactDesktop = false }: { image: string; title: string; sub?: string; to: V2SafeLink; compactDesktop?: boolean }) {
+export function PromoCard({ image,imageNode, title, sub, to, compactDesktop = false }: { image: string;imageNode?:ReactNode; title: string; sub?: string; to: V2SafeLink; compactDesktop?: boolean }) {
   return (
     <Link to={to} search={(to === "/esim" ? { country: "" } : to === "/lounge" ? { iata: "" } : undefined) as never} className={`relative mt-5 block h-24 overflow-hidden rounded-xl text-primary-foreground lg:h-48 lg:rounded-2xl ${compactDesktop ? "lg:mt-14" : "lg:mt-14"}`}>
-      {image && <img src={image} alt="" loading="lazy" decoding="async" className="absolute inset-0 size-full object-cover" />}
+      {imageNode ?? (image && <img src={image} alt="" loading="lazy" decoding="async" className="absolute inset-0 size-full object-cover" />)}
       <div className="absolute inset-0 bg-gradient-to-r from-[var(--v2-service)]/95 via-[var(--v2-service)]/60 to-transparent" />
       <div className="relative flex h-full items-center justify-between gap-3 p-4 lg:p-8">
         <div className="min-w-0">

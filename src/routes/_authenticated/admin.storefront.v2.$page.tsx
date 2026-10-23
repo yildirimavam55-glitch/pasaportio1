@@ -514,6 +514,7 @@ function SectionForm({ section: s, lang, previewLocale, page, trustPreviewLocale
         </div>
       )}
 
+      {s.type === "PROMO_BANNER" && <ResponsiveMediaControls value={s} onChange={onChange} picker={(label,value,onChange)=><MediaField label={label} value={value} onChange={onChange}/>}/>}
       {s.type === "INSTALLATION_STEPS" && (
         <div className="grid gap-3 sm:grid-cols-2">
           <Select label="Görünüm" value={s.variant === "simple" ? "simple" : "animated"} options={["animated", "simple"] as const} labels={{ animated: "Animasyonlu (dekoratif QR)", simple: "Sade adım listesi" }} onChange={(variant) => onChange({ variant })} />

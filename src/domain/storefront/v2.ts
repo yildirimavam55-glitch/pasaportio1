@@ -639,8 +639,8 @@ function cleanSection(raw: any): V2Section | null {
     overlay: pick(raw.overlay, V2_OVERLAYS, "normal"),
     mediaId: cleanMediaId(raw.mediaId),
     mobileMediaId: cleanMediaId(raw.mobileMediaId),
-    ...(type === "SEARCH_HERO" && raw.tabletMediaId != null ? { tabletMediaId: cleanMediaId(raw.tabletMediaId) } : {}),
-    ...(type === "SEARCH_HERO" && raw.tabletImageDisplay != null ? { tabletImageDisplay: sanitizeImageDisplay(raw.tabletImageDisplay) } : {}),
+    ...((type === "SEARCH_HERO" || type === "PROMO_BANNER") && raw.tabletMediaId != null ? { tabletMediaId: cleanMediaId(raw.tabletMediaId) } : {}),
+    ...((type === "SEARCH_HERO" || type === "PROMO_BANNER") && raw.tabletImageDisplay != null ? { tabletImageDisplay: sanitizeImageDisplay(raw.tabletImageDisplay) } : {}),
     ...(type === "SEARCH_HERO" && raw.heroDesktopCrop === "custom" ? { heroDesktopCrop: "custom" as const } : {}),
     ...(type === "SEARCH_HERO" && raw.heroTextMode && typeof raw.heroTextMode === "object" ? { heroTextMode: Object.fromEntries(UI_LOCALES.filter(code => raw.heroTextMode[code] === "custom").map(code => [code, "custom" as const])) } : {}),
     ...(type === 'DESTINATION_CAROUSEL' || type === 'REGION_DISCOVERY' ? { imageOverrides: Object.fromEntries(
@@ -651,7 +651,7 @@ function cleanSection(raw: any): V2Section | null {
         return valid && id ? [[normalized, id]] : [];
       }).slice(0, 300),
     ) } : {}),
-    ...(type === "SEARCH_HERO" || type === "REGION_DISCOVERY" ? {
+    ...(type === "SEARCH_HERO" || type === "REGION_DISCOVERY" || type === "PROMO_BANNER" ? {
       ...(raw.imageDisplay != null ? { imageDisplay: sanitizeImageDisplay(raw.imageDisplay, raw.mediaId === "builtin:esim-hero" ? ESIM_DESKTOP_IMAGE_DISPLAY : DEFAULT_IMAGE_DISPLAY) } : {}),
       ...(raw.mobileImageDisplay != null ? { mobileImageDisplay: sanitizeImageDisplay(raw.mobileImageDisplay) } : {}),
     } : {}),

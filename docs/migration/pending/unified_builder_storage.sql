@@ -24,7 +24,7 @@ BEGIN
  IF _key IS NULL OR _key NOT IN ('storefront_v2_esim','storefront_v2_lounge','storefront_v2_vignette','storefront_global','storefront_esim','storefront_lounge','storefront_theme') OR _action IS NULL OR _action NOT IN ('draft','publish','restore','discard') THEN RAISE EXCEPTION 'Invalid operation' USING ERRCODE='22023'; END IF;
  PERFORM pg_catalog.pg_advisory_xact_lock(pg_catalog.hashtextextended(_key,0));
  SELECT * INTO doc FROM public.cms_documents WHERE key=_key FOR UPDATE;existed:=FOUND;
- IF (existed AND (_expected_revision IS NULL OR doc.builder_revision<>_expected_revision)) OR (NOT existed AND _expected_revision IS NOT NULL) THEN RAISE EXCEPTION 'Stale editor' USING ERRCODE='40001'; END IF;
+ IF (existed AND (_expected_revision IS NULL OR doc.builder_revision<>_expected_revision)) OR (NOT existed AND _expected_revision IS NOT NULL) THEN RAISE EXCEPTION 'Stale editor' USING ERRCODE='PT409'; END IF;
  IF _action='restore' THEN
   SELECT v.snapshot INTO snapshot FROM public.cms_versions v WHERE v.id=_version_id AND v.document_id=doc.id;
   IF snapshot IS NULL OR (snapshot ? 'key' AND snapshot->>'key' IS DISTINCT FROM _key) THEN RAISE EXCEPTION 'Invalid version' USING ERRCODE='22023'; END IF;
