@@ -18,6 +18,8 @@ const fs=require('node:fs');
    const search=await page.locator('.final-hero-search').boundingBox();assert.ok(search.height<=56,'compact search');
    const title=await page.locator('h1').boundingBox();assert.ok(title.height>30&&title.width<width,'heading visible');
    assert.equal(await page.locator('.reference-hero-benefits [data-registered-card]').count(),4,'all four configured trust entries, not a hardcoded three');
+   const strip=await page.locator('.reference-hero-benefits').boundingBox();const cards=await page.locator('.reference-hero-benefits [data-registered-card]').evaluateAll(rows=>rows.map(e=>({x:e.getBoundingClientRect().x,y:e.getBoundingClientRect().y,width:e.getBoundingClientRect().width})));
+   assert.ok(strip.height<180,'trust strip stays compact');assert.ok(cards.at(-1).x>cards[0].x+strip.width/2,'cards fill the entire strip');assert.ok(cards.every(c=>Math.abs(c.y-cards[0].y)<2),'default trust items share one row');
    assert.ok(await page.locator('.final-hero-photo img').evaluate(e=>e.complete&&e.naturalWidth>0));
    await page.screenshot({path:`artifacts/builder-preview/hero-reference-${width}.png`,fullPage:true});
   }

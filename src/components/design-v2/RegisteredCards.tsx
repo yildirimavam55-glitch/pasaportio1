@@ -5,7 +5,7 @@ import { StorefrontIcon } from '@/domain/storefront/icons';
 import { ResponsiveMediaPicture } from './ResponsiveMediaPicture';
 import { sanitizeCardDesign } from '@/domain/storefront/card-design';
 import './registered-cards.css';
-export function RegisteredCards({items,locale,resolve,compact=false}:{items:V2Item[];locale:UiLocale;resolve?:((id:string|null|undefined)=>string|undefined)|undefined;compact?:boolean}){
+export function RegisteredCards({items,locale,resolve,compact=false,linkedTitle=false}:{items:V2Item[];locale:UiLocale;resolve?:((id:string|null|undefined)=>string|undefined)|undefined;compact?:boolean;linkedTitle?:boolean}){
  const text=(v:LT|undefined)=>v?.[locale]?.trim()||v?.tr||'';
  return <div className={`registered-cards ${compact?'registered-cards-compact':''}`} data-registered-cards>{items.filter(i=>i.visible).map(item=>{
   const d=sanitizeCardDesign(item.cardDesign);const style:Record<string,string|number>={};
@@ -16,9 +16,9 @@ export function RegisteredCards({items,locale,resolve,compact=false}:{items:V2It
   return <article key={item.id} data-registered-card={item.id} style={style as CSSProperties}>
    {resolve&&<ResponsiveMediaPicture value={item} resolve={resolve} alt={text(item.imageAlt)} className="aspect-[4/3] rounded-xl"/>}
    {item.icon&&<StorefrontIcon name={item.icon} className="registered-card-icon"/>}
-   <h3 data-v2-heading style={textStyle}>{text(item.title)}</h3>{text(item.text)&&<p data-v2-body style={textStyle}>{text(item.text)}</p>}
+   <h3 data-v2-heading style={textStyle}>{linkedTitle&&item.href?<a href={item.href}>{text(item.title)}</a>:text(item.title)}</h3>{text(item.text)&&<p data-v2-body style={textStyle}>{text(item.text)}</p>}
    {item.labels.map((label,index)=><span key={index}>{text(label)}</span>)}
-   {item.href&&<a href={item.href}>{text(item.cta)||text(item.title)}</a>}
+   {item.href&&(!linkedTitle||(text(item.cta)&&text(item.cta)!==text(item.title)))&&<a href={item.href}>{text(item.cta)||text(item.title)}</a>}
   </article>;
  })}</div>;
 }

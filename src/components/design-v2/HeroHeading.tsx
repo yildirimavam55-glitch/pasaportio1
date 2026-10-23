@@ -8,5 +8,5 @@ export function HeroHeading({section,locale,title,subtitle,defaultSubtitle}:{sec
  const fallback=HERO_TITLE[locale];
  const copy=resolveHeroCopy(section,title,subtitle,defaultSubtitle,{subtitle},locale);
  const accent=section.text['accent']?.[locale]?.trim();
- return <>{copy.useDefaultTitle ? <>{fallback.titleA}<span className="final-hero-accent">{fallback.titleB}</span></> : <>{copy.title}{accent && <span className="final-hero-accent">{accent}</span>}</>}</>;
+ return <>{copy.useDefaultTitle && !accent ? <>{fallback.titleA}<span className="final-hero-accent">{fallback.titleB}</span></> : <>{copy.title}{accent && <span className="final-hero-accent">{accent}</span>}</>}</>;
 }

@@ -392,13 +392,14 @@ export function PublicShell({
                 </DropdownMenuContent>
               </DropdownMenu>
             ) : (
-              <Button asChild variant="ghost" size="icon" className="size-11">
+              <Button asChild variant="ghost" size="icon" className={mobilePasaport ? "public-header-login size-11" : "size-11"}>
                 <Link
                   to="/auth"
                   search={{ redirect: "/account" }}
                   aria-label={copy.nav.account}
                 >
                   <UserRound className="size-[18px] sm:size-5" />
+                  {mobilePasaport && <span className="hidden lg:inline">{ACCOUNT_COPY[locale].signIn}</span>}
                 </Link>
               </Button>
             )}

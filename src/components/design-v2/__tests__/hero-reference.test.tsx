@@ -35,6 +35,11 @@ describe('Reference Hero uses the existing V2 contract',()=>{
   const section=defaultV2Page('esim').sections.find(s=>s.type==='SEARCH_HERO')!;section.heroTextMode={tr:'custom'};
   expect(renderToStaticMarkup(<HeroHeading section={section} locale="tr" title="Yurt dışında bağlantıda kal." subtitle="" defaultSubtitle=""/>)).toBe('Yurt dışında bağlantıda kal.');
  });
+ it('lets an explicit accent override legacy title presentation without changing the title',()=>{
+  const section=defaultV2Page('esim').sections.find(s=>s.type==='SEARCH_HERO')!;section.text['accent']={tr:'Özel vurgu',de:'',en:''};
+  const html=renderToStaticMarkup(<HeroHeading section={section} locale="tr" title="Yurt dışında bağlantıda kal." subtitle="" defaultSubtitle=""/>);
+  expect(html).toContain('Yurt dışında bağlantıda kal.');expect(html).toContain('Özel vurgu');
+ });
  it('keeps header interactions as caller-owned slots rather than replacing them',()=>{
   const html=renderToStaticMarkup(<PublicHeaderFrame reference brand={<img src="/unchanged-logo.svg" alt="Pasaport.io"/>} navigation={<a href="/blog">Blog</a>}><a href="/auth">Login</a><button>Picker</button><button>Menu</button></PublicHeaderFrame>);
   for(const value of ['/unchanged-logo.svg','/blog','/auth','Picker','Menu','data-reference-hero-header'])expect(html).toContain(value);

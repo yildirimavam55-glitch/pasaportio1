@@ -62,9 +62,9 @@ function initial(): V2PageConfig {
   page.sections = new URLSearchParams(window.location.search).has("fixture") ? [hero, notice] : [...structuredClone(page.sections), notice];
   if (new URLSearchParams(window.location.search).has("reference")) {
     const savedHero=page.sections.find(s=>s.type==='SEARCH_HERO')!;
-    savedHero.text['title']=Object.fromEntries(UI_LOCALES.map(locale=>[locale,HERO_TITLE[locale].titleA])) as typeof savedHero.text[string];
-    savedHero.text['accent']=Object.fromEntries(UI_LOCALES.map(locale=>[locale,HERO_TITLE[locale].titleB])) as typeof savedHero.text[string];
-    savedHero.heroTextMode=Object.fromEntries(UI_LOCALES.map(locale=>[locale,'custom']));
+    savedHero.text['title']={tr:HERO_TITLE.tr.titleA,de:HERO_TITLE.de.titleA,en:HERO_TITLE.en.titleA,...Object.fromEntries(UI_LOCALES.map(locale=>[locale,HERO_TITLE[locale].titleA]))};
+    savedHero.text['accent']={tr:HERO_TITLE.tr.titleB,de:HERO_TITLE.de.titleB,en:HERO_TITLE.en.titleB,...Object.fromEntries(UI_LOCALES.map(locale=>[locale,HERO_TITLE[locale].titleB]))};
+    savedHero.heroTextMode=Object.fromEntries(UI_LOCALES.map(locale=>[locale,'custom' as const]));
   }
   return page;
 }
