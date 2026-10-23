@@ -184,10 +184,15 @@ let activeBrowser;
   await page.waitForFunction(()=>document.body.scrollWidth<=document.body.clientWidth);
   assert.equal(await page.locator('body').evaluate(e=>e.scrollWidth<=e.clientWidth),true,'no Admin horizontal overflow');
   assert.equal(await frame.locator('html').evaluate(e=>e.clientWidth),1440,'desktop frame keeps full CSS viewport');
+  await page.evaluate(()=>window.scrollTo(0,0));
   await page.screenshot({path:`artifacts/builder-preview/original-admin-${width}.png`,fullPage:true});
+  await page.screenshot({path:`artifacts/builder-preview/original-editor-visible-${width}.png`});
   if(width<1024){
    await page.getByRole('button',{name:'Yönetim menüsünü aç',exact:true}).click();
    await page.getByRole('dialog',{name:'Yönetim bölümleri',exact:true}).waitFor();
+   await page.waitForFunction(()=>{const drawer=document.querySelector('.admin-reference-sidebar.is-open');return drawer&&Math.abs(drawer.getBoundingClientRect().left)<1;});
+   const drawer=await page.getByRole('dialog',{name:'Yönetim bölümleri',exact:true}).boundingBox();
+   assert.ok(drawer&&drawer.x>=0&&drawer.x+drawer.width<=width,'drawer fully inside mobile viewport');
    assert.ok(await page.getByRole('navigation',{name:'Yönetim navigasyonu'}).getByRole('link',{name:'Siparişler',exact:true}).isVisible());
    assert.ok(await page.getByRole('navigation',{name:'Yönetim navigasyonu'}).getByRole('link',{name:'Provider Hub',exact:true}).isVisible());
    await page.screenshot({path:`artifacts/builder-preview/original-sidebar-${width}.png`});
