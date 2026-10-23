@@ -55,7 +55,7 @@ function Media() {
             <Field label="Görsel yükle" hint="PNG, JPG, WEBP veya AVIF · en fazla 10 MB">
               <label className="admin-field mt-1 flex min-h-11 w-full cursor-pointer items-center gap-2 text-xs font-semibold">
                 <Upload className="size-4" />{upload.isPending ? "Yükleniyor…" : "Dosya seç"}
-                <input type="file" accept="image/*" className="hidden" onChange={(event) => { const file = event.target.files?.[0]; if (file) upload.mutate(file); event.target.value = ""; }} />
+                <input type="file" accept="image/jpeg,image/png,image/webp,image/avif" className="hidden" onChange={(event) => { const file = event.target.files?.[0]; if (file) upload.mutate(file); event.target.value = ""; }} />
               </label>
             </Field>
           </div>

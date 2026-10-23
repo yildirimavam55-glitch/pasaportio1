@@ -18,8 +18,8 @@ function originalModule(path:string):any{
   if(name.startsWith('@/')||name.startsWith('.')){const file=name.startsWith('@/')?resolve('src',name.slice(2)):resolve(dirname(full),name);const selected=[file,file+'.ts',file+'.tsx',file+'/index.ts'].find(p=>existsSync(p)&&/\.(ts|tsx)$/.test(p));if(!selected)throw Error('TEST_MODULE_MISSING '+name);return originalModule(selected);}
   return nativeRequire(name);
  };
- const js=ts.transpileModule(readFileSync(full,'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022,esModuleInterop:true}}).outputText;
- new Function('require','module','exports',js)(requireOriginal,module,module.exports);return module.exports;
+ const js=ts.transpileModule(readFileSync(full,'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022,esModuleInterop:true},transformers:{before:[context=>{const visit=(node:ts.Node):ts.VisitResult<ts.Node>=>ts.isMetaProperty(node)&&node.keywordToken===ts.SyntaxKind.ImportKeyword?ts.factory.createIdentifier('__testImportMeta'):ts.visitEachChild(node,visit,context);return source=>ts.visitNode(source,visit) as ts.SourceFile;}]}}).outputText;
+ new Function('require','module','exports','__testImportMeta',js)(requireOriginal,module,module.exports,{env:{DEV:false,PROD:false,MODE:'test'}});return module.exports;
 }
 const {getAdminOrders,getAdminCustomers,setFeatureFlag}=originalModule('src/lib/admin-control.functions.ts');
 const {updateProduct}=originalModule('src/lib/admin-catalog.functions.ts');

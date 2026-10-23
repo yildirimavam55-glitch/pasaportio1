@@ -8,10 +8,7 @@ import { resolveHeroCopy } from "@/domain/storefront/hero-presentation";
 import { useI18n } from "@/i18n";
 import { HeroPromotion } from "./HeroPromotion";
 import { defaultV2Page, v2Text, type V2Section } from "@/domain/storefront/v2";
-import { trustBandItems } from "./hero-trust-band";
-import { useWhatsAppHref } from "@/components/travel/WhatsAppSupportWidget";
 import { combinedSourceRating, starFill } from "@/domain/storefront/review-carousel";
-import { CalendarCheck, Mail, QrCode } from "lucide-react";
 /** Sample figures only so the strip layout can be reviewed in the dev preview; never shipped, never presented as verified. */
 const PREVIEW_SAMPLE_RATING = import.meta.env.DEV ? { rating: 4.8, displayRating: 4.8, count: 2000 } : null;
 import { useTrustIconEntry } from "./use-trust-icon-entry";
@@ -38,7 +35,6 @@ function TrustpilotMark() {
 function StripStars({ rating }: { rating: number }) {
   return <span className="trust-strip-stars" role="img" aria-label={`${rating.toFixed(1)} / 5`}>{Array.from({ length: 5 }, (_, i) => <span key={i} className="trust-strip-star"><svg viewBox="0 0 24 24" width="13" height="13" aria-hidden="true"><path className="star-base" d="M12 2l2.9 6.3 6.9.8-5.1 4.7 1.4 6.8L12 17.2 5.9 20.6l1.4-6.8L2.2 9.1l6.9-.8z"/><path className="star-fill" d="M12 2l2.9 6.3 6.9.8-5.1 4.7 1.4 6.8L12 17.2 5.9 20.6l1.4-6.8L2.2 9.1l6.9-.8z" style={{ clipPath: `inset(0 ${100 - starFill(rating, i)}% 0 0)` }}/></svg></span>)}</span>;
 }
-const STRIP_ICONS: Record<string, typeof Mail> = { delivery: Mail, refund: CalendarCheck, setup: QrCode };
 
 /**
  * Premium glass trust strip below the hero search: optional verified Google+Trustpilot
@@ -48,7 +44,6 @@ const STRIP_ICONS: Record<string, typeof Mail> = { delivery: Mail, refund: Calen
 export function PasaportMobileBenefits({ section, reviews, resolve }: { resolve?: ((id:string|null|undefined)=>string|undefined)|undefined; section?: V2Section | undefined; reviews?: V2Section | undefined }) {
   const { locale, uiLocale } = useI18n();
   const c = COPY[uiLocale as keyof typeof COPY] ?? COPY[locale];
-  const items = trustBandItems(section, locale, useWhatsAppHref());
   const { ref, entered } = useTrustIconEntry();
   const verified = combinedSourceRating(reviews?.trust?.sourceRatings);
   const summary = verified ?? PREVIEW_SAMPLE_RATING;

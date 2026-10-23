@@ -11,6 +11,7 @@ export function RegisteredCards({items,locale,resolve,compact=false}:{items:V2It
   const d=sanitizeCardDesign(item.cardDesign);const style:Record<string,string|number>={};
   if(d.color)style['--rc-color']=d.color;if(d.background)style['--rc-bg']=d.background;if(d.borderColor)style['--rc-border']=d.borderColor;if(d.radius!==undefined)style['--rc-radius']=d.radius+'px';
   for(const device of ['mobile','tablet','desktop'] as const)for(const key of ['iconSize','padding','gap','columns'] as const)if(d[device]?.[key]!==undefined)style[`--rc-${device}-${key}`]=key==='columns'?d[device]![key]!:d[device]![key]+'px';
+  for(const device of ['mobile','tablet','desktop'] as const)for(const key of ['color','background','borderColor'] as const)if(d[device]?.[key])style[`--rc-${device}-${key}`]=d[device]![key]!;
   return <article key={item.id} data-registered-card={item.id} style={style as CSSProperties}>
    {resolve&&<ResponsiveMediaPicture value={item} resolve={resolve} alt={text(item.imageAlt)} className="aspect-[4/3] rounded-xl"/>}
    {item.icon&&<StorefrontIcon name={item.icon} className="registered-card-icon"/>}

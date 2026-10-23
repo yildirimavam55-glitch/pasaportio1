@@ -51,7 +51,7 @@ function Cms() {
   const mediaOptions = media.data ?? [];
 
   return (
-    <AdminGate title="Sayfalar / CMS">
+    <AdminGate title="Sayfalar / CMS"><p role="status" className="rounded-xl border border-amber-300 bg-amber-50 p-4 text-sm text-amber-900">Eski CMS için kaydetme ve yayınlama güvenlik nedeniyle duraklatıldı. Mevcut içerikler korunur. Güvenli veritabanı değişikliği onaylanana kadar V2 editöründe taslak hazırlayın.</p>
       <div className="grid gap-4">
         <div className="grid gap-3 md:grid-cols-3">
           {KINDS.map(({ kind: value, label, detail, icon: Icon }) => {
@@ -111,9 +111,9 @@ function Cms() {
                   <Field label="Hero buton bağlantısı" hint="Yalnızca site içi yollar (/esim, /lounge)."><input className="admin-field mt-1 w-full" value={settings.heroCtaHref} onChange={(event) => setSetting({ heroCtaHref: event.target.value })} /></Field>
                 </div>
                 <div className="mt-4 flex flex-wrap gap-2">
-                  <Button size="sm" variant="outline" onClick={() => save.mutate(false)} disabled={save.isPending}>Taslağı kaydet</Button>
+                  <Button size="sm" variant="outline" onClick={() => save.mutate(false)} disabled={true} title="Güvenli depolama onayı gerekiyor">Taslağı kaydet</Button>
                   <Button size="sm" variant="secondary" onClick={() => setPreview((value) => !value)}>{preview ? "Önizlemeyi kapat" : "Önizle"}</Button>
-                  <Button size="sm" onClick={() => save.mutate(true)} disabled={save.isPending}>Yayınla</Button>
+                  <Button size="sm" onClick={() => save.mutate(true)} disabled={true} title="Güvenli depolama onayı gerekiyor">Yayınla</Button>
                 </div>
                 {message && <p className="mt-2 text-xs font-semibold text-primary">{message}</p>}
                 <p className="mt-2 text-[10px] text-muted-foreground">İçerik yalnızca yapılandırılmış alanlardan oluşur; CSS veya JavaScript girilemez.</p>
