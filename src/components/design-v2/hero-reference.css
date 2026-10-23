@@ -3,10 +3,10 @@ section.pasaport-final-hero {
  --hero-ink:#f5fbfa; --hero-scrim:#001a1d; --gift-ribbon:#00bb87;
  background:transparent; color:var(--hero-ink); display:grid; height:auto; min-height:0;
  grid-template-columns:minmax(0,1fr); grid-template-rows:auto auto auto auto;
- padding:30px 16px 12px; gap:18px; isolation:isolate;
+ padding:30px 16px 12px; gap:18px; isolation:isolate;align-content:start;
 }
 section.pasaport-final-hero .final-hero-photo {position:absolute;inset:0;grid-area:auto;height:100%;z-index:-2;transform:none;}
-section.pasaport-final-hero .final-hero-photo img {object-position:var(--hero-mobile-position);object-fit:var(--hero-mobile-fit);transform:scale(var(--hero-mobile-scale));}
+section.pasaport-final-hero .final-hero-photo img {object-position:var(--hero-mobile-position);object-fit:var(--hero-mobile-fit);transform:scale(var(--hero-mobile-scale));transform-origin:var(--hero-mobile-origin,center);}
 section.pasaport-final-hero .final-hero-shade,
 html:not(.dark) section.pasaport-final-hero .final-hero-shade {
  position:absolute;inset:0;grid-area:auto;height:100%;z-index:-1;transform:none;
@@ -56,13 +56,13 @@ header[data-reference-hero-header] .public-header-actions>[data-testid="header-c
  section.pasaport-final-hero .final-hero-heading {max-width:55%;}
  section.pasaport-final-hero .final-hero-heading h1 {font-size:var(--builder-heading-size,42px);}
  section.pasaport-final-hero .final-hero-heading p:not(.final-hero-eyebrow) {font-size:var(--builder-body-size,16px);}
- section.pasaport-final-hero .final-hero-photo img {object-position:var(--hero-tablet-position);object-fit:var(--hero-tablet-fit);transform:scale(var(--hero-tablet-scale));}
+ section.pasaport-final-hero .final-hero-photo img {object-position:var(--hero-tablet-position);object-fit:var(--hero-tablet-fit);transform:scale(var(--hero-tablet-scale));transform-origin:center;}
  section.pasaport-final-hero .final-hero-search {width:65%;}
  .reference-hero-benefits .registered-cards>article {--rc-columns:var(--rc-tablet-columns,var(--rc-mobile-columns,var(--hero-benefit-columns,1)));padding:var(--rc-tablet-padding,var(--rc-mobile-padding,10px));gap:var(--rc-tablet-gap,var(--rc-mobile-gap,6px));}
 }
 @media(min-width:1024px) {
  section.pasaport-final-hero {min-height:440px;padding:42px max(48px,calc((100vw - 1280px)/2));gap:20px;grid-template-rows:auto auto auto auto;}
- section.pasaport-final-hero .final-hero-photo img {object-position:var(--hero-desktop-position);object-fit:var(--hero-desktop-fit);transform:scale(var(--hero-desktop-scale));}
+ section.pasaport-final-hero .final-hero-photo img {object-position:var(--hero-desktop-position);object-fit:var(--hero-desktop-fit);transform:scale(var(--hero-desktop-scale));transform-origin:center;}
  section.pasaport-final-hero .final-hero-heading {max-width:52%;}
  section.pasaport-final-hero .final-hero-heading h1 {font-size:var(--builder-heading-size,48px);}
  section.pasaport-final-hero .final-hero-heading p:not(.final-hero-eyebrow) {font-size:var(--builder-body-size,16px);max-width:28em;}
@@ -70,6 +70,9 @@ header[data-reference-hero-header] .public-header-actions>[data-testid="header-c
  section.pasaport-final-hero .final-hero-trust {width:68%;max-width:800px;}
  .reference-hero-benefits .registered-cards>article {--rc-columns:var(--rc-desktop-columns,var(--rc-tablet-columns,var(--rc-mobile-columns,var(--hero-benefit-columns,1))));padding:var(--rc-desktop-padding,var(--rc-tablet-padding,var(--rc-mobile-padding,10px)));gap:var(--rc-desktop-gap,var(--rc-tablet-gap,var(--rc-mobile-gap,6px)));}
  .reference-hero-benefits .registered-cards h3 {font-size:13px;}
+ .reference-hero-benefits .registered-cards>article {display:grid;grid-template-columns:auto minmax(0,1fr);align-content:center;text-align:start;}
+ .reference-hero-benefits .registered-card-icon {grid-column:1;grid-row:1 / span 2;}
+ .reference-hero-benefits .registered-cards>article>:not(.registered-card-icon):not(picture) {grid-column:2;}
  header[data-reference-hero-header] .public-header-row {min-height:64px;}
  header[data-reference-hero-header] .public-header-login {width:auto;gap:8px;padding-inline:16px;border:1px solid #b8ffe52a;border-radius:999px;}
 }

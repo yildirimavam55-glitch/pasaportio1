@@ -22,6 +22,8 @@ const fs=require('node:fs');
    assert.ok(strip.height<180,'trust strip stays compact');assert.ok(cards.at(-1).x>cards[0].x+strip.width/2,'cards fill the entire strip');assert.ok(cards.every(c=>Math.abs(c.y-cards[0].y)<2),'default trust items share one row');
    assert.ok(await page.locator('.final-hero-photo img').evaluate(e=>e.complete&&e.naturalWidth>0));
    await page.screenshot({path:`artifacts/builder-preview/hero-reference-${width}.png`,fullPage:true});
+   const heroBox=await page.locator('[data-testid=pasaport-esim-hero]').boundingBox();
+   await page.screenshot({path:`artifacts/builder-preview/hero-reference-top-${width}.png`,clip:{x:0,y:0,width,height:Math.ceil(heroBox.y+heroBox.height)}});
   }
   // Real admin controls -> sanitized message -> SAME V2 public heading, media and trust renderer.
   await page.setViewportSize({width:1840,height:1100});
