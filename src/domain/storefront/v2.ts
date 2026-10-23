@@ -172,7 +172,7 @@ export type V2Section = {
   tabletMediaId?: string | null;
   tabletImageDisplay?: ImageDisplay;
   /** Explicit editor copy must never be replaced by legacy Hero defaults. */
-  heroTextMode?: "custom";
+  heroTextMode?: Partial<Record<UiLocale, "custom">>;
   heroDesktopCrop?: "custom";
   /** Stable country ISO or region keys in the existing CMS document. */
   imageOverrides?: Record<string, string>;
@@ -629,7 +629,7 @@ function cleanSection(raw: any): V2Section | null {
     ...(type === "SEARCH_HERO" && raw.tabletMediaId != null ? { tabletMediaId: cleanMediaId(raw.tabletMediaId) } : {}),
     ...(type === "SEARCH_HERO" && raw.tabletImageDisplay != null ? { tabletImageDisplay: sanitizeImageDisplay(raw.tabletImageDisplay) } : {}),
     ...(type === "SEARCH_HERO" && raw.heroDesktopCrop === "custom" ? { heroDesktopCrop: "custom" as const } : {}),
-    ...(type === "SEARCH_HERO" && raw.heroTextMode === "custom" ? { heroTextMode: "custom" as const } : {}),
+    ...(type === "SEARCH_HERO" && raw.heroTextMode && typeof raw.heroTextMode === "object" ? { heroTextMode: Object.fromEntries(UI_LOCALES.filter(code => raw.heroTextMode[code] === "custom").map(code => [code, "custom" as const])) } : {}),
     ...(type === 'DESTINATION_CAROUSEL' || type === 'REGION_DISCOVERY' ? { imageOverrides: Object.fromEntries(
       Object.entries(raw.imageOverrides && typeof raw.imageOverrides === 'object' ? raw.imageOverrides : {}).flatMap(([key, value]) => {
         const normalized = key.toUpperCase();

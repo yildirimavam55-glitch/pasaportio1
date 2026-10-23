@@ -27,8 +27,15 @@ describe("V2 builder editor → sanitized preview → real renderer", () => {
     expect(result.subtitle).toBe("Mein bearbeiteter Untertitel");
   });
   it("explicit editor copy wins even if equal to an old built-in title, including empty text", () => {
-    const s = { ...hero(), heroTextMode: "custom" as const };
+    const s = { ...hero(), heroTextMode: { en: "custom" as const } };
     expect(resolveHeroCopy(s, "Stay connected abroad.", "", "", { subtitle: "Built in" })).toEqual({ title: "Stay connected abroad.", subtitle: "", useDefaultTitle: false });
+  });
+  it("editing one locale never disables legacy fallback in another locale", () => {
+    const page = base(); const s = page.sections[0]!;
+    s.heroTextMode = { de: "custom" };
+    const clean = sanitizeV2Page(page, "esim").sections[0]!;
+    expect(resolveHeroCopy(clean, "Im Ausland verbunden bleiben.", "", "", { subtitle: "Default" }, "de").useDefaultTitle).toBe(false);
+    expect(resolveHeroCopy(clean, "Yurt dışında bağlantıda kal.", "", "", { subtitle: "Default" }, "tr").useDefaultTitle).toBe(true);
   });
   it("keeps unchanged legacy title/subtitle substitution and has no default frame markup", () => {
     const s = hero(); const subtitle = s.text["subtitle"]!.de;

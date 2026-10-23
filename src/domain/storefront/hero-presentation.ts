@@ -1,9 +1,10 @@
+import type { UiLocale } from "@/i18n/locales";
 import type { V2Section } from "./v2";
 
 const LEGACY_TITLES = ["Yurt dışında bağlantıda kal.", "Im Ausland verbunden bleiben.", "Stay connected abroad.", "Her yerde bağlantıda kal.", "Überall verbunden bleiben.", "Stay connected everywhere.", "ابقَ متصلاً أينما كنت.", "ابقَ على اتصال في الخارج."];
 /** Compatibility is per field. An editor edit explicitly opts out of legacy substitutions. */
-export function resolveHeroCopy(section: V2Section, title: string, subtitle: string, defaultSubtitle: string, copy: { subtitle: string }) {
-  const useDefaultTitle = section.heroTextMode !== "custom" && (!title || LEGACY_TITLES.includes(title));
+export function resolveHeroCopy(section: V2Section, title: string, subtitle: string, defaultSubtitle: string, copy: { subtitle: string }, uiLocale: UiLocale = "en") {
+  const useDefaultTitle = section.heroTextMode?.[uiLocale] !== "custom" && (!title || LEGACY_TITLES.includes(title));
   return { title, useDefaultTitle, subtitle: useDefaultTitle && subtitle === defaultSubtitle ? copy.subtitle : subtitle };
 }
 

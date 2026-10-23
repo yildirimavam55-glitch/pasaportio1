@@ -19,7 +19,7 @@ export function PasaportEsimHero({ section, image, tabletImage, mobileImage, ben
  const { locale, uiLocale } = useI18n();
  const c = COPY[uiLocale as keyof typeof COPY] ?? COPY[locale];
  const defaults = defaultV2Page("esim").sections.find(s => s.type === "SEARCH_HERO");
- const copy = resolveHeroCopy(section, v2Text(section, "title", locale), v2Text(section, "subtitle", locale), defaults ? v2Text(defaults, "subtitle", locale) : "", c);
+ const copy = resolveHeroCopy(section, v2Text(section, "title", locale), v2Text(section, "subtitle", locale), defaults ? v2Text(defaults, "subtitle", locale) : "", c, uiLocale);
  return <V2HeroView section={section} image={image} tabletImage={tabletImage} mobileImage={mobileImage}
    heading={copy.useDefaultTitle ? <>{c.titleA} <span className="final-hero-accent">{c.titleB}</span></> : copy.title}
    subtitle={copy.subtitle} promotion={<HeroPromotion />} trust={<PasaportMobileBenefits section={benefits} reviews={reviews} />}>

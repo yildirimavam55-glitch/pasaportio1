@@ -47,7 +47,7 @@ function Canvas() {
   const notice = state.config.sections.find(s => s.type === "NOTICE");
   const defaults = defaultV2Page("esim").sections.find(s => s.type === "SEARCH_HERO")!;
   const c = HERO_COPY[state.locale as keyof typeof HERO_COPY] ?? HERO_COPY[meta.content];
-  const copy = resolveHeroCopy(hero, v2Text(hero, "title", meta.content), v2Text(hero, "subtitle", meta.content), v2Text(defaults, "subtitle", meta.content), c);
+  const copy = resolveHeroCopy(hero, v2Text(hero, "title", meta.content), v2Text(hero, "subtitle", meta.content), v2Text(defaults, "subtitle", meta.content), c, state.locale);
   return <main className="builder-canvas v2-theme" data-locale={state.locale}>
     <V2SectionFrame section={hero}><V2HeroView section={hero} image={IMAGES[hero.mediaId ?? ""] ?? ""} tabletImage={IMAGES[hero.tabletMediaId ?? ""]} mobileImage={IMAGES[hero.mobileMediaId ?? ""]}
       heading={copy.useDefaultTitle ? <>{c.titleA} <span className="final-hero-accent">{c.titleB}</span></> : copy.title} subtitle={copy.subtitle}>
@@ -67,7 +67,7 @@ function BuilderDemo() {
   const patch = (patch: Partial<V2Section>) => setConfig(value => sanitizeV2Page({ ...value, sections: value.sections.map(s => s.id === selected ? { ...s, ...patch } : s) }, "esim"));
   const send = () => frame.current?.contentWindow?.postMessage({ type: CHANNEL, config, locale }, window.location.origin);
   useEffect(send, [config, locale]);
-  const text = (key: string, value: string) => patch({ text: { ...section.text, [key]: { ...(section.text[key] ?? { tr: "", de: "", en: "" }), [locale]: value } }, ...(section.type === "SEARCH_HERO" && key === "title" ? { heroTextMode: "custom" as const } : {}) });
+  const text = (key: string, value: string) => patch({ text: { ...section.text, [key]: { ...(section.text[key] ?? { tr: "", de: "", en: "" }), [locale]: value } }, ...(section.type === "SEARCH_HERO" && key === "title" ? { heroTextMode: { ...section.heroTextMode, [locale]: "custom" as const } } : {}) });
   const design = section.design ?? DESIGN;
   return <div className="builder-demo" dir="ltr">
     <header><strong>Pasaport.io · V2-Baukasten</strong><p>Abnahme-Demo · nur Browser-Speicher · kein Speichern, Veröffentlichen, Upload oder Datenbankzugriff. Die Suche ist hier absichtlich deaktiviert; im Shop bleibt sie unverändert.</p></header>

@@ -52,6 +52,10 @@ const fs = require('node:fs');
     assert.equal(await frame.locator('body').evaluate(el => el.scrollWidth <= el.clientWidth), true, `overflow ${width}`);
     await page.locator('iframe').screenshot({ path: `artifacts/builder-preview/after-${width}.png` });
   }
+  await page.getByLabel('Sprache', { exact: true }).selectOption('tr');
+  await frame.getByRole('heading', { name: 'Her Zaman Bağlantıda Kal' }).waitFor();
+  await page.getByLabel('Sprache', { exact: true }).selectOption('de');
+  await frame.getByRole('heading', { name: 'Dein nächstes Abenteuer' }).waitFor();
   await page.getByLabel('Abschnitt', { exact: true }).selectOption('builder-notice');
   await page.getByLabel('Überschrift', { exact: true }).fill('Editierbarer Hinweis');
   await page.getByLabel('Abschnittstext', { exact: true }).fill('Auch dieser Abschnitt übernimmt die Editorwerte.');

@@ -7,7 +7,7 @@ Only SEARCH_HERO and NOTICE presentation. No PR #3 code copied, database/Storage
 
 - Existing V2 Admin keeps draft/history/postMessage/save/publish flow and MediaPicker. New color controls and optional tablet media/crop are JSON-only, sanitized and collected by the existing media resolver.
 - Hero data-connected wrapper retains the original search child, promotion and trust integrations. Hook-free `V2HeroView` is shared with the disconnected acceptance preview.
-- Field-specific copy fallback fixes overwritten subtitles; explicit title edits bypass legacy title substitution. Manual LT values and `_auto`/`_src` rules are unchanged.
+- Field-specific copy fallback fixes overwritten subtitles; explicit title edits bypass legacy title substitution only for the edited locale. Manual LT values and `_auto`/`_src` rules are unchanged.
 - Built-in imagery keeps the untouched legacy crop. Explicit desktop crop edits are recorded so even the same numeric crop can intentionally replace it. Mobile/tablet crops are independent.
 - NOTICE keeps its previous default card markup and now consumes the same optional design frame. Other sections are unchanged.
 - Fonts select existing theme heading/body families, not arbitrary CSS or third-party font URLs. Colors accept only six-digit hexadecimal values. No new Lovable integration.
@@ -36,7 +36,7 @@ The MVP does **not** resolve PR #3's confirmed database draft exposure or concur
 
 CI `.github/workflows/builder-mvp.yml` executes frozen Bun installation, TypeScript, production/Vercel build, targeted regressions, actual Chromium control/iframe/media/NOTICE/locale tests and the full Vitest suite. Screenshot/preview artifacts are uploaded even if the known full-suite SQL failures remain. No `continue-on-error`, test exclusions or pipelines masking failures.
 
-The browser test blocks all non-loopback requests and fails if any are attempted. Screenshots: before/after at 390/768/1440, NOTICE and representative locales. These are isolated component/draft-preview screenshots, not claims of a live Admin save, live search/catalogue or whole-homepage E2E pass. CI results must be reported from the actual run, not inferred from this document.
+The browser test blocks all non-loopback requests and fails if any are attempted. Screenshots: before/after at 390/768/1440, NOTICE and representative locales. The static demo deliberately omits the data-connected promotion/trust modules and external Google webfonts; system font fallback can therefore differ from the authenticated app, while the same theme-family tokens are exercised. These are isolated component/draft-preview screenshots, not claims of a live Admin save, live search/catalogue or whole-homepage E2E pass. CI results must be reported from the actual run, not inferred from this document.
 
 Known nine SQL failures remain separately visible: product cost grants, refund confirmation, has_role self-scope/anonymous execution, platform_settings table/projection, anonymous Admin RPC, and missing historical 0006 email / 0007 PDF migration tests. No assertions are changed.
 

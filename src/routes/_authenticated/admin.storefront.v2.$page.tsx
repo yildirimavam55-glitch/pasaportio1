@@ -483,7 +483,7 @@ function ImageField({ label, value, onChange, category = "HERO" }: { label: stri
 }
 
 function SectionForm({ section: s, lang, page, trustPreviewLocale, onTrustLocale, onTrustSourceBlur, onChange }: { section: V2Section; lang: Locale; page: V2PageId; trustPreviewLocale: UiLocale | null; onTrustLocale: (code: UiLocale) => void; onTrustSourceBlur: () => void; onChange: (patch: Partial<V2Section>) => void }) {
-  const setText = (key: string, value: LT) => onChange({ text: { ...s.text, [key]: value }, ...(s.type === "SEARCH_HERO" && key === "title" ? { heroTextMode: "custom" as const } : {}) });
+  const setText = (key: string, value: LT) => onChange({ text: { ...s.text, [key]: value }, ...(s.type === "SEARCH_HERO" && key === "title" ? { heroTextMode: { ...s.heroTextMode, [lang]: "custom" as const } } : {}) });
   const mode = V2_ITEM_MODE[s.type];
   return (
     <div className="space-y-3">
