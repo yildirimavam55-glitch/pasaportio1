@@ -105,12 +105,25 @@ function BuilderDemo() {
   const [selected, setSelected] = useState("hero");
   const [locale, setLocale] = useState<UiLocale>("tr");
   const [width, setWidth] = useState(390);
+  const [previewTarget,setPreviewTarget]=useState<"offline"|"website">("offline");
   const frame = useRef<HTMLIFrameElement>(null);
   const section = config.sections.find(s => s.id === selected)??config.sections[0]!;
   const patch = (patch: Partial<V2Section>) => setConfig(value => sanitizeDemoPage({ ...value, sections: value.sections.map(s => s.id === selected ? { ...s, ...patch } : s) }));
-  const send = () => {const active=view==='published'?session.published:{page:config,theme,chrome};frame.current?.contentWindow?.postMessage({ type: CHANNEL, config:active.page, theme:active.theme,chrome:active.chrome,locale,account:tab==='Kundenkonto' }, window.location.origin);};
-  useEffect(send, [config, locale,theme,chrome,tab,view,session]);
-  useEffect(()=>{const select=(event:MessageEvent)=>{if(event.origin===location.origin&&event.source===frame.current?.contentWindow&&event.data?.type===CHANNEL+'-select'&&config.sections.some(s=>s.id===event.data.id)){setSelected(event.data.id);setTab('Seiten');}};window.addEventListener('message',select);return()=>window.removeEventListener('message',select);},[config.sections]);
+  const send = () => {
+    const active=view==='published'?session.published:{page:config,theme,chrome};
+    const target=frame.current?.contentWindow;if(!target)return;
+    if(previewTarget==='website'){
+      target.postMessage({type:'v2-cms-preview',page:'esim',config:active.page,media:Object.fromEntries(Object.entries(IMAGES).map(([id,url])=>[id,{url,alt:''}])),locale},location.origin);
+      target.postMessage({type:'v2-theme-preview',theme:active.theme},location.origin);
+      target.postMessage({type:'v2-chrome-preview',config:active.chrome},location.origin);
+    }else target.postMessage({type:CHANNEL,config:active.page,theme:active.theme,chrome:active.chrome,locale,account:tab==='Kundenkonto'},location.origin);
+  };
+  useEffect(send, [config, locale,theme,chrome,tab,view,session,previewTarget]);
+  useEffect(()=>{const receive=(event:MessageEvent)=>{
+    if(event.origin!==location.origin||event.source!==frame.current?.contentWindow)return;
+    if(['v2-cms-ready','v2-theme-ready','v2-chrome-ready'].includes(event.data?.type)){send();return;}
+    if([CHANNEL+'-select','v2-cms-select'].includes(event.data?.type)&&config.sections.some(s=>s.id===event.data.id)){setSelected(event.data.id);setTab('Seiten');}
+  };window.addEventListener('message',receive);return()=>window.removeEventListener('message',receive);},[config,theme,chrome,locale,tab,view,session,previewTarget]);
   const design = section.design ?? DESIGN;
   const routeTabs:Record<string,string>={'/admin/storefront/v2/esim':'Seiten','/admin/theme':'Design','/admin/media':'Medien','/admin/storefront/navigation':'Menü & Footer'};
   const navigateTab=(name:string)=>{setTab(name);setMobileOpen(false);};
@@ -154,8 +167,8 @@ function BuilderDemo() {
       </div>
       <button type="button" onClick={() => {const base={page:initial(),theme:DEFAULT_THEME,chrome:defaultStorefront('global')};install(base);setSession(newEditorSession(base));setSelected('hero');setTab('Seiten');setView('draft');localStorage.removeItem('pasaport-admin-synthetic-v1');}}>Vorher / vollständig zurücksetzen</button>
       <p>Dieselben Schrift-/Farbkontrollen und Renderer werden im echten V2-Admin verwendet. Dort: /admin/storefront/v2/esim → SEARCH_HERO oder NOTICE → Entwurf/Vorschau. Bestehende Anmeldung und Freigabe bleiben erforderlich.</p>
-    </aside><section className="builder-preview-panel"><div className="builder-toolbar">{[390, 768, 1440].map(w => <button key={w} type="button" aria-pressed={width === w} onClick={() => setWidth(w)}>{w} px</button>)}<a href={new URLSearchParams(window.location.search).has("fixture")?"?canvas=1&fixture=translation":"?canvas=1"} target="_blank" rel="noreferrer">Standard separat öffnen</a></div>
-      <ResponsivePreview width={width} height={850}>{scale=><iframe title="V2 Entwurfsvorschau" ref={frame} src={new URLSearchParams(window.location.search).has("fixture")?"?canvas=1&fixture=translation":"?canvas=1"} onLoad={send} style={{ width, height: Math.ceil(850/scale), transform:`scale(${scale})`,transformOrigin:"top left",border:0 }} />}</ResponsivePreview>
+    </aside><section className="builder-preview-panel"><label>Önizleme kaynağı<select aria-label="Önizleme kaynağı" value={previewTarget} onChange={e=>setPreviewTarget(e.target.value as 'offline'|'website')}><option value="offline">İzole tam sayfa · veri bağlantısı yok</option><option value="website">Gerçek tam web sitesi · mevcut V2 renderer</option></select></label>{previewTarget==='website'&&<p className="builder-disclosure">Bu çerçeve gerçek /esim sayfasıdır; yayımlanmış verileri okur. Taslak, tema ve menü yalnız bu çerçevede önizlenir; kaydetmez/yayınlamaz. Mevcut sunucu ve veri bağlantısı gerekir. Kütüphane medyası için yetkili editörü kullan.</p>}<div className="builder-toolbar">{[390, 768, 1440].map(w => <button key={w} type="button" aria-pressed={width === w} onClick={() => setWidth(w)}>{w} px</button>)}<a href={new URLSearchParams(window.location.search).has("fixture")?"?canvas=1&fixture=translation":"?canvas=1"} target="_blank" rel="noreferrer">Standard separat öffnen</a></div>
+      <ResponsivePreview width={width} height={850}>{scale=><iframe key={previewTarget} title="V2 Entwurfsvorschau" name="v2-cms-preview" ref={frame} src={previewTarget==='website'?"/esim?country=":new URLSearchParams(window.location.search).has("fixture")?"?canvas=1&fixture=translation":"?canvas=1"} onLoad={send} style={{ width, height: Math.ceil(850/scale), transform:`scale(${scale})`,transformOrigin:"top left",border:0 }} />}</ResponsivePreview>
     </section></div>
   </div></AdminWorkspaceShell>;
 }
