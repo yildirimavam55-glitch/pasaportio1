@@ -8,7 +8,7 @@ export const cmsTranslationInput = z.object({
   entries: z.record(id, z.string().trim().min(1).max(900)).refine(v => Object.keys(v).length > 0 && Object.keys(v).length <= 6 && Object.values(v).join("").length <= 3600),
   targets: z.record(id, z.array(z.enum(TRANSLATION_TARGETS as [typeof TRANSLATION_TARGETS[number], ...typeof TRANSLATION_TARGETS[number][]])).min(1).max(13)).optional(),
 }).strict();
-export type TranslationResult = { translations: Record<string, Record<string, string>>; failures: Record<string, string> };
+export type TranslationResult = { translations: Record<string, Record<string, string>>; failures: Record<string, string>; partialTranslations?: Record<string, Record<string, string>> };
 export const CMS_TRANSLATION_DISABLED = "Übersetzungsdienst nicht konfiguriert / Çeviri servisi yapılandırılmadı veya onaylanmadı.";
 const TOKEN = /\{\{[^{}]+\}\}|\{[a-zA-Z_][\w.:-]*\}|%(?:\d+\$)?[sdif]|Pasaport\.io|eSIM(?: Go| Access)?|WhatsApp|Trustpilot|Google|Stripe|\b(?:GB|MB|EUR|USD|4G|5G)\b|\d+(?:[.,]\d+)?/gi;
 function tokens(text: string) { return [...text.matchAll(TOKEN)].map(match => match[0]).sort(); }
@@ -55,7 +55,14 @@ export async function runCmsTranslation(raw: unknown, deps: TranslationDependenc
       if (!result || typeof result !== "object" || Object.keys(result).some(key => !batch.some(([id]) => id === key))) throw new Error("PROVIDER");
       for (const [key, source] of batch) {
         const value = result[key]; const codes = targets[key]!;
-        if (!value || typeof value !== "object" || Object.keys(value).length !== codes.length || !codes.every(code => validTranslation(source, value[code]))) { output.failures[key] = "E_TRANSLATION_VALIDATION"; continue; }
+        if (!value || typeof value !== "object" || Array.isArray(value) || Object.keys(value).some(code => !codes.includes(code as typeof codes[number]))) { output.failures[key] = "E_TRANSLATION_VALIDATION"; continue; }
+        if (Object.keys(value).length !== codes.length || !codes.every(code => validTranslation(source, value[code]))) {
+          // Keep the strict complete-field contract. Separately expose only individually validated locales,
+          // so a page retry never spends again on a valid result. Never return unvalidated raw provider data.
+          const valid = codes.filter(code => validTranslation(source, value[code]));
+          if (valid.length) (output.partialTranslations ??= {})[key] = Object.fromEntries(valid.map(code => [code, value[code].trim()]));
+          output.failures[key] = "E_TRANSLATION_VALIDATION"; continue;
+        }
         output.translations[key] = Object.fromEntries(codes.map(code => [code, value[code].trim()]));
       }
     } catch { for (const [key] of batch) output.failures[key] = "E_TRANSLATION_PROVIDER"; }

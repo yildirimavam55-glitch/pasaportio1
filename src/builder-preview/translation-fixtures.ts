@@ -1,5 +1,5 @@
 import { TRANSLATION_TARGETS, mergeMachineTranslation } from "@/domain/storefront/translation-workflow";
-import type { LT, V2Section } from "@/domain/storefront/v2";
+import { sanitizeV2Page, type V2PageConfig, type LT, type V2Section } from "@/domain/storefront/v2";
 
 // Explicitly curated acceptance fixtures, NOT an AI/provider. Exact Turkish source match only.
 const ROWS = [
@@ -22,4 +22,11 @@ export function simulateSectionTranslations(section: V2Section): { section: V2Se
     return [key, mergeMachineTranslation(value, value, fixture)];
   }));
   return { section: { ...section, text }, unknown };
+}
+
+/** Scope the isolated demo to its submitted sections; production singleton defaults stay untouched. */
+export function sanitizeDemoPage(page: V2PageConfig): V2PageConfig {
+ const ids=new Set(page.sections.map(s=>s.id));
+ const clean=sanitizeV2Page(page,'esim');
+ return {...clean,sections:clean.sections.filter(s=>ids.has(s.id))};
 }

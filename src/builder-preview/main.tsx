@@ -1,3 +1,4 @@
+import { V2PageTranslation } from "@/components/design-v2/V2PageTranslation";
 import { useEffect, useRef, useState } from "react";
 import { createRoot } from "react-dom/client";
 import { createV2Section, defaultV2Page, sanitizeV2Page, v2Text, type V2PageConfig, type V2Section, type V2SectionDesign } from "@/domain/storefront/v2";
@@ -9,7 +10,7 @@ import { V2HeroView } from "@/components/design-v2/V2HeroView";
 import { V2SectionFrame } from "@/components/design-v2/V2SectionFrame";
 import { V2Notice } from "@/components/design-v2/V2Notice";
 import { V2TurkishTextEditor } from "@/components/design-v2/V2TurkishTextEditor";
-import { demoLT, simulateSectionTranslations } from "./translation-fixtures";
+import { demoLT, DEMO_TRANSLATIONS, sanitizeDemoPage } from "./translation-fixtures";
 import { ltStatus } from "@/domain/storefront/v2";
 import { V2TypographyControls } from "@/components/design-v2/V2TypographyControls";
 import { ImageDisplayControls } from "@/components/admin/ImageDisplayControls";
@@ -41,7 +42,7 @@ function Canvas() {
   useEffect(() => {
     const listener = (event: MessageEvent) => {
       if (event.origin !== window.location.origin || event.source !== window.parent || event.data?.type !== CHANNEL || !UI_LOCALES.includes(event.data.locale)) return;
-      setState({ config: sanitizeV2Page(event.data.config, "esim"), locale: event.data.locale });
+      setState({ config: sanitizeDemoPage(event.data.config), locale: event.data.locale });
     };
     window.addEventListener("message", listener);
     return () => window.removeEventListener("message", listener);
@@ -55,14 +56,14 @@ function Canvas() {
   const c = HERO_COPY[state.locale as keyof typeof HERO_COPY] ?? HERO_COPY[meta.content];
   const text = (key: string) => hero.text[key]?.[state.locale]?.trim() || hero.text[key]?.tr || "";
   const copy = resolveHeroCopy(hero, text("title"), text("subtitle"), v2Text(defaults, "subtitle", meta.content), c, state.locale);
-  const missing = state.locale !== "tr" && Object.values(hero.text).some(value => ltStatus(value, state.locale) === "MISSING" || ltStatus(value, state.locale) === "OUTDATED");
+  const missing = state.locale !== "tr" && state.config.sections.flatMap(s=>Object.values(s.text)).some(value => ltStatus(value, state.locale) === "MISSING" || ltStatus(value, state.locale) === "OUTDATED");
   return <main className="builder-canvas v2-theme" data-locale={state.locale}>
-    {missing && <p className="rounded border border-border p-2 text-xs" data-preview-translation-warning>DEMO: Übersetzung fehlt oder ist veraltet. Türkischer Quelltext bzw. letzter Stand wird angezeigt, keine KI-Übersetzung.</p>}
+    {missing && <p className="rounded border border-border p-2 text-xs" data-preview-translation-warning>DEMO: Übersetzung fehlt oder ist veraltet. TR Fallback bzw. letzter Stand wird angezeigt, keine KI-Übersetzung.</p>}
     <V2SectionFrame section={hero}><V2HeroView section={hero} image={IMAGES[hero.mediaId ?? ""] ?? ""} tabletImage={IMAGES[hero.tabletMediaId ?? ""]} mobileImage={IMAGES[hero.mobileMediaId ?? ""]}
       heading={copy.useDefaultTitle ? <>{c.titleA} <span className="final-hero-accent">{c.titleB}</span></> : copy.title} subtitle={copy.subtitle}>
       <button type="button" className="pasaport-country-field w-full rounded-full text-start" disabled>{text("placeholder")}</button>
     </V2HeroView></V2SectionFrame>
-    {notice && <V2Notice section={notice} title={v2Text(notice, "title", meta.content)} text={v2Text(notice, "text", meta.content)} />}
+    {notice && <V2Notice section={notice} title={notice.text["title"]?.[state.locale]?.trim() || notice.text["title"]?.tr || ""} text={notice.text["text"]?.[state.locale]?.trim() || notice.text["text"]?.tr || ""} />}
   </main>;
 }
 
@@ -70,11 +71,10 @@ function BuilderDemo() {
   const [config, setConfig] = useState(initial);
   const [selected, setSelected] = useState("hero");
   const [locale, setLocale] = useState<UiLocale>("tr");
-  const [translationMessage, setTranslationMessage] = useState("");
   const [width, setWidth] = useState(390);
   const frame = useRef<HTMLIFrameElement>(null);
   const section = config.sections.find(s => s.id === selected)!;
-  const patch = (patch: Partial<V2Section>) => setConfig(value => sanitizeV2Page({ ...value, sections: value.sections.map(s => s.id === selected ? { ...s, ...patch } : s) }, "esim"));
+  const patch = (patch: Partial<V2Section>) => setConfig(value => sanitizeDemoPage({ ...value, sections: value.sections.map(s => s.id === selected ? { ...s, ...patch } : s) }));
   const send = () => frame.current?.contentWindow?.postMessage({ type: CHANNEL, config, locale }, window.location.origin);
   useEffect(send, [config, locale]);
   const design = section.design ?? DESIGN;
@@ -83,9 +83,9 @@ function BuilderDemo() {
     <div className="builder-workspace"><aside>
       <label>Abschnitt<select aria-label="Abschnitt" value={selected} onChange={e => setSelected(e.target.value)}>{config.sections.map(s => <option key={s.id} value={s.id}>{s.type}</option>)}</select></label>
       <label>Vorschau in:<select aria-label="Vorschau in" value={locale} onChange={e => setLocale(e.target.value as UiLocale)}>{UI_LOCALES.map(code => <option key={code} value={code}>{LOCALE_REGISTRY[code].nativeName}</option>)}</select></label>
+      <V2PageTranslation page={config} onChange={setConfig} demo transport={async input => ({translations:Object.fromEntries(Object.entries(input.entries).filter(([,source])=>DEMO_TRANSLATIONS[source]).map(([id,source])=>[id,Object.fromEntries(input.targets[id]!.map(code=>[code,DEMO_TRANSLATIONS[source]![code]]))])),failures:Object.fromEntries(Object.entries(input.entries).filter(([,source])=>!DEMO_TRANSLATIONS[source]).map(([id])=>[id,"E_NO_FIXTURE"]))})} />
       <V2TurkishTextEditor key={selected} section={section} onChange={patch} previewLocale={locale} demo />
-      <button type="button" onClick={() => { const result = simulateSectionTranslations(section); patch(result.section); setTranslationMessage(result.unknown ? "Keine Beispielübersetzung für diesen türkischen Text. Es wurde keine KI aufgerufen; fehlende/veraltete Werte bleiben sichtbar." : "DEMO: Vorgegebene Beispielübersetzungen angewendet. Keine KI, keine Netzwerkverbindung."); }}>Alle 13 Sprachen übersetzen (Demo)</button>
-      <p role="status">{translationMessage}</p>
+
       <V2TypographyControls design={design} onChange={design => patch({ design })} />
       <label>Abstände<select aria-label="Abstände" value={design.spacing} onChange={e => patch({ design: { ...design, spacing: e.target.value as V2SectionDesign["spacing"] } })}>{["default", "compact", "normal", "large"].map(v => <option key={v}>{v}</option>)}</select></label>
       <label>Hintergrund<input aria-label="Hintergrund" type="color" value={design.customColor ?? "#003d3d"} onChange={e => patch({ design: { ...design, background: "custom", customColor: e.target.value } })} /></label>

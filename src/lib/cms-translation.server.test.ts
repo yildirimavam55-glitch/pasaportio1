@@ -68,3 +68,13 @@ describe("independent CMS translation service – fake provider, no database or 
     for (const text of ["Pasaport.io eSIM 10 GB {{name}} %s", "Pasaport.io eSIM 5 GB %s", "<b>Pasaport.io eSIM 5 GB {{name}} %s</b>", "Otherbrand eSIM 5 GB {{name}} %s", "Pasaport.io eSIM 5 GB {{name}} %s 99"]) expect(validTranslation("Pasaport.io eSIM 5 GB {{name}} %s", text)).toBe(false);
   });
 });
+
+it('partial locale salvage still rejects changed protected tokens and unrequested locale keys',async()=>{
+ const d=enabled();
+ d.fetch=vi.fn(async()=>reply({title:{de:'eSIM 5 GB',en:'eSIM 9 GB'}}));
+ const r=await runCmsTranslation({entries:{title:'eSIM 5 GB'},targets:{title:['de','en']}},d);
+ expect(r.translations['title']).toBeUndefined();expect(r.partialTranslations?.['title']).toEqual({de:'eSIM 5 GB'});expect(r.failures['title']).toBe('E_TRANSLATION_VALIDATION');
+ d.fetch=vi.fn(async()=>reply({title:{de:'eSIM 5 GB',en:'eSIM 5 GB',unexpected:'eSIM 5 GB'}}));
+ const extra=await runCmsTranslation({entries:{title:'eSIM 5 GB'},targets:{title:['de','en']}},d);
+ expect(extra.partialTranslations).toBeUndefined();expect(extra.translations['title']).toBeUndefined();
+});
