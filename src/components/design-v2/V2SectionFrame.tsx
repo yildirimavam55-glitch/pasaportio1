@@ -1,3 +1,4 @@
+import "./admin-integration.css";
 import type { CSSProperties, ReactNode } from "react";
 import type { V2Section } from "@/domain/storefront/v2";
 
@@ -40,9 +41,11 @@ export function V2SectionFrame({ section, children }: { section: V2Section; chil
   } as CSSProperties;
   return (
     <section
+      data-builder-accent={design.accentColor?true:undefined}
       data-builder-background={design.background !== "default" || undefined}
+      data-builder-custom-type={Boolean(design.font!=="theme"||design.headingColor||design.bodyColor||design.mobile?.headingSize||design.tablet?.headingSize||design.desktop?.headingSize||design.mobile?.bodySize||design.tablet?.bodySize||design.desktop?.bodySize)||undefined}
       data-v2-section-frame
-      data-builder-section={section.type === "SEARCH_HERO" ? "hero" : section.type === "NOTICE" ? "notice" : undefined}
+      data-builder-section={section.type === "SEARCH_HERO" ? "hero" : section.type === "NOTICE" ? "notice" : "content"}
       style={style}
       className={`${widthClass[design.width]} ${spacingClass[design.spacing]} ${backgroundClass[design.background]} ${radiusClass[design.radius]} ${fontClass[design.font]} ${weightClass[design.weight]} ${lineClass[design.lineHeight]} ${trackingClass[design.letterSpacing]} ${alignClass[design.textAlign]} flex min-w-0 flex-col ${positionClass[design.position]}`}
     >

@@ -1,3 +1,4 @@
+import { UnifiedThemeControls } from "@/components/admin/UnifiedThemeControls";
 import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -53,17 +54,17 @@ function Theme() {
   }, [pushPreview]);
 
   const save = useMutation({
-    mutationFn: () => saveThemeDraft({ data: { theme } }),
+    mutationFn: () => saveThemeDraft({ data: { theme,expectedRevision:settings.data?.revision??null } }),
     onSuccess: async (saved) => { setSavedDraft(saved); setMessage("Taslak kaydedildi. Canlı mağaza değişmedi."); await queryClient.invalidateQueries({ queryKey: ["theme-settings"] }); },
     onError: (error) => setMessage(error instanceof Error ? error.message : "Kaydedilemedi."),
   });
   const restore = useMutation({
-    mutationFn: (versionId: string) => restoreThemeVersion({ data: { versionId } }),
+    mutationFn: (versionId: string) => restoreThemeVersion({ data: { versionId,expectedRevision:settings.data?.revision??null } }),
     onSuccess: async (restored) => { setTheme(restored); setSavedDraft(restored); setMessage("Sürüm taslağa geri yüklendi. Canlı mağaza değişmedi."); await queryClient.invalidateQueries({ queryKey: ["theme-settings"] }); },
     onError: (error) => setMessage(error instanceof Error ? error.message : "Sürüm geri yüklenemedi."),
   });
   const publish = useMutation({
-    mutationFn: () => publishTheme(),
+    mutationFn: () => publishTheme({data:{expectedRevision:settings.data?.revision??null}}),
     onSuccess: async () => { setMessage("Tema yayınlandı. Müşteri sitesi bu temayı kullanır."); await queryClient.invalidateQueries({ queryKey: ["theme-settings"] }); await queryClient.invalidateQueries({ queryKey: ["published-theme"] }); },
     onError: (error) => setMessage(error instanceof Error ? error.message : "Yayınlanamadı."),
   });
@@ -84,6 +85,7 @@ function Theme() {
             {!(media.data ?? []).length && <p className="mt-2 text-xs text-muted-foreground">Önce Medya kütüphanesine görsel yükleyin.</p>}
           </AdminPanel>
 
+          <AdminPanel title="Birleşik ve responsive kontroller"><UnifiedThemeControls value={theme} onChange={setTheme}/></AdminPanel>
           <AdminPanel title="Renkler">
             <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
               {COLORS.map(({ key, label }) => (

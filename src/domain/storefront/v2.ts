@@ -134,6 +134,12 @@ export type V2Item = {
   internalKey: string;
   cardType: string;
   mediaId: string | null;
+  tabletMediaId?: string | null;
+  mobileMediaId?: string | null;
+  imageDisplay?: ImageDisplay;
+  tabletImageDisplay?: ImageDisplay;
+  mobileImageDisplay?: ImageDisplay;
+  imageOverlay?: number;
   visualMode?: "ICON" | "CUSTOM_IMAGE";
   imageScale?: 80 | 100 | 120 | 140 | 160;
   position?: "top-right" | "middle-left" | "bottom-right";
@@ -169,6 +175,7 @@ export type V2Section = {
   overlay: (typeof V2_OVERLAYS)[number];
   mediaId: string | null;
   mobileMediaId: string | null;
+  imageOverlay?: number;
   tabletMediaId?: string | null;
   tabletImageDisplay?: ImageDisplay;
   /** Explicit editor copy must never be replaced by legacy Hero defaults. */
@@ -240,7 +247,7 @@ export const V2_SECTION_LABELS: Record<V2SectionType, string> = {
 
 /** Text fields each section type exposes in the editor (key → admin label). */
 export const V2_TEXT_FIELDS: Record<V2SectionType, Array<[string, string]>> = {
-  SEARCH_HERO: [["eyebrow", "Üst başlık"], ["title", "Başlık"], ["subtitle", "Alt başlık"], ["placeholder", "Arama metni"], ["sticky", "Sabit arama metni"]],
+  SEARCH_HERO: [["eyebrow", "Üst başlık"], ["title", "Başlık"], ["subtitle", "Alt başlık"], ["placeholder", "Arama metni"], ["sticky", "Sabit arama metni"], ["imageAlt", "Görsel açıklaması"]],
   BENEFIT_ROW: [],
   DESTINATION_CAROUSEL: [["title", "Başlık"]],
   TRUST_REVIEWS: [
@@ -571,6 +578,12 @@ function cleanItem(raw: any, index: number): V2Item {
     internalKey: ID.test(String(raw?.internalKey)) ? String(raw.internalKey) : `item-${index + 1}`,
     cardType: cleanText(raw?.cardType, 32).replace(/[^a-z-]/g, "") || "products",
     mediaId: cleanMediaId(raw?.mediaId) ?? (raw?.cardType === "trust" && raw?.visualMode == null ? TRUST_BENEFIT_MEDIA[String(raw?.id)] ?? null : null),
+    ...(raw?.tabletMediaId ? {tabletMediaId:cleanMediaId(raw.tabletMediaId)}:{}),
+    ...(raw?.mobileMediaId ? {mobileMediaId:cleanMediaId(raw.mobileMediaId)}:{}),
+    ...(raw?.imageDisplay ? {imageDisplay:sanitizeImageDisplay(raw.imageDisplay)}:{}),
+    ...(raw?.tabletImageDisplay ? {tabletImageDisplay:sanitizeImageDisplay(raw.tabletImageDisplay)}:{}),
+    ...(raw?.mobileImageDisplay ? {mobileImageDisplay:sanitizeImageDisplay(raw.mobileImageDisplay)}:{}),
+    ...(Number.isFinite(raw?.imageOverlay)?{imageOverlay:Math.min(90,Math.max(0,raw.imageOverlay))}:{}),
     ...(raw?.cardType === "trust" ? { visualMode: raw?.visualMode === "ICON" ? "ICON" as const : raw?.visualMode === "CUSTOM_IMAGE" || raw?.mediaId || TRUST_BENEFIT_MEDIA[String(raw?.id)] ? "CUSTOM_IMAGE" as const : "ICON" as const } : {}),
     ...(raw?.cardType === "trust" ? { imageScale: ([80, 100, 120, 140, 160] as const).find((scale) => scale === Number(raw?.imageScale)) ?? (raw?.id === "trust-payment" ? 160 : 100) } : {}),
     ...(raw?.cardType === "chip" ? { position: pick(raw?.position, ["top-right", "middle-left", "bottom-right"] as const, "top-right") } : {}),
@@ -675,6 +688,7 @@ function cleanSection(raw: any): V2Section | null {
       ...(tablet ? { tablet } : {}),
       ...(mobile ? { mobile } : {}),
     } } : {}),
+    ...(Number.isFinite(raw?.imageOverlay)?{imageOverlay:Math.min(90,Math.max(0,raw.imageOverlay))}:{}),
     ...(type === "TRUST_REVIEWS" ? { trust: {
       background: pick(raw.trust?.background, ["mint", "cream", "white"] as const, "mint"),
       focal: pick(raw.trust?.focal, ["left", "center", "right"] as const, "right"),
@@ -782,7 +796,7 @@ export function missingV2Translations(config: V2PageConfig, locale: "de" | "en")
 export function collectV2MediaIds(config: V2PageConfig): string[] {
   const ids = new Set<string>();
   for (const s of config.sections) {
-    for (const id of [s.mediaId, s.mobileMediaId, s.tabletMediaId, s.trust?.illustrationId, s.trust?.comparisonImageId, s.trust?.comparisonMobileImageId, ...Object.values(s.imageOverrides ?? {}), ...s.items.map((item) => item.mediaId)]) if (id && UUID.test(id)) ids.add(id);
+    for (const id of [s.mediaId, s.mobileMediaId, s.tabletMediaId, s.trust?.illustrationId, s.trust?.comparisonImageId, s.trust?.comparisonMobileImageId, ...Object.values(s.imageOverrides ?? {}), ...s.items.flatMap((item) => [item.mediaId,item.tabletMediaId,item.mobileMediaId])]) if (id && UUID.test(id)) ids.add(id);
   }
   return [...ids];
 }

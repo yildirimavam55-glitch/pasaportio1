@@ -1,3 +1,5 @@
+import { EditorialItemControls } from "@/components/admin/EditorialItemControls";
+import { ResponsiveMediaControls } from "@/components/admin/ResponsiveMediaControls";
 import { V2PageTranslation } from "@/components/design-v2/V2PageTranslation";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -142,15 +144,15 @@ function Editor({ page }: { page: V2PageId }) {
       const snapshot = draft!;
       let config = snapshot;
       if (draftRef.current !== snapshot) throw new Error("Taslak değişti; yeniden kontrol edip kaydedin.");
-      return saveV2Page({ data: { page, config, publish } });
+      return saveV2Page({ data: { page, config, publish,expectedRevision:editor.data?.revision??null } });
     },
     onSuccess: (_r, publish) => { toast.success(publish ? "Yayınlandı." : "Taslak kaydedildi."); refresh(); },
     onError: (e) => toast.error(e instanceof Error ? e.message : "Kaydedilemedi."),
   });
-  const discard = useMutation({ mutationFn: () => discardV2Draft({ data: { page } }), onSuccess: () => { toast.success("Taslak yayındaki sürüme döndü."); refresh(); } });
+  const discard = useMutation({ mutationFn: () => discardV2Draft({ data: { page,expectedRevision:editor.data?.revision??null } }), onSuccess: () => { toast.success("Taslak yayındaki sürüme döndü."); refresh(); } });
   const restore = useMutation({
-    mutationFn: (versionId: string) => restoreV2Version({ data: { page, versionId } }),
-    onSuccess: () => { toast.success("Sürüm geri yüklendi ve yayınlandı."); refresh(); },
+    mutationFn: (versionId: string) => restoreV2Version({ data: { page, versionId,expectedRevision:editor.data?.revision??null } }),
+    onSuccess: () => { toast.success("Sürüm taslağa geri yüklendi. Canlı sürüm değişmedi."); refresh(); },
     onError: (e) => toast.error(e instanceof Error ? e.message : "Geri yüklenemedi."),
   });
 
@@ -260,7 +262,7 @@ function Editor({ page }: { page: V2PageId }) {
                 <li key={v.id} className="flex items-center gap-2 py-2">
                   <span className="w-20 font-bold">{v.event === "publish" ? "Yayın" : v.event === "restore" ? "Geri yükleme" : "Taslak"}</span>
                   <span className="flex-1 text-muted-foreground">{new Date(v.createdAt).toLocaleString("tr-TR")} · {v.author} · {v.sections} bölüm</span>
-                  <Button size="sm" variant="outline" disabled={restore.isPending} onClick={() => { if (window.confirm("Bu sürüm geri yüklenip yayınlansın mı?")) restore.mutate(v.id); }}>Geri yükle</Button>
+                  <Button size="sm" variant="outline" disabled={restore.isPending} onClick={() => { if (window.confirm("Bu sürüm yalnızca taslağa geri yüklensin mi? Canlı sürüm değişmeyecek.")) restore.mutate(v.id); }}>Taslağa geri yükle</Button>
                 </li>
               ))}
             </ul>
@@ -646,10 +648,9 @@ function ItemsEditor({ mode, page, items, lang, onChange }: { mode: NonNullable<
             </div>
             {mode !== "destination" && (
               <div className="mt-2 grid gap-2 sm:grid-cols-2">
-                {mode === "benefit" && <IconPicker value={it.icon} onChange={(icon) => set(it.id, { icon })} />}
-                <LTInput label={mode === "faq" ? "Soru" : "Başlık"} lang={lang} value={it.title} onChange={(title) => set(it.id, { title })} />
-                {(mode === "card" || mode === "faq") && <LTInput label={mode === "faq" ? "Cevap" : "Metin"} lang={lang} value={it.text} onChange={(text) => set(it.id, { text })} multiline />}
-                {mode === "benefit" && <Select label="Bağlantı" value={(it.href || "") as V2ItemLink} options={V2_ITEM_LINKS} labels={LINK_LABEL} onChange={(href) => set(it.id, { href })} />}
+                <EditorialItemControls item={it} onChange={patch=>set(it.id,patch)}/>
+                <ResponsiveMediaControls value={it} onChange={patch=>set(it.id,patch)} picker={(label,value,onChange)=><MediaField label={label} value={value} onChange={onChange}/>}/>
+
               </div>
             )}
             {(mode === 'step' || mode === 'card') && <MediaField label="Adım görseli (isteğe bağlı)" category="ESIM" value={it.mediaId} recommendation="600 × 600 · PNG / WebP / SVG" hint="Görsel seçilmezse mevcut simge/adım gösterilir." onChange={mediaId => set(it.id, { mediaId })} />}

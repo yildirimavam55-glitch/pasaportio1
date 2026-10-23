@@ -1,3 +1,7 @@
+import { portableMediaUrl } from "@/domain/storefront/portable-media";
+import { ResponsiveMediaPicture } from "./ResponsiveMediaPicture";
+import { getActiveUiLocale } from "@/i18n/overlay";
+import { V2EditorialGrid } from "./V2EditorialGrid";
 import { isHiddenServiceHref, useOptionalServices } from "@/components/travel/ServiceAvailability";
 import { useEffect, useState, type ReactNode } from "react";
 import { queryOptions, replaceEqualDeep, useQuery } from "@tanstack/react-query";
@@ -114,7 +118,7 @@ export const v2PageQuery = (page: V2PageId) =>
 
 export function mediaUrl(id: string | null | undefined, media: V2Media): string | undefined {
   if (!id) return undefined;
-  return V2_BUILTIN_URLS[id] ?? media[id]?.url;
+  return portableMediaUrl(V2_BUILTIN_URLS[id] ?? media[id]?.url);
 }
 
 /**
@@ -201,15 +205,15 @@ export function V2Sections({ config, media, slots, only, onDestinationSearch, se
           case "DESTINATION_CAROUSEL":
             return framed(<>{slots.destinations?.(s)}{slots.afterDestinations}</>);
           case "TRUST_REVIEWS":
-            return <V2TrustReviews key={s.id} section={s} media={media} preview={isPreview} onDestinationSearch={onDestinationSearch} searchField={searchField} />;
+            return framed(<V2TrustReviews section={s} media={media} preview={isPreview} onDestinationSearch={onDestinationSearch} searchField={searchField} />);
           case "REGION_DISCOVERY":
             return config.page === "esim" ? <Reveal key={s.id} stagger>{slots.regions?.(s)}{slots.afterRegions}</Reveal> : <V2Fragment key={s.id}>{slots.regions?.(s)}{slots.afterRegions}</V2Fragment>;
           case "NOTICE":
             return <V2Notice key={s.id} section={s} title={t("title")} text={t("text")} />;
           case "INFO_GRID":
-            return <V2InfoGrid key={s.id} title={t("title")} items={items.map((item) => ({ title: v2ItemText(item.title, locale), text: v2ItemText(item.text, locale) }))} />;
+            return <V2EditorialGrid key={s.id} section={s} locale={getActiveUiLocale()} resolve={id=>mediaUrl(id??null,media)}/>;
           case "HOW_IT_WORKS":
-            return <HowItWorks key={s.id} title={t("title")} steps={items.map((item) => ({ t: v2ItemText(item.title, locale), s: v2ItemText(item.text, locale), image: mediaUrl(item.mediaId, media) }))} />;
+            return framed(<HowItWorks title={t("title")} steps={items.map((item) => ({ t: v2ItemText(item.title, locale), s: v2ItemText(item.text, locale), image: mediaUrl(item.mediaId, media),media:item.tabletMediaId||item.mobileMediaId||item.imageDisplay?<ResponsiveMediaPicture value={item} resolve={id=>mediaUrl(id??null,media)} alt={v2ItemText(item.imageAlt,locale)} className="row-span-2 size-10"/>:undefined }))} />);
           case "INSTALLATION_STEPS":
             return <div key={s.id} id="how" className="scroll-mt-28"><V2Installation title={t("title")} subtitle={t("subtitle")} steps={items.map((item) => v2ItemText(item.title, locale))} images={items.map(item => mediaUrl(item.mediaId, media))} ready={t("ready")} adding={t("adding")} cta={t("cta")} href={s.href === "/destek" ? "/esim/kurulum" : s.href} variant={s.variant === "simple" ? "simple" : "animated"} /></div>;
           case "COMPATIBILITY": {
@@ -246,7 +250,7 @@ export function V2Sections({ config, media, slots, only, onDestinationSearch, se
             return pairedDesktopVignette ? <div key={s.id} className="lg:hidden">{promo}</div> : <V2Fragment key={s.id}>{promo}</V2Fragment>;
           }
           case "INFO_CAROUSEL":
-            return <V2InfoCarousel key={s.id} section={s} media={media} />;
+            return framed(<V2InfoCarousel section={s} media={media} />);
           case "GUIDE_CAROUSEL":
             return framed(<V2GuidesRail title={t("title")} lead={t("lead")} allLabel={t("all")} />);
           case "FAQ": {

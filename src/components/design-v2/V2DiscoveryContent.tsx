@@ -1,3 +1,4 @@
+import { V2EditorialFaq } from "./V2EditorialFaq";
 import { cn } from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
@@ -180,7 +181,7 @@ export function V2WhyTravely() {
 
 /** CMS FAQ. `relaxed` changes spacing only; the questions always come from the caller (Admin). */
 export function V2CompactFaq({ title, questions, relaxed = false }: { title: string; questions: readonly (readonly string[])[]; relaxed?: boolean }) {
-  return <section data-faq-density={relaxed ? "comfortable" : "default"} className={relaxed ? "lg:grid lg:grid-cols-[minmax(15rem,0.38fr)_minmax(0,1fr)] lg:items-start lg:gap-12" : undefined}><SectionTitle>{title}</SectionTitle><Accordion type="single" collapsible className={`rounded-xl bg-card ring-1 ring-border ${relaxed ? "px-4 lg:px-5" : "px-3"}`}>{questions.map((item, index) => { const question = item[0] ?? ""; const answer = item[1] ?? ""; return <AccordionItem key={`${index}-${question}`} value={`service-faq-${index}`}><AccordionTrigger className={`text-left font-bold hover:no-underline ${relaxed ? "min-h-[3.5rem] py-4 text-sm" : "py-3 text-xs"}`}>{question}</AccordionTrigger><AccordionContent className={`leading-relaxed text-muted-foreground ${relaxed ? "pb-4 text-sm" : "text-xs"}`}>{answer}</AccordionContent></AccordionItem>; })}</Accordion></section>;
+  return <V2EditorialFaq title={title} questions={questions} relaxed={relaxed}/>;
 }
 
 export function V2GuidesRail({ title, lead, allLabel }: { title?: string; lead?: string; allLabel?: string } = {}) {

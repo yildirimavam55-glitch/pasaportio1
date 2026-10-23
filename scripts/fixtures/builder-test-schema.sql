@@ -1,0 +1,21 @@
+-- Disposable CI schema only. No real Supabase credentials or users.
+CREATE ROLE anon NOLOGIN;CREATE ROLE authenticated NOLOGIN;CREATE ROLE service_role NOLOGIN BYPASSRLS;
+CREATE SCHEMA auth;
+CREATE FUNCTION auth.uid() RETURNS uuid LANGUAGE sql STABLE AS $$ SELECT nullif(coalesce(nullif(current_setting('request.jwt.claim.sub',true),''),nullif(current_setting('request.jwt.claims',true),'')::jsonb->>'sub'),'')::uuid; $$;
+GRANT USAGE ON SCHEMA auth TO anon,authenticated;GRANT EXECUTE ON FUNCTION auth.uid() TO anon,authenticated;
+CREATE TABLE public.user_roles(user_id uuid,role text);
+INSERT INTO public.user_roles VALUES('10000000-0000-4000-8000-000000000001','admin'),('10000000-0000-4000-8000-000000000002','customer'),('10000000-0000-4000-8000-000000000003','customer');
+ALTER TABLE public.user_roles ENABLE ROW LEVEL SECURITY;
+CREATE TABLE public.cms_documents(id uuid PRIMARY KEY DEFAULT gen_random_uuid(),key text UNIQUE NOT NULL,kind text,status text DEFAULT 'DRAFT',visible boolean DEFAULT true,sort_order int DEFAULT 0,data jsonb DEFAULT '{}',published_at timestamptz,updated_at timestamptz DEFAULT now());
+CREATE TABLE public.cms_versions(id uuid PRIMARY KEY DEFAULT gen_random_uuid(),document_id uuid REFERENCES public.cms_documents(id),created_by uuid,snapshot jsonb,created_at timestamptz DEFAULT now());
+CREATE TABLE public.cms_translations(id uuid PRIMARY KEY DEFAULT gen_random_uuid(),data jsonb);
+CREATE TABLE public.theme_settings(id text PRIMARY KEY,draft jsonb,published jsonb,published_at timestamptz,updated_by uuid,updated_at timestamptz DEFAULT now());
+CREATE TABLE public.synthetic_audit(id bigint GENERATED ALWAYS AS IDENTITY,action text,subject text);
+CREATE FUNCTION public.log_admin_action(_action text,_entity text,_id text,_before jsonb,_after jsonb) RETURNS void LANGUAGE sql AS $$ INSERT INTO public.synthetic_audit(action,subject) VALUES(_action,_id); $$;
+ALTER TABLE public.cms_documents ENABLE ROW LEVEL SECURITY;ALTER TABLE public.cms_versions ENABLE ROW LEVEL SECURITY;ALTER TABLE public.cms_translations ENABLE ROW LEVEL SECURITY;ALTER TABLE public.theme_settings ENABLE ROW LEVEL SECURITY;ALTER TABLE public.synthetic_audit ENABLE ROW LEVEL SECURITY;
+CREATE POLICY public_documents ON public.cms_documents FOR SELECT TO anon,authenticated USING(status='PUBLISHED' AND visible);
+CREATE POLICY public_theme ON public.theme_settings FOR SELECT TO anon,authenticated USING(published<>'{}');
+GRANT USAGE ON SCHEMA public TO anon,authenticated;
+GRANT SELECT ON public.cms_documents,public.theme_settings TO anon,authenticated;
+INSERT INTO public.cms_documents(key,kind,status,data,published_at) VALUES('storefront_v2_esim','V2_STOREFRONT','PUBLISHED','{"draft":{"page":"esim","sections":[],"secret":"PRIVATE_DRAFT"},"published":{"page":"esim","sections":[],"title":"PUBLIC"}}',now());
+INSERT INTO public.theme_settings(id,draft,published) VALUES('active','{"secret":"PRIVATE_THEME"}','{"headingFont":"Outfit"}');

@@ -54,6 +54,13 @@ const groups: AdminGroup[] = [
     { to: "/admin/manual-pricing", label: "Paket fiyatları", icon: CircleDollarSign },
     { to: "/admin/repricing", label: "Fiyat kontrol kuyruğu", icon: CircleDollarSign },
   ]},
+  {label:"Website Baukasten",links:[
+    {to:"/admin/storefront/v2/esim",label:"Seiten · Vorschau & Versionen",icon:LayoutTemplate},
+    {to:"/admin/theme",label:"Globales Design",icon:Sparkles},
+    {to:"/admin/media",label:"Medienbibliothek",icon:Image},
+    {to:"/admin/storefront/v2/esim",hash:"v2-page-translations",label:"Sprachen · 14 Vorschauen",icon:Globe},
+    {to:"/admin/storefront/navigation",label:"Menü, Footer & Konto",icon:Menu},
+  ]},
   { label: "Mağaza yönetimi", links: [
     { to: "/admin/storefront", label: "Storefront", icon: LayoutTemplate },
     { to: "/admin/storefront/navigation", label: "Menü & alt bilgi", icon: Menu },

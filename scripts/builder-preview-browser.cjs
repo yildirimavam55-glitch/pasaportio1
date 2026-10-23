@@ -104,7 +104,66 @@ const fs = require('node:fs');
   await page.locator('aside').evaluate(e=>e.scrollTop=0);
   await page.screenshot({path:`artifacts/builder-preview/editor-${width}.png`,fullPage:true});
  }
+
+ // Integrated acceptance uses the SAME new Admin controls as authenticated routes.
+ await page.getByRole('button',{name:'Design',exact:true}).click();
+ await page.getByLabel('theme-applyToDark',{exact:true}).check();
+ await page.getByLabel('theme-primary',{exact:true}).fill('#18d9aa');
+ await page.getByLabel('theme-headingFont',{exact:true}).selectOption('Sora');
+ for(const [device,size]of [['mobile',31],['tablet',41],['desktop',55]])await page.getByLabel(`theme-${device}-headingSize`,{exact:true}).fill(String(size));
+ for(const [width,size]of [[390,'31px'],[768,'41px'],[1440,'55px']]){
+  await page.setViewportSize({width:Math.max(1440,width+400),height:1100});await page.getByRole('button',{name:`${width} px`,exact:true}).click();
+  await frame.locator('h1').evaluate((e,size)=>{if(getComputedStyle(e).fontSize!==size)throw Error(`global responsive font: ${getComputedStyle(e).fontSize}, expected ${size}`)},size);
+  assert.match(await frame.locator('h1').evaluate(e=>getComputedStyle(e).fontFamily),/Sora/);
+ }
+ await page.getByRole('button',{name:'Seiten',exact:true}).click();
+ await page.getByLabel('Abschnitt hinzufügen',{exact:true}).selectOption('INFO_GRID');
+ await page.getByLabel('item-title-editorial-item',{exact:true}).fill('Bilgi');
+ await page.getByLabel('item-cta-editorial-item',{exact:true}).fill('Ülke ara');
+ await page.getByLabel('item-href-editorial-item',{exact:true}).selectOption('/esim');
+ for(const [device,id]of [['desktop','10000000-0000-4000-8000-000000000001'],['tablet','10000000-0000-4000-8000-000000000002'],['mobile','10000000-0000-4000-8000-000000000001']])await page.getByLabel(`item-media-editorial-item-${device}`,{exact:true}).selectOption(id);
+ await page.getByRole('group',{name:'tablet',exact:true}).getByLabel('Ölçek / Zoom',{exact:true}).fill('120');
+ await page.getByLabel('media-overlay',{exact:true}).fill('20');
+ for(const width of [390,768,1440]){
+  await page.getByRole('button',{name:`${width} px`,exact:true}).click();const picture=frame.locator('[data-responsive-media] img').first();await picture.evaluate(e=>e.decode());
+  assert.equal((await picture.evaluate(e=>e.currentSrc)).includes('pasaport-mediterranean-terrace'),width===768);
+  assert.equal(await frame.locator('body').evaluate(e=>e.scrollWidth<=e.clientWidth),true);
+  await page.locator('iframe').screenshot({path:`artifacts/builder-preview/integrated-media-${width}.png`});
+ }
+ await page.getByRole('button',{name:'Menü & Footer',exact:true}).click();
+ await page.getByLabel('navigation-0-tr',{exact:true}).fill('Bilgi');
+ await frame.locator('[data-configured-header]').getByText('Bilgi',{exact:true}).waitFor();
+ await page.getByLabel('footerText-tr',{exact:true}).fill('Bilgi');
+ await frame.locator('[data-configured-footer]').getByText('Bilgi',{exact:true}).waitFor();
+ await page.getByRole('button',{name:'Tüm sayfayı 13 dile çevir (DEMO)',exact:true}).click();
+ await page.getByLabel('Vorschau in',{exact:true}).selectOption('ja');
+ await frame.locator('[data-configured-header]').getByText('情報',{exact:true}).waitFor();
+ await page.getByRole('button',{name:'Kundenkonto',exact:true}).click();
+ await page.getByLabel('account-title-tr',{exact:true}).fill('Bilgi');
+ await page.getByLabel('account-text-tr',{exact:true}).fill('Nur redaktioneller Hinweis');
+ await page.getByLabel('account-note-visible',{exact:true}).check();
+ await frame.locator('[data-account-editorial]').getByText('Nur redaktioneller Hinweis',{exact:true}).waitFor();
+ assert.match(await frame.locator('[data-account-layout-preview]').innerText(),/Pflichtmodule/);
+ await page.locator('iframe').screenshot({path:'artifacts/builder-preview/integrated-account-presentation.png'});
+ await page.getByLabel('Vorschau in',{exact:true}).selectOption('tr');
+ await page.getByRole('button',{name:'Versionen',exact:true}).click();
+ await page.getByRole('button',{name:'Synthetischen Entwurf speichern',exact:true}).click();
+ await page.getByRole('button',{name:'Seiten',exact:true}).click();await page.getByLabel('Abschnitt',{exact:true}).selectOption('hero');
+ await page.getByLabel('TR:title',{exact:true}).fill('BROWSER_RELEASE_TITLE');
+ await page.getByRole('button',{name:'Versionen',exact:true}).click();
+ page.once('dialog',dialog=>dialog.accept());await page.getByRole('button',{name:'Synthetische Testfreigabe',exact:true}).click();
+ await page.getByRole('button',{name:'Revision 1 · draft → Entwurf',exact:true}).click();
+ await page.getByLabel('Entwurf oder Testfreigabe',{exact:true}).selectOption('published');
+ await frame.getByRole('heading',{name:'BROWSER_RELEASE_TITLE',exact:true}).waitFor();
+ await page.getByLabel('Entwurf oder Testfreigabe',{exact:true}).selectOption('draft');
+ await frame.getByRole('heading',{name:'Yolculuğuna bağlı kal',exact:true}).waitFor();
+ await page.reload();await page.getByRole('button',{name:'Versionen',exact:true}).click();await page.getByRole('button',{name:'Gespeicherten Entwurf laden',exact:true}).click();
+ await page.getByLabel('Entwurf oder Testfreigabe',{exact:true}).selectOption('published');
+ await frame.getByRole('heading',{name:'BROWSER_RELEASE_TITLE',exact:true}).waitFor();
+ await page.getByLabel('Entwurf oder Testfreigabe',{exact:true}).selectOption('draft');
+ await frame.getByRole('heading',{name:'Yolculuğuna bağlı kal',exact:true}).waitFor();
+ for(const width of [390,768,1440]){await page.setViewportSize({width,height:1000});assert.equal(await page.locator('body').evaluate(e=>e.scrollWidth<=e.clientWidth),true);await page.screenshot({path:`artifacts/builder-preview/integrated-admin-${width}.png`,fullPage:true});}
  assert.deepEqual(errors,[]);assert.deepEqual(remote,[]);
- fs.writeFileSync('artifacts/builder-preview/browser-result.json',JSON.stringify({result:'PASS',cjkPlatformFontVerified:true,sourceLocale:'tr',locales:14,viewports:[390,768,1440],remoteRequests:0,screenshots:fs.readdirSync('artifacts/builder-preview').filter(p=>p.endsWith('.png')).length,checks:['fixed Turkish fields','ES preview does not empty TR','whole page Hero+NOTICE in 13 languages','fresh second run zero calls','page summary','13 fixture statuses','explicit manual correction','stale source/manual protection','unknown fixture refuses fake AI','RTL/CJK text','Hero/NOTICE presentation'],limitation:'fixtures only; no paid provider, authentication or database-save integration executed'},null,2));
+ fs.writeFileSync('artifacts/builder-preview/browser-result.json',JSON.stringify({result:'PASS',cjkPlatformFontVerified:true,sourceLocale:'tr',locales:14,viewports:[390,768,1440],remoteRequests:0,screenshots:fs.readdirSync('artifacts/builder-preview').filter(p=>p.endsWith('.png')).length,checks:['fixed Turkish fields','ES preview does not empty TR','whole page Hero+NOTICE in 13 languages','fresh second run zero calls','page summary','13 fixture statuses','explicit manual correction','stale source/manual protection','unknown fixture refuses fake AI','RTL/CJK text','Hero/NOTICE presentation','shared global theme controls','responsive item media 3 devices','configured menu/footer','presentation-only account note','synthetic save/reload/draft restore/publication isolation'],limitation:'UI persistence is a clearly labelled synthetic browser adapter; real PostgreSQL/PostgREST isolation is separately reported; no managed Supabase/Auth, Storage write or paid provider test'},null,2));
  await browser.close();console.log('PASS: TR source / 14 previews / 13 statuses / manual protection / offline fixtures / shared Hero and NOTICE');
 })().catch(error=>{console.error(error);process.exitCode=1;});

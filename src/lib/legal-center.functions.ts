@@ -26,8 +26,8 @@ function publicClient() {
 
 export const getPublishedLegalCenter = createServerFn({ method: "GET" }).handler(async () => {
   try {
-    const { data } = await publicClient().from("cms_documents").select("data").eq("key", PUBLISHED_KEY).eq("status", "PUBLISHED").eq("visible", true).maybeSingle();
-    const published = (data?.data as Record<string, unknown> | null)?.["published"];
+    const { data } = await publicClient().from("cms_documents").select(process.env["CMS_PUBLIC_PROJECTION_ENABLED"]==="true"?"data:public_data":"data").eq("key", PUBLISHED_KEY).eq("status", "PUBLISHED").eq("visible", true).maybeSingle();
+    const published = ((data as any)?.data as Record<string, unknown> | null)?.["published"];
     return published ? sanitizePublishedLegalCenter(published) : EMPTY_PUBLISHED;
   } catch { return EMPTY_PUBLISHED; }
 });

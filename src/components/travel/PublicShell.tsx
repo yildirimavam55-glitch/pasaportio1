@@ -1,3 +1,5 @@
+import { useStorefrontChrome } from "./useStorefrontChrome";
+import { ConfiguredNavigation } from "@/components/admin/ChromeControls";
 import { useNavigate, useLocation } from "@tanstack/react-router";
 import { CLink as Link } from "@/components/design-v2/v2-context";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -101,6 +103,8 @@ const FOOTER_COPY = localize({
 
 /** Destinations / how-it-works entries open their homepage section in the visitor's language. */
 function footerTarget(link: { id: string; href: string }, uiLocale: string): { to: string; hash?: string } {
+  if(link.href==='/?service=esim')return {to:'/esim'};
+  if(link.href==='/?service=lounge')return {to:'/lounge'};
   if (link.id === "service-destinations" || link.id === "nav-destinations") return { to: `/${uiLocale}`, hash: "popular" };
   if (link.id === "nav-how") return { to: `/${uiLocale}`, hash: "how" };
   const [path, hash] = link.href.split("#");
@@ -200,21 +204,17 @@ function ThemePreferenceMenu() {
 /** Footer content is owned by the storefront editor; falls back to built-in copy. */
 function PublicFooter({ fallback, supportLabel, bottomSafe = false }: { fallback: string; supportLabel: string; bottomSafe?: boolean | "purchase" }) {
   const { locale, uiLocale } = useI18n();
-  const config = useQuery({
-    queryKey: ["storefront", "global"],
-    queryFn: () => getPublishedStorefront({ data: { service: "global" } }),
-    staleTime: 60_000,
-  });
-  const data = config.data?.config;
-  const text = itemText(data?.footerText, locale, fallback) || fallback;
+  const config=useStorefrontChrome();
+  const data = config.config;
+  const text = itemText(data?.footerText, uiLocale, fallback) || fallback;
   const optionalServices = useOptionalServices();
   const links = (data?.footerLinks ?? []).filter((link) => link.visible && link.href && !isHiddenServiceHref(link.href, optionalServices));
-  const copyright = itemText(data?.copyright, locale, "");
+  const copyright = itemText(data?.copyright, uiLocale, "");
   const footerCopy = FOOTER_COPY[locale];
   const groups = [
-    { id: "services", title: footerCopy.services },
-    { id: "help", title: footerCopy.help },
-    { id: "legal", title: footerCopy.legal },
+    { id: "services", title: itemText(data.footer.groupLabels?.services,uiLocale,footerCopy.services) },
+    { id: "help", title: itemText(data.footer.groupLabels?.help,uiLocale,footerCopy.help) },
+    { id: "legal", title: itemText(data.footer.groupLabels?.legal,uiLocale,footerCopy.legal) },
   ] as const;
   const socials = (data?.footer.socials ?? []).filter((social) => social.active && social.url);
   return (
@@ -238,13 +238,13 @@ function PublicFooter({ fallback, supportLabel, bottomSafe = false }: { fallback
                   {group.title}<ChevronDown className="size-4 transition group-open:rotate-180 lg:hidden" />
                 </summary>
                 <nav aria-label={group.title} className="hidden gap-2 pb-3 pt-1.5 text-sm group-open:grid">
-                  {groupLinks.map((link) => <Link key={link.id} {...footerTarget(link, uiLocale)} className="text-primary-foreground/68 transition hover:text-primary-foreground">{itemText(link.label, locale)}</Link>)}
+                  {groupLinks.map((link) => <Link key={link.id} {...footerTarget(link, uiLocale)} className="text-primary-foreground/68 transition hover:text-primary-foreground">{itemText(link.label, uiLocale)}</Link>)}
                 </nav>
               </details>
               <div className="hidden lg:block">
                 <h2 className="text-sm font-bold">{group.title}</h2>
                 <nav aria-label={group.title} className="mt-4 grid gap-2 text-sm">
-                  {groupLinks.map((link) => <Link key={link.id} {...footerTarget(link, uiLocale)} className="text-primary-foreground/68 transition hover:text-primary-foreground">{itemText(link.label, locale)}</Link>)}
+                  {groupLinks.map((link) => <Link key={link.id} {...footerTarget(link, uiLocale)} className="text-primary-foreground/68 transition hover:text-primary-foreground">{itemText(link.label, uiLocale)}</Link>)}
                 </nav>
               </div>
             </div>;
@@ -288,6 +288,7 @@ export function PublicShell({
   const publishedTheme = usePublishedTheme();
   const isV2 = useIsV2();
   const optionalServices = useOptionalServices();
+  const chrome=useStorefrontChrome().config;
   const { locale, uiLocale } = useI18n();
   const copy = localized(GLOBAL_CONTENT, locale);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -343,36 +344,7 @@ export function PublicShell({
       <header className="sticky top-0 z-50 border-b border-border/60 bg-background/95 backdrop-blur-lg">
         <div className="public-header-row mx-auto grid min-h-14 max-w-site grid-cols-[minmax(0,1fr)_auto] items-center gap-2 px-3 sm:min-h-16 sm:gap-3 sm:px-6 lg:flex">
           <Brand mobilePasaport={mobilePasaport} />
-          {!mobilePasaport && <nav
-            className="hidden min-w-0 flex-1 items-center justify-center gap-1 lg:flex"
-            aria-label="Ana menü"
-          >
-            {onServiceChange ? (
-              <>
-                <button type="button" className="nav-link" onClick={() => onServiceChange("esim")}>
-                  {copy.nav.esim}
-                </button>
-                <button
-                  type="button"
-                  className="nav-link"
-                  onClick={() => onServiceChange("lounge")}
-                  hidden={!optionalServices.lounge}
-                >
-                  {copy.nav.lounge}
-                </button>
-              </>
-            ) : (
-              <>
-                <Link to="/esim" className="nav-link">
-                  {copy.nav.esim}
-                </Link>
-                {optionalServices.lounge && <Link to="/lounge" className="nav-link">
-                  {copy.nav.lounge}
-                </Link>}
-              </>
-            )}
-            {optionalServices.vignette && <Link to="/vignette" className="nav-link">Vignette</Link>}
-          </nav>}
+          <nav className="hidden lg:flex gap-4" aria-label="Menü"><ConfiguredNavigation rows={chrome.navigation.filter(row=>!isHiddenServiceHref(row.href,optionalServices))} locale={uiLocale} render={(row,label,icon)=><Link {...footerTarget(row,uiLocale)} className="nav-link inline-flex gap-2">{icon}{label}</Link>}/></nav>
           <div className="public-header-actions flex shrink-0 items-center gap-1 sm:gap-1.5">
             <Button ref={cartTrigger} onClick={() => { setMenuOpen(false); setAccountOpen(false); setLanguageOpen(false); setPanel("cart"); }} variant="ghost" size="icon" aria-label={`${commerce.cart} (${count})`} data-testid="header-cart" className="relative inline-flex size-11 overflow-visible">
                 <ShoppingBag className="size-5" />
@@ -471,14 +443,7 @@ export function PublicShell({
                     </Link>
                   </SheetClose>
                 )}
-                <nav aria-label={drawerCopy.menu} className="mt-6 grid gap-1 border-b border-border/60 pb-5">
-                  <SheetClose asChild><Link to={`/${uiLocale}`} className="mobile-menu-link flex min-h-12 items-center gap-3 text-left"><House className="size-5 shrink-0 text-primary" aria-hidden="true" /><span className="min-w-0 flex-1">{drawerCopy.home}</span><ChevronRight className="size-4 shrink-0 text-muted-foreground rtl:rotate-180" aria-hidden="true" /></Link></SheetClose>
-                  <SheetClose asChild><Link to="/esim/ulkeler" className="mobile-menu-link flex min-h-12 items-center gap-3 text-left"><Globe2 className="size-5 shrink-0 text-primary" aria-hidden="true" /><span className="min-w-0 flex-1">{copy.nav.destinations}</span><ChevronRight className="size-4 shrink-0 text-muted-foreground rtl:rotate-180" aria-hidden="true" /></Link></SheetClose>
-                  <SheetClose asChild><Link to={guidesPath} className="mobile-menu-link flex min-h-12 items-center gap-3 text-left"><BookOpen className="size-5 shrink-0 text-primary" aria-hidden="true" /><span className="min-w-0 flex-1">{drawerCopy.guides}</span><ChevronRight className="size-4 shrink-0 text-muted-foreground rtl:rotate-180" aria-hidden="true" /></Link></SheetClose>
-                  <SheetClose asChild><Link to="/esim/kurulum" search={{}} className="mobile-menu-link flex min-h-12 items-center gap-3 text-left"><BookOpen className="size-5 shrink-0 text-primary" aria-hidden="true" /><span className="min-w-0 flex-1">{drawerCopy.setup}</span><ChevronRight className="size-4 shrink-0 text-muted-foreground rtl:rotate-180" aria-hidden="true" /></Link></SheetClose>
-                  <SheetClose asChild><Link to={`/${uiLocale}`} hash="faq" className="mobile-menu-link flex min-h-12 items-center gap-3 text-left"><CircleHelp className="size-5 shrink-0 text-primary" aria-hidden="true" /><span className="min-w-0 flex-1">{drawerCopy.faq}</span><ChevronRight className="size-4 shrink-0 text-muted-foreground rtl:rotate-180" aria-hidden="true" /></Link></SheetClose>
-                  {signedIn && <SheetClose asChild><Link to="/account" className="mobile-menu-link flex min-h-12 items-center gap-3 text-left"><UserRound className="size-5 shrink-0 text-primary" aria-hidden="true" /><span className="min-w-0 flex-1">{copy.nav.account}</span><ChevronRight className="size-4 shrink-0 text-muted-foreground rtl:rotate-180" aria-hidden="true" /></Link></SheetClose>}
-                </nav>
+                <nav aria-label={drawerCopy.menu} className="mt-6 grid gap-2 border-b border-border/60 pb-5"><ConfiguredNavigation rows={chrome.navigation.filter(row=>!isHiddenServiceHref(row.href,optionalServices))} locale={uiLocale} render={(row,label,icon)=><SheetClose asChild><Link {...footerTarget(row,uiLocale)} className="mobile-menu-link flex min-h-12 items-center gap-3">{icon}{label}</Link></SheetClose>}/>{signedIn&&<SheetClose asChild><Link to="/account" className="mobile-menu-link">{copy.nav.account}</Link></SheetClose>}</nav>
                 <div className="grid gap-1 border-b border-border/60 py-4">
                   <Button variant="ghost" type="button" className="mobile-menu-link flex min-h-12 w-full items-center justify-start gap-3 px-3 text-left" onClick={() => { setMenuOpen(false); setLanguageOpen(true); }}>
                     <Globe2 className="size-5 shrink-0 text-primary" aria-hidden="true" />
@@ -494,11 +459,7 @@ export function PublicShell({
                     <ChevronRight className="size-4 shrink-0 text-muted-foreground rtl:rotate-180" aria-hidden="true" />
                   </Button>
                 </div>
-                <nav aria-label={FOOTER_COPY[locale].legal} className="grid gap-1 py-4">
-                  <SheetClose asChild><Link to="/legal/imprint" className="mobile-menu-link flex min-h-11 items-center gap-3 text-left"><FileText className="size-5 shrink-0 text-primary" aria-hidden="true" /><span className="flex-1">{drawerCopy.imprint}</span></Link></SheetClose>
-                  <SheetClose asChild><Link to="/legal/privacy" className="mobile-menu-link flex min-h-11 items-center gap-3 text-left"><ShieldCheck className="size-5 shrink-0 text-primary" aria-hidden="true" /><span className="flex-1">{drawerCopy.privacy}</span></Link></SheetClose>
-                  <SheetClose asChild><Link to="/legal/terms" className="mobile-menu-link flex min-h-11 items-center gap-3 text-left"><FileText className="size-5 shrink-0 text-primary" aria-hidden="true" /><span className="flex-1">{drawerCopy.terms}</span></Link></SheetClose>
-                </nav>
+                <nav aria-label={FOOTER_COPY[locale].legal} className="grid gap-2 py-4"><ConfiguredNavigation rows={chrome.footerLinks.filter(row=>row.group==='legal')} locale={uiLocale} render={(row,label,icon)=><SheetClose asChild><Link {...footerTarget(row,uiLocale)} className="mobile-menu-link flex min-h-11 gap-3">{icon}{label}</Link></SheetClose>}/></nav>
                 <ThemePreferenceMenu />
                 <a href={waLink()} target="_blank" rel="noopener noreferrer" className="mt-7 flex min-h-14 items-center justify-center gap-3 rounded-full border border-primary bg-primary/10 px-4 text-sm font-semibold text-foreground transition hover:bg-primary/15">
                   <WhatsAppLogo className="size-5 shrink-0 text-primary" />

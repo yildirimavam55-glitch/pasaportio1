@@ -131,7 +131,7 @@ function StorefrontEditor() {
 
   const save = useMutation({
     mutationFn: (publish: boolean) =>
-      saveStorefrontDraft({ data: { service, config: draft!, publish } }),
+      saveStorefrontDraft({ data: { service, config: draft!, publish,expectedRevision:editor.data?.revision??null } }),
     onSuccess: async (_result, publish) => {
       setDirty(false);
       toast.success(
@@ -145,7 +145,7 @@ function StorefrontEditor() {
   });
 
   const discard = useMutation({
-    mutationFn: () => discardStorefrontDraft({ data: { service } }),
+    mutationFn: () => discardStorefrontDraft({ data: { service,expectedRevision:editor.data?.revision??null } }),
     onSuccess: async () => {
       setDirty(false);
       toast.success("Taslak değişiklikleri geri alındı.");
@@ -155,11 +155,11 @@ function StorefrontEditor() {
   });
 
   const restore = useMutation({
-    mutationFn: (versionId: string) => restoreStorefrontVersion({ data: { service, versionId } }),
+    mutationFn: (versionId: string) => restoreStorefrontVersion({ data: { service, versionId,expectedRevision:editor.data?.revision??null } }),
     onSuccess: async () => {
       setHistoryOpen(false);
       setDirty(false);
-      toast.success("Önceki sürüm geri yüklendi ve yayınlandı.");
+      toast.success("Önceki sürüm yalnızca taslağa geri yüklendi.");
       await queryClient.invalidateQueries({ queryKey: ["storefront-editor", service] });
     },
     onError: (error: Error) => toast.error(error.message),

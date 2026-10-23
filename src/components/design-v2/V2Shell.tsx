@@ -332,14 +332,14 @@ export function DesktopPromoCard({ image, title, cta, to, imagePosition = "cente
   );
 }
 
-export function HowItWorks({ title, steps }: { title: string; steps: Array<{ t: string; s: string; image?: string | undefined }> }) {
+export function HowItWorks({ title, steps }: { title: string; steps: Array<{ t: string; s: string; image?: string | undefined; media?:ReactNode }> }) {
   return (
     <>
       <SectionTitle>{title}</SectionTitle>
       <ol className={`grid gap-3 border-b border-border pb-2 ${steps.length === 4 ? "grid-cols-2 sm:grid-cols-4" : "grid-cols-3"}`}>
         {steps.map((step, i) => (
           <li key={step.t} className="grid grid-cols-[auto_minmax(0,1fr)] items-start gap-x-2 gap-y-0.5">
-            {step.image ? <CataloguePhoto src={step.image} alt={step.t} className="row-span-2 size-10 object-contain" /> : <span className="row-span-2 grid size-7 place-items-center rounded-full bg-[var(--v2-service)] font-display text-xs font-bold text-primary-foreground">{i + 1}</span>}
+            {step.media ? step.media : step.image ? <CataloguePhoto src={step.image} alt={step.t} className="row-span-2 size-10 object-contain" /> : <span className="row-span-2 grid size-7 place-items-center rounded-full bg-[var(--v2-service)] font-display text-xs font-bold text-primary-foreground">{i + 1}</span>}
             <span className="text-[11px] font-bold leading-tight text-foreground">{step.t}</span>
             <span className="text-[9px] leading-snug text-muted-foreground">{step.s}</span>
           </li>

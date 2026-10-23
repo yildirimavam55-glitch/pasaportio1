@@ -2,7 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useRouterState } from "@tanstack/react-router";
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
 import { getPublishedTheme } from "@/lib/admin-theme.functions";
-import { DEFAULT_THEME, sanitizeTheme, themeCssVariables, themeFontUrl, type PublishedThemeConfig } from "@/domain/theme/config";
+import { DEFAULT_THEME, sanitizeTheme, themeCssVariables, themeFontUrl, themeResponsiveCss, type PublishedThemeConfig } from "@/domain/theme/config";
 
 const fallback: PublishedThemeConfig = { ...DEFAULT_THEME, logoUrl: null, faviconUrl: null };
 const PublishedThemeContext = createContext<PublishedThemeConfig>(fallback);
@@ -36,6 +36,6 @@ export function PublishedTheme({ children }: { children: ReactNode }) {
     if (favicon) favicon.href = active.faviconUrl ?? "/favicon.svg";
   }, [active, pathname]);
   const variables = themeCssVariables(active);
-  const css = `:root:not(.dark){${Object.entries(variables).map(([key, value]) => `${key}:${value};`).join("")}}`;
+  const css = `${active.applyToDark?":root":":root:not(.dark)"}{${Object.entries(variables).map(([key, value]) => `${key}:${value};`).join("")}}${themeResponsiveCss(active,active.applyToDark?".v2-theme":"html:not(.dark) .v2-theme")}`;
   return <PublishedThemeContext.Provider value={active}><style>{pathname.startsWith("/admin") ? "" : css}</style>{children}</PublishedThemeContext.Provider>;
 }

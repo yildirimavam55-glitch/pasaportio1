@@ -1,0 +1,4 @@
+import { Accordion,AccordionContent,AccordionItem,AccordionTrigger } from '@/components/ui/accordion';
+export function V2EditorialFaq({title,questions,relaxed=false}:{title:string;questions:readonly (readonly string[])[];relaxed?:boolean}){
+ return <section data-faq-density={relaxed?'comfortable':'default'} className={relaxed?'lg:grid lg:grid-cols-[minmax(15rem,0.38fr)_minmax(0,1fr)] lg:gap-12':undefined}><h2 data-v2-heading className="mb-3 font-display text-xl font-bold">{title}</h2><Accordion type="single" collapsible className="rounded-xl bg-card px-4 ring-1 ring-border">{questions.map((q,index)=><AccordionItem key={index} value={`faq-${index}`}><AccordionTrigger className="text-start font-bold">{q[0]}</AccordionTrigger><AccordionContent>{q[1]}</AccordionContent></AccordionItem>)}</Accordion></section>;
+}
