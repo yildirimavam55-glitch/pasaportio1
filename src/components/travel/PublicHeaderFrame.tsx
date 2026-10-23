@@ -1,3 +1,4 @@
+import type { UiLocale } from '@/i18n/locales';
 import type { ReactNode } from 'react';
 import '@/components/design-v2/hero-reference.css';
 
@@ -9,3 +10,6 @@ export function PublicHeaderFrame({reference=false,brand,navigation,children}:{r
   </div>
  </header>;
 }
+
+/** Language flag map shared with the actual locale picker trigger. */
+export const HEADER_LOCALE_FLAG:Record<UiLocale,string>={tr:'TR',de:'DE',en:'GB',fr:'FR',es:'ES',it:'IT',pt:'PT',nl:'NL',pl:'PL',ar:'SA',ru:'RU',ja:'JP',ko:'KR',zh:'CN'};

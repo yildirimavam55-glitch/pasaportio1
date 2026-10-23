@@ -47,6 +47,10 @@ header[data-reference-hero-header] .public-header-actions>[data-testid="header-c
 @media(max-width:639px) {
  header[data-reference-hero-header] .public-header-row {padding-inline:12px;}
  header[data-reference-hero-header] .public-header-actions {gap:0;}
+ header[data-reference-hero-header] .public-header-language {display:inline-flex;flex-direction:row;gap:4px;white-space:nowrap;width:auto;padding-inline:8px;}
+ header[data-reference-hero-header] .public-header-language>:first-child {display:inline-flex;}
+ header[data-reference-hero-header] .public-header-language .public-header-currency-separator {display:inline;}
+ header[data-reference-hero-header] .public-header-language [data-testid="header-currency-code"] {font-size:inherit;line-height:inherit;}
  header[data-reference-hero-header] .public-header-actions>.size-11 {width:34px;min-width:34px;}
  header[data-reference-hero-header] .public-header-row>a {min-width:0;}
  header[data-reference-hero-header] .public-header-row>a img {max-width:124px;height:32px;}

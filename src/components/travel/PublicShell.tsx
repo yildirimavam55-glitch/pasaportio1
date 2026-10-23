@@ -1,4 +1,4 @@
-import { PublicHeaderFrame } from "./PublicHeaderFrame";
+import { PublicHeaderFrame, HEADER_LOCALE_FLAG as LOCALE_FLAG } from "./PublicHeaderFrame";
 import { useStorefrontChrome } from "./useStorefrontChrome";
 import { ConfiguredNavigation } from "@/components/admin/ChromeControls";
 import { useNavigate, useLocation } from "@tanstack/react-router";
@@ -65,12 +65,6 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { LocaleCurrencyPicker } from "./LocaleCurrencyPicker";
 import { WhatsAppLogo } from "./WhatsAppLogo";
 import { waLink } from "@/lib/whatsapp";
-
-/** Flag shown next to each language (language, not location). */
-const LOCALE_FLAG: Record<UiLocale, string> = localize({
-  tr: "TR", de: "DE", en: "GB", fr: "FR", es: "ES", it: "IT", pt: "PT",
-  nl: "NL", pl: "PL", ar: "SA", ru: "RU", ja: "JP", ko: "KR", zh: "CN",
-});
 
 const ACCOUNT_COPY = localize({
   tr: { trips: "Seyahatlerim", signIn: "Giriş yap", signOut: "Çıkış yap" },
@@ -163,7 +157,7 @@ function LanguageMenu({
       >
         <CountryFlag iso={LOCALE_FLAG[uiLocale]} />
         <span>{uiLocale.toUpperCase()}</span>
-        <span className="text-muted-foreground" data-testid="header-currency-code"><span className="public-header-currency-separator">· </span>{currency.code}</span>
+        <span className="text-muted-foreground" data-testid="header-currency-code"><span className="public-header-currency-separator">/ </span>{currency.code}</span>
       </Button>
       <LocaleCurrencyPicker open={open} onOpenChange={onOpenChange} onChooseLocale={choose} />
     </>
