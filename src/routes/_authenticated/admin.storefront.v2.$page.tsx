@@ -91,6 +91,8 @@ function Editor({ page }: { page: V2PageId }) {
   const mediaList = useQuery({ queryKey: ["media-all"], queryFn: () => listMedia({ data: {} }) });
   const [draft, setDraft] = useState<V2PageConfig | null>(null);
   const [dirty, setDirty] = useState(false);
+  const [baseRevision,setBaseRevision]=useState<number|null>(null);
+  const savingSnapshot=useRef<V2PageConfig|null>(null);
   const [selectedId, setSelectedId] = useState<string>("hero");
   const lang: Locale = "tr";
   const [previewLocale, setPreviewLocale] = useState<UiLocale>("tr");
@@ -105,7 +107,7 @@ function Editor({ page }: { page: V2PageId }) {
   const [history, setHistory] = useState<DraftHistory<V2PageConfig>>(createDraftHistory);
   const lastEdit = useRef(0);
 
-  useEffect(() => { if (editor.data && !dirty) { setDraft(editor.data.draft); setHistory(createDraftHistory()); } }, [editor.data, dirty]);
+  useEffect(() => { if (editor.data && !dirty) { setDraft(editor.data.draft); setBaseRevision(editor.data.revision??null); setHistory(createDraftHistory()); } }, [editor.data, dirty]);
   useEffect(() => {
     const selectHash = () => { if (window.location.hash === "#reviews") setSelectedId("trust-reviews"); };
     selectHash();
@@ -142,16 +144,17 @@ function Editor({ page }: { page: V2PageId }) {
   const save = useMutation({
     mutationFn: async (publish: boolean) => {
       const snapshot = draft!;
+      savingSnapshot.current=snapshot;
       let config = snapshot;
       if (draftRef.current !== snapshot) throw new Error("Taslak değişti; yeniden kontrol edip kaydedin.");
-      return saveV2Page({ data: { page, config, publish,expectedRevision:editor.data?.revision??null } });
+      return saveV2Page({ data: { page, config, publish,expectedRevision:baseRevision } });
     },
-    onSuccess: (_r, publish) => { toast.success(publish ? "Yayınlandı." : "Taslak kaydedildi."); refresh(); },
+    onSuccess: (_r, publish) => { if(draftRef.current!==savingSnapshot.current){void queryClient.invalidateQueries({queryKey:["v2-editor",page]});toast.info("Kaydedilen sürümden sonra düzenlemeler var; yerel metinler korundu. Revizyonu karşılaştırıp yeniden yükleyin.");return;} toast.success(publish ? "Yayınlandı." : "Taslak kaydedildi."); refresh(); },
     onError: (e) => toast.error(e instanceof Error ? e.message : "Kaydedilemedi."),
   });
-  const discard = useMutation({ mutationFn: () => discardV2Draft({ data: { page,expectedRevision:editor.data?.revision??null } }), onSuccess: () => { toast.success("Taslak yayındaki sürüme döndü."); refresh(); } });
+  const discard = useMutation({ mutationFn: () => discardV2Draft({ data: { page,expectedRevision:baseRevision } }), onSuccess: () => { toast.success("Taslak yayındaki sürüme döndü."); refresh(); } });
   const restore = useMutation({
-    mutationFn: (versionId: string) => restoreV2Version({ data: { page, versionId,expectedRevision:editor.data?.revision??null } }),
+    mutationFn: (versionId: string) => restoreV2Version({ data: { page, versionId,expectedRevision:baseRevision } }),
     onSuccess: () => { toast.success("Sürüm taslağa geri yüklendi. Canlı sürüm değişmedi."); refresh(); },
     onError: (e) => toast.error(e instanceof Error ? e.message : "Geri yüklenemedi."),
   });

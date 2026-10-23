@@ -2,8 +2,9 @@
 const { chromium } = require(process.env.BUILDER_BROWSER_MODULE);
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
+let activeBrowser;
 (async () => {
- const browser = await chromium.launch({ channel:'chrome', headless:true });
+ const browser = await chromium.launch({ channel:'chrome', headless:true });activeBrowser=browser;
  const page = await browser.newPage({viewport:{width:1840,height:1100}});
  const errors=[],remote=[];page.on('pageerror',e=>errors.push(e.message));
  await page.route('**/*',route=>{const u=new URL(route.request().url());if(u.hostname==='127.0.0.1'||['data:','blob:'].includes(u.protocol))return route.continue();remote.push(u.hostname);return route.abort();});
@@ -166,4 +167,4 @@ const fs = require('node:fs');
  assert.deepEqual(errors,[]);assert.deepEqual(remote,[]);
  fs.writeFileSync('artifacts/builder-preview/browser-result.json',JSON.stringify({result:'PASS',cjkPlatformFontVerified:true,sourceLocale:'tr',locales:14,viewports:[390,768,1440],remoteRequests:0,screenshots:fs.readdirSync('artifacts/builder-preview').filter(p=>p.endsWith('.png')).length,checks:['fixed Turkish fields','ES preview does not empty TR','whole page Hero+NOTICE in 13 languages','fresh second run zero calls','page summary','13 fixture statuses','explicit manual correction','stale source/manual protection','unknown fixture refuses fake AI','RTL/CJK text','Hero/NOTICE presentation','shared global theme controls','responsive item media 3 devices','configured menu/footer','presentation-only account note','synthetic save/reload/draft restore/publication isolation'],limitation:'UI persistence is a clearly labelled synthetic browser adapter; real PostgreSQL/PostgREST isolation is separately reported; no managed Supabase/Auth, Storage write or paid provider test'},null,2));
  await browser.close();console.log('PASS: TR source / 14 previews / 13 statuses / manual protection / offline fixtures / shared Hero and NOTICE');
-})().catch(error=>{console.error(error);process.exitCode=1;});
+})().catch(async error=>{console.error(error);await activeBrowser?.close();process.exitCode=1;});

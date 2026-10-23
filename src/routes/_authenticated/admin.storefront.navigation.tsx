@@ -28,15 +28,17 @@ function NavigationEditor() {
   const [locale, setLocale] = useState<Locale>("tr");
   const [draft, setDraft] = useState<StorefrontConfig | null>(null);
   const [dirty, setDirty] = useState(false);
+  const [baseRevision,setBaseRevision]=useState<number|null>(null);
+  const latest=useRef(draft),saving=useRef(draft);latest.current=draft;
   const [previewLocale,setPreviewLocale]=useState<UiLocale>("tr");
   const frame=useRef<HTMLIFrameElement>(null);
   const editor = useQuery({ queryKey: ["storefront-editor", "global"], queryFn: () => getStorefrontEditor({ data: { service: "global" } }) });
 
-  useEffect(() => { if (editor.data && !dirty) { setDraft(editor.data.draft); setDirty(false); } }, [editor.data,dirty]);
+  useEffect(() => { if (editor.data && !dirty) { setDraft(editor.data.draft);setBaseRevision(editor.data.revision??null); setDirty(false); } }, [editor.data,dirty]);
 
   const save = useMutation({
-    mutationFn: (publish: boolean) => saveStorefrontDraft({ data: { service: "global", config: draft!, publish,expectedRevision:editor.data?.revision??null } }),
-    onSuccess: async (_result, publish) => { setDirty(false); toast.success(publish ? "Yayınlandı." : "Taslak kaydedildi."); await queryClient.invalidateQueries({ queryKey: ["storefront-editor", "global"] }); },
+    mutationFn: (publish: boolean) => {saving.current=draft;return saveStorefrontDraft({ data: { service: "global", config: draft!, publish,expectedRevision:baseRevision } });},
+    onSuccess: async (_result, publish) => {if(latest.current!==saving.current){toast.info("Yeni yerel düzenlemeler korundu. Revizyonu kontrol edin.");await queryClient.invalidateQueries({queryKey:["storefront-editor","global"]});return;} setDirty(false); toast.success(publish ? "Yayınlandı." : "Taslak kaydedildi."); await queryClient.invalidateQueries({ queryKey: ["storefront-editor", "global"] }); },
     onError: (error: Error) => toast.error(error.message),
   });
 

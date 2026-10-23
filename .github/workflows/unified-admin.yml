@@ -78,6 +78,7 @@ jobs:
           fc-cache -f "$HOME/.local/share/fonts"
           fc-match 'Noto Sans CJK SC'
       - name: Browser integration and screenshots
+        timeout-minutes: 3
         if: ${{ !cancelled() && steps.browser.outcome == 'success' && steps.browser-fonts.outcome == 'success' }}
         env:
           BUILDER_BROWSER_MODULE: ${{ runner.temp }}/builder-browser/node_modules/playwright
