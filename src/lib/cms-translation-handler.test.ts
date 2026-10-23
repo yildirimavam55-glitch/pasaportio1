@@ -35,3 +35,23 @@ describe("actual CMS server handler with synthetic role/limiter/provider boundar
   expect(JSON.stringify(result)).not.toContain("synthetic provider failure");
  });
 });
+
+import { translatePage, pendingPage } from '@/domain/storefront/page-translation';
+import { defaultV2Page, createV2Section } from '@/domain/storefront/v2';
+import { demoLT } from '@/builder-preview/translation-fixtures';
+it('runs the whole-page planner through the real private handler, fake Admin/limiter/fetch, resumes only the failed subbatch',async()=>{
+ let page=defaultV2Page('esim');page.sections=[];
+ for(let i=0;i<8;i++){const section=createV2Section(i===0?'SEARCH_HERO':'NOTICE');section.id=`section${i}`;section.text={title:demoLT(`Kaynak ${i}`)};page.sections.push(section);}
+ let calls=0;
+ vi.stubGlobal('fetch',vi.fn(async(_url:unknown,init:RequestInit)=>{
+  const payload=JSON.parse(String(init.body));const input=JSON.parse(payload.messages[1].content);calls++;
+  if(calls===2)return new Response('',{status:503});
+  const result=Object.fromEntries(Object.entries(input.sources).map(([id,source])=>[id,Object.fromEntries(input.targets[id].map((locale:string)=>[locale,`Translated ${String(source).match(/\d+/)![0]}`]))]));
+  return new Response(JSON.stringify({choices:[{finish_reason:'stop',message:{content:JSON.stringify(result)}}]}));
+ }));
+ const execute=()=>translatePage({getPage:()=>page,apply:next=>{page=next;},transport:data=>handleCmsTranslation(context,data)});
+ const first=await execute();expect(first.requests).toBe(2);expect(first.completed).toBe(65);expect(pendingPage(page)).toHaveLength(39);
+ const before=calls;const second=await execute();expect(second.completed).toBe(39);expect(second.code).toBe('DONE');expect(calls-before).toBe(1);
+ expect(mocks.role).toHaveBeenCalledTimes(3);expect(mocks.rpc).toHaveBeenCalledTimes(6);
+ const after=calls;await execute();expect(calls).toBe(after);
+});

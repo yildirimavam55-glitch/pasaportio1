@@ -27,10 +27,16 @@ const fs = require('node:fs');
  await page.getByLabel('Vorschau in',{exact:true}).selectOption('es');
  assert.equal(await source.inputValue(),'Yolculuğuna bağlı kal');
  await frame.locator('[data-preview-translation-warning]').waitFor();
- await page.getByRole('button',{name:'Alle 13 Sprachen übersetzen (Demo)',exact:true}).click();
+ await page.getByRole('button',{name:'Tüm sayfayı 13 dile çevir (DEMO)',exact:true}).click();
  await frame.getByRole('heading',{name:'Mantente conectado durante tu viaje'}).waitFor();
  assert.equal(await page.locator('[data-translation-status=AUTO_TRANSLATED]').count(),13);
- assert.match(await page.getByRole('status').innerText(),/DEMO/);
+ assert.match(await page.locator('[data-page-translation-status]').innerText(),/DEMO.*DONE/);
+ await frame.getByText('Comprueba tu dispositivo antes de viajar.',{exact:true}).waitFor();
+ await page.getByRole('button',{name:'Tüm sayfayı 13 dile çevir (DEMO)',exact:true}).click();
+ assert.match(await page.locator('[data-page-translation-status]').innerText(),/0\/0.*0 istek/);
+ await page.getByText('13 dil · Durum / Restliste',{exact:true}).click();
+ await page.screenshot({path:'artifacts/builder-preview/page-status.png',fullPage:true});
+ await page.getByText('13 dil · Durum / Restliste',{exact:true}).click();
  // Representative target previews are real translated fixtures; source remains Turkish.
  for(const [locale,heading] of [['de','Bleib auf deiner Reise verbunden'],['en','Stay connected on your journey'],['es','Mantente conectado durante tu viaje'],['ar','ابقَ على اتصال خلال رحلتك']]){
   await page.getByLabel('Vorschau in',{exact:true}).selectOption(locale);
@@ -61,13 +67,13 @@ const fs = require('node:fs');
  // Unknown Turkish input must NOT be magically translated; manual values survive and become outdated.
  await source.fill('Bu yeni metin için örnek çeviri yok');
  assert.equal(await page.locator('[data-translation-locale=es]').getAttribute('data-translation-status'),'OUTDATED');
- await page.getByRole('button',{name:'Alle 13 Sprachen übersetzen (Demo)',exact:true}).click();
- await page.getByRole('status').filter({hasText:'Keine Beispielübersetzung'}).waitFor();
+ await page.getByRole('button',{name:'Tüm sayfayı 13 dile çevir (DEMO)',exact:true}).click();
+ await page.locator('[data-page-translation-status]').filter({hasText:'Keine Beispielübersetzung'}).waitFor();
  assert.equal(await page.getByLabel('MANUAL:title',{exact:true}).inputValue(),'Mi corrección manual');
  await frame.getByRole('heading',{name:'Mi corrección manual'}).waitFor();
  await page.locator('iframe').screenshot({path:'artifacts/builder-preview/manual-outdated.png'});
  await page.getByLabel('Abschnitt',{exact:true}).selectOption('builder-notice');
- await page.getByRole('button',{name:'Alle 13 Sprachen übersetzen (Demo)',exact:true}).click();
+ await page.getByRole('button',{name:'Tüm sayfayı 13 dile çevir (DEMO)',exact:true}).click();
  await frame.getByText('Comprueba tu dispositivo antes de viajar.',{exact:true}).waitFor();
  await page.getByLabel('TR:title',{exact:true}).fill('Yeni bilgi');
  await page.getByLabel('headingColor',{exact:true}).fill('#f0cd7b');
@@ -80,7 +86,7 @@ const fs = require('node:fs');
  // Reset discards fixture, manual and presentation edits; run all 14 locales, including CJK/RTL.
  await page.getByRole('button',{name:'Vorher / vollständig zurücksetzen'}).click();
  await page.getByLabel('Abschnitt',{exact:true}).selectOption('hero');
- await page.getByRole('button',{name:'Alle 13 Sprachen übersetzen (Demo)',exact:true}).click();
+ await page.getByRole('button',{name:'Tüm sayfayı 13 dile çevir (DEMO)',exact:true}).click();
  for(const locale of ['tr','en','de','fr','es','it','pt','nl','pl','ar','ru','ja','ko','zh']){
   await page.getByLabel('Vorschau in',{exact:true}).selectOption(locale);
   await frame.locator(`[data-locale=${locale}]`).waitFor();
@@ -92,12 +98,12 @@ const fs = require('node:fs');
   if(['tr','fr','ar','ja','zh'].includes(locale))await page.locator('iframe').screenshot({path:`artifacts/builder-preview/locale-${locale}-390.png`});
  }
  await page.getByLabel('Vorschau in',{exact:true}).selectOption('tr');
- for(const width of [390,1440]){
+ for(const width of [390,768,1440]){
   await page.setViewportSize({width,height:1000});
   await page.locator('aside').evaluate(e=>e.scrollTop=0);
   await page.screenshot({path:`artifacts/builder-preview/editor-${width}.png`,fullPage:true});
  }
  assert.deepEqual(errors,[]);assert.deepEqual(remote,[]);
- fs.writeFileSync('artifacts/builder-preview/browser-result.json',JSON.stringify({result:'PASS',cjkPlatformFontVerified:true,sourceLocale:'tr',locales:14,viewports:[390,768,1440],remoteRequests:0,screenshots:fs.readdirSync('artifacts/builder-preview').filter(p=>p.endsWith('.png')).length,checks:['fixed Turkish fields','ES preview does not empty TR','13 fixture statuses','explicit manual correction','stale source/manual protection','unknown fixture refuses fake AI','RTL/CJK text','Hero/NOTICE presentation'],limitation:'fixtures only; no paid provider, authentication or database-save integration executed'},null,2));
+ fs.writeFileSync('artifacts/builder-preview/browser-result.json',JSON.stringify({result:'PASS',cjkPlatformFontVerified:true,sourceLocale:'tr',locales:14,viewports:[390,768,1440],remoteRequests:0,screenshots:fs.readdirSync('artifacts/builder-preview').filter(p=>p.endsWith('.png')).length,checks:['fixed Turkish fields','ES preview does not empty TR','whole page Hero+NOTICE in 13 languages','fresh second run zero calls','page summary','13 fixture statuses','explicit manual correction','stale source/manual protection','unknown fixture refuses fake AI','RTL/CJK text','Hero/NOTICE presentation'],limitation:'fixtures only; no paid provider, authentication or database-save integration executed'},null,2));
  await browser.close();console.log('PASS: TR source / 14 previews / 13 statuses / manual protection / offline fixtures / shared Hero and NOTICE');
 })().catch(error=>{console.error(error);process.exitCode=1;});

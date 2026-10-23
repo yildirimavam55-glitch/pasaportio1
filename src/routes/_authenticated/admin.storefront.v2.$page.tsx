@@ -1,3 +1,4 @@
+import { V2PageTranslation } from "@/components/design-v2/V2PageTranslation";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -140,16 +141,6 @@ function Editor({ page }: { page: V2PageId }) {
     mutationFn: async (publish: boolean) => {
       const snapshot = draft!;
       let config = snapshot;
-      // Save draft = auto-translate changed Turkish source into the other locales first (draft only, never publishes).
-      if (!publish) {
-        setTranslatingTrust(true);
-        try {
-          let count = 0;
-          for (const section of config.sections) { const result = await translateSection(page, config, section.id); config = result.config; count += result.count; if (result.failures) throw new Error("Teilweise fehlgeschlagen"); }
-          if (count) { if (draftRef.current !== snapshot) throw new Error("Taslak değişti."); setDraft(config); toast.success(`${count} metin 13 dile otomatik çevrildi.`); }
-        } catch { throw new Error("Çeviri tamamlanmadı; taslak kaydedilmedi. Çevirileri ayrı düğmeyle kontrol edin."); }
-        finally { setTranslatingTrust(false); }
-      }
       if (draftRef.current !== snapshot) throw new Error("Taslak değişti; yeniden kontrol edip kaydedin.");
       return saveV2Page({ data: { page, config, publish } });
     },
@@ -256,7 +247,8 @@ function Editor({ page }: { page: V2PageId }) {
         <Button variant="outline" size="sm" onClick={() => setShowHistory((v) => !v)}><History />Geçmiş</Button>
         <Button variant="outline" size="sm" onClick={() => { if (window.confirm("Tüm sayfa onaylı varsayılan tasarıma dönsün mü? (Kaydedene kadar yalnız taslakta)")) update(defaults); }}><RotateCcw />Varsayılana dön</Button>
         {editor.data?.hasDraftChanges && !dirty && <Button variant="outline" size="sm" onClick={() => discard.mutate()}>Taslağı at</Button>}
-        <Button variant="outline" size="sm" disabled={save.isPending} onClick={() => save.mutate(false)}><Save />Entwurf speichern & übersetzen</Button>
+        {draft && <V2PageTranslation page={draft} onChange={config=>{setDraft(config);setDirty(true);}} transport={input=>translateTrustCopy({data:input})} />}
+        <Button variant="outline" size="sm" disabled={save.isPending} onClick={() => save.mutate(false)}><Save />Entwurf speichern</Button>
         <Button size="sm" disabled={save.isPending} onClick={() => { if (window.confirm("Bu sürüm müşterilere yayınlansın mı?")) save.mutate(true); }}><Upload />Yayınla</Button>
       </div>
 
