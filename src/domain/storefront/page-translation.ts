@@ -3,7 +3,7 @@ import { TRANSLATION_TARGETS, mergeMachineTranslation, needsMachineTranslation }
 import type { UiLocale } from '@/i18n/locales';
 export type Field = { id: string; value: LT; path: (string | number)[] };
 export type TranslationRequest = { entries: Record<string, string>; targets: Record<string, Exclude<UiLocale,'tr'>[]> };
-export type TranslationResponse = { translations: Record<string, Partial<Record<UiLocale,string>>>; failures: Record<string,string> };
+export type TranslationResponse = { translations: Record<string, Partial<Record<UiLocale,string>>>; failures: Record<string,string>; partialTranslations?:Record<string,Partial<Record<UiLocale,string>>> };
 export type Problem = { field: string; locale: UiLocale; code: string };
 const excluded = /^(statistic|comparison|familyChat)/;
 /** Explicit CMS field whitelist; never recurse into arbitrary commerce/provider/customer data. */
@@ -74,7 +74,7 @@ export async function translatePage(options:{getPage:()=>V2PageConfig; apply:(pa
    const target=now.get(field.id);
    for(const locale of group.targets){
     if(!needsMachineTranslation(field.value,locale))continue;
-    const output=result.translations[group.id]?.[locale];
+    const output=result.translations[group.id]?.[locale]??result.partialTranslations?.[group.id]?.[locale];
     if(!target||target.value.tr!==field.value.tr){problems.push({field:field.id,locale,code:'E_STALE_SOURCE'});continue;}
     if(!needsMachineTranslation(target.value,locale))continue; // intervening manual edits win
     if(!output?.trim()){problems.push({field:field.id,locale,code:result.failures[group.id]??'E_INCOMPLETE'});continue;}

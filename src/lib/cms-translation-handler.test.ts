@@ -55,3 +55,16 @@ it('runs the whole-page planner through the real private handler, fake Admin/lim
  expect(mocks.role).toHaveBeenCalledTimes(3);expect(mocks.rpc).toHaveBeenCalledTimes(6);
  const after=calls;await execute();expect(calls).toBe(after);
 });
+
+it('retains individually validated locales from an incomplete provider field and retries only the missing language',async()=>{
+ let page=defaultV2Page('esim');const section=createV2Section('NOTICE');section.id='notice';section.text={title:demoLT('Bilgi')};page.sections=[section];
+ let calls=0;const targets:string[][]=[];
+ vi.stubGlobal('fetch',vi.fn(async(_url:unknown,init:RequestInit)=>{
+  const payload=JSON.parse(String(init.body));const request=JSON.parse(payload.messages[1].content);const id=Object.keys(request.sources)[0]!;const locales:string[]=request.targets[id];targets.push(locales);calls++;
+  const result={[id]:Object.fromEntries(locales.filter(l=>calls!==1||l!=='de').map(l=>[l,'Information']))};
+  return new Response(JSON.stringify({choices:[{finish_reason:'stop',message:{content:JSON.stringify(result)}}]}));
+ }));
+ const execute=()=>translatePage({getPage:()=>page,apply:n=>{page=n;},transport:data=>handleCmsTranslation(context,data)});
+ const first=await execute();expect(first.completed).toBe(12);expect(first.code).toBe('E_INCOMPLETE');expect(pendingPage(page).map(p=>p.locale)).toEqual(['de']);
+ const second=await execute();expect(second.completed).toBe(1);expect(targets[1]).toEqual(['de']);expect(second.code).toBe('DONE');expect(calls).toBe(2);
+});
