@@ -32,6 +32,7 @@ const fs = require('node:fs');
  assert.equal(await page.locator('[data-translation-status=AUTO_TRANSLATED]').count(),13);
  assert.match(await page.locator('[data-page-translation-status]').innerText(),/DEMO.*DONE/);
  await frame.getByText('Comprueba tu dispositivo antes de viajar.',{exact:true}).waitFor();
+ await frame.locator('[data-preview-translation-warning]').waitFor({state:'hidden'});
  await page.getByRole('button',{name:'Tüm sayfayı 13 dile çevir (DEMO)',exact:true}).click();
  assert.match(await page.locator('[data-page-translation-status]').innerText(),/0\/0.*0 istek/);
  await page.getByText('13 dil · Durum / Restliste',{exact:true}).click();

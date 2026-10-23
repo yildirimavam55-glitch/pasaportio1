@@ -1,6 +1,6 @@
 import { describe,it,expect,vi } from 'vitest';
 import { defaultV2Page,createV2Section,type V2PageConfig } from './v2';
-import { demoLT,DEMO_TRANSLATIONS } from '@/builder-preview/translation-fixtures';
+import { demoLT,DEMO_TRANSLATIONS,sanitizeDemoPage } from '@/builder-preview/translation-fixtures';
 import { manualEdit,sourceEdit,TRANSLATION_TARGETS } from './translation-workflow';
 import { pageFields,pagePlan,pageSummary,pendingPage,translatePage,type TranslationRequest } from './page-translation';
 function fixture(){const page=defaultV2Page('esim');page.sections=[createV2Section('SEARCH_HERO'),createV2Section('NOTICE')];page.sections[0]!.id='hero';page.sections[0]!.text={title:demoLT('Bilgi')};page.sections[1]!.id='notice';page.sections[1]!.text={title:demoLT('Bilgi'),text:demoLT('Seyahate çıkmadan önce cihazını kontrol et.')};return page;}
@@ -20,6 +20,10 @@ describe('whole-page plan and protected merging',()=>{
   for(const id of ['info-one','info-two']){const section=createV2Section('INFO_GRID');section.id=id;section.text={};section.items=[{...base,id:'shared-item',entity:'',cardType:'info',title:demoLT('Bilgi'),text:demoLT(''),cta:demoLT('Ülke ara'),imageAlt:demoLT('Bilgi'),labels:[demoLT('eSIM')]}];p.sections.push(section);}
   const itemFields=pageFields(p).filter(f=>f.id.includes('shared-item'));expect(itemFields).toHaveLength(8);expect(new Set(itemFields.map(f=>f.id)).size).toBe(8);
   const {current,result}=await run(p);expect(result.code).toBe('DONE');for(const s of current.sections.slice(-2)){expect(s.items[0]!.cta.de).toBe('Land suchen');expect(s.items[0]!.labels[0]!.ja).toBe('eSIM');}
+ });
+
+ it('keeps demo edits limited to Hero and NOTICE while preserving translated metadata',async()=>{
+  const {current}=await run(fixture());const clean=sanitizeDemoPage(current);expect(clean.sections.map(s=>s.type)).toEqual(['SEARCH_HERO','NOTICE']);expect(pendingPage(clean)).toEqual([]);
  });
 
 });

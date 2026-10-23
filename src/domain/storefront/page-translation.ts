@@ -38,6 +38,9 @@ export function pageSummary(page: V2PageConfig){
 export function pendingPage(page: V2PageConfig): Problem[]{
  return pageFields(page).flatMap(f=>TRANSLATION_TARGETS.filter(locale=>needsMachineTranslation(f.value,locale)).map(locale=>({field:f.id,locale,code:'E_PENDING'})));
 }
+export function manualPageReviews(page:V2PageConfig):Problem[]{
+ return pageFields(page).flatMap(f=>TRANSLATION_TARGETS.filter(locale=>ltStatus(f.value,locale)==='OUTDATED'&&!needsMachineTranslation(f.value,locale)).map(locale=>({field:f.id,locale,code:'E_MANUAL_REVIEW'})));
+}
 /** Deduplicate exact sources only. Provenance is retained independently for each field. */
 export function pagePlan(page: V2PageConfig){
  const groups=new Map<string,{id:string; source:string; fields:Field[]; targets:Exclude<UiLocale,'tr'>[]}>();

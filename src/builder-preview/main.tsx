@@ -10,7 +10,7 @@ import { V2HeroView } from "@/components/design-v2/V2HeroView";
 import { V2SectionFrame } from "@/components/design-v2/V2SectionFrame";
 import { V2Notice } from "@/components/design-v2/V2Notice";
 import { V2TurkishTextEditor } from "@/components/design-v2/V2TurkishTextEditor";
-import { demoLT, DEMO_TRANSLATIONS } from "./translation-fixtures";
+import { demoLT, DEMO_TRANSLATIONS, sanitizeDemoPage } from "./translation-fixtures";
 import { ltStatus } from "@/domain/storefront/v2";
 import { V2TypographyControls } from "@/components/design-v2/V2TypographyControls";
 import { ImageDisplayControls } from "@/components/admin/ImageDisplayControls";
@@ -42,7 +42,7 @@ function Canvas() {
   useEffect(() => {
     const listener = (event: MessageEvent) => {
       if (event.origin !== window.location.origin || event.source !== window.parent || event.data?.type !== CHANNEL || !UI_LOCALES.includes(event.data.locale)) return;
-      setState({ config: sanitizeV2Page(event.data.config, "esim"), locale: event.data.locale });
+      setState({ config: sanitizeDemoPage(event.data.config), locale: event.data.locale });
     };
     window.addEventListener("message", listener);
     return () => window.removeEventListener("message", listener);
@@ -74,7 +74,7 @@ function BuilderDemo() {
   const [width, setWidth] = useState(390);
   const frame = useRef<HTMLIFrameElement>(null);
   const section = config.sections.find(s => s.id === selected)!;
-  const patch = (patch: Partial<V2Section>) => setConfig(value => sanitizeV2Page({ ...value, sections: value.sections.map(s => s.id === selected ? { ...s, ...patch } : s) }, "esim"));
+  const patch = (patch: Partial<V2Section>) => setConfig(value => sanitizeDemoPage({ ...value, sections: value.sections.map(s => s.id === selected ? { ...s, ...patch } : s) }));
   const send = () => frame.current?.contentWindow?.postMessage({ type: CHANNEL, config, locale }, window.location.origin);
   useEffect(send, [config, locale]);
   const design = section.design ?? DESIGN;
@@ -83,8 +83,9 @@ function BuilderDemo() {
     <div className="builder-workspace"><aside>
       <label>Abschnitt<select aria-label="Abschnitt" value={selected} onChange={e => setSelected(e.target.value)}>{config.sections.map(s => <option key={s.id} value={s.id}>{s.type}</option>)}</select></label>
       <label>Vorschau in:<select aria-label="Vorschau in" value={locale} onChange={e => setLocale(e.target.value as UiLocale)}>{UI_LOCALES.map(code => <option key={code} value={code}>{LOCALE_REGISTRY[code].nativeName}</option>)}</select></label>
-      <V2TurkishTextEditor key={selected} section={section} onChange={patch} previewLocale={locale} demo />
       <V2PageTranslation page={config} onChange={setConfig} demo transport={async input => ({translations:Object.fromEntries(Object.entries(input.entries).filter(([,source])=>DEMO_TRANSLATIONS[source]).map(([id,source])=>[id,Object.fromEntries(input.targets[id]!.map(code=>[code,DEMO_TRANSLATIONS[source]![code]]))])),failures:Object.fromEntries(Object.entries(input.entries).filter(([,source])=>!DEMO_TRANSLATIONS[source]).map(([id])=>[id,"E_NO_FIXTURE"]))})} />
+      <V2TurkishTextEditor key={selected} section={section} onChange={patch} previewLocale={locale} demo />
+
       <V2TypographyControls design={design} onChange={design => patch({ design })} />
       <label>Abstände<select aria-label="Abstände" value={design.spacing} onChange={e => patch({ design: { ...design, spacing: e.target.value as V2SectionDesign["spacing"] } })}>{["default", "compact", "normal", "large"].map(v => <option key={v}>{v}</option>)}</select></label>
       <label>Hintergrund<input aria-label="Hintergrund" type="color" value={design.customColor ?? "#003d3d"} onChange={e => patch({ design: { ...design, background: "custom", customColor: e.target.value } })} /></label>
