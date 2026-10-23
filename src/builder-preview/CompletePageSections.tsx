@@ -1,3 +1,6 @@
+import { renderRegisteredEditorialBlock } from "@/components/design-v2/RegisteredEditorialBlock";
+import { RegisteredCards } from "@/components/design-v2/RegisteredCards";
+import { blockContract } from "@/domain/storefront/block-registry";
 import type { ReactNode } from 'react';
 import type { UiLocale } from '@/i18n/locales';
 import type { V2Section } from '@/domain/storefront/v2';
@@ -15,12 +18,14 @@ export function CompletePageSection({section:s,locale,resolve,hero,onSelect}:{se
  const t=(key:string)=>s.text[key]?.[locale]||s.text[key]?.tr||'';
  const text=(value:Record<string,unknown>)=>String(value[locale]||value['tr']||'');
  const items=s.items.filter(i=>i.visible);
+ const registered=renderRegisteredEditorialBlock({section:s,locale,resolve});
+ if(registered!==undefined)return <div data-complete-section={s.id} data-section-type={s.type} onDoubleClick={()=>onSelect(s.id)}>{registered}</div>;
  let content:ReactNode;
- switch(s.type){
+ switch(blockContract(s.type).previewRenderer){
  case 'SEARCH_HERO':content=hero;break;
  case 'NOTICE':content=<V2Notice section={s} title={t('title')} text={t('text')}/>;break;
  case 'FAQ':content=<V2SectionFrame section={s}><V2EditorialFaq title={t('title')} questions={items.map(i=>[text(i.title),text(i.text)])}/></V2SectionFrame>;break;
- case 'BENEFIT_ROW':content=<V2SectionFrame section={s}><TrustRow items={items.map(i=>({icon:<StorefrontIcon name={i.icon}/>,label:text(i.title)}))}/></V2SectionFrame>;break;
+ case 'BENEFIT_ROW':content=<V2SectionFrame section={s}><RegisteredCards items={items} locale={locale} resolve={resolve}/></V2SectionFrame>;break;
  case 'HOW_IT_WORKS':case 'INSTALLATION_STEPS':content=<V2SectionFrame section={s}><HowItWorks title={t('title')} steps={items.map(i=>({t:text(i.title),s:text(i.text),image:resolve(i.mediaId)}))}/></V2SectionFrame>;break;
  case 'INFO_GRID':case 'INFO_CAROUSEL':content=<V2EditorialGrid section={s} locale={locale} resolve={resolve}/>;break;
  case 'SPACER':content=<div aria-hidden style={{height:s.height==='tall'?40:24}}/>;break;

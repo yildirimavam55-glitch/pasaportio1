@@ -1,7 +1,7 @@
 name: Unified Admin Integration
 on:
   pull_request:
-    branches: [feat/builder-page-translation]
+    branches: [feat/unified-admin-integration]
 permissions:
   contents: read
 jobs:
@@ -52,7 +52,7 @@ jobs:
         run: bun run build
       - name: Builder regressions
         if: ${{ !cancelled() && steps.install.outcome == 'success' }}
-        run: bunx vitest run src/components/design-v2/__tests__/builder-mvp.test.tsx src/domain/storefront/__tests__/v2.test.ts src/domain/storefront/translation-workflow.test.ts src/domain/storefront/page-translation.test.ts src/lib/cms-translation.server.test.ts src/lib/cms-translation-handler.test.ts src/domain/storefront/admin-integration.test.tsx src/lib/builder-persistence.server.test.ts
+        run: bunx vitest run src/components/design-v2/__tests__/builder-mvp.test.tsx src/domain/storefront/__tests__/v2.test.ts src/domain/storefront/translation-workflow.test.ts src/domain/storefront/page-translation.test.ts src/lib/cms-translation.server.test.ts src/lib/cms-translation-handler.test.ts src/domain/storefront/admin-integration.test.tsx src/lib/builder-persistence.server.test.ts src/domain/storefront/block-registry.test.tsx src/lib/admin-permissions.integration.test.ts src/security/admin-surface.test.ts src/domain/storefront/editorial.test.tsx
       - name: Install pinned isolated browser test tooling
         timeout-minutes: 3
         id: browser
@@ -112,4 +112,5 @@ jobs:
           path: |
             public/builder-preview
             artifacts/builder-preview
+            artifacts/admin-security
           retention-days: 7

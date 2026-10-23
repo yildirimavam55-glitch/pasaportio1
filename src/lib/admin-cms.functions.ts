@@ -1,3 +1,4 @@
+import { assertLegacyCmsWritable } from "./legacy-cms-write-safety";
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { adminDb, audit, type AdminCtx } from "@/lib/admin-guard";
@@ -136,6 +137,7 @@ export const saveCmsDocument = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context, data }) => {
     const db = await adminDb(context as AdminCtx);
+    assertLegacyCmsWritable();
     if (!(CMS_KINDS as readonly string[]).includes(data.kind)) throw new Error("Geçersiz içerik türü.");
     const settings = sanitizeSettings(data.settings);
     const copy = Object.fromEntries(CMS_LOCALES.map((l) => [l, sanitizeCopy(data.copy?.[l])]));

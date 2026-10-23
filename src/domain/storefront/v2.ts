@@ -1,3 +1,4 @@
+import { sanitizeEditorialLayout,flattenEditorial,type EditorialLayout,type ElementType } from './editorial';
 import { translateString } from "@/i18n/overlay";
 import { getActiveUiLocale } from "@/i18n/overlay";
 import { UI_LOCALES, type UiLocale } from "@/i18n/locales";
@@ -35,31 +36,10 @@ export function ltStatus(value: LT | undefined, code: UiLocale): LTStatus {
   return value?._auto?.[code] === text ? "AUTO_TRANSLATED" : "MANUALLY_EDITED";
 }
 
-export const V2_SECTION_TYPES = [
-  "SEARCH_HERO",
-  "BENEFIT_ROW",
-  "DESTINATION_CAROUSEL",
-  "TRUST_REVIEWS",
-  "INFO_CAROUSEL",
-  "REGION_DISCOVERY",
-  "NOTICE",
-  "INFO_GRID",
-  "HOW_IT_WORKS",
-  "INSTALLATION_STEPS",
-  "COMPATIBILITY",
-  "PROMO_BANNER",
-  "GUIDE_CAROUSEL",
-  "FAQ",
-  "SPACER",
-] as const;
+export { V2_SECTION_TYPES, V2_PROTECTED, V2_SINGLETON, V2_ADDABLE, V2_TEXT_FIELDS } from "./block-registry";
+import { V2_SECTION_TYPES, V2_PROTECTED, V2_SINGLETON, V2_ADDABLE, V2_TEXT_FIELDS, upgradeBlockDocument } from "./block-registry";
+import { sanitizeCardDesign, type CardDesign } from "./card-design";
 export type V2SectionType = (typeof V2_SECTION_TYPES)[number];
-
-/** Search hero carries the core search: editable copy/media, never hidden, removed or moved. */
-export const V2_PROTECTED: readonly V2SectionType[] = ["SEARCH_HERO"];
-/** Sections tied to live catalogue data or a single page capability — not duplicable. */
-export const V2_SINGLETON: readonly V2SectionType[] = ["SEARCH_HERO", "DESTINATION_CAROUSEL", "TRUST_REVIEWS", "INFO_CAROUSEL", "REGION_DISCOVERY", "COMPATIBILITY", "GUIDE_CAROUSEL"];
-export const V2_ADDABLE: readonly V2SectionType[] = ["BENEFIT_ROW", "PROMO_BANNER", "NOTICE", "INFO_GRID", "HOW_IT_WORKS", "INSTALLATION_STEPS", "FAQ", "SPACER"];
-
 /** Internal destinations a CMS link may point to. Nothing else is accepted. */
 export const V2_SAFE_LINKS = [
   "/esim",
@@ -124,9 +104,13 @@ export type V2SectionDesign = {
 };
 
 export type V2Item = {
+  elementType?:ElementType;
+  elements?:V2Item[];
+  editorialLayout?:EditorialLayout;
   id: string;
   visible: boolean;
   icon: string;
+  cardDesign?: CardDesign;
   /** Country ISO / airport IATA for destination carousels. */
   entity: string;
   title: LT;
@@ -164,6 +148,8 @@ export type V2Item = {
 };
 
 export type V2Section = {
+  editorialLayout?:EditorialLayout;
+  schemaVersion?: number;
   id: string;
   type: V2SectionType;
   visible: boolean;
@@ -243,29 +229,10 @@ export const V2_SECTION_LABELS: Record<V2SectionType, string> = {
   GUIDE_CAROUSEL: "Rehberler",
   FAQ: "SSS",
   SPACER: "Boşluk",
+  EDITORIAL_SECTION: "Serbest bölüm",
 };
 
 /** Text fields each section type exposes in the editor (key → admin label). */
-export const V2_TEXT_FIELDS: Record<V2SectionType, Array<[string, string]>> = {
-  SEARCH_HERO: [["eyebrow", "Üst başlık"], ["title", "Başlık"], ["subtitle", "Alt başlık"], ["placeholder", "Arama metni"], ["sticky", "Sabit arama metni"], ["imageAlt", "Görsel açıklaması"]],
-  BENEFIT_ROW: [],
-  DESTINATION_CAROUSEL: [["title", "Başlık"]],
-  TRUST_REVIEWS: [
-    ["familyTitle", "Aile başlığı"], ["familyAccent", "Aile vurgusu"], ["familySubtitle", "Aile açıklaması"], ["familyGroup","Sohbet grup adı"], ["familyChat0","Sohbet mesajı 1"], ["familyChat1","Sohbet mesajı 2"], ["familyChat2","Sohbet mesajı 3"], ["familyChat3","Sohbet mesajı 4"], ["familyChat4","Sohbet mesajı 5"], ["familyBenefit0","Kompakt fayda 1"], ["familyBenefit1","Kompakt fayda 2"], ["familyBenefit2","Kompakt fayda 3"], ["familyReviewsTitle","Yorum başlığı"], ["familyBudget","Dönüşüm başlığı"], ["familyPlan","Dönüşüm açıklaması"], ["familyCta","Arama butonu"],["eyebrow", "Güven etiketi"], ["title", "Başlık"], ["accent", "Yeşil başlık satırı"], ["subtitle", "Açıklama"], ["imageAlt", "Seyahat görseli alt metni"], ["cta", "Buton metni"], ["whyEyebrow", "Neden pasaport.io üst başlığı"], ["whyTitle", "Neden pasaport.io başlığı"], ["whyDescription", "Neden pasaport.io açıklaması"], ["statisticPrefix", "Tasarruf ön eki (ör. \"…'e kadar\")"], ["statisticLabel", "Tasarruf başlığı"], ["comparisonTitle", "Karşılaştırma son mesaj başlığı"], ["comparisonDescription", "Karşılaştırma son mesaj açıklaması"], ["comparisonCta", "Karşılaştırma buton metni"], ["comparisonALabel", "Roaming etiketi"], ["comparisonASupport", "Roaming alt metni"], ["comparisonBLabel", "pasaport.io etiketi"], ["comparisonBSupport", "pasaport.io alt metni"], ["comparisonFootnote", "Kaynak / yöntem notu"], ["comparisonSavingLabel", "Tasarruf etiketi"], ["comparisonAdvantageLabel", "Fiyat avantajı etiketi"], ["comparisonDestination", "Karşılaştırılan destinasyon / referans"], ["comparisonAllowance", "Karşılaştırılan veri miktarı"], ["comparisonValidity", "Karşılaştırılan geçerlilik süresi"]],
-  INFO_CAROUSEL: [["title", "Başlık"], ["subtitle", "Alt başlık"]],
-  REGION_DISCOVERY: [["eyebrow", "Üst başlık"], ["title", "Başlık"], ["lead", "Açıklama"], ["worldwide", "Dünya bannerı"], ["cta", "Buton metni"]],
-  NOTICE: [["title", "Başlık"], ["text", "Metin"]],
-  INFO_GRID: [["title", "Başlık"]],
-  HOW_IT_WORKS: [["title", "Başlık"]],
-  INSTALLATION_STEPS: [["title", "Başlık"], ["subtitle", "Alt başlık"], ["ready", "Hazır etiketi"], ["adding", "Ekleniyor etiketi"], ["cta", "Buton metni"]],
-  COMPATIBILITY: [["title", "Başlık"]],
-  PROMO_BANNER: [["title", "Başlık"], ["subtitle", "Alt başlık"]],
-  GUIDE_CAROUSEL: [["title", "Başlık"], ["lead", "Açıklama"], ["all", "Tümü bağlantısı"]],
-  FAQ: [["title", "Başlık"]],
-  SPACER: [],
-};
-
-/** How items of a section are edited: title-only, title+text, question/answer, destination. */
 export const V2_ITEM_MODE: Partial<Record<V2SectionType, "benefit" | "card" | "faq" | "destination" | "step" | "info">> = {
   BENEFIT_ROW: "benefit",
   INFO_GRID: "card",
@@ -569,8 +536,10 @@ export function cleanMediaId(value: unknown): string | null {
 
 function cleanItem(raw: any, index: number): V2Item {
   return {
+    ...(raw?.elementType?{elementType:raw.elementType,editorialLayout:sanitizeEditorialLayout(raw.editorialLayout),...(Array.isArray(raw.elements)?{elements:raw.elements.map(cleanItem)}:{})}:{}),
     id: ID.test(String(raw?.id)) ? String(raw.id) : `item-${index + 1}`,
     visible: raw?.visible !== false,
+    ...(raw?.cardDesign ? {cardDesign:sanitizeCardDesign(raw.cardDesign)}:{}),
     icon: ICON_NAMES.includes(String(raw?.icon)) ? String(raw.icon) : "",
     entity: ENTITY.test(String(raw?.entity ?? "").toUpperCase()) ? String(raw.entity).toUpperCase() : "",
     title: cleanLT(raw?.title, 200),
@@ -629,8 +598,10 @@ function cleanSection(raw: any): V2Section | null {
   const mobile = responsive(raw.design?.mobile);
   const customColor = /^#[0-9a-fA-F]{6}$/.test(String(raw.design?.customColor)) ? String(raw.design.customColor).toLowerCase() : undefined;
   return {
+    ...(raw.schemaVersion!=null?{schemaVersion:1}:{}),
     id: String(raw.id),
     type,
+    ...(type==='EDITORIAL_SECTION'?{editorialLayout:sanitizeEditorialLayout(raw.editorialLayout)}:{}),
     visible: V2_PROTECTED.includes(type) ? true : raw.visible !== false,
     showOnResults: Boolean(raw.showOnResults),
     variant: cleanText(raw.variant, 24).replace(/[^a-z-]/g, "") || "default",
@@ -659,7 +630,7 @@ function cleanSection(raw: any): V2Section | null {
     startsAt: DATE.test(String(raw.startsAt)) ? String(raw.startsAt) : "",
     endsAt: DATE.test(String(raw.endsAt)) ? String(raw.endsAt) : "",
     text,
-    items: Array.isArray(raw.items) ? raw.items.slice(0, 30).map(cleanItem) : [],
+    items: Array.isArray(raw.items) ? raw.items.slice(0, 30).map((item:any,index:number)=>{const cleaned=cleanItem(item,index);if(type!=='EDITORIAL_SECTION')return cleaned;const safe=(i:V2Item):V2Item=>({...i,entity:'',cardType:'info',verified:false,published:false,...(i.elements?{elements:i.elements.map(safe)}:{})});return safe(cleaned);}) : [],
     showDots: raw.showDots !== false,
     showArrows: raw.showArrows !== false,
     cardGap: pick(raw.cardGap, ["compact", "normal", "wide"] as const, "normal"),
@@ -713,6 +684,7 @@ function cleanSection(raw: any): V2Section | null {
 
 /** Server + client validation. Invalid input falls back to the built-in approved layout. */
 export function sanitizeV2Page(raw: any, page: V2PageId): V2PageConfig {
+  raw=upgradeBlockDocument(raw);
   const fallback = defaultV2Page(page);
   if (!raw || !Array.isArray(raw.sections)) return fallback;
   const seen = new Set<string>();
@@ -788,7 +760,7 @@ export function missingV2Translations(config: V2PageConfig, locale: "de" | "en")
   const check = (value: LT | undefined) => { if (value?.tr?.trim() && !value[locale]?.trim()) missing += 1; };
   for (const s of config.sections) {
     Object.values(s.text).forEach(check);
-    for (const it of s.items) { check(it.title); check(it.text); it.labels.forEach(check); check(it.cta); check(it.imageAlt); }
+    for (const it of flattenEditorial(s.items)) { check(it.title); check(it.text); it.labels.forEach(check); check(it.cta); check(it.imageAlt); }
   }
   return missing;
 }
@@ -796,7 +768,7 @@ export function missingV2Translations(config: V2PageConfig, locale: "de" | "en")
 export function collectV2MediaIds(config: V2PageConfig): string[] {
   const ids = new Set<string>();
   for (const s of config.sections) {
-    for (const id of [s.mediaId, s.mobileMediaId, s.tabletMediaId, s.trust?.illustrationId, s.trust?.comparisonImageId, s.trust?.comparisonMobileImageId, ...Object.values(s.imageOverrides ?? {}), ...s.items.flatMap((item) => [item.mediaId,item.tabletMediaId,item.mobileMediaId])]) if (id && UUID.test(id)) ids.add(id);
+    for (const id of [s.mediaId, s.mobileMediaId, s.tabletMediaId, s.trust?.illustrationId, s.trust?.comparisonImageId, s.trust?.comparisonMobileImageId, ...Object.values(s.imageOverrides ?? {}), ...flattenEditorial(s.items).flatMap((item) => [item.mediaId,item.tabletMediaId,item.mobileMediaId])]) if (id && UUID.test(id)) ids.add(id);
   }
   return [...ids];
 }

@@ -118,11 +118,16 @@ let activeBrowser;
   assert.match(await frame.locator('h1').evaluate(e=>getComputedStyle(e).fontFamily),/Sora/);
  }
  await page.getByRole('button',{name:'Seiten',exact:true}).click();
- await page.getByLabel('Abschnitt hinzufügen',{exact:true}).selectOption('INFO_GRID');
- await page.getByLabel('item-title-editorial-item',{exact:true}).fill('Bilgi');
- await page.getByLabel('item-cta-editorial-item',{exact:true}).fill('Ülke ara');
- await page.getByLabel('item-href-editorial-item',{exact:true}).selectOption('/esim');
- for(const [device,id]of [['desktop','10000000-0000-4000-8000-000000000001'],['tablet','10000000-0000-4000-8000-000000000002'],['mobile','10000000-0000-4000-8000-000000000001']])await page.getByLabel(`item-media-editorial-item-${device}`,{exact:true}).selectOption(id);
+ await page.getByRole('button',{name:'+ Yeni bölüm ekle',exact:true}).click();
+ await page.getByRole('dialog',{name:'Bölüm kütüphanesi'}).getByRole('button',{name:'Bilgi kartları',exact:true}).click();
+ await page.getByRole('button',{name:'Kart ekle',exact:true}).click();
+ const legacyCardId=await page.locator('[data-editor-item]').first().getAttribute('data-editor-item');
+ await page.getByLabel(`item-title-${legacyCardId}`,{exact:true}).fill('Bilgi');
+ await page.getByLabel(`item-text-${legacyCardId}`,{exact:true}).fill('Seyahate çıkmadan önce cihazını kontrol et.');
+ await page.getByLabel(`item-imageAlt-${legacyCardId}`,{exact:true}).fill('Bilgi');
+ await page.getByLabel(`item-cta-${legacyCardId}`,{exact:true}).fill('Ülke ara');
+ await page.getByLabel(`item-href-${legacyCardId}`,{exact:true}).selectOption('/esim');
+ for(const [device,id]of [['desktop','10000000-0000-4000-8000-000000000001'],['tablet','10000000-0000-4000-8000-000000000002'],['mobile','10000000-0000-4000-8000-000000000001']])await page.getByLabel(`item-media-${legacyCardId}-${device}`,{exact:true}).selectOption(id);
  await page.getByRole('group',{name:'tablet',exact:true}).getByLabel('Ölçek / Zoom',{exact:true}).fill('120');
  await page.getByLabel('media-overlay',{exact:true}).fill('20');
  for(const width of [390,768,1440]){
@@ -164,7 +169,7 @@ let activeBrowser;
  await frame.getByRole('heading',{name:'BROWSER_RELEASE_TITLE',exact:true}).waitFor();
  await page.getByLabel('Entwurf oder Testfreigabe',{exact:true}).selectOption('draft');
  await frame.getByRole('heading',{name:'Yolculuğuna bağlı kal',exact:true}).waitFor();
- for(const width of [390,768,1440]){await page.setViewportSize({width,height:1000});await page.waitForFunction(()=>document.body.scrollWidth<=document.body.clientWidth);assert.equal(await page.locator('body').evaluate(e=>e.scrollWidth<=e.clientWidth),true);await page.screenshot({path:`artifacts/builder-preview/integrated-admin-${width}.png`,fullPage:true});}
+ for(const width of [390,768,1440]){await page.setViewportSize({width,height:1000});await page.waitForFunction(()=>{const el=document.querySelector('.admin-reference-sidebar');if(!el)return false;const css=getComputedStyle(el);if(css.position!=='fixed')return true;return el.classList.contains('is-open')?css.transform==='none':css.visibility==='hidden';});await page.waitForFunction(()=>document.body.scrollWidth<=document.body.clientWidth);assert.equal(await page.locator('body').evaluate(e=>e.scrollWidth<=e.clientWidth),true);await page.screenshot({path:`artifacts/builder-preview/integrated-admin-${width}.png`,fullPage:true});}
  // Complete original page, not the two-section translation fixture.
  await page.goto('http://127.0.0.1:8765/builder-preview/');
  await frame.locator('[data-complete-section="hero"]').waitFor();
@@ -219,7 +224,130 @@ let activeBrowser;
  await page.getByLabel('Önizleme kaynağı',{exact:true}).selectOption('offline');
  await frame.locator('[data-complete-section="hero"]').waitFor();
 
- assert.deepEqual(errors,[]);assert.deepEqual(remote,[]);
- fs.writeFileSync('artifacts/builder-preview/browser-result.json',JSON.stringify({result:'PASS',cjkPlatformFontVerified:true,sourceLocale:'tr',locales:14,viewports:[390,768,1440],remoteRequests:0,screenshots:fs.readdirSync('artifacts/builder-preview').filter(p=>p.endsWith('.png')).length,checks:['fixed Turkish fields','ES preview does not empty TR','whole page Hero+NOTICE in 13 languages','fresh second run zero calls','page summary','13 fixture statuses','explicit manual correction','stale source/manual protection','unknown fixture refuses fake AI','RTL/CJK text','Hero/NOTICE presentation','shared global theme controls','responsive item media 3 devices','configured menu/footer','presentation-only account note','synthetic save/reload/draft restore/publication isolation','original shared Admin shell and all module links','complete default page sections','scaled full frame without mobile clipping','mobile drawer and keyboard close','actual full-site target protocol (synthetic HTTP receiver only)'],limitation:'UI persistence is a clearly labelled synthetic browser adapter; real PostgreSQL/PostgREST isolation is separately reported; no managed Supabase/Auth, Storage write or paid provider test'},null,2));
+ // Complete modular-card acceptance on the same existing Admin shell and actual public renderer.
+ await page.getByRole('button',{name:'Seiten',exact:true}).click();
+ await page.getByRole('button',{name:'Güven kartları ekle',exact:true}).click();
+ const securityId=await page.getByLabel('Abschnitt',{exact:true}).inputValue();
+ const beforeCount=await page.getByLabel('Abschnitt',{exact:true}).locator('option').count();
+ const ids=[];
+ for(const [index,title]of ['Bilgi','Ülke ara','eSIM'].entries()){
+  await page.getByRole('button',{name:'Kart ekle',exact:true}).click();
+  const editor=page.locator('[data-editor-item]').nth(index);const id=await editor.getAttribute('data-editor-item');ids.push(id);
+  await editor.getByLabel(`item-title-${id}`,{exact:true}).fill(title);
+  await editor.getByLabel(`item-text-${id}`,{exact:true}).fill('Seyahate çıkmadan önce cihazını kontrol et.');
+  await editor.locator('[data-item-icon] button').first().click();
+  await editor.getByRole('button',{name:['ShieldCheck','Zap','Smartphone'][index],exact:true}).click();
+  await editor.getByLabel(`card-${id}-mobile-color`,{exact:true}).fill('#27caab');
+  await editor.getByLabel(`card-${id}-desktop-color`,{exact:true}).fill('#1463ad');
+  await editor.getByLabel(`card-${id}-mobile-iconSize`,{exact:true}).fill('22');
+  await editor.getByLabel(`card-${id}-desktop-iconSize`,{exact:true}).fill('46');
+ }
+ await page.getByLabel('Kart yukarı: '+ids[2],{exact:true}).click();
+ await page.getByLabel('Kart görünürlük: '+ids[0],{exact:true}).click();
+ await page.getByRole('button',{name:'390 px',exact:true}).click();
+ const cards=frame.locator(`[data-complete-section="${securityId}"] [data-registered-card]`);
+ await cards.first().waitFor();assert.equal(await cards.count(),2);
+ assert.deepEqual(await cards.evaluateAll(nodes=>nodes.map(n=>n.dataset.registeredCard)),[ids[2],ids[1]]);
+ for(const [width,size]of [[390,'22px'],[768,'22px'],[1440,'46px']]){
+  await page.getByRole('button',{name:`${width} px`,exact:true}).click();
+  await page.waitForFunction(({width})=>document.querySelector('iframe').contentDocument.documentElement.clientWidth===width,{width});
+  assert.equal(await cards.first().locator('.registered-card-icon').evaluate(e=>getComputedStyle(e).width),size);
+  assert.equal(await cards.first().evaluate(e=>getComputedStyle(e).color),width===1440?'rgb(20, 99, 173)':'rgb(39, 202, 171)');
+  assert.equal(await cards.first().locator('h3').evaluate(e=>getComputedStyle(e).color),width===1440?'rgb(20, 99, 173)':'rgb(39, 202, 171)');
+  await frame.locator(`[data-complete-section="${securityId}"]`).screenshot({path:`artifacts/builder-preview/modular-cards-${width}.png`});
+ }
+ await page.getByRole('button',{name:'Tüm sayfayı 13 dile çevir (DEMO)',exact:true}).click();
+ for(const locale of ['de','ar','ja','zh']){await page.getByLabel('Vorschau in',{exact:true}).selectOption(locale);await cards.first().waitFor();assert.equal(await frame.locator('html').getAttribute('dir'),locale==='ar'?'rtl':'ltr');await frame.locator(`[data-complete-section="${securityId}"]`).screenshot({path:`artifacts/builder-preview/modular-cards-${locale}.png`});}
+ await page.getByRole('button',{name:'Versionen',exact:true}).click();
+ await page.getByRole('button',{name:'Synthetischen Entwurf speichern',exact:true}).click();
+ await page.reload();await page.getByRole('button',{name:'Versionen',exact:true}).click();await page.getByRole('button',{name:'Gespeicherten Entwurf laden',exact:true}).click();
+ await page.getByRole('button',{name:'Seiten',exact:true}).click();
+ assert.equal(await page.getByLabel('Abschnitt',{exact:true}).locator('option').count(),beforeCount);
+ await page.getByLabel('Abschnitt',{exact:true}).selectOption(securityId);
+ assert.equal(await frame.locator(`[data-complete-section="${securityId}"] [data-registered-card]`).count(),2);
+ assert.equal(await page.locator('[data-editor-item]').count(),3,'hidden card and existing fields retained');
+ await page.getByRole('button',{name:'Versionen',exact:true}).click();
+ await page.getByRole('button',{name:/^Revision .* → Entwurf$/}).first().click();
+ await page.getByRole('button',{name:'Seiten',exact:true}).click();
+ await page.getByLabel('Abschnitt',{exact:true}).selectOption(securityId);
+ assert.equal(await page.locator('[data-editor-item]').count(),3,'version restore preserves all cards');
+ // Full free-section acceptance: existing Admin, shared actual public renderer, no database.
+ await page.getByRole('button',{name:'Seiten',exact:true}).click();
+ const originalOptions=await page.getByLabel('Abschnitt',{exact:true}).locator('option').evaluateAll(nodes=>nodes.map(n=>n.value));
+ await page.getByRole('button',{name:'+ Yeni bölüm ekle',exact:true}).click();
+ for(const width of [390,768,1440]){await page.setViewportSize({width,height:1000});const library=page.getByRole('dialog',{name:'Bölüm kütüphanesi',exact:true});assert.equal(await library.evaluate(e=>e.scrollWidth<=e.clientWidth),true,'library has no horizontal overflow');await library.screenshot({path:`artifacts/builder-preview/free-library-${width}.png`});}
+ await page.getByRole('dialog',{name:'Bölüm kütüphanesi',exact:true}).getByRole('button',{name:'Boş bölüm',exact:true}).click();
+ const freeSection=await page.getByLabel('Abschnitt',{exact:true}).inputValue();
+ const freeIds=[];
+ for(const type of ['HEADING','IMAGE','ICON','ICON','ICON','BUTTON','BUTTON']){
+  await page.getByLabel('Öğe ekle',{exact:true}).selectOption(type);
+  const node=page.locator('[data-free-editor-item]').last();const id=await node.getAttribute('data-free-editor-item');freeIds.push(id);
+  if(type==='HEADING'||type==='ICON')await node.getByLabel(`free-${id}-title`,{exact:true}).fill('Bilgi');
+  if(type==='IMAGE'){
+   await node.getByLabel(`free-${id}-imageAlt`,{exact:true}).fill('Bilgi');
+   await node.locator(`[data-free-media="${id}-desktop"]`).getByRole('combobox').selectOption('10000000-0000-4000-8000-000000000001');
+  }
+  if(type==='ICON'){
+   await node.locator('[data-free-icon] button').first().click();
+   await node.getByRole('button',{name:['ShieldCheck','Zap','Smartphone'][freeIds.length-3],exact:true}).click();
+  }
+  if(type==='BUTTON'){
+   await node.getByLabel(`free-${id}-cta`,{exact:true}).fill('Ülke ara');
+   await node.getByLabel(`free-${id}-href`,{exact:true}).selectOption('/esim');
+  }
+ }
+ assert.equal(await page.locator('[data-free-editor-item]').count(),7);
+ await page.getByLabel(`layout-${freeSection}-desktop`,{exact:true}).selectOption('image-left');
+ await page.getByLabel(`layout-${freeSection}-tablet`,{exact:true}).selectOption('image-right');
+ await page.getByLabel(`layout-${freeSection}-mobile`,{exact:true}).selectOption('image-top');
+ await page.getByLabel(`layout-${freeSection}-mobile-padding`,{exact:true}).fill('12');
+ await page.getByLabel(`layout-${freeSection}-desktop-padding`,{exact:true}).fill('24');
+ for(const [width,device]of [[390,'mobile'],[768,'tablet'],[1440,'desktop']]){
+  await page.getByRole('button',{name:`${width} px`,exact:true}).click();
+  await page.waitForFunction(width=>document.querySelector('iframe').contentDocument.documentElement.clientWidth===width,width);
+  const output=frame.locator(`[data-editorial-section="${freeSection}"]`);
+  const elements=output.locator('[data-editorial-element]');await elements.first().waitFor();assert.equal(await elements.count(),7,'one DOM instance per element');
+  assert.equal(await output.locator('[data-element-type="ICON"]').count(),3);assert.equal(await output.locator('a').count(),2);assert.equal(await output.locator('[data-element-type="HEADING"]').evaluate(e=>getComputedStyle(e).paddingTop),'0px','section padding never becomes item padding');
+  const picture=await output.locator('[data-element-type="IMAGE"]').boundingBox(),heading=await output.locator('[data-element-type="HEADING"]').boundingBox();
+  assert.ok(picture&&heading);if(device==='desktop')assert.ok(picture.x<heading.x);if(device==='tablet')assert.ok(picture.x>heading.x);if(device==='mobile')assert.ok(picture.y<heading.y);
+  assert.equal(await frame.locator('body').evaluate(e=>e.scrollWidth<=e.clientWidth),true,'free section no horizontal overflow');
+  await output.scrollIntoViewIfNeeded();
+  await output.locator('img').evaluateAll(async images=>{await Promise.all(images.map(img=>img.decode()));if(images.some(img=>!img.complete||!img.naturalWidth))throw Error('FREE_MEDIA_NOT_DECODED');});
+  const mediaGeometry=await output.locator('.editorial-image').first().evaluate(span=>{const img=span.querySelector('img');return {frame:span.getBoundingClientRect().height,image:img.getBoundingClientRect().height};});assert.ok(Math.abs(mediaGeometry.frame-mediaGeometry.image)<2,'image fills its responsive crop frame');
+  await output.screenshot({path:`artifacts/builder-preview/free-section-${width}.png`});
+ }
+ for(const width of [390,768,1440]){await page.setViewportSize({width,height:1000});assert.equal(await page.locator('body').evaluate(e=>e.scrollWidth<=e.clientWidth),true,'free editor has no horizontal overflow');await page.locator(`[data-free-section-editor="${freeSection}"]`).screenshot({path:`artifacts/builder-preview/free-editor-${width}.png`});}
+ await page.getByRole('button',{name:'Yukarı: '+freeSection,exact:true}).click();
+ const reordered=await page.getByLabel('Abschnitt',{exact:true}).locator('option').evaluateAll(nodes=>nodes.map(n=>n.value));assert.notEqual(reordered.at(-1),freeSection);
+ await page.getByRole('button',{name:'Abschnitt duplizieren',exact:true}).click();
+ const duplicateId=await page.getByLabel('Abschnitt',{exact:true}).inputValue();assert.notEqual(duplicateId,freeSection);
+ const duplicateNodes=await page.locator('[data-free-editor-item]').evaluateAll(nodes=>nodes.map(n=>n.dataset.freeEditorItem));assert.equal(duplicateNodes.some(id=>freeIds.includes(id)),false,'duplicate gets fresh child IDs');
+ await page.getByLabel('Şablon adı',{exact:true}).fill('Sicherheitsmerkmale');
+ await page.getByRole('button',{name:'Kendi şablonum olarak kaydet',exact:true}).click();
+ await page.getByRole('button',{name:'+ Yeni bölüm ekle',exact:true}).click();
+ await page.getByRole('dialog',{name:'Bölüm kütüphanesi',exact:true}).getByRole('button',{name:'Sicherheitsmerkmale',exact:true}).click();
+ const templateInstance=await page.getByLabel('Abschnitt',{exact:true}).inputValue();assert.notEqual(templateInstance,duplicateId);
+ const templateTitle=page.locator('[data-free-editor-item]').first();const templateTitleId=await templateTitle.getAttribute('data-free-editor-item');
+ await templateTitle.getByLabel(`free-${templateTitleId}-title`,{exact:true}).fill('eSIM');
+ await templateTitle.getByText('Manuel çeviriler',{exact:true}).click();
+ await templateTitle.getByLabel(`free-${templateTitleId}-title-de`,{exact:true}).fill('Meine Fassung');
+ await page.getByRole('button',{name:'Tüm sayfayı 13 dile çevir (DEMO)',exact:true}).click();
+ for(const code of ['en','de','fr','es','it','pt','nl','pl','ar','ru','ja','ko','zh'])assert.ok(await templateTitle.getByLabel(`free-${templateTitleId}-title-${code}`,{exact:true}).inputValue(),'new field translated or manually protected: '+code);
+ assert.equal(await templateTitle.getByLabel(`free-${templateTitleId}-title-de`,{exact:true}).inputValue(),'Meine Fassung');
+ for(const locale of ['de','ar','ja','zh']){await page.getByLabel('Vorschau in',{exact:true}).selectOption(locale);const output=frame.locator(`[data-editorial-section="${templateInstance}"]`);await output.getByRole('heading',{name:locale==='de'?'Meine Fassung':'eSIM',exact:true}).waitFor();assert.equal(await frame.locator('html').getAttribute('dir'),locale==='ar'?'rtl':'ltr');await output.screenshot({path:`artifacts/builder-preview/free-section-${locale}.png`});}
+ await page.getByLabel('Vorschau in',{exact:true}).selectOption('tr');
+ assert.equal(await frame.locator(`[data-editorial-section="${freeSection}"] [data-element-type="HEADING"]`).getByRole('heading',{name:'Bilgi',exact:true}).count(),1,'template edit leaves source independent');
+ assert.equal(await frame.locator(`[data-editorial-section="${duplicateId}"] [data-element-type="HEADING"]`).getByRole('heading',{name:'Bilgi',exact:true}).count(),1,'template edit leaves duplicate independent');
+ await page.getByRole('button',{name:'Yukarı: '+templateInstance,exact:true}).click();
+ await page.getByRole('button',{name:'Versionen',exact:true}).click();
+ await page.getByRole('button',{name:'Synthetischen Entwurf speichern',exact:true}).click();
+ await page.reload();await page.getByRole('button',{name:'Versionen',exact:true}).click();await page.getByRole('button',{name:'Gespeicherten Entwurf laden',exact:true}).click();
+ await page.getByRole('button',{name:/^Revision .* → Entwurf$/}).first().click();
+ await page.getByRole('button',{name:'Seiten',exact:true}).click();
+ const options=await page.getByLabel('Abschnitt',{exact:true}).locator('option').evaluateAll(nodes=>nodes.map(n=>n.value));for(const original of originalOptions)assert.ok(options.includes(original),'pre-existing sections retained');
+ for(const id of [freeSection,duplicateId,templateInstance]){await page.getByLabel('Abschnitt',{exact:true}).selectOption(id);assert.equal(await page.locator('[data-free-editor-item]').count(),7);assert.equal(await frame.locator(`[data-editorial-section="${id}"] [data-element-type="IMAGE"] img`).getAttribute('src')!==null,true,'media reference retained');}
+ await page.getByRole('button',{name:'+ Yeni bölüm ekle',exact:true}).click();await page.getByRole('dialog',{name:'Bölüm kütüphanesi',exact:true}).getByRole('button',{name:'Sicherheitsmerkmale',exact:true}).waitFor();await page.keyboard.press('Escape');
+  assert.deepEqual(errors,[]);assert.deepEqual(remote,[]);
+ fs.writeFileSync('artifacts/builder-preview/browser-result.json',JSON.stringify({result:'PASS',cjkPlatformFontVerified:true,sourceLocale:'tr',locales:14,viewports:[390,768,1440],remoteRequests:0,screenshots:fs.readdirSync('artifacts/builder-preview').filter(p=>p.endsWith('.png')).length,checks:['fixed Turkish fields','ES preview does not empty TR','whole page Hero+NOTICE in 13 languages','fresh second run zero calls','page summary','13 fixture statuses','explicit manual correction','stale source/manual protection','unknown fixture refuses fake AI','RTL/CJK text','Hero/NOTICE presentation','shared global theme controls','responsive item media 3 devices','configured menu/footer','presentation-only account note','synthetic save/reload/draft restore/publication isolation','original shared Admin shell and all module links','complete default page sections','scaled full frame without mobile clipping','mobile drawer and keyboard close','actual full-site target protocol (synthetic HTTP receiver only)','modular security cards full add/reorder/hide/design/translate/save/reload sequence','free section: create/add seven primitives/layouts/reorder/duplicate/template/reinsert/13 locales/save/reload/restore/independence'],limitation:'UI persistence is a clearly labelled synthetic browser adapter; real PostgreSQL/PostgREST isolation is separately reported; no managed Supabase/Auth, Storage write or paid provider test'},null,2));
  await browser.close();console.log('PASS: TR source / 14 previews / 13 statuses / manual protection / offline fixtures / shared Hero and NOTICE');
 })().catch(async error=>{fs.mkdirSync('artifacts/builder-preview',{recursive:true});fs.writeFileSync('artifacts/builder-preview/browser-error.json',JSON.stringify({message:error.message,stack:error.stack},null,2));console.error(error);await activeBrowser?.close();process.exitCode=1;});

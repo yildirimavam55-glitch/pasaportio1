@@ -1,3 +1,4 @@
+import { RegisteredCards } from "./RegisteredCards";
 import { HERO_COPY as COPY } from "@/domain/storefront/hero-copy";
 // ============= Full file contents =============
 
@@ -7,22 +8,19 @@ import { resolveHeroCopy } from "@/domain/storefront/hero-presentation";
 import { useI18n } from "@/i18n";
 import { HeroPromotion } from "./HeroPromotion";
 import { defaultV2Page, v2Text, type V2Section } from "@/domain/storefront/v2";
-import { trustBandItems } from "./hero-trust-band";
-import { useWhatsAppHref } from "@/components/travel/WhatsAppSupportWidget";
 import { combinedSourceRating, starFill } from "@/domain/storefront/review-carousel";
-import { CalendarCheck, Mail, QrCode } from "lucide-react";
 /** Sample figures only so the strip layout can be reviewed in the dev preview; never shipped, never presented as verified. */
 const PREVIEW_SAMPLE_RATING = import.meta.env.DEV ? { rating: 4.8, displayRating: 4.8, count: 2000 } : null;
 import { useTrustIconEntry } from "./use-trust-icon-entry";
 
-export function PasaportEsimHero({ section, image, tabletImage, mobileImage, benefits, reviews, children }: { section: V2Section; image: string; tabletImage?: string | undefined; mobileImage?: string | undefined; benefits?: V2Section | undefined; reviews?: V2Section | undefined; children: ReactNode }) {
+export function PasaportEsimHero({ section, image, tabletImage, mobileImage, benefits, reviews, resolve, children }: { section: V2Section; image: string; tabletImage?: string | undefined; mobileImage?: string | undefined; benefits?: V2Section | undefined; reviews?: V2Section | undefined; resolve?: ((id:string|null|undefined)=>string|undefined)|undefined; children: ReactNode }) {
  const { locale, uiLocale } = useI18n();
  const c = COPY[uiLocale as keyof typeof COPY] ?? COPY[locale];
  const defaults = defaultV2Page("esim").sections.find(s => s.type === "SEARCH_HERO");
  const copy = resolveHeroCopy(section, v2Text(section, "title", locale), v2Text(section, "subtitle", locale), defaults ? v2Text(defaults, "subtitle", locale) : "", c, uiLocale);
  return <V2HeroView section={section} image={image} tabletImage={tabletImage} mobileImage={mobileImage}
    heading={copy.useDefaultTitle ? <>{c.titleA} <span className="final-hero-accent">{c.titleB}</span></> : copy.title}
-   subtitle={copy.subtitle} promotion={<HeroPromotion />} trust={<PasaportMobileBenefits section={benefits} reviews={reviews} />}>
+   subtitle={copy.subtitle} promotion={<HeroPromotion />} trust={<PasaportMobileBenefits section={benefits} reviews={reviews} resolve={resolve} />}>
    {children}
  </V2HeroView>;
 }
@@ -37,26 +35,24 @@ function TrustpilotMark() {
 function StripStars({ rating }: { rating: number }) {
   return <span className="trust-strip-stars" role="img" aria-label={`${rating.toFixed(1)} / 5`}>{Array.from({ length: 5 }, (_, i) => <span key={i} className="trust-strip-star"><svg viewBox="0 0 24 24" width="13" height="13" aria-hidden="true"><path className="star-base" d="M12 2l2.9 6.3 6.9.8-5.1 4.7 1.4 6.8L12 17.2 5.9 20.6l1.4-6.8L2.2 9.1l6.9-.8z"/><path className="star-fill" d="M12 2l2.9 6.3 6.9.8-5.1 4.7 1.4 6.8L12 17.2 5.9 20.6l1.4-6.8L2.2 9.1l6.9-.8z" style={{ clipPath: `inset(0 ${100 - starFill(rating, i)}% 0 0)` }}/></svg></span>)}</span>;
 }
-const STRIP_ICONS: Record<string, typeof Mail> = { delivery: Mail, refund: CalendarCheck, setup: QrCode };
 
 /**
  * Premium glass trust strip below the hero search: optional verified Google+Trustpilot
  * summary (rendered only when both sources are verified in the CMS) plus the delivery,
  * refund and setup benefits from the Admin-edited BENEFIT_ROW section. Informational only.
  */
-export function PasaportMobileBenefits({ section, reviews }: { section?: V2Section | undefined; reviews?: V2Section | undefined }) {
+export function PasaportMobileBenefits({ section, reviews, resolve }: { resolve?: ((id:string|null|undefined)=>string|undefined)|undefined; section?: V2Section | undefined; reviews?: V2Section | undefined }) {
   const { locale, uiLocale } = useI18n();
   const c = COPY[uiLocale as keyof typeof COPY] ?? COPY[locale];
-  const items = trustBandItems(section, locale, useWhatsAppHref());
   const { ref, entered } = useTrustIconEntry();
   const verified = combinedSourceRating(reviews?.trust?.sourceRatings);
   const summary = verified ?? PREVIEW_SAMPLE_RATING;
   const isSample = !verified && Boolean(summary);
-  const benefits = ["delivery", "refund", "setup"].flatMap((id) => { const item = items.find((entry) => entry.id === id); return item ? [item] : []; });
+  const benefits=section?.items??defaultV2Page("esim").sections.find(s=>s.type==="BENEFIT_ROW")?.items??[];
   const reviewsLabel = uiLocale === "de" ? "Bewertungen" : locale === "tr" ? "değerlendirme" : "reviews";
   const outOf = uiLocale === "de" ? "aus 5" : locale === "tr" ? "/ 5" : "out of 5";
   return (
-    <div ref={ref} className="hero-trust-strip" data-trust-entered={entered} data-has-rating={Boolean(summary)}>
+    <div ref={ref} className="hero-trust-strip registered-trust-strip" data-trust-entered={entered} data-has-rating={Boolean(summary)}>
         <div className="trust-strip-segment trust-strip-rating">
           <span className="trust-strip-marks"><GoogleMark /><TrustpilotMark /></span>
           {summary && <span className="trust-strip-rating-text">
@@ -65,15 +61,7 @@ export function PasaportMobileBenefits({ section, reviews }: { section?: V2Secti
             <small>{new Intl.NumberFormat(uiLocale).format(summary.count)} {reviewsLabel}{isSample ? <em className="trust-strip-sample" title={c.sample}>{c.sample}</em> : null}</small>
           </span>}
         </div>
-      {benefits.map(({ id, label, description }) => {
-        const Icon = STRIP_ICONS[id] ?? Mail;
-        return (
-          <div key={id} className="trust-strip-segment" data-trust-kind={id}>
-            <span className="trust-strip-icon" aria-hidden="true"><Icon size={20} strokeWidth={1.8} /></span>
-            <span className="trust-strip-text"><strong>{label}</strong>{description ? <small>{description}</small> : null}</span>
-          </div>
-        );
-      })}
+      <RegisteredCards items={benefits} locale={uiLocale} resolve={resolve} compact/>
     </div>
   );
 }

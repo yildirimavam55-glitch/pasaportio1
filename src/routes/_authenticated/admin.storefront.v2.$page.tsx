@@ -1,3 +1,8 @@
+import { SectionLibrary } from '@/components/admin/SectionLibrary';
+import { EditorialSectionEditor } from '@/components/admin/EditorialSectionEditor';
+import { cloneEditorialSection,flattenEditorial,SECTION_LIMIT } from '@/domain/storefront/editorial';
+import { CardDesignControls } from "@/components/admin/CardDesignControls";
+import { blockContract } from "@/domain/storefront/block-registry";
 import { ResponsivePreview } from "@/components/admin/ResponsivePreview";
 import { EditorialItemControls } from "@/components/admin/EditorialItemControls";
 import { ResponsiveMediaControls } from "@/components/admin/ResponsiveMediaControls";
@@ -209,7 +214,8 @@ function Editor({ page }: { page: V2PageId }) {
     setDragId(null);
   };
   const duplicate = (s: V2Section) => {
-    const copy = { ...structuredClone(s), id: `${s.id.slice(0, 40)}-${Math.random().toString(36).slice(2, 6)}` };
+    if(sections.length>=SECTION_LIMIT){toast.error("Bölüm sınırı 30.");return;}
+    const copy = s.type==='EDITORIAL_SECTION'?cloneEditorialSection(s):{ ...structuredClone(s), id: `${s.id.slice(0, 40)}-${Math.random().toString(36).slice(2, 6)}` };
     const index = sections.findIndex((x) => x.id === s.id);
     const next = [...sections];
     next.splice(index + 1, 0, copy);
@@ -293,12 +299,7 @@ function Editor({ page }: { page: V2PageId }) {
               );
             })}
           </ol>
-          <details className="mt-3">
-            <summary className="cursor-pointer text-xs font-semibold text-primary"><Plus className="inline size-3.5" /> Bölüm ekle</summary>
-            <div className="mt-2 grid grid-cols-2 gap-1">
-              {V2_ADDABLE.map((type) => <Button key={type} size="sm" variant="outline" className="h-auto whitespace-normal py-1.5 text-[11px]" onClick={() => add(type)}>{V2_SECTION_LABELS[type]}</Button>)}
-            </div>
-          </details>
+          <SectionLibrary count={sections.length} selected={selected} onAdd={s=>{if(sections.length>=SECTION_LIMIT)return;update({...draft,sections:[...sections,s]});setSelectedId(s.id);}}/>
         </AdminPanel>
 
         <AdminPanel title={V2_SECTION_LABELS[selected.type]} action={
@@ -312,7 +313,7 @@ function Editor({ page }: { page: V2PageId }) {
             <select aria-label="Vorschau in" value={previewLocale} className="admin-field mt-1 w-full" onChange={e => setPreviewLocale(e.target.value as UiLocale)}>{UI_LOCALES.map(code => <option key={code} value={code}>{LOCALE_REGISTRY[code].nativeName}</option>)}</select>
           </label>
           {V2_PROTECTED.includes(selected.type) && <p className="mb-3 rounded-md bg-secondary p-2 text-[11px] text-muted-foreground">Arama mantığı kodda korunur. Burada yalnızca metin, görsel ve görünüm ön ayarları değişir; bölüm gizlenemez veya taşınamaz.</p>}
-           {<div className="mb-3 flex items-center gap-2"><Button type="button" size="sm" variant="outline" disabled={translatingTrust} onClick={() => void translateTrust()}>{translatingTrust ? "Çevriliyor…" : "Alle 13 Sprachen übersetzen"}</Button><span className="text-xs text-muted-foreground">Türkçe kaynak 13 dile çevrilir; elle düzenlenen çeviriler korunur. Gerçek çeviri, servis yapılandırılıp ayrıca onaylandıktan sonra kullanılabilir; yayınlamaz.</span></div>}
+           {selected.type!=='EDITORIAL_SECTION'&&<div className="mb-3 flex items-center gap-2"><Button type="button" size="sm" variant="outline" disabled={translatingTrust} onClick={() => void translateTrust()}>{translatingTrust ? "Çevriliyor…" : "Alle 13 Sprachen übersetzen"}</Button><span className="text-xs text-muted-foreground">Türkçe kaynak 13 dile çevrilir; elle düzenlenen çeviriler korunur. Gerçek çeviri, servis yapılandırılıp ayrıca onaylandıktan sonra kullanılabilir; yayınlamaz.</span></div>}
           <LocaleStatusRow section={selected} />
           <SectionDesignEditor section={selected} onChange={(design) => patchSection(selected.id, design ? { design } : { design: undefined } as unknown as Partial<V2Section>)} />
           <SectionForm section={selected} previewLocale={previewLocale} lang={lang} page={page} trustPreviewLocale={trustPreviewLocale} onTrustLocale={setTrustPreviewLocale} onTrustSourceBlur={() => void translateTrust()} onChange={(patch) => patchSection(selected.id, patch)} />
@@ -377,7 +378,7 @@ function sectionLTs(section: V2Section, defaultSection?: V2Section): LTRef[] {
   const refs: LTRef[] = [];
   for (const key of Object.keys(section.text)) if (!NUMERIC_TEXT.includes(key)) refs.push({ id: `text:${key}`, value: section.text[key], original: defaultSection?.text[key] });
   const translatable = (item: V2Item) => section.type === "TRUST_REVIEWS" ? item.cardType === "trust" || item.cardType === "chip" : item.cardType !== "review";
-  for (const item of section.items.filter(translatable)) {
+  for (const item of flattenEditorial(section.items).filter(translatable)) {
     const original = defaultSection?.items.find((row) => row.id === item.id);
     for (const field of ["title", "text", "imageAlt", "cta"] as const) refs.push({ id: `item:${item.id}:${field}`, value: item[field], original: original?.[field] });
     item.labels.forEach((label, index) => refs.push({ id: `item:${item.id}:label:${index}`, value: label, original: original?.labels[index] }));
@@ -477,13 +478,17 @@ function ImageField({ label, value, onChange, category = "HERO" }: { label: stri
 }
 
 function SectionForm({ section: s, lang, previewLocale, page, trustPreviewLocale, onTrustLocale, onTrustSourceBlur, onChange }: { section: V2Section; lang: Locale; previewLocale: UiLocale; page: V2PageId; trustPreviewLocale: UiLocale | null; onTrustLocale: (code: UiLocale) => void; onTrustSourceBlur: () => void; onChange: (patch: Partial<V2Section>) => void }) {
+  if(s.type==='EDITORIAL_SECTION')return <EditorialSectionEditor section={s} onChange={onChange} picker={(label,value,onPick)=><ImageField label={label} value={value} onChange={onPick}/>}/>;
   const setText = (key: string, value: LT) => onChange({ text: { ...s.text, [key]: value }, ...(s.type === "SEARCH_HERO" && key === "title" ? { heroTextMode: { ...s.heroTextMode, [lang]: "custom" as const } } : {}) });
   const mode = V2_ITEM_MODE[s.type];
+  const contract=blockContract(s.type);
   return (
     <div className="space-y-3">
+      <p className="text-xs text-muted-foreground">Şema v{contract.schemaVersion} · {contract.unsupported.length?"Desteklenmeyen: "+contract.unsupported.join(", "):"Kayıtlı içerik ve görünüm alanları"}</p>
+      {s.type==="INFO_GRID"&&<label>Baustein<select aria-label="Kart türü" value={s.variant} onChange={e=>onChange({variant:e.target.value})}><option value="default">Bilgi kartları</option><option value="security">Güven kartları · yayın için kanıt onayı gerekir</option></select></label>}
       <div className="grid gap-3 sm:grid-cols-2">
         {(s.type === "SEARCH_HERO" || s.type === "NOTICE") && <div className="sm:col-span-2"><V2TurkishTextEditor section={s} previewLocale={previewLocale} onChange={onChange} /></div>}
-        {s.type !== "TRUST_REVIEWS" && s.type !== "SEARCH_HERO" && s.type !== "NOTICE" && V2_TEXT_FIELDS[s.type].map(([key, label]) => <LTInput key={key} label={label} lang={lang} value={s.text[key]} onChange={(v) => setText(key, v)} multiline={key === "text" || key === "lead"} />)}
+        {s.type !== "TRUST_REVIEWS" && s.type !== "SEARCH_HERO" && s.type !== "NOTICE" && blockContract(s.type).textFields.map(([key, label]) => <LTInput key={key} label={label} lang={lang} value={s.text[key]} onChange={(v) => setText(key, v)} multiline={key === "text" || key === "lead"} />)}
       </div>
 
       {s.type === "SEARCH_HERO" && (
@@ -654,6 +659,7 @@ function ItemsEditor({ mode, page, items, lang, onChange }: { mode: NonNullable<
             {mode !== "destination" && (
               <div className="mt-2 grid gap-2 sm:grid-cols-2">
                 <EditorialItemControls item={it} onChange={patch=>set(it.id,patch)}/>
+                <CardDesignControls id={it.id} value={it.cardDesign} onChange={cardDesign=>set(it.id,{cardDesign})}/>
                 <ResponsiveMediaControls value={it} onChange={patch=>set(it.id,patch)} picker={(label,value,onChange)=><MediaField label={label} value={value} onChange={onChange}/>}/>
 
               </div>

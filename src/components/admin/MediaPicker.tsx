@@ -114,7 +114,7 @@ export function MediaLibraryDialog({ open, onClose, onSelect, defaultCategory = 
           onDrop={(event) => { event.preventDefault(); if (event.dataTransfer.files.length) void upload(event.dataTransfer.files); }}
           className="rounded-md border border-dashed border-border bg-secondary/25 p-3 text-center"
         >
-          <input ref={fileRef} type="file" accept="image/jpeg,image/webp,image/avif,image/png,image/svg+xml" multiple className="hidden" onChange={(event) => { if (event.target.files?.length) void upload(event.target.files); }} />
+          <input ref={fileRef} type="file" accept="image/jpeg,image/webp,image/avif,image/png" multiple className="hidden" onChange={(event) => { if (event.target.files?.length) void upload(event.target.files); }} />
           <Button type="button" size="sm" variant="outline" disabled={busy} onClick={() => fileRef.current?.click()}><Upload />{busy ? "Yükleniyor…" : "Görsel yükle"}</Button>
           <p className="mt-1 text-[10px] text-muted-foreground">Birden fazla görseli buraya sürükleyip bırakabilirsin.</p>
         </div>

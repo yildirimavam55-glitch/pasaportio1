@@ -1,3 +1,4 @@
+import { ResponsiveMediaPicture } from "./ResponsiveMediaPicture";
 import { useEffect, useState } from 'react';
 import { ChevronLeft, Signal } from 'lucide-react';
 import { useI18n } from '@/i18n';
@@ -21,7 +22,7 @@ export function V2TrustReviews({section,media,preview=false,onDestinationSearch,
  const custom=(key:string,fallback:string)=> section.text[key]?.[uiLocale] || section.text[key]?.[locale] || fallback;
  return <section className="family-proof" data-family-proof>
   <Reveal><div className="family-story"><div className="family-story-left"><div className="family-story-copy"><h2><span>{custom('familyTitle',c.title)}</span><span>{custom('familyAccent',c.accent)}</span></h2><p>{custom('familySubtitle',c.subtitle)}</p></div><div className="family-story-payment"><PaymentStrip preview={designPreview}/></div></div>
-   <div className="family-scene"><img src={photo} alt="" width={1400} height={1000} loading="lazy" decoding="async"/><div className="family-phone" aria-label={c.chatNote}><div className="phone-status" aria-hidden="true">14:21 <Signal size={10}/></div><div className="phone-group"><ChevronLeft size={13}/><span>👨‍👩‍👧‍👦</span><strong>{custom("familyGroup",c.family)}</strong></div><div className="phone-chat">{c.chat.map((message,i)=><div key={i} className={`chat-bubble ${i>0&&i<4?'outgoing':''}`}>{custom(`familyChat${i}`,message)}<small aria-hidden="true">14:{12+i} {i>0&&i<4?'✓✓':''}</small></div>)}</div><div className="phone-input" aria-hidden="true">＋ <span>···</span> ♧</div></div></div>
+   <div className="family-scene"><ResponsiveMediaPicture value={section} resolve={id=>id===section.mediaId?photo:mediaUrl(id??null,media)} alt={custom("imageAlt","")} className="size-full"/><div className="family-phone" aria-label={c.chatNote}><div className="phone-status" aria-hidden="true">14:21 <Signal size={10}/></div><div className="phone-group"><ChevronLeft size={13}/><span>👨‍👩‍👧‍👦</span><strong>{custom("familyGroup",c.family)}</strong></div><div className="phone-chat">{c.chat.map((message,i)=><div key={i} className={`chat-bubble ${i>0&&i<4?'outgoing':''}`}>{custom(`familyChat${i}`,message)}<small aria-hidden="true">14:{12+i} {i>0&&i<4?'✓✓':''}</small></div>)}</div><div className="phone-input" aria-hidden="true">＋ <span>···</span> ♧</div></div></div>
   </div></Reveal>
   <Reveal><V2ReviewCarousel section={section} preview={preview}/></Reveal>
 
