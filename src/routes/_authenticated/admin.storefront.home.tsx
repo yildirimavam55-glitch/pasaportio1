@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState, useRef } from "react";
 import { toast } from "sonner";
 import {
   ArrowDown,
@@ -86,6 +86,8 @@ function StorefrontEditor() {
   const [draft, setDraft] = useState<StorefrontConfig | null>(null);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [dirty, setDirty] = useState(false);
+  const [baseRevision,setBaseRevision]=useState<number|null>(null);
+  const latest=useRef(draft),saving=useRef(draft);latest.current=draft;
   const [dragId, setDragId] = useState<string | null>(null);
   const [historyOpen, setHistoryOpen] = useState(false);
 
@@ -96,11 +98,11 @@ function StorefrontEditor() {
   const media = useQuery({ queryKey: ["media-all"], queryFn: () => listMedia({ data: {} }) });
 
   useEffect(() => {
-    if (!editor.data) return;
-    setDraft(editor.data.draft);
+    if (!editor.data || dirty) return;
+    setDraft(editor.data.draft);setBaseRevision(editor.data.revision??null);
     setSelectedId((current) => current ?? editor.data.draft.sections[0]?.id ?? null);
     setDirty(false);
-  }, [editor.data]);
+  }, [editor.data,dirty]);
 
   /** Never silently lose work. */
   useEffect(() => {
@@ -130,9 +132,9 @@ function StorefrontEditor() {
   );
 
   const save = useMutation({
-    mutationFn: (publish: boolean) =>
-      saveStorefrontDraft({ data: { service, config: draft!, publish } }),
+    mutationFn: (publish: boolean) => {saving.current=draft;return saveStorefrontDraft({ data: { service, config: draft!, publish,expectedRevision:baseRevision } });},
     onSuccess: async (_result, publish) => {
+      if(latest.current!==saving.current){toast.info("Yeni yerel düzenlemeler korundu. Revizyonu kontrol edin.");await queryClient.invalidateQueries({queryKey:["storefront-editor",service]});return;}
       setDirty(false);
       toast.success(
         publish
@@ -145,7 +147,7 @@ function StorefrontEditor() {
   });
 
   const discard = useMutation({
-    mutationFn: () => discardStorefrontDraft({ data: { service } }),
+    mutationFn: () => discardStorefrontDraft({ data: { service,expectedRevision:baseRevision } }),
     onSuccess: async () => {
       setDirty(false);
       toast.success("Taslak değişiklikleri geri alındı.");
@@ -155,11 +157,11 @@ function StorefrontEditor() {
   });
 
   const restore = useMutation({
-    mutationFn: (versionId: string) => restoreStorefrontVersion({ data: { service, versionId } }),
+    mutationFn: (versionId: string) => restoreStorefrontVersion({ data: { service, versionId,expectedRevision:baseRevision } }),
     onSuccess: async () => {
       setHistoryOpen(false);
       setDirty(false);
-      toast.success("Önceki sürüm geri yüklendi ve yayınlandı.");
+      toast.success("Önceki sürüm yalnızca taslağa geri yüklendi.");
       await queryClient.invalidateQueries({ queryKey: ["storefront-editor", service] });
     },
     onError: (error: Error) => toast.error(error.message),

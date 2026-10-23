@@ -12,7 +12,7 @@ export function V2PageTranslation({page,onChange,transport,demo=false}:{page:V2P
  const start=async()=>{if(active.current)return;active.current=true;setBusy(true);setProgress([0,pending.length]);try{
   setRun(await translatePage({getPage:()=>latest.current,apply:next=>{latest.current=next;onChange(next);},transport,maxRequests:demo?Number.MAX_SAFE_INTEGER:2,progress:(done,total)=>setProgress([done,total])}));
  }catch{setRun({requests:0,completed:0,total:pending.length,problems:pending,paused:true,code:"E_PAGE_PLAN"});}finally{active.current=false;setBusy(false);}};
- return <section className="min-w-0 max-w-full rounded border border-border p-3 space-y-2" aria-label="Seitenübersetzung">
+ return <section id="v2-page-translations" className="min-w-0 max-w-full rounded border border-border p-3 space-y-2" aria-label="Seitenübersetzung">
   <button type="button" disabled={busy} onClick={()=>void start()} className="rounded bg-primary text-primary-foreground p-3 w-full">{busy?'Çevriliyor…':'Tüm sayfayı 13 dile çevir'}{demo?' (DEMO)':''}</button>
   <p className="text-xs">Gesamte Seite übersetzen · Türkçe kaynak sabit. Elle düzenlenen metinler korunur. {demo?'DEMO: yalnızca hazır örnekler, yapay zekâ çağrısı yok.':'En fazla 2 istek / işlem. Limitte durur; kalanları daha sonra sürdür.'}</p>
   <p role="status" data-page-translation-status>{busy?`${progress[0]}/${progress[1]}`:run?`${demo?'DEMO · ':''}${run.completed}/${run.total} · ${status} · ${run.requests} istek`:`${pending.length} eksik / yenilenecek`}{run?.problems.some(p=>p.code==='E_NO_FIXTURE')?' · Keine Beispielübersetzung':''}</p>

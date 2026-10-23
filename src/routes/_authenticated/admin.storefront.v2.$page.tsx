@@ -1,3 +1,6 @@
+import { ResponsivePreview } from "@/components/admin/ResponsivePreview";
+import { EditorialItemControls } from "@/components/admin/EditorialItemControls";
+import { ResponsiveMediaControls } from "@/components/admin/ResponsiveMediaControls";
 import { V2PageTranslation } from "@/components/design-v2/V2PageTranslation";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -89,6 +92,8 @@ function Editor({ page }: { page: V2PageId }) {
   const mediaList = useQuery({ queryKey: ["media-all"], queryFn: () => listMedia({ data: {} }) });
   const [draft, setDraft] = useState<V2PageConfig | null>(null);
   const [dirty, setDirty] = useState(false);
+  const [baseRevision,setBaseRevision]=useState<number|null>(null);
+  const savingSnapshot=useRef<V2PageConfig|null>(null);
   const [selectedId, setSelectedId] = useState<string>("hero");
   const lang: Locale = "tr";
   const [previewLocale, setPreviewLocale] = useState<UiLocale>("tr");
@@ -103,7 +108,7 @@ function Editor({ page }: { page: V2PageId }) {
   const [history, setHistory] = useState<DraftHistory<V2PageConfig>>(createDraftHistory);
   const lastEdit = useRef(0);
 
-  useEffect(() => { if (editor.data && !dirty) { setDraft(editor.data.draft); setHistory(createDraftHistory()); } }, [editor.data, dirty]);
+  useEffect(() => { if (editor.data && !dirty) { setDraft(editor.data.draft); setBaseRevision(editor.data.revision??null); setHistory(createDraftHistory()); } }, [editor.data, dirty]);
   useEffect(() => {
     const selectHash = () => { if (window.location.hash === "#reviews") setSelectedId("trust-reviews"); };
     selectHash();
@@ -140,17 +145,18 @@ function Editor({ page }: { page: V2PageId }) {
   const save = useMutation({
     mutationFn: async (publish: boolean) => {
       const snapshot = draft!;
+      savingSnapshot.current=snapshot;
       let config = snapshot;
       if (draftRef.current !== snapshot) throw new Error("Taslak değişti; yeniden kontrol edip kaydedin.");
-      return saveV2Page({ data: { page, config, publish } });
+      return saveV2Page({ data: { page, config, publish,expectedRevision:baseRevision } });
     },
-    onSuccess: (_r, publish) => { toast.success(publish ? "Yayınlandı." : "Taslak kaydedildi."); refresh(); },
+    onSuccess: (_r, publish) => { if(draftRef.current!==savingSnapshot.current){void queryClient.invalidateQueries({queryKey:["v2-editor",page]});toast.info("Kaydedilen sürümden sonra düzenlemeler var; yerel metinler korundu. Revizyonu karşılaştırıp yeniden yükleyin.");return;} toast.success(publish ? "Yayınlandı." : "Taslak kaydedildi."); refresh(); },
     onError: (e) => toast.error(e instanceof Error ? e.message : "Kaydedilemedi."),
   });
-  const discard = useMutation({ mutationFn: () => discardV2Draft({ data: { page } }), onSuccess: () => { toast.success("Taslak yayındaki sürüme döndü."); refresh(); } });
+  const discard = useMutation({ mutationFn: () => discardV2Draft({ data: { page,expectedRevision:baseRevision } }), onSuccess: () => { toast.success("Taslak yayındaki sürüme döndü."); refresh(); } });
   const restore = useMutation({
-    mutationFn: (versionId: string) => restoreV2Version({ data: { page, versionId } }),
-    onSuccess: () => { toast.success("Sürüm geri yüklendi ve yayınlandı."); refresh(); },
+    mutationFn: (versionId: string) => restoreV2Version({ data: { page, versionId,expectedRevision:baseRevision } }),
+    onSuccess: () => { toast.success("Sürüm taslağa geri yüklendi. Canlı sürüm değişmedi."); refresh(); },
     onError: (e) => toast.error(e instanceof Error ? e.message : "Geri yüklenemedi."),
   });
 
@@ -227,7 +233,7 @@ function Editor({ page }: { page: V2PageId }) {
   };
   const missing = { de: missingV2Translations(draft, "de"), en: missingV2Translations(draft, "en") };
   const width = DEVICES.find((d) => d.id === device)!.w;
-  const scale = Math.min(1, PREVIEW_BOX.width / width);
+
 
   return (
     <div className="space-y-3">
@@ -260,7 +266,7 @@ function Editor({ page }: { page: V2PageId }) {
                 <li key={v.id} className="flex items-center gap-2 py-2">
                   <span className="w-20 font-bold">{v.event === "publish" ? "Yayın" : v.event === "restore" ? "Geri yükleme" : "Taslak"}</span>
                   <span className="flex-1 text-muted-foreground">{new Date(v.createdAt).toLocaleString("tr-TR")} · {v.author} · {v.sections} bölüm</span>
-                  <Button size="sm" variant="outline" disabled={restore.isPending} onClick={() => { if (window.confirm("Bu sürüm geri yüklenip yayınlansın mı?")) restore.mutate(v.id); }}>Geri yükle</Button>
+                  <Button size="sm" variant="outline" disabled={restore.isPending} onClick={() => { if (window.confirm("Bu sürüm yalnızca taslağa geri yüklensin mi? Canlı sürüm değişmeyecek.")) restore.mutate(v.id); }}>Taslağa geri yükle</Button>
                 </li>
               ))}
             </ul>
@@ -268,7 +274,7 @@ function Editor({ page }: { page: V2PageId }) {
         </AdminPanel>
       )}
 
-      <div className="grid gap-3 xl:grid-cols-[18rem_minmax(0,1fr)_minmax(0,auto)]">
+      <div className="grid gap-3 2xl:grid-cols-[16rem_minmax(0,1fr)_minmax(0,26rem)]">
         <AdminPanel title="Bölümler">
           <ol className="space-y-1">
             {sections.map((s, index) => {
@@ -312,9 +318,9 @@ function Editor({ page }: { page: V2PageId }) {
           <SectionForm section={selected} previewLocale={previewLocale} lang={lang} page={page} trustPreviewLocale={trustPreviewLocale} onTrustLocale={setTrustPreviewLocale} onTrustSourceBlur={() => void translateTrust()} onChange={(patch) => patchSection(selected.id, patch)} />
         </AdminPanel>
 
-        <AdminPanel title="Önizleme (taslak)" className="xl:w-[27rem]" action={
-          <div className="flex gap-1" role="group" aria-label="Önizleme cihazı">{DEVICES.map((d) => <Button key={d.id} size="sm" aria-pressed={device === d.id} variant={device === d.id ? "default" : "outline"} className="h-7 px-2 text-[11px]" onClick={() => setDevice(d.id)}>{d.label}</Button>)}</div>}>
-          <div className="mx-auto overflow-hidden rounded-md border border-border bg-secondary/40" style={{ width: Math.round(width * scale), height: PREVIEW_BOX.height }}>
+        <AdminPanel title="Önizleme (taslak)" className="min-w-0" action={
+          <div className="flex flex-wrap gap-1" role="group" aria-label="Önizleme cihazı">{DEVICES.map((d) => <Button key={d.id} size="sm" aria-pressed={device === d.id} variant={device === d.id ? "default" : "outline"} className="h-7 px-2 text-[11px]" onClick={() => setDevice(d.id)}>{d.label}</Button>)}</div>}>
+          <ResponsivePreview width={width} height={PREVIEW_BOX.height}>{scale=><div className="overflow-hidden rounded-md border border-border bg-secondary/40">
             <iframe
               ref={frame}
               name={V2_PREVIEW_WINDOW}
@@ -325,7 +331,7 @@ function Editor({ page }: { page: V2PageId }) {
               style={{ width, height: Math.round(PREVIEW_BOX.height / scale), transform: scale < 1 ? `scale(${scale})` : undefined, transformOrigin: "top left" }}
               className="block bg-background"
             />
-          </div>
+          </div>}</ResponsivePreview>
           <p className="mt-2 text-[10px] text-muted-foreground">Bir bölüme tıklayınca ayarları açılır. Geri al / ileri al yalnız bu taslağı değiştirir. Önizleme yalnızca sende görünür. Müşteriler “Yayınla” diyene kadar mevcut yayındaki sürümü görür.</p>
         </AdminPanel>
       </div>
@@ -509,6 +515,7 @@ function SectionForm({ section: s, lang, previewLocale, page, trustPreviewLocale
         </div>
       )}
 
+      {s.type === "PROMO_BANNER" && <ResponsiveMediaControls value={s} onChange={onChange} picker={(label,value,onChange)=><MediaField label={label} value={value} onChange={onChange}/>}/>}
       {s.type === "INSTALLATION_STEPS" && (
         <div className="grid gap-3 sm:grid-cols-2">
           <Select label="Görünüm" value={s.variant === "simple" ? "simple" : "animated"} options={["animated", "simple"] as const} labels={{ animated: "Animasyonlu (dekoratif QR)", simple: "Sade adım listesi" }} onChange={(variant) => onChange({ variant })} />
@@ -646,10 +653,9 @@ function ItemsEditor({ mode, page, items, lang, onChange }: { mode: NonNullable<
             </div>
             {mode !== "destination" && (
               <div className="mt-2 grid gap-2 sm:grid-cols-2">
-                {mode === "benefit" && <IconPicker value={it.icon} onChange={(icon) => set(it.id, { icon })} />}
-                <LTInput label={mode === "faq" ? "Soru" : "Başlık"} lang={lang} value={it.title} onChange={(title) => set(it.id, { title })} />
-                {(mode === "card" || mode === "faq") && <LTInput label={mode === "faq" ? "Cevap" : "Metin"} lang={lang} value={it.text} onChange={(text) => set(it.id, { text })} multiline />}
-                {mode === "benefit" && <Select label="Bağlantı" value={(it.href || "") as V2ItemLink} options={V2_ITEM_LINKS} labels={LINK_LABEL} onChange={(href) => set(it.id, { href })} />}
+                <EditorialItemControls item={it} onChange={patch=>set(it.id,patch)}/>
+                <ResponsiveMediaControls value={it} onChange={patch=>set(it.id,patch)} picker={(label,value,onChange)=><MediaField label={label} value={value} onChange={onChange}/>}/>
+
               </div>
             )}
             {(mode === 'step' || mode === 'card') && <MediaField label="Adım görseli (isteğe bağlı)" category="ESIM" value={it.mediaId} recommendation="600 × 600 · PNG / WebP / SVG" hint="Görsel seçilmezse mevcut simge/adım gösterilir." onChange={mediaId => set(it.id, { mediaId })} />}

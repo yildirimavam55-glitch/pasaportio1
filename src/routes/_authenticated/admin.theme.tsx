@@ -1,3 +1,4 @@
+import { UnifiedThemeControls } from "@/components/admin/UnifiedThemeControls";
 import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -39,8 +40,10 @@ function Theme() {
   const [previewPage, setPreviewPage] = useState<"esim" | "lounge" | "vignette">("esim");
   const frame = useRef<HTMLIFrameElement | null>(null);
   const [savedDraft, setSavedDraft] = useState<ThemeConfig>(DEFAULT_THEME);
+  const [baseRevision,setBaseRevision]=useState<number|null>(null);
+  const latest=useRef(theme),saved=useRef(savedDraft);latest.current=theme;saved.current=savedDraft;
 
-  useEffect(() => { if (settings.data?.draft) { setTheme(settings.data.draft as ThemeConfig); setSavedDraft(settings.data.draft as ThemeConfig); } }, [settings.data]);
+  useEffect(() => { if (settings.data?.draft && JSON.stringify(latest.current)===JSON.stringify(saved.current)) { setBaseRevision(settings.data.revision??null);setTheme(settings.data.draft as ThemeConfig); setSavedDraft(settings.data.draft as ThemeConfig); } }, [settings.data]);
   const hasUnsavedChanges = JSON.stringify(theme) !== JSON.stringify(savedDraft);
   const draftDiffersFromPublished = JSON.stringify(savedDraft) !== JSON.stringify(settings.data?.published ?? DEFAULT_THEME);
   const previewWidth = device === "mobile" ? 390 : device === "tablet" ? 768 : 1280;
@@ -53,17 +56,17 @@ function Theme() {
   }, [pushPreview]);
 
   const save = useMutation({
-    mutationFn: () => saveThemeDraft({ data: { theme } }),
+    mutationFn: () => saveThemeDraft({ data: { theme,expectedRevision:baseRevision } }),
     onSuccess: async (saved) => { setSavedDraft(saved); setMessage("Taslak kaydedildi. Canlı mağaza değişmedi."); await queryClient.invalidateQueries({ queryKey: ["theme-settings"] }); },
     onError: (error) => setMessage(error instanceof Error ? error.message : "Kaydedilemedi."),
   });
   const restore = useMutation({
-    mutationFn: (versionId: string) => restoreThemeVersion({ data: { versionId } }),
+    mutationFn: (versionId: string) => restoreThemeVersion({ data: { versionId,expectedRevision:baseRevision } }),
     onSuccess: async (restored) => { setTheme(restored); setSavedDraft(restored); setMessage("Sürüm taslağa geri yüklendi. Canlı mağaza değişmedi."); await queryClient.invalidateQueries({ queryKey: ["theme-settings"] }); },
     onError: (error) => setMessage(error instanceof Error ? error.message : "Sürüm geri yüklenemedi."),
   });
   const publish = useMutation({
-    mutationFn: () => publishTheme(),
+    mutationFn: () => publishTheme({data:{expectedRevision:baseRevision}}),
     onSuccess: async () => { setMessage("Tema yayınlandı. Müşteri sitesi bu temayı kullanır."); await queryClient.invalidateQueries({ queryKey: ["theme-settings"] }); await queryClient.invalidateQueries({ queryKey: ["published-theme"] }); },
     onError: (error) => setMessage(error instanceof Error ? error.message : "Yayınlanamadı."),
   });
@@ -84,34 +87,7 @@ function Theme() {
             {!(media.data ?? []).length && <p className="mt-2 text-xs text-muted-foreground">Önce Medya kütüphanesine görsel yükleyin.</p>}
           </AdminPanel>
 
-          <AdminPanel title="Renkler">
-            <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
-              {COLORS.map(({ key, label }) => (
-                <label key={key} className="flex min-h-12 items-center gap-3 rounded-md border border-border p-2 text-xs font-semibold">
-                  <input type="color" aria-label={label} value={theme.colors[key]} onChange={(event) => set({ colors: { ...theme.colors, [key]: event.target.value } })} className="size-8 cursor-pointer rounded border border-border bg-transparent" />
-                  <span className="min-w-0"><span className="block truncate">{label}</span><span className="block text-[10px] font-normal uppercase text-muted-foreground">{theme.colors[key]}</span></span>
-                </label>
-              ))}
-            </div>
-          </AdminPanel>
-
-          <AdminPanel title="Tipografi ve biçim">
-            <div className="grid gap-3 sm:grid-cols-2">
-              <Field label="Başlık yazı tipi"><select className="admin-field mt-1 w-full" value={theme.headingFont} onChange={(event) => set({ headingFont: event.target.value as ThemeConfig["headingFont"] })}>{["Outfit", "Manrope", "Sora", "Urbanist"].map((value) => <option key={value}>{value}</option>)}</select></Field>
-              <Field label="Metin yazı tipi"><select className="admin-field mt-1 w-full" value={theme.bodyFont} onChange={(event) => set({ bodyFont: event.target.value as ThemeConfig["bodyFont"] })}>{["Manrope", "Inter", "Figtree", "Work Sans"].map((value) => <option key={value}>{value}</option>)}</select></Field>
-              <Field label="Köşe yuvarlaklığı"><select className="admin-field mt-1 w-full" value={theme.radius} onChange={(event) => set({ radius: event.target.value as ThemeConfig["radius"] })}><option value="sharp">Az</option><option value="soft">Orta</option><option value="round">Yüksek</option></select></Field>
-              <Field label="Gölge"><select className="admin-field mt-1 w-full" value={theme.shadow} onChange={(event) => set({ shadow: event.target.value as ThemeConfig["shadow"] })}><option value="none">Yok</option><option value="subtle">Hafif</option><option value="raised">Belirgin</option></select></Field>
-              <Field label="Düğme biçimi"><select className="admin-field mt-1 w-full" value={theme.buttonStyle} onChange={(event) => set({ buttonStyle: event.target.value as ThemeConfig["buttonStyle"] })}><option value="solid">Dolu</option><option value="outline">Çerçeveli</option><option value="pill">Yuvarlak</option></select></Field>
-              <Field label="Bölüm yüzeyi"><select className="admin-field mt-1 w-full" value={theme.surface} onChange={(event) => set({ surface: event.target.value as ThemeConfig["surface"] })}><option value="light">Açık</option><option value="soft">Yumuşak</option><option value="contrast">Kontrast</option></select></Field>
-              <Field label="Başlık ölçeği"><select className="admin-field mt-1 w-full" value={theme.headingScale} onChange={(event) => set({ headingScale: event.target.value as ThemeConfig["headingScale"] })}><option value="compact">Kompakt</option><option value="default">pasaport.io varsayılanı</option><option value="large">Büyük</option></select></Field>
-              <Field label="Gövde metni ölçeği"><select className="admin-field mt-1 w-full" value={theme.bodyScale} onChange={(event) => set({ bodyScale: event.target.value as ThemeConfig["bodyScale"] })}><option value="compact">Kompakt</option><option value="default">pasaport.io varsayılanı</option><option value="large">Büyük</option></select></Field>
-              <Field label="Varsayılan bölüm aralığı"><select className="admin-field mt-1 w-full" value={theme.sectionSpacing} onChange={(event) => set({ sectionSpacing: event.target.value as ThemeConfig["sectionSpacing"] })}><option value="compact">Kompakt</option><option value="default">pasaport.io varsayılanı</option><option value="large">Geniş</option></select></Field>
-              <Field label="Sayfa maksimum genişliği"><select className="admin-field mt-1 w-full" value={theme.pageWidth} onChange={(event) => set({ pageWidth: event.target.value as ThemeConfig["pageWidth"] })}><option value="narrow">Dar</option><option value="default">pasaport.io varsayılanı</option><option value="wide">Geniş</option></select></Field>
-              <Field label="Düğme köşesi"><select className="admin-field mt-1 w-full" value={theme.buttonRadius} onChange={(event) => set({ buttonRadius: event.target.value as ThemeConfig["buttonRadius"] })}><option value="small">Küçük</option><option value="default">pasaport.io varsayılanı</option><option value="pill">Tam yuvarlak</option></select></Field>
-              <Field label="Kart köşesi"><select className="admin-field mt-1 w-full" value={theme.cardRadius} onChange={(event) => set({ cardRadius: event.target.value as ThemeConfig["cardRadius"] })}><option value="small">Küçük</option><option value="default">pasaport.io varsayılanı</option><option value="large">Büyük</option></select></Field>
-            </div>
-          </AdminPanel>
-
+          <AdminPanel title="Birleşik ve responsive kontroller"><UnifiedThemeControls value={theme} onChange={setTheme}/></AdminPanel>
           <div className="flex flex-wrap items-center gap-2">
             <label className="flex w-full items-center justify-between gap-3 border-b border-border py-3 text-sm font-semibold">
               <span>Homepage scroll animations <span className="block text-xs font-normal text-muted-foreground">Ana sayfa kaydırma animasyonları</span></span>

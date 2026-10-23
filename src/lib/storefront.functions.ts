@@ -1,3 +1,4 @@
+import { atomicBuilderEnabled,readBuilder,writeBuilder,publicContentSelection,type BuilderRevision } from "./builder-persistence.server";
 import { createServerFn } from "@tanstack/react-start";
 import { createClient } from "@supabase/supabase-js";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
@@ -85,11 +86,11 @@ export const getPublishedStorefront = createServerFn({ method: "GET" })
     try {
       const { data: row } = await publicClient()
         .from("cms_documents")
-        .select("data")
+        .select(publicContentSelection())
         .eq("key", keyFor(service))
         .eq("status", "PUBLISHED")
         .maybeSingle();
-      const published = (row?.data as any)?.published;
+      const published = ((row as any)?.data as any)?.published;
       if (!published) return { config: defaultStorefront(service), media: {} };
       const config = sanitizeStorefront(published, service);
       return { config, media: await resolveMedia(collectMediaIds(config)) };
@@ -100,11 +101,12 @@ export const getPublishedStorefront = createServerFn({ method: "GET" })
 
 /** Admin: draft + published + version history for one service homepage. */
 export const getStorefrontEditor = createServerFn({ method: "GET" })
-  .inputValidator((input: { service: StorefrontService }) => input)
+  .inputValidator((input: { service: StorefrontService;expectedRevision?:BuilderRevision }) => input)
   .middleware([requireSupabaseAuth])
   .handler(async ({ context, data }) => {
     const db = await adminDb(context as AdminCtx);
     const service = (STOREFRONT_SERVICES as readonly string[]).includes(data.service) ? data.service : "esim";
+    if(atomicBuilderEnabled()){const row=await readBuilder(context as AdminCtx,keyFor(service));return {service,draft:sanitizeStorefront(row.draft??row.published,service),published:row.published?sanitizeStorefront(row.published,service):null,revision:row.revision as BuilderRevision,hasDraftChanges:JSON.stringify(row.draft)!==JSON.stringify(row.published),publishedAt:row.publishedAt,updatedAt:row.updatedAt,versions:row.versions};}
     const { data: row } = await db
       .from("cms_documents")
       .select("id, status, published_at, updated_at, data")
@@ -127,10 +129,11 @@ export const getStorefrontEditor = createServerFn({ method: "GET" })
       }));
     }
 
-    const publishedRaw = (row?.data as any)?.published ?? null;
+    const publishedRaw = ((row as any)?.data as any)?.published ?? null;
     const draftRaw = (row?.data as any)?.draft ?? publishedRaw;
     return {
       service,
+      revision:undefined as BuilderRevision|undefined,
       draft: sanitizeStorefront(draftRaw, service),
       published: publishedRaw ? sanitizeStorefront(publishedRaw, service) : null,
       hasDraftChanges: JSON.stringify(draftRaw ?? null) !== JSON.stringify(publishedRaw ?? null),
@@ -159,12 +162,13 @@ async function upsertDocument(db: any, service: StorefrontService, patch: Record
 }
 
 export const saveStorefrontDraft = createServerFn({ method: "POST" })
-  .inputValidator((input: { service: StorefrontService; config: StorefrontConfig; publish?: boolean }) => input)
+  .inputValidator((input: { service: StorefrontService; config: StorefrontConfig; publish?: boolean;expectedRevision?:BuilderRevision }) => input)
   .middleware([requireSupabaseAuth])
   .handler(async ({ context, data }) => {
     const db = await adminDb(context as AdminCtx);
     const service = (STOREFRONT_SERVICES as readonly string[]).includes(data.service) ? data.service : "esim";
     const config = sanitizeStorefront(data.config, service);
+    if(atomicBuilderEnabled()){await writeBuilder(context as AdminCtx,keyFor(service),data.expectedRevision,data.publish?'publish':'draft',config);return {ok:true};}
 
     const { data: current } = await db.from("cms_documents").select("data").eq("key", keyFor(service)).maybeSingle();
     const published = data.publish ? config : ((current?.data as any)?.published ?? null);
@@ -190,11 +194,12 @@ export const saveStorefrontDraft = createServerFn({ method: "POST" })
   });
 
 export const discardStorefrontDraft = createServerFn({ method: "POST" })
-  .inputValidator((input: { service: StorefrontService }) => input)
+  .inputValidator((input: { service: StorefrontService;expectedRevision?:BuilderRevision }) => input)
   .middleware([requireSupabaseAuth])
   .handler(async ({ context, data }) => {
     const db = await adminDb(context as AdminCtx);
     const service = (STOREFRONT_SERVICES as readonly string[]).includes(data.service) ? data.service : "esim";
+    if(atomicBuilderEnabled()){await writeBuilder(context as AdminCtx,keyFor(service),data.expectedRevision,"discard",defaultStorefront(service));return {ok:true};}
     const { data: row } = await db.from("cms_documents").select("id, data").eq("key", keyFor(service)).maybeSingle();
     if (!row?.id) return { ok: true };
     const published = (row.data as any)?.published ?? null;
@@ -205,19 +210,20 @@ export const discardStorefrontDraft = createServerFn({ method: "POST" })
   });
 
 export const restoreStorefrontVersion = createServerFn({ method: "POST" })
-  .inputValidator((input: { service: StorefrontService; versionId: string }) => input)
+  .inputValidator((input: { service: StorefrontService; versionId: string;expectedRevision?:BuilderRevision }) => input)
   .middleware([requireSupabaseAuth])
   .handler(async ({ context, data }) => {
     const db = await adminDb(context as AdminCtx);
     const service = (STOREFRONT_SERVICES as readonly string[]).includes(data.service) ? data.service : "esim";
-    const { data: version } = await db.from("cms_versions").select("id, snapshot").eq("id", data.versionId).maybeSingle();
-    if (!version) throw new Error("Sürüm bulunamadı.");
-    const config = sanitizeStorefront(version.snapshot?.config, service);
-    const { id } = await upsertDocument(db, service, {
-      status: "PUBLISHED",
-      published_at: new Date().toISOString(),
-      data: { draft: config, published: config },
-    });
+    if(atomicBuilderEnabled()){await writeBuilder(context as AdminCtx,keyFor(service),data.expectedRevision,'restore',undefined,data.versionId);return {ok:true};}
+    const {data:current,error:readError}=await db.from('cms_documents').select('id,data,updated_at').eq('key',keyFor(service)).maybeSingle();
+    if(readError||!current?.id)throw new Error('E_RESTORE_DOCUMENT');
+    const {data:version,error:versionError}=await db.from('cms_versions').select('id,document_id,snapshot').eq('id',data.versionId).eq('document_id',current.id).maybeSingle();
+    if(versionError||!version||version.snapshot?.service!==service)throw new Error('E_RESTORE_VERSION');
+    const config=sanitizeStorefront(version.snapshot.config,service);
+    const {data:changed,error:writeError}=await db.from('cms_documents').update({data:{...current.data,draft:config}}).eq('id',current.id).eq('updated_at',current.updated_at).select('id').maybeSingle();
+    if(writeError||!changed)throw new Error('E_RESTORE_CONFLICT');
+    const id=current.id;
     await db.from("cms_versions").insert({
       document_id: id,
       created_by: (context as AdminCtx).userId,

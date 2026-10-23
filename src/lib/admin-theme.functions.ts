@@ -1,3 +1,4 @@
+import { atomicBuilderEnabled,readBuilder,writeBuilder,type BuilderRevision } from "./builder-persistence.server";
 import { createServerFn } from "@tanstack/react-start";
 import { createClient } from "@supabase/supabase-js";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
@@ -76,6 +77,7 @@ export const getThemeSettings = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     const db = await adminDb(context as AdminCtx);
+    if(atomicBuilderEnabled()){const row=await readBuilder(context as AdminCtx,THEME_HISTORY_KEY);return {draft:sanitizeTheme(row.draft),published:row.published?sanitizeTheme(row.published):null,revision:row.revision as BuilderRevision,publishedAt:row.publishedAt,updatedAt:row.updatedAt,versions:row.versions.map((v:any)=>({...v,action:v.event,actor:v.author}))};}
     const { data, error } = await db.from("theme_settings").select("*").eq("id", "active").maybeSingle();
     if (error) throw new Error(error.message);
     const draftRaw = (data?.draft ?? {}) as Record<string, unknown>;
@@ -85,6 +87,7 @@ export const getThemeSettings = createServerFn({ method: "GET" })
       ? await db.from("cms_versions").select("id, created_at, snapshot").eq("document_id", historyDocument.id).order("created_at", { ascending: false }).limit(30)
       : { data: [] };
     return {
+      revision:undefined as BuilderRevision|undefined,
       draft: Object.keys(draftRaw).length ? sanitizeTheme(draftRaw) : DEFAULT_THEME,
       published: Object.keys(publishedRaw).length ? sanitizeTheme(publishedRaw) : null,
       publishedAt: data?.published_at ?? null,
@@ -94,12 +97,13 @@ export const getThemeSettings = createServerFn({ method: "GET" })
   });
 
 export const saveThemeDraft = createServerFn({ method: "POST" })
-  .inputValidator((input: { theme: ThemeConfig }) => input)
+  .inputValidator((input: { theme: ThemeConfig;expectedRevision?:BuilderRevision }) => input)
   .middleware([requireSupabaseAuth])
   .handler(async ({ context, data }) => {
     const ctx = context as AdminCtx;
     const db = await adminDb(ctx);
     const theme = sanitizeTheme(data.theme);
+    if(atomicBuilderEnabled()){await writeBuilder(ctx,THEME_HISTORY_KEY,data.expectedRevision,"draft",theme);return theme;}
     const { error } = await db
       .from("theme_settings")
       .upsert({ id: "active", draft: theme, updated_by: (context as AdminCtx).userId }, { onConflict: "id" });
@@ -110,10 +114,12 @@ export const saveThemeDraft = createServerFn({ method: "POST" })
   });
 
 export const publishTheme = createServerFn({ method: "POST" })
+  .inputValidator((input:{expectedRevision?:BuilderRevision}|undefined)=>input??{})
   .middleware([requireSupabaseAuth])
-  .handler(async ({ context }) => {
+  .handler(async ({ context,data }) => {
     const ctx = context as AdminCtx;
     const db = await adminDb(ctx);
+    if(atomicBuilderEnabled()){const row=await readBuilder(ctx,THEME_HISTORY_KEY);const theme=sanitizeTheme(row.draft);await writeBuilder(ctx,THEME_HISTORY_KEY,data.expectedRevision,"publish",theme);return theme;}
     const { data: current } = await db.from("theme_settings").select("draft, published").eq("id", "active").maybeSingle();
     const theme = sanitizeTheme(current?.draft ?? {});
     const { error } = await db
@@ -127,11 +133,12 @@ export const publishTheme = createServerFn({ method: "POST" })
   });
 
 export const restoreThemeVersion = createServerFn({ method: "POST" })
-  .inputValidator((input: { versionId: string }) => ({ versionId: String(input?.versionId ?? "") }))
+  .inputValidator((input: { versionId: string;expectedRevision?:BuilderRevision }) => ({ versionId: String(input?.versionId ?? ""),expectedRevision:input.expectedRevision }))
   .middleware([requireSupabaseAuth])
   .handler(async ({ context, data }) => {
     const ctx = context as AdminCtx;
     const db = await adminDb(ctx);
+    if(atomicBuilderEnabled()){await writeBuilder(ctx,THEME_HISTORY_KEY,data.expectedRevision,"restore",undefined,data.versionId);const row=await readBuilder(ctx,THEME_HISTORY_KEY);return sanitizeTheme(row.draft);}
     const documentId = await themeHistoryDocument(db);
     const { data: version } = await db.from("cms_versions").select("id, document_id, snapshot").eq("id", data.versionId).eq("document_id", documentId).maybeSingle();
     if (!version?.snapshot?.theme) throw new Error("Tema sürümü bulunamadı.");

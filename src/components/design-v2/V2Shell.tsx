@@ -1,3 +1,5 @@
+import { SectionTitle } from "./V2EditorialPrimitives";
+export { TrustRow, SectionTitle, HowItWorks } from "./V2EditorialPrimitives";
 import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import { displayMoney } from "@/domain/currency/store";
 import { Link } from "@tanstack/react-router";
@@ -232,29 +234,6 @@ export function HeroField({ icon, children }: { icon: ReactNode; children: React
 export const heroInputClass = "h-[3.35rem] w-full rounded-full bg-transparent pl-12 pr-14 text-sm text-foreground outline-hidden placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring lg:h-16 lg:text-base";
 
 /** Compact icon row with dividers (value props). */
-export function TrustRow({ items, compact = false }: { items: Array<{ icon: ReactNode; label: string }>; compact?: boolean }) {
-  if (!items.length) return null;
-  return (
-    <ul className={`${compact ? "mt-2" : "mt-4"} flex divide-x divide-border lg:-mt-1 lg:w-full lg:rounded-2xl lg:bg-card lg:px-5 lg:py-5 lg:shadow-card lg:ring-1 lg:ring-border`}>
-      {items.map((item) => (
-        <li key={item.label} className={`flex min-w-0 flex-1 flex-col items-center ${compact ? "gap-0.5 py-1" : "gap-1"} px-1.5 text-center text-[10px] font-medium leading-tight text-foreground lg:flex-row lg:justify-center lg:gap-3 lg:px-5 lg:text-sm`}>
-          <span className={`text-[var(--v2-service)] ${compact ? "[&_svg]:size-[18px]" : "[&_svg]:size-5"} lg:[&_svg]:size-6`}>{item.icon}</span>
-          {item.label}
-        </li>
-      ))}
-    </ul>
-  );
-}
-
-export function SectionTitle({ children, action }: { children: ReactNode; action?: ReactNode }) {
-  return (
-    <div className="mb-2 mt-5 flex items-center justify-between gap-2 lg:mb-4 lg:mt-12">
-      <h2 className="min-w-0 font-display text-base font-bold text-foreground lg:text-3xl">{children}</h2>
-      {action && <span className="shrink-0 whitespace-nowrap">{action}</span>}
-    </div>
-  );
-}
-
 /** Horizontal rail of photo cards. */
 export function PhotoRail({ children, railRef, onScroll }: { children: ReactNode; railRef?: React.Ref<HTMLUListElement>; onScroll?: () => void }) {
   return <ul ref={railRef} onScroll={onScroll} className="-mx-4 flex snap-x snap-mandatory scroll-px-4 gap-2.5 overflow-x-auto px-4 pb-1 [overscroll-behavior-inline:contain] [scrollbar-width:none] lg:mx-0 lg:scroll-px-0 lg:gap-4 lg:px-0 lg:[&>li]:w-[calc((100%_-_4rem)/5)]">{children}</ul>;
@@ -295,10 +274,10 @@ export function PhotoCard({ image, fallbackImage, badge, title, sub, price, onCl
   );
 }
 
-export function PromoCard({ image, title, sub, to, compactDesktop = false }: { image: string; title: string; sub?: string; to: V2SafeLink; compactDesktop?: boolean }) {
+export function PromoCard({ image,imageNode, title, sub, to, compactDesktop = false }: { image: string;imageNode?:ReactNode; title: string; sub?: string; to: V2SafeLink; compactDesktop?: boolean }) {
   return (
     <Link to={to} search={(to === "/esim" ? { country: "" } : to === "/lounge" ? { iata: "" } : undefined) as never} className={`relative mt-5 block h-24 overflow-hidden rounded-xl text-primary-foreground lg:h-48 lg:rounded-2xl ${compactDesktop ? "lg:mt-14" : "lg:mt-14"}`}>
-      {image && <img src={image} alt="" loading="lazy" decoding="async" className="absolute inset-0 size-full object-cover" />}
+      {imageNode ?? (image && <img src={image} alt="" loading="lazy" decoding="async" className="absolute inset-0 size-full object-cover" />)}
       <div className="absolute inset-0 bg-gradient-to-r from-[var(--v2-service)]/95 via-[var(--v2-service)]/60 to-transparent" />
       <div className="relative flex h-full items-center justify-between gap-3 p-4 lg:p-8">
         <div className="min-w-0">
@@ -329,23 +308,6 @@ export function DesktopPromoCard({ image, title, cta, to, imagePosition = "cente
         </span>
       </span>
     </Link>
-  );
-}
-
-export function HowItWorks({ title, steps }: { title: string; steps: Array<{ t: string; s: string; image?: string | undefined }> }) {
-  return (
-    <>
-      <SectionTitle>{title}</SectionTitle>
-      <ol className={`grid gap-3 border-b border-border pb-2 ${steps.length === 4 ? "grid-cols-2 sm:grid-cols-4" : "grid-cols-3"}`}>
-        {steps.map((step, i) => (
-          <li key={step.t} className="grid grid-cols-[auto_minmax(0,1fr)] items-start gap-x-2 gap-y-0.5">
-            {step.image ? <CataloguePhoto src={step.image} alt={step.t} className="row-span-2 size-10 object-contain" /> : <span className="row-span-2 grid size-7 place-items-center rounded-full bg-[var(--v2-service)] font-display text-xs font-bold text-primary-foreground">{i + 1}</span>}
-            <span className="text-[11px] font-bold leading-tight text-foreground">{step.t}</span>
-            <span className="text-[9px] leading-snug text-muted-foreground">{step.s}</span>
-          </li>
-        ))}
-      </ol>
-    </>
   );
 }
 

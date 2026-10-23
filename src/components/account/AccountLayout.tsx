@@ -1,3 +1,6 @@
+import { useStorefrontChrome } from "@/components/travel/useStorefrontChrome";
+import { AccountEditorial } from "./AccountEditorial";
+import { getActiveUiLocale } from "@/i18n/overlay";
 import { useRouterState } from "@tanstack/react-router";
 import { CLink as Link, useIsV2 } from "@/components/design-v2/v2-context";
 import { V2Shell } from "@/components/design-v2/V2Shell";
@@ -61,6 +64,7 @@ export function AccountLayout({
   children: ReactNode;
 }) {
   const { locale } = useI18n();
+  const chrome=useStorefrontChrome().config;
   const copy = ACCOUNT_COPY[locale];
   const pc = PURCHASE_COPY[locale];
   const label = (key: AccountSectionKey) => (pc.nav as Record<string, string>)[key] ?? (copy.nav as Record<string, string>)[key] ?? key;
@@ -114,7 +118,9 @@ export function AccountLayout({
               </div>
               {actions && <div className="flex shrink-0 items-center gap-2">{actions}</div>}
             </header>
-            <div className={v2 ? "mt-4 lg:mt-6" : "mt-6"}>{children}</div>
+            <div className={v2 ? "mt-4 lg:mt-6" : "mt-6"}>{chrome.accountPresentation?.position==="before" && <AccountEditorial config={chrome} locale={getActiveUiLocale()}/>}
+            {children}
+            {chrome.accountPresentation?.position!=="before" && <AccountEditorial config={chrome} locale={getActiveUiLocale()}/>}</div>
 
             {(active === "overview" || active === "purchases") && (
               <nav className={`account-mobile-nav mt-3 grid grid-cols-2 gap-2 ${active === 'purchases' ? 'lg:hidden' : ''}`} aria-label={copy.eyebrow}>

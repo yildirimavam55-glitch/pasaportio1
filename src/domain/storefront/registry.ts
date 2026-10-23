@@ -1,3 +1,6 @@
+import { UI_LOCALES, type UiLocale } from "@/i18n/locales";
+import type { LT } from "./v2";
+import { ICON_NAMES } from "./icons";
 import { translateString } from "@/i18n/overlay";
 import type { Locale } from "@/domain/enums";
 import { localize } from "@/i18n/overlay";
@@ -54,7 +57,7 @@ export const ADDABLE_SECTION_TYPES: readonly SectionType[] = [
 ];
 
 export const LOCALES = ["tr", "de", "en"] as const;
-export type LocaleText = Record<Locale, string>;
+export type LocaleText = LT;
 
 export const BACKGROUNDS = ["cream", "white", "mint", "petrol", "image"] as const;
 export const SPACINGS = ["compact", "normal", "large"] as const;
@@ -100,9 +103,10 @@ export type StorefrontSection = {
 };
 
 export type FooterGroup = "services" | "help" | "legal";
-export type NavigationLink = { id: string; href: string; visible: boolean; label: LocaleText; group?: FooterGroup };
+export type NavigationLink = { id: string; href: string; visible: boolean; label: LocaleText; group?: FooterGroup; icon?: string };
 export type FooterSocial = { id: string; url: string; active: boolean };
 export type FooterPresentation = {
+  groupLabels?: Record<FooterGroup,LocaleText>;
   socials: FooterSocial[];
   newsletterVisible: boolean;
   newsletterTitle: LocaleText;
@@ -121,6 +125,7 @@ export type StorefrontConfig = {
   footerText: LocaleText;
   copyright: LocaleText;
   footer: FooterPresentation;
+  accountPresentation?: { title: LocaleText; text: LocaleText; visible: boolean; position: "before" | "after" };
 };
 
 /** Admin-facing metadata — no technical component names are exposed. */
@@ -1005,6 +1010,10 @@ function loungeDefaults(): StorefrontSection[] {
 }
 
 const DEFAULT_NAVIGATION: NavigationLink[] = [
+ {id:'nav-home',href:'/',visible:true,label:text('Ana Sayfa','Startseite','Home'),icon:'Globe2'},
+ {id:'nav-blog',href:'/guides',visible:true,label:text('Blog','Blog','Blog'),icon:'FileCheck2'},
+ {id:'nav-install',href:'/esim/kurulum',visible:true,label:text('Kurulum Rehberi','Installationsanleitung','Installation Guide'),icon:'Smartphone'},
+ {id:'nav-support',href:'/destek',visible:true,label:text('Destek','Support','Support'),icon:'Headphones'},
   { id: "nav-esim", href: "/?service=esim", visible: true, label: text("eSIM", "eSIM", "eSIM") },
   {
     id: "nav-lounge",
@@ -1088,17 +1097,20 @@ const clamp = (value: unknown, min: number, max: number, fallback: number) => {
   return Number.isFinite(num) ? Math.min(max, Math.max(min, num)) : fallback;
 };
 /** Internal, same-site destinations only — never an external or admin URL. */
-const href = (value: unknown) => {
-  const raw = str(value, 160);
-  if (raw.startsWith("#")) return raw;
-  if (!raw.startsWith("/") || raw.startsWith("//") || raw.startsWith("/admin")) return "";
-  return raw;
+export const safeNavigationHref = (value: unknown) => {
+ const raw=str(value,160); if(/[\\\x00-\x20]/.test(raw))return '';
+ try {const decoded=decodeURIComponent(raw);if(/[\\\x00-\x20]/.test(decoded)||decoded.startsWith('//')||/(^|\/)(admin|api)(\/|$)/i.test(decoded)||decoded.split('/').some(x=>x==='.'||x==='..'))return '';
+ if(decoded.startsWith('#'))return /^#[a-zA-Z0-9_-]+$/.test(decoded)?raw:'';
+ return decoded.startsWith('/')?raw:'';}catch{return '';}
 };
-const localeText = (value: unknown, max = 900): LocaleText => localize(({
-  tr: str((value as any)?.tr, max),
-  de: str((value as any)?.de, max),
-  en: str((value as any)?.en, max),
-}));
+const href=safeNavigationHref;
+const localeText = (value: unknown, max = 900): LocaleText => {
+ const v=(value??{}) as LT;
+ const data:LT={tr:str(v.tr,max),de:str(v.de,max),en:str(v.en,max),...Object.fromEntries(UI_LOCALES.filter(l=>!['tr','de','en'].includes(l)&&v[l]!==undefined).map(l=>[l,str(v[l],max)]))};
+ if(v._auto)data._auto=Object.fromEntries(UI_LOCALES.filter(l=>l!=='tr'&&typeof v._auto?.[l]==='string'&&v._auto[l]===v[l]).map(l=>[l,str(v._auto![l],max)]));
+ if(v._src)data._src=Object.fromEntries(UI_LOCALES.filter(l=>l!=='tr'&&typeof v._src?.[l]==='string').map(l=>[l,str(v._src![l],max)]));
+ return data;
+};
 
 function sanitizeItem(raw: any, index: number): SectionItem {
   return {
@@ -1149,15 +1161,20 @@ function sanitizeSection(raw: any, index: number): StorefrontSection | null {
 
 function sanitizeLinks(raw: any, fallback: NavigationLink[]): NavigationLink[] {
   if (!Array.isArray(raw)) return fallback.map((link) => ({ ...link }));
-  const configured = raw.slice(0, 24).map((link: any, index: number) => ({
+  const configured:NavigationLink[] = raw.slice(0, 24).map((link: any, index: number) => ({
     id: str(link?.id, 40) || `link-${index}`,
     href: href(link?.href),
+    icon: ICON_NAMES.includes(link?.icon) ? link.icon : "ChevronRight",
     visible: link?.visible !== false,
     label: localeText(link?.label, 60),
     group: pick(link?.group, ["services", "help", "legal"] as const, fallback[index]?.group ?? "help"),
   }));
+  // Legal destinations cannot be removed, hidden or redirected. Labels remain editable.
+  for(const required of fallback.filter(row=>row.group==='legal')){const found=configured.find(row=>row.id===required.id);if(found){found.href=required.href;found.visible=true;found.group='legal';if(!found.label.tr.trim())found.label={...found.label,tr:required.label.tr};}else configured.unshift({...required});}
+  const seen=new Set<string>();for(let i=configured.length-1;i>=0;i--){if(seen.has(configured[i]!.id))configured.splice(i,1);else seen.add(configured[i]!.id);}
   const ids = new Set(configured.map((link) => link.id));
-  return [...configured, ...fallback.filter((link) => !ids.has(link.id)).map((link) => ({ ...link }))].slice(0, 24);
+  const requiredIds=new Set(fallback.filter(r=>r.group==='legal').map(r=>r.id));
+  return [...configured.filter(r=>requiredIds.has(r.id)),...configured.filter(r=>!requiredIds.has(r.id))].slice(0,24);
 }
 
 const externalUrl = (value: unknown) => { try { const url = new URL(str(value, 300)); return url.protocol === "https:" ? url.toString() : ""; } catch { return ""; } };
@@ -1177,9 +1194,11 @@ export function sanitizeStorefront(raw: any, service: StorefrontService): Storef
     sections,
     navigation: sanitizeLinks(raw.navigation, fallback.navigation),
     footerLinks: sanitizeLinks(raw.footerLinks, fallback.footerLinks),
+    accountPresentation: {title:localeText(raw.accountPresentation?.title,120),text:localeText(raw.accountPresentation?.text,500),visible:raw.accountPresentation?.visible===true,position:raw.accountPresentation?.position==='before'?'before':'after'},
     footerText: localeText(raw.footerText ?? fallback.footerText, 300),
     copyright: localeText(raw.copyright ?? fallback.copyright, 160),
     footer: {
+      groupLabels:{services:localeText(raw.footer?.groupLabels?.services??{tr:'Hizmetler',de:'Services',en:'Services'},60),help:localeText(raw.footer?.groupLabels?.help??{tr:'Yardım',de:'Hilfe',en:'Help'},60),legal:localeText(raw.footer?.groupLabels?.legal??{tr:'Yasal',de:'Rechtliches',en:'Legal'},60)},
       socials: Array.isArray(raw.footer?.socials) ? raw.footer.socials.slice(0, 8).map((row: any, index: number) => ({ id: str(row?.id, 40) || `social-${index}`, url: externalUrl(row?.url), active: row?.active === true })) : fallback.footer.socials,
       newsletterVisible: raw.footer?.newsletterVisible === true,
       newsletterTitle: localeText(raw.footer?.newsletterTitle ?? fallback.footer.newsletterTitle, 120),
@@ -1221,8 +1240,8 @@ export function tx(
   return (value?.[locale] || value?.tr || fallback || "").trim() || fallback;
 }
 
-export function itemText(value: LocaleText | undefined, locale: Locale, fallback = ""): string {
-  const text = (value?.[locale] || value?.tr || fallback).trim() || fallback;
+export function itemText(value: LocaleText | undefined, locale: UiLocale, fallback = ""): string {
+  const text = (value?.[locale] || (!(["tr","de","en"] as string[]).includes(locale) && value?.en ? translateString(value.en) : value?.tr) || fallback).trim() || fallback;
   return locale === "en" ? translateString(text) : text;
 }
 

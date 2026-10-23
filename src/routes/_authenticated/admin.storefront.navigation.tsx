@@ -1,6 +1,11 @@
+import { UI_LOCALES,type UiLocale } from "@/i18n/locales";
+import { ChromeControls } from "@/components/admin/ChromeControls";
+import { V2PageTranslation } from "@/components/design-v2/V2PageTranslation";
+import { chromeTranslationPage,applyChromeTranslation } from "@/domain/storefront/chrome-translation";
+import { translateTrustCopy } from "@/lib/trust-translate.functions";
 import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { toast } from "sonner";
 import { ArrowDown, ArrowUp, Eye, EyeOff, Plus, Save, Trash2, Upload } from "lucide-react";
 import { AdminGate } from "@/components/AdminGate";
@@ -23,16 +28,21 @@ function NavigationEditor() {
   const [locale, setLocale] = useState<Locale>("tr");
   const [draft, setDraft] = useState<StorefrontConfig | null>(null);
   const [dirty, setDirty] = useState(false);
+  const [baseRevision,setBaseRevision]=useState<number|null>(null);
+  const latest=useRef(draft),saving=useRef(draft);latest.current=draft;
+  const [previewLocale,setPreviewLocale]=useState<UiLocale>("tr");
+  const frame=useRef<HTMLIFrameElement>(null);
   const editor = useQuery({ queryKey: ["storefront-editor", "global"], queryFn: () => getStorefrontEditor({ data: { service: "global" } }) });
 
-  useEffect(() => { if (editor.data) { setDraft(editor.data.draft); setDirty(false); } }, [editor.data]);
+  useEffect(() => { if (editor.data && !dirty) { setDraft(editor.data.draft);setBaseRevision(editor.data.revision??null); setDirty(false); } }, [editor.data,dirty]);
 
   const save = useMutation({
-    mutationFn: (publish: boolean) => saveStorefrontDraft({ data: { service: "global", config: draft!, publish } }),
-    onSuccess: async (_result, publish) => { setDirty(false); toast.success(publish ? "Yayınlandı." : "Taslak kaydedildi."); await queryClient.invalidateQueries({ queryKey: ["storefront-editor", "global"] }); },
+    mutationFn: (publish: boolean) => {saving.current=draft;return saveStorefrontDraft({ data: { service: "global", config: draft!, publish,expectedRevision:baseRevision } });},
+    onSuccess: async (_result, publish) => {if(latest.current!==saving.current){toast.info("Yeni yerel düzenlemeler korundu. Revizyonu kontrol edin.");await queryClient.invalidateQueries({queryKey:["storefront-editor","global"]});return;} setDirty(false); toast.success(publish ? "Yayınlandı." : "Taslak kaydedildi."); await queryClient.invalidateQueries({ queryKey: ["storefront-editor", "global"] }); },
     onError: (error: Error) => toast.error(error.message),
   });
 
+  useEffect(()=>{frame.current?.contentWindow?.postMessage({type:'v2-chrome-preview',config:draft},location.origin);},[draft,previewLocale]);
   const patch = (next: Partial<StorefrontConfig>) => { setDraft((current) => (current ? { ...current, ...next } : current)); setDirty(true); };
   const editLinks = (key: "navigation" | "footerLinks", rows: NavigationLink[]) => patch({ [key]: rows } as Partial<StorefrontConfig>);
 
@@ -40,45 +50,26 @@ function NavigationEditor() {
     <AdminGate title="Mağaza · Menü & alt bilgi">
       {editor.isPending || !draft ? <AdminLoading /> : editor.error ? <AdminError error={editor.error} /> : (
         <div className="grid gap-3">
-          <AdminPanel title="Diller" action={
+          <AdminPanel title="Menü, footer ve hesap taslağı" action={
             <div className="flex items-center gap-2">
               {dirty && <span className="rounded-full bg-warning/20 px-2 py-1 text-[10px] font-bold">Kaydedilmemiş</span>}
               <Button size="sm" variant="secondary" disabled={save.isPending} onClick={() => save.mutate(false)}><Save />Taslak</Button>
-              <Button size="sm" variant="cta" disabled={save.isPending} onClick={() => save.mutate(true)}><Upload />Yayınla</Button>
+              <Button size="sm" variant="cta" disabled={save.isPending} onClick={() => {if(window.confirm("Menü ve footer yayına alınsın mı?"))save.mutate(true);}}><Upload />Yayınla</Button>
             </div>
           }>
-            <div className="flex gap-1">
-              {(["tr", "de", "en"] as const).map((value) => (
-                <Button key={value} size="sm" variant={locale === value ? "secondary" : "outline"} onClick={() => setLocale(value)}>{value.toUpperCase()}</Button>
-              ))}
-            </div>
+            <p className="text-xs text-muted-foreground">Türkçe ana kaynak. Dil önizlemesi ayrıdır; taslağı kaydetmek yayınlamaz. Mevcut veritabanının güvenlik geçişi ayrıca onay gerektirir.</p>
           </AdminPanel>
 
-          <div className="grid gap-3 lg:grid-cols-2">
-            <LinkList
-              title="Alt bilgi bağlantıları"
-              rows={draft.footerLinks}
-              locale={locale}
-              onChange={(rows) => editLinks("footerLinks", rows)}
-            />
-            <AdminPanel title="Alt bilgi metinleri">
-              <div className="grid gap-2">
-                <Field label={`Açıklama (${locale.toUpperCase()})`}>
-                  <textarea className="admin-field mt-1 w-full" rows={3} value={draft.footerText[locale] ?? ""} onChange={(event) => patch({ footerText: { ...draft.footerText, [locale]: event.target.value } })} />
-                </Field>
-                <Field label={`Telif metni (${locale.toUpperCase()})`}>
-                  <input className="admin-field mt-1 w-full" value={draft.copyright[locale] ?? ""} onChange={(event) => patch({ copyright: { ...draft.copyright, [locale]: event.target.value } })} />
-                </Field>
-              </div>
+          <V2PageTranslation page={chromeTranslationPage(draft)} onChange={page=>{setDraft(current=>current?applyChromeTranslation(current,page):current);setDirty(true);}} transport={input=>translateTrustCopy({data:input})}/>
+          <label>14 dil · Önizleme<select aria-label="Menü önizleme dili" value={previewLocale} onChange={e=>setPreviewLocale(e.target.value as UiLocale)}>{UI_LOCALES.map(l=><option key={l}>{l}</option>)}</select></label>
+          <iframe ref={frame} name="v2-cms-preview" title="Menü ve footer taslak önizlemesi" src={'/'+previewLocale} className="h-96 w-full rounded border" onLoad={()=>frame.current?.contentWindow?.postMessage({type:'v2-chrome-preview',config:draft},location.origin)}/>
+          <ChromeControls value={draft} onChange={next=>patch(next)}/>
+          <details><summary>Ek footer / sosyal ayarlar (mevcut modül)</summary><div className="grid gap-3 lg:grid-cols-2">
+            <AdminPanel title="Newsletter görünürlüğü ve sosyal bağlantılar">
               <div className="mt-4 border-t border-border pt-3">
                 <label className="flex items-center gap-2 text-xs font-semibold"><input type="checkbox" checked={draft.footer.newsletterVisible} onChange={(event) => patch({ footer: { ...draft.footer, newsletterVisible: event.target.checked } })} />Newsletter alanını göster</label>
                 <p className="mt-1 text-[10px] text-muted-foreground">Abonelik altyapısı olmadığı için alan kamuya açık görünse bile giriş ve buton devre dışı kalır.</p>
-                <div className="mt-3 grid gap-2">
-                  <Field label={`Newsletter başlığı (${locale.toUpperCase()})`}><input className="admin-field mt-1 w-full" value={draft.footer.newsletterTitle[locale]} onChange={(event) => patch({ footer: { ...draft.footer, newsletterTitle: { ...draft.footer.newsletterTitle, [locale]: event.target.value } } })}/></Field>
-                  <Field label={`Newsletter açıklaması (${locale.toUpperCase()})`}><textarea rows={2} className="admin-field mt-1 w-full" value={draft.footer.newsletterDescription[locale]} onChange={(event) => patch({ footer: { ...draft.footer, newsletterDescription: { ...draft.footer.newsletterDescription, [locale]: event.target.value } } })}/></Field>
-                  <Field label={`Giriş metni (${locale.toUpperCase()})`}><input className="admin-field mt-1 w-full" value={draft.footer.newsletterPlaceholder[locale]} onChange={(event) => patch({ footer: { ...draft.footer, newsletterPlaceholder: { ...draft.footer.newsletterPlaceholder, [locale]: event.target.value } } })}/></Field>
-                  <Field label={`Buton (${locale.toUpperCase()})`}><input className="admin-field mt-1 w-full" value={draft.footer.newsletterCta[locale]} onChange={(event) => patch({ footer: { ...draft.footer, newsletterCta: { ...draft.footer.newsletterCta, [locale]: event.target.value } } })}/></Field>
-                </div>
+
               </div>
               <div className="mt-4 border-t border-border pt-3">
                 <strong className="text-xs">Sosyal bağlantılar</strong>
@@ -86,9 +77,9 @@ function NavigationEditor() {
                 <Button className="mt-2" size="sm" variant="outline" onClick={()=>patch({footer:{...draft.footer,socials:[...draft.footer.socials,{id:"sosyal",url:"",active:false}]}})}><Plus/>Bağlantı ekle</Button>
               </div>
               <div className="mt-4 border-t border-border pt-3"><strong className="text-xs">Ödeme logoları</strong><p className="mt-1 text-[10px] text-muted-foreground">Canlı ödeme sağlayıcısı yapılandırılmadığı için Visa, Mastercard, PayPal, Apple Pay ve Google Pay logoları güvenli olarak gizli tutulur.</p></div>
-              <p className="mt-3 text-[11px] text-muted-foreground">Üst menü ve mobil alt menü yapısı ürün tarafında sabittir; buradan yalnızca alt bilgi içeriği yönetilir. Yönetim sayfaları hiçbir zaman genel menüye eklenemez.</p>
+              <p className="mt-3 text-[11px] text-muted-foreground">Üst menü, mobil drawer ve footer üstteki ortak yapılandırmayı kullanır. Hesap/kimlik doğrulama ve ticari işlemler düzenlenemez.</p>
             </AdminPanel>
-          </div>
+          </div></details>
         </div>
       )}
     </AdminGate>

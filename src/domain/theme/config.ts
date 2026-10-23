@@ -17,6 +17,8 @@ export type ThemeConfig = {
   buttonRadius: "small" | "default" | "pill";
   cardRadius: "small" | "default" | "large";
   homepageScrollAnimations: boolean;
+  applyToDark?: boolean;
+  responsive?: Partial<Record<"mobile" | "tablet" | "desktop", { headingSize?: number; bodySize?: number }>>;
 };
 
 export type PublishedThemeConfig = ThemeConfig & { logoUrl: string | null; faviconUrl: string | null };
@@ -49,6 +51,8 @@ export function sanitizeTheme(input: unknown): ThemeConfig {
   const raw = (input ?? {}) as any;
   const base = DEFAULT_THEME;
   return {
+    ...(typeof raw.applyToDark==='boolean'?{applyToDark:raw.applyToDark}:{}),
+    ...(raw.responsive&&typeof raw.responsive==='object'?{responsive:Object.fromEntries(['mobile','tablet','desktop'].filter(device=>raw.responsive?.[device]).map(device=>[device,Object.fromEntries(['headingSize','bodySize'].filter(key=>Number.isFinite(raw.responsive[device][key])).map(key=>[key,Math.min(key==='headingSize'?96:32,Math.max(key==='headingSize'?16:12,raw.responsive[device][key]))]))]))}:{}),
     logoMediaId: raw.logoMediaId ? String(raw.logoMediaId) : null,
     faviconMediaId: raw.faviconMediaId ? String(raw.faviconMediaId) : null,
     colors: {
@@ -120,6 +124,7 @@ export function themeCssVariables(theme: ThemeConfig): Record<string, string> {
     "--font-display": `"${theme.headingFont}", sans-serif`,
     "--font-body": `"${theme.bodyFont}", sans-serif`,
     "--font-heading": `"${theme.headingFont}", sans-serif`,
+    "--builder-global-heading-font": `"${theme.headingFont}", sans-serif`,
     "--theme-heading-scale": HEADING_SCALE[theme.headingScale],
     "--theme-body-scale": BODY_SCALE[theme.bodyScale],
     "--section-spacing": SECTION_SPACING[theme.sectionSpacing],
@@ -137,4 +142,14 @@ export function themeFontUrl(theme: ThemeConfig): string {
   const families = [...new Set([theme.headingFont, theme.bodyFont])];
   const query = families.map((family) => `family=${encodeURIComponent(family).replace(/%20/g, "+")}:wght@400;500;600;700;800`).join("&");
   return `https://fonts.googleapis.com/css2?${query}&display=swap`;
+}
+
+/** Only explicit responsive overrides emit rules; default appearance remains untouched. */
+export function themeResponsiveCss(input:ThemeConfig,scope='.v2-theme'):string{
+ const theme=sanitizeTheme(input);
+ return (['mobile','tablet','desktop'] as const).map((device,index)=>{
+  const v=theme.responsive?.[device];if(!v)return '';
+  const rules=(v.headingSize?`${scope} :is(h1,h2,h3,[data-v2-heading]){font-size:var(--builder-heading-size,${v.headingSize}px)!important}`:'')+(v.bodySize?`${scope} :is(p,[data-v2-body]){font-size:var(--builder-body-size,${v.bodySize}px)!important}`:'');
+  return index?`@media(min-width:${index===1?640:1024}px){${rules}}`:rules;
+ }).join('');
 }

@@ -1,0 +1,115 @@
+name: Unified Admin Integration
+on:
+  pull_request:
+    branches: [feat/builder-page-translation]
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      SECURITY_LIVE: '0'
+      NITRO_PRESET: vercel
+    services:
+      postgres:
+        image: postgres:17.11
+        env:
+          POSTGRES_PASSWORD: synthetic-builder-only
+          POSTGRES_DB: builder_isolated
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U postgres -d builder_isolated"
+          --health-interval 5s --health-timeout 5s --health-retries 10
+      postgrest:
+        image: postgrest/postgrest:v12.2.3
+        env:
+          PGRST_DB_URI: postgres://postgres:synthetic-builder-only@postgres:5432/builder_isolated
+          PGRST_DB_SCHEMAS: public
+          PGRST_DB_ANON_ROLE: anon
+          PGRST_JWT_SECRET: isolated-builder-jwt-fixture-32-bytes-minimum
+          PGRST_SERVER_PORT: '3000'
+        ports: ['3001:3000']
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Exclude tracked environment files from disposable CI checkout
+        run: rm -f .env .env.development .env.local .env.production .env.test
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - uses: oven-sh/setup-bun@v2
+      - name: Frozen installation
+        id: install
+        run: bun install --frozen-lockfile
+      - name: TypeScript
+        if: ${{ !cancelled() && steps.install.outcome == 'success' }}
+        run: bunx tsc --noEmit
+      - name: Production and static acceptance preview build
+        id: build
+        if: ${{ !cancelled() && steps.install.outcome == 'success' }}
+        run: bun run build
+      - name: Builder regressions
+        if: ${{ !cancelled() && steps.install.outcome == 'success' }}
+        run: bunx vitest run src/components/design-v2/__tests__/builder-mvp.test.tsx src/domain/storefront/__tests__/v2.test.ts src/domain/storefront/translation-workflow.test.ts src/domain/storefront/page-translation.test.ts src/lib/cms-translation.server.test.ts src/lib/cms-translation-handler.test.ts src/domain/storefront/admin-integration.test.tsx src/lib/builder-persistence.server.test.ts
+      - name: Install pinned isolated browser test tooling
+        timeout-minutes: 3
+        id: browser
+        if: ${{ !cancelled() && steps.build.outcome == 'success' }}
+        run: |
+          npm install --prefix "$RUNNER_TEMP/builder-browser" --no-save --ignore-scripts playwright@1.58.2
+          google-chrome --version
+      - name: Install pinned CJK font for isolated browser verification
+        id: browser-fonts
+        timeout-minutes: 3
+        if: ${{ !cancelled() && steps.browser.outcome == 'success' }}
+        run: |
+          curl --fail --location --connect-timeout 10 --max-time 90 --retry 1 'https://raw.githubusercontent.com/notofonts/noto-cjk/f8d157532fbfaeda587e826d4cd5b21a49186f7c/Sans/OTF/SimplifiedChinese/NotoSansCJKsc-Regular.otf' -o "$RUNNER_TEMP/NotoSansCJKsc-Regular.otf"
+          python3 - <<'PY'
+          import os, hashlib
+          from pathlib import Path
+          data = (Path(os.environ["RUNNER_TEMP"]) / "NotoSansCJKsc-Regular.otf").read_bytes()
+          assert len(data) == 16437364
+          assert hashlib.sha1(b"blob " + str(len(data)).encode() + b"\0" + data).hexdigest() == "dc15562470b4f842321894787a0d066879ccff8b"
+          PY
+          mkdir -p "$HOME/.local/share/fonts"
+          cp "$RUNNER_TEMP/NotoSansCJKsc-Regular.otf" "$HOME/.local/share/fonts/"
+          fc-cache -f "$HOME/.local/share/fonts"
+          fc-match 'Noto Sans CJK SC'
+      - name: Browser integration and screenshots
+        timeout-minutes: 3
+        if: ${{ !cancelled() && steps.browser.outcome == 'success' && steps.browser-fonts.outcome == 'success' }}
+        env:
+          BUILDER_BROWSER_MODULE: ${{ runner.temp }}/builder-browser/node_modules/playwright
+        run: |
+          python3 -m http.server 8765 --bind 127.0.0.1 --directory public > "$RUNNER_TEMP/builder-server.log" 2>&1 &
+          node scripts/builder-preview-browser.cjs
+      - name: Inherited 53 security checks from PR3
+        if: ${{ !cancelled() && steps.install.outcome == 'success' }}
+        run: |
+          node scripts/checks/v2-builder-safety.checks.mjs
+          node scripts/checks/v2-builder-review.checks.mjs
+      - name: Isolated PostgreSQL and real PostgREST integration
+        if: ${{ !cancelled() && steps.install.outcome == 'success' }}
+        timeout-minutes: 3
+        env:
+          BUILDER_ISOLATED_TEST: '1'
+          PGHOST: 127.0.0.1
+          PGPORT: '5432'
+          PGDATABASE: builder_isolated
+          PGUSER: postgres
+          PGPASSWORD: synthetic-builder-only
+        run: python3 scripts/test-builder-postgres.py
+      - name: Full Vitest suite (known SQL failures remain visible)
+        if: ${{ !cancelled() && steps.install.outcome == 'success' }}
+        run: bunx vitest run
+      - name: Upload acceptance preview and actual screenshots
+        if: ${{ !cancelled() && steps.build.outcome == 'success' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: unified-admin-preview-and-screenshots
+          path: |
+            public/builder-preview
+            artifacts/builder-preview
+          retention-days: 7

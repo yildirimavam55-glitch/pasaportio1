@@ -1,3 +1,4 @@
+import { ResponsiveMediaPicture } from "./ResponsiveMediaPicture";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { ArrowLeft, ArrowRight, Check, Globe2, Headphones, LockKeyhole, QrCode, RotateCcw, Wallet, Zap } from "lucide-react";
@@ -149,13 +150,8 @@ function InfoCard({ card, index, section, media, locale }: { card: V2Item; index
     >
       <div className="relative aspect-[4/3] overflow-hidden">
         {image && (
-          <img
-            src={image}
-            alt={alt}
-            loading={index > 1 ? "lazy" : "eager"}
-            className="size-full object-cover"
-            style={{ objectPosition: `${card.focalX}% ${card.focalY}%` }}
-          />
+          <ResponsiveMediaPicture value={card} resolve={id=>mediaUrl(id??null,media)} alt={alt} className="size-full"/>
+
         )}
         <span className="absolute left-3 top-3 grid size-9 place-items-center rounded-full bg-card/90 font-display text-xs font-bold text-foreground shadow-sm ring-1 ring-border backdrop-blur">
           {String(index + 1).padStart(2, "0")}
