@@ -6,7 +6,7 @@ import { ResponsiveMediaPicture } from "./ResponsiveMediaPicture";
 import { getActiveUiLocale } from "@/i18n/overlay";
 import { V2EditorialGrid } from "./V2EditorialGrid";
 import { isHiddenServiceHref, useOptionalServices } from "@/components/travel/ServiceAvailability";
-import { useEffect, useState, type ReactNode } from "react";
+import { Fragment, useEffect, useState, type ReactNode } from "react";
 import { queryOptions, replaceEqualDeep, useQuery } from "@tanstack/react-query";
 import { DesktopPromoCard, HowItWorks, PromoCard, TrustRow } from "@/components/design-v2/V2Shell";
 import { V2InfoCarousel } from "@/components/design-v2/V2InfoCarousel";
@@ -200,7 +200,7 @@ export function V2Sections({ config, media, slots, only, onDestinationSearch, se
         const items = s.items.filter((item) => item.visible);
         const framed = (node: ReactNode) => <V2SectionFrame key={s.id} section={s}>{config.page === "esim" && s.type !== "SEARCH_HERO" && s.type !== "BENEFIT_ROW" ? <Reveal stagger={s.type === "DESTINATION_CAROUSEL" || s.type === "GUIDE_CAROUSEL"}>{node}</Reveal> : node}</V2SectionFrame>;
         const registered=renderRegisteredEditorialBlock({section:s,locale:getActiveUiLocale(),resolve:id=>mediaUrl(id??null,media)});
-        if(registered!==undefined&&!(s.type==='BENEFIT_ROW'&&slots.benefitsInDesktopHero)&&!(s.type==='FAQ'&&slots.faq))return registered;
+        if(registered!==undefined&&!(s.type==='BENEFIT_ROW'&&slots.benefitsInDesktopHero)&&!(s.type==='FAQ'&&slots.faq))return <Fragment key={s.id}>{config.page==='esim'&&s.type!=='BENEFIT_ROW'?<Reveal>{registered}</Reveal>:registered}</Fragment>;
         switch (blockContract(s.type).renderer) {
           case "SEARCH_HERO":
             return framed(slots.hero(s));
