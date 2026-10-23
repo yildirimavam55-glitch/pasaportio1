@@ -88,3 +88,7 @@ Never edit or delete past entries. Never record secrets here.
 ## 2026-10-22 — Issue #2: V2 builder safety phase 1 (draft proposal)
 Approved scope: owner request and issue #2. Restore now writes only the draft after Admin and document/version checks; force media deletion is removed; reference scans include theme/history and fail on incomplete reads; Storage/version/audit errors are surfaced. Tests remain unchanged except newly added independent offline safety checks. No migration was applied. Atomic CMS writes, concurrent media-reference safety and live RLS verification remain explicit release blockers; see docs/development/V2_BUILDER_SAFETY_PHASE1.md. No production/data/payment operations were performed.
 
+
+
+## 2026-10-22 — Draft-PR #3 Nachprüfung: endgültige Medienlöschung gesperrt
+Freigegeben durch den Eigentümer: Nachprüfung/Ergänzung des Draft-PR #3, keine Datenbankänderung. Der Server-Endpunkt verweigert endgültige Medienlöschung nach der Adminprüfung bedingungslos; die Adminaktion ist deaktiviert. Vorhandene 37 Tests bleiben unverändert, zusätzliche Handler-Integration prüft Löschsperre, Restore und Teilschreibfehler. Veröffentlichungsprojektion und Bigint-Revisions-/Privilegiengrenze liegen ausschließlich als nicht ausgeführte SQL-Vorschläge vor. Bekannte neun SQL-Testblocker bleiben offen. Kein Live-/Supabase-/Storage-/Account-/Produktzugriff und keine Migration/RPC/Veröffentlichung ausgeführt.

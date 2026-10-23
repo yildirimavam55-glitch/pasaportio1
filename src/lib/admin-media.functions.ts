@@ -1,4 +1,4 @@
-import { collectMediaUsage, removeUnusedMedia } from "./v2-builder-safety";
+import { collectMediaUsage, denyFinalMediaDeletion } from "./v2-builder-safety";
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { adminDb, audit, type AdminCtx } from "@/lib/admin-guard";
@@ -170,25 +170,15 @@ export const updateMedia = createServerFn({ method: "POST" })
     return (await decorate([after]))[0]!;
   });
 
+/** Final deletion stays blocked until a reviewed cross-database/Storage protocol exists. */
 export const deleteMedia = createServerFn({ method: "POST" })
   .inputValidator((input: { id: string }) => ({ id: input?.id }))
   .middleware([requireSupabaseAuth])
-  .handler(async ({ context, data }) => {
-    const db = await adminDb(context as AdminCtx);
-    const { data: before, error: readError } = await db.from("media_assets").select("id, label, storage_path, public_url").eq("id", data.id).maybeSingle();
-    if (readError || !before) throw new Error("E_MEDIA_READ");
-    const usage = await collectMediaUsage(db, before);
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    await removeUnusedMedia(before, usage,
-      () => supabaseAdmin.storage.from("media").remove([before.storage_path]),
-      () => db.from("media_assets").delete().eq("id", data.id).select("id").single(),
-    );
-    try {
-      await audit(db, "media.delete", "media_asset", data.id, { label: before.label }, null);
-    } catch {
-      throw new Error("E_MEDIA_DELETED_AUDIT_FAILED");
-    }
-    return { ok: true };
+  .handler(async ({ context }) => {
+    await adminDb(context as AdminCtx);
+    // No environment flag, request parameter, scan result or client action can enable deletion.
+    // Do not import Storage or read/delete media records on this blocked path.
+    return denyFinalMediaDeletion();
   });
 
 export const getMediaUsage = createServerFn({ method: "GET" })

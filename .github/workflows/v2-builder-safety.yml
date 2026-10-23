@@ -16,6 +16,7 @@ jobs:
         with:
           node-version: '24'
       - run: node --test --test-isolation=none scripts/checks/v2-builder-safety.checks.mjs
+      - run: node --test --test-isolation=none scripts/checks/v2-builder-review.checks.mjs
   verify:
     runs-on: ubuntu-latest
     timeout-minutes: 20

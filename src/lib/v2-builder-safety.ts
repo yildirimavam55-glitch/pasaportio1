@@ -71,3 +71,8 @@ export async function removeUnusedMedia(asset: { id: string; storage_path: strin
   if (record.error || !record.data) throw new Error("E_MEDIA_RECORD_REMOVE_AFTER_STORAGE");
   return { ok: true };
 }
+
+/** Unconditional server guard. Re-enabling needs a separately reviewed implementation. */
+export function denyFinalMediaDeletion(): never {
+  throw new Error("E_MEDIA_FINAL_DELETE_DISABLED: Kalıcı silme güvenlik nedeniyle kapalı. Görseli kullanım yerinde değiştirin; mevcut dosya korunur.");
+}
