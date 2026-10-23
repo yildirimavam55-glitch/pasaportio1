@@ -8,6 +8,7 @@ import { AdminError, AdminLoading, AdminPanel, Field } from "@/components/admin/
 import { adminHead } from "@/components/admin/AdminSectionPage";
 import { MediaField } from "@/components/admin/MediaPicker";
 import { HomepageImagesEditor } from '@/components/admin/HomepageImagesEditor';
+import { V2TypographyControls } from "@/components/design-v2/V2TypographyControls";
 import { ImageDisplayControls } from "@/components/admin/ImageDisplayControls";
 import { DEFAULT_IMAGE_DISPLAY, ESIM_DESKTOP_IMAGE_DISPLAY } from "@/domain/storefront/image-display";
 import { IconPicker } from "@/components/admin/IconPicker";
@@ -342,6 +343,7 @@ function SectionDesignEditor({ section, onChange }: { section: V2Section; onChan
   const design = section.design ?? DEFAULT_DESIGN;
   const set = (patch: Partial<typeof design>) => onChange({ ...design, ...patch });
   const setResponsive = (device: "desktop" | "tablet" | "mobile", key: "headingSize" | "bodySize", value: string) => set({ [device]: { ...design[device], [key]: value ? Number(value) : undefined } });
+  const enhanced = section.type === "SEARCH_HERO" || section.type === "NOTICE";
   const positionSupported = section.type !== "SEARCH_HERO" && section.type !== "SPACER";
   return (
     <details className="mb-4 rounded-md border border-border bg-secondary/30 p-3">
@@ -353,14 +355,15 @@ function SectionDesignEditor({ section, onChange }: { section: V2Section; onChan
         <Select label="Arka plan" value={design.background} options={V2_DESIGN_BACKGROUNDS} labels={DESIGN_LABELS} onChange={(background) => set({ background })} />
         {design.background === "custom" && <Field label="Özel arka plan rengi"><input type="color" className="admin-field mt-1 h-10 w-full" value={design.customColor ?? "#faf7ef"} onChange={(event) => set({ customColor: event.target.value })} /></Field>}
         <Select label="Köşe yuvarlaklığı" value={design.radius} options={V2_DESIGN_RADII} labels={DESIGN_LABELS} onChange={(radius) => set({ radius })} />
-        <Select label="Yazı tipi" value={design.font} options={V2_DESIGN_FONTS} labels={DESIGN_LABELS} onChange={(font) => set({ font })} />
+        {!enhanced && <Select label="Yazı tipi" value={design.font} options={V2_DESIGN_FONTS} labels={DESIGN_LABELS} onChange={(font) => set({ font })} />}
         <Select label="Yazı kalınlığı" value={design.weight} options={V2_DESIGN_WEIGHTS} labels={DESIGN_LABELS} onChange={(weight) => set({ weight })} />
         <Select label="Satır yüksekliği" value={design.lineHeight} options={V2_DESIGN_LINES} labels={DESIGN_LABELS} onChange={(lineHeight) => set({ lineHeight })} />
         <Select label="Harf aralığı" value={design.letterSpacing} options={V2_DESIGN_TRACKING} labels={DESIGN_LABELS} onChange={(letterSpacing) => set({ letterSpacing })} />
         <Select label="Metin hizası" value={design.textAlign} options={V2_DESIGN_ALIGNMENTS} labels={DESIGN_LABELS} onChange={(textAlign) => set({ textAlign })} />
       </div>
       {positionSupported && <div className="mt-3"><p className="mb-2 text-xs font-semibold">İçerik konumu</p><div className="grid w-44 grid-cols-3 gap-1">{V2_DESIGN_POSITIONS.map((position) => <Button key={position} type="button" size="icon" variant={design.position === position ? "default" : "outline"} className="size-9" title={position} aria-label={position} onClick={() => set({ position })}><span className="size-2 rounded-full bg-current" /></Button>)}</div></div>}
-      <div className="mt-4 grid gap-3 sm:grid-cols-3">{(["desktop", "tablet", "mobile"] as const).map((device) => <div key={device} className="rounded-md border border-border bg-background p-2"><p className="text-xs font-bold capitalize">{device}</p><Field label="Başlık px"><input type="number" min="18" max="80" className="admin-field mt-1 w-full" value={design[device]?.headingSize ?? ""} placeholder="Varsayılan" onChange={(event) => setResponsive(device, "headingSize", event.target.value)} /></Field><Field label="Metin px"><input type="number" min="11" max="28" className="admin-field mt-1 w-full" value={design[device]?.bodySize ?? ""} placeholder="Varsayılan" onChange={(event) => setResponsive(device, "bodySize", event.target.value)} /></Field></div>)}</div>
+      {!enhanced && <div className="mt-4 grid gap-3 sm:grid-cols-3">{(["desktop", "tablet", "mobile"] as const).map((device) => <div key={device} className="rounded-md border border-border bg-background p-2"><p className="text-xs font-bold capitalize">{device}</p><Field label="Başlık px"><input type="number" min="18" max="80" className="admin-field mt-1 w-full" value={design[device]?.headingSize ?? ""} placeholder="Varsayılan" onChange={(event) => setResponsive(device, "headingSize", event.target.value)} /></Field><Field label="Metin px"><input type="number" min="11" max="28" className="admin-field mt-1 w-full" value={design[device]?.bodySize ?? ""} placeholder="Varsayılan" onChange={(event) => setResponsive(device, "bodySize", event.target.value)} /></Field></div>)}</div>}
+      {(section.type === "SEARCH_HERO" || section.type === "NOTICE") && <V2TypographyControls design={design} onChange={onChange} />}
       <Button type="button" size="sm" variant="outline" className="mt-3" onClick={() => onChange(undefined)}><RotateCcw />Tasarımı varsayılana döndür</Button>
     </details>
   );
@@ -480,7 +483,7 @@ function ImageField({ label, value, onChange, category = "HERO" }: { label: stri
 }
 
 function SectionForm({ section: s, lang, page, trustPreviewLocale, onTrustLocale, onTrustSourceBlur, onChange }: { section: V2Section; lang: Locale; page: V2PageId; trustPreviewLocale: UiLocale | null; onTrustLocale: (code: UiLocale) => void; onTrustSourceBlur: () => void; onChange: (patch: Partial<V2Section>) => void }) {
-  const setText = (key: string, value: LT) => onChange({ text: { ...s.text, [key]: value } });
+  const setText = (key: string, value: LT) => onChange({ text: { ...s.text, [key]: value }, ...(s.type === "SEARCH_HERO" && key === "title" ? { heroTextMode: { ...s.heroTextMode, [lang]: "custom" as const } } : {}) });
   const mode = V2_ITEM_MODE[s.type];
   return (
     <div className="space-y-3">
@@ -491,10 +494,13 @@ function SectionForm({ section: s, lang, page, trustPreviewLocale, onTrustLocale
       {s.type === "SEARCH_HERO" && (
         <div className="grid gap-3 sm:grid-cols-2">
           <div className="space-y-3"><ImageField label="Hero görseli (masaüstü + varsayılan)" value={s.mediaId} onChange={(v) => onChange({ mediaId: v })} />
-            <ImageDisplayControls value={s.imageDisplay} defaults={page === "esim" && s.mediaId === "builtin:esim-hero" ? ESIM_DESKTOP_IMAGE_DISPLAY : DEFAULT_IMAGE_DISPLAY} onChange={(imageDisplay) => onChange({ imageDisplay })} />
+            <ImageDisplayControls value={s.imageDisplay} defaults={page === "esim" && s.mediaId === "builtin:esim-hero" ? ESIM_DESKTOP_IMAGE_DISPLAY : DEFAULT_IMAGE_DISPLAY} onChange={(imageDisplay) => onChange({ imageDisplay, heroDesktopCrop: "custom" })} />
           </div>
           <div className="space-y-3"><ImageField label="Mobil hero görseli (isteğe bağlı)" value={s.mobileMediaId} onChange={(v) => onChange({ mobileMediaId: v })} />
-            {s.mobileMediaId && <ImageDisplayControls title="Mobil görsel ayarları" value={s.mobileImageDisplay} onChange={(mobileImageDisplay) => onChange({ mobileImageDisplay })} />}
+            <ImageDisplayControls title="Mobil görsel ayarları" value={s.mobileImageDisplay} onChange={(mobileImageDisplay) => onChange({ mobileImageDisplay })} />
+          </div>
+          <div className="space-y-3"><ImageField label="Tablet hero görseli (isteğe bağlı · 640–1023 px)" value={s.tabletMediaId ?? null} onChange={(tabletMediaId) => onChange({ tabletMediaId })} />
+            <ImageDisplayControls title="Tablet görsel ayarları" value={s.tabletImageDisplay} onChange={(tabletImageDisplay) => onChange({ tabletImageDisplay })} />
           </div>
           <Select label="Metin hizası" value={s.align} options={V2_ALIGNS} onChange={(align) => onChange({ align })} />
           <Select label="Yükseklik" value={s.height} options={V2_HEIGHTS} onChange={(height) => onChange({ height })} />

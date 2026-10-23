@@ -23,6 +23,14 @@ export function V2SectionFrame({ section, children }: { section: V2Section; chil
   const custom = design.background === "custom" && design.customColor ? { backgroundColor: design.customColor } : undefined;
   const style = {
     ...(custom ?? {}),
+    ...(design.font !== "theme" ? { "--builder-font": design.font === "heading" ? "var(--font-heading, var(--font-display))" : "var(--font-body, var(--font-sans))" } : {}),
+    ...(design.weight !== "default" ? { "--builder-weight": ({ normal: 400, medium: 500, semibold: 600, bold: 700 })[design.weight] } : {}),
+    ...(design.lineHeight !== "default" ? { "--builder-line": ({ tight: 1.25, normal: 1.5, relaxed: 1.625 })[design.lineHeight] } : {}),
+    ...(design.letterSpacing !== "default" ? { "--builder-tracking": design.letterSpacing === "wide" ? ".025em" : "0em" } : {}),
+    ...(design.textAlign !== "default" ? { "--builder-align": design.textAlign } : {}),
+    ...(design.headingColor ? { "--builder-heading-color": design.headingColor } : {}),
+    ...(design.bodyColor ? { "--builder-body-color": design.bodyColor } : {}),
+    ...(design.accentColor ? { "--builder-accent-color": design.accentColor } : {}),
     ...(design.mobile?.headingSize ? { "--section-heading-size-mobile": `${design.mobile.headingSize}px` } : {}),
     ...(design.mobile?.bodySize ? { "--section-body-size-mobile": `${design.mobile.bodySize}px` } : {}),
     ...(design.tablet?.headingSize ? { "--section-heading-size-tablet": `${design.tablet.headingSize}px` } : {}),
@@ -32,7 +40,9 @@ export function V2SectionFrame({ section, children }: { section: V2Section; chil
   } as CSSProperties;
   return (
     <section
+      data-builder-background={design.background !== "default" || undefined}
       data-v2-section-frame
+      data-builder-section={section.type === "SEARCH_HERO" ? "hero" : section.type === "NOTICE" ? "notice" : undefined}
       style={style}
       className={`${widthClass[design.width]} ${spacingClass[design.spacing]} ${backgroundClass[design.background]} ${radiusClass[design.radius]} ${fontClass[design.font]} ${weightClass[design.weight]} ${lineClass[design.lineHeight]} ${trackingClass[design.letterSpacing]} ${alignClass[design.textAlign]} flex min-w-0 flex-col ${positionClass[design.position]}`}
     >

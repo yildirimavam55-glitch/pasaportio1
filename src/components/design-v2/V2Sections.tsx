@@ -7,6 +7,7 @@ import { V2TrustReviews } from "@/components/design-v2/V2TrustReviews";
 import { lastKnownPublished } from "@/domain/storefront/review-carousel";
 import { V2CompactFaq, V2GuidesRail, V2InfoGrid, V2Installation } from "@/components/design-v2/V2DiscoveryContent";
 import { Reveal } from "@/components/travel/Reveal";
+import { V2Notice } from "./V2Notice";
 import { V2SectionFrame } from "@/components/design-v2/V2SectionFrame";
 import { StorefrontIcon } from "@/domain/storefront/icons";
 import { defaultV2Page, isInWindow, sanitizeV2Page, v2ItemText, v2Text, type V2PageConfig, type V2PageId, type V2Section } from "@/domain/storefront/v2";
@@ -204,7 +205,7 @@ export function V2Sections({ config, media, slots, only, onDestinationSearch, se
           case "REGION_DISCOVERY":
             return config.page === "esim" ? <Reveal key={s.id} stagger>{slots.regions?.(s)}{slots.afterRegions}</Reveal> : <V2Fragment key={s.id}>{slots.regions?.(s)}{slots.afterRegions}</V2Fragment>;
           case "NOTICE":
-            return <div key={s.id} className="mt-6 rounded-3xl bg-card p-5 ring-1 ring-border"><p className="font-display text-base font-bold text-foreground">{t("title")}</p>{t("text") && <p className="mt-1 text-sm text-muted-foreground">{t("text")}</p>}</div>;
+            return <V2Notice key={s.id} section={s} title={t("title")} text={t("text")} />;
           case "INFO_GRID":
             return <V2InfoGrid key={s.id} title={t("title")} items={items.map((item) => ({ title: v2ItemText(item.title, locale), text: v2ItemText(item.text, locale) }))} />;
           case "HOW_IT_WORKS":

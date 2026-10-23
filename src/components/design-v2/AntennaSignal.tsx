@@ -10,7 +10,7 @@ export function antennaCrop(width: number, height: number, naturalWidth: number,
 }
 
 /** Crop and signal share the actual image scale, position and transform. */
-export function AntennaSignal() {
+export function AntennaSignal({ autoCrop = true }: { autoCrop?: boolean }) {
  const ref = useRef<SVGSVGElement>(null);
  const [geometry, setGeometry] = useState({ width: 1, height: 1, x: -100, y: -100, visible: false });
  useEffect(() => {
@@ -21,7 +21,7 @@ export function AntennaSignal() {
   const update = () => {
    const width = picture.clientWidth, height = picture.clientHeight;
    if (!image.naturalWidth || !width || !height) return;
-    if (window.matchMedia("(min-width:1024px)").matches) {
+    if (autoCrop && window.matchMedia("(min-width:1024px)").matches) {
      const horizontal = getComputedStyle(image).objectPosition.split(" ")[0] ?? "50%";
      image.style.objectPosition = `${horizontal} ${antennaCrop(width, height, image.naturalWidth, image.naturalHeight) * 100}%`;
     } else image.style.removeProperty("object-position");
@@ -39,8 +39,8 @@ export function AntennaSignal() {
   image.addEventListener("load", update);
   window.addEventListener("resize", update);
   update();
-  return () => { observer.disconnect(); image.removeEventListener("load", update); window.removeEventListener("resize", update); };
- }, []);
+  return () => { observer.disconnect(); image.removeEventListener("load", update); window.removeEventListener("resize", update); image.style.removeProperty("object-position"); };
+ }, [autoCrop]);
  return <svg ref={ref} className="hero-antenna-signal" aria-hidden="true" focusable="false" viewBox={`0 0 ${geometry.width} ${geometry.height}`} data-visible={geometry.visible}>
   <g transform={`translate(${geometry.x} ${geometry.y})`}>
    <path className="antenna-signal-inner" d="M -8 -7 Q -14 0 -8 7" />
