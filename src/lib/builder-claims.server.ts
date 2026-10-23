@@ -11,5 +11,5 @@ export function assertClaimApprovals(config:V2PageConfig,approved:Record<string,
  }
 }
 export function claimApprovalsFromEnvironment():Record<string,{source:string;reviewedAt:string}>{
- try{return JSON.parse(process.env['CMS_APPROVED_CLAIM_DIGESTS']??'{}');}catch{throw new Error('E_CMS_CLAIM_APPROVAL_CONFIG');}
+ try{const v=JSON.parse(process.env['CMS_APPROVED_CLAIM_DIGESTS']??'{}');if(!v||typeof v!=='object'||Array.isArray(v)||Object.entries(v).some(([key,value])=>!/^[a-f0-9]{64}$/.test(key)||!value||typeof value!=='object'||typeof (value as any).source!=='string'||typeof (value as any).reviewedAt!=='string'))throw new Error();return v;}catch{throw new Error('E_CMS_CLAIM_APPROVAL_CONFIG');}
 }

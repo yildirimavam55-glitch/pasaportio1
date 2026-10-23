@@ -104,6 +104,7 @@ export const uploadMedia = createServerFn({ method: "POST" })
     if (!/^image\/(png|jpeg|jpg|webp|avif)$/.test(data.contentType)) {
       throw new Error("Yalnızca görsel dosyaları yüklenebilir.");
     }
+    if(typeof data.base64!=="string"||data.base64.length>14*1024*1024||!/^[A-Za-z0-9+/]*={0,2}$/.test(data.base64))throw new Error("E_MEDIA_ENCODING");
     const bytes = Buffer.from(data.base64, "base64");
     if (bytes.byteLength > 10 * 1024 * 1024) throw new Error("Dosya 10 MB sınırını aşıyor.");
 

@@ -38,3 +38,21 @@ Die PostgreSQL-/PostgREST-Prüfung verwendet nur einen frischen Wegwerfcontainer
 3. Garantie-/Bewertungsquellen und Inhaltsfreigaben festlegen. Keine erfundenen Zertifizierungen oder Garantien.
 4. Kritische Commerce-Aktionen nur in ausdrücklich freigegebenen Sandboxen prüfen. Keine echten Zahlungen, Erstattungen, Providerbestellungen oder QR-Auslieferungen in dieser Arbeit.
 5. Draft-PR visuell prüfen, nicht automatisch mergen oder veröffentlichen.
+
+## Bekannte SQL-Fehler separat
+
+Die vollständige Vitest-Suite bleibt absichtlich rot, solange diese bestehenden Nachweise fehlen. Dies ist kein Nachweis, dass die aktuelle Managed-Datenbank exakt dieselben Definitionen hat:
+
+|Befund|Stufe|Erforderlicher separater Nachweis|
+|---|---|---|
+|Produktkosten-Spaltenrechte|HOCH|Browserrollen ohne Einkaufskostenrechte|
+|REFUNDED ohne nachgewiesenen bestätigten Refund-Guard|HOCH|DB-Guard und isolierte Negativtests|
+|has_role self-only-Nachweis fehlt|HOCH|Aufruferbindung und Service-Rollen-Ausnahme|
+|has_role anon EXECUTE-Nachweis fehlt|HOCH|ACL-Test|
+|platform_settings öffentliche Policy/Grants|HOCH|Nur Admin, getrennte öffentliche Projektion|
+|platform_settings Allowlist|HOCH|Keine vertraulichen Schlüssel öffentlich|
+|Admin-RPC EXECUTE für anon/PUBLIC|HOCH|Rollenmatrix aller kritischen RPCs|
+|Historischer E-Mail-Grant-Nachweis 0006 fehlt|HOCH|Vorlagenrechte ohne öffentliche Schreib-/Truncate-Rechte|
+|Historischer PDF-Sicherheitsnachweis 0007 fehlt|HOCH|Admin-RLS und unveränderliche Versionen|
+
+Keine historischen Migrationen wurden als aktive Migrationen eingeführt. Bestehende Entwurfs-, RLS- und Atomicity-Vorschläge bleiben Vorschläge. Die neuen JSON-Kartentests prüfen deren unveränderte Speichergrenze in der isolierten Umgebung; sie erweitern keine Datenbankrechte.
