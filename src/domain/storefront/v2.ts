@@ -25,14 +25,14 @@ export const V2_LOCALES = ["tr", "de", "en"] as const;
 export type LT = Record<Locale, string> & Partial<Record<UiLocale, string>> & { _auto?: Partial<Record<UiLocale, string>>; _src?: Partial<Record<UiLocale, string>> };
 
 export type LTStatus = "SOURCE" | "MISSING" | "AUTO_TRANSLATED" | "MANUALLY_EDITED" | "OUTDATED";
-/** Provenance of one locale value. OUTDATED = manual translation whose Turkish source changed since it was written; never overwritten automatically. */
+/** Provenance of one locale value. OUTDATED = translation whose Turkish source changed. Only stale machine-owned values may regenerate; manual values stay protected. */
 export function ltStatus(value: LT | undefined, code: UiLocale): LTStatus {
   if (code === "tr") return "SOURCE";
   const text = value?.[code];
   if (!text?.trim()) return "MISSING";
-  if (value?._auto?.[code] === text) return "AUTO_TRANSLATED";
   const src = value?._src?.[code];
-  return src !== undefined && src !== (value?.tr ?? "") ? "OUTDATED" : "MANUALLY_EDITED";
+  if (src !== undefined && src !== (value?.tr ?? "")) return "OUTDATED";
+  return value?._auto?.[code] === text ? "AUTO_TRANSLATED" : "MANUALLY_EDITED";
 }
 
 export const V2_SECTION_TYPES = [

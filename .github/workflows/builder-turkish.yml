@@ -1,0 +1,59 @@
+name: V2 Turkish Source
+on:
+  pull_request:
+    branches: [feat/v2-builder-mvp]
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      SECURITY_LIVE: '0'
+      NITRO_PRESET: vercel
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Exclude tracked environment files from disposable CI checkout
+        run: rm -f .env .env.development .env.local .env.production .env.test
+      - uses: oven-sh/setup-bun@v2
+      - name: Frozen installation
+        id: install
+        run: bun install --frozen-lockfile
+      - name: TypeScript
+        if: ${{ !cancelled() && steps.install.outcome == 'success' }}
+        run: bunx tsc --noEmit
+      - name: Production and static acceptance preview build
+        id: build
+        if: ${{ !cancelled() && steps.install.outcome == 'success' }}
+        run: bun run build
+      - name: Builder regressions
+        if: ${{ !cancelled() && steps.install.outcome == 'success' }}
+        run: bunx vitest run src/components/design-v2/__tests__/builder-mvp.test.tsx src/domain/storefront/__tests__/v2.test.ts src/domain/storefront/translation-workflow.test.ts src/lib/cms-translation.server.test.ts
+      - name: Install pinned isolated browser test tooling
+        timeout-minutes: 3
+        id: browser
+        if: ${{ !cancelled() && steps.build.outcome == 'success' }}
+        run: |
+          npm install --prefix "$RUNNER_TEMP/builder-browser" --no-save --ignore-scripts playwright@1.58.2
+          google-chrome --version
+      - name: Browser integration and screenshots
+        if: ${{ !cancelled() && steps.browser.outcome == 'success' }}
+        env:
+          BUILDER_BROWSER_MODULE: ${{ runner.temp }}/builder-browser/node_modules/playwright
+        run: |
+          python3 -m http.server 8765 --bind 127.0.0.1 --directory public > "$RUNNER_TEMP/builder-server.log" 2>&1 &
+          node scripts/builder-preview-browser.cjs
+      - name: Full Vitest suite (known SQL failures remain visible)
+        if: ${{ !cancelled() && steps.install.outcome == 'success' }}
+        run: bunx vitest run
+      - name: Upload acceptance preview and actual screenshots
+        if: ${{ !cancelled() && steps.build.outcome == 'success' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: builder-mvp-preview-and-screenshots
+          path: |
+            public/builder-preview
+            artifacts/builder-preview
+          retention-days: 7
