@@ -102,7 +102,7 @@ let activeBrowser;
  await page.getByLabel('Vorschau in',{exact:true}).selectOption('tr');
  for(const width of [390,768,1440]){
   await page.setViewportSize({width,height:1000});
-  await page.locator('aside').evaluate(e=>e.scrollTop=0);
+  await page.locator('.builder-workspace > aside').evaluate(e=>e.scrollTop=0);
   await page.screenshot({path:`artifacts/builder-preview/editor-${width}.png`,fullPage:true});
  }
 

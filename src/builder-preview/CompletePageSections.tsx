@@ -13,7 +13,7 @@ const EMPTY:Record<UiLocale,string>={tr:'Veri bağlantısı kapalı. Yayımlanm�
 /** Complete existing section order; unavailable live slots are explicit, never fake offers/reviews. */
 export function CompletePageSection({section:s,locale,resolve,hero,onSelect}:{section:V2Section;locale:UiLocale;resolve:(id?:string|null)=>string|undefined;hero:ReactNode;onSelect:(id:string)=>void}){
  const t=(key:string)=>s.text[key]?.[locale]||s.text[key]?.tr||'';
- const text=(value:Record<string,unknown>)=>String(value[locale]||value.tr||'');
+ const text=(value:Record<string,unknown>)=>String(value[locale]||value['tr']||'');
  const items=s.items.filter(i=>i.visible);
  let content:ReactNode;
  switch(s.type){
