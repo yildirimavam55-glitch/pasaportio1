@@ -8,6 +8,8 @@ import { AdminError, AdminLoading, AdminPanel, Field } from "@/components/admin/
 import { adminHead } from "@/components/admin/AdminSectionPage";
 import { MediaField } from "@/components/admin/MediaPicker";
 import { HomepageImagesEditor } from '@/components/admin/HomepageImagesEditor';
+import { V2TurkishTextEditor } from "@/components/design-v2/V2TurkishTextEditor";
+import { manualEdit, sourceEdit, needsMachineTranslation, mergeMachineTranslation, mergeTranslatedDraft } from "@/domain/storefront/translation-workflow";
 import { V2TypographyControls } from "@/components/design-v2/V2TypographyControls";
 import { ImageDisplayControls } from "@/components/admin/ImageDisplayControls";
 import { DEFAULT_IMAGE_DISPLAY, ESIM_DESKTOP_IMAGE_DISPLAY } from "@/domain/storefront/image-display";
@@ -87,7 +89,10 @@ function Editor({ page }: { page: V2PageId }) {
   const [draft, setDraft] = useState<V2PageConfig | null>(null);
   const [dirty, setDirty] = useState(false);
   const [selectedId, setSelectedId] = useState<string>("hero");
-  const [lang, setLang] = useState<Locale>("tr");
+  const lang: Locale = "tr";
+  const [previewLocale, setPreviewLocale] = useState<UiLocale>("tr");
+  const draftRef = useRef<V2PageConfig | null>(null);
+  draftRef.current = draft;
   const [trustPreviewLocale, setTrustPreviewLocale] = useState<UiLocale | null>(null);
   const [device, setDevice] = useState<(typeof DEVICES)[number]["id"]>("mobile");
   const [dragId, setDragId] = useState<string | null>(null);
@@ -108,8 +113,8 @@ function Editor({ page }: { page: V2PageId }) {
   const media = useMemo(() => Object.fromEntries((mediaList.data ?? []).filter((m) => m.url).map((m) => [m.id, { url: m.url as string, alt: m.altText ?? "", ...(m.width && m.height ? { width: m.width, height: m.height } : {}) }])), [mediaList.data]);
   const pushPreview = useCallback(() => {
     if (!draft || !frame.current?.contentWindow) return;
-    frame.current.contentWindow.postMessage({ type: "v2-cms-preview", page, config: draft, media, locale: selectedId === "trust-reviews" ? trustPreviewLocale ?? lang : lang }, window.location.origin);
-  }, [draft, media, page, lang, selectedId, trustPreviewLocale]);
+    frame.current.contentWindow.postMessage({ type: "v2-cms-preview", page, config: draft, media, locale: previewLocale }, window.location.origin);
+  }, [draft, media, page, previewLocale]);
   useEffect(() => { pushPreview(); }, [pushPreview]);
   useEffect(() => {
     const onReady = (event: MessageEvent) => { if (event.origin === window.location.origin && event.data?.type === "v2-cms-ready" && event.data.page === page) pushPreview(); };
@@ -133,17 +138,19 @@ function Editor({ page }: { page: V2PageId }) {
   const refresh = () => { setDirty(false); void queryClient.invalidateQueries({ queryKey: ["v2-editor", page] }); void queryClient.invalidateQueries({ queryKey: ["v2-storefront", page] }); };
   const save = useMutation({
     mutationFn: async (publish: boolean) => {
-      let config = draft!;
+      const snapshot = draft!;
+      let config = snapshot;
       // Save draft = auto-translate changed Turkish source into the other locales first (draft only, never publishes).
       if (!publish) {
         setTranslatingTrust(true);
         try {
           let count = 0;
-          for (const section of config.sections) { const result = await translateSection(page, config, section.id); config = result.config; count += result.count; }
-          if (count) { setDraft(config); toast.success(`${count} metin 13 dile otomatik çevrildi.`); }
-        } catch (error) { toast.warning(`Otomatik çeviri yapılamadı; taslak çevirisiz kaydedildi. ${error instanceof Error ? error.message : ""}`); }
+          for (const section of config.sections) { const result = await translateSection(page, config, section.id); config = result.config; count += result.count; if (result.failures) throw new Error("Teilweise fehlgeschlagen"); }
+          if (count) { if (draftRef.current !== snapshot) throw new Error("Taslak değişti."); setDraft(config); toast.success(`${count} metin 13 dile otomatik çevrildi.`); }
+        } catch { throw new Error("Çeviri tamamlanmadı; taslak kaydedilmedi. Çevirileri ayrı düğmeyle kontrol edin."); }
         finally { setTranslatingTrust(false); }
       }
+      if (draftRef.current !== snapshot) throw new Error("Taslak değişti; yeniden kontrol edip kaydedin.");
       return saveV2Page({ data: { page, config, publish } });
     },
     onSuccess: (_r, publish) => { toast.success(publish ? "Yayınlandı." : "Taslak kaydedildi."); refresh(); },
@@ -174,9 +181,10 @@ function Editor({ page }: { page: V2PageId }) {
     setTranslatingTrust(true);
     try {
       const result = await translateSection(page, draft, target.id);
-      if (!result.count) { toast.info("Çevrilecek yeni Türkçe metin yok."); return; }
-      update(result.config);
-      toast.success("Çeviriler taslağa eklendi. Önizleyip kaydedebilir veya yayınlayabilirsiniz.");
+      if (!result.count && !result.failures) { toast.info("Çevrilecek yeni Türkçe metin yok."); return; }
+      update(mergeTranslatedDraft(draftRef.current ?? draft, draft, result.config));
+      if (result.failures) toast.warning("Çevirilerin bir kısmı eksik. Başarılı sonuçlar korundu; eksikleri yeniden deneyin.");
+      else toast.success("Sonuçlar kontrol edildi. Değişmiş kaynaklar ve elle düzenlenen metinler korunur; durumları gözden geçirin.");
     } catch (error) { toast.error(error instanceof Error ? error.message : "Çeviri başarısız oldu."); }
     finally { setTranslatingTrust(false); }
   };
@@ -248,7 +256,7 @@ function Editor({ page }: { page: V2PageId }) {
         <Button variant="outline" size="sm" onClick={() => setShowHistory((v) => !v)}><History />Geçmiş</Button>
         <Button variant="outline" size="sm" onClick={() => { if (window.confirm("Tüm sayfa onaylı varsayılan tasarıma dönsün mü? (Kaydedene kadar yalnız taslakta)")) update(defaults); }}><RotateCcw />Varsayılana dön</Button>
         {editor.data?.hasDraftChanges && !dirty && <Button variant="outline" size="sm" onClick={() => discard.mutate()}>Taslağı at</Button>}
-        <Button variant="outline" size="sm" disabled={save.isPending} onClick={() => save.mutate(false)}><Save />Taslak kaydet</Button>
+        <Button variant="outline" size="sm" disabled={save.isPending} onClick={() => save.mutate(false)}><Save />Entwurf speichern & übersetzen</Button>
         <Button size="sm" disabled={save.isPending} onClick={() => { if (window.confirm("Bu sürüm müşterilere yayınlansın mı?")) save.mutate(true); }}><Upload />Yayınla</Button>
       </div>
 
@@ -301,19 +309,15 @@ function Editor({ page }: { page: V2PageId }) {
             {!V2_SINGLETON.includes(selected.type) && <Button size="sm" variant="ghost" onClick={() => duplicate(selected)}><Copy />Çoğalt</Button>}
             {!V2_PROTECTED.includes(selected.type) && <Button size="sm" variant="ghost" className="text-destructive" onClick={() => remove(selected)}><Trash2 />Kaldır</Button>}
           </div>}>
-          <div className="mb-3 flex items-center gap-1">
-            {(["tr", "de", "en"] as const).map((code) => (
-              <Button key={code} size="sm" variant={lang === code ? "default" : "outline"} onClick={() => setLang(code)} className="uppercase">
-                {code}{code !== "tr" && missing[code] > 0 && <span className="ml-1 rounded-full bg-warning/20 px-1.5 text-[10px]">{missing[code]}</span>}
-              </Button>
-            ))}
-            <span className="ml-2 text-[10px] text-muted-foreground">Boş DE/EN alanlarda Türkçe metin gösterilir.</span>
-          </div>
+          <p className="mb-3 text-xs font-bold">TR – Hauptsprache / Ana dil</p>
+          <label className="mb-3 block text-xs">Vorschau in: / Önizleme dili
+            <select aria-label="Vorschau in" value={previewLocale} className="admin-field mt-1 w-full" onChange={e => setPreviewLocale(e.target.value as UiLocale)}>{UI_LOCALES.map(code => <option key={code} value={code}>{LOCALE_REGISTRY[code].nativeName}</option>)}</select>
+          </label>
           {V2_PROTECTED.includes(selected.type) && <p className="mb-3 rounded-md bg-secondary p-2 text-[11px] text-muted-foreground">Arama mantığı kodda korunur. Burada yalnızca metin, görsel ve görünüm ön ayarları değişir; bölüm gizlenemez veya taşınamaz.</p>}
-           {<div className="mb-3 flex items-center gap-2"><Button type="button" size="sm" variant="outline" disabled={translatingTrust} onClick={() => void translateTrust()}>{translatingTrust ? "Çevriliyor…" : "Tüm dillere çevir"}</Button><span className="text-xs text-muted-foreground">Türkçe kaynak 13 dile çevrilir; elle düzenlenen çeviriler korunur. "Taslağı kaydet" değişen Türkçe metni otomatik çevirir; yayınlamaz.</span></div>}
+           {<div className="mb-3 flex items-center gap-2"><Button type="button" size="sm" variant="outline" disabled={translatingTrust} onClick={() => void translateTrust()}>{translatingTrust ? "Çevriliyor…" : "Alle 13 Sprachen übersetzen"}</Button><span className="text-xs text-muted-foreground">Türkçe kaynak 13 dile çevrilir; elle düzenlenen çeviriler korunur. Gerçek çeviri, servis yapılandırılıp ayrıca onaylandıktan sonra kullanılabilir; yayınlamaz.</span></div>}
           <LocaleStatusRow section={selected} />
           <SectionDesignEditor section={selected} onChange={(design) => patchSection(selected.id, design ? { design } : { design: undefined } as unknown as Partial<V2Section>)} />
-          <SectionForm section={selected} lang={lang} page={page} trustPreviewLocale={trustPreviewLocale} onTrustLocale={setTrustPreviewLocale} onTrustSourceBlur={() => void translateTrust()} onChange={(patch) => patchSection(selected.id, patch)} />
+          <SectionForm section={selected} previewLocale={previewLocale} lang={lang} page={page} trustPreviewLocale={trustPreviewLocale} onTrustLocale={setTrustPreviewLocale} onTrustSourceBlur={() => void translateTrust()} onChange={(patch) => patchSection(selected.id, patch)} />
         </AdminPanel>
 
         <AdminPanel title="Önizleme (taslak)" className="xl:w-[27rem]" action={
@@ -386,16 +390,11 @@ function sectionLTs(section: V2Section, defaultSection?: V2Section): LTRef[] {
   }
   return refs;
 }
-/** True when this locale may be (re)generated: missing, AUTO_TRANSLATED with a changed source, or an untouched built-in default whose Turkish changed. Manual/outdated values never qualify. */
-function needsTranslation(value: LT, code: UiLocale, original?: LT) {
-  const status = ltStatus(value, code);
-  if (status === "MISSING") return true;
-  if (status === "AUTO_TRANSLATED") return value._src?.[code] !== value.tr;
-  return value.tr !== original?.tr && value[code] === original?.[code] && value._src?.[code] === undefined;
-}
-async function translateSection(page: V2PageId, config: V2PageConfig, sectionId: string): Promise<{ config: V2PageConfig; count: number }> {
+/** Only missing or stale machine-owned values qualify; manual and unknown legacy values remain protected. */
+function needsTranslation(value: LT, code: UiLocale, _original?: LT) { return needsMachineTranslation(value, code); }
+async function translateSection(page: V2PageId, config: V2PageConfig, sectionId: string): Promise<{ config: V2PageConfig; count: number; failures: number }> {
   const section = config.sections.find((row) => row.id === sectionId);
-  if (!section) return { config, count: 0 };
+  if (!section) return { config, count: 0, failures: 0 };
   const defaults = defaultV2Page(page).sections;
   const defaultSection = defaults.find((row) => row.id === section.id) ?? defaults.find((row) => row.type === section.type);
   const entries: Record<string, string> = {};
@@ -404,21 +403,18 @@ async function translateSection(page: V2PageId, config: V2PageConfig, sectionId:
     if (value?.tr?.trim() && UI_LOCALES.some((code) => code !== "tr" && needsTranslation(value, code, ref.original))) entries[ref.id] = value.tr.trim();
   }
   const ids = Object.keys(entries);
-  if (!ids.length) return { config, count: 0 };
+  if (!ids.length) return { config, count: 0, failures: 0 };
   const translations: Record<string, Record<string, string>> = {};
-  for (let index = 0; index < ids.length; index += 60) Object.assign(translations, await translateTrustCopy({ data: { entries: Object.fromEntries(ids.slice(index, index + 60).map((id) => [id, entries[id]!])) } }));
-  const merge = (id: string, value: LT | undefined, original?: LT): any => {
-    const translated = translations[id];
-    if (!value || !translated) return value;
-    const next: LT = { ...value, _auto: { ...value._auto }, _src: { ...value._src } };
-    for (const code of UI_LOCALES) {
-      if (code === "tr" || !translated[code] || !needsTranslation(value, code, original)) continue;
-      next[code] = translated[code];
-      next._auto![code] = translated[code];
-      next._src![code] = value.tr;
-    }
-    return next;
-  };
+  let failures = 0;
+  const refs = sectionLTs(section, defaultSection);
+  for (let index = 0; index < ids.length; index += 6) {
+    const batch = ids.slice(index, index + 6);
+    let result;
+    try { result = await translateTrustCopy({ data: { entries: Object.fromEntries(batch.map(id => [id, entries[id]!])), targets: Object.fromEntries(batch.map(id => [id, UI_LOCALES.filter(code => code !== "tr" && needsMachineTranslation(refs.find(ref => ref.id === id)?.value, code))])) } }); } catch (error) { if (!Object.keys(translations).length) throw error; failures += ids.length - index; break; }
+    Object.assign(translations, result.translations);
+    failures += Object.keys(result.failures).length;
+  }
+  const merge = (id: string, value: LT | undefined, _original?: LT): any => value && translations[id] ? mergeMachineTranslation(value, value, translations[id]!) : value;
   const orig = (key: string) => defaultSection?.text[key];
   const translatable = (item: V2Item) => section.type === "TRUST_REVIEWS" ? item.cardType === "trust" || item.cardType === "chip" : item.cardType !== "review";
   const next: V2Section = {
@@ -431,7 +427,7 @@ async function translateSection(page: V2PageId, config: V2PageConfig, sectionId:
     }),
     ...(section.trust ? { trust: { ...section.trust, manualCaption: merge("trust:manualCaption", section.trust.manualCaption, defaultSection?.trust?.manualCaption), ...(section.trust.comparisonImageAlt ? { comparisonImageAlt: merge("trust:comparisonImageAlt", section.trust.comparisonImageAlt, defaultSection?.trust?.comparisonImageAlt) } : {}) } } : {}),
   };
-  return { config: { ...config, sections: config.sections.map((row) => row.id === section.id ? next : row) }, count: ids.length };
+  return { config: { ...config, sections: config.sections.map((row) => row.id === section.id ? next : row) }, count: Object.keys(translations).length, failures };
 }
 function LocaleStatusRow({ section }: { section: V2Section }) {
   const refs = sectionLTs(section).filter((ref) => ref.value?.tr?.trim());
@@ -456,8 +452,8 @@ function LTInput({ label, value, lang, onChange, multiline = false, uiLang, onSo
   return (
     <Field label={`${label} · ${code.toUpperCase()}${onSourceBlur ? ` · ${{ SOURCE: "SOURCE", MISSING: "EKSİK", AUTO_TRANSLATED: "AUTO_TRANSLATED", MANUALLY_EDITED: "MANUALLY_EDITED", OUTDATED: "OUTDATED / MANUALLY_EDITED" }[ltStatus(current, code)]}` : ""}`} {...(code !== "tr" && current.tr ? { hint: `TR: ${current.tr}` } : {})}>
       {multiline
-        ? <textarea rows={3} className={cls} value={current[code] ?? ""} onBlur={code === "tr" ? onSourceBlur : undefined} onChange={(e) => onChange(code === "tr" ? { ...current, tr: e.target.value } : { ...current, [code]: e.target.value, _src: { ...current._src, [code]: current.tr } })} />
-        : <input className={cls} value={current[code] ?? ""} onBlur={code === "tr" ? onSourceBlur : undefined} onChange={(e) => onChange(code === "tr" ? { ...current, tr: e.target.value } : { ...current, [code]: e.target.value, _src: { ...current._src, [code]: current.tr } })} />}
+        ? <textarea rows={3} className={cls} value={current[code] ?? ""} onChange={(e) => onChange(code === "tr" ? sourceEdit(current, e.target.value) : manualEdit(current, code, e.target.value))} />
+        : <input className={cls} value={current[code] ?? ""} onChange={(e) => onChange(code === "tr" ? sourceEdit(current, e.target.value) : manualEdit(current, code, e.target.value))} />}
     </Field>
   );
 }
@@ -482,13 +478,14 @@ function ImageField({ label, value, onChange, category = "HERO" }: { label: stri
   );
 }
 
-function SectionForm({ section: s, lang, page, trustPreviewLocale, onTrustLocale, onTrustSourceBlur, onChange }: { section: V2Section; lang: Locale; page: V2PageId; trustPreviewLocale: UiLocale | null; onTrustLocale: (code: UiLocale) => void; onTrustSourceBlur: () => void; onChange: (patch: Partial<V2Section>) => void }) {
+function SectionForm({ section: s, lang, previewLocale, page, trustPreviewLocale, onTrustLocale, onTrustSourceBlur, onChange }: { section: V2Section; lang: Locale; previewLocale: UiLocale; page: V2PageId; trustPreviewLocale: UiLocale | null; onTrustLocale: (code: UiLocale) => void; onTrustSourceBlur: () => void; onChange: (patch: Partial<V2Section>) => void }) {
   const setText = (key: string, value: LT) => onChange({ text: { ...s.text, [key]: value }, ...(s.type === "SEARCH_HERO" && key === "title" ? { heroTextMode: { ...s.heroTextMode, [lang]: "custom" as const } } : {}) });
   const mode = V2_ITEM_MODE[s.type];
   return (
     <div className="space-y-3">
       <div className="grid gap-3 sm:grid-cols-2">
-        {s.type !== "TRUST_REVIEWS" && V2_TEXT_FIELDS[s.type].map(([key, label]) => <LTInput key={key} label={label} lang={lang} value={s.text[key]} onChange={(v) => setText(key, v)} multiline={key === "text" || key === "lead"} />)}
+        {(s.type === "SEARCH_HERO" || s.type === "NOTICE") && <div className="sm:col-span-2"><V2TurkishTextEditor section={s} previewLocale={previewLocale} onChange={onChange} /></div>}
+        {s.type !== "TRUST_REVIEWS" && s.type !== "SEARCH_HERO" && s.type !== "NOTICE" && V2_TEXT_FIELDS[s.type].map(([key, label]) => <LTInput key={key} label={label} lang={lang} value={s.text[key]} onChange={(v) => setText(key, v)} multiline={key === "text" || key === "lead"} />)}
       </div>
 
       {s.type === "SEARCH_HERO" && (
@@ -695,3 +692,4 @@ function ReviewTranslator({ review, onChange }: { review: V2Item; onChange: (tex
     {targets.some((code) => review.text[code]) && <dl className="mt-2 space-y-1 text-xs">{targets.map((code) => review.text[code] ? <div key={code}><dt className="inline font-bold uppercase">{code}: </dt><dd className="inline text-muted-foreground">{review.text[code]}</dd></div> : null)}</dl>}
   </div>;
 }
+
