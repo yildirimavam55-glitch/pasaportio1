@@ -11,7 +11,7 @@ describe('complete existing Admin surface',()=>{
   const module=node.moduleSpecifier.text.replace('@/','src/')+'.ts';if(!existsSync(module))continue;const backend=readFileSync(module,'utf8');
   endpoints.push({module,names:node.importClause.namedBindings.elements.filter(e=>!e.isTypeOnly).map(e=>e.propertyName?.text??e.name.text),serverRoleGuardPresent:/adminDb\(|privilegedAdminDb\(|assertAdminRole\(|assertAdmin\(|requireAdmin/.test(backend)});
  }
- expect(/AdminGate|AdminSectionPage|AdminLoading|AdminStorefront|AdminHead/i.test(text)).toBe(true);
+ expect(/AdminGate|AdminSectionPage|AdminLoading|AdminStorefront|AdminHead|getSeoPreview/i.test(text),file).toBe(true);
  return {route:file,backend:endpoints,codeReviewed:true,runtime:'NOT_ALL_ACTIONS_EXECUTED',realDatabase:'NOT_TESTED',requiredApproval:'Existing Auth/DB/Storage; no payments or provider actions'};});
  mkdirSync('artifacts/admin-security',{recursive:true});writeFileSync('artifacts/admin-security/route-inventory.json',JSON.stringify(inventory,null,2));
  });

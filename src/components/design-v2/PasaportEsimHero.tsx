@@ -16,14 +16,14 @@ import { CalendarCheck, Mail, QrCode } from "lucide-react";
 const PREVIEW_SAMPLE_RATING = import.meta.env.DEV ? { rating: 4.8, displayRating: 4.8, count: 2000 } : null;
 import { useTrustIconEntry } from "./use-trust-icon-entry";
 
-export function PasaportEsimHero({ section, image, tabletImage, mobileImage, benefits, reviews, children }: { section: V2Section; image: string; tabletImage?: string | undefined; mobileImage?: string | undefined; benefits?: V2Section | undefined; reviews?: V2Section | undefined; children: ReactNode }) {
+export function PasaportEsimHero({ section, image, tabletImage, mobileImage, benefits, reviews, resolve, children }: { section: V2Section; image: string; tabletImage?: string | undefined; mobileImage?: string | undefined; benefits?: V2Section | undefined; reviews?: V2Section | undefined; resolve?: ((id:string|null|undefined)=>string|undefined)|undefined; children: ReactNode }) {
  const { locale, uiLocale } = useI18n();
  const c = COPY[uiLocale as keyof typeof COPY] ?? COPY[locale];
  const defaults = defaultV2Page("esim").sections.find(s => s.type === "SEARCH_HERO");
  const copy = resolveHeroCopy(section, v2Text(section, "title", locale), v2Text(section, "subtitle", locale), defaults ? v2Text(defaults, "subtitle", locale) : "", c, uiLocale);
  return <V2HeroView section={section} image={image} tabletImage={tabletImage} mobileImage={mobileImage}
    heading={copy.useDefaultTitle ? <>{c.titleA} <span className="final-hero-accent">{c.titleB}</span></> : copy.title}
-   subtitle={copy.subtitle} promotion={<HeroPromotion />} trust={<PasaportMobileBenefits section={benefits} reviews={reviews} />}>
+   subtitle={copy.subtitle} promotion={<HeroPromotion />} trust={<PasaportMobileBenefits section={benefits} reviews={reviews} resolve={resolve} />}>
    {children}
  </V2HeroView>;
 }
@@ -45,7 +45,7 @@ const STRIP_ICONS: Record<string, typeof Mail> = { delivery: Mail, refund: Calen
  * summary (rendered only when both sources are verified in the CMS) plus the delivery,
  * refund and setup benefits from the Admin-edited BENEFIT_ROW section. Informational only.
  */
-export function PasaportMobileBenefits({ section, reviews }: { section?: V2Section | undefined; reviews?: V2Section | undefined }) {
+export function PasaportMobileBenefits({ section, reviews, resolve }: { resolve?: ((id:string|null|undefined)=>string|undefined)|undefined; section?: V2Section | undefined; reviews?: V2Section | undefined }) {
   const { locale, uiLocale } = useI18n();
   const c = COPY[uiLocale as keyof typeof COPY] ?? COPY[locale];
   const items = trustBandItems(section, locale, useWhatsAppHref());
@@ -66,7 +66,7 @@ export function PasaportMobileBenefits({ section, reviews }: { section?: V2Secti
             <small>{new Intl.NumberFormat(uiLocale).format(summary.count)} {reviewsLabel}{isSample ? <em className="trust-strip-sample" title={c.sample}>{c.sample}</em> : null}</small>
           </span>}
         </div>
-      <RegisteredCards items={benefits} locale={uiLocale} compact/>
+      <RegisteredCards items={benefits} locale={uiLocale} resolve={resolve} compact/>
     </div>
   );
 }

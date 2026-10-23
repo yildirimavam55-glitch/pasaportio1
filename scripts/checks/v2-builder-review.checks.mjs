@@ -36,6 +36,7 @@ export async function adminDb(context) {
 ]);
 const hooks = registerHooks({resolve(specifier, context, next) {
   if (sources.has(specifier)) return {url: 'data:text/javascript,' + encodeURIComponent(sources.get(specifier)), shortCircuit: true};
+  if (['./media-upload-safety','./builder-claims.server','./legacy-cms-write-safety'].includes(specifier)) return {url:new URL('../../src/lib/'+specifier.slice(2)+'.ts',import.meta.url).href,shortCircuit:true};
   if (specifier === './builder-persistence.server') return {url: new URL('../../src/lib/builder-persistence.server.ts', import.meta.url).href, shortCircuit: true};
   if (specifier === './v2-builder-safety') return {url: new URL('../../src/lib/v2-builder-safety.ts', import.meta.url).href, shortCircuit: true};
   if (specifier.includes('client.server')) {

@@ -1,6 +1,6 @@
 import { sanitizeCardDesign,type CardDesign } from '@/domain/storefront/card-design';
 /** Shared with the existing V2 item editor and its acceptance workspace. */
-export function CardDesignControls({id,value,onChange}:{id:string;value?:CardDesign;onChange:(value:CardDesign)=>void}){
+export function CardDesignControls({id,value,onChange}:{id:string;value?:CardDesign|undefined;onChange:(value:CardDesign)=>void}){
  const v=value??{};const set=(patch:Partial<CardDesign>)=>onChange(sanitizeCardDesign({...v,...patch}));
  return <fieldset className="admin-builder-controls"><legend>Kart tasarımı</legend>
  {(['color','background','borderColor'] as const).map(key=><label key={key}>{key}<input type="color" aria-label={`card-${id}-${key}`} value={v[key]??(key==='background'?'#ffffff':'#07584f')} onChange={e=>set({[key]:e.target.value})}/></label>)}

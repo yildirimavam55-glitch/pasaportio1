@@ -100,6 +100,16 @@ status,_=http('rpc/builder_write',admin,{'_key':'storefront_v2_esim','_expected_
 check(status==200,'real HTTP draft write')
 next_state=json.loads(http('rpc/builder_read',admin,{'_key':'storefront_v2_esim'})[1]);check(next_state['draft']['title']=='HTTP_DRAFT' and next_state['published']==state['published'],'HTTP reload and published isolation')
 check(http('rpc/builder_write',admin,{'_key':'storefront_v2_esim','_expected_revision':state['revision'],'_action':'draft','_config':{'page':'esim','sections':[]}})[0]==409,'HTTP stale revision rejected without transaction retry')
+# Registered cards persist as editorial JSON; hidden items, media and manual translations survive.
+cards={'page':'esim','version':1,'sections':[{'id':'security-check','type':'INFO_GRID','variant':'security','schemaVersion':1,'items':[{'id':'card-'+str(i),'visible':i!=0,'icon':['ShieldCheck','Zap','Smartphone'][i],'title':{'tr':'Bilgi','de':'Manuell'},'mediaId':'synthetic-media','cardDesign':{'mobile':{'iconSize':22},'desktop':{'iconSize':46}}} for i in [0,2,1]]}]}
+state=read();write('storefront_v2_esim',state['revision'],'draft',cards)
+check(read()['draft']==cards,'registered cards JSON roundtrip includes hidden items/media/manual text')
+version=sql("SELECT id FROM public.cms_versions WHERE document_id=(SELECT id FROM public.cms_documents WHERE key='storefront_v2_esim') ORDER BY created_at DESC LIMIT 1;")
+check(bool(version),'registered cards version recorded')
+write('storefront_v2_esim',read()['revision'],'draft',{'page':'esim','sections':[]})
+write('storefront_v2_esim',read()['revision'],'restore',version=version)
+check(read()['draft']==cards,'registered cards history restores exact original payload')
+check(read()['published']==state['published'],'card restore leaves publication unchanged')
 Path('artifacts/builder-preview').mkdir(parents=True,exist_ok=True)
 Path('artifacts/builder-preview/postgres-result.json').write_text(json.dumps({'result':'PASS','checks':checks,'syntheticOnly':True,'managedSupabaseAuthTested':False},indent=2))
 print(f'PASS: {checks} isolated PostgreSQL/PostgREST checks; no existing databases accessed')

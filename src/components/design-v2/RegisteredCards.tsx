@@ -5,7 +5,7 @@ import { StorefrontIcon } from '@/domain/storefront/icons';
 import { ResponsiveMediaPicture } from './ResponsiveMediaPicture';
 import { sanitizeCardDesign } from '@/domain/storefront/card-design';
 import './registered-cards.css';
-export function RegisteredCards({items,locale,resolve,compact=false}:{items:V2Item[];locale:UiLocale;resolve?:(id:string|null|undefined)=>string|undefined;compact?:boolean}){
+export function RegisteredCards({items,locale,resolve,compact=false}:{items:V2Item[];locale:UiLocale;resolve?:((id:string|null|undefined)=>string|undefined)|undefined;compact?:boolean}){
  const text=(v:LT|undefined)=>v?.[locale]?.trim()||v?.tr||'';
  return <div className={`registered-cards ${compact?'registered-cards-compact':''}`} data-registered-cards>{items.filter(i=>i.visible).map(item=>{
   const d=sanitizeCardDesign(item.cardDesign);const style:Record<string,string|number>={};

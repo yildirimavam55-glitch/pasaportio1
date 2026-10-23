@@ -56,7 +56,7 @@ export const BLOCK_CONTRACTS=Object.fromEntries(V2_SECTION_TYPES.map(type=>[type
  designFields:['width','spacing','background','radius','font','weight','lineHeight','letterSpacing','textAlign','position','headingColor','bodyColor','accentColor','mobile','tablet','desktop'],
  itemMode: type==='DESTINATION_CAROUSEL'?'catalogue':type==='TRUST_REVIEWS'?'evidence':'editorial',
  unsupported: ({REGION_DISCOVERY:['arbitrary-products','free-prices'],DESTINATION_CAROUSEL:['free-prices','provider-editing'],TRUST_REVIEWS:['comparison-publishing','fake-reviews','trust-chip-grid','per-item-design'],FAQ:['item-media','item-cta','item-icon','per-item-design'],HOW_IT_WORKS:['item-icon','item-cta','per-item-design'],INSTALLATION_STEPS:['item-icon','item-cta','per-item-design'],COMPATIBILITY:['device-authority','custom-checker'],GUIDE_CAROUSEL:['guide-data-editing']} as Partial<Record<V2SectionType,string[]>>)[type]??[],
- }])) as Record<V2SectionType,BlockContract>;
+ } ])) as unknown as Record<V2SectionType,BlockContract>;
 export type BlockContract={type:V2SectionType;schemaVersion:number;renderer:V2SectionType;previewRenderer:V2SectionType;textFields:Array<[string,string]>;itemTextFields:readonly string[];protected:boolean;singleton:boolean;addable:boolean;editRoles:BlockRole[];publicFields:readonly string[];forbiddenFields:readonly string[];mediaVariants:readonly string[];designFields:string[];itemMode:string;unsupported:string[]};
 export function blockContract(type:unknown):BlockContract{
  if(typeof type!=='string'||!Object.hasOwn(BLOCK_CONTRACTS,type))throw new Error('E_BLOCK_UNKNOWN');
@@ -72,10 +72,11 @@ export function upgradeBlockDocument(raw:unknown):any{
  const ids=new Set<string>();
  for(const block of value.sections){
   const contract=blockContract(block?.type);
+  if(!/^[a-zA-Z0-9_-]{1,64}$/.test(String(block.id??'')))throw new Error('E_BLOCK_INVALID_ID');
   if(!block.id||ids.has(block.id))throw new Error('E_BLOCK_DUPLICATE_ID');ids.add(block.id);
   if(block.schemaVersion!=null&&(!Number.isInteger(block.schemaVersion)||block.schemaVersion<0||block.schemaVersion>contract.schemaVersion))throw new Error('E_BLOCK_FUTURE_VERSION');
   if(Array.isArray(block.items)&&block.items.length>30)throw new Error('E_ITEM_LIMIT');
-  const itemIds=new Set<string>();for(const item of block.items??[]){if(!item.id||itemIds.has(item.id))throw new Error('E_ITEM_DUPLICATE_ID');itemIds.add(item.id);}
+  const itemIds=new Set<string>();for(const item of block.items??[]){if(!/^[a-zA-Z0-9_-]{1,64}$/.test(String(item.id??'')))throw new Error('E_ITEM_INVALID_ID');if(!item.id||itemIds.has(item.id))throw new Error('E_ITEM_DUPLICATE_ID');itemIds.add(item.id);}
  }
  return {...value,version:1,sections:value.sections.map((b:any)=>b.schemaVersion===0?{...b,schemaVersion:1}:b)};
 }
