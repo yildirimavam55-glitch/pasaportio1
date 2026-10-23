@@ -275,6 +275,7 @@ let activeBrowser;
  await page.getByRole('button',{name:'Seiten',exact:true}).click();
  const originalOptions=await page.getByLabel('Abschnitt',{exact:true}).locator('option').evaluateAll(nodes=>nodes.map(n=>n.value));
  await page.getByRole('button',{name:'+ Yeni bölüm ekle',exact:true}).click();
+ for(const width of [390,768,1440]){await page.setViewportSize({width,height:1000});const library=page.getByRole('dialog',{name:'Bölüm kütüphanesi',exact:true});assert.equal(await library.evaluate(e=>e.scrollWidth<=e.clientWidth),true,'library has no horizontal overflow');await library.screenshot({path:`artifacts/builder-preview/free-library-${width}.png`});}
  await page.getByRole('dialog',{name:'Bölüm kütüphanesi',exact:true}).getByRole('button',{name:'Boş bölüm',exact:true}).click();
  const freeSection=await page.getByLabel('Abschnitt',{exact:true}).inputValue();
  const freeIds=[];
@@ -308,6 +309,9 @@ let activeBrowser;
   const picture=await output.locator('[data-element-type="IMAGE"]').boundingBox(),heading=await output.locator('[data-element-type="HEADING"]').boundingBox();
   assert.ok(picture&&heading);if(device==='desktop')assert.ok(picture.x<heading.x);if(device==='tablet')assert.ok(picture.x>heading.x);if(device==='mobile')assert.ok(picture.y<heading.y);
   assert.equal(await frame.locator('body').evaluate(e=>e.scrollWidth<=e.clientWidth),true,'free section no horizontal overflow');
+  await output.scrollIntoViewIfNeeded();
+  await output.locator('img').evaluateAll(async images=>{await Promise.all(images.map(img=>img.decode()));if(images.some(img=>!img.complete||!img.naturalWidth))throw Error('FREE_MEDIA_NOT_DECODED');});
+  const mediaGeometry=await output.locator('.editorial-image').first().evaluate(span=>{const img=span.querySelector('img');return {frame:span.getBoundingClientRect().height,image:img.getBoundingClientRect().height};});assert.ok(Math.abs(mediaGeometry.frame-mediaGeometry.image)<2,'image fills its responsive crop frame');
   await output.screenshot({path:`artifacts/builder-preview/free-section-${width}.png`});
  }
  await page.getByRole('button',{name:'Yukarı: '+freeSection,exact:true}).click();
