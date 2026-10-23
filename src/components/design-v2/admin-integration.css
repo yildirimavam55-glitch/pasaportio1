@@ -10,3 +10,4 @@
 [data-builder-accent] :is(button,a).bg-primary{background-color:var(--builder-accent-color)}
 
 [data-v2-section-frame][data-builder-section="hero"] .final-hero-heading h1{font-family:var(--builder-font,var(--builder-global-heading-font,var(--font-sans)))}
+.v2-theme .pasaport-final-hero .final-hero-heading h1{font-family:var(--builder-font,var(--builder-global-heading-font,var(--font-sans)))}

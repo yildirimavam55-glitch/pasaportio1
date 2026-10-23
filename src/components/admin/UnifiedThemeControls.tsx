@@ -1,8 +1,9 @@
+import "./unified-controls.css";
 import { sanitizeTheme,type ThemeConfig } from '@/domain/theme/config';
 /** Same controls in authenticated Admin and isolated acceptance workspace. */
 export function UnifiedThemeControls({value,onChange}:{value:ThemeConfig;onChange:(value:ThemeConfig)=>void}){
  const set=(patch:Partial<ThemeConfig>)=>onChange(sanitizeTheme({...value,...patch}));
- return <fieldset className="grid gap-3 min-w-0"><legend>Global tasarım</legend>
+ return <fieldset className="admin-builder-controls grid gap-3 min-w-0"><legend>Global tasarım</legend>
  {(['primary','secondary','background','text','cta','success','warning','info'] as const).map(key=><label key={key}>{key}<input aria-label={`theme-${key}`} type="color" value={value.colors[key]} onChange={e=>set({colors:{...value.colors,[key]:e.target.value}})}/></label>)}
  <label><input type="checkbox" aria-label="theme-applyToDark" checked={value.applyToDark===true} onChange={e=>set({applyToDark:e.target.checked})}/>Koyu temada da uygula (açık tercih)</label>
  <label>Başlık fontu<select aria-label="theme-headingFont" value={value.headingFont} onChange={e=>set({headingFont:e.target.value as ThemeConfig['headingFont']})}>{['Outfit','Manrope','Sora','Urbanist'].map(v=><option key={v}>{v}</option>)}</select></label>

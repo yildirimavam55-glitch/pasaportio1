@@ -50,18 +50,14 @@ function NavigationEditor() {
     <AdminGate title="Mağaza · Menü & alt bilgi">
       {editor.isPending || !draft ? <AdminLoading /> : editor.error ? <AdminError error={editor.error} /> : (
         <div className="grid gap-3">
-          <AdminPanel title="Diller" action={
+          <AdminPanel title="Menü, footer ve hesap taslağı" action={
             <div className="flex items-center gap-2">
               {dirty && <span className="rounded-full bg-warning/20 px-2 py-1 text-[10px] font-bold">Kaydedilmemiş</span>}
               <Button size="sm" variant="secondary" disabled={save.isPending} onClick={() => save.mutate(false)}><Save />Taslak</Button>
               <Button size="sm" variant="cta" disabled={save.isPending} onClick={() => {if(window.confirm("Menü ve footer yayına alınsın mı?"))save.mutate(true);}}><Upload />Yayınla</Button>
             </div>
           }>
-            <div className="flex gap-1">
-              {(["tr", "de", "en"] as const).map((value) => (
-                <Button key={value} size="sm" variant={locale === value ? "secondary" : "outline"} onClick={() => setLocale(value)}>{value.toUpperCase()}</Button>
-              ))}
-            </div>
+
           </AdminPanel>
 
           <V2PageTranslation page={chromeTranslationPage(draft)} onChange={page=>{setDraft(current=>current?applyChromeTranslation(current,page):current);setDirty(true);}} transport={input=>translateTrustCopy({data:input})}/>
@@ -69,30 +65,11 @@ function NavigationEditor() {
           <iframe ref={frame} name="v2-cms-preview" title="Menü ve footer taslak önizlemesi" src={'/'+previewLocale} className="h-96 w-full rounded border" onLoad={()=>frame.current?.contentWindow?.postMessage({type:'v2-chrome-preview',config:draft},location.origin)}/>
           <ChromeControls value={draft} onChange={next=>patch(next)}/>
           <details><summary>Ek footer / sosyal ayarlar (mevcut modül)</summary><div className="grid gap-3 lg:grid-cols-2">
-            <LinkList
-              title="Alt bilgi bağlantıları"
-              rows={draft.footerLinks}
-              locale={locale}
-              onChange={(rows) => editLinks("footerLinks", rows)}
-            />
-            <AdminPanel title="Alt bilgi metinleri">
-              <div className="grid gap-2">
-                <Field label={`Açıklama (${locale.toUpperCase()})`}>
-                  <textarea className="admin-field mt-1 w-full" rows={3} value={draft.footerText[locale] ?? ""} onChange={(event) => patch({ footerText: { ...draft.footerText, [locale]: event.target.value } })} />
-                </Field>
-                <Field label={`Telif metni (${locale.toUpperCase()})`}>
-                  <input className="admin-field mt-1 w-full" value={draft.copyright[locale] ?? ""} onChange={(event) => patch({ copyright: { ...draft.copyright, [locale]: event.target.value } })} />
-                </Field>
-              </div>
+            <AdminPanel title="Newsletter görünürlüğü ve sosyal bağlantılar">
               <div className="mt-4 border-t border-border pt-3">
                 <label className="flex items-center gap-2 text-xs font-semibold"><input type="checkbox" checked={draft.footer.newsletterVisible} onChange={(event) => patch({ footer: { ...draft.footer, newsletterVisible: event.target.checked } })} />Newsletter alanını göster</label>
                 <p className="mt-1 text-[10px] text-muted-foreground">Abonelik altyapısı olmadığı için alan kamuya açık görünse bile giriş ve buton devre dışı kalır.</p>
-                <div className="mt-3 grid gap-2">
-                  <Field label={`Newsletter başlığı (${locale.toUpperCase()})`}><input className="admin-field mt-1 w-full" value={draft.footer.newsletterTitle[locale]} onChange={(event) => patch({ footer: { ...draft.footer, newsletterTitle: { ...draft.footer.newsletterTitle, [locale]: event.target.value } } })}/></Field>
-                  <Field label={`Newsletter açıklaması (${locale.toUpperCase()})`}><textarea rows={2} className="admin-field mt-1 w-full" value={draft.footer.newsletterDescription[locale]} onChange={(event) => patch({ footer: { ...draft.footer, newsletterDescription: { ...draft.footer.newsletterDescription, [locale]: event.target.value } } })}/></Field>
-                  <Field label={`Giriş metni (${locale.toUpperCase()})`}><input className="admin-field mt-1 w-full" value={draft.footer.newsletterPlaceholder[locale]} onChange={(event) => patch({ footer: { ...draft.footer, newsletterPlaceholder: { ...draft.footer.newsletterPlaceholder, [locale]: event.target.value } } })}/></Field>
-                  <Field label={`Buton (${locale.toUpperCase()})`}><input className="admin-field mt-1 w-full" value={draft.footer.newsletterCta[locale]} onChange={(event) => patch({ footer: { ...draft.footer, newsletterCta: { ...draft.footer.newsletterCta, [locale]: event.target.value } } })}/></Field>
-                </div>
+
               </div>
               <div className="mt-4 border-t border-border pt-3">
                 <strong className="text-xs">Sosyal bağlantılar</strong>

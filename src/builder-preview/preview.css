@@ -1,4 +1,4 @@
-.builder-demo{min-height:100vh;background:#061d22;color:#e5f6f1;font:14px system-ui;padding:16px}
+.builder-demo{--background:#061d22;--foreground:#e5f6f1;--border:#315855;min-height:100vh;background:#061d22;color:#e5f6f1;font:14px system-ui;padding:16px}
 .builder-demo header{max-width:1000px;margin-bottom:16px}.builder-demo header strong{font-size:24px}.builder-demo p{color:#b4ccc6;line-height:1.6}
 .builder-workspace{display:grid;grid-template-columns:320px minmax(0,1fr);gap:20px}.builder-workspace aside{display:grid;gap:14px;align-content:start;max-height:85vh;overflow:auto;padding:4px 12px 12px 0}
 .builder-demo label{display:block}.builder-demo input:not([type=color]):not([type=range]),.builder-demo select,.builder-demo textarea{display:block;width:100%;border:1px solid #3a6868;background:#092d32;color:#fff;padding:8px;border-radius:8px;margin-top:5px}.builder-demo input[type=number]{min-width:0}

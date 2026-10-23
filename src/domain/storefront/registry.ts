@@ -1170,10 +1170,11 @@ function sanitizeLinks(raw: any, fallback: NavigationLink[]): NavigationLink[] {
     group: pick(link?.group, ["services", "help", "legal"] as const, fallback[index]?.group ?? "help"),
   }));
   // Legal destinations cannot be removed, hidden or redirected. Labels remain editable.
-  for(const required of fallback.filter(row=>row.group==='legal')){const found=configured.find(row=>row.id===required.id);if(found){found.href=required.href;found.visible=true;found.group='legal';}else configured.unshift({...required});}
+  for(const required of fallback.filter(row=>row.group==='legal')){const found=configured.find(row=>row.id===required.id);if(found){found.href=required.href;found.visible=true;found.group='legal';if(!found.label.tr.trim())found.label={...found.label,tr:required.label.tr};}else configured.unshift({...required});}
   const seen=new Set<string>();for(let i=configured.length-1;i>=0;i--){if(seen.has(configured[i]!.id))configured.splice(i,1);else seen.add(configured[i]!.id);}
   const ids = new Set(configured.map((link) => link.id));
-  return configured.slice(0,24);
+  const requiredIds=new Set(fallback.filter(r=>r.group==='legal').map(r=>r.id));
+  return [...configured.filter(r=>requiredIds.has(r.id)),...configured.filter(r=>!requiredIds.has(r.id))].slice(0,24);
 }
 
 const externalUrl = (value: unknown) => { try { const url = new URL(str(value, 300)); return url.protocol === "https:" ? url.toString() : ""; } catch { return ""; } };
