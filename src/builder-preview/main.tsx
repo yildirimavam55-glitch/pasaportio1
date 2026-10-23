@@ -63,7 +63,7 @@ function Canvas() {
       heading={copy.useDefaultTitle ? <>{c.titleA} <span className="final-hero-accent">{c.titleB}</span></> : copy.title} subtitle={copy.subtitle}>
       <button type="button" className="pasaport-country-field w-full rounded-full text-start" disabled>{text("placeholder")}</button>
     </V2HeroView></V2SectionFrame>
-    {notice && <V2Notice section={notice} title={notice.text.title?.[state.locale]?.trim() || notice.text.title?.tr || ""} text={notice.text.text?.[state.locale]?.trim() || notice.text.text?.tr || ""} />}
+    {notice && <V2Notice section={notice} title={notice.text["title"]?.[state.locale]?.trim() || notice.text["title"]?.tr || ""} text={notice.text["text"]?.[state.locale]?.trim() || notice.text["text"]?.tr || ""} />}
   </main>;
 }
 
