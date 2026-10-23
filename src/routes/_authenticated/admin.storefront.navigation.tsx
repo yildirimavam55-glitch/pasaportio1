@@ -57,7 +57,7 @@ function NavigationEditor() {
               <Button size="sm" variant="cta" disabled={save.isPending} onClick={() => {if(window.confirm("Menü ve footer yayına alınsın mı?"))save.mutate(true);}}><Upload />Yayınla</Button>
             </div>
           }>
-
+            <p className="text-xs text-muted-foreground">Türkçe ana kaynak. Dil önizlemesi ayrıdır; taslağı kaydetmek yayınlamaz. Mevcut veritabanının güvenlik geçişi ayrıca onay gerektirir.</p>
           </AdminPanel>
 
           <V2PageTranslation page={chromeTranslationPage(draft)} onChange={page=>{setDraft(current=>current?applyChromeTranslation(current,page):current);setDirty(true);}} transport={input=>translateTrustCopy({data:input})}/>
