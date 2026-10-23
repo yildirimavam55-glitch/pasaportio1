@@ -3,3 +3,6 @@
 .section-library-grid button{overflow-wrap:anywhere;min-width:0;max-width:100%}
 
 .section-library-actions{min-width:0;max-width:100%}.builder-section-list>.section-library-actions{display:block}.section-library-actions>.section-library-button{width:100%}
+/* Keep the library prominent inside the original section-list button styles. */
+.section-library-actions .section-library-button{padding:12px 14px;border:1px solid #8bb7a7;border-radius:12px;background:#cff1e4;color:#103e35;font-weight:700;min-height:44px;white-space:normal;overflow-wrap:anywhere}
+.section-library .section-library-grid button{display:block;width:100%;min-height:76px;padding:14px;border:1px solid #b8cec5;border-radius:14px;background:#faf7ef;color:#103e35;font-weight:600;line-height:1.35;text-align:start;white-space:normal;overflow-wrap:anywhere}
