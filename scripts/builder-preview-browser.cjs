@@ -248,10 +248,11 @@ let activeBrowser;
   await page.waitForFunction(({width})=>document.querySelector('iframe').contentDocument.documentElement.clientWidth===width,{width});
   assert.equal(await cards.first().locator('.registered-card-icon').evaluate(e=>getComputedStyle(e).width),size);
   assert.equal(await cards.first().evaluate(e=>getComputedStyle(e).color),width===1440?'rgb(20, 99, 173)':'rgb(39, 202, 171)');
-  await page.locator('iframe').screenshot({path:`artifacts/builder-preview/modular-cards-${width}.png`});
+  assert.equal(await cards.first().locator('h3').evaluate(e=>getComputedStyle(e).color),width===1440?'rgb(20, 99, 173)':'rgb(39, 202, 171)');
+  await frame.locator(`[data-complete-section="${securityId}"]`).screenshot({path:`artifacts/builder-preview/modular-cards-${width}.png`});
  }
  await page.getByRole('button',{name:'Tüm sayfayı 13 dile çevir (DEMO)',exact:true}).click();
- for(const locale of ['de','ar','ja','zh']){await page.getByLabel('Vorschau in',{exact:true}).selectOption(locale);await cards.first().waitFor();assert.equal(await frame.locator('html').getAttribute('dir'),locale==='ar'?'rtl':'ltr');await page.locator('iframe').screenshot({path:`artifacts/builder-preview/modular-cards-${locale}.png`});}
+ for(const locale of ['de','ar','ja','zh']){await page.getByLabel('Vorschau in',{exact:true}).selectOption(locale);await cards.first().waitFor();assert.equal(await frame.locator('html').getAttribute('dir'),locale==='ar'?'rtl':'ltr');await frame.locator(`[data-complete-section="${securityId}"]`).screenshot({path:`artifacts/builder-preview/modular-cards-${locale}.png`});}
  await page.getByRole('button',{name:'Versionen',exact:true}).click();
  await page.getByRole('button',{name:'Synthetischen Entwurf speichern',exact:true}).click();
  await page.reload();await page.getByRole('button',{name:'Versionen',exact:true}).click();await page.getByRole('button',{name:'Gespeicherten Entwurf laden',exact:true}).click();
