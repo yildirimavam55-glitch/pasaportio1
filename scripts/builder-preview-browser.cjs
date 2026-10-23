@@ -164,7 +164,7 @@ let activeBrowser;
  await frame.getByRole('heading',{name:'BROWSER_RELEASE_TITLE',exact:true}).waitFor();
  await page.getByLabel('Entwurf oder Testfreigabe',{exact:true}).selectOption('draft');
  await frame.getByRole('heading',{name:'Yolculuğuna bağlı kal',exact:true}).waitFor();
- for(const width of [390,768,1440]){await page.setViewportSize({width,height:1000});await page.waitForFunction(()=>document.body.scrollWidth<=document.body.clientWidth);assert.equal(await page.locator('body').evaluate(e=>e.scrollWidth<=e.clientWidth),true);await page.screenshot({path:`artifacts/builder-preview/integrated-admin-${width}.png`,fullPage:true});}
+ for(const width of [390,768,1440]){await page.setViewportSize({width,height:1000});await page.waitForFunction(()=>{const el=document.querySelector('.admin-reference-sidebar');if(!el)return false;const css=getComputedStyle(el);if(css.position!=='fixed')return true;return el.classList.contains('is-open')?css.transform==='none':css.visibility==='hidden';});await page.waitForFunction(()=>document.body.scrollWidth<=document.body.clientWidth);assert.equal(await page.locator('body').evaluate(e=>e.scrollWidth<=e.clientWidth),true);await page.screenshot({path:`artifacts/builder-preview/integrated-admin-${width}.png`,fullPage:true});}
  // Complete original page, not the two-section translation fixture.
  await page.goto('http://127.0.0.1:8765/builder-preview/');
  await frame.locator('[data-complete-section="hero"]').waitFor();
