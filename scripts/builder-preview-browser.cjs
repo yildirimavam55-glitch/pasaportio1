@@ -300,12 +300,14 @@ let activeBrowser;
  await page.getByLabel(`layout-${freeSection}-desktop`,{exact:true}).selectOption('image-left');
  await page.getByLabel(`layout-${freeSection}-tablet`,{exact:true}).selectOption('image-right');
  await page.getByLabel(`layout-${freeSection}-mobile`,{exact:true}).selectOption('image-top');
+ await page.getByLabel(`layout-${freeSection}-mobile-padding`,{exact:true}).fill('12');
+ await page.getByLabel(`layout-${freeSection}-desktop-padding`,{exact:true}).fill('24');
  for(const [width,device]of [[390,'mobile'],[768,'tablet'],[1440,'desktop']]){
   await page.getByRole('button',{name:`${width} px`,exact:true}).click();
   await page.waitForFunction(width=>document.querySelector('iframe').contentDocument.documentElement.clientWidth===width,width);
   const output=frame.locator(`[data-editorial-section="${freeSection}"]`);
   const elements=output.locator('[data-editorial-element]');await elements.first().waitFor();assert.equal(await elements.count(),7,'one DOM instance per element');
-  assert.equal(await output.locator('[data-element-type="ICON"]').count(),3);assert.equal(await output.locator('a').count(),2);
+  assert.equal(await output.locator('[data-element-type="ICON"]').count(),3);assert.equal(await output.locator('a').count(),2);assert.equal(await output.locator('[data-element-type="HEADING"]').evaluate(e=>getComputedStyle(e).paddingTop),'0px','section padding never becomes item padding');
   const picture=await output.locator('[data-element-type="IMAGE"]').boundingBox(),heading=await output.locator('[data-element-type="HEADING"]').boundingBox();
   assert.ok(picture&&heading);if(device==='desktop')assert.ok(picture.x<heading.x);if(device==='tablet')assert.ok(picture.x>heading.x);if(device==='mobile')assert.ok(picture.y<heading.y);
   assert.equal(await frame.locator('body').evaluate(e=>e.scrollWidth<=e.clientWidth),true,'free section no horizontal overflow');
