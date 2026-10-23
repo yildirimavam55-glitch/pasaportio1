@@ -32,11 +32,12 @@ jobs:
         if: ${{ !cancelled() && steps.install.outcome == 'success' }}
         run: bunx vitest run src/components/design-v2/__tests__/builder-mvp.test.tsx src/domain/storefront/__tests__/v2.test.ts
       - name: Install pinned isolated browser test tooling
+        timeout-minutes: 3
         id: browser
         if: ${{ !cancelled() && steps.build.outcome == 'success' }}
         run: |
           npm install --prefix "$RUNNER_TEMP/builder-browser" --no-save --ignore-scripts playwright@1.58.2
-          node "$RUNNER_TEMP/builder-browser/node_modules/playwright/cli.js" install --with-deps chromium
+          google-chrome --version
       - name: Browser integration and screenshots
         if: ${{ !cancelled() && steps.browser.outcome == 'success' }}
         env:
