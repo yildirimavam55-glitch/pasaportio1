@@ -23,7 +23,7 @@ export function V2SectionFrame({ section, children }: { section: V2Section; chil
   const custom = design.background === "custom" && design.customColor ? { backgroundColor: design.customColor } : undefined;
   const style = {
     ...(custom ?? {}),
-    ...(design.font !== "theme" ? { "--builder-font": design.font === "heading" ? "var(--font-display)" : "var(--font-sans)" } : {}),
+    ...(design.font !== "theme" ? { "--builder-font": design.font === "heading" ? "var(--font-heading, var(--font-display))" : "var(--font-body, var(--font-sans))" } : {}),
     ...(design.weight !== "default" ? { "--builder-weight": ({ normal: 400, medium: 500, semibold: 600, bold: 700 })[design.weight] } : {}),
     ...(design.lineHeight !== "default" ? { "--builder-line": ({ tight: 1.25, normal: 1.5, relaxed: 1.625 })[design.lineHeight] } : {}),
     ...(design.letterSpacing !== "default" ? { "--builder-tracking": design.letterSpacing === "wide" ? ".025em" : "0em" } : {}),

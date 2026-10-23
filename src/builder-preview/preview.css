@@ -7,3 +7,6 @@
 .builder-canvas{padding:0 16px 24px;background:#05252a;min-height:100vh}.builder-canvas .pasaport-final-hero{margin-top:0}.builder-canvas .pasaport-country-field:disabled{opacity:1}
 @media(min-width:640px){.builder-canvas{padding-inline:24px}}
 @media(max-width:767px){.builder-workspace{grid-template-columns:1fr}.builder-workspace aside{max-height:60vh}.builder-demo{padding:12px}}
+
+/* The disconnected search slot has no picker/trust content to constrain grid stretching. */
+.builder-canvas .final-hero-search{align-self:start}

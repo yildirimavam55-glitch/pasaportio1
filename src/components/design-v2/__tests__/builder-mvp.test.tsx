@@ -66,11 +66,12 @@ describe("V2 builder editor → sanitized preview → real renderer", () => {
     const s = createV2Section("NOTICE");
     const before = renderToStaticMarkup(<V2Notice section={s} title="Title" text="Text" />);
     expect(before).not.toContain("data-v2-section-frame");
-    s.design = design;
+    s.design = { ...design, radius: "small" };
     const after = renderToStaticMarkup(<V2Notice section={s} title="Title" text="Text" />);
     expect(after).toContain('data-builder-section="notice"');
     expect(after).toContain("--builder-heading-color");
     expect(after).toContain("py-8");
+    expect(after).toContain("border-radius:8px");
   });
   for (const locale of UI_LOCALES) it(`preserves manual ${locale} copy and provenance through preview sanitation`, () => {
     const page = base(); const s = page.sections[0]!;

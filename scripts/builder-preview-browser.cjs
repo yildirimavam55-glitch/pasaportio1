@@ -17,6 +17,7 @@ const fs = require('node:fs');
   const frame = page.frameLocator('iframe');
   await frame.locator('h1').waitFor();
   for (const width of [390, 768, 1440]) {
+    await page.setViewportSize({ width: Math.max(1440, width + 400), height: 1100 });
     await page.getByRole('button', { name: `${width} px`, exact: true }).click();
     await page.locator('iframe').screenshot({ path: `artifacts/builder-preview/before-${width}.png` });
     const size = await frame.locator('h1').evaluate(el => getComputedStyle(el).fontSize);
@@ -35,6 +36,7 @@ const fs = require('node:fs');
   await page.waitForFunction(() => document.querySelector('iframe').contentWindow.getComputedStyle(document.querySelector('iframe').contentDocument.querySelector('.final-hero-photo img')).objectPosition.startsWith('1%'));
   await page.getByLabel('tablet-Bild', { exact: true }).selectOption('10000000-0000-4000-8000-000000000002');
   for (const [width, size] of [[390, '28px'], [768, '36px'], [1440, '50px']]) {
+    await page.setViewportSize({ width: Math.max(1440, width + 400), height: 1100 });
     await page.getByRole('button', { name: `${width} px`, exact: true }).click();
     await frame.getByRole('heading', { name: 'Dein nächstes Abenteuer' }).waitFor();
     await page.waitForFunction(() => {
@@ -75,9 +77,15 @@ const fs = require('node:fs');
     assert.equal(await frame.locator('body').evaluate(el => el.scrollWidth <= el.clientWidth), true, `locale overflow ${locale}`);
     if (['tr','de','en','fr','ar','ja','zh'].includes(locale)) await page.locator('iframe').screenshot({ path: `artifacts/builder-preview/locale-${locale}-390.png` });
   }
+  await page.getByLabel('Sprache', { exact: true }).selectOption('de');
+  await page.getByRole('button', { name: '390 px', exact: true }).click();
+  for (const width of [390,1440]) {
+    await page.setViewportSize({ width, height: 1000 });
+    await page.screenshot({ path: `artifacts/builder-preview/editor-${width}.png`, fullPage: true });
+  }
   assert.deepEqual(errors, [], 'browser errors');
   assert.deepEqual(remote, [], 'demo must not contact Supabase or any other external host');
-  fs.writeFileSync('artifacts/builder-preview/browser-result.json', JSON.stringify({ result: 'PASS', viewports: [390,768,1440], locales: 14, remoteRequests: 0, screenshots: 14, checks: ['subtitle-only edit','heading/font/color/size controls','tablet art direction','NOTICE design','RTL','overflow','reset'], limitation: 'disconnected acceptance demo; no authenticated database save or shop search E2E' }, null, 2));
+  fs.writeFileSync('artifacts/builder-preview/browser-result.json', JSON.stringify({ result: 'PASS', viewports: [390,768,1440], locales: 14, remoteRequests: 0, screenshots: 16, checks: ['subtitle-only edit','heading/font/color/size controls','tablet art direction','NOTICE design','RTL','overflow','reset'], limitation: 'disconnected acceptance demo; no authenticated database save or shop search E2E' }, null, 2));
   await browser.close();
   console.log('PASS: builder controls → sanitized postMessage → shared renderers, 3 viewports, 14 locales, no remote requests');
 })().catch(error => { console.error(error); process.exitCode = 1; });

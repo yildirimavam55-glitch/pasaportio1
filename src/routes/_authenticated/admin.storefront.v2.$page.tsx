@@ -343,6 +343,7 @@ function SectionDesignEditor({ section, onChange }: { section: V2Section; onChan
   const design = section.design ?? DEFAULT_DESIGN;
   const set = (patch: Partial<typeof design>) => onChange({ ...design, ...patch });
   const setResponsive = (device: "desktop" | "tablet" | "mobile", key: "headingSize" | "bodySize", value: string) => set({ [device]: { ...design[device], [key]: value ? Number(value) : undefined } });
+  const enhanced = section.type === "SEARCH_HERO" || section.type === "NOTICE";
   const positionSupported = section.type !== "SEARCH_HERO" && section.type !== "SPACER";
   return (
     <details className="mb-4 rounded-md border border-border bg-secondary/30 p-3">
@@ -354,14 +355,14 @@ function SectionDesignEditor({ section, onChange }: { section: V2Section; onChan
         <Select label="Arka plan" value={design.background} options={V2_DESIGN_BACKGROUNDS} labels={DESIGN_LABELS} onChange={(background) => set({ background })} />
         {design.background === "custom" && <Field label="Özel arka plan rengi"><input type="color" className="admin-field mt-1 h-10 w-full" value={design.customColor ?? "#faf7ef"} onChange={(event) => set({ customColor: event.target.value })} /></Field>}
         <Select label="Köşe yuvarlaklığı" value={design.radius} options={V2_DESIGN_RADII} labels={DESIGN_LABELS} onChange={(radius) => set({ radius })} />
-        <Select label="Yazı tipi" value={design.font} options={V2_DESIGN_FONTS} labels={DESIGN_LABELS} onChange={(font) => set({ font })} />
+        {!enhanced && <Select label="Yazı tipi" value={design.font} options={V2_DESIGN_FONTS} labels={DESIGN_LABELS} onChange={(font) => set({ font })} />}
         <Select label="Yazı kalınlığı" value={design.weight} options={V2_DESIGN_WEIGHTS} labels={DESIGN_LABELS} onChange={(weight) => set({ weight })} />
         <Select label="Satır yüksekliği" value={design.lineHeight} options={V2_DESIGN_LINES} labels={DESIGN_LABELS} onChange={(lineHeight) => set({ lineHeight })} />
         <Select label="Harf aralığı" value={design.letterSpacing} options={V2_DESIGN_TRACKING} labels={DESIGN_LABELS} onChange={(letterSpacing) => set({ letterSpacing })} />
         <Select label="Metin hizası" value={design.textAlign} options={V2_DESIGN_ALIGNMENTS} labels={DESIGN_LABELS} onChange={(textAlign) => set({ textAlign })} />
       </div>
       {positionSupported && <div className="mt-3"><p className="mb-2 text-xs font-semibold">İçerik konumu</p><div className="grid w-44 grid-cols-3 gap-1">{V2_DESIGN_POSITIONS.map((position) => <Button key={position} type="button" size="icon" variant={design.position === position ? "default" : "outline"} className="size-9" title={position} aria-label={position} onClick={() => set({ position })}><span className="size-2 rounded-full bg-current" /></Button>)}</div></div>}
-      <div className="mt-4 grid gap-3 sm:grid-cols-3">{(["desktop", "tablet", "mobile"] as const).map((device) => <div key={device} className="rounded-md border border-border bg-background p-2"><p className="text-xs font-bold capitalize">{device}</p><Field label="Başlık px"><input type="number" min="18" max="80" className="admin-field mt-1 w-full" value={design[device]?.headingSize ?? ""} placeholder="Varsayılan" onChange={(event) => setResponsive(device, "headingSize", event.target.value)} /></Field><Field label="Metin px"><input type="number" min="11" max="28" className="admin-field mt-1 w-full" value={design[device]?.bodySize ?? ""} placeholder="Varsayılan" onChange={(event) => setResponsive(device, "bodySize", event.target.value)} /></Field></div>)}</div>
+      {!enhanced && <div className="mt-4 grid gap-3 sm:grid-cols-3">{(["desktop", "tablet", "mobile"] as const).map((device) => <div key={device} className="rounded-md border border-border bg-background p-2"><p className="text-xs font-bold capitalize">{device}</p><Field label="Başlık px"><input type="number" min="18" max="80" className="admin-field mt-1 w-full" value={design[device]?.headingSize ?? ""} placeholder="Varsayılan" onChange={(event) => setResponsive(device, "headingSize", event.target.value)} /></Field><Field label="Metin px"><input type="number" min="11" max="28" className="admin-field mt-1 w-full" value={design[device]?.bodySize ?? ""} placeholder="Varsayılan" onChange={(event) => setResponsive(device, "bodySize", event.target.value)} /></Field></div>)}</div>}
       {(section.type === "SEARCH_HERO" || section.type === "NOTICE") && <V2TypographyControls design={design} onChange={onChange} />}
       <Button type="button" size="sm" variant="outline" className="mt-3" onClick={() => onChange(undefined)}><RotateCcw />Tasarımı varsayılana döndür</Button>
     </details>
