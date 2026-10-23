@@ -164,7 +164,7 @@ let activeBrowser;
  await frame.getByRole('heading',{name:'BROWSER_RELEASE_TITLE',exact:true}).waitFor();
  await page.getByLabel('Entwurf oder Testfreigabe',{exact:true}).selectOption('draft');
  await frame.getByRole('heading',{name:'Yolculuğuna bağlı kal',exact:true}).waitFor();
- for(const width of [390,768,1440]){await page.setViewportSize({width,height:1000});assert.equal(await page.locator('body').evaluate(e=>e.scrollWidth<=e.clientWidth),true);await page.screenshot({path:`artifacts/builder-preview/integrated-admin-${width}.png`,fullPage:true});}
+ for(const width of [390,768,1440]){await page.setViewportSize({width,height:1000});await page.waitForFunction(()=>document.body.scrollWidth<=document.body.clientWidth);assert.equal(await page.locator('body').evaluate(e=>e.scrollWidth<=e.clientWidth),true);await page.screenshot({path:`artifacts/builder-preview/integrated-admin-${width}.png`,fullPage:true});}
  // Complete original page, not the two-section translation fixture.
  await page.goto('http://127.0.0.1:8765/builder-preview/');
  await frame.locator('[data-complete-section="hero"]').waitFor();
@@ -181,6 +181,7 @@ let activeBrowser;
   await page.setViewportSize({width,height:1000});
   await page.getByRole('button',{name:'1440 px',exact:true}).click();
   await page.waitForFunction(()=>{const surface=document.querySelector('[data-preview-surface]'),container=document.querySelector('[data-preview-container]');return surface&&container&&surface.getBoundingClientRect().width<=container.getBoundingClientRect().width+1;});
+  await page.waitForFunction(()=>document.body.scrollWidth<=document.body.clientWidth);
   assert.equal(await page.locator('body').evaluate(e=>e.scrollWidth<=e.clientWidth),true,'no Admin horizontal overflow');
   assert.equal(await frame.locator('html').evaluate(e=>e.clientWidth),1440,'desktop frame keeps full CSS viewport');
   await page.screenshot({path:`artifacts/builder-preview/original-admin-${width}.png`,fullPage:true});
