@@ -37,7 +37,7 @@ export function EditorialSection({section,locale,resolve}:Props){
  default:return null;
  }
  const mediaIndex=section.items.filter(i=>i.visible&&['IMAGE','GALLERY'].includes(i.elementType??'')).findIndex(i=>i.id===item.id);const rows=Math.max(1,Math.ceil(section.items.filter(i=>i.visible&&!['IMAGE','GALLERY'].includes(i.elementType??'')).length/Math.max(1,section.items.filter(i=>i.visible&&['IMAGE','GALLERY'].includes(i.elementType??'')).length)));
- return <div key={item.id} className="editorial-element" data-editorial-element={item.id} data-element-type={kind} data-editorial-media={['IMAGE','GALLERY'].includes(kind??'')||undefined} style={{...visualStyle(item),'--ed-media-row':mediaIndex*rows+1,'--ed-media-rows':rows} as CSSProperties}>{content}</div>;
+ return <div key={item.id} className="editorial-element" data-editorial-element={item.id} data-element-type={kind} data-editorial-media={['IMAGE','GALLERY'].includes(kind??'')||undefined} style={{...(['CARD','TRUST_CARD'].includes(kind??'')?editorialStyle(item.editorialLayout):visualStyle(item)),'--ed-media-row':mediaIndex*rows+1,'--ed-media-rows':rows} as CSSProperties}>{content}</div>;
  };
  const layout=section.editorialLayout;const items=section.items.filter(i=>i.visible);
  return <V2SectionFrame section={section}><section data-editorial-section={section.id} className="editorial-section" style={editorialStyle(layout)} data-layout-mobile={layout?.mobile?.layout??'stack'} data-layout-tablet={layout?.tablet?.layout??layout?.mobile?.layout??'stack'} data-layout-desktop={layout?.desktop?.layout??layout?.tablet?.layout??'stack'}>

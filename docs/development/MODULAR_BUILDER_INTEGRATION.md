@@ -56,3 +56,7 @@ Die vollständige Vitest-Suite bleibt absichtlich rot, solange diese bestehenden
 |Historischer PDF-Sicherheitsnachweis 0007 fehlt|HOCH|Admin-RLS und unveränderliche Versionen|
 
 Keine historischen Migrationen wurden als aktive Migrationen eingeführt. Bestehende Entwurfs-, RLS- und Atomicity-Vorschläge bleiben Vorschläge. Die neuen JSON-Kartentests prüfen deren unveränderte Speichergrenze in der isolierten Umgebung; sie erweitern keine Datenbankrechte.
+
+## Erweiterung: freier Abschnitt
+
+Zusätzlich zu den 15 bisherigen Typen ist EDITORIAL_SECTION registriert (insgesamt 16). Die sichtbare Bibliothek, freie Elemente, gerätelokale Vorlagen und vollständige Bedienung sind in [FREE_SECTION_BUILDER.md](FREE_SECTION_BUILDER.md) beschrieben. Bestehende Sicherheitsgrenzen gelten unverändert.

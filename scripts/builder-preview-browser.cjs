@@ -314,6 +314,7 @@ let activeBrowser;
   const mediaGeometry=await output.locator('.editorial-image').first().evaluate(span=>{const img=span.querySelector('img');return {frame:span.getBoundingClientRect().height,image:img.getBoundingClientRect().height};});assert.ok(Math.abs(mediaGeometry.frame-mediaGeometry.image)<2,'image fills its responsive crop frame');
   await output.screenshot({path:`artifacts/builder-preview/free-section-${width}.png`});
  }
+ for(const width of [390,768,1440]){await page.setViewportSize({width,height:1000});assert.equal(await page.locator('body').evaluate(e=>e.scrollWidth<=e.clientWidth),true,'free editor has no horizontal overflow');await page.locator(`[data-free-section-editor="${freeSection}"]`).screenshot({path:`artifacts/builder-preview/free-editor-${width}.png`});}
  await page.getByRole('button',{name:'Yukarı: '+freeSection,exact:true}).click();
  const reordered=await page.getByLabel('Abschnitt',{exact:true}).locator('option').evaluateAll(nodes=>nodes.map(n=>n.value));assert.notEqual(reordered.at(-1),freeSection);
  await page.getByRole('button',{name:'Abschnitt duplizieren',exact:true}).click();
