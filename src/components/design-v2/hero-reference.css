@@ -1,0 +1,74 @@
+/* Owner reference 287662. Scope deliberately excludes discovery and other pages. */
+section.pasaport-final-hero {
+ --hero-ink:#f5fbfa; --hero-scrim:#001a1d; --gift-ribbon:#00bb87;
+ background:transparent; color:var(--hero-ink); display:grid; height:auto; min-height:0;
+ grid-template-columns:minmax(0,1fr); grid-template-rows:auto auto auto auto;
+ padding:30px 16px 12px; gap:18px; isolation:isolate;
+}
+section.pasaport-final-hero .final-hero-photo {position:absolute;inset:0;grid-area:auto;height:100%;z-index:-2;transform:none;}
+section.pasaport-final-hero .final-hero-photo img {object-position:var(--hero-mobile-position);object-fit:var(--hero-mobile-fit);transform:scale(var(--hero-mobile-scale));}
+section.pasaport-final-hero .final-hero-shade,
+html:not(.dark) section.pasaport-final-hero .final-hero-shade {
+ position:absolute;inset:0;grid-area:auto;height:100%;z-index:-1;transform:none;
+ background:linear-gradient(90deg,rgba(0,20,24,.94),rgba(0,20,24,.68) 46%,rgba(0,20,24,.03) 100%),linear-gradient(0deg,#001418 0%,transparent 45%);
+}
+section.pasaport-final-hero .final-hero-heading,
+html:not(.dark) section.pasaport-final-hero .final-hero-heading {grid-area:1/1;align-self:start;padding:0;color:var(--builder-heading-color,#f5fbfa);max-width:72%;text-shadow:0 1px 10px #00141855;}
+section.pasaport-final-hero .final-hero-heading .final-hero-eyebrow {font-size:11px;font-weight:750;letter-spacing:.1em;line-height:1.4;margin:0 0 8px;color:var(--builder-accent-color,#00d9a0);text-transform:uppercase;}
+section.pasaport-final-hero .final-hero-heading h1 {font-size:var(--builder-heading-size,32px);line-height:var(--builder-line,1.04);letter-spacing:var(--builder-tracking,-.025em);max-width:100%;overflow-wrap:anywhere;}
+section.pasaport-final-hero .final-hero-accent,
+html:not(.dark) [data-builder-section="hero"] .final-hero-accent,
+html:not(.dark) section.pasaport-final-hero .final-hero-accent {display:block;color:var(--builder-accent-color,#00dfa4);}
+section.pasaport-final-hero .final-hero-heading p:not(.final-hero-eyebrow) {font-size:var(--builder-body-size,13px);line-height:1.45;margin-top:12px;max-width:28em;color:var(--builder-body-color,#e6eeee);}
+section.pasaport-final-hero .final-hero-search,
+html:not(.dark) section.pasaport-final-hero .final-hero-search {grid-area:2/1;margin:0;padding:3px;width:100%;max-width:none;background:#fff;border:1px solid #e8eeec;border-radius:999px;box-shadow:0 4px 16px #00141830;min-width:0;}
+section.pasaport-final-hero .final-hero-search .pasaport-country-field,
+html:not(.dark) section.pasaport-final-hero .final-hero-search .pasaport-country-field,
+html.dark section.pasaport-final-hero .final-hero-search .pasaport-country-field {height:44px;min-height:44px;background:#fff;color:#526365;font-size:12px;box-shadow:none;}
+section.pasaport-final-hero .pasaport-country-arrow {width:38px;height:38px;min-width:38px;background:#00b982;color:#fff;}
+section.pasaport-final-hero .final-hero-trust {grid-area:3/1;padding:0;margin:0;min-width:0;}
+section.pasaport-final-hero .hero-trust-strip,
+html:not(.dark) section.pasaport-final-hero .hero-trust-strip {height:auto;max-height:none;margin:0;background:rgba(0,54,48,.72);color:#f5fbfa;border:1px solid #9cffe21f;border-radius:18px;box-shadow:inset 0 1px 12px #00dfa40a;}
+.reference-hero-benefits {--foreground:#f5fbfa;--card:transparent;--border:transparent;}
+.reference-hero-benefits .registered-cards {display:flex;flex-wrap:wrap;gap:0;margin:0;padding:6px;}
+.reference-hero-benefits .registered-cards>article {--rc-columns:var(--rc-mobile-columns,3);flex:1 1 calc(100% / var(--rc-columns) - 2px);align-items:center;text-align:center;padding:var(--rc-mobile-padding,6px);gap:var(--rc-mobile-gap,5px);background:var(--rc-active-bg,transparent);color:var(--rc-active-color,#f5fbfa);border-color:var(--rc-active-border,transparent);border-radius:var(--rc-radius,8px);}
+.reference-hero-benefits .registered-card-icon {box-sizing:content-box;padding:8px;background:#008f6855;border-radius:50%;color:inherit;}
+.reference-hero-benefits .registered-cards h3 {color:inherit;font-size:12px;line-height:1.3;}
+.reference-hero-benefits .registered-cards p,.reference-hero-benefits .registered-cards a,.reference-hero-benefits .registered-cards span {color:inherit;font-size:11px;line-height:1.3;}
+.reference-hero-benefits .registered-cards picture {width:40px;max-width:100%;aspect-ratio:1;}
+section.pasaport-final-hero .final-hero-gift {position:relative;grid-area:4/1;inset:auto;justify-self:end;}
+section.pasaport-final-hero .final-hero-gift:empty {display:none;}
+header[data-reference-hero-header] {background:rgba(0,20,24,.96);border-color:#b8ffe525;color:#f5fbfa;--foreground:#f5fbfa;--muted-foreground:#d4e1df;--primary:#00dfa4;--border:#b8ffe525;}
+header[data-reference-hero-header] .public-header-row {min-height:64px;gap:8px;}
+header[data-reference-hero-header] .public-header-actions {margin-inline-start:auto;}
+header[data-reference-hero-header] .public-header-language {border-radius:999px;border:1px solid #b8ffe52a;font-size:11px;}
+header[data-reference-hero-header] .public-header-actions>[data-testid="header-cart"] {order:0;}
+@media(max-width:639px) {
+ header[data-reference-hero-header] .public-header-row {padding-inline:12px;}
+ header[data-reference-hero-header] .public-header-actions {gap:0;}
+ header[data-reference-hero-header] .public-header-actions>.size-11 {width:34px;min-width:34px;}
+ header[data-reference-hero-header] .public-header-row>a {min-width:0;}
+ header[data-reference-hero-header] .public-header-row>a img {max-width:124px;height:32px;}
+}
+@media(min-width:640px) {
+ section.pasaport-final-hero {padding:38px 30px 18px;gap:22px;}
+ section.pasaport-final-hero .final-hero-heading {max-width:55%;}
+ section.pasaport-final-hero .final-hero-heading h1 {font-size:var(--builder-heading-size,42px);}
+ section.pasaport-final-hero .final-hero-heading p:not(.final-hero-eyebrow) {font-size:var(--builder-body-size,16px);}
+ section.pasaport-final-hero .final-hero-photo img {object-position:var(--hero-tablet-position);object-fit:var(--hero-tablet-fit);transform:scale(var(--hero-tablet-scale));}
+ section.pasaport-final-hero .final-hero-search {width:65%;}
+ .reference-hero-benefits .registered-cards>article {--rc-columns:var(--rc-tablet-columns,var(--rc-mobile-columns,3));padding:var(--rc-tablet-padding,var(--rc-mobile-padding,10px));gap:var(--rc-tablet-gap,var(--rc-mobile-gap,6px));}
+}
+@media(min-width:1024px) {
+ section.pasaport-final-hero {min-height:440px;padding:42px max(48px,calc((100vw - 1280px)/2));gap:20px;grid-template-rows:auto auto auto auto;}
+ section.pasaport-final-hero .final-hero-photo img {object-position:var(--hero-desktop-position);object-fit:var(--hero-desktop-fit);transform:scale(var(--hero-desktop-scale));}
+ section.pasaport-final-hero .final-hero-heading {max-width:52%;}
+ section.pasaport-final-hero .final-hero-heading h1 {font-size:var(--builder-heading-size,48px);}
+ section.pasaport-final-hero .final-hero-heading p:not(.final-hero-eyebrow) {font-size:var(--builder-body-size,16px);max-width:28em;}
+ section.pasaport-final-hero .final-hero-search {width:58%;max-width:680px;}
+ section.pasaport-final-hero .final-hero-trust {width:68%;max-width:800px;}
+ .reference-hero-benefits .registered-cards>article {--rc-columns:var(--rc-desktop-columns,var(--rc-tablet-columns,var(--rc-mobile-columns,3)));padding:var(--rc-desktop-padding,var(--rc-tablet-padding,var(--rc-mobile-padding,10px)));gap:var(--rc-desktop-gap,var(--rc-tablet-gap,var(--rc-mobile-gap,6px)));}
+ .reference-hero-benefits .registered-cards h3 {font-size:13px;}
+ header[data-reference-hero-header] .public-header-row {min-height:64px;}
+}
+[dir="rtl"] section.pasaport-final-hero .final-hero-shade {background:linear-gradient(270deg,rgba(0,20,24,.94),rgba(0,20,24,.68) 46%,rgba(0,20,24,.03)),linear-gradient(0deg,#001418,transparent 45%);}

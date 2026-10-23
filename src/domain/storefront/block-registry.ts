@@ -28,7 +28,7 @@ export const V2_SINGLETON: readonly V2SectionType[] = ["SEARCH_HERO", "DESTINATI
 export const V2_ADDABLE: readonly V2SectionType[] = ["BENEFIT_ROW", "PROMO_BANNER", "NOTICE", "INFO_GRID", "HOW_IT_WORKS", "INSTALLATION_STEPS", "FAQ", "SPACER", "EDITORIAL_SECTION"];
 
 export const V2_TEXT_FIELDS: Record<V2SectionType, Array<[string, string]>> = {
-  SEARCH_HERO: [["eyebrow", "Üst başlık"], ["title", "Başlık"], ["subtitle", "Alt başlık"], ["placeholder", "Arama metni"], ["sticky", "Sabit arama metni"], ["imageAlt", "Görsel açıklaması"]],
+  SEARCH_HERO: [["eyebrow", "Üst başlık"], ["title", "Başlık"], ["accent", "Vurgulu ikinci satır"], ["subtitle", "Alt başlık"], ["placeholder", "Arama metni"], ["sticky", "Sabit arama metni"], ["imageAlt", "Görsel açıklaması"]],
   BENEFIT_ROW: [],
   DESTINATION_CAROUSEL: [["title", "Başlık"]],
   TRUST_REVIEWS: [

@@ -1,4 +1,5 @@
-import { RegisteredCards } from "./RegisteredCards";
+import { HeroHeading } from "./HeroHeading";
+import { HeroTrustCards } from "./HeroTrustCards";
 import { HERO_COPY as COPY } from "@/domain/storefront/hero-copy";
 // ============= Full file contents =============
 
@@ -19,7 +20,7 @@ export function PasaportEsimHero({ section, image, tabletImage, mobileImage, ben
  const defaults = defaultV2Page("esim").sections.find(s => s.type === "SEARCH_HERO");
  const copy = resolveHeroCopy(section, v2Text(section, "title", locale), v2Text(section, "subtitle", locale), defaults ? v2Text(defaults, "subtitle", locale) : "", c, uiLocale);
  return <V2HeroView section={section} image={image} tabletImage={tabletImage} mobileImage={mobileImage}
-   heading={copy.useDefaultTitle ? <>{c.titleA} <span className="final-hero-accent">{c.titleB}</span></> : copy.title}
+   heading={<HeroHeading section={section} locale={uiLocale} title={copy.title} subtitle={copy.subtitle} defaultSubtitle={defaults ? v2Text(defaults, "subtitle", locale) : ""} />}
    subtitle={copy.subtitle} promotion={<HeroPromotion />} trust={<PasaportMobileBenefits section={benefits} reviews={reviews} resolve={resolve} />}>
    {children}
  </V2HeroView>;
@@ -48,20 +49,20 @@ export function PasaportMobileBenefits({ section, reviews, resolve }: { resolve?
   const verified = combinedSourceRating(reviews?.trust?.sourceRatings);
   const summary = verified ?? PREVIEW_SAMPLE_RATING;
   const isSample = !verified && Boolean(summary);
-  const benefits=section?.items??defaultV2Page("esim").sections.find(s=>s.type==="BENEFIT_ROW")?.items??[];
+  const benefitSection=section??defaultV2Page("esim").sections.find(s=>s.type==="BENEFIT_ROW");
   const reviewsLabel = uiLocale === "de" ? "Bewertungen" : locale === "tr" ? "değerlendirme" : "reviews";
   const outOf = uiLocale === "de" ? "aus 5" : locale === "tr" ? "/ 5" : "out of 5";
   return (
     <div ref={ref} className="hero-trust-strip registered-trust-strip" data-trust-entered={entered} data-has-rating={Boolean(summary)}>
-        <div className="trust-strip-segment trust-strip-rating">
+        {verified && <div className="trust-strip-segment trust-strip-rating">
           <span className="trust-strip-marks"><GoogleMark /><TrustpilotMark /></span>
           {summary && <span className="trust-strip-rating-text">
             <strong>{new Intl.NumberFormat(uiLocale, { minimumFractionDigits: 1, maximumFractionDigits: 1 }).format(summary.displayRating)} {outOf}</strong>
             <StripStars rating={summary.rating} />
             <small>{new Intl.NumberFormat(uiLocale).format(summary.count)} {reviewsLabel}{isSample ? <em className="trust-strip-sample" title={c.sample}>{c.sample}</em> : null}</small>
           </span>}
-        </div>
-      <RegisteredCards items={benefits} locale={uiLocale} resolve={resolve} compact/>
+        </div>}
+      <HeroTrustCards section={benefitSection} locale={uiLocale} resolve={resolve}/>
     </div>
   );
 }

@@ -1,0 +1,44 @@
+// No database, auth mutations, supplier requests or paid translation calls.
+const {chromium}=require(process.env.BUILDER_BROWSER_MODULE);
+const assert=require('node:assert/strict');
+const fs=require('node:fs');
+(async()=>{
+ const browser=await chromium.launch({channel:'chrome',headless:true});
+ try {
+  const page=await browser.newPage();const errors=[];
+  page.on('pageerror',error=>errors.push(error.message));
+  await page.route('**/*',route=>new URL(route.request().url()).hostname==='127.0.0.1'?route.continue():route.abort());
+  fs.mkdirSync('artifacts/builder-preview',{recursive:true});
+  for(const width of [390,768,1440]) {
+   await page.setViewportSize({width,height:1000});
+   await page.goto('http://127.0.0.1:8765/builder-preview/?canvas=1&reference=1');
+   await page.locator('h1').waitFor();await page.evaluate(()=>document.fonts.ready);
+   assert.equal(await page.locator('body').evaluate(e=>e.scrollWidth<=e.clientWidth),true,'reference page overflow');
+   assert.equal(await page.locator('.final-hero-accent').innerText(),'Bağlantıda Kal');
+   const search=await page.locator('.final-hero-search').boundingBox();assert.ok(search.height<=56,'compact search');
+   const title=await page.locator('h1').boundingBox();assert.ok(title.height>30&&title.width<width,'heading visible');
+   assert.equal(await page.locator('.reference-hero-benefits [data-registered-card]').count(),4,'all four configured trust entries, not a hardcoded three');
+   assert.ok(await page.locator('.final-hero-photo img').evaluate(e=>e.complete&&e.naturalWidth>0));
+   await page.screenshot({path:`artifacts/builder-preview/hero-reference-${width}.png`,fullPage:true});
+  }
+  // Real admin controls -> sanitized message -> SAME V2 public heading, media and trust renderer.
+  await page.setViewportSize({width:1840,height:1100});
+  await page.goto('http://127.0.0.1:8765/builder-preview/?reference=1');
+  const frame=page.frameLocator('iframe');await frame.locator('h1').waitFor();
+  await page.getByLabel('TR:accent',{exact:true}).fill('Düzenlenen vurgu');
+  await frame.locator('.final-hero-accent').filter({hasText:'Düzenlenen vurgu'}).waitFor();
+  await page.getByLabel('accentColor',{exact:true}).fill('#80ffc0');
+  assert.equal(await frame.locator('.final-hero-accent').evaluate(e=>getComputedStyle(e).color),'rgb(128, 255, 192)');
+  for(const locale of ['tr','en','de','fr','es','it','pt','nl','pl','ar','ru','ja','ko','zh']) {
+   await page.getByLabel('Vorschau in',{exact:true}).selectOption(locale);
+   await frame.locator(`[data-locale=${locale}]`).waitFor();
+   assert.equal(await frame.locator('html').getAttribute('dir'),locale==='ar'?'rtl':'ltr');
+   assert.ok((await frame.locator('h1').innerText()).trim());
+   assert.equal(await frame.locator('body').evaluate(e=>e.scrollWidth<=e.clientWidth),true);
+   if(['de','fr','ar','ja','zh'].includes(locale))await page.locator('iframe').screenshot({path:`artifacts/builder-preview/hero-reference-${locale}.png`});
+  }
+  assert.deepEqual(errors,[]);
+  fs.writeFileSync('artifacts/builder-preview/hero-reference-result.json',JSON.stringify({status:'PASS',widths:[390,768,1440],locales:14,scope:'synthetic CMS preview with shared public presentation; real auth/search endpoints not called'},null,2));
+  console.log('Hero reference browser PASS: 3 viewports, 14 locales, CMS accent binding, all configured trust items.');
+ } finally {await browser.close();}
+})().catch(error=>{console.error(error);process.exitCode=1});
