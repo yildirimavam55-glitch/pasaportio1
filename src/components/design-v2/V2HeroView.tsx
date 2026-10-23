@@ -16,7 +16,7 @@ export function V2HeroView({ section, image, tabletImage, mobileImage, heading, 
   const style = {
     "--hero-desktop-position": desktop ? `${desktop.x}% ${desktop.y}%` : "50% 50%",
     "--hero-desktop-scale": (desktop?.zoom ?? 100) / 100, "--hero-desktop-fit": desktop?.fit ?? "cover",
-    "--hero-mobile-position": `${mobile?.x ?? 66}% ${mobile?.y ?? 62}%`, "--hero-mobile-scale": (mobile?.zoom ?? (media.builtinMobile ? 135 : 100)) / 100, "--hero-mobile-fit": mobile?.fit ?? "cover", "--hero-mobile-origin": mobile ? `${mobile.x}% ${mobile.y}%` : "66% 100%",
+    "--hero-mobile-position": `${mobile?.x ?? 66}% ${mobile?.y ?? 62}%`, "--hero-mobile-scale": (mobile?.zoom ?? (media.builtinMobile ? 135 : 100)) / 100, "--hero-mobile-fit": mobile?.fit ?? "cover", "--hero-mobile-origin": mobile ? `${mobile.x}% ${mobile.y}%` : "20% 100%",
     "--hero-tablet-position": `${tablet?.x ?? 65}% ${tablet?.y ?? 62}%`, "--hero-tablet-scale": (tablet?.zoom ?? 100) / 100, "--hero-tablet-fit": tablet?.fit ?? "cover",
   } as CSSProperties;
   return <section data-testid="pasaport-esim-hero" className="pasaport-final-hero" style={style} data-has-trust-strip="true">
