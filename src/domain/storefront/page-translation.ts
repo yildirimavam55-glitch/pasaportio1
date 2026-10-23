@@ -1,3 +1,4 @@
+import { blockContract } from "./block-registry";
 import { V2_TEXT_FIELDS, ltStatus, type LT, type V2PageConfig } from './v2';
 import { TRANSLATION_TARGETS, mergeMachineTranslation, needsMachineTranslation } from './translation-workflow';
 import type { UiLocale } from '@/i18n/locales';
@@ -14,7 +15,7 @@ export function pageFields(page: V2PageConfig): Field[] {
   const add = (suffix: (string|number)[], value: LT | undefined, itemId?: string) => {
    if(value?.tr.trim()) fields.push({id:JSON.stringify([section.id,itemId??null,...suffix]),value,path:['sections',si,...(itemId===undefined?[]:['items',section.items.findIndex(i=>i.id===itemId)]),...suffix]});
   };
-  for(const [key] of V2_TEXT_FIELDS[section.type]) if(!excluded.test(key)) add(['text',key],section.text[key]);
+  for(const [key] of blockContract(section.type).textFields) if(!excluded.test(key)) add(['text',key],section.text[key]);
   const itemIds=new Set<string>();
   for(const item of section.items){
    if(itemIds.has(item.id)) throw new Error('E_DUPLICATE_ITEM'); itemIds.add(item.id);

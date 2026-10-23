@@ -219,7 +219,47 @@ let activeBrowser;
  await page.getByLabel('Önizleme kaynağı',{exact:true}).selectOption('offline');
  await frame.locator('[data-complete-section="hero"]').waitFor();
 
+ // Complete modular-card acceptance on the same existing Admin shell and actual public renderer.
+ await page.getByRole('button',{name:'Seiten',exact:true}).click();
+ await page.getByRole('button',{name:'Güven kartları ekle',exact:true}).click();
+ const securityId=await page.getByLabel('Abschnitt',{exact:true}).inputValue();
+ const beforeCount=await page.getByLabel('Abschnitt',{exact:true}).locator('option').count();
+ const ids=[];
+ for(const [index,title]of ['Bilgi','Ülke ara','eSIM'].entries()){
+  await page.getByRole('button',{name:'Kart ekle',exact:true}).click();
+  const editor=page.locator('[data-editor-item]').nth(index);const id=await editor.getAttribute('data-editor-item');ids.push(id);
+  await editor.getByLabel(`item-title-${id}`,{exact:true}).fill(title);
+  await editor.getByLabel(`item-text-${id}`,{exact:true}).fill('Seyahate çıkmadan önce cihazını kontrol et.');
+  await editor.locator('[data-item-icon] button').first().click();
+  await editor.getByRole('button',{name:['ShieldCheck','Zap','Smartphone'][index],exact:true}).click();
+  await editor.getByLabel(`card-${id}-color`,{exact:true}).fill('#27caab');
+  await editor.getByLabel(`card-${id}-mobile-iconSize`,{exact:true}).fill('22');
+  await editor.getByLabel(`card-${id}-desktop-iconSize`,{exact:true}).fill('46');
+ }
+ await page.getByLabel('Kart yukarı: '+ids[2],{exact:true}).click();
+ await page.getByLabel('Kart görünürlük: '+ids[0],{exact:true}).click();
+ await page.getByRole('button',{name:'390 px',exact:true}).click();
+ const cards=frame.locator(`[data-complete-section="${securityId}"] [data-registered-card]`);
+ await cards.first().waitFor();assert.equal(await cards.count(),2);
+ assert.deepEqual(await cards.evaluateAll(nodes=>nodes.map(n=>n.dataset.registeredCard)),[ids[2],ids[1]]);
+ for(const [width,size]of [[390,'22px'],[768,'22px'],[1440,'46px']]){
+  await page.getByRole('button',{name:`${width} px`,exact:true}).click();
+  await page.waitForFunction(({width})=>document.querySelector('iframe').contentDocument.documentElement.clientWidth===width,{width});
+  assert.equal(await cards.first().locator('.registered-card-icon').evaluate(e=>getComputedStyle(e).width),size);
+  assert.equal(await cards.first().evaluate(e=>getComputedStyle(e).color),'rgb(39, 202, 171)');
+  await page.locator('iframe').screenshot({path:`artifacts/builder-preview/modular-cards-${width}.png`});
+ }
+ await page.getByRole('button',{name:'Tüm sayfayı 13 dile çevir (DEMO)',exact:true}).click();
+ for(const locale of ['de','ar','ja','zh']){await page.getByLabel('Vorschau in',{exact:true}).selectOption(locale);await cards.first().waitFor();assert.equal(await frame.locator('html').getAttribute('dir'),locale==='ar'?'rtl':'ltr');await page.locator('iframe').screenshot({path:`artifacts/builder-preview/modular-cards-${locale}.png`});}
+ await page.getByRole('button',{name:'Versionen',exact:true}).click();
+ await page.getByRole('button',{name:'Synthetischen Entwurf speichern',exact:true}).click();
+ await page.reload();await page.getByRole('button',{name:'Versionen',exact:true}).click();await page.getByRole('button',{name:'Gespeicherten Entwurf laden',exact:true}).click();
+ await page.getByRole('button',{name:'Seiten',exact:true}).click();
+ assert.equal(await page.getByLabel('Abschnitt',{exact:true}).locator('option').count(),beforeCount);
+ await page.getByLabel('Abschnitt',{exact:true}).selectOption(securityId);
+ assert.equal(await frame.locator(`[data-complete-section="${securityId}"] [data-registered-card]`).count(),2);
+ assert.equal(await page.locator('[data-editor-item]').count(),3,'hidden card and existing fields retained');
  assert.deepEqual(errors,[]);assert.deepEqual(remote,[]);
- fs.writeFileSync('artifacts/builder-preview/browser-result.json',JSON.stringify({result:'PASS',cjkPlatformFontVerified:true,sourceLocale:'tr',locales:14,viewports:[390,768,1440],remoteRequests:0,screenshots:fs.readdirSync('artifacts/builder-preview').filter(p=>p.endsWith('.png')).length,checks:['fixed Turkish fields','ES preview does not empty TR','whole page Hero+NOTICE in 13 languages','fresh second run zero calls','page summary','13 fixture statuses','explicit manual correction','stale source/manual protection','unknown fixture refuses fake AI','RTL/CJK text','Hero/NOTICE presentation','shared global theme controls','responsive item media 3 devices','configured menu/footer','presentation-only account note','synthetic save/reload/draft restore/publication isolation','original shared Admin shell and all module links','complete default page sections','scaled full frame without mobile clipping','mobile drawer and keyboard close','actual full-site target protocol (synthetic HTTP receiver only)'],limitation:'UI persistence is a clearly labelled synthetic browser adapter; real PostgreSQL/PostgREST isolation is separately reported; no managed Supabase/Auth, Storage write or paid provider test'},null,2));
+ fs.writeFileSync('artifacts/builder-preview/browser-result.json',JSON.stringify({result:'PASS',cjkPlatformFontVerified:true,sourceLocale:'tr',locales:14,viewports:[390,768,1440],remoteRequests:0,screenshots:fs.readdirSync('artifacts/builder-preview').filter(p=>p.endsWith('.png')).length,checks:['fixed Turkish fields','ES preview does not empty TR','whole page Hero+NOTICE in 13 languages','fresh second run zero calls','page summary','13 fixture statuses','explicit manual correction','stale source/manual protection','unknown fixture refuses fake AI','RTL/CJK text','Hero/NOTICE presentation','shared global theme controls','responsive item media 3 devices','configured menu/footer','presentation-only account note','synthetic save/reload/draft restore/publication isolation','original shared Admin shell and all module links','complete default page sections','scaled full frame without mobile clipping','mobile drawer and keyboard close','actual full-site target protocol (synthetic HTTP receiver only)','modular security cards full add/reorder/hide/design/translate/save/reload sequence'],limitation:'UI persistence is a clearly labelled synthetic browser adapter; real PostgreSQL/PostgREST isolation is separately reported; no managed Supabase/Auth, Storage write or paid provider test'},null,2));
  await browser.close();console.log('PASS: TR source / 14 previews / 13 statuses / manual protection / offline fixtures / shared Hero and NOTICE');
 })().catch(async error=>{fs.mkdirSync('artifacts/builder-preview',{recursive:true});fs.writeFileSync('artifacts/builder-preview/browser-error.json',JSON.stringify({message:error.message,stack:error.stack},null,2));console.error(error);await activeBrowser?.close();process.exitCode=1;});

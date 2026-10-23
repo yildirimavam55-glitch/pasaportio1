@@ -1,3 +1,6 @@
+import { renderRegisteredEditorialBlock } from "./RegisteredEditorialBlock";
+import { blockContract } from "@/domain/storefront/block-registry";
+import { RegisteredCards } from "./RegisteredCards";
 import { portableMediaUrl } from "@/domain/storefront/portable-media";
 import { ResponsiveMediaPicture } from "./ResponsiveMediaPicture";
 import { getActiveUiLocale } from "@/i18n/overlay";
@@ -196,12 +199,14 @@ export function V2Sections({ config, media, slots, only, onDestinationSearch, se
         const t = (key: string) => v2Text(s, key, locale);
         const items = s.items.filter((item) => item.visible);
         const framed = (node: ReactNode) => <V2SectionFrame key={s.id} section={s}>{config.page === "esim" && s.type !== "SEARCH_HERO" && s.type !== "BENEFIT_ROW" ? <Reveal stagger={s.type === "DESTINATION_CAROUSEL" || s.type === "GUIDE_CAROUSEL"}>{node}</Reveal> : node}</V2SectionFrame>;
-        switch (s.type) {
+        const registered=renderRegisteredEditorialBlock({section:s,locale:getActiveUiLocale(),resolve:id=>mediaUrl(id??null,media)});
+        if(registered!==undefined&&!(s.type==='BENEFIT_ROW'&&slots.benefitsInDesktopHero)&&!(s.type==='FAQ'&&slots.faq))return registered;
+        switch (blockContract(s.type).renderer) {
           case "SEARCH_HERO":
             return framed(slots.hero(s));
           case "BENEFIT_ROW":
             if (slots.benefitsInDesktopHero) return null;
-            return framed(<div><TrustRow items={items.map((item) => ({ icon: <StorefrontIcon name={item.icon} className="size-6" />, label: v2ItemText(item.title, locale) }))} />{slots.afterBenefits}</div>);
+            return framed(<div><RegisteredCards items={items} locale={getActiveUiLocale()}/>{slots.afterBenefits}</div>);
           case "DESTINATION_CAROUSEL":
             return framed(<>{slots.destinations?.(s)}{slots.afterDestinations}</>);
           case "TRUST_REVIEWS":

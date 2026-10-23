@@ -1,3 +1,4 @@
+import { RegisteredCards } from "./RegisteredCards";
 import { HERO_COPY as COPY } from "@/domain/storefront/hero-copy";
 // ============= Full file contents =============
 
@@ -52,11 +53,11 @@ export function PasaportMobileBenefits({ section, reviews }: { section?: V2Secti
   const verified = combinedSourceRating(reviews?.trust?.sourceRatings);
   const summary = verified ?? PREVIEW_SAMPLE_RATING;
   const isSample = !verified && Boolean(summary);
-  const benefits = ["delivery", "refund", "setup"].flatMap((id) => { const item = items.find((entry) => entry.id === id); return item ? [item] : []; });
+  const benefits=section?.items??defaultV2Page("esim").sections.find(s=>s.type==="BENEFIT_ROW")?.items??[];
   const reviewsLabel = uiLocale === "de" ? "Bewertungen" : locale === "tr" ? "değerlendirme" : "reviews";
   const outOf = uiLocale === "de" ? "aus 5" : locale === "tr" ? "/ 5" : "out of 5";
   return (
-    <div ref={ref} className="hero-trust-strip" data-trust-entered={entered} data-has-rating={Boolean(summary)}>
+    <div ref={ref} className="hero-trust-strip registered-trust-strip" data-trust-entered={entered} data-has-rating={Boolean(summary)}>
         <div className="trust-strip-segment trust-strip-rating">
           <span className="trust-strip-marks"><GoogleMark /><TrustpilotMark /></span>
           {summary && <span className="trust-strip-rating-text">
@@ -65,15 +66,7 @@ export function PasaportMobileBenefits({ section, reviews }: { section?: V2Secti
             <small>{new Intl.NumberFormat(uiLocale).format(summary.count)} {reviewsLabel}{isSample ? <em className="trust-strip-sample" title={c.sample}>{c.sample}</em> : null}</small>
           </span>}
         </div>
-      {benefits.map(({ id, label, description }) => {
-        const Icon = STRIP_ICONS[id] ?? Mail;
-        return (
-          <div key={id} className="trust-strip-segment" data-trust-kind={id}>
-            <span className="trust-strip-icon" aria-hidden="true"><Icon size={20} strokeWidth={1.8} /></span>
-            <span className="trust-strip-text"><strong>{label}</strong>{description ? <small>{description}</small> : null}</span>
-          </div>
-        );
-      })}
+      <RegisteredCards items={benefits} locale={uiLocale} compact/>
     </div>
   );
 }

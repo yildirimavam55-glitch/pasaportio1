@@ -1,3 +1,5 @@
+import { CardDesignControls } from "@/components/admin/CardDesignControls";
+import { blockContract } from "@/domain/storefront/block-registry";
 import { ResponsivePreview } from "@/components/admin/ResponsivePreview";
 import { EditorialItemControls } from "@/components/admin/EditorialItemControls";
 import { ResponsiveMediaControls } from "@/components/admin/ResponsiveMediaControls";
@@ -479,11 +481,14 @@ function ImageField({ label, value, onChange, category = "HERO" }: { label: stri
 function SectionForm({ section: s, lang, previewLocale, page, trustPreviewLocale, onTrustLocale, onTrustSourceBlur, onChange }: { section: V2Section; lang: Locale; previewLocale: UiLocale; page: V2PageId; trustPreviewLocale: UiLocale | null; onTrustLocale: (code: UiLocale) => void; onTrustSourceBlur: () => void; onChange: (patch: Partial<V2Section>) => void }) {
   const setText = (key: string, value: LT) => onChange({ text: { ...s.text, [key]: value }, ...(s.type === "SEARCH_HERO" && key === "title" ? { heroTextMode: { ...s.heroTextMode, [lang]: "custom" as const } } : {}) });
   const mode = V2_ITEM_MODE[s.type];
+  const contract=blockContract(s.type);
   return (
     <div className="space-y-3">
+      <p className="text-xs text-muted-foreground">Şema v{contract.schemaVersion} · {contract.unsupported.length?"Desteklenmeyen: "+contract.unsupported.join(", "):"Kayıtlı içerik ve görünüm alanları"}</p>
+      {s.type==="INFO_GRID"&&<label>Baustein<select aria-label="Kart türü" value={s.variant} onChange={e=>onChange({variant:e.target.value})}><option value="default">Bilgi kartları</option><option value="security">Güven kartları · yayın için kanıt onayı gerekir</option></select></label>}
       <div className="grid gap-3 sm:grid-cols-2">
         {(s.type === "SEARCH_HERO" || s.type === "NOTICE") && <div className="sm:col-span-2"><V2TurkishTextEditor section={s} previewLocale={previewLocale} onChange={onChange} /></div>}
-        {s.type !== "TRUST_REVIEWS" && s.type !== "SEARCH_HERO" && s.type !== "NOTICE" && V2_TEXT_FIELDS[s.type].map(([key, label]) => <LTInput key={key} label={label} lang={lang} value={s.text[key]} onChange={(v) => setText(key, v)} multiline={key === "text" || key === "lead"} />)}
+        {s.type !== "TRUST_REVIEWS" && s.type !== "SEARCH_HERO" && s.type !== "NOTICE" && blockContract(s.type).textFields.map(([key, label]) => <LTInput key={key} label={label} lang={lang} value={s.text[key]} onChange={(v) => setText(key, v)} multiline={key === "text" || key === "lead"} />)}
       </div>
 
       {s.type === "SEARCH_HERO" && (
@@ -654,6 +659,7 @@ function ItemsEditor({ mode, page, items, lang, onChange }: { mode: NonNullable<
             {mode !== "destination" && (
               <div className="mt-2 grid gap-2 sm:grid-cols-2">
                 <EditorialItemControls item={it} onChange={patch=>set(it.id,patch)}/>
+                <CardDesignControls id={it.id} value={it.cardDesign} onChange={cardDesign=>set(it.id,{cardDesign})}/>
                 <ResponsiveMediaControls value={it} onChange={patch=>set(it.id,patch)} picker={(label,value,onChange)=><MediaField label={label} value={value} onChange={onChange}/>}/>
 
               </div>

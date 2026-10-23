@@ -1,3 +1,4 @@
+import { assertClaimApprovals,claimApprovalsFromEnvironment } from "./builder-claims.server";
 import { atomicBuilderEnabled,readBuilder,writeBuilder,publicContentSelection,type BuilderRevision } from "./builder-persistence.server";
 import { restoreV2Draft } from "./v2-builder-safety";
 import { createServerFn } from "@tanstack/react-start";
@@ -177,12 +178,13 @@ function summarize(before: V2PageConfig | null, after: V2PageConfig) {
 }
 
 export const saveV2Page = createServerFn({ method: "POST" })
-  .inputValidator((input: { page: V2PageId; config: unknown; publish?: boolean; expectedRevision?:BuilderRevision }) => ({ page: pageOf(input?.page), config: input?.config, publish: Boolean(input?.publish),expectedRevision:input.expectedRevision }))
+  .inputValidator((input: { page: V2PageId; config: unknown; publish?: boolean; expectedRevision?:BuilderRevision }) => ({ page: (()=>{if(!V2_PAGES.includes(input?.page))throw new Error("E_CMS_PAGE");return input.page;})(), config: input?.config, publish: Boolean(input?.publish),expectedRevision:input.expectedRevision }))
   .middleware([requireSupabaseAuth])
   .handler(async ({ context, data }) => {
     const ctx = context as AdminCtx;
     const db = await adminDb(ctx);
     const config = sanitizeV2Page(data.config, data.page);
+    if(data.publish)assertClaimApprovals(config,claimApprovalsFromEnvironment());
     if(atomicBuilderEnabled()){await writeBuilder(ctx,keyFor(data.page),data.expectedRevision,data.publish?'publish':'draft',config);return {ok:true,published:data.publish};}
     const { data: current, error: readError } = await db.from("cms_documents").select("data, published_at").eq("key", keyFor(data.page)).maybeSingle();
     if (readError) throw new Error("E_CMS_READ");

@@ -1,3 +1,4 @@
+import { validateImageUpload } from "./media-upload-safety";
 import { collectMediaUsage, denyFinalMediaDeletion } from "./v2-builder-safety";
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
@@ -100,14 +101,15 @@ export const uploadMedia = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context, data }) => {
     const db = await adminDb(context as AdminCtx);
-    if (!/^image\/(png|jpeg|jpg|webp|avif|svg\+xml)$/.test(data.contentType)) {
+    if (!/^image\/(png|jpeg|jpg|webp|avif)$/.test(data.contentType)) {
       throw new Error("Yalnızca görsel dosyaları yüklenebilir.");
     }
     const bytes = Buffer.from(data.base64, "base64");
     if (bytes.byteLength > 10 * 1024 * 1024) throw new Error("Dosya 10 MB sınırını aşıyor.");
 
-    const extension = (data.fileName.split(".").pop() ?? "jpg").toLowerCase().replace(/[^a-z0-9]/g, "");
-    const path = `${data.category.toLowerCase()}/${crypto.randomUUID()}.${extension || "jpg"}`;
+    const category=(MEDIA_CATEGORIES as readonly string[]).includes(data.category)?data.category:"GLOBAL";
+    const extension=validateImageUpload(bytes,data.contentType);
+    const path = `${category.toLowerCase()}/${crypto.randomUUID()}.${extension}`;
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { error: uploadError } = await supabaseAdmin.storage
