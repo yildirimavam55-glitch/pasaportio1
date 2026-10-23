@@ -126,7 +126,8 @@ let activeBrowser;
  await page.getByRole('group',{name:'tablet',exact:true}).getByLabel('Ölçek / Zoom',{exact:true}).fill('120');
  await page.getByLabel('media-overlay',{exact:true}).fill('20');
  for(const width of [390,768,1440]){
-  await page.getByRole('button',{name:`${width} px`,exact:true}).click();const picture=frame.locator('[data-responsive-media] img').first();await picture.evaluate(e=>e.decode());
+  await page.getByRole('button',{name:`${width} px`,exact:true}).click();const picture=frame.locator('[data-responsive-media] img').first();await picture.waitFor({state:'visible'});
+  await page.waitForFunction(({width})=>{const image=document.querySelector('iframe')?.contentDocument?.querySelector('[data-responsive-media] img');return image?.complete&&image.naturalWidth>0&&image.currentSrc.includes('pasaport-mediterranean-terrace')===(width===768);},{width});
   assert.equal((await picture.evaluate(e=>e.currentSrc)).includes('pasaport-mediterranean-terrace'),width===768);
   assert.equal(await frame.locator('body').evaluate(e=>e.scrollWidth<=e.clientWidth),true);
   await page.locator('iframe').screenshot({path:`artifacts/builder-preview/integrated-media-${width}.png`});
