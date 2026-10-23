@@ -151,7 +151,7 @@ function Editor({ page }: { page: V2PageId }) {
   const discard = useMutation({ mutationFn: () => discardV2Draft({ data: { page } }), onSuccess: () => { toast.success("Taslak yayındaki sürüme döndü."); refresh(); } });
   const restore = useMutation({
     mutationFn: (versionId: string) => restoreV2Version({ data: { page, versionId } }),
-    onSuccess: () => { toast.success("Sürüm geri yüklendi ve yayınlandı."); refresh(); },
+    onSuccess: () => { toast.success("Sürüm taslağa geri yüklendi. Canlı sürüm değişmedi."); refresh(); },
     onError: (e) => toast.error(e instanceof Error ? e.message : "Geri yüklenemedi."),
   });
 
@@ -259,7 +259,7 @@ function Editor({ page }: { page: V2PageId }) {
                 <li key={v.id} className="flex items-center gap-2 py-2">
                   <span className="w-20 font-bold">{v.event === "publish" ? "Yayın" : v.event === "restore" ? "Geri yükleme" : "Taslak"}</span>
                   <span className="flex-1 text-muted-foreground">{new Date(v.createdAt).toLocaleString("tr-TR")} · {v.author} · {v.sections} bölüm</span>
-                  <Button size="sm" variant="outline" disabled={restore.isPending} onClick={() => { if (window.confirm("Bu sürüm geri yüklenip yayınlansın mı?")) restore.mutate(v.id); }}>Geri yükle</Button>
+                  <Button size="sm" variant="outline" disabled={restore.isPending} onClick={() => { if (window.confirm("Bu sürüm yalnızca taslağa geri yüklensin mi? Canlı sürüm değişmeyecek.")) restore.mutate(v.id); }}>Taslağa geri yükle</Button>
                 </li>
               ))}
             </ul>

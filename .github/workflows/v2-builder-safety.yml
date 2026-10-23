@@ -1,0 +1,39 @@
+name: V2 builder safety phase 1
+on:
+  pull_request:
+    branches: [chore/launch-readiness-2026-10-22]
+permissions:
+  contents: read
+jobs:
+  offline-safety:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - run: node --test --test-isolation=none scripts/checks/v2-builder-safety.checks.mjs
+      - run: node --test --test-isolation=none scripts/checks/v2-builder-review.checks.mjs
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      SECURITY_LIVE: '0'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Exclude tracked environment files from this disposable runner
+        run: rm -f .env .env.development .env.local .env.production .env.test
+      - uses: oven-sh/setup-bun@v2
+      - id: install
+        run: bun install --frozen-lockfile
+      - if: ${{ !cancelled() && steps.install.outcome == 'success' }}
+        run: bunx tsc --noEmit
+      - if: ${{ !cancelled() && steps.install.outcome == 'success' }}
+        run: bun run build
+      - if: ${{ !cancelled() && steps.install.outcome == 'success' }}
+        run: bunx vitest run

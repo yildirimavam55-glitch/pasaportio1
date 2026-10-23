@@ -1,3 +1,4 @@
+import { restoreV2Draft } from "./v2-builder-safety";
 import { createServerFn } from "@tanstack/react-start";
 import { createClient } from "@supabase/supabase-js";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
@@ -139,7 +140,8 @@ export const getV2PageEditor = createServerFn({ method: "GET" })
   });
 
 async function upsert(db: any, page: V2PageId, patch: Record<string, unknown>) {
-  const { data: existing } = await db.from("cms_documents").select("id").eq("key", keyFor(page)).maybeSingle();
+  const { data: existing, error: readError } = await db.from("cms_documents").select("id").eq("key", keyFor(page)).maybeSingle();
+  if (readError) throw new Error("E_CMS_READ");
   const payload = { key: keyFor(page), kind: KIND, visible: true, sort_order: 0, ...patch };
   if (existing?.id) {
     const { error } = await db.from("cms_documents").update(payload).eq("id", existing.id);
@@ -175,7 +177,8 @@ export const saveV2Page = createServerFn({ method: "POST" })
     const ctx = context as AdminCtx;
     const db = await adminDb(ctx);
     const config = sanitizeV2Page(data.config, data.page);
-    const { data: current } = await db.from("cms_documents").select("data, published_at").eq("key", keyFor(data.page)).maybeSingle();
+    const { data: current, error: readError } = await db.from("cms_documents").select("data, published_at").eq("key", keyFor(data.page)).maybeSingle();
+    if (readError) throw new Error("E_CMS_READ");
     const prevDraftRaw = (current?.data as any)?.draft ?? (current?.data as any)?.published ?? null;
     const before = prevDraftRaw ? sanitizeV2Page(prevDraftRaw, data.page) : defaultV2Page(data.page);
     const published = data.publish ? config : ((current?.data as any)?.published ?? null);
@@ -185,8 +188,13 @@ export const saveV2Page = createServerFn({ method: "POST" })
       data: { draft: config, published },
     });
     const changes = summarize(before, config);
-    await db.from("cms_versions").insert({ document_id: id, created_by: ctx.userId, snapshot: { config, event: data.publish ? "publish" : "draft", page: data.page, author: await authorLabel(ctx), changes } });
-    await audit(db, data.publish ? "storefront_v2.publish" : "storefront_v2.save_draft", "storefront_v2", id, null, { page: data.page, ...changes });
+    const { error: versionError } = await db.from("cms_versions").insert({ document_id: id, created_by: ctx.userId, snapshot: { config, event: data.publish ? "publish" : "draft", page: data.page, author: await authorLabel(ctx), changes } });
+    if (versionError) throw new Error("E_CMS_PARTIAL_WRITE_VERSION: Belge değişmiş olabilir; yeniden yükleyip geçmişi kontrol edin.");
+    try {
+      await audit(db, data.publish ? "storefront_v2.publish" : "storefront_v2.save_draft", "storefront_v2", id, null, { page: data.page, ...changes });
+    } catch {
+      throw new Error("E_CMS_PARTIAL_WRITE_AUDIT: Belge ve sürüm değişmiş olabilir; yeniden yükleyin.");
+    }
     return { ok: true, published: data.publish };
   });
 
@@ -204,18 +212,23 @@ export const discardV2Draft = createServerFn({ method: "POST" })
     return { ok: true };
   });
 
-/** Rollback: a previous snapshot becomes the draft and the live version, and is itself versioned. */
+/** Restore only the draft; publication remains a separate Admin action. */
 export const restoreV2Version = createServerFn({ method: "POST" })
-  .inputValidator((input: { page: V2PageId; versionId: string }) => ({ page: pageOf(input?.page), versionId: String(input?.versionId ?? "") }))
+  .inputValidator((input: { page: V2PageId; versionId: string }) => {
+    if (!(V2_PAGES as readonly string[]).includes(input?.page) || !/^[0-9a-f-]{36}$/i.test(input?.versionId ?? "")) throw new Error("E_RESTORE_VERSION");
+    return { page: input.page, versionId: input.versionId };
+  })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context, data }) => {
     const ctx = context as AdminCtx;
     const db = await adminDb(ctx);
-    const { data: version } = await db.from("cms_versions").select("id, document_id, snapshot").eq("id", data.versionId).maybeSingle();
-    if (!version || version.snapshot?.page !== data.page) throw new Error("Sürüm bulunamadı.");
-    const config = sanitizeV2Page(version.snapshot?.config, data.page);
-    const id = await upsert(db, data.page, { status: "PUBLISHED", published_at: new Date().toISOString(), data: { draft: config, published: config } });
-    await db.from("cms_versions").insert({ document_id: id, created_by: ctx.userId, snapshot: { config, event: "restore", page: data.page, author: await authorLabel(ctx), restoredFrom: data.versionId } });
-    await audit(db, "storefront_v2.restore", "storefront_v2", id, null, { page: data.page, versionId: data.versionId });
+    const { id, config } = await restoreV2Draft(db, data.page, data.versionId, value => sanitizeV2Page(value, data.page));
+    const { error: versionError } = await db.from("cms_versions").insert({ document_id: id, created_by: ctx.userId, snapshot: { config, event: "restore", page: data.page, author: await authorLabel(ctx), restoredFrom: data.versionId } });
+    if (versionError) throw new Error("E_CMS_PARTIAL_WRITE_VERSION: Taslak değişmiş olabilir; yeniden yükleyin.");
+    try {
+      await audit(db, "storefront_v2.restore_draft", "storefront_v2", id, null, { page: data.page, versionId: data.versionId });
+    } catch {
+      throw new Error("E_CMS_PARTIAL_WRITE_AUDIT: Taslak ve sürüm değişmiş olabilir; yeniden yükleyin.");
+    }
     return { ok: true };
   });
