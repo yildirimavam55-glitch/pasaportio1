@@ -329,8 +329,8 @@ let activeBrowser;
  assert.equal(await templateTitle.getByLabel(`free-${templateTitleId}-title-de`,{exact:true}).inputValue(),'Meine Fassung');
  for(const locale of ['de','ar','ja','zh']){await page.getByLabel('Vorschau in',{exact:true}).selectOption(locale);const output=frame.locator(`[data-editorial-section="${templateInstance}"]`);await output.getByRole('heading',{name:locale==='de'?'Meine Fassung':'eSIM',exact:true}).waitFor();assert.equal(await frame.locator('html').getAttribute('dir'),locale==='ar'?'rtl':'ltr');await output.screenshot({path:`artifacts/builder-preview/free-section-${locale}.png`});}
  await page.getByLabel('Vorschau in',{exact:true}).selectOption('tr');
- assert.equal(await frame.locator(`[data-editorial-section="${freeSection}"]`).getByRole('heading',{name:'Bilgi',exact:true}).count(),1,'template edit leaves source independent');
- assert.equal(await frame.locator(`[data-editorial-section="${duplicateId}"]`).getByRole('heading',{name:'Bilgi',exact:true}).count(),1,'template edit leaves duplicate independent');
+ assert.equal(await frame.locator(`[data-editorial-section="${freeSection}"] [data-element-type="HEADING"]`).getByRole('heading',{name:'Bilgi',exact:true}).count(),1,'template edit leaves source independent');
+ assert.equal(await frame.locator(`[data-editorial-section="${duplicateId}"] [data-element-type="HEADING"]`).getByRole('heading',{name:'Bilgi',exact:true}).count(),1,'template edit leaves duplicate independent');
  await page.getByRole('button',{name:'Yukarı: '+templateInstance,exact:true}).click();
  await page.getByRole('button',{name:'Versionen',exact:true}).click();
  await page.getByRole('button',{name:'Synthetischen Entwurf speichern',exact:true}).click();
