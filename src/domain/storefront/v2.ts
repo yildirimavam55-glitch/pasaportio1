@@ -108,6 +108,9 @@ export type V2SectionDesign = {
   spacing: (typeof V2_DESIGN_SPACING)[number];
   background: (typeof V2_DESIGN_BACKGROUNDS)[number];
   customColor?: string;
+  headingColor?: string;
+  bodyColor?: string;
+  accentColor?: string;
   radius: (typeof V2_DESIGN_RADII)[number];
   font: (typeof V2_DESIGN_FONTS)[number];
   weight: (typeof V2_DESIGN_WEIGHTS)[number];
@@ -166,6 +169,11 @@ export type V2Section = {
   overlay: (typeof V2_OVERLAYS)[number];
   mediaId: string | null;
   mobileMediaId: string | null;
+  tabletMediaId?: string | null;
+  tabletImageDisplay?: ImageDisplay;
+  /** Explicit editor copy must never be replaced by legacy Hero defaults. */
+  heroTextMode?: "custom";
+  heroDesktopCrop?: "custom";
   /** Stable country ISO or region keys in the existing CMS document. */
   imageOverrides?: Record<string, string>;
   imageDisplay?: ImageDisplay;
@@ -618,6 +626,10 @@ function cleanSection(raw: any): V2Section | null {
     overlay: pick(raw.overlay, V2_OVERLAYS, "normal"),
     mediaId: cleanMediaId(raw.mediaId),
     mobileMediaId: cleanMediaId(raw.mobileMediaId),
+    ...(type === "SEARCH_HERO" && raw.tabletMediaId != null ? { tabletMediaId: cleanMediaId(raw.tabletMediaId) } : {}),
+    ...(type === "SEARCH_HERO" && raw.tabletImageDisplay != null ? { tabletImageDisplay: sanitizeImageDisplay(raw.tabletImageDisplay) } : {}),
+    ...(type === "SEARCH_HERO" && raw.heroDesktopCrop === "custom" ? { heroDesktopCrop: "custom" as const } : {}),
+    ...(type === "SEARCH_HERO" && raw.heroTextMode === "custom" ? { heroTextMode: "custom" as const } : {}),
     ...(type === 'DESTINATION_CAROUSEL' || type === 'REGION_DISCOVERY' ? { imageOverrides: Object.fromEntries(
       Object.entries(raw.imageOverrides && typeof raw.imageOverrides === 'object' ? raw.imageOverrides : {}).flatMap(([key, value]) => {
         const normalized = key.toUpperCase();
@@ -651,6 +663,7 @@ function cleanSection(raw: any): V2Section | null {
       spacing: pick(raw.design.spacing, V2_DESIGN_SPACING, "default"),
       background: pick(raw.design.background, V2_DESIGN_BACKGROUNDS, "default"),
       ...(customColor ? { customColor } : {}),
+      ...Object.fromEntries(["headingColor", "bodyColor", "accentColor"].flatMap(key => /^#[0-9a-fA-F]{6}$/.test(String(raw.design[key])) ? [[key, String(raw.design[key]).toLowerCase()]] : [])),
       radius: pick(raw.design.radius, V2_DESIGN_RADII, "default"),
       font: pick(raw.design.font, V2_DESIGN_FONTS, "theme"),
       weight: pick(raw.design.weight, V2_DESIGN_WEIGHTS, "default"),
@@ -769,7 +782,7 @@ export function missingV2Translations(config: V2PageConfig, locale: "de" | "en")
 export function collectV2MediaIds(config: V2PageConfig): string[] {
   const ids = new Set<string>();
   for (const s of config.sections) {
-    for (const id of [s.mediaId, s.mobileMediaId, s.trust?.illustrationId, s.trust?.comparisonImageId, s.trust?.comparisonMobileImageId, ...Object.values(s.imageOverrides ?? {}), ...s.items.map((item) => item.mediaId)]) if (id && UUID.test(id)) ids.add(id);
+    for (const id of [s.mediaId, s.mobileMediaId, s.tabletMediaId, s.trust?.illustrationId, s.trust?.comparisonImageId, s.trust?.comparisonMobileImageId, ...Object.values(s.imageOverrides ?? {}), ...s.items.map((item) => item.mediaId)]) if (id && UUID.test(id)) ids.add(id);
   }
   return [...ids];
 }

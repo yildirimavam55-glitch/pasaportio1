@@ -191,7 +191,7 @@ export function EsimHomePage() {
             slots={{
               faq: <V2CategorizedEsimFaq />,
               hero: (section) => (
-<PasaportEsimHero section={section} benefits={benefitSection} reviews={reviewsSection} image={mediaUrl(section.mediaId, media) ?? ""} mobileImage={section.mobileMediaId ? mediaUrl(section.mobileMediaId, media) : undefined}>
+<PasaportEsimHero section={section} benefits={benefitSection} reviews={reviewsSection} image={mediaUrl(section.mediaId, media) ?? ""} tabletImage={mediaUrl(section.tabletMediaId, media)} mobileImage={section.mobileMediaId ? mediaUrl(section.mobileMediaId, media) : undefined}>
         <div ref={heroSearchRef}>
           <V2PickerSheet
             open={pickerOpen}
