@@ -3,8 +3,9 @@ import type { V2PageConfig,V2Item } from '@/domain/storefront/v2';
 /** An Admin-edited flag/URL is NOT evidence. Approval lives outside the editable CMS. */
 export function claimDigest(item:V2Item){return createHash('sha256').update(JSON.stringify({title:item.title,text:item.text,cta:item.cta,labels:item.labels,imageAlt:item.imageAlt,href:item.href,media:[item.mediaId,item.tabletMediaId??null,item.mobileMediaId??null]})).digest('hex');}
 export function assertClaimApprovals(config:V2PageConfig,approved:Record<string,{source:string;reviewedAt:string}>={}){
- for(const section of config.sections.filter(s=>s.visible&&(s.type==='BENEFIT_ROW'||s.type==='INFO_GRID'&&s.variant==='security'))){
-  for(const item of section.items.filter(i=>i.visible)){
+ const visible=(items:V2Item[]):V2Item[]=>items.filter(i=>i.visible).flatMap(i=>[i,...visible(i.elements??[])]);
+ for(const section of config.sections.filter(s=>s.visible&&(s.type==='BENEFIT_ROW'||s.type==='INFO_GRID'&&s.variant==='security'||s.type==='EDITORIAL_SECTION'))){
+  for(const item of visible(section.items).filter(i=>section.type!=='EDITORIAL_SECTION'||['CARD','TRUST_CARD'].includes(i.elementType??''))){
    const proof=approved[claimDigest(item)];
    if(!proof||!/^https:\/\//.test(proof.source)||!Number.isFinite(Date.parse(proof.reviewedAt)))throw new Error('E_CMS_CLAIM_APPROVAL_REQUIRED');
   }

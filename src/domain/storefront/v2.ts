@@ -1,3 +1,4 @@
+import { sanitizeEditorialLayout,flattenEditorial,type EditorialLayout,type ElementType } from './editorial';
 import { translateString } from "@/i18n/overlay";
 import { getActiveUiLocale } from "@/i18n/overlay";
 import { UI_LOCALES, type UiLocale } from "@/i18n/locales";
@@ -103,6 +104,9 @@ export type V2SectionDesign = {
 };
 
 export type V2Item = {
+  elementType?:ElementType;
+  elements?:V2Item[];
+  editorialLayout?:EditorialLayout;
   id: string;
   visible: boolean;
   icon: string;
@@ -144,6 +148,7 @@ export type V2Item = {
 };
 
 export type V2Section = {
+  editorialLayout?:EditorialLayout;
   schemaVersion?: number;
   id: string;
   type: V2SectionType;
@@ -224,6 +229,7 @@ export const V2_SECTION_LABELS: Record<V2SectionType, string> = {
   GUIDE_CAROUSEL: "Rehberler",
   FAQ: "SSS",
   SPACER: "Boşluk",
+  EDITORIAL_SECTION: "Serbest bölüm",
 };
 
 /** Text fields each section type exposes in the editor (key → admin label). */
@@ -530,6 +536,7 @@ export function cleanMediaId(value: unknown): string | null {
 
 function cleanItem(raw: any, index: number): V2Item {
   return {
+    ...(raw?.elementType?{elementType:raw.elementType,editorialLayout:sanitizeEditorialLayout(raw.editorialLayout),...(Array.isArray(raw.elements)?{elements:raw.elements.map(cleanItem)}:{})}:{}),
     id: ID.test(String(raw?.id)) ? String(raw.id) : `item-${index + 1}`,
     visible: raw?.visible !== false,
     ...(raw?.cardDesign ? {cardDesign:sanitizeCardDesign(raw.cardDesign)}:{}),
@@ -594,6 +601,7 @@ function cleanSection(raw: any): V2Section | null {
     ...(raw.schemaVersion!=null?{schemaVersion:1}:{}),
     id: String(raw.id),
     type,
+    ...(type==='EDITORIAL_SECTION'?{editorialLayout:sanitizeEditorialLayout(raw.editorialLayout)}:{}),
     visible: V2_PROTECTED.includes(type) ? true : raw.visible !== false,
     showOnResults: Boolean(raw.showOnResults),
     variant: cleanText(raw.variant, 24).replace(/[^a-z-]/g, "") || "default",
@@ -622,7 +630,7 @@ function cleanSection(raw: any): V2Section | null {
     startsAt: DATE.test(String(raw.startsAt)) ? String(raw.startsAt) : "",
     endsAt: DATE.test(String(raw.endsAt)) ? String(raw.endsAt) : "",
     text,
-    items: Array.isArray(raw.items) ? raw.items.slice(0, 30).map(cleanItem) : [],
+    items: Array.isArray(raw.items) ? raw.items.slice(0, 30).map((item:any,index:number)=>{const cleaned=cleanItem(item,index);if(type!=='EDITORIAL_SECTION')return cleaned;const safe=(i:V2Item):V2Item=>({...i,entity:'',cardType:'info',verified:false,published:false,...(i.elements?{elements:i.elements.map(safe)}:{})});return safe(cleaned);}) : [],
     showDots: raw.showDots !== false,
     showArrows: raw.showArrows !== false,
     cardGap: pick(raw.cardGap, ["compact", "normal", "wide"] as const, "normal"),
@@ -760,7 +768,7 @@ export function missingV2Translations(config: V2PageConfig, locale: "de" | "en")
 export function collectV2MediaIds(config: V2PageConfig): string[] {
   const ids = new Set<string>();
   for (const s of config.sections) {
-    for (const id of [s.mediaId, s.mobileMediaId, s.tabletMediaId, s.trust?.illustrationId, s.trust?.comparisonImageId, s.trust?.comparisonMobileImageId, ...Object.values(s.imageOverrides ?? {}), ...s.items.flatMap((item) => [item.mediaId,item.tabletMediaId,item.mobileMediaId])]) if (id && UUID.test(id)) ids.add(id);
+    for (const id of [s.mediaId, s.mobileMediaId, s.tabletMediaId, s.trust?.illustrationId, s.trust?.comparisonImageId, s.trust?.comparisonMobileImageId, ...Object.values(s.imageOverrides ?? {}), ...flattenEditorial(s.items).flatMap((item) => [item.mediaId,item.tabletMediaId,item.mobileMediaId])]) if (id && UUID.test(id)) ids.add(id);
   }
   return [...ids];
 }

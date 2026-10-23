@@ -17,12 +17,14 @@ export function pageFields(page: V2PageConfig): Field[] {
   };
   for(const [key] of blockContract(section.type).textFields) if(!excluded.test(key)) add(['text',key],section.text[key]);
   const itemIds=new Set<string>();
-  for(const item of section.items){
-   if(itemIds.has(item.id)) throw new Error('E_DUPLICATE_ITEM'); itemIds.add(item.id);
-   if(item.cardType==='review'||item.reviewType||item.entity||section.type==='DESTINATION_CAROUSEL'||section.type==='REGION_DISCOVERY') continue;
-   for(const key of ['title','text','cta','imageAlt'] as const) add([key],item[key],item.id);
-   item.labels.forEach((value,index)=>add(['labels',index],value,item.id));
-  }
+  const visit=(items:import('./v2').V2Item[],base:(string|number)[])=>items.forEach((item,index)=>{
+   if(itemIds.has(item.id))throw new Error('E_DUPLICATE_ITEM');itemIds.add(item.id);
+   if(item.cardType==='review'||item.reviewType||item.entity||section.type==='DESTINATION_CAROUSEL'||section.type==='REGION_DISCOVERY')return;
+   const path=[...base,index];
+   for(const key of ['title','text','cta','imageAlt'] as const){const value=item[key];if(value?.tr.trim())fields.push({id:JSON.stringify([section.id,item.id,key]),value,path:['sections',si,...path,key]});}
+   item.labels.forEach((value,i)=>{if(value.tr.trim())fields.push({id:JSON.stringify([section.id,item.id,'labels',i]),value,path:['sections',si,...path,'labels',i]});});
+   if(item.elements)visit(item.elements,[...path,'elements']);
+  });visit(section.items,['items']);
   // Caption/alt are editorial only; review bodies, numeric ratings and comparison evidence stay excluded.
   if(section.trust){add(['trust','manualCaption'],section.trust.manualCaption);add(['trust','comparisonImageAlt'],section.trust.comparisonImageAlt);}
  });

@@ -118,11 +118,16 @@ let activeBrowser;
   assert.match(await frame.locator('h1').evaluate(e=>getComputedStyle(e).fontFamily),/Sora/);
  }
  await page.getByRole('button',{name:'Seiten',exact:true}).click();
- await page.getByLabel('Abschnitt hinzufügen',{exact:true}).selectOption('INFO_GRID');
- await page.getByLabel('item-title-editorial-item',{exact:true}).fill('Bilgi');
- await page.getByLabel('item-cta-editorial-item',{exact:true}).fill('Ülke ara');
- await page.getByLabel('item-href-editorial-item',{exact:true}).selectOption('/esim');
- for(const [device,id]of [['desktop','10000000-0000-4000-8000-000000000001'],['tablet','10000000-0000-4000-8000-000000000002'],['mobile','10000000-0000-4000-8000-000000000001']])await page.getByLabel(`item-media-editorial-item-${device}`,{exact:true}).selectOption(id);
+ await page.getByRole('button',{name:'+ Yeni bölüm ekle',exact:true}).click();
+ await page.getByRole('dialog',{name:'Bölüm kütüphanesi'}).getByRole('button',{name:'Bilgi kartları',exact:true}).click();
+ await page.getByRole('button',{name:'Kart ekle',exact:true}).click();
+ const legacyCardId=await page.locator('[data-editor-item]').first().getAttribute('data-editor-item');
+ await page.getByLabel(`item-title-${legacyCardId}`,{exact:true}).fill('Bilgi');
+ await page.getByLabel(`item-text-${legacyCardId}`,{exact:true}).fill('Seyahate çıkmadan önce cihazını kontrol et.');
+ await page.getByLabel(`item-imageAlt-${legacyCardId}`,{exact:true}).fill('Bilgi');
+ await page.getByLabel(`item-cta-${legacyCardId}`,{exact:true}).fill('Ülke ara');
+ await page.getByLabel(`item-href-${legacyCardId}`,{exact:true}).selectOption('/esim');
+ for(const [device,id]of [['desktop','10000000-0000-4000-8000-000000000001'],['tablet','10000000-0000-4000-8000-000000000002'],['mobile','10000000-0000-4000-8000-000000000001']])await page.getByLabel(`item-media-${legacyCardId}-${device}`,{exact:true}).selectOption(id);
  await page.getByRole('group',{name:'tablet',exact:true}).getByLabel('Ölçek / Zoom',{exact:true}).fill('120');
  await page.getByLabel('media-overlay',{exact:true}).fill('20');
  for(const width of [390,768,1440]){

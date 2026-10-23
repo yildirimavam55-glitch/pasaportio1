@@ -1,3 +1,6 @@
+import { SectionLibrary } from '@/components/admin/SectionLibrary';
+import { EditorialSectionEditor } from '@/components/admin/EditorialSectionEditor';
+import { cloneEditorialSection,SECTION_LIMIT } from '@/domain/storefront/editorial';
 import { CardDesignControls } from "@/components/admin/CardDesignControls";
 import { blockContract } from "@/domain/storefront/block-registry";
 import { ResponsivePreview } from "@/components/admin/ResponsivePreview";
@@ -211,7 +214,8 @@ function Editor({ page }: { page: V2PageId }) {
     setDragId(null);
   };
   const duplicate = (s: V2Section) => {
-    const copy = { ...structuredClone(s), id: `${s.id.slice(0, 40)}-${Math.random().toString(36).slice(2, 6)}` };
+    if(sections.length>=SECTION_LIMIT){toast.error("Bölüm sınırı 30.");return;}
+    const copy = s.type==='EDITORIAL_SECTION'?cloneEditorialSection(s):{ ...structuredClone(s), id: `${s.id.slice(0, 40)}-${Math.random().toString(36).slice(2, 6)}` };
     const index = sections.findIndex((x) => x.id === s.id);
     const next = [...sections];
     next.splice(index + 1, 0, copy);
@@ -295,12 +299,7 @@ function Editor({ page }: { page: V2PageId }) {
               );
             })}
           </ol>
-          <details className="mt-3">
-            <summary className="cursor-pointer text-xs font-semibold text-primary"><Plus className="inline size-3.5" /> Bölüm ekle</summary>
-            <div className="mt-2 grid grid-cols-2 gap-1">
-              {V2_ADDABLE.map((type) => <Button key={type} size="sm" variant="outline" className="h-auto whitespace-normal py-1.5 text-[11px]" onClick={() => add(type)}>{V2_SECTION_LABELS[type]}</Button>)}
-            </div>
-          </details>
+          <SectionLibrary count={sections.length} selected={selected} onAdd={s=>{if(sections.length>=SECTION_LIMIT)return;update({...draft,sections:[...sections,s]});setSelectedId(s.id);}}/>
         </AdminPanel>
 
         <AdminPanel title={V2_SECTION_LABELS[selected.type]} action={
@@ -479,6 +478,7 @@ function ImageField({ label, value, onChange, category = "HERO" }: { label: stri
 }
 
 function SectionForm({ section: s, lang, previewLocale, page, trustPreviewLocale, onTrustLocale, onTrustSourceBlur, onChange }: { section: V2Section; lang: Locale; previewLocale: UiLocale; page: V2PageId; trustPreviewLocale: UiLocale | null; onTrustLocale: (code: UiLocale) => void; onTrustSourceBlur: () => void; onChange: (patch: Partial<V2Section>) => void }) {
+  if(s.type==='EDITORIAL_SECTION')return <EditorialSectionEditor section={s} onChange={onChange} picker={(label,value,onPick)=><ImageField label={label} value={value} onChange={onPick}/>}/>;
   const setText = (key: string, value: LT) => onChange({ text: { ...s.text, [key]: value }, ...(s.type === "SEARCH_HERO" && key === "title" ? { heroTextMode: { ...s.heroTextMode, [lang]: "custom" as const } } : {}) });
   const mode = V2_ITEM_MODE[s.type];
   const contract=blockContract(s.type);

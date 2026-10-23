@@ -1,3 +1,4 @@
+import { validateEditorial } from './editorial';
 /** One versioned presentation contract. Never grants commerce or customer authority. */
 export type BlockRole='admin'|'customer'|'anonymous';
 export const V2_SECTION_TYPES = [
@@ -16,6 +17,7 @@ export const V2_SECTION_TYPES = [
   "GUIDE_CAROUSEL",
   "FAQ",
   "SPACER",
+  "EDITORIAL_SECTION",
 ] as const;
 export type V2SectionType = (typeof V2_SECTION_TYPES)[number];
 
@@ -23,7 +25,7 @@ export type V2SectionType = (typeof V2_SECTION_TYPES)[number];
 export const V2_PROTECTED: readonly V2SectionType[] = ["SEARCH_HERO"];
 /** Sections tied to live catalogue data or a single page capability — not duplicable. */
 export const V2_SINGLETON: readonly V2SectionType[] = ["SEARCH_HERO", "DESTINATION_CAROUSEL", "TRUST_REVIEWS", "INFO_CAROUSEL", "REGION_DISCOVERY", "COMPATIBILITY", "GUIDE_CAROUSEL"];
-export const V2_ADDABLE: readonly V2SectionType[] = ["BENEFIT_ROW", "PROMO_BANNER", "NOTICE", "INFO_GRID", "HOW_IT_WORKS", "INSTALLATION_STEPS", "FAQ", "SPACER"];
+export const V2_ADDABLE: readonly V2SectionType[] = ["BENEFIT_ROW", "PROMO_BANNER", "NOTICE", "INFO_GRID", "HOW_IT_WORKS", "INSTALLATION_STEPS", "FAQ", "SPACER", "EDITORIAL_SECTION"];
 
 export const V2_TEXT_FIELDS: Record<V2SectionType, Array<[string, string]>> = {
   SEARCH_HERO: [["eyebrow", "Üst başlık"], ["title", "Başlık"], ["subtitle", "Alt başlık"], ["placeholder", "Arama metni"], ["sticky", "Sabit arama metni"], ["imageAlt", "Görsel açıklaması"]],
@@ -42,6 +44,7 @@ export const V2_TEXT_FIELDS: Record<V2SectionType, Array<[string, string]>> = {
   GUIDE_CAROUSEL: [["title", "Başlık"], ["lead", "Açıklama"], ["all", "Tümü bağlantısı"]],
   FAQ: [["title", "Başlık"]],
   SPACER: [],
+  EDITORIAL_SECTION: [],
 };
 
 /** How items of a section are edited: title-only, title+text, question/answer, destination. */
@@ -76,6 +79,7 @@ export function upgradeBlockDocument(raw:unknown):any{
   if(!block.id||ids.has(block.id))throw new Error('E_BLOCK_DUPLICATE_ID');ids.add(block.id);
   if(block.schemaVersion!=null&&(!Number.isInteger(block.schemaVersion)||block.schemaVersion<0||block.schemaVersion>contract.schemaVersion))throw new Error('E_BLOCK_FUTURE_VERSION');
   if(Array.isArray(block.items)&&block.items.length>30)throw new Error('E_ITEM_LIMIT');
+  validateEditorial(block.items??[],block.type==='EDITORIAL_SECTION');
   const itemIds=new Set<string>();for(const item of block.items??[]){if(!/^[a-zA-Z0-9_-]{1,64}$/.test(String(item.id??'')))throw new Error('E_ITEM_INVALID_ID');if(!item.id||itemIds.has(item.id))throw new Error('E_ITEM_DUPLICATE_ID');itemIds.add(item.id);}
  }
  return {...value,version:1,sections:value.sections.map((b:any)=>b.schemaVersion===0?{...b,schemaVersion:1}:b)};
