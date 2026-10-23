@@ -46,6 +46,7 @@ describe("V2 builder editor → sanitized preview → real renderer", () => {
     expect(heroMedia(s, {}, { desktop: "d", mobile: "m" })).toMatchObject({ desktop: "d", tablet: "m", mobile: "m" });
     s.mediaId = "10000000-0000-4000-8000-000000000001";
     expect(heroMedia(s, { desktop: "custom" }, { desktop: "d", mobile: "m" })).toMatchObject({ desktop: "custom", tablet: "custom", mobile: "custom" });
+    s.mobileMediaId = "10000000-0000-4000-8000-000000000002";
     const resolved = heroMedia(s, { desktop: "d", tablet: "t", mobile: "m" }, { desktop: "f", mobile: "fm" });
     expect(resolved.tabletCrop).toEqual(s.tabletImageDisplay);
     expect(resolved.tablet).toBe("t"); expect(resolved.mobile).toBe("m");

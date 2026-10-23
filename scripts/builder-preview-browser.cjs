@@ -29,6 +29,10 @@ const fs = require('node:fs');
   await page.getByLabel('headingColor', { exact: true }).fill('#76edc5');
   await page.getByLabel('Yazı ailesi', { exact: true }).selectOption('heading');
   for (const [device, size] of [['mobile', 28], ['tablet', 36], ['desktop', 50]]) await page.getByLabel(`${device}-headingSize`, { exact: true }).fill(String(size));
+  const desktopCrop = page.locator('fieldset').filter({ has: page.locator('legend', { hasText: 'desktop · Bild' }) });
+  const horizontal = desktopCrop.getByRole('slider', { name: 'Yatay konum', exact: true });
+  await horizontal.focus(); await horizontal.press('Home'); await horizontal.press('ArrowRight');
+  await page.waitForFunction(() => document.querySelector('iframe').contentWindow.getComputedStyle(document.querySelector('iframe').contentDocument.querySelector('.final-hero-photo img')).objectPosition.startsWith('1%'));
   await page.getByLabel('tablet-Bild', { exact: true }).selectOption('10000000-0000-4000-8000-000000000002');
   for (const [width, size] of [[390, '28px'], [768, '36px'], [1440, '50px']]) {
     await page.getByRole('button', { name: `${width} px`, exact: true }).click();

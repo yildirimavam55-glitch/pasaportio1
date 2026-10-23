@@ -28,7 +28,7 @@ export function V2HeroView({ section, image, tabletImage, mobileImage, heading, 
         const fallback = window.matchMedia("(min-width:1024px)").matches ? fallbackHeroDesktop : fallbackHeroMobile;
         if (event.currentTarget.src !== new URL(fallback, window.location.origin).href) event.currentTarget.src = fallback;
       }} />
-      {media.signal && <AntennaSignal />}
+      {media.signal && <AntennaSignal autoCrop={!media.desktopCrop} />}
     </picture>
     <div className="final-hero-shade" aria-hidden="true" />
     <div className="final-hero-heading"><h1>{heading}</h1><p>{subtitle}</p></div>
