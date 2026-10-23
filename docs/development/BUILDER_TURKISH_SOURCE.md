@@ -43,6 +43,6 @@ No provider connection, paid request, API key setup, database access/mutation, l
 
 PR #3 draft confidentiality and atomic persistence proposals remain unmerged and unexecuted. Therefore no existing database should be connected for save/publish acceptance. A genuinely functioning independent provider needs separate owner configuration/paid-call approval and isolated integration validation before being called production-ready.
 
-CI runs frozen installation, TypeScript, production/Nitro build, existing MVP regressions, new provenance/provider security tests, browser tests (TR→DE/EN/ES/AR plus all 14 locales) and the full Vitest suite. The nine known SQL failures stay visible, unchanged and unmasked. Browser screenshots are acceptance fixtures with system-font fallback; CJK text/RTL are inspected in the available runner, not a claim about every customer's font environment.
+CI runs frozen installation, TypeScript, production/Nitro build, existing MVP regressions, new provenance/provider security tests, browser tests (TR→DE/EN/ES/AR plus all 14 locales) and the full Vitest suite. The nine known SQL failures stay visible, unchanged and unmasked. Browser screenshots are acceptance fixtures with system-font fallback. A pinned, Git-blob-hash-verified Noto CJK font is installed only in the disposable runner; CDP checks actual glyph use for Japanese, Korean and Chinese. No font is uploaded to the app or loaded over the network by the demo. This is not a claim about every customer's font environment.
 
 Stop for owner visual acceptance. No merge or publication.

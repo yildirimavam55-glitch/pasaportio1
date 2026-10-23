@@ -1,3 +1,4 @@
+import { assertAdminRole, type AdminCtx } from "@/lib/admin-guard";
 import { z } from "zod";
 import { TRANSLATION_TARGETS } from "@/domain/storefront/translation-workflow";
 import { STOREFRONT_TRANSLATION_STYLE } from "@/domain/storefront/translation-style";
@@ -60,4 +61,20 @@ export async function runCmsTranslation(raw: unknown, deps: TranslationDependenc
     } catch { for (const [key] of batch) output.failures[key] = "E_TRANSLATION_PROVIDER"; }
   }
   return output;
+}
+
+/** Private handler used by the authenticated TanStack endpoint; exported for isolated boundary tests. */
+export async function handleCmsTranslation(context: AdminCtx, data: unknown): Promise<TranslationResult> {
+  return runCmsTranslation(data, {
+    verifyAdmin: () => assertAdminRole(context),
+    env: process.env, fetch,
+    consumeBudget: async () => {
+      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+      // Existing atomic limiter; no new schema or grants. Capacity is reserved before any paid call.
+      for (const policy of [{ bucket: "cms-translation:global:daily", limit: 10, seconds: 86400 }, { bucket: `cms-translation:user:${context.userId}`, limit: 2, seconds: 60 }]) {
+        const { data: allowed, error } = await (supabaseAdmin as any).rpc("consume_rate_limit", { _bucket: policy.bucket, _limit: policy.limit, _window_seconds: policy.seconds });
+        if (error || allowed !== true) throw new Error("E_TRANSLATION_BUDGET: Çeviri sınırı dolu veya kontrol kullanılamıyor.");
+      }
+    },
+  });
 }

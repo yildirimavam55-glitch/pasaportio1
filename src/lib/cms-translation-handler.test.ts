@@ -1,14 +1,10 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 const mocks = vi.hoisted(() => ({ role: vi.fn(), rpc: vi.fn() }));
-vi.mock("@tanstack/react-start", () => ({ createServerFn: () => {
- const chain = { middleware: () => chain, inputValidator: () => chain, handler: (fn: unknown) => fn }; return chain;
-} }));
-vi.mock("@/integrations/supabase/auth-middleware", () => ({ requireSupabaseAuth: {} }));
 vi.mock("@/lib/admin-guard", () => ({ assertAdminRole: mocks.role }));
 vi.mock("@/integrations/supabase/client.server", () => ({ supabaseAdmin: { rpc: mocks.rpc } }));
-import { translateTrustCopy } from "./trust-translate.functions";
-const invoke = translateTrustCopy as unknown as (value: { context: { userId: string }; data: unknown }) => Promise<unknown>;
-const context = { userId: "synthetic-admin" };
+import { handleCmsTranslation } from "./cms-translation.server";
+const context = { userId: "synthetic-admin", supabase: {} };
+const invoke = ({ context, data }: { context: { userId: string; supabase: object }; data: unknown }) => handleCmsTranslation(context, data);
 beforeEach(() => {
  mocks.role.mockReset().mockResolvedValue(undefined); mocks.rpc.mockReset().mockResolvedValue({ data: true, error: null });
  vi.stubGlobal("fetch", vi.fn(async () => new Response("synthetic provider failure", { status: 503 })));

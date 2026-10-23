@@ -9,6 +9,15 @@ const fs = require('node:fs');
  await page.route('**/*',route=>{const u=new URL(route.request().url());if(u.hostname==='127.0.0.1'||['data:','blob:'].includes(u.protocol))return route.continue();remote.push(u.hostname);return route.abort();});
  fs.mkdirSync('artifacts/builder-preview',{recursive:true});
  await page.goto('http://127.0.0.1:8765/builder-preview/');
+ const cdp=await page.context().newCDPSession(page);await cdp.send('DOM.enable');await cdp.send('CSS.enable');
+ const verifyCJK=async()=>{
+  const {root}=await cdp.send('DOM.getDocument',{depth:-1,pierce:true});
+  const find=node=>node.nodeName==='IFRAME'&&node.contentDocument?node.contentDocument:(node.children??[]).map(find).find(Boolean);
+  const doc=find(root);assert.ok(doc,'iframe DOM is available');
+  const {nodeId}=await cdp.send('DOM.querySelector',{nodeId:doc.nodeId,selector:'.final-hero-heading h1'});
+  const {fonts}=await cdp.send('CSS.getPlatformFontsForNode',{nodeId});
+  assert.ok(fonts.some(font=>/Noto.*CJK/i.test(font.familyName)&&font.glyphCount>0),'CJK heading actually uses the pinned font');
+ };
  const frame=page.frameLocator('iframe');await frame.locator('h1').waitFor();
  const source=page.getByLabel('TR:title',{exact:true});
  assert.equal(await source.inputValue(),'Yolculuğuna bağlı kal');
@@ -79,14 +88,16 @@ const fs = require('node:fs');
   assert.ok((await frame.locator('h1').innerText()).trim());
   assert.equal(await frame.locator('body').evaluate(e=>e.scrollWidth<=e.clientWidth),true);
   assert.equal(await source.inputValue(),'Yolculuğuna bağlı kal');
+  if(['ja','ko','zh'].includes(locale))await verifyCJK();
   if(['tr','fr','ar','ja','zh'].includes(locale))await page.locator('iframe').screenshot({path:`artifacts/builder-preview/locale-${locale}-390.png`});
  }
+ await page.getByLabel('Vorschau in',{exact:true}).selectOption('tr');
  for(const width of [390,1440]){
   await page.setViewportSize({width,height:1000});
   await page.locator('aside').evaluate(e=>e.scrollTop=0);
   await page.screenshot({path:`artifacts/builder-preview/editor-${width}.png`,fullPage:true});
  }
  assert.deepEqual(errors,[]);assert.deepEqual(remote,[]);
- fs.writeFileSync('artifacts/builder-preview/browser-result.json',JSON.stringify({result:'PASS',sourceLocale:'tr',locales:14,viewports:[390,768,1440],remoteRequests:0,screenshots:fs.readdirSync('artifacts/builder-preview').filter(p=>p.endsWith('.png')).length,checks:['fixed Turkish fields','ES preview does not empty TR','13 fixture statuses','explicit manual correction','stale source/manual protection','unknown fixture refuses fake AI','RTL/CJK text','Hero/NOTICE presentation'],limitation:'fixtures only; no paid provider, authentication or database-save integration executed'},null,2));
+ fs.writeFileSync('artifacts/builder-preview/browser-result.json',JSON.stringify({result:'PASS',cjkPlatformFontVerified:true,sourceLocale:'tr',locales:14,viewports:[390,768,1440],remoteRequests:0,screenshots:fs.readdirSync('artifacts/builder-preview').filter(p=>p.endsWith('.png')).length,checks:['fixed Turkish fields','ES preview does not empty TR','13 fixture statuses','explicit manual correction','stale source/manual protection','unknown fixture refuses fake AI','RTL/CJK text','Hero/NOTICE presentation'],limitation:'fixtures only; no paid provider, authentication or database-save integration executed'},null,2));
  await browser.close();console.log('PASS: TR source / 14 previews / 13 statuses / manual protection / offline fixtures / shared Hero and NOTICE');
 })().catch(error=>{console.error(error);process.exitCode=1;});

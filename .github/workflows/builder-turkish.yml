@@ -38,8 +38,25 @@ jobs:
         run: |
           npm install --prefix "$RUNNER_TEMP/builder-browser" --no-save --ignore-scripts playwright@1.58.2
           google-chrome --version
-      - name: Browser integration and screenshots
+      - name: Install pinned CJK font for isolated browser verification
+        id: browser-fonts
+        timeout-minutes: 3
         if: ${{ !cancelled() && steps.browser.outcome == 'success' }}
+        run: |
+          curl --fail --location --connect-timeout 10 --max-time 90 --retry 1 'https://raw.githubusercontent.com/notofonts/noto-cjk/f8d157532fbfaeda587e826d4cd5b21a49186f7c/Sans/OTF/SimplifiedChinese/NotoSansCJKsc-Regular.otf' -o "$RUNNER_TEMP/NotoSansCJKsc-Regular.otf"
+          python3 - <<'PY'
+          import os, hashlib
+          from pathlib import Path
+          data = (Path(os.environ["RUNNER_TEMP"]) / "NotoSansCJKsc-Regular.otf").read_bytes()
+          assert len(data) == 16437364
+          assert hashlib.sha1(b"blob " + str(len(data)).encode() + b"\0" + data).hexdigest() == "dc15562470b4f842321894787a0d066879ccff8b"
+          PY
+          mkdir -p "$HOME/.local/share/fonts"
+          cp "$RUNNER_TEMP/NotoSansCJKsc-Regular.otf" "$HOME/.local/share/fonts/"
+          fc-cache -f "$HOME/.local/share/fonts"
+          fc-match 'Noto Sans CJK SC'
+      - name: Browser integration and screenshots
+        if: ${{ !cancelled() && steps.browser.outcome == 'success' && steps.browser-fonts.outcome == 'success' }}
         env:
           BUILDER_BROWSER_MODULE: ${{ runner.temp }}/builder-browser/node_modules/playwright
         run: |
