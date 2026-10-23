@@ -74,10 +74,20 @@ for attempt in range(20):
  except (urllib.error.URLError,ConnectionError):time.sleep(1)
 else:raise RuntimeError('ISOLATED_POSTGREST_UNAVAILABLE')
 check(status==200,'anonymous PostgREST public projection')
+# A projection can be cached before the newly created RPCs. Wait only for that explicit cache miss.
+for attempt in range(20):
+ rpc_status,rpc_body=http('rpc/builder_read',admin,{'_key':'storefront_v2_esim'})
+ if rpc_status==200:break
+ try:rpc_code=json.loads(rpc_body).get('code','UNKNOWN')
+ except ValueError:rpc_code='INVALID_RESPONSE'
+ if rpc_code not in ['PGRST202','PGRST200']:raise RuntimeError(f'ISOLATED_RPC_FAILURE status={rpc_status} code={rpc_code}')
+ time.sleep(1)
+check(rpc_status==200,'PostgREST RPC schema cache ready')
+
 for subject in [None]+customers:
  for path in ['cms_documents?select=data','theme_settings?select=draft','cms_versions?select=snapshot']:
   check(http(path,subject)[0]>=400,'PostgREST raw draft/history denied')
- check(http('rpc/builder_read',subject,{'_key':'storefront_v2_esim'})[0]>=400,'PostgREST nonadmin RPC denied')
+ check(http('rpc/builder_read',subject,{'_key':'storefront_v2_esim'})[0] in [401,403],'PostgREST nonadmin RPC denied (not a missing RPC)')
 check(http('rpc/builder_read',admin,{'_key':'storefront_v2_esim'})[0]==200,'PostgREST admin read')
 state=json.loads(http('rpc/builder_read',admin,{'_key':'storefront_v2_esim'})[1])
 status,_=http('rpc/builder_write',admin,{'_key':'storefront_v2_esim','_expected_revision':state['revision'],'_action':'draft','_config':{'page':'esim','sections':[],'title':'HTTP_DRAFT'}})

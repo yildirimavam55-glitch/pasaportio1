@@ -1106,7 +1106,7 @@ export const safeNavigationHref = (value: unknown) => {
 const href=safeNavigationHref;
 const localeText = (value: unknown, max = 900): LocaleText => {
  const v=(value??{}) as LT;
- const data=Object.fromEntries(UI_LOCALES.filter(l=>['tr','de','en'].includes(l)||v[l]!==undefined).map(l=>[l,str(v[l],max)])) as LT;
+ const data:LT={tr:str(v.tr,max),de:str(v.de,max),en:str(v.en,max),...Object.fromEntries(UI_LOCALES.filter(l=>!['tr','de','en'].includes(l)&&v[l]!==undefined).map(l=>[l,str(v[l],max)]))};
  if(v._auto)data._auto=Object.fromEntries(UI_LOCALES.filter(l=>l!=='tr'&&typeof v._auto?.[l]==='string'&&v._auto[l]===v[l]).map(l=>[l,str(v._auto![l],max)]));
  if(v._src)data._src=Object.fromEntries(UI_LOCALES.filter(l=>l!=='tr'&&typeof v._src?.[l]==='string').map(l=>[l,str(v._src![l],max)]));
  return data;
@@ -1161,7 +1161,7 @@ function sanitizeSection(raw: any, index: number): StorefrontSection | null {
 
 function sanitizeLinks(raw: any, fallback: NavigationLink[]): NavigationLink[] {
   if (!Array.isArray(raw)) return fallback.map((link) => ({ ...link }));
-  const configured = raw.slice(0, 24).map((link: any, index: number) => ({
+  const configured:NavigationLink[] = raw.slice(0, 24).map((link: any, index: number) => ({
     id: str(link?.id, 40) || `link-${index}`,
     href: href(link?.href),
     icon: ICON_NAMES.includes(link?.icon) ? link.icon : "ChevronRight",

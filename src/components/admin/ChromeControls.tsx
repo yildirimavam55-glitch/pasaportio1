@@ -1,11 +1,11 @@
-import { sanitizeStorefront,type StorefrontConfig,type NavigationLink } from '@/domain/storefront/registry';
+import { defaultStorefront,sanitizeStorefront,type StorefrontConfig,type NavigationLink } from '@/domain/storefront/registry';
 import { sourceEdit,manualEdit } from '@/domain/storefront/translation-workflow';
 import { UI_LOCALES,type UiLocale } from '@/i18n/locales';
 import { StorefrontIcon,ICON_NAMES } from '@/domain/storefront/icons';
 export function ChromeControls({value,onChange}:{value:StorefrontConfig;onChange:(value:StorefrontConfig)=>void}){
  const set=(patch:Partial<StorefrontConfig>)=>onChange(sanitizeStorefront({...value,...patch},'global'));
  const links=(key:'navigation'|'footerLinks')=><fieldset key={key}><legend>{key==='navigation'?'Masaüstü + mobil menü':'Footer'}</legend>
- {value[key].map((row,index)=>{const change=(patch:Partial<NavigationLink>)=>set({[key]:value[key].map(r=>r.id===row.id?{...r,...patch}:r)});const locked=row.group==='legal';return <div className="border rounded p-2 grid gap-2" key={row.id}>
+ {value[key].map((row,index)=>{const change=(patch:Partial<NavigationLink>)=>set({[key]:value[key].map(r=>r.id===row.id?{...r,...patch}:r)});const locked=defaultStorefront('global').footerLinks.some(required=>required.group==='legal'&&required.id===row.id);return <div className="border rounded p-2 grid gap-2" key={row.id}>
  <label>TR · {row.id}<input aria-label={`${key}-${index}-tr`} lang="tr" value={row.label.tr} onChange={e=>change({label:sourceEdit(row.label,e.target.value)})}/></label>
  <label>Hedef<input aria-label={`${key}-${index}-href`} value={row.href} disabled={locked} onChange={e=>change({href:e.target.value})}/></label>
  <label>Icon<select aria-label={`${key}-${index}-icon`} value={row.icon??'ChevronRight'} onChange={e=>change({icon:e.target.value})}>{ICON_NAMES.map(i=><option key={i}>{i}</option>)}</select></label>

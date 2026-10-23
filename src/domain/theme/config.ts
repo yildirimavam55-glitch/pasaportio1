@@ -51,8 +51,8 @@ export function sanitizeTheme(input: unknown): ThemeConfig {
   const raw = (input ?? {}) as any;
   const base = DEFAULT_THEME;
   return {
-    applyToDark: raw.applyToDark === true,
-    responsive: Object.fromEntries(['mobile','tablet','desktop'].filter(device=>raw.responsive?.[device]).map(device=>[device,Object.fromEntries(['headingSize','bodySize'].filter(key=>Number.isFinite(raw.responsive[device][key])).map(key=>[key,Math.min(key==='headingSize'?96:32,Math.max(key==='headingSize'?16:12,raw.responsive[device][key]))]))])),
+    ...(typeof raw.applyToDark==='boolean'?{applyToDark:raw.applyToDark}:{}),
+    ...(raw.responsive&&typeof raw.responsive==='object'?{responsive:Object.fromEntries(['mobile','tablet','desktop'].filter(device=>raw.responsive?.[device]).map(device=>[device,Object.fromEntries(['headingSize','bodySize'].filter(key=>Number.isFinite(raw.responsive[device][key])).map(key=>[key,Math.min(key==='headingSize'?96:32,Math.max(key==='headingSize'?16:12,raw.responsive[device][key]))]))]))}:{}),
     logoMediaId: raw.logoMediaId ? String(raw.logoMediaId) : null,
     faviconMediaId: raw.faviconMediaId ? String(raw.faviconMediaId) : null,
     colors: {
