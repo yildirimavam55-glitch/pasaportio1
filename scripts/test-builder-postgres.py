@@ -1,9 +1,14 @@
 """Destructive only in the disposable runner database; no existing database URL accepted."""
-import subprocess,json,os,urllib.request,urllib.error,time,hmac,hashlib,base64,concurrent.futures
+import subprocess,json,os,urllib.request,urllib.error,time,hmac,hashlib,base64,concurrent.futures,sys
 from pathlib import Path
 assert os.environ.get('BUILDER_ISOLATED_TEST')=='1', 'isolated opt-in required'
 assert os.environ.get('PGHOST')=='127.0.0.1' and os.environ.get('PGDATABASE')=='builder_isolated' and os.environ.get('PGPORT')=='5432','unexpected database target'
 checks=0
+def diagnostic(typ,value,traceback):
+ Path('artifacts/builder-preview').mkdir(parents=True,exist_ok=True)
+ Path('artifacts/builder-preview/postgres-error.json').write_text(json.dumps({'checksCompleted':checks,'errorType':typ.__name__,'message':str(value)[:500]},indent=2))
+ sys.__excepthook__(typ,value,traceback)
+sys.excepthook=diagnostic
 
 def sql(query,ok=True):
  r=subprocess.run(['psql','-X','-qAt','-v','ON_ERROR_STOP=1'],input=query,text=True,capture_output=True,timeout=30)
