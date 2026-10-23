@@ -190,7 +190,7 @@ let activeBrowser;
   if(width<1024){
    await page.getByRole('button',{name:'Yönetim menüsünü aç',exact:true}).click();
    await page.getByRole('dialog',{name:'Yönetim bölümleri',exact:true}).waitFor();
-   await page.waitForFunction(()=>{const drawer=document.querySelector('.admin-reference-sidebar.is-open');return drawer&&Math.abs(drawer.getBoundingClientRect().left)<1;});
+   await page.waitForFunction(()=>{const drawer=document.querySelector('.admin-reference-sidebar.is-open');return drawer&&getComputedStyle(drawer).transform==='none'&&drawer.getBoundingClientRect().left===0&&drawer.getBoundingClientRect().right<=innerWidth;});
    const drawer=await page.getByRole('dialog',{name:'Yönetim bölümleri',exact:true}).boundingBox();
    assert.ok(drawer&&drawer.x>=0&&drawer.x+drawer.width<=width,'drawer fully inside mobile viewport');
    assert.ok(await page.getByRole('navigation',{name:'Yönetim navigasyonu'}).getByRole('link',{name:'Siparişler',exact:true}).isVisible());
