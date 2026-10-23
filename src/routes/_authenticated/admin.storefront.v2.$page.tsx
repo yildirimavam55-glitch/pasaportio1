@@ -9,7 +9,7 @@ import { adminHead } from "@/components/admin/AdminSectionPage";
 import { MediaField } from "@/components/admin/MediaPicker";
 import { HomepageImagesEditor } from '@/components/admin/HomepageImagesEditor';
 import { V2TurkishTextEditor } from "@/components/design-v2/V2TurkishTextEditor";
-import { manualEdit, sourceEdit, needsMachineTranslation, mergeMachineTranslation } from "@/domain/storefront/translation-workflow";
+import { manualEdit, sourceEdit, needsMachineTranslation, mergeMachineTranslation, mergeTranslatedDraft } from "@/domain/storefront/translation-workflow";
 import { V2TypographyControls } from "@/components/design-v2/V2TypographyControls";
 import { ImageDisplayControls } from "@/components/admin/ImageDisplayControls";
 import { DEFAULT_IMAGE_DISPLAY, ESIM_DESKTOP_IMAGE_DISPLAY } from "@/domain/storefront/image-display";
@@ -407,8 +407,8 @@ async function translateSection(page: V2PageId, config: V2PageConfig, sectionId:
   const translations: Record<string, Record<string, string>> = {};
   let failures = 0;
   const refs = sectionLTs(section, defaultSection);
-  for (let index = 0; index < ids.length; index += 3) {
-    const batch = ids.slice(index, index + 3);
+  for (let index = 0; index < ids.length; index += 6) {
+    const batch = ids.slice(index, index + 6);
     let result;
     try { result = await translateTrustCopy({ data: { entries: Object.fromEntries(batch.map(id => [id, entries[id]!])), targets: Object.fromEntries(batch.map(id => [id, UI_LOCALES.filter(code => code !== "tr" && needsMachineTranslation(refs.find(ref => ref.id === id)?.value, code))])) } }); } catch (error) { if (!Object.keys(translations).length) throw error; failures += ids.length - index; break; }
     Object.assign(translations, result.translations);
@@ -693,23 +693,3 @@ function ReviewTranslator({ review, onChange }: { review: V2Item; onChange: (tex
   </div>;
 }
 
-function mergeTranslatedDraft(current: V2PageConfig, snapshot: V2PageConfig, result: V2PageConfig): V2PageConfig {
-  return { ...current, sections: current.sections.map(section => {
-    const before = snapshot.sections.find(s => s.id === section.id);
-    const after = result.sections.find(s => s.id === section.id);
-    if (!before || !after) return section;
-    const currentRefs = sectionLTs(section), beforeRefs = sectionLTs(before), afterRefs = sectionLTs(after);
-    const replacements = new Map(currentRefs.map(ref => {
-      const old = beforeRefs.find(r => r.id === ref.id)?.value;
-      const translated = afterRefs.find(r => r.id === ref.id)?.value;
-      return [ref.value, ref.value && old && translated ? mergeMachineTranslation(ref.value, old, translated._auto ?? {}) : ref.value];
-    }));
-    const visit = (value: any): any => {
-      if (replacements.has(value)) return replacements.get(value);
-      if (Array.isArray(value)) return value.map(visit);
-      if (value && typeof value === "object") return Object.fromEntries(Object.entries(value).map(([key, child]) => [key, visit(child)]));
-      return value;
-    };
-    return visit(section);
-  }) };
-}

@@ -38,3 +38,23 @@ export function aggregateTranslationStatus(values: (LT | undefined)[], code: UiL
   const order = ["MISSING", "OUTDATED", "MANUALLY_EDITED", "AUTO_TRANSLATED", "SOURCE"] as const;
   return order.find(status => active.some(value => ltStatus(value, code) === status)) ?? "MISSING";
 }
+
+/** Merge only proven fresh machine results. Preserve current layout, concurrent edits, and failed/stale fields. */
+export function mergeTranslatedDraft<T>(current: T, snapshot: T, result: T): T {
+  const record = (value: unknown): Record<string, any> | undefined => value && typeof value === "object" && !Array.isArray(value) ? value as Record<string, any> : undefined;
+  const visit = (now: unknown, before: unknown, after: unknown): unknown => {
+    const n = record(now), b = record(before), a = record(after);
+    if (n && b && a && typeof n["tr"] === "string" && typeof n["de"] === "string" && typeof n["en"] === "string") {
+      const fresh = Object.fromEntries(TRANSLATION_TARGETS.filter(code => a["_src"]?.[code] === b["tr"] && a["_auto"]?.[code] === a[code]).map(code => [code, a[code]]));
+      return mergeMachineTranslation(n as LT, b as LT, fresh);
+    }
+    if (Array.isArray(now)) return now.map((child, index) => {
+      const id = record(child)?.["id"];
+      const find = (value: unknown) => Array.isArray(value) ? (id ? value.find(item => record(item)?.["id"] === id) : value[index]) : undefined;
+      return visit(child, find(before), find(after));
+    });
+    if (n) return Object.fromEntries(Object.entries(n).map(([key, value]) => [key, visit(value, b?.[key], a?.[key])]));
+    return now;
+  };
+  return visit(current, snapshot, result) as T;
+}

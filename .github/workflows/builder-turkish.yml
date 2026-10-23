@@ -30,7 +30,7 @@ jobs:
         run: bun run build
       - name: Builder regressions
         if: ${{ !cancelled() && steps.install.outcome == 'success' }}
-        run: bunx vitest run src/components/design-v2/__tests__/builder-mvp.test.tsx src/domain/storefront/__tests__/v2.test.ts src/domain/storefront/translation-workflow.test.ts src/lib/cms-translation.server.test.ts
+        run: bunx vitest run src/components/design-v2/__tests__/builder-mvp.test.tsx src/domain/storefront/__tests__/v2.test.ts src/domain/storefront/translation-workflow.test.ts src/lib/cms-translation.server.test.ts src/lib/cms-translation-handler.test.ts
       - name: Install pinned isolated browser test tooling
         timeout-minutes: 3
         id: browser

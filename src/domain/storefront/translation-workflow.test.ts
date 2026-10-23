@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it } from "vitest";
 import { ltStatus, sanitizeV2Page, defaultV2Page, type LT } from "./v2";
-import { aggregateTranslationStatus, manualEdit, mergeMachineTranslation, needsMachineTranslation, sourceEdit, TRANSLATION_TARGETS } from "./translation-workflow";
+import { aggregateTranslationStatus, mergeTranslatedDraft, manualEdit, mergeMachineTranslation, needsMachineTranslation, sourceEdit, TRANSLATION_TARGETS } from "./translation-workflow";
 import { DEMO_TRANSLATIONS, demoLT, simulateSectionTranslations } from "@/builder-preview/translation-fixtures";
 import { UI_LOCALES } from "@/i18n/locales";
 import { setActiveUiLocale } from "@/i18n/overlay";
@@ -43,6 +43,17 @@ describe("Turkish source and translation provenance", () => {
     expect(mergeMachineTranslation(edited, snapshot, { de: "Late" })).toBe(edited);
     const manual = manualEdit(snapshot, "de", "Concurrent manual");
     expect(mergeMachineTranslation(manual, snapshot, { de: "Late", en: "Allowed" })).toMatchObject({ de: "Concurrent manual", en: "Allowed" });
+  });
+  it("partial failure never relabels an old machine value as fresh and preserves concurrent layout edits", () => {
+    const old = mergeMachineTranslation(demoLT("Eski"), demoLT("Eski"), { de: "Old machine" });
+    const stale = sourceEdit(old, "Yeni");
+    const snapshot = { sections: [{ id: "hero", text: { title: stale }, visible: true }] };
+    const result = structuredClone(snapshot); // Provider failed: no new translation returned.
+    const current = structuredClone(snapshot); current.sections[0]!.visible = false;
+    const merged = mergeTranslatedDraft(current, snapshot, result);
+    expect(merged.sections[0]!.visible).toBe(false);
+    expect(ltStatus(merged.sections[0]!.text.title, "de")).toBe("OUTDATED");
+    expect(merged.sections[0]!.text.title._src?.de).toBe("Eski");
   });
   it("a manual correction equal to the generated text is still manual", () => {
     const source = demoLT("Kaynak"); const generated = mergeMachineTranslation(source, source, { de: "Same" });
