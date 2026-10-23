@@ -1,3 +1,4 @@
+import { ResponsivePreview } from "@/components/admin/ResponsivePreview";
 import { EditorialItemControls } from "@/components/admin/EditorialItemControls";
 import { ResponsiveMediaControls } from "@/components/admin/ResponsiveMediaControls";
 import { V2PageTranslation } from "@/components/design-v2/V2PageTranslation";
@@ -232,7 +233,7 @@ function Editor({ page }: { page: V2PageId }) {
   };
   const missing = { de: missingV2Translations(draft, "de"), en: missingV2Translations(draft, "en") };
   const width = DEVICES.find((d) => d.id === device)!.w;
-  const scale = Math.min(1, PREVIEW_BOX.width / width);
+
 
   return (
     <div className="space-y-3">
@@ -273,7 +274,7 @@ function Editor({ page }: { page: V2PageId }) {
         </AdminPanel>
       )}
 
-      <div className="grid gap-3 xl:grid-cols-[18rem_minmax(0,1fr)_minmax(0,auto)]">
+      <div className="grid gap-3 2xl:grid-cols-[16rem_minmax(0,1fr)_minmax(0,26rem)]">
         <AdminPanel title="Bölümler">
           <ol className="space-y-1">
             {sections.map((s, index) => {
@@ -317,9 +318,9 @@ function Editor({ page }: { page: V2PageId }) {
           <SectionForm section={selected} previewLocale={previewLocale} lang={lang} page={page} trustPreviewLocale={trustPreviewLocale} onTrustLocale={setTrustPreviewLocale} onTrustSourceBlur={() => void translateTrust()} onChange={(patch) => patchSection(selected.id, patch)} />
         </AdminPanel>
 
-        <AdminPanel title="Önizleme (taslak)" className="xl:w-[27rem]" action={
-          <div className="flex gap-1" role="group" aria-label="Önizleme cihazı">{DEVICES.map((d) => <Button key={d.id} size="sm" aria-pressed={device === d.id} variant={device === d.id ? "default" : "outline"} className="h-7 px-2 text-[11px]" onClick={() => setDevice(d.id)}>{d.label}</Button>)}</div>}>
-          <div className="mx-auto overflow-hidden rounded-md border border-border bg-secondary/40" style={{ width: Math.round(width * scale), height: PREVIEW_BOX.height }}>
+        <AdminPanel title="Önizleme (taslak)" className="min-w-0" action={
+          <div className="flex flex-wrap gap-1" role="group" aria-label="Önizleme cihazı">{DEVICES.map((d) => <Button key={d.id} size="sm" aria-pressed={device === d.id} variant={device === d.id ? "default" : "outline"} className="h-7 px-2 text-[11px]" onClick={() => setDevice(d.id)}>{d.label}</Button>)}</div>}>
+          <ResponsivePreview width={width} height={PREVIEW_BOX.height}>{scale=><div className="overflow-hidden rounded-md border border-border bg-secondary/40">
             <iframe
               ref={frame}
               name={V2_PREVIEW_WINDOW}
@@ -330,7 +331,7 @@ function Editor({ page }: { page: V2PageId }) {
               style={{ width, height: Math.round(PREVIEW_BOX.height / scale), transform: scale < 1 ? `scale(${scale})` : undefined, transformOrigin: "top left" }}
               className="block bg-background"
             />
-          </div>
+          </div>}</ResponsivePreview>
           <p className="mt-2 text-[10px] text-muted-foreground">Bir bölüme tıklayınca ayarları açılır. Geri al / ileri al yalnız bu taslağı değiştirir. Önizleme yalnızca sende görünür. Müşteriler “Yayınla” diyene kadar mevcut yayındaki sürümü görür.</p>
         </AdminPanel>
       </div>

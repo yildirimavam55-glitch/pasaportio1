@@ -41,3 +41,15 @@ Rollback: Flags/Clientrelease nicht blind zurückdrehen! Öffentliche Projektion
 
 ## Finale Prüfung
 Ein gemeinsamer CI-Lauf: frozen install, TypeScript, Vercel-SSR-Build, gezielte Domain/Server/Design-Prüfungen, unveränderte 53 PR3-Sicherheitsassertionen, echte Chrome-Interaktion mit gemeinsamen Controls in 390/768/1440 und 14 Sprachen, synthetische PostgreSQL/PostgREST-Persistenz/Rollen/CAS/Rollback, volle unmaskierte Vitest-Suite. Neun bekannte SQL-Fehler bleiben gesonderte Freigabeblocker. Tatsächliche Ergebnisse, Artefakt und ein Preview-Link werden im Draft-PR ergänzt; dieses Dokument allein ist kein PASS-Nachweis.
+
+## Visuelle Referenz: ursprünglicher Admin (4 Eigentümer-Screenshots)
+
+Die grüne Navigation und hellen Karten sind die verbindliche Referenz. AdminGate und die isolierte Abnahme verwenden jetzt dieselbe `AdminWorkspaceShell`, dieselbe vollständige Modulnavigation und stabile Admin-Farben. Zugriffskontrollen verbleiben ausschließlich in AdminGate/Serverfunktionen; die geteilte Hülle erteilt keine Rechte. Die mobile Navigation ist ein schließbarer Drawer mit Escape/Tab-Fokus und gesperrtem Hintergrundscroll.
+
+Die Abnahme lädt standardmäßig alle Abschnitte des vorhandenen `defaultV2Page('esim')` statt nur Hero/NOTICE. Bestehende versteckte Abschnitte bleiben versteckt und editierbar. Der komplette Aufbau einschließlich Header/Footer ist scrollbar. Datenabhängige Katalog-, Regionen-, Review-, Guide- und Promo-Slots bleiben ohne Verbindung ausdrücklich als nicht verfügbare Live-Inhalte markiert; keine erfundenen Produkte, Preise oder Bewertungen. Damit ist dies weiterhin keine pixelidentische, mit realem Inhalt befüllte Shop-Abnahme. Die echte vollständige Webseite verwendet weiterhin den vorhandenen V2-Renderer im authentifizierten Editor (`/admin/storefront/v2/esim`, Vorschau auf `/esim?country=`); keine zweite produktive Homepage.
+
+Die alte isolierte Zwei-Abschnitt-Translation-Fixture bleibt nur unter `?fixture=translation` für ihre unveränderten detaillierten Regressionen verfügbar. Der normale Einstieg nutzt die vollständige Standardseite. Zusätzlich prüft der Browser echte Standardabschnitte, Modulnavigation, Drawer und die mobile Einpassung der Desktopvorschau.
+
+`ResponsivePreview` misst die tatsächliche Containerbreite, erhält die gewählte CSS-Viewportbreite und skaliert den gesamten Frame. Diese Komponente wird auch im echten V2-Editor verwendet: kein festes 400px-Fenster, das rechts auf Mobilgeräten abgeschnitten wird. Öffentliche Kundenlayouts und Datenzugriffe werden dadurch nicht verändert.
+
+Vorhandene Medien-/Design-/Übersetzungskontrollen bleiben eingebunden; synthetisches Speichern/Versionen und echte Datenbankabnahme bleiben klar getrennt. Nach dieser UI-Korrektur keine weitere Datenbankfreigabe erteilt oder angenommen.

@@ -9,7 +9,7 @@ let activeBrowser;
  const errors=[],remote=[];page.on('pageerror',e=>errors.push(e.message));
  await page.route('**/*',route=>{const u=new URL(route.request().url());if(u.hostname==='127.0.0.1'||['data:','blob:'].includes(u.protocol))return route.continue();remote.push(u.hostname);return route.abort();});
  fs.mkdirSync('artifacts/builder-preview',{recursive:true});
- await page.goto('http://127.0.0.1:8765/builder-preview/');
+ await page.goto('http://127.0.0.1:8765/builder-preview/?fixture=translation');
  const cdp=await page.context().newCDPSession(page);await cdp.send('DOM.enable');await cdp.send('CSS.enable');
  const verifyCJK=async()=>{
   const {root}=await cdp.send('DOM.getDocument',{depth:-1,pierce:true});
@@ -165,7 +165,43 @@ let activeBrowser;
  await page.getByLabel('Entwurf oder Testfreigabe',{exact:true}).selectOption('draft');
  await frame.getByRole('heading',{name:'Yolculuğuna bağlı kal',exact:true}).waitFor();
  for(const width of [390,768,1440]){await page.setViewportSize({width,height:1000});assert.equal(await page.locator('body').evaluate(e=>e.scrollWidth<=e.clientWidth),true);await page.screenshot({path:`artifacts/builder-preview/integrated-admin-${width}.png`,fullPage:true});}
+ // Complete original page, not the two-section translation fixture.
+ await page.goto('http://127.0.0.1:8765/builder-preview/');
+ await frame.locator('[data-complete-section="hero"]').waitFor();
+ const sectionCount=await page.getByLabel('Abschnitt',{exact:true}).locator('option').count();
+ assert.ok(sectionCount>=11,'complete original section registry is loaded');
+ for(const id of ['hero','benefits','popular','trust-reviews','regions','installation','guides','faq'])assert.equal(await frame.locator(`[data-complete-section="${id}"]`).count(),1,`complete section ${id}`);
+ assert.ok(await frame.locator('[data-live-content-unavailable]').count()>=3,'missing catalogue/reviews are explicit, no fake offers');
+ await page.getByLabel('Abschnitt',{exact:true}).selectOption('faq');
+ assert.ok(await page.getByLabel('TR:title',{exact:true}).count()===0 || await page.getByLabel('TR:title',{exact:true}).inputValue());
+ await page.getByLabel('Abschnitt',{exact:true}).selectOption('hero');
+ await page.getByLabel('TR:title',{exact:true}).fill('TAM SAYFA ÖNİZLEME');
+ await frame.getByRole('heading',{name:'TAM SAYFA ÖNİZLEME',exact:true}).waitFor();
+ for(const width of [390,768,1440]){
+  await page.setViewportSize({width,height:1000});
+  await page.getByRole('button',{name:'1440 px',exact:true}).click();
+  await page.waitForFunction(()=>{const surface=document.querySelector('[data-preview-surface]'),container=document.querySelector('[data-preview-container]');return surface&&container&&surface.getBoundingClientRect().width<=container.getBoundingClientRect().width+1;});
+  assert.equal(await page.locator('body').evaluate(e=>e.scrollWidth<=e.clientWidth),true,'no Admin horizontal overflow');
+  assert.equal(await frame.locator('html').evaluate(e=>e.clientWidth),1440,'desktop frame keeps full CSS viewport');
+  await page.screenshot({path:`artifacts/builder-preview/original-admin-${width}.png`,fullPage:true});
+  if(width<1024){
+   await page.getByRole('button',{name:'Yönetim menüsünü aç',exact:true}).click();
+   await page.getByRole('dialog',{name:'Yönetim bölümleri',exact:true}).waitFor();
+   assert.ok(await page.getByRole('navigation',{name:'Yönetim navigasyonu'}).getByRole('link',{name:'Siparişler',exact:true}).isVisible());
+   assert.ok(await page.getByRole('navigation',{name:'Yönetim navigasyonu'}).getByRole('link',{name:'Provider Hub',exact:true}).isVisible());
+   await page.screenshot({path:`artifacts/builder-preview/original-sidebar-${width}.png`});
+   await page.keyboard.press('Escape');
+   assert.equal(await page.getByRole('button',{name:'Yönetim menüsünü aç',exact:true}).getAttribute('aria-expanded'),'false');
+  }
+ }
+ const full=await browser.newPage({viewport:{width:390,height:1000}});
+ full.on('pageerror',e=>errors.push(e.message));
+ await full.route('**/*',route=>{const u=new URL(route.request().url());if(u.hostname==='127.0.0.1'||['data:','blob:'].includes(u.protocol))return route.continue();remote.push(u.hostname);return route.abort();});
+ await full.goto('http://127.0.0.1:8765/builder-preview/?canvas=1');
+ await full.locator('[data-complete-section="faq"]').waitFor();
+ for(const width of [390,768,1440]){await full.setViewportSize({width,height:1000});assert.equal(await full.locator('body').evaluate(e=>e.scrollWidth<=e.clientWidth),true,'complete page overflow');await full.screenshot({path:`artifacts/builder-preview/complete-page-${width}.png`,fullPage:true});}
+ await full.close();
  assert.deepEqual(errors,[]);assert.deepEqual(remote,[]);
- fs.writeFileSync('artifacts/builder-preview/browser-result.json',JSON.stringify({result:'PASS',cjkPlatformFontVerified:true,sourceLocale:'tr',locales:14,viewports:[390,768,1440],remoteRequests:0,screenshots:fs.readdirSync('artifacts/builder-preview').filter(p=>p.endsWith('.png')).length,checks:['fixed Turkish fields','ES preview does not empty TR','whole page Hero+NOTICE in 13 languages','fresh second run zero calls','page summary','13 fixture statuses','explicit manual correction','stale source/manual protection','unknown fixture refuses fake AI','RTL/CJK text','Hero/NOTICE presentation','shared global theme controls','responsive item media 3 devices','configured menu/footer','presentation-only account note','synthetic save/reload/draft restore/publication isolation'],limitation:'UI persistence is a clearly labelled synthetic browser adapter; real PostgreSQL/PostgREST isolation is separately reported; no managed Supabase/Auth, Storage write or paid provider test'},null,2));
+ fs.writeFileSync('artifacts/builder-preview/browser-result.json',JSON.stringify({result:'PASS',cjkPlatformFontVerified:true,sourceLocale:'tr',locales:14,viewports:[390,768,1440],remoteRequests:0,screenshots:fs.readdirSync('artifacts/builder-preview').filter(p=>p.endsWith('.png')).length,checks:['fixed Turkish fields','ES preview does not empty TR','whole page Hero+NOTICE in 13 languages','fresh second run zero calls','page summary','13 fixture statuses','explicit manual correction','stale source/manual protection','unknown fixture refuses fake AI','RTL/CJK text','Hero/NOTICE presentation','shared global theme controls','responsive item media 3 devices','configured menu/footer','presentation-only account note','synthetic save/reload/draft restore/publication isolation','original shared Admin shell and all module links','complete default page sections','scaled full frame without mobile clipping','mobile drawer and keyboard close'],limitation:'UI persistence is a clearly labelled synthetic browser adapter; real PostgreSQL/PostgREST isolation is separately reported; no managed Supabase/Auth, Storage write or paid provider test'},null,2));
  await browser.close();console.log('PASS: TR source / 14 previews / 13 statuses / manual protection / offline fixtures / shared Hero and NOTICE');
 })().catch(async error=>{fs.mkdirSync('artifacts/builder-preview',{recursive:true});fs.writeFileSync('artifacts/builder-preview/browser-error.json',JSON.stringify({message:error.message,stack:error.stack},null,2));console.error(error);await activeBrowser?.close();process.exitCode=1;});

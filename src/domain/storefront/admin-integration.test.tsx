@@ -1,3 +1,7 @@
+import { previewScale } from '@/components/admin/ResponsivePreview';
+import { AdminWorkspaceShell } from '@/components/admin/AdminWorkspaceShell';
+import { ADMIN_GROUPS } from '@/components/admin/admin-navigation';
+import { CompletePageSection } from '@/builder-preview/CompletePageSections';
 import { describe,it,expect } from 'vitest';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { defaultStorefront,sanitizeStorefront,safeNavigationHref } from './registry';
@@ -22,4 +26,25 @@ describe('unified Admin presentation contracts',()=>{
  it('preserves item-specific responsive assets/crops through sanitization and collects references',()=>{const p=defaultV2Page('esim');const item=p.sections.find(s=>s.type==='INFO_CAROUSEL')!.items[0]!;item.tabletMediaId='10000000-0000-4000-8000-000000000001';item.mobileMediaId='10000000-0000-4000-8000-000000000002';item.tabletImageDisplay={x:30,y:40,zoom:120,fit:'cover'};const clean=sanitizeV2Page(p,'esim');expect(collectV2MediaIds(clean)).toContain(item.tabletMediaId);expect(clean.sections.find(s=>s.type==='INFO_CAROUSEL')!.items[0]!.tabletImageDisplay).toEqual(item.tabletImageDisplay);});
  it('retains all mandatory legal links at the configured row cap and prevents blank Turkish labels',()=>{const p=defaultStorefront('global');p.footerLinks=Array.from({length:24},(_,i)=>({id:i===23?'legal-terms':`custom-${i}`,href:'/esim',visible:false,label:demoLT('')}));const clean=sanitizeStorefront(p,'global');const required=defaultStorefront('global').footerLinks.filter(r=>r.group==='legal');for(const r of required){const value=clean.footerLinks.find(v=>v.id===r.id);expect(value?.visible).toBe(true);expect(value?.href).toBe(r.href);expect(value?.label.tr.trim()).toBeTruthy();}});
 
+});
+
+describe('original Admin and complete page regression',()=>{
+ it('fits a desktop CSS viewport inside a narrow mobile panel without clipping',()=>{
+  expect(previewScale(310,1440)*1440).toBeLessThanOrEqual(310);
+  expect(previewScale(310,390)*390).toBeLessThanOrEqual(310);
+  expect(previewScale(900,390)).toBe(1);
+ });
+ it('retains existing business, catalogue, security and builder navigation',()=>{
+  const paths=ADMIN_GROUPS.flatMap(g=>g.links.map(l=>l.to));
+  for(const path of ['/admin/orders','/admin/customers','/admin/providers','/admin/finance','/admin/security','/admin/storefront/v2/esim','/admin/theme','/admin/media'])expect(paths).toContain(path);
+  const html=renderToStaticMarkup(<AdminWorkspaceShell title="V2" mobileOpen={false} onMobileOpen={()=>{}} navigation={<a href="/admin/orders">Siparişler</a>}><p>Editor</p></AdminWorkspaceShell>);
+  expect(html).toContain('admin-reference-sidebar');expect(html).toContain('Editor');expect(html).toContain('Yönetim menüsünü aç');
+ });
+ it('shows every configured visible section without fabricated live catalogue claims',()=>{
+  const page=defaultV2Page('esim');
+  const html=renderToStaticMarkup(<>{page.sections.filter(s=>s.visible).map(section=><CompletePageSection key={section.id} section={section} locale="tr" resolve={()=>undefined} hero={<h1>Hero</h1>} onSelect={()=>{}}/>)}</>);
+  for(const section of page.sections.filter(s=>s.visible))expect(html).toContain('data-complete-section="'+section.id+'"');
+  expect(html).toContain('data-live-content-unavailable');
+  expect(html).not.toContain('4.9/5');
+ });
 });
