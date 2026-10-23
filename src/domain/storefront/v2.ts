@@ -760,7 +760,7 @@ export function missingV2Translations(config: V2PageConfig, locale: "de" | "en")
   const check = (value: LT | undefined) => { if (value?.tr?.trim() && !value[locale]?.trim()) missing += 1; };
   for (const s of config.sections) {
     Object.values(s.text).forEach(check);
-    for (const it of s.items) { check(it.title); check(it.text); it.labels.forEach(check); check(it.cta); check(it.imageAlt); }
+    for (const it of flattenEditorial(s.items)) { check(it.title); check(it.text); it.labels.forEach(check); check(it.cta); check(it.imageAlt); }
   }
   return missing;
 }

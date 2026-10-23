@@ -1,6 +1,6 @@
 import { SectionLibrary } from '@/components/admin/SectionLibrary';
 import { EditorialSectionEditor } from '@/components/admin/EditorialSectionEditor';
-import { cloneEditorialSection,SECTION_LIMIT } from '@/domain/storefront/editorial';
+import { cloneEditorialSection,flattenEditorial,SECTION_LIMIT } from '@/domain/storefront/editorial';
 import { CardDesignControls } from "@/components/admin/CardDesignControls";
 import { blockContract } from "@/domain/storefront/block-registry";
 import { ResponsivePreview } from "@/components/admin/ResponsivePreview";
@@ -313,7 +313,7 @@ function Editor({ page }: { page: V2PageId }) {
             <select aria-label="Vorschau in" value={previewLocale} className="admin-field mt-1 w-full" onChange={e => setPreviewLocale(e.target.value as UiLocale)}>{UI_LOCALES.map(code => <option key={code} value={code}>{LOCALE_REGISTRY[code].nativeName}</option>)}</select>
           </label>
           {V2_PROTECTED.includes(selected.type) && <p className="mb-3 rounded-md bg-secondary p-2 text-[11px] text-muted-foreground">Arama mantığı kodda korunur. Burada yalnızca metin, görsel ve görünüm ön ayarları değişir; bölüm gizlenemez veya taşınamaz.</p>}
-           {<div className="mb-3 flex items-center gap-2"><Button type="button" size="sm" variant="outline" disabled={translatingTrust} onClick={() => void translateTrust()}>{translatingTrust ? "Çevriliyor…" : "Alle 13 Sprachen übersetzen"}</Button><span className="text-xs text-muted-foreground">Türkçe kaynak 13 dile çevrilir; elle düzenlenen çeviriler korunur. Gerçek çeviri, servis yapılandırılıp ayrıca onaylandıktan sonra kullanılabilir; yayınlamaz.</span></div>}
+           {selected.type!=='EDITORIAL_SECTION'&&<div className="mb-3 flex items-center gap-2"><Button type="button" size="sm" variant="outline" disabled={translatingTrust} onClick={() => void translateTrust()}>{translatingTrust ? "Çevriliyor…" : "Alle 13 Sprachen übersetzen"}</Button><span className="text-xs text-muted-foreground">Türkçe kaynak 13 dile çevrilir; elle düzenlenen çeviriler korunur. Gerçek çeviri, servis yapılandırılıp ayrıca onaylandıktan sonra kullanılabilir; yayınlamaz.</span></div>}
           <LocaleStatusRow section={selected} />
           <SectionDesignEditor section={selected} onChange={(design) => patchSection(selected.id, design ? { design } : { design: undefined } as unknown as Partial<V2Section>)} />
           <SectionForm section={selected} previewLocale={previewLocale} lang={lang} page={page} trustPreviewLocale={trustPreviewLocale} onTrustLocale={setTrustPreviewLocale} onTrustSourceBlur={() => void translateTrust()} onChange={(patch) => patchSection(selected.id, patch)} />
@@ -378,7 +378,7 @@ function sectionLTs(section: V2Section, defaultSection?: V2Section): LTRef[] {
   const refs: LTRef[] = [];
   for (const key of Object.keys(section.text)) if (!NUMERIC_TEXT.includes(key)) refs.push({ id: `text:${key}`, value: section.text[key], original: defaultSection?.text[key] });
   const translatable = (item: V2Item) => section.type === "TRUST_REVIEWS" ? item.cardType === "trust" || item.cardType === "chip" : item.cardType !== "review";
-  for (const item of section.items.filter(translatable)) {
+  for (const item of flattenEditorial(section.items).filter(translatable)) {
     const original = defaultSection?.items.find((row) => row.id === item.id);
     for (const field of ["title", "text", "imageAlt", "cta"] as const) refs.push({ id: `item:${item.id}:${field}`, value: item[field], original: original?.[field] });
     item.labels.forEach((label, index) => refs.push({ id: `item:${item.id}:label:${index}`, value: label, original: original?.labels[index] }));

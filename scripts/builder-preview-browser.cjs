@@ -271,7 +271,76 @@ let activeBrowser;
  await page.getByRole('button',{name:'Seiten',exact:true}).click();
  await page.getByLabel('Abschnitt',{exact:true}).selectOption(securityId);
  assert.equal(await page.locator('[data-editor-item]').count(),3,'version restore preserves all cards');
- assert.deepEqual(errors,[]);assert.deepEqual(remote,[]);
- fs.writeFileSync('artifacts/builder-preview/browser-result.json',JSON.stringify({result:'PASS',cjkPlatformFontVerified:true,sourceLocale:'tr',locales:14,viewports:[390,768,1440],remoteRequests:0,screenshots:fs.readdirSync('artifacts/builder-preview').filter(p=>p.endsWith('.png')).length,checks:['fixed Turkish fields','ES preview does not empty TR','whole page Hero+NOTICE in 13 languages','fresh second run zero calls','page summary','13 fixture statuses','explicit manual correction','stale source/manual protection','unknown fixture refuses fake AI','RTL/CJK text','Hero/NOTICE presentation','shared global theme controls','responsive item media 3 devices','configured menu/footer','presentation-only account note','synthetic save/reload/draft restore/publication isolation','original shared Admin shell and all module links','complete default page sections','scaled full frame without mobile clipping','mobile drawer and keyboard close','actual full-site target protocol (synthetic HTTP receiver only)','modular security cards full add/reorder/hide/design/translate/save/reload sequence'],limitation:'UI persistence is a clearly labelled synthetic browser adapter; real PostgreSQL/PostgREST isolation is separately reported; no managed Supabase/Auth, Storage write or paid provider test'},null,2));
+ // Full free-section acceptance: existing Admin, shared actual public renderer, no database.
+ await page.getByRole('button',{name:'Seiten',exact:true}).click();
+ const originalOptions=await page.getByLabel('Abschnitt',{exact:true}).locator('option').evaluateAll(nodes=>nodes.map(n=>n.value));
+ await page.getByRole('button',{name:'+ Yeni bölüm ekle',exact:true}).click();
+ await page.getByRole('dialog',{name:'Bölüm kütüphanesi',exact:true}).getByRole('button',{name:'Boş bölüm',exact:true}).click();
+ const freeSection=await page.getByLabel('Abschnitt',{exact:true}).inputValue();
+ const freeIds=[];
+ for(const type of ['HEADING','IMAGE','ICON','ICON','ICON','BUTTON','BUTTON']){
+  await page.getByLabel('Öğe ekle',{exact:true}).selectOption(type);
+  const node=page.locator('[data-free-editor-item]').last();const id=await node.getAttribute('data-free-editor-item');freeIds.push(id);
+  if(type==='HEADING'||type==='ICON')await node.getByLabel(`free-${id}-title`,{exact:true}).fill('Bilgi');
+  if(type==='IMAGE'){
+   await node.getByLabel(`free-${id}-imageAlt`,{exact:true}).fill('Bilgi');
+   await node.locator(`[data-free-media="${id}-desktop"]`).getByRole('combobox').selectOption('10000000-0000-4000-8000-000000000001');
+  }
+  if(type==='ICON'){
+   await node.locator('[data-free-icon] button').first().click();
+   await node.getByRole('button',{name:['ShieldCheck','Zap','Smartphone'][freeIds.length-3],exact:true}).click();
+  }
+  if(type==='BUTTON'){
+   await node.getByLabel(`free-${id}-cta`,{exact:true}).fill('Ülke ara');
+   await node.getByLabel(`free-${id}-href`,{exact:true}).selectOption('/esim');
+  }
+ }
+ assert.equal(await page.locator('[data-free-editor-item]').count(),7);
+ await page.getByLabel(`layout-${freeSection}-desktop`,{exact:true}).selectOption('image-left');
+ await page.getByLabel(`layout-${freeSection}-tablet`,{exact:true}).selectOption('image-right');
+ await page.getByLabel(`layout-${freeSection}-mobile`,{exact:true}).selectOption('image-top');
+ for(const [width,device]of [[390,'mobile'],[768,'tablet'],[1440,'desktop']]){
+  await page.getByRole('button',{name:`${width} px`,exact:true}).click();
+  await page.waitForFunction(width=>document.querySelector('iframe').contentDocument.documentElement.clientWidth===width,width);
+  const output=frame.locator(`[data-editorial-section="${freeSection}"]`);
+  const elements=output.locator('[data-editorial-element]');await elements.first().waitFor();assert.equal(await elements.count(),7,'one DOM instance per element');
+  assert.equal(await output.locator('[data-element-type="ICON"]').count(),3);assert.equal(await output.locator('a').count(),2);
+  const picture=await output.locator('[data-element-type="IMAGE"]').boundingBox(),heading=await output.locator('[data-element-type="HEADING"]').boundingBox();
+  assert.ok(picture&&heading);if(device==='desktop')assert.ok(picture.x<heading.x);if(device==='tablet')assert.ok(picture.x>heading.x);if(device==='mobile')assert.ok(picture.y<heading.y);
+  assert.equal(await frame.locator('body').evaluate(e=>e.scrollWidth<=e.clientWidth),true,'free section no horizontal overflow');
+  await output.screenshot({path:`artifacts/builder-preview/free-section-${width}.png`});
+ }
+ await page.getByRole('button',{name:'Yukarı: '+freeSection,exact:true}).click();
+ const reordered=await page.getByLabel('Abschnitt',{exact:true}).locator('option').evaluateAll(nodes=>nodes.map(n=>n.value));assert.notEqual(reordered.at(-1),freeSection);
+ await page.getByRole('button',{name:'Abschnitt duplizieren',exact:true}).click();
+ const duplicateId=await page.getByLabel('Abschnitt',{exact:true}).inputValue();assert.notEqual(duplicateId,freeSection);
+ const duplicateNodes=await page.locator('[data-free-editor-item]').evaluateAll(nodes=>nodes.map(n=>n.dataset.freeEditorItem));assert.equal(duplicateNodes.some(id=>freeIds.includes(id)),false,'duplicate gets fresh child IDs');
+ await page.getByLabel('Şablon adı',{exact:true}).fill('Sicherheitsmerkmale');
+ await page.getByRole('button',{name:'Kendi şablonum olarak kaydet',exact:true}).click();
+ await page.getByRole('button',{name:'+ Yeni bölüm ekle',exact:true}).click();
+ await page.getByRole('dialog',{name:'Bölüm kütüphanesi',exact:true}).getByRole('button',{name:'Sicherheitsmerkmale',exact:true}).click();
+ const templateInstance=await page.getByLabel('Abschnitt',{exact:true}).inputValue();assert.notEqual(templateInstance,duplicateId);
+ const templateTitle=page.locator('[data-free-editor-item]').first();const templateTitleId=await templateTitle.getAttribute('data-free-editor-item');
+ await templateTitle.getByLabel(`free-${templateTitleId}-title`,{exact:true}).fill('eSIM');
+ await templateTitle.getByText('Manuel çeviriler',{exact:true}).click();
+ await templateTitle.getByLabel(`free-${templateTitleId}-title-de`,{exact:true}).fill('Meine Fassung');
+ await page.getByRole('button',{name:'Tüm sayfayı 13 dile çevir (DEMO)',exact:true}).click();
+ for(const code of ['en','de','fr','es','it','pt','nl','pl','ar','ru','ja','ko','zh'])assert.ok(await templateTitle.getByLabel(`free-${templateTitleId}-title-${code}`,{exact:true}).inputValue(),'new field translated or manually protected: '+code);
+ assert.equal(await templateTitle.getByLabel(`free-${templateTitleId}-title-de`,{exact:true}).inputValue(),'Meine Fassung');
+ for(const locale of ['de','ar','ja','zh']){await page.getByLabel('Vorschau in',{exact:true}).selectOption(locale);const output=frame.locator(`[data-editorial-section="${templateInstance}"]`);await output.getByRole('heading',{name:locale==='de'?'Meine Fassung':'eSIM',exact:true}).waitFor();assert.equal(await frame.locator('html').getAttribute('dir'),locale==='ar'?'rtl':'ltr');await output.screenshot({path:`artifacts/builder-preview/free-section-${locale}.png`});}
+ await page.getByLabel('Vorschau in',{exact:true}).selectOption('tr');
+ assert.equal(await frame.locator(`[data-editorial-section="${freeSection}"]`).getByRole('heading',{name:'Bilgi',exact:true}).count(),1,'template edit leaves source independent');
+ assert.equal(await frame.locator(`[data-editorial-section="${duplicateId}"]`).getByRole('heading',{name:'Bilgi',exact:true}).count(),1,'template edit leaves duplicate independent');
+ await page.getByRole('button',{name:'Yukarı: '+templateInstance,exact:true}).click();
+ await page.getByRole('button',{name:'Versionen',exact:true}).click();
+ await page.getByRole('button',{name:'Synthetischen Entwurf speichern',exact:true}).click();
+ await page.reload();await page.getByRole('button',{name:'Versionen',exact:true}).click();await page.getByRole('button',{name:'Gespeicherten Entwurf laden',exact:true}).click();
+ await page.getByRole('button',{name:/^Revision .* → Entwurf$/}).first().click();
+ await page.getByRole('button',{name:'Seiten',exact:true}).click();
+ const options=await page.getByLabel('Abschnitt',{exact:true}).locator('option').evaluateAll(nodes=>nodes.map(n=>n.value));for(const original of originalOptions)assert.ok(options.includes(original),'pre-existing sections retained');
+ for(const id of [freeSection,duplicateId,templateInstance]){await page.getByLabel('Abschnitt',{exact:true}).selectOption(id);assert.equal(await page.locator('[data-free-editor-item]').count(),7);assert.equal(await frame.locator(`[data-editorial-section="${id}"] [data-element-type="IMAGE"] img`).getAttribute('src')!==null,true,'media reference retained');}
+ await page.getByRole('button',{name:'+ Yeni bölüm ekle',exact:true}).click();await page.getByRole('dialog',{name:'Bölüm kütüphanesi',exact:true}).getByRole('button',{name:'Sicherheitsmerkmale',exact:true}).waitFor();await page.keyboard.press('Escape');
+  assert.deepEqual(errors,[]);assert.deepEqual(remote,[]);
+ fs.writeFileSync('artifacts/builder-preview/browser-result.json',JSON.stringify({result:'PASS',cjkPlatformFontVerified:true,sourceLocale:'tr',locales:14,viewports:[390,768,1440],remoteRequests:0,screenshots:fs.readdirSync('artifacts/builder-preview').filter(p=>p.endsWith('.png')).length,checks:['fixed Turkish fields','ES preview does not empty TR','whole page Hero+NOTICE in 13 languages','fresh second run zero calls','page summary','13 fixture statuses','explicit manual correction','stale source/manual protection','unknown fixture refuses fake AI','RTL/CJK text','Hero/NOTICE presentation','shared global theme controls','responsive item media 3 devices','configured menu/footer','presentation-only account note','synthetic save/reload/draft restore/publication isolation','original shared Admin shell and all module links','complete default page sections','scaled full frame without mobile clipping','mobile drawer and keyboard close','actual full-site target protocol (synthetic HTTP receiver only)','modular security cards full add/reorder/hide/design/translate/save/reload sequence','free section: create/add seven primitives/layouts/reorder/duplicate/template/reinsert/13 locales/save/reload/restore/independence'],limitation:'UI persistence is a clearly labelled synthetic browser adapter; real PostgreSQL/PostgREST isolation is separately reported; no managed Supabase/Auth, Storage write or paid provider test'},null,2));
  await browser.close();console.log('PASS: TR source / 14 previews / 13 statuses / manual protection / offline fixtures / shared Hero and NOTICE');
 })().catch(async error=>{fs.mkdirSync('artifacts/builder-preview',{recursive:true});fs.writeFileSync('artifacts/builder-preview/browser-error.json',JSON.stringify({message:error.message,stack:error.stack},null,2));console.error(error);await activeBrowser?.close();process.exitCode=1;});

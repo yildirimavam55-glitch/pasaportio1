@@ -102,6 +102,7 @@ next_state=json.loads(http('rpc/builder_read',admin,{'_key':'storefront_v2_esim'
 check(http('rpc/builder_write',admin,{'_key':'storefront_v2_esim','_expected_revision':state['revision'],'_action':'draft','_config':{'page':'esim','sections':[]}})[0]==409,'HTTP stale revision rejected without transaction retry')
 # Registered cards persist as editorial JSON; hidden items, media and manual translations survive.
 cards={'page':'esim','version':1,'sections':[{'id':'security-check','type':'INFO_GRID','variant':'security','schemaVersion':1,'items':[{'id':'card-'+str(i),'visible':i!=0,'icon':['ShieldCheck','Zap','Smartphone'][i],'title':{'tr':'Bilgi','de':'Manuell'},'mediaId':'synthetic-media','cardDesign':{'mobile':{'iconSize':22},'desktop':{'iconSize':46}}} for i in [0,2,1]]}]}
+cards['sections'].append({'id':'free-test','type':'EDITORIAL_SECTION','schemaVersion':1,'editorialLayout':{'mobile':{'layout':'image-top'},'desktop':{'layout':'image-left'}},'items':[{'id':'free-group','elementType':'GRID','elements':[{'id':'free-child','elementType':'IMAGE','mediaId':'synthetic-media','title':{'tr':'Bilgi','de':'Manuell'}}]}]})
 state=read();write('storefront_v2_esim',state['revision'],'draft',cards)
 check(read()['draft']==cards,'registered cards JSON roundtrip includes hidden items/media/manual text')
 version=sql("SELECT id FROM public.cms_versions WHERE document_id=(SELECT id FROM public.cms_documents WHERE key='storefront_v2_esim') ORDER BY created_at DESC LIMIT 1;")
