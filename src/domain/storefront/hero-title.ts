@@ -17,4 +17,4 @@ export const HERO_TITLE:Record<UiLocale,{titleA:string;titleB:string}>={
  zh:{titleA:'随时随地',titleB:'保持连接'},
 };
 /** Neutral reference-fixture label; no refund-period promise. */
-export const HERO_REFUND_TERMS:Record<UiLocale,string>={tr:'İade koşulları',en:'Return conditions',de:'Rückgabebedingungen',fr:'Conditions de retour',es:'Condiciones de devolución',it:'Condizioni di reso',pt:'Condições de devolução',nl:'Retourvoorwaarden',pl:'Warunki zwrotu',ar:'شروط الاسترداد',ru:'Условия возврата',ja:'返金条件',ko:'환불 조건',zh:'退款条件'};
+export const HERO_REFUND_TERMS:Record<UiLocale,string>={tr:'İade koşulları',en:'Return conditions',de:'Rückgabe\u00adbedingungen',fr:'Conditions de retour',es:'Condiciones de devolución',it:'Condizioni di reso',pt:'Condições de devolução',nl:'Retourvoorwaarden',pl:'Warunki zwrotu',ar:'شروط الاسترداد',ru:'Условия возврата',ja:'返金条件',ko:'환불 조건',zh:'退款条件'};
