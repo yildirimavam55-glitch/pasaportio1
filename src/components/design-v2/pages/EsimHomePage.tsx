@@ -183,7 +183,7 @@ export function EsimHomePage() {
             onDestinationSearch={openHeroSearch}
             searchField={
               <Button type="button" variant="outline" onClick={() => setPickerOpen(true)} className="pasaport-country-field w-full justify-start gap-3 bg-card text-sm font-normal text-muted-foreground">
-                <Search className="size-4 shrink-0" />
+                <MapPin className="size-4 shrink-0" />
                 <span className="min-w-0 flex-1 truncate">{c.ph}</span>
                 <span className="pasaport-country-arrow grid size-11 shrink-0 place-items-center rounded-full bg-primary text-primary-foreground"><Search className="size-5" /></span>
               </Button>
@@ -209,7 +209,7 @@ export function EsimHomePage() {
             onSelect={choose}
           >
              <Button type="button" variant="outline" onClick={() => setPickerOpen(true)} className="pasaport-country-field w-full justify-start gap-3 bg-card text-sm font-normal text-muted-foreground">
-              <Search className="size-4 shrink-0" />
+              <MapPin className="size-4 shrink-0" />
                <span className="min-w-0 flex-1 truncate">{v2Text(section, "placeholder", locale) || c.ph}</span>
                <span className="pasaport-country-arrow grid size-11 shrink-0 place-items-center rounded-full bg-primary text-primary-foreground"><Search className="size-5" /></span>
             </Button>

@@ -17,11 +17,11 @@ function TrustTypographyControls({id,value,onChange}:{id:string;value:CardDesign
  return <div data-trust-typography>{(['base','mobile','tablet','desktop'] as const).map(device=>{
   const d:CardDevice=device==='base'?value:value[device]??{};
   const set=(key:string,next:unknown)=>{const obj={...d};if(next===undefined)delete obj[key as keyof CardDevice];else Object.assign(obj,{[key]:next});onChange(sanitizeCardDesign(device==='base'?obj: {...value,[device]:obj}));};
-  return <fieldset key={device}><legend>{device==='base'?'Kart varsayılanı':device}</legend>
+  return <details key={device} open={device==='base'}><summary>{device==='base'?'Kart varsayılanı':device}</summary><fieldset>
    {(['titleFont','bodyFont'] as const).map(key=><label key={key}>{labels[key]}<select aria-label={`trust-${id}-${device}-${key}`} value={d[key]??''} onChange={e=>set(key,e.target.value||undefined)}><option value="">Devral / Inherit</option>{CARD_FONTS.map(font=><option key={font} value={font}>{font}</option>)}</select></label>)}
    {(['titleSize','bodySize','titleWeight','bodyWeight','titleLine','bodyLine','circleSize'] as const).map(key=><label key={key}>{labels[key]}<input aria-label={`trust-${id}-${device}-${key}`} type="number" min={CARD_NUMBERS[key][0]} max={CARD_NUMBERS[key][1]} step={key.endsWith('Line')?0.05:1} value={d[key]??''} placeholder="Devral" onChange={e=>set(key,e.target.value===''?undefined:Number(e.target.value))}/></label>)}
    {(['iconColor','circleColor','titleColor','bodyColor'] as const).map(key=><label key={key}>{labels[key]}<input aria-label={`trust-${id}-${device}-${key}`} type="color" value={d[key]??(key==='iconColor'?'#ffffff':'#008f68')} onChange={e=>set(key,e.target.value)}/><button type="button" onClick={()=>set(key,undefined)}>Devral</button></label>)}
    {(['visible','showDescription'] as const).map(key=><label key={key}>{labels[key]}<select aria-label={`trust-${id}-${device}-${key}`} value={d[key]===undefined?'':String(d[key])} onChange={e=>set(key,e.target.value===''?undefined:e.target.value==='true')}><option value="">Devral</option><option value="true">Göster</option><option value="false">Gizle</option></select></label>)}
-  </fieldset>;
+  </fieldset></details>;
  })}</div>;
 }
