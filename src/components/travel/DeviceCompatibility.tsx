@@ -1,3 +1,5 @@
+import { HomeCompatibilityContent,homeCardStyle } from '@/components/design-v2/HomeDiscoveryContent';
+import type { V2Section } from '@/domain/storefront/v2';
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
@@ -778,7 +780,7 @@ function HomePhoneImage({ brand }: { brand: string | null }) {
 }
 
 /** Homepage card after the destination rails; opens the shared checker (bottom sheet on mobile, modal on desktop). */
-export function HomeCompatibilityCard() {
+export function HomeCompatibilityCard({section}:{section?:V2Section|undefined}={}) {
   const { locale, uiLocale } = useI18n();
   const h = COMPACT_PHONE_COPY[uiLocale];
   const cardRef = useRef<HTMLElement>(null);
@@ -829,21 +831,13 @@ export function HomeCompatibilityCard() {
   const sameConfirmedModel = !cardSelection || (chosenModel === deviceModel && cardSelection.brand === deviceBrand);
   const lead = compatibilityChecked && compatibilityResult && sameConfirmedModel ? `${deviceModel} · ${statusLabel(copy, compatibilityResult)}` : cardSelection ? (chosenModel ?? (cardSelection.brand ? `${cardSelection.brand} · ${h.lead}` : h.lead)) : detectedBrand ? h.detected(detectedBrand) : h.lead;
   return (
-    <section ref={cardRef} id="device-compatibility" data-testid="home-compatibility-card" className="mx-auto w-full max-w-[1200px] scroll-mt-24 py-5 sm:py-6">
+    <section ref={cardRef} id="device-compatibility" data-testid="home-compatibility-card" className="hd-compatibility" style={section?homeCardStyle(section,section.items.find(i=>i.visible)):undefined}>
       <DeviceCheckSheet surface="homepage-card" detection={shown} onSelectionChange={setCardSelection} trigger={
-        <Button type="button" variant="outline" className="home-phone-card grid h-auto min-h-22 w-full grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2 whitespace-normal rounded-2xl border-border bg-card px-3 py-3 text-start shadow-soft hover:border-primary/40 hover:bg-card sm:gap-4 sm:px-5">
-          <span aria-hidden="true" data-phone-image-brand={imageBrand ?? "unknown"} className="grid h-16 w-14 shrink-0 place-items-center sm:w-24">
-            <HomePhoneImage brand={imageBrand} />
-          </span>
-          <span className="min-w-0">
-            <strong className="block font-display text-base font-bold leading-5 text-foreground sm:text-lg">{h.title}</strong>
-            <span className="mt-1 block text-xs font-normal leading-4 text-muted-foreground sm:text-sm sm:leading-5">{lead}</span>
-          </span>
-          <span className="grid size-11 shrink-0 place-items-center rounded-full bg-primary text-primary-foreground">
-            <ChevronRight className="size-6 rtl:rotate-180" aria-hidden="true" />
-          </span>
+        <Button type="button" variant="outline" className="home-phone-card">
+          <HomeCompatibilityContent section={section} locale={uiLocale} lead={compatibilityChecked&&compatibilityResult&&sameConfirmedModel?lead:undefined}/>
         </Button>
       } />
     </section>
   );
 }
+

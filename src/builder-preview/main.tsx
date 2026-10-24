@@ -1,3 +1,11 @@
+import { HomePresentationControls } from '@/components/admin/HomePresentationControls';
+import { HeroTrustEditor } from "@/components/admin/HeroTrustEditor";
+import { CountryFlag } from "@/components/travel/CountryFlag";
+import { HERO_TITLE,HERO_REFUND_TERMS } from "@/domain/storefront/hero-title";
+import { HeroHeading } from "@/components/design-v2/HeroHeading";
+import { HeroTrustCards } from "@/components/design-v2/HeroTrustCards";
+import { PublicHeaderFrame, HEADER_LOCALE_FLAG } from "@/components/travel/PublicHeaderFrame";
+import { Signal, Search, MapPin, Menu, UserRound } from "lucide-react";
 import { SectionLibrary } from '@/components/admin/SectionLibrary';
 import { EditorialSectionEditor } from '@/components/admin/EditorialSectionEditor';
 import { cloneEditorialSection,SECTION_LIMIT } from '@/domain/storefront/editorial';
@@ -55,6 +63,15 @@ function initial(): V2PageConfig {
   hero.heroTextMode = { tr: "custom" };
   // Synthetic acceptance section only. The saved/default homepage is never edited.
   page.sections = new URLSearchParams(window.location.search).has("fixture") ? [hero, notice] : [...structuredClone(page.sections), notice];
+  if (new URLSearchParams(window.location.search).has("reference")) {
+    const savedHero=page.sections.find(s=>s.type==='SEARCH_HERO')!;
+    savedHero.text['title']={tr:HERO_TITLE.tr.titleA,de:HERO_TITLE.de.titleA,en:HERO_TITLE.en.titleA,...Object.fromEntries(UI_LOCALES.map(locale=>[locale,HERO_TITLE[locale].titleA]))};
+    savedHero.text['accent']={tr:HERO_TITLE.tr.titleB,de:HERO_TITLE.de.titleB,en:HERO_TITLE.en.titleB,...Object.fromEntries(UI_LOCALES.map(locale=>[locale,HERO_TITLE[locale].titleB]))};
+    const benefits=page.sections.find(s=>s.type==='BENEFIT_ROW')!;
+    const order=['support','setup','refund','delivery'];benefits.items.sort((a,b)=>order.indexOf(a.id)-order.indexOf(b.id));
+    benefits.items=benefits.items.map(i=>({...i,visible:i.id!=='delivery',...(i.id==='support'?{icon:'WhatsApp'}:i.id==='setup'?{icon:'Zap'}:i.id==='refund'?{icon:'RotateCcw',title:{...HERO_REFUND_TERMS}}:{})}));
+    savedHero.heroTextMode=Object.fromEntries(UI_LOCALES.map(locale=>[locale,'custom' as const]));
+  }
   return page;
 }
 
@@ -69,6 +86,7 @@ function Canvas() {
     window.addEventListener("message", listener);
     return () => window.removeEventListener("message", listener);
   }, []);
+  const reference=new URLSearchParams(window.location.search).has("reference");
   const meta = LOCALE_REGISTRY[state.locale];
   setActiveUiLocale(state.locale);
   useEffect(() => { document.documentElement.lang = meta.bcp47; document.documentElement.dir = meta.dir; }, [meta]);
@@ -79,16 +97,16 @@ function Canvas() {
   const copy = resolveHeroCopy(hero, text("title"), text("subtitle"), v2Text(defaults, "subtitle", meta.content), c, state.locale);
   const missing = state.locale !== "tr" && state.config.sections.flatMap(s=>Object.values(s.text)).some(value => value.tr.trim() && (ltStatus(value, state.locale) === "MISSING" || ltStatus(value, state.locale) === "OUTDATED"));
   const heroView = <V2SectionFrame section={hero}><V2HeroView section={hero} image={IMAGES[hero.mediaId ?? ""] ?? ""} tabletImage={IMAGES[hero.tabletMediaId ?? ""]} mobileImage={IMAGES[hero.mobileMediaId ?? ""]}
-      heading={copy.useDefaultTitle ? <>{c.titleA} <span className="final-hero-accent">{c.titleB}</span></> : copy.title} subtitle={copy.subtitle}>
-      <button type="button" className="pasaport-country-field w-full rounded-full text-start" disabled>{text("placeholder")}</button>
+      heading={<HeroHeading section={hero} locale={state.locale} title={text("title")} subtitle={text("subtitle")} defaultSubtitle={v2Text(defaults,"subtitle",meta.content)}/>} subtitle={copy.subtitle} trust={reference?<div className="hero-trust-strip registered-trust-strip"><HeroTrustCards section={state.config.sections.find(s=>s.type==='BENEFIT_ROW')} locale={state.locale} resolve={id=>IMAGES[id??'']}/></div>:undefined}>
+      <button type="button" className="pasaport-country-field flex items-center gap-3 w-full rounded-full text-start" disabled><MapPin className="size-5 shrink-0"/><span className="min-w-0 flex-1">{text("placeholder")}</span><span className="pasaport-country-arrow grid place-items-center"><Search className="size-5"/></span></button>
     </V2HeroView></V2SectionFrame>;
   return <main className="builder-canvas v2-theme" data-locale={state.locale} data-theme-button={state.theme.buttonStyle} style={state.theme.applyToDark?themeCssVariables(state.theme) as CSSProperties:undefined}>
     <style>{state.theme.applyToDark?themeResponsiveCss(state.theme):""}</style>
-    <nav data-configured-header className="flex gap-3 flex-wrap py-3"><ConfiguredNavigation rows={state.chrome.navigation.filter(r=>!r.href.includes('lounge')&&!r.href.includes('vignette'))} locale={state.locale} render={(row,label,icon)=><a href={row.href} onClick={e=>e.preventDefault()} className="inline-flex gap-1">{icon}{label}</a>}/></nav>
+    {reference ? <PublicHeaderFrame reference brand={<a href="/tr" className="flex shrink-0 items-center gap-2 text-primary"><span className="grid size-9 place-items-center rounded-xl bg-primary text-primary-foreground"><Signal className="size-5"/></span><span className="font-display text-xl font-bold">pasaport.io</span></a>} navigation={<nav className="hidden lg:flex gap-4"><ConfiguredNavigation rows={state.chrome.navigation.filter(r=>!r.href.includes('lounge')&&!r.href.includes('vignette'))} locale={state.locale} render={(row,label,icon)=><a href={row.href} className="nav-link inline-flex items-center gap-2">{icon}{label}</a>}/></nav>}><span className="public-header-language p-2"><CountryFlag iso={HEADER_LOCALE_FLAG[state.locale]}/><span>{state.locale.toUpperCase()}</span><span data-testid="header-currency-code"><span className="public-header-currency-separator">/ </span>EUR</span></span><a href="/auth" aria-label="Account" className="size-11 grid place-items-center"><UserRound className="size-5"/></a><button type="button" aria-label="Menu" className="size-11 grid place-items-center" disabled><Menu className="size-5"/></button></PublicHeaderFrame> : <nav data-configured-header className="flex gap-3 flex-wrap py-3"><ConfiguredNavigation rows={state.chrome.navigation.filter(r=>!r.href.includes('lounge')&&!r.href.includes('vignette'))} locale={state.locale} render={(row,label,icon)=><a href={row.href} onClick={e=>e.preventDefault()} className="inline-flex gap-1">{icon}{label}</a>}/></nav>}
     {state.account&&<section data-account-layout-preview><strong>Account · Pflichtmodule: eSIM / Bestellungen / Profil / Sicherheit / Support</strong><AccountEditorial config={state.chrome} locale={state.locale}/><p>Präsentationsvorschau ohne Konten, Bestellungen, QR oder Zugangsdaten.</p></section>}
 
     {missing && <p className="rounded border border-border p-2 text-xs" data-preview-translation-warning>DEMO: Übersetzung fehlt oder ist veraltet. TR Fallback bzw. letzter Stand wird angezeigt, keine KI-Übersetzung.</p>}
-    {state.config.sections.filter(s=>s.visible).map(s=><CompletePageSection key={s.id} section={s} locale={state.locale} resolve={id=>IMAGES[id??'']} hero={heroView} onSelect={id=>window.parent.postMessage({type:CHANNEL+'-select',id},window.location.origin)}/>)}
+    {state.config.sections.filter(s=>s.visible).map(s=>reference&&s.type==='BENEFIT_ROW'?<div key={s.id} data-complete-section={s.id}/>:<CompletePageSection key={s.id} section={s} locale={state.locale} resolve={id=>IMAGES[id??'']} hero={heroView} onSelect={id=>window.parent.postMessage({type:CHANNEL+'-select',id},window.location.origin)}/>)}
     <footer data-configured-footer className="border-t mt-4 py-4"><p>{state.chrome.footerText[state.locale]||state.chrome.footerText.tr}</p><div className="flex flex-wrap gap-3"><ConfiguredNavigation rows={state.chrome.footerLinks.filter(r=>!r.href.includes('lounge')&&!r.href.includes('vignette'))} locale={state.locale} render={(row,label,icon)=><a href={row.href} onClick={e=>e.preventDefault()}>{label}</a>}/></div></footer>
   </main>;
 }
@@ -153,6 +171,8 @@ function BuilderDemo() {
       <label>Abschnitt<select aria-label="Abschnitt" value={selected} onChange={e => setSelected(e.target.value)}>{config.sections.map(s => <option key={s.id} value={s.id}>{s.type}</option>)}</select></label>
 
       <V2PageTranslation page={config} onChange={setConfig} demo transport={demoTransport}/>
+      {section.type==='SEARCH_HERO'&&<HeroTrustEditor section={config.sections.find(s=>s.type==='BENEFIT_ROW')} onChange={patch=>setConfig(current=>({...current,sections:current.sections.map(s=>s.type==='BENEFIT_ROW'?{...s,...patch}:s)}))}/>}
+      <HomePresentationControls section={section} onChange={patch} locale={locale} picker={(label,id,onChange)=><select aria-label={'home-media-'+label} value={id??''} onChange={e=>onChange(e.target.value||null)}><option value="">Standard</option>{IMAGE_IDS.map((key,index)=><option key={key} value={key}>{index?'Terrasse':'Küste'}</option>)}</select>}/>
       <V2TurkishTextEditor key={selected} section={section} onChange={patch} previewLocale={locale} demo />
 
       <V2TypographyControls design={design} onChange={design => patch({ design })} />
@@ -175,10 +195,11 @@ function BuilderDemo() {
       </div>
       <button type="button" onClick={() => {const base={page:initial(),theme:DEFAULT_THEME,chrome:defaultStorefront('global')};install(base);setSession(newEditorSession(base));setSelected('hero');setTab('Seiten');setView('draft');localStorage.removeItem('pasaport-admin-synthetic-v1');}}>Vorher / vollständig zurücksetzen</button>
       <p>Dieselben Schrift-/Farbkontrollen und Renderer werden im echten V2-Admin verwendet. Dort: /admin/storefront/v2/esim → SEARCH_HERO oder NOTICE → Entwurf/Vorschau. Bestehende Anmeldung und Freigabe bleiben erforderlich.</p>
-    </aside><section className="builder-preview-panel"><label>Önizleme kaynağı<select aria-label="Önizleme kaynağı" value={previewTarget} onChange={e=>setPreviewTarget(e.target.value as 'offline'|'website')}><option value="offline">İzole tam sayfa · veri bağlantısı yok</option><option value="website">Gerçek tam web sitesi · mevcut V2 renderer</option></select></label>{previewTarget==='website'&&<p className="builder-disclosure">Bu çerçeve gerçek /esim sayfasıdır; yayımlanmış verileri okur. Taslak, tema ve menü yalnız bu çerçevede önizlenir; kaydetmez/yayınlamaz. Mevcut sunucu ve veri bağlantısı gerekir. Kütüphane medyası için yetkili editörü kullan.</p>}<div className="builder-toolbar">{[390, 768, 1440].map(w => <button key={w} type="button" aria-pressed={width === w} onClick={() => setWidth(w)}>{w} px</button>)}<a href={new URLSearchParams(window.location.search).has("fixture")?"?canvas=1&fixture=translation":"?canvas=1"} target="_blank" rel="noreferrer">Standard separat öffnen</a></div>
-      <ResponsivePreview width={width} height={850}>{scale=><iframe key={previewTarget} title="V2 Entwurfsvorschau" name="v2-cms-preview" ref={frame} src={previewTarget==='website'?"/esim?country=":new URLSearchParams(window.location.search).has("fixture")?"?canvas=1&fixture=translation":"?canvas=1"} onLoad={send} style={{ width, height: Math.ceil(850/scale), transform:`scale(${scale})`,transformOrigin:"top left",border:0 }} />}</ResponsivePreview>
+    </aside><section className="builder-preview-panel"><label>Önizleme kaynağı<select aria-label="Önizleme kaynağı" value={previewTarget} onChange={e=>setPreviewTarget(e.target.value as 'offline'|'website')}><option value="offline">İzole tam sayfa · veri bağlantısı yok</option><option value="website">Gerçek tam web sitesi · mevcut V2 renderer</option></select></label>{previewTarget==='website'&&<p className="builder-disclosure">Bu çerçeve gerçek /esim sayfasıdır; yayımlanmış verileri okur. Taslak, tema ve menü yalnız bu çerçevede önizlenir; kaydetmez/yayınlamaz. Mevcut sunucu ve veri bağlantısı gerekir. Kütüphane medyası için yetkili editörü kullan.</p>}<div className="builder-toolbar">{[390, 768, 1440].map(w => <button key={w} type="button" aria-pressed={width === w} onClick={() => setWidth(w)}>{w} px</button>)}<a href={new URLSearchParams(window.location.search).has("fixture")?"?canvas=1&fixture=translation":(new URLSearchParams(window.location.search).has("reference")?"?canvas=1&reference=1":"?canvas=1")} target="_blank" rel="noreferrer">Standard separat öffnen</a></div>
+      <ResponsivePreview width={width} height={850}>{scale=><iframe key={previewTarget} title="V2 Entwurfsvorschau" name="v2-cms-preview" ref={frame} src={previewTarget==='website'?"/esim?country=":new URLSearchParams(window.location.search).has("fixture")?"?canvas=1&fixture=translation":(new URLSearchParams(window.location.search).has("reference")?"?canvas=1&reference=1":"?canvas=1")} onLoad={send} style={{ width, height: Math.ceil(850/scale), transform:`scale(${scale})`,transformOrigin:"top left",border:0 }} />}</ResponsivePreview>
     </section></div>
   </div></AdminWorkspaceShell>;
 }
 
 createRoot(document.getElementById("root")!).render(new URLSearchParams(window.location.search).has("canvas") ? <Canvas /> : <BuilderDemo />);
+

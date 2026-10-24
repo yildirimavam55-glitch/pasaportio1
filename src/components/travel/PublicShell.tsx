@@ -1,3 +1,4 @@
+import { PublicHeaderFrame, HEADER_LOCALE_FLAG as LOCALE_FLAG } from "./PublicHeaderFrame";
 import { useStorefrontChrome } from "./useStorefrontChrome";
 import { ConfiguredNavigation } from "@/components/admin/ChromeControls";
 import { useNavigate, useLocation } from "@tanstack/react-router";
@@ -64,12 +65,6 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { LocaleCurrencyPicker } from "./LocaleCurrencyPicker";
 import { WhatsAppLogo } from "./WhatsAppLogo";
 import { waLink } from "@/lib/whatsapp";
-
-/** Flag shown next to each language (language, not location). */
-const LOCALE_FLAG: Record<UiLocale, string> = localize({
-  tr: "TR", de: "DE", en: "GB", fr: "FR", es: "ES", it: "IT", pt: "PT",
-  nl: "NL", pl: "PL", ar: "SA", ru: "RU", ja: "JP", ko: "KR", zh: "CN",
-});
 
 const ACCOUNT_COPY = localize({
   tr: { trips: "Seyahatlerim", signIn: "Giriş yap", signOut: "Çıkış yap" },
@@ -162,7 +157,7 @@ function LanguageMenu({
       >
         <CountryFlag iso={LOCALE_FLAG[uiLocale]} />
         <span>{uiLocale.toUpperCase()}</span>
-        <span className="text-muted-foreground" data-testid="header-currency-code"><span className="public-header-currency-separator">· </span>{currency.code}</span>
+        <span className="text-muted-foreground" data-testid="header-currency-code"><span className="public-header-currency-separator">/ </span>{currency.code}</span>
       </Button>
       <LocaleCurrencyPicker open={open} onOpenChange={onOpenChange} onChooseLocale={choose} />
     </>
@@ -341,11 +336,7 @@ export function PublicShell({
   return (
     <CommercePanels.Provider value={{ panel, setPanel }}>
     <div className={`${isV2 ? "v2-theme theme-surface" : ""} ${mobilePasaport ? "pasaport-mobile-reference" : ""} min-h-screen bg-background text-foreground`} data-theme-button={isV2 ? publishedTheme.buttonStyle : undefined} data-theme-surface={isV2 ? publishedTheme.surface : undefined}>
-      <header className="sticky top-0 z-50 border-b border-border/60 bg-background/95 backdrop-blur-lg">
-        <div className="public-header-row mx-auto grid min-h-14 max-w-site grid-cols-[minmax(0,1fr)_auto] items-center gap-2 px-3 sm:min-h-16 sm:gap-3 sm:px-6 lg:flex">
-          <Brand mobilePasaport={mobilePasaport} />
-          <nav className="hidden lg:flex gap-4" aria-label="Menü"><ConfiguredNavigation rows={chrome.navigation.filter(row=>!isHiddenServiceHref(row.href,optionalServices))} locale={uiLocale} render={(row,label,icon)=><Link {...footerTarget(row,uiLocale)} className="nav-link inline-flex gap-2">{icon}{label}</Link>}/></nav>
-          <div className="public-header-actions flex shrink-0 items-center gap-1 sm:gap-1.5">
+      <PublicHeaderFrame reference={mobilePasaport} brand={<Brand mobilePasaport={mobilePasaport} />} navigation={<nav className="hidden lg:flex gap-4" aria-label="Menü"><ConfiguredNavigation rows={chrome.navigation.filter(row=>!isHiddenServiceHref(row.href,optionalServices))} locale={uiLocale} render={(row,label,icon)=><Link {...footerTarget(row,uiLocale)} className="nav-link inline-flex gap-2">{icon}{label}</Link>}/></nav>}>
             <Button ref={cartTrigger} onClick={() => { setMenuOpen(false); setAccountOpen(false); setLanguageOpen(false); setPanel("cart"); }} variant="ghost" size="icon" aria-label={`${commerce.cart} (${count})`} data-testid="header-cart" className="relative inline-flex size-11 overflow-visible">
                 <ShoppingBag className="size-5" />
                 {count > 0 && <span data-testid="cart-count" aria-hidden="true" className="absolute end-0 top-0 grid h-4 min-w-4 place-items-center rounded-full bg-accent px-1 text-[9px] font-bold text-accent-foreground">{cartBadge(count)}</span>}
@@ -395,13 +386,14 @@ export function PublicShell({
                 </DropdownMenuContent>
               </DropdownMenu>
             ) : (
-              <Button asChild variant="ghost" size="icon" className="size-11">
+              <Button asChild variant="ghost" size="icon" className={mobilePasaport ? "public-header-login size-11" : "size-11"}>
                 <Link
                   to="/auth"
                   search={{ redirect: "/account" }}
                   aria-label={copy.nav.account}
                 >
                   <UserRound className="size-[18px] sm:size-5" />
+                  {mobilePasaport && <span className="hidden lg:inline">{ACCOUNT_COPY[locale].signIn}</span>}
                 </Link>
               </Button>
             )}
@@ -469,9 +461,7 @@ export function PublicShell({
                 {signedIn && <SheetClose asChild><Button variant="ghost" type="button" onClick={() => void signOut()} className="mt-3 w-full justify-start gap-2 text-destructive"><LogOut className="size-4" />{ACCOUNT_COPY[locale].signOut}</Button></SheetClose>}
               </SheetContent>
             </Sheet>
-          </div>
-        </div>
-      </header>
+      </PublicHeaderFrame>
       {!isHeaderOverlayOpen && headerAccessory}
       {!hideStickySearch && activeService !== "lounge" && (
         <StickyQuickSearch service="esim" suppressed={isHeaderOverlayOpen} />

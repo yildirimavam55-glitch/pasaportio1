@@ -1,3 +1,5 @@
+import { HomePhotoCard } from './HomeDiscoveryContent';
+import type { V2Section,V2Item } from '@/domain/storefront/v2';
 import { Link } from "@tanstack/react-router";
 import { ArrowRight } from "lucide-react";
 import { money } from "@/components/design-v2/V2Shell";
@@ -7,14 +9,10 @@ import { useI18n } from "@/i18n";
 import type { EsimRegionalSummary } from "@/lib/esim-catalogue.functions";
 import { CataloguePhoto } from './CataloguePhoto';
 
-export function V2RegionCard({ item, from, countries, multi, compact = false, imageUrl }: { item: EsimRegionalSummary; from: string; countries: string; multi: string; compact?: boolean; imageUrl?: string | undefined }) {
+export function V2RegionCard({ item, from, countries, multi, compact = false, imageUrl, section, editorial }: { item: EsimRegionalSummary; from: string; countries: string; multi: string; compact?: boolean; imageUrl?: string | undefined; section?:V2Section; editorial?:V2Item|undefined }) {
   const { locale } = useI18n();
   const photo = getRegionPhoto(item.region);
-  if (compact) return <Link to="/esim/bolge/$region" params={{region:item.region}} search={{country:""}} className="home-region-card home-region-card-overlay">
-    <CataloguePhoto src={imageUrl} fallback={photo?.url} alt={photo?.alt[locale] ?? COVERAGE_REGION_LABELS[item.region][locale]} />
-    <span className="photo-card-overlay-shade" aria-hidden="true" />
-    <div><h3>{COVERAGE_REGION_LABELS[item.region][locale]}</h3><p>{item.coverageCount ? `${item.coverageCount} ${countries}` : item.minCoverageCount > 0 ? `${item.minCoverageCount}–${item.maxCoverageCount} ${countries}` : multi}</p><strong>{from} {money(item.startingPrice,item.currency)}</strong><span className="photo-card-overlay-arrow" aria-hidden="true"><ArrowRight className="size-3.5 rtl:rotate-180" /></span></div>
-  </Link>;
+  if (compact && section) return <HomePhotoCard id={item.region} section={section} item={editorial} title={COVERAGE_REGION_LABELS[item.region][locale]} image={imageUrl} fallback={photo?.url} href={'/esim/bolge/'+item.region} coverage={item.coverageCount?`${item.coverageCount} ${countries}`:item.minCoverageCount>0?`${item.minCoverageCount}–${item.maxCoverageCount} ${countries}`:undefined} price={Number.isFinite(item.startingPrice)?`${from} ${money(item.startingPrice,item.currency)}`:undefined}/>;
   return <Link to="/esim/bolge/$region" params={{ region: item.region }} search={{ country: "" }} className="group relative block h-40 overflow-hidden rounded-xl bg-card shadow-sm ring-1 ring-border lg:h-52">
     {photo && <img src={photo.url} alt={photo.alt[locale]} loading="lazy" className="absolute inset-0 size-full object-cover transition-transform duration-300 group-hover:scale-[1.03]" />}
     <div className="absolute inset-0 bg-gradient-to-t from-[var(--v2-service)]/95 via-[var(--v2-service)]/35 to-transparent" />

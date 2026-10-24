@@ -38,6 +38,7 @@ export function ltStatus(value: LT | undefined, code: UiLocale): LTStatus {
 
 export { V2_SECTION_TYPES, V2_PROTECTED, V2_SINGLETON, V2_ADDABLE, V2_TEXT_FIELDS } from "./block-registry";
 import { V2_SECTION_TYPES, V2_PROTECTED, V2_SINGLETON, V2_ADDABLE, V2_TEXT_FIELDS, upgradeBlockDocument } from "./block-registry";
+import { sanitizeHomePresentation, type HomePresentation } from './home-presentation';
 import { sanitizeCardDesign, type CardDesign } from "./card-design";
 export type V2SectionType = (typeof V2_SECTION_TYPES)[number];
 /** Internal destinations a CMS link may point to. Nothing else is accepted. */
@@ -183,6 +184,7 @@ export type V2Section = {
   claims: { countries: string; refundDays: string; savingPercent: string; setupSeconds: string };
   showDemoReviews?: boolean;
   design?: V2SectionDesign;
+  homePresentation?: HomePresentation;
   trust?: {
     background: "mint" | "cream" | "white";
     focal: "left" | "center" | "right";
@@ -541,7 +543,7 @@ function cleanItem(raw: any, index: number): V2Item {
     visible: raw?.visible !== false,
     ...(raw?.cardDesign ? {cardDesign:sanitizeCardDesign(raw.cardDesign)}:{}),
     icon: ICON_NAMES.includes(String(raw?.icon)) ? String(raw.icon) : "",
-    entity: ENTITY.test(String(raw?.entity ?? "").toUpperCase()) ? String(raw.entity).toUpperCase() : "",
+    entity: (ENTITY.test(String(raw?.entity ?? "").toUpperCase()) || (COVERAGE_REGION_ORDER as readonly string[]).includes(String(raw?.entity))) ? String(raw.entity).toUpperCase() : "",
     title: cleanLT(raw?.title, 200),
     text: cleanLT(raw?.text, 900),
     internalKey: ID.test(String(raw?.internalKey)) ? String(raw.internalKey) : `item-${index + 1}`,
@@ -604,6 +606,7 @@ function cleanSection(raw: any): V2Section | null {
     ...(type==='EDITORIAL_SECTION'?{editorialLayout:sanitizeEditorialLayout(raw.editorialLayout)}:{}),
     visible: V2_PROTECTED.includes(type) ? true : raw.visible !== false,
     showOnResults: Boolean(raw.showOnResults),
+    ...(['DESTINATION_CAROUSEL','REGION_DISCOVERY','COMPATIBILITY','INSTALLATION_STEPS'].includes(type) && raw.homePresentation ? {homePresentation:sanitizeHomePresentation(raw.homePresentation)} : {}),
     variant: cleanText(raw.variant, 24).replace(/[^a-z-]/g, "") || "default",
     align: pick(raw.align, V2_ALIGNS, "left"),
     height: pick(raw.height, V2_HEIGHTS, "normal"),
@@ -622,7 +625,7 @@ function cleanSection(raw: any): V2Section | null {
         return valid && id ? [[normalized, id]] : [];
       }).slice(0, 300),
     ) } : {}),
-    ...(type === "SEARCH_HERO" || type === "REGION_DISCOVERY" || type === "PROMO_BANNER" ? {
+    ...(type === "SEARCH_HERO" || type === "DESTINATION_CAROUSEL" || type === "REGION_DISCOVERY" || type === "PROMO_BANNER" ? {
       ...(raw.imageDisplay != null ? { imageDisplay: sanitizeImageDisplay(raw.imageDisplay, raw.mediaId === "builtin:esim-hero" ? ESIM_DESKTOP_IMAGE_DISPLAY : DEFAULT_IMAGE_DISPLAY) } : {}),
       ...(raw.mobileImageDisplay != null ? { mobileImageDisplay: sanitizeImageDisplay(raw.mobileImageDisplay) } : {}),
     } : {}),
@@ -772,3 +775,4 @@ export function collectV2MediaIds(config: V2PageConfig): string[] {
   }
   return [...ids];
 }
+

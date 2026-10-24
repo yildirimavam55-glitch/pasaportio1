@@ -1,3 +1,4 @@
+import { HomeInstallation } from './HomeDiscoveryContent';
 import { renderRegisteredEditorialBlock } from "./RegisteredEditorialBlock";
 import { blockContract } from "@/domain/storefront/block-registry";
 import { RegisteredCards } from "./RegisteredCards";
@@ -158,6 +159,7 @@ export type V2Slots = {
   hero: (section: V2Section) => ReactNode;
   destinations?: (section: V2Section) => ReactNode;
   regions?: (section: V2Section) => ReactNode;
+  compatibility?: (section: V2Section) => ReactNode;
   /** Optional page-owned content placed immediately after regional discovery. */
   afterRegions?: ReactNode;
   /** Optional page-owned content placed immediately after the destination carousel. */
@@ -212,7 +214,7 @@ export function V2Sections({ config, media, slots, only, onDestinationSearch, se
           case "TRUST_REVIEWS":
             return framed(<V2TrustReviews section={s} media={media} preview={isPreview} onDestinationSearch={onDestinationSearch} searchField={searchField} />);
           case "REGION_DISCOVERY":
-            return config.page === "esim" ? <Reveal key={s.id} stagger>{slots.regions?.(s)}{slots.afterRegions}</Reveal> : <V2Fragment key={s.id}>{slots.regions?.(s)}{slots.afterRegions}</V2Fragment>;
+            return config.page === "esim" ? <V2SectionFrame key={s.id} section={s}><Reveal stagger>{slots.regions?.(s)}{slots.afterRegions}</Reveal></V2SectionFrame> : <V2Fragment key={s.id}>{slots.regions?.(s)}{slots.afterRegions}</V2Fragment>;
           case "NOTICE":
             return <V2Notice key={s.id} section={s} title={t("title")} text={t("text")} />;
           case "INFO_GRID":
@@ -220,8 +222,10 @@ export function V2Sections({ config, media, slots, only, onDestinationSearch, se
           case "HOW_IT_WORKS":
             return framed(<HowItWorks title={t("title")} steps={items.map((item) => ({ t: v2ItemText(item.title, locale), s: v2ItemText(item.text, locale), image: mediaUrl(item.mediaId, media),media:item.tabletMediaId||item.mobileMediaId||item.imageDisplay?<ResponsiveMediaPicture value={item} resolve={id=>mediaUrl(id??null,media)} alt={v2ItemText(item.imageAlt,locale)} className="row-span-2 size-10"/>:undefined }))} />);
           case "INSTALLATION_STEPS":
+            if(config.page==="esim")return <HomeInstallation key={s.id} section={s} locale={getActiveUiLocale()}/>;
             return <div key={s.id} id="how" className="scroll-mt-28"><V2Installation title={t("title")} subtitle={t("subtitle")} steps={items.map((item) => v2ItemText(item.title, locale))} images={items.map(item => item.tabletMediaId||item.mobileMediaId||item.imageDisplay?<ResponsiveMediaPicture value={item} resolve={id=>mediaUrl(id??null,media)} alt={v2ItemText(item.imageAlt,locale)} className="size-full"/>:mediaUrl(item.mediaId, media))} ready={t("ready")} adding={t("adding")} cta={t("cta")} href={s.href === "/destek" ? "/esim/kurulum" : s.href} variant={s.variant === "simple" ? "simple" : "animated"} /></div>;
           case "COMPATIBILITY": {
+            if(config.page==="esim")return <V2SectionFrame key={s.id} section={s}>{slots.compatibility?.(s)}</V2SectionFrame>;
             const pairedPromo = sections[index + 1];
             if (pairedPromo?.type === "PROMO_BANNER" && pairedPromo.href === "/lounge" && isInWindow(pairedPromo) && optionalServices.lounge) {
               const loungeImage = mediaUrl(pairedPromo.mediaId, media);

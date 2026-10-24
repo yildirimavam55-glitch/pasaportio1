@@ -19,17 +19,15 @@ export function useRailControls<T extends HTMLElement>(deps: unknown[] = []) {
     const node = ref.current;
     window.addEventListener("resize", update);
     if (!node) return () => window.removeEventListener("resize", update);
-    let hinted = false;
-    const io = new IntersectionObserver(([entry]) => {
-      if (!entry?.isIntersecting || hinted) return;
-      hinted = true;
-      io.disconnect();
-      if (reducedMotion() || !matchMedia("(max-width: 1023px)").matches || node.scrollWidth <= node.clientWidth + 4 || Math.abs(node.scrollLeft) > 4) return;
-      const shift = getComputedStyle(node).direction === "rtl" ? 16 : -16;
-      node.animate([{ transform: "translateX(0)" }, { transform: `translateX(${shift}px)`, offset: 0.45 }, { transform: "translateX(0)" }], { duration: 900, delay: 350, easing: "ease-in-out" });
-    }, { threshold: 0.6 });
-    io.observe(node);
-    return () => { io.disconnect(); window.removeEventListener("resize", update); };
+    const ro = new ResizeObserver(update);ro.observe(node);
+    const wheel=(event:WheelEvent)=>{
+      if(event.ctrlKey||Math.abs(event.deltaX)>Math.abs(event.deltaY)||node.scrollWidth<=node.clientWidth+4)return;
+      const rtl=getComputedStyle(node).direction==='rtl';const delta=event.deltaY*(rtl?-1:1);const position=Math.abs(node.scrollLeft);
+      if((event.deltaY<0&&position<4)||(event.deltaY>0&&position+node.clientWidth>=node.scrollWidth-4))return;
+      event.preventDefault();node.scrollBy({left:delta,behavior:'instant'});
+    };
+    node.addEventListener('wheel',wheel,{passive:false});
+    return () => { ro.disconnect(); node.removeEventListener('wheel',wheel);window.removeEventListener("resize", update); };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, deps);
   const scroll = (next: boolean) => {
