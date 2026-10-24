@@ -97,6 +97,12 @@ const fs=require('node:fs');
   await page.screenshot({path:'artifacts/builder-preview/hero-trust-admin.png'});
   await support.getByLabel('trust-support-base-titleFont',{exact:true}).scrollIntoViewIfNeeded();
   await page.screenshot({path:'artifacts/builder-preview/hero-trust-typography-admin.png'});
+  for(const width of [390,768,1440]){
+   await page.setViewportSize({width,height:1100});
+   await support.getByLabel('item-title-support',{exact:true}).scrollIntoViewIfNeeded();
+   assert.equal(await page.locator('body').evaluate(e=>e.scrollWidth<=e.clientWidth),true,'Hero trust Admin has no horizontal overflow');
+   await page.screenshot({path:`artifacts/builder-preview/hero-trust-admin-${width}.png`});
+  }
   await page.getByLabel('TR:accent',{exact:true}).fill('Düzenlenen vurgu');
   await frame.locator('.final-hero-accent').filter({hasText:'Düzenlenen vurgu'}).waitFor();
   await page.getByLabel('accentColor',{exact:true}).fill('#80ffc0');
