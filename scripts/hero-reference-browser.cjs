@@ -54,6 +54,7 @@ const fs=require('node:fs');
   await support.getByLabel('trust-support-base-bodyWeight',{exact:true}).fill('500');
   await support.getByLabel('trust-support-base-bodyLine',{exact:true}).fill('1.5');
   await support.getByLabel('trust-support-base-circleSize',{exact:true}).fill('44');
+  await support.getByLabel('card-support-radius',{exact:true}).fill('14');
   await support.getByLabel('card-support-mobile-iconSize',{exact:true}).fill('28');
   await support.getByText('Manuel çeviri',{exact:true}).click();
   await support.getByLabel('item-manual-title-support-de',{exact:true}).fill('Meine manuelle Hilfe');
@@ -73,6 +74,7 @@ const fs=require('node:fs');
   for(const [width,size]of [[390,'15px'],[768,'17px'],[1440,'19px']]){
    await page.getByRole('button',{name:`${width} px`,exact:true}).click();
    await card.locator('h3').evaluate((e,size)=>{if(getComputedStyle(e).fontSize!==size)throw Error('Card font size overridden: '+getComputedStyle(e).fontSize)},size);
+   assert.equal(await card.evaluate(e=>getComputedStyle(e).borderRadius),'14px');
    assert.match(await card.locator('h3').evaluate(e=>getComputedStyle(e).fontFamily),/Georgia/);
    await page.locator('iframe').screenshot({path:`artifacts/builder-preview/trust-font-changed-${width}.png`});
   }
@@ -87,6 +89,7 @@ const fs=require('node:fs');
   await support.getByLabel('trust-down-support',{exact:true}).click();await frame.locator('.reference-hero-benefits [data-registered-card="setup"]:first-child').waitFor();assert.equal(await frame.locator('.reference-hero-benefits [data-registered-card]').first().getAttribute('data-registered-card'),'setup');
   await page.getByLabel('Vorschau in',{exact:true}).selectOption('de');await frame.locator('[data-locale=de]').waitFor();assert.equal(await card.locator('h3').innerText(),'Meine manuelle Hilfe');
   await page.getByLabel('Vorschau in',{exact:true}).selectOption('tr');
+  await support.getByText('Manuel çeviri',{exact:true}).click();
   await page.setViewportSize({width:1440,height:1100});
   await trust.locator('[data-hero-trust-item]').evaluateAll(rows=>rows.forEach(e=>e.open=false));
   await support.evaluate(e=>e.open=true);
