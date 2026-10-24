@@ -56,6 +56,9 @@ describe('Trust design persistence and precedence',()=>{
   expect(resolveTrustDesign(section,item,'desktop')).toMatchObject({titleSize:19,visible:false});
   expect(resolveTrustDesign(section,{titleSize:20},'desktop').titleSize).toBe(20);
  });
+ it('does not hide desktop when only mobile is hidden',()=>{
+  const item={mobile:{visible:false,showDescription:false}};expect(resolveTrustDesign({},item,'mobile').visible).toBe(false);expect(resolveTrustDesign({},item,'desktop').visible).toBeUndefined();expect(resolveTrustDesign({},item,'desktop').showDescription).toBeUndefined();
+ });
  it('round trips all supported trust properties and preserves old user values',()=>{
   const page=structuredClone(defaultV2Page('esim'));const benefits=page.sections.find(s=>s.type==='BENEFIT_ROW')!;
   benefits.items[0]!.cardDesign={color:'#123456',titleFont:'serif',bodyFont:'sans',titleSize:18,bodySize:13,titleWeight:700,bodyWeight:400,titleLine:1.2,bodyLine:1.5,iconColor:'#abcdef',circleColor:'#112233',circleSize:44,iconSize:25,mobile:{visible:false,showDescription:false,titleSize:14},desktop:{titleSize:19}};

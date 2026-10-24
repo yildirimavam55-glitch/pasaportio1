@@ -52,6 +52,10 @@ const fs=require('node:fs');
    assert.match(await card.locator('h3').evaluate(e=>getComputedStyle(e).fontFamily),/Georgia/);
    await page.locator('iframe').screenshot({path:`artifacts/builder-preview/trust-font-changed-${width}.png`});
   }
+  await support.getByLabel('trust-support-mobile-visible',{exact:true}).selectOption('false');
+  await page.getByRole('button',{name:'390 px',exact:true}).click();assert.equal(await card.isVisible(),false);
+  await page.getByRole('button',{name:'1440 px',exact:true}).click();assert.equal(await card.isVisible(),true);
+  await support.getByLabel('trust-support-mobile-visible',{exact:true}).selectOption('');
   await trust.locator('[data-add-hero-trust]').click();const added=trust.locator('[data-hero-trust-item]').last();await added.locator('summary').click();
   const id=await added.getAttribute('data-hero-trust-item');await added.getByLabel(`item-title-${id}`,{exact:true}).fill('Bilgi');
   assert.equal(await frame.locator('.reference-hero-benefits [data-registered-card]').count(),4);

@@ -9,8 +9,9 @@ export function sanitizeCardDesign(value:unknown):CardDesign {const v=(value??{}
 /** Stable precedence: semantic theme defaults in CSS, section, item, then device overrides. */
 export function resolveTrustDesign(section:CardDesign|undefined,item:CardDesign|undefined,device:'mobile'|'tablet'|'desktop'):CardDevice {
  const s=sanitizeCardDesign(section),i=sanitizeCardDesign(item);const {mobile:sm,tablet:st,desktop:sd,...sg}=s;const {mobile:im,tablet:it,desktop:id,...ig}=i;
- const sectionDevice={...sm,...(device!=='mobile'?st:{}),...(device==='desktop'?sd:{})};
- const itemDevice={...im,...(device!=='mobile'?it:{}),...(device==='desktop'?id:{})};
+ const visual=(v:CardDevice|undefined)=>{const {visible,showDescription,...rest}=v??{};return rest;};
+ const sectionDevice={...visual(sm),...(device!=='mobile'?visual(st):{}),...(device==='desktop'?visual(sd):{}),...s[device]};
+ const itemDevice={...visual(im),...(device!=='mobile'?visual(it):{}),...(device==='desktop'?visual(id):{}),...i[device]};
  const layer=(v:CardDevice)=>v.color?{...v,titleColor:v.titleColor??v.color,bodyColor:v.bodyColor??v.color}:v;
  return {...layer(sg),...layer(sectionDevice),...layer(ig),...layer(itemDevice)};
 }

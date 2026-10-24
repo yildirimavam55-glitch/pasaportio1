@@ -29,14 +29,14 @@ section.pasaport-final-hero .pasaport-country-arrow {width:38px;height:38px;min-
 section.pasaport-final-hero .final-hero-trust {grid-area:3/1;padding:0;margin:0;min-width:0;}
 section.pasaport-final-hero .hero-trust-strip,
 html:not(.dark) section.pasaport-final-hero .hero-trust-strip {display:block;grid-template-columns:none;height:auto;max-height:none;margin:0;background:rgba(0,54,48,.72);color:#f5fbfa;border:1px solid #9cffe21f;border-radius:18px;box-shadow:inset 0 1px 12px #00dfa40a;}
-.reference-hero-benefits {width:100%;--foreground:#f5fbfa;--card:transparent;--border:transparent;}
-.reference-hero-benefits .registered-cards {display:flex;flex-wrap:wrap;gap:0;margin:0;padding:6px;}
-.reference-hero-benefits .registered-cards>article {--rc-columns:var(--rc-mobile-columns,var(--hero-benefit-columns,1));flex:1 1 calc(100% / var(--rc-columns) - 2px);align-items:center;text-align:center;padding:var(--rc-mobile-padding,6px);gap:var(--rc-mobile-gap,5px);background:var(--rc-active-bg,transparent);color:var(--rc-active-color,#f5fbfa);border-color:var(--rc-active-border,transparent);border-radius:var(--rc-radius,8px);}
-.reference-hero-benefits .registered-card-icon {box-sizing:content-box;padding:8px;background:#008f6855;border-radius:50%;color:inherit;}
-.reference-hero-benefits .registered-cards h3 a {font:inherit;text-decoration:none;}
-.reference-hero-benefits .registered-cards h3 {color:inherit;font-size:12px;line-height:1.3;}
-.reference-hero-benefits .registered-cards p,.reference-hero-benefits .registered-cards a,.reference-hero-benefits .registered-cards span {color:inherit;font-size:11px;line-height:1.3;}
-.reference-hero-benefits .registered-cards picture {width:40px;max-width:100%;aspect-ratio:1;}
+
+
+
+
+
+
+
+
 section.pasaport-final-hero .final-hero-gift {position:relative;grid-area:4/1;inset:auto;justify-self:end;}
 section.pasaport-final-hero .final-hero-gift:empty {display:none;}
 header[data-reference-hero-header] {background:rgba(0,20,24,.96);border-color:#b8ffe525;color:#f5fbfa;--foreground:#f5fbfa;--muted-foreground:#d4e1df;--primary:#00dfa4;--border:#b8ffe525;}
@@ -62,7 +62,7 @@ header[data-reference-hero-header] .public-header-actions>[data-testid="header-c
  section.pasaport-final-hero .final-hero-heading p:not(.final-hero-eyebrow) {font-size:var(--builder-body-size,16px);}
  section.pasaport-final-hero .final-hero-photo img {object-position:var(--hero-tablet-position);object-fit:var(--hero-tablet-fit);transform:scale(var(--hero-tablet-scale));transform-origin:center;}
  section.pasaport-final-hero .final-hero-search {width:65%;}
- .reference-hero-benefits .registered-cards>article {--rc-columns:var(--rc-tablet-columns,var(--rc-mobile-columns,var(--hero-benefit-columns,1)));padding:var(--rc-tablet-padding,var(--rc-mobile-padding,10px));gap:var(--rc-tablet-gap,var(--rc-mobile-gap,6px));}
+ 
 }
 @media(min-width:1024px) {
  section.pasaport-final-hero {min-height:440px;padding:42px max(48px,calc((100vw - 1280px)/2));gap:20px;grid-template-rows:auto auto auto auto;}
@@ -72,11 +72,11 @@ header[data-reference-hero-header] .public-header-actions>[data-testid="header-c
  section.pasaport-final-hero .final-hero-heading p:not(.final-hero-eyebrow) {font-size:var(--builder-body-size,16px);max-width:28em;}
  section.pasaport-final-hero .final-hero-search {width:58%;max-width:680px;}
  section.pasaport-final-hero .final-hero-trust {width:68%;max-width:800px;}
- .reference-hero-benefits .registered-cards>article {--rc-columns:var(--rc-desktop-columns,var(--rc-tablet-columns,var(--rc-mobile-columns,var(--hero-benefit-columns,1))));padding:var(--rc-desktop-padding,var(--rc-tablet-padding,var(--rc-mobile-padding,10px)));gap:var(--rc-desktop-gap,var(--rc-tablet-gap,var(--rc-mobile-gap,6px)));}
- .reference-hero-benefits .registered-cards h3 {font-size:13px;}
- .reference-hero-benefits .registered-cards>article {display:grid;grid-template-columns:auto minmax(0,1fr);align-content:center;text-align:start;}
- .reference-hero-benefits .registered-card-icon {grid-column:1;grid-row:1 / span 2;}
- .reference-hero-benefits .registered-cards>article>:not(.registered-card-icon):not(picture) {grid-column:2;}
+ 
+ 
+ 
+ 
+ 
  header[data-reference-hero-header] .public-header-row {min-height:64px;}
  header[data-reference-hero-header] nav {min-width:0;flex:1;overflow-x:auto;scrollbar-width:none;}
  header[data-reference-hero-header] nav a {flex-shrink:0;}
@@ -94,7 +94,8 @@ section.pasaport-final-hero .final-hero-search {padding:2px;align-self:start;}
 section.pasaport-final-hero .final-hero-search .pasaport-country-field {height:40px;min-height:40px;font-size:12px;}
 section.pasaport-final-hero .pasaport-country-arrow {width:36px;height:36px;min-width:36px;}
 section.pasaport-final-hero .hero-trust-strip {border-radius:16px;backdrop-filter:blur(8px);}
-.reference-hero-benefits .registered-cards {padding:4px;}
+.reference-hero-benefits{width:100%;--foreground:#f5fbfa;--card:transparent;--border:transparent;}
+.reference-hero-benefits .registered-cards {display:flex;flex-wrap:wrap;gap:0;margin:0;padding:4px;}
 .reference-hero-benefits .registered-cards>article {display:var(--trust-active-visible,flex);flex-direction:column;align-items:center;text-align:center;gap:var(--trust-active-gap,4px);padding:var(--trust-active-padding,6px);flex:1 1 calc(100% / var(--trust-active-columns,var(--hero-active-columns)) - 2px);background:var(--trust-active-background,transparent);border-color:var(--trust-active-borderColor,transparent);overflow-wrap:normal;word-break:normal;hyphens:auto;color:var(--trust-active-color,#f5fbfa);}
 .reference-hero-benefits .trust-icon-circle {width:var(--trust-active-circleSize,36px);height:var(--trust-active-circleSize,36px);display:grid;place-items:center;flex-shrink:0;border-radius:50%;background:var(--trust-active-circleColor,#008f6855);color:var(--trust-active-iconColor,#fff);}
 .reference-hero-benefits .registered-cards .registered-card-icon {width:var(--trust-active-iconSize,22px);height:var(--trust-active-iconSize,22px);padding:0;background:none;border-radius:0;color:inherit;}

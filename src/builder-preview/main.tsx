@@ -1,6 +1,6 @@
 import { HeroTrustEditor } from "@/components/admin/HeroTrustEditor";
 import { CountryFlag } from "@/components/travel/CountryFlag";
-import { HERO_TITLE } from "@/domain/storefront/hero-title";
+import { HERO_TITLE,HERO_REFUND_TERMS } from "@/domain/storefront/hero-title";
 import { HeroHeading } from "@/components/design-v2/HeroHeading";
 import { HeroTrustCards } from "@/components/design-v2/HeroTrustCards";
 import { PublicHeaderFrame, HEADER_LOCALE_FLAG } from "@/components/travel/PublicHeaderFrame";
@@ -68,7 +68,7 @@ function initial(): V2PageConfig {
     savedHero.text['accent']={tr:HERO_TITLE.tr.titleB,de:HERO_TITLE.de.titleB,en:HERO_TITLE.en.titleB,...Object.fromEntries(UI_LOCALES.map(locale=>[locale,HERO_TITLE[locale].titleB]))};
     const benefits=page.sections.find(s=>s.type==='BENEFIT_ROW')!;
     const order=['support','setup','refund','delivery'];benefits.items.sort((a,b)=>order.indexOf(a.id)-order.indexOf(b.id));
-    benefits.items=benefits.items.map(i=>({...i,visible:i.id!=='delivery'}));
+    benefits.items=benefits.items.map(i=>({...i,visible:i.id!=='delivery',...(i.id==='refund'?{title:{...HERO_REFUND_TERMS}}:{})}));
     savedHero.heroTextMode=Object.fromEntries(UI_LOCALES.map(locale=>[locale,'custom' as const]));
   }
   return page;
