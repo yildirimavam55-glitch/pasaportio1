@@ -40,6 +40,9 @@ jobs:
         with:
           node-version: 24
       - uses: oven-sh/setup-bun@v2
+      - name: Recover original portable homepage photographs (read only)
+        timeout-minutes: 5
+        run: python3 scripts/recover-homepage-media.py
       - name: Frozen installation
         id: install
         run: bun install --frozen-lockfile
@@ -114,4 +117,5 @@ jobs:
             public/builder-preview
             artifacts/builder-preview
             artifacts/admin-security
+            src/assets/countries/portable
           retention-days: 7
