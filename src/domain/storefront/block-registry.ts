@@ -30,16 +30,16 @@ export const V2_ADDABLE: readonly V2SectionType[] = ["BENEFIT_ROW", "PROMO_BANNE
 export const V2_TEXT_FIELDS: Record<V2SectionType, Array<[string, string]>> = {
   SEARCH_HERO: [["eyebrow", "Üst başlık"], ["title", "Başlık"], ["accent", "Vurgulu ikinci satır"], ["subtitle", "Alt başlık"], ["placeholder", "Arama metni"], ["sticky", "Sabit arama metni"], ["imageAlt", "Görsel açıklaması"]],
   BENEFIT_ROW: [],
-  DESTINATION_CAROUSEL: [["title", "Başlık"]],
+  DESTINATION_CAROUSEL: [["title", "Başlık"], ["all", "Tüm ülkeler bağlantısı"]],
   TRUST_REVIEWS: [
     ["familyTitle", "Aile başlığı"], ["familyAccent", "Aile vurgusu"], ["familySubtitle", "Aile açıklaması"], ["familyGroup","Sohbet grup adı"], ["familyChat0","Sohbet mesajı 1"], ["familyChat1","Sohbet mesajı 2"], ["familyChat2","Sohbet mesajı 3"], ["familyChat3","Sohbet mesajı 4"], ["familyChat4","Sohbet mesajı 5"], ["familyBenefit0","Kompakt fayda 1"], ["familyBenefit1","Kompakt fayda 2"], ["familyBenefit2","Kompakt fayda 3"], ["familyReviewsTitle","Yorum başlığı"], ["familyBudget","Dönüşüm başlığı"], ["familyPlan","Dönüşüm açıklaması"], ["familyCta","Arama butonu"],["eyebrow", "Güven etiketi"], ["title", "Başlık"], ["accent", "Yeşil başlık satırı"], ["subtitle", "Açıklama"], ["imageAlt", "Seyahat görseli alt metni"], ["cta", "Buton metni"], ["whyEyebrow", "Neden pasaport.io üst başlığı"], ["whyTitle", "Neden pasaport.io başlığı"], ["whyDescription", "Neden pasaport.io açıklaması"], ["statisticPrefix", "Tasarruf ön eki (ör. \"…'e kadar\")"], ["statisticLabel", "Tasarruf başlığı"], ["comparisonTitle", "Karşılaştırma son mesaj başlığı"], ["comparisonDescription", "Karşılaştırma son mesaj açıklaması"], ["comparisonCta", "Karşılaştırma buton metni"], ["comparisonALabel", "Roaming etiketi"], ["comparisonASupport", "Roaming alt metni"], ["comparisonBLabel", "pasaport.io etiketi"], ["comparisonBSupport", "pasaport.io alt metni"], ["comparisonFootnote", "Kaynak / yöntem notu"], ["comparisonSavingLabel", "Tasarruf etiketi"], ["comparisonAdvantageLabel", "Fiyat avantajı etiketi"], ["comparisonDestination", "Karşılaştırılan destinasyon / referans"], ["comparisonAllowance", "Karşılaştırılan veri miktarı"], ["comparisonValidity", "Karşılaştırılan geçerlilik süresi"]],
   INFO_CAROUSEL: [["title", "Başlık"], ["subtitle", "Alt başlık"]],
-  REGION_DISCOVERY: [["eyebrow", "Üst başlık"], ["title", "Başlık"], ["lead", "Açıklama"], ["worldwide", "Dünya bannerı"], ["cta", "Buton metni"]],
+  REGION_DISCOVERY: [["all", "Tüm paketler bağlantısı"], ["eyebrow", "Üst başlık"], ["title", "Başlık"], ["lead", "Açıklama"], ["worldwide", "Dünya bannerı"], ["cta", "Buton metni"]],
   NOTICE: [["title", "Başlık"], ["text", "Metin"]],
   INFO_GRID: [["title", "Başlık"]],
   HOW_IT_WORKS: [["title", "Başlık"]],
-  INSTALLATION_STEPS: [["title", "Başlık"], ["subtitle", "Alt başlık"], ["ready", "Hazır etiketi"], ["adding", "Ekleniyor etiketi"], ["cta", "Buton metni"]],
-  COMPATIBILITY: [["title", "Başlık"]],
+  INSTALLATION_STEPS: [["all", "Rehber bağlantısı"], ["replay", "Tekrar oynat"], ["title", "Başlık"], ["subtitle", "Alt başlık"], ["ready", "Hazır etiketi"], ["adding", "Ekleniyor etiketi"], ["cta", "Buton metni"]],
+  COMPATIBILITY: [["title", "Başlık"], ["subtitle", "Açıklama"]],
   PROMO_BANNER: [["title", "Başlık"], ["subtitle", "Alt başlık"]],
   GUIDE_CAROUSEL: [["title", "Başlık"], ["lead", "Açıklama"], ["all", "Tümü bağlantısı"]],
   FAQ: [["title", "Başlık"]],
@@ -58,7 +58,7 @@ export const BLOCK_CONTRACTS=Object.fromEntries(V2_SECTION_TYPES.map(type=>[type
  mediaVariants:['desktop','tablet','mobile'] as const,
  designFields:['width','spacing','background','radius','font','weight','lineHeight','letterSpacing','textAlign','position','headingColor','bodyColor','accentColor','mobile','tablet','desktop'],
  itemMode: type==='DESTINATION_CAROUSEL'?'catalogue':type==='TRUST_REVIEWS'?'evidence':'editorial',
- unsupported: ({REGION_DISCOVERY:['arbitrary-products','free-prices'],DESTINATION_CAROUSEL:['free-prices','provider-editing'],TRUST_REVIEWS:['comparison-publishing','fake-reviews','trust-chip-grid','per-item-design'],FAQ:['item-media','item-cta','item-icon','per-item-design'],HOW_IT_WORKS:['item-icon','item-cta','per-item-design'],INSTALLATION_STEPS:['item-icon','item-cta','per-item-design'],COMPATIBILITY:['device-authority','custom-checker'],GUIDE_CAROUSEL:['guide-data-editing']} as Partial<Record<V2SectionType,string[]>>)[type]??[],
+ unsupported: ({REGION_DISCOVERY:['arbitrary-products','free-prices'],DESTINATION_CAROUSEL:['free-prices','provider-editing'],TRUST_REVIEWS:['comparison-publishing','fake-reviews','trust-chip-grid','per-item-design'],FAQ:['item-media','item-cta','item-icon','per-item-design'],HOW_IT_WORKS:['item-icon','item-cta','per-item-design'],INSTALLATION_STEPS:['item-cta'],COMPATIBILITY:['device-authority','custom-checker'],GUIDE_CAROUSEL:['guide-data-editing']} as Partial<Record<V2SectionType,string[]>>)[type]??[],
  } ])) as unknown as Record<V2SectionType,BlockContract>;
 export type BlockContract={type:V2SectionType;schemaVersion:number;renderer:V2SectionType;previewRenderer:V2SectionType;textFields:Array<[string,string]>;itemTextFields:readonly string[];protected:boolean;singleton:boolean;addable:boolean;editRoles:BlockRole[];publicFields:readonly string[];forbiddenFields:readonly string[];mediaVariants:readonly string[];designFields:string[];itemMode:string;unsupported:string[]};
 export function blockContract(type:unknown):BlockContract{
@@ -84,3 +84,4 @@ export function upgradeBlockDocument(raw:unknown):any{
  }
  return {...value,version:1,sections:value.sections.map((b:any)=>b.schemaVersion===0?{...b,schemaVersion:1}:b)};
 }
+

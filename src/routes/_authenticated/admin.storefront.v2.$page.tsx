@@ -1,3 +1,4 @@
+import { HomePresentationControls } from '@/components/admin/HomePresentationControls';
 import { HeroTrustEditor } from "@/components/admin/HeroTrustEditor";
 import { SectionLibrary } from '@/components/admin/SectionLibrary';
 import { EditorialSectionEditor } from '@/components/admin/EditorialSectionEditor';
@@ -532,6 +533,7 @@ function SectionForm({ section: s, lang, previewLocale, page, trustPreviewLocale
       {s.type === "FAQ" && <Select label="Satır yüksekliği" value={s.variant === "comfortable" ? "comfortable" : "default"} options={["default", "comfortable"] as const} labels={{ default: "Kompakt", comfortable: "Rahat" }} onChange={(variant) => onChange({ variant })} />}
       {s.type === "SPACER" && <Select label="Boşluk" value={s.height} options={V2_HEIGHTS} onChange={(height) => onChange({ height })} />}
       {s.type === "DESTINATION_CAROUSEL" && <p className="rounded-md bg-secondary p-2 text-[11px] text-muted-foreground">Fiyatlar her zaman gerçek katalogdan gelir; yalnız yayınlanmış fiyatı olan destinasyonlar müşteriye görünür.</p>}
+      {page==='esim'&&<HomePresentationControls section={s} onChange={onChange} locale={previewLocale} picker={(label,value,onChange)=><MediaField label={label} value={value} onChange={onChange}/>}/>}
       {page === 'esim' && (s.type === 'DESTINATION_CAROUSEL' || s.type === 'REGION_DISCOVERY') && <HomepageImagesEditor key={s.id} section={s} onChange={onChange} />}
       {s.type === "REGION_DISCOVERY" && <>
         <p className="rounded-md bg-secondary p-2 text-[11px] text-muted-foreground">Bölgeler, ülke sayıları ve fiyatlar gerçek katalogdan otomatik gelir.</p>
@@ -661,7 +663,7 @@ function ItemsEditor({ mode, page, items, lang, onChange }: { mode: NonNullable<
             {mode !== "destination" && (
               <div className="mt-2 grid gap-2 sm:grid-cols-2">
                 <EditorialItemControls item={it} onChange={patch=>set(it.id,patch)}/>
-                <CardDesignControls id={it.id} value={it.cardDesign} onChange={cardDesign=>set(it.id,{cardDesign})}/>
+                <CardDesignControls advanced={mode==='step'} inheritValues={mode==='step'} id={it.id} value={it.cardDesign} onChange={cardDesign=>set(it.id,{cardDesign})}/>
                 <ResponsiveMediaControls value={it} onChange={patch=>set(it.id,patch)} picker={(label,value,onChange)=><MediaField label={label} value={value} onChange={onChange}/>}/>
 
               </div>
@@ -698,4 +700,5 @@ function ReviewTranslator({ review, onChange }: { review: V2Item; onChange: (tex
     {targets.some((code) => review.text[code]) && <dl className="mt-2 space-y-1 text-xs">{targets.map((code) => review.text[code] ? <div key={code}><dt className="inline font-bold uppercase">{code}: </dt><dd className="inline text-muted-foreground">{review.text[code]}</dd></div> : null)}</dl>}
   </div>;
 }
+
 

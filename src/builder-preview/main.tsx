@@ -1,3 +1,4 @@
+import { HomePresentationControls } from '@/components/admin/HomePresentationControls';
 import { HeroTrustEditor } from "@/components/admin/HeroTrustEditor";
 import { CountryFlag } from "@/components/travel/CountryFlag";
 import { HERO_TITLE,HERO_REFUND_TERMS } from "@/domain/storefront/hero-title";
@@ -171,6 +172,7 @@ function BuilderDemo() {
 
       <V2PageTranslation page={config} onChange={setConfig} demo transport={demoTransport}/>
       {section.type==='SEARCH_HERO'&&<HeroTrustEditor section={config.sections.find(s=>s.type==='BENEFIT_ROW')} onChange={patch=>setConfig(current=>({...current,sections:current.sections.map(s=>s.type==='BENEFIT_ROW'?{...s,...patch}:s)}))}/>}
+      <HomePresentationControls section={section} onChange={patch} locale={locale} picker={(label,id,onChange)=><select aria-label={'home-media-'+label} value={id??''} onChange={e=>onChange(e.target.value||null)}><option value="">Standard</option>{IMAGE_IDS.map((key,index)=><option key={key} value={key}>{index?'Terrasse':'Küste'}</option>)}</select>}/>
       <V2TurkishTextEditor key={selected} section={section} onChange={patch} previewLocale={locale} demo />
 
       <V2TypographyControls design={design} onChange={design => patch({ design })} />
@@ -200,3 +202,4 @@ function BuilderDemo() {
 }
 
 createRoot(document.getElementById("root")!).render(new URLSearchParams(window.location.search).has("canvas") ? <Canvas /> : <BuilderDemo />);
+

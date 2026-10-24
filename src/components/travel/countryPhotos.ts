@@ -15,6 +15,9 @@ const photoModules = import.meta.glob<CountryPhotoPointer>(
   { eager: true, import: "default" },
 ) as CountryPhotoModules;
 
+const portableModules=import.meta.glob<string>("../../assets/countries/portable/*.{jpg,png,webp}",{eager:true,import:"default"});
+const portablePhotos=Object.fromEntries(Object.entries(portableModules).map(([path,url])=>[path.match(/\/([A-Z]{2})\./)?.[1],url]));
+
 export type CountryPhoto = {
   iso: string;
   cardImage: string;
@@ -51,7 +54,7 @@ export const countryPhotoRegistry: Readonly<Record<string, CountryPhoto>> = Obje
         iso,
         {
           iso,
-          cardImage: pointer.url,
+          cardImage: portablePhotos[iso] ?? pointer.url,
           heroImage: pointer.url,
           focalX: 50,
           focalY: 50,
@@ -70,3 +73,4 @@ export function getCountryPhoto(iso: string | null | undefined) {
 export function getCountryPhotoFallback(iso: string) {
   return { flag: flagOf(iso), label: getCountryByIso(iso)?.name.en ?? iso.toUpperCase() };
 }
+

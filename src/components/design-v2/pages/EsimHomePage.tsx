@@ -1,3 +1,4 @@
+import { HomePhotoRail, HomePhotoCard } from '@/components/design-v2/HomeDiscoveryContent';
 import { Link, useNavigate, useSearch } from "@tanstack/react-router";
 import { queryOptions, useQuery } from "@tanstack/react-query";
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
@@ -218,7 +219,8 @@ export function EsimHomePage() {
       </PasaportEsimHero>
               ),
               destinations: (section) => <Popular c={c} section={section} onPick={choose} />,
-              regions: (section) => <><RegionalDiscovery section={section} c={c} /><HomeCompatibilityCard /><TripPlannerPromo /></>,
+              regions: (section) => <RegionalDiscovery section={section} c={c} />,
+              compatibility: (section) => <HomeCompatibilityCard section={section} />,
               benefitsInDesktopHero: true,
             }}
           />
@@ -271,36 +273,9 @@ function Popular({ c, section, onPick }: { c: (typeof T)["tr"]; section: V2Secti
     country,
     p: data?.find((entry) => entry.targetId === country.iso),
   }));
-  return (
-    <>
-       <div id="popular" className="popular-country-heading grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2 scroll-mt-28"><SectionTitle>{v2Text(section, "title", locale) || c.popular}</SectionTitle><Link to="/esim/ulkeler" className="flex min-h-11 items-center gap-1 text-xs font-semibold text-primary">{uiLocale === "ar" ? "عرض الكل" : locale === "tr" ? "Tümünü gör" : locale === "de" ? "Alle ansehen" : translateString("View all")}<ArrowRight className="size-4 rtl:rotate-180" /></Link></div>
-      {isLoading ? (
-        <div className="h-[8.4rem] rounded-2xl bg-muted lg:h-56" aria-hidden />
-      ) : destinations.length === 0 ? (
-        <p className="rounded-2xl bg-card p-4 text-sm text-muted-foreground ring-1 ring-border">{c.noPrices}</p>
-      ) : (
-        <div className="home-rail-frame">
-        <RailArrows edge={popularRail.edge} scroll={popularRail.scroll} previous={c.popular + ' · ' + railCopy.previous} next={c.popular + ' · ' + railCopy.next} />
-        <PhotoRail railRef={popularRail.ref} onScroll={popularRail.update}>
-          {destinations.map(({ country, p }) => (
-            <PhotoCard
-              key={country.iso}
-              image={mediaUrl(homepageImageId(section, country.iso), media) ?? countryPhotoRegistry[country.iso]?.cardImage}
-              fallbackImage={countryPhotoRegistry[country.iso]?.cardImage}
-              badge={<CountryFlag iso={country.iso} className="h-4 w-6 rounded-sm shadow" />}
-              title={country.name[locale]}
-              price={p ? `${c.from} ${money(p.amount, p.currency)}` : undefined}
-              sub={!p ? c.noPrices : undefined}
-              onClick={() => onPick(country.iso)}
-              showArrow
-              overlay
-            />
-          ))}
-        </PhotoRail>
-        </div>
-      )}
-    </>
-  );
+  return <HomePhotoRail section={section} locale={uiLocale} count={destinations.length}>
+    {destinations.map(({country,p})=><HomePhotoCard key={country.iso} id={country.iso} section={section} item={section.items.find(i=>i.entity===country.iso)} title={country.name[locale]} image={mediaUrl(homepageImageId(section,country.iso),media)} fallback={countryPhotoRegistry[country.iso]?.cardImage} badge={<CountryFlag iso={country.iso}/>} price={p?`${c.from} ${money(p.amount,p.currency)}`:undefined} onPick={()=>onPick(country.iso)}/>)}
+  </HomePhotoRail>;
 }
 
 const FEATURED_PLAN_LABEL = localize({ tr: "En Popüler", de: "Beliebt", en: "Popular" });
@@ -328,44 +303,18 @@ function RegionalDiscovery({ section, c }: { section: V2Section; c: (typeof T)["
   const { media } = useV2Page("esim");
   const { ref, ready } = useNearViewport();
   const regionalSummaries = useQuery({ queryKey: ["v2-esim-regions"], queryFn: () => listEsimRegionalSummaries(), enabled: ready });
-  const summaries = regionalSummaries.data ?? [];
-  const loading = regionalSummaries.isPending;
-  const { locale } = useI18n();
-  const regions = uniqueRegions(summaries);
-  const copy = DISCOVERY_COPY[locale];
-  const rail = useRailControls<HTMLUListElement>([loading, regions.length]);
-  const title = v2Text(section, "title", locale) || copy.title;
-  return (
-    <section ref={ref} aria-labelledby="regional-esim-title" className="home-region-section">
-      <div className="regional-home-heading"><SectionTitle><span id="regional-esim-title">{title}</span></SectionTitle></div>
-      {loading ? <div className="home-region-placeholder bg-muted/70" aria-hidden /> : regions.length === 0 ? (
-        <div className="home-region-carousel home-rail-frame" aria-label={title}>
-          <ul className="home-region-rail">
-            {(["EUROPE", "ASIA", "GLOBAL"] as const).map((region) => {
-              const photo = getRegionPhoto(region);
-              return (
-                <li key={region} className="home-region-card home-region-card-overlay relative overflow-hidden rounded-xl bg-muted" aria-label={`${COVERAGE_REGION_LABELS[region][locale]}: ${c.noPrices}`}>
-                  {photo && <img src={photo.url} alt={photo.alt[locale]} loading="lazy" className="absolute inset-0 h-full w-full object-cover" />}
-                  <span className="photo-card-overlay-shade" aria-hidden="true" />
-                  <div className="absolute inset-x-0 bottom-0 p-3 text-white">
-                    <h3 className="font-display text-base font-bold">{COVERAGE_REGION_LABELS[region][locale]}</h3>
-                    <p className="text-xs opacity-90">{c.noPrices}</p>
-                  </div>
-                </li>
-              );
-            })}
-          </ul>
-        </div>
-      ) : (
-        <div className="home-region-carousel home-rail-frame">
-          <RailArrows edge={rail.edge} scroll={rail.scroll} previous={copy.previous} next={copy.next} />
-          <ul ref={rail.ref} onScroll={rail.update} className="home-region-rail" aria-label={title}>
-             {regions.map((item) => <li data-reveal-card key={item.region}><V2RegionCard item={item} imageUrl={mediaUrl(homepageImageId(section, item.region), media)} countries={c.countries} multi={c.multiCountry} from={c.from} compact /></li>)}
-          </ul>
-        </div>
-      )}
-    </section>
-  );
+  const { locale,uiLocale } = useI18n();
+  const summaries=uniqueRegions(regionalSummaries.data??[]);
+  const configured=section.items.filter(i=>i.entity);
+  const keys=configured.length?configured.filter(i=>i.visible).map(i=>i.entity):['EUROPE','ASIA','GLOBAL',...summaries.map(i=>i.region).filter(k=>!['EUROPE','ASIA','GLOBAL'].includes(k))];
+  return <div ref={ref}><HomePhotoRail section={section} locale={uiLocale} regional count={keys.length}>
+   {keys.map(key=>{
+    const item=summaries.find(row=>row.region===key);const editorial=section.items.find(i=>i.entity===key);
+    if(item)return <V2RegionCard key={key} item={item} section={section} editorial={editorial} imageUrl={mediaUrl(homepageImageId(section,key),media)} countries={c.countries} multi={c.multiCountry} from={c.from} compact/>;
+    const region=key as keyof typeof COVERAGE_REGION_LABELS;const label=COVERAGE_REGION_LABELS[region]?.[locale];if(!label)return null;
+    return <HomePhotoCard key={key} id={key} section={section} item={editorial} title={label} image={mediaUrl(homepageImageId(section,key),media)} fallback={getRegionPhoto(region)?.url} href={'/esim/bolge/'+key}/>;
+   })}
+  </HomePhotoRail></div>;
 }
 
 // Price deliberately excluded: truly equivalent options collapse to the cheaper one.

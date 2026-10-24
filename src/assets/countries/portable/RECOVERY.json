@@ -1,0 +1,74 @@
+{
+  "TR": {
+    "source": "original published project asset",
+    "originalAsset": "7a47bd5f-2cbe-4e9a-b08f-0ccf1cb5a557",
+    "file": "TR.jpg",
+    "sha256": "c6aa9c6daca336485b40faa78707e39247c978fc40ea882d8fa8af8833f2c6bb"
+  },
+  "IT": {
+    "source": "original published project asset",
+    "originalAsset": "9462539d-b81b-44c1-b05f-36f4b9e30e42",
+    "file": "IT.webp",
+    "sha256": "89c70fb7e80de26fbebd0466479aefd0db4a6d723baa6cf90502f39d27f5ad37"
+  },
+  "FR": {
+    "source": "original published project asset",
+    "originalAsset": "ee09b890-37f9-47fc-b1bb-3b461b1b80f5",
+    "file": "FR.webp",
+    "sha256": "706834a01eeab230e2123910f37af25270c5d6c4e9172de8dda64708701390fa"
+  },
+  "DE": {
+    "source": "original published project asset",
+    "originalAsset": "30d3ccba-e7ee-4b68-84f6-f2a6b8d09ac5",
+    "file": "DE.webp",
+    "sha256": "a9ed6ff13f889fa8a44ac142d10119b056dc5f1e03ea828a28a252aa29b26287"
+  },
+  "US": {
+    "source": "original published project asset",
+    "originalAsset": "67f86505-5ff7-40d4-87aa-d71a7b83bf51",
+    "file": "US.webp",
+    "sha256": "a51c85a7ab2ffb8de91a67d23a6130f187483d1582dfb6f2f0aad8c10aa38b91"
+  },
+  "AT": {
+    "source": "original published project asset",
+    "originalAsset": "680f47d1-b36c-422d-b188-7b185b1b2f2e",
+    "file": "AT.webp",
+    "sha256": "c5d7bd38226d7c4058b0fd51b0fd0e628df4f6f8dcbc4e7828b83ec63f7e82de"
+  },
+  "ES": {
+    "source": "original published project asset",
+    "originalAsset": "19ed413d-e825-4e35-adcd-2f9634e64ef5",
+    "file": "ES.webp",
+    "sha256": "e94550abbe5acf6bc2bffff19de70b5db79eaf9d9bf3ea456a955c9df07a83b0"
+  },
+  "GB": {
+    "source": "original published project asset",
+    "originalAsset": "06849ffc-166c-4bf1-86cd-9977571e6777",
+    "file": "GB.webp",
+    "sha256": "4e9da29d77cdcbf026657ffa21220d5437847c844be1049f459d8f3fa3e420a0"
+  },
+  "GR": {
+    "source": "original published project asset",
+    "originalAsset": "127fd44d-0a8c-48dc-8675-3a162f61d4d0",
+    "file": "GR.webp",
+    "sha256": "da14d3bd94d654fb42697ca1eb198c123fbc02ea537d010b557d61d1543e4a5b"
+  },
+  "CH": {
+    "source": "original published project asset",
+    "originalAsset": "127d8266-cceb-41fc-ac85-ccdff5096f78",
+    "file": "CH.webp",
+    "sha256": "bd7346835aee605534f63d684866fe226dca73cfbc05e3ada0f9f788a0177a04"
+  },
+  "NL": {
+    "source": "original published project asset",
+    "originalAsset": "1169d2b8-5b82-419b-b146-af9d9c478806",
+    "file": "NL.webp",
+    "sha256": "934aa78b03b1d70d6f3c514bbebbccdd36398b1a43a7420b980418fa3f34fae1"
+  },
+  "AE": {
+    "source": "original published project asset",
+    "originalAsset": "376b2ec5-aed8-425d-af31-6b3e5c7abca4",
+    "file": "AE.webp",
+    "sha256": "c0d2c11fae71cf755d11af2ea1fe7ee751bb55353db850228ae228702d6f9c80"
+  }
+}

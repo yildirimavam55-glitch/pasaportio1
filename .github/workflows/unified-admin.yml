@@ -55,7 +55,7 @@ jobs:
         run: bun run build
       - name: Builder regressions
         if: ${{ !cancelled() && steps.install.outcome == 'success' }}
-        run: bunx vitest run src/components/design-v2/__tests__/builder-mvp.test.tsx src/domain/storefront/__tests__/v2.test.ts src/domain/storefront/translation-workflow.test.ts src/domain/storefront/page-translation.test.ts src/lib/cms-translation.server.test.ts src/lib/cms-translation-handler.test.ts src/domain/storefront/admin-integration.test.tsx src/lib/builder-persistence.server.test.ts src/domain/storefront/block-registry.test.tsx src/lib/admin-permissions.integration.test.ts src/security/admin-surface.test.ts src/domain/storefront/editorial.test.tsx src/components/design-v2/__tests__/hero-reference.test.tsx
+        run: bunx vitest run src/components/design-v2/__tests__/builder-mvp.test.tsx src/domain/storefront/__tests__/v2.test.ts src/domain/storefront/translation-workflow.test.ts src/domain/storefront/page-translation.test.ts src/lib/cms-translation.server.test.ts src/lib/cms-translation-handler.test.ts src/domain/storefront/admin-integration.test.tsx src/lib/builder-persistence.server.test.ts src/domain/storefront/block-registry.test.tsx src/lib/admin-permissions.integration.test.ts src/security/admin-surface.test.ts src/domain/storefront/editorial.test.tsx src/components/design-v2/__tests__/hero-reference.test.tsx src/components/design-v2/__tests__/home-discovery.test.tsx
       - name: Install pinned isolated browser test tooling
         timeout-minutes: 3
         id: browser
@@ -89,6 +89,7 @@ jobs:
           python3 -m http.server 8765 --bind 127.0.0.1 --directory public > "$RUNNER_TEMP/builder-server.log" 2>&1 &
           node scripts/builder-preview-browser.cjs
           node scripts/hero-reference-browser.cjs
+          node scripts/home-discovery-browser.cjs
       - name: Inherited 53 security checks from PR3
         if: ${{ !cancelled() && steps.install.outcome == 'success' }}
         run: |
@@ -119,3 +120,4 @@ jobs:
             artifacts/admin-security
             src/assets/countries/portable
           retention-days: 7
+
