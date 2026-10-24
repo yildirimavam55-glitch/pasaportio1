@@ -1,3 +1,4 @@
+import { HeroTrustEditor } from "@/components/admin/HeroTrustEditor";
 import { CountryFlag } from "@/components/travel/CountryFlag";
 import { HERO_TITLE } from "@/domain/storefront/hero-title";
 import { HeroHeading } from "@/components/design-v2/HeroHeading";
@@ -65,6 +66,9 @@ function initial(): V2PageConfig {
     const savedHero=page.sections.find(s=>s.type==='SEARCH_HERO')!;
     savedHero.text['title']={tr:HERO_TITLE.tr.titleA,de:HERO_TITLE.de.titleA,en:HERO_TITLE.en.titleA,...Object.fromEntries(UI_LOCALES.map(locale=>[locale,HERO_TITLE[locale].titleA]))};
     savedHero.text['accent']={tr:HERO_TITLE.tr.titleB,de:HERO_TITLE.de.titleB,en:HERO_TITLE.en.titleB,...Object.fromEntries(UI_LOCALES.map(locale=>[locale,HERO_TITLE[locale].titleB]))};
+    const benefits=page.sections.find(s=>s.type==='BENEFIT_ROW')!;
+    const order=['support','setup','refund','delivery'];benefits.items.sort((a,b)=>order.indexOf(a.id)-order.indexOf(b.id));
+    benefits.items=benefits.items.map(i=>({...i,visible:i.id!=='delivery'}));
     savedHero.heroTextMode=Object.fromEntries(UI_LOCALES.map(locale=>[locale,'custom' as const]));
   }
   return page;
@@ -166,6 +170,7 @@ function BuilderDemo() {
       <label>Abschnitt<select aria-label="Abschnitt" value={selected} onChange={e => setSelected(e.target.value)}>{config.sections.map(s => <option key={s.id} value={s.id}>{s.type}</option>)}</select></label>
 
       <V2PageTranslation page={config} onChange={setConfig} demo transport={demoTransport}/>
+      {section.type==='SEARCH_HERO'&&<HeroTrustEditor section={config.sections.find(s=>s.type==='BENEFIT_ROW')} onChange={patch=>setConfig(current=>({...current,sections:current.sections.map(s=>s.type==='BENEFIT_ROW'?{...s,...patch}:s)}))}/>}
       <V2TurkishTextEditor key={selected} section={section} onChange={patch} previewLocale={locale} demo />
 
       <V2TypographyControls design={design} onChange={design => patch({ design })} />

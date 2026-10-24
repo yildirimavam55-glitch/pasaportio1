@@ -1,3 +1,4 @@
+import { HeroTrustEditor } from "@/components/admin/HeroTrustEditor";
 import { SectionLibrary } from '@/components/admin/SectionLibrary';
 import { EditorialSectionEditor } from '@/components/admin/EditorialSectionEditor';
 import { cloneEditorialSection,flattenEditorial,SECTION_LIMIT } from '@/domain/storefront/editorial';
@@ -316,6 +317,7 @@ function Editor({ page }: { page: V2PageId }) {
            {selected.type!=='EDITORIAL_SECTION'&&<div className="mb-3 flex items-center gap-2"><Button type="button" size="sm" variant="outline" disabled={translatingTrust} onClick={() => void translateTrust()}>{translatingTrust ? "Çevriliyor…" : "Alle 13 Sprachen übersetzen"}</Button><span className="text-xs text-muted-foreground">Türkçe kaynak 13 dile çevrilir; elle düzenlenen çeviriler korunur. Gerçek çeviri, servis yapılandırılıp ayrıca onaylandıktan sonra kullanılabilir; yayınlamaz.</span></div>}
           <LocaleStatusRow section={selected} />
           <SectionDesignEditor section={selected} onChange={(design) => patchSection(selected.id, design ? { design } : { design: undefined } as unknown as Partial<V2Section>)} />
+          {selected.type==='SEARCH_HERO'&&<HeroTrustEditor section={sections.find(s=>s.type==='BENEFIT_ROW')} onChange={patch=>{const row=sections.find(s=>s.type==='BENEFIT_ROW');if(row)patchSection(row.id,patch);}}/>}
           <SectionForm section={selected} previewLocale={previewLocale} lang={lang} page={page} trustPreviewLocale={trustPreviewLocale} onTrustLocale={setTrustPreviewLocale} onTrustSourceBlur={() => void translateTrust()} onChange={(patch) => patchSection(selected.id, patch)} />
         </AdminPanel>
 

@@ -1,3 +1,5 @@
+import {resolveTrustDesign,sanitizeCardDesign} from '@/domain/storefront/card-design';
+import {sourceEdit} from '@/domain/storefront/translation-workflow';
 import {afterEach,describe,expect,it} from 'vitest';
 import {renderToStaticMarkup} from 'react-dom/server';
 import {createV2Section,defaultV2Page,sanitizeV2Page} from '@/domain/storefront/v2';
@@ -43,5 +45,25 @@ describe('Reference Hero uses the existing V2 contract',()=>{
  it('keeps header interactions as caller-owned slots rather than replacing them',()=>{
   const html=renderToStaticMarkup(<PublicHeaderFrame reference brand={<img src="/unchanged-logo.svg" alt="Pasaport.io"/>} navigation={<a href="/blog">Blog</a>}><a href="/auth">Login</a><button>Picker</button><button>Menu</button></PublicHeaderFrame>);
   for(const value of ['/unchanged-logo.svg','/blog','/auth','Picker','Menu','data-reference-hero-header'])expect(html).toContain(value);
+ });
+});
+
+describe('Trust design persistence and precedence',()=>{
+ it('keeps section -> item -> device precedence and explicit false values',()=>{
+  const section={titleSize:12,titleFont:'body',mobile:{titleSize:13},desktop:{titleSize:16}};
+  const item={titleSize:18,titleFont:'serif',mobile:{titleSize:15,showDescription:false},desktop:{titleSize:19,visible:false}};
+  expect(resolveTrustDesign(section,item,'mobile')).toMatchObject({titleSize:15,titleFont:'serif',showDescription:false});
+  expect(resolveTrustDesign(section,item,'desktop')).toMatchObject({titleSize:19,visible:false});
+  expect(resolveTrustDesign(section,{titleSize:20},'desktop').titleSize).toBe(20);
+ });
+ it('round trips all supported trust properties and preserves old user values',()=>{
+  const page=structuredClone(defaultV2Page('esim'));const benefits=page.sections.find(s=>s.type==='BENEFIT_ROW')!;
+  benefits.items[0]!.cardDesign={color:'#123456',titleFont:'serif',bodyFont:'sans',titleSize:18,bodySize:13,titleWeight:700,bodyWeight:400,titleLine:1.2,bodyLine:1.5,iconColor:'#abcdef',circleColor:'#112233',circleSize:44,iconSize:25,mobile:{visible:false,showDescription:false,titleSize:14},desktop:{titleSize:19}};
+  const clean=sanitizeV2Page(page,'esim');expect(clean.sections.find(s=>s.type==='BENEFIT_ROW')!.items[0]!.cardDesign).toEqual(benefits.items[0]!.cardDesign);
+  expect(sanitizeCardDesign({titleFont:'url(javascript:x)',iconColor:'red',titleSize:999})).toEqual({titleSize:48});
+ });
+ it('TR editing keeps manual German translations and their provenance',()=>{
+  const value={tr:'Eski',de:'Meine Korrektur',en:'Manual correction',_src:{de:'Eski'}};
+  expect(sourceEdit(value,'Yeni')).toMatchObject({de:'Meine Korrektur',en:'Manual correction',_src:{de:'Eski'}});
  });
 });
