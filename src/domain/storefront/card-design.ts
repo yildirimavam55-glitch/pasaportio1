@@ -16,7 +16,7 @@ export function resolveTrustDesign(section:CardDesign|undefined,item:CardDesign|
  return {...layer(sg),...layer(sectionDevice),...layer(ig),...layer(itemDevice)};
 }
 export function trustSectionDesign(design:import('./v2').V2SectionDesign|undefined):CardDesign {
- if(!design)return {};const d:CardDesign={};if(design.font!=='theme')d.titleFont=d.bodyFont=design.font;if(design.headingColor)d.titleColor=design.headingColor;if(design.bodyColor)d.bodyColor=design.bodyColor;
+ if(!design)return {};const d:CardDesign={};if(design.font!=='theme')d.titleFont=d.bodyFont=design.font;if(design.background==='custom'&&design.customColor)d.background=design.customColor;if(design.headingColor)d.titleColor=design.headingColor;if(design.bodyColor)d.bodyColor=design.bodyColor;
  for(const device of ['mobile','tablet','desktop'] as const){const t=design[device];if(t)d[device]={...(t.headingSize?{titleSize:t.headingSize}:{}),...(t.bodySize?{bodySize:t.bodySize}:{})};}
  if(design.weight!=='default')d.titleWeight=({normal:400,medium:500,semibold:600,bold:700})[design.weight];if(design.lineHeight!=='default')d.titleLine=d.bodyLine=({tight:1.25,normal:1.5,relaxed:1.625})[design.lineHeight];return d;
 }

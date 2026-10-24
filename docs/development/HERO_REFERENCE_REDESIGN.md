@@ -36,3 +36,20 @@ Automatisierte CI: eingefrorene Installation, TypeScript, Produktions-/Vercel-SS
 Bekannte neun SQL-Fehler werden weiterhin unverändert separat ausgewiesen: Produktkostenrechte, Refund-Guard, has_role-Aufrufer und EXECUTE, platform_settings-Policy und Allowlist, Admin-RPC-EXECUTE sowie fehlende historische E-Mail-/PDF-Migrationsnachweise. Kein Test entfernt, abgeschwächt oder zusätzlich übersprungen.
 
 Screenshots liegen im CI-Artefakt unter `artifacts/builder-preview/hero-reference-390.png`, `hero-reference-768.png`, `hero-reference-1440.png` und den DE/FR/AR/JA/ZH-Ansichten. Der finale PR-Bericht nennt den tatsächlich geprüften Commit und Ergebnisse; diese Datei allein erklärt keinen noch laufenden Test für erfolgreich.
+
+
+## Korrekturauftrag 24.10.2026 — direkte Hero-Vertrauensbearbeitung
+
+Die bisherige Gestaltung wurde nicht visuell abgenommen. Im bestehenden SEARCH_HERO-Editor und in derselben Offline-Vorschau steht jetzt **Hero → Vertrauensmerkmale / Güven unsurları**. Dieser Bereich bearbeitet ausschließlich die bereits vorhandene BENEFIT_ROW-Sektion in derselben V2-Seite; keine Kopie im Hero-JSON und keine neue Tabelle.
+
+Die Referenz-Fixture blendet den vorhandenen Lieferungseintrag aus und ordnet Support, Installation und Rückgabebedingungen. Alle vier Einträge bleiben gespeichert. Die neutralen Rückgabebedingungen der Fixture liegen in 14 Sprachen vor; eine konkrete Frist wird dort nicht zugesagt. Bestehende Datenbankinhalte werden nicht geändert.
+
+Pro Karte: vorhandener IconPicker, türkische Titel/Beschreibungen mit geschützten manuellen Zielübersetzungen, Reihenfolge, Hinzufügen, unabhängiges Duplizieren, Ausblenden und Entfernen aus dem Entwurf. Die bisherigen Bild-/Linkfelder bleiben erhalten. Unter Kart tasarımı stehen getrennte Schriftfamilien, Schriftgrößen, Gewichte und Zeilenhöhen für Titel/Beschreibung sowie Text-/Icon-/Kreisfarben, Kreisgröße, Icongröße, Hintergrund, Innenabstand und Icon-Text-Abstand bereit. Desktop/Tablet/Mobil haben eigene Überschreibungen. Leere Werte erben; Sichtbarkeit und Beschreibungssichtbarkeit sind gerätebezogen und wandern nicht versehentlich von Mobil auf Desktop.
+
+Vorrang: semantische Theme-Defaults → BENEFIT_ROW-Abschnitt → individuelle Karte → gerätespezifische Kartenwerte. Die zentralen Sanitizer erhalten bestehende erlaubte Benutzerwerte und begrenzen zusätzliche Werte. Schriftfamilien sind eine Allowlist, Farben Hexwerte; keine freien CSS-, HTML- oder Skripteingaben. Komponenten-CSS konsumiert ausschließlich die aufgelösten Variablen. Die gezielten !important-Regeln für Kartentypografie sind erforderlich gegen generische Theme-Überschriftenregeln und enthalten keine festen Größen, die gewählte Adminwerte überschreiben.
+
+Mobile Beschreibungen sind ohne explizite Einstellung ausgeblendet, Desktop/Tablet zeigen sie. Die Hauptüberschrift bleibt ein echtes H1 im normalen Dokumentfluss. Die echte Hero-Suche in EsimHomePage nutzt jetzt Search statt ArrowRight; Picker, Klickhandler und Auswahlweg bleiben unverändert. Länder-/Regions-/Produktbereiche bleiben unverändert.
+
+Browsernachweise: Iconwechsel, Schriftfamilie und drei gemessene Schriftgrößen, Beschreibung ein/aus, gerätebezogene Sichtbarkeit, vierte Karte hinzufügen/ausblenden, Reihenfolge, TR/DE/RTL und manuelle Übersetzungen. Zusätzlich vorhandene Sicherheits- und vollständige Testsuite. Ergebnisse werden nach tatsächlichem Abschluss im PR aktualisiert.
+
+Die zweite im Auftrag erwähnte neue Fehlerbild-Datei war nicht als zugänglicher Anhang vorhanden. Vergleichsgrundlage sind die ursprüngliche Chat-Referenz und die tatsächlich gerenderten CI-Screenshots. Das exakte Sonnenuntergangsfoto fehlt weiterhin als Einzeldatei. Es werden keine neuen Originalbilder oder eingebrannten Texte erfunden. Reale Auth-/Speichertests und offene Datenbank-Sicherheitsfreigaben bleiben getrennt.
