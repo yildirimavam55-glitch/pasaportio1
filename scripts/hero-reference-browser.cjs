@@ -99,6 +99,7 @@ const fs=require('node:fs');
   await page.screenshot({path:'artifacts/builder-preview/hero-trust-typography-admin.png'});
   for(const width of [390,768,1440]){
    await page.setViewportSize({width,height:1100});
+   await page.waitForFunction(()=>{const el=document.querySelector('.admin-reference-sidebar');if(!el)return true;const css=getComputedStyle(el);return css.position!=='fixed'||(el.classList.contains('is-open')?css.transform==='none':css.visibility==='hidden');});
    await support.getByLabel('item-title-support',{exact:true}).scrollIntoViewIfNeeded();
    assert.equal(await page.locator('body').evaluate(e=>e.scrollWidth<=e.clientWidth),true,'Hero trust Admin has no horizontal overflow');
    await page.screenshot({path:`artifacts/builder-preview/hero-trust-admin-${width}.png`});
